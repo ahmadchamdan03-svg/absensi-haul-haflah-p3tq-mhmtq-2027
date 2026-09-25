@@ -407,15 +407,19 @@ export default function TanyaUsModal({
   };
   const [messages, setMessages] = useState<Message[]>([
     {
+      id: 'm-user-salam',
+      role: 'user',
+      content: "Assalamu'alaikum Us.",
+      timestamp: 'Baru saja',
+    },
+    {
       id: 'm-welcome',
       role: 'assistant',
       content: `Wa'alaikum Salam Wr. Wb. 🙏✨
 
-Perkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.
-
-Ada yang ingin ditanyakan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ, Us? Silakan ketik pertanyaan di bawah ya! 😊`,
+Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.? Kula siap mbantu informasi kuota, denah lokasi, tata tertib, jadwal acara, presensi, utawi rekapitulasi data. Silakan ketik pertanyaan di bawah ya! 😊`,
       timestamp: 'Baru saja',
-      model: 'GPT-4o (Flagship)',
+      model: 'Gemini 3.5 Pro',
       expression: 'wave',
     },
   ]);
@@ -497,11 +501,17 @@ Ada yang ingin ditanyakan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ, Us? 
   const handleResetChat = () => {
     setMessages([
       {
+        id: 'm-user-salam-' + Date.now(),
+        role: 'user',
+        content: "Assalamu'alaikum Us.",
+        timestamp: 'Baru saja',
+      },
+      {
         id: 'm-welcome-' + Date.now(),
         role: 'assistant',
-        content: `Wa'alaikum Salam Wr. Wb. Obrolan telah di-reset.\n\nPerkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\n\nAda yang ingin ditanyakan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ, Us? Silakan ketik pertanyaan di bawah ya! 😊`,
+        content: `Wa'alaikum Salam Wr. Wb. Obrolan sampun dipun-reset 🙏✨\n\nWonten ingkang saget kula bantu malih seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ, Us? Silakan ketik pertanyaan di bawah ya! 😊`,
         timestamp: 'Baru saja',
-        model: 'GPT-4o (Flagship)',
+        model: 'Gemini 3.5 Pro',
         expression: 'wave',
       },
     ]);

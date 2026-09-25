@@ -141,7 +141,11 @@ export default function WhatsAppPage() {
   const getTeksPesan = (kel: any, gel: 1 | 2 | 3) => {
     const santri = kel.santri?.[0];
     const totalKuota = kel.kuota.kuotaDasar + kel.kuota.kuotaTambahan;
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haflah.p3tq.id';
+    const liveDomain = process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+    const origin =
+      typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
+        ? window.location.origin
+        : liveDomain;
     const linkPortal = `${origin}/u/${kel.kode}`;
     const linkPembelian = `${origin}/beli/${kel.kode}`;
 
@@ -193,10 +197,9 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
 Menindaklanjuti undangan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., kami membuka kesempatan penambahan kuota kehadiran bagi keluarga yang ingin mengajak lebih banyak sanak saudara.
 
-Biaya : *Rp 80.000 / orang*
-Rekening Tujuan : *BRI 320701010266508* a.n. Ahmad Chamdan Yuwafin
-
 Ketentuan:
+• Rincian biaya dan rekening tujuan transfer tersedia lengkap pada portal digital di bawah
+• Bila dalam 6 jam belum upload bukti transfer, maka pemesanan otomatis dibatalkan
 • Berlaku selama kuota masih tersedia (pagu terbatas 300 kuota)
 • Pembatalan sebelum hari-H dana dikembalikan penuh
 • Pendaftaran ditutup otomatis bila kuota habis

@@ -173,24 +173,10 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     <div className="flex flex-col h-full bg-[#FAF7F3] border-r-2 border-[#D5C4B4] text-[#422F21]">
       {/* Header Sidebar: Identitas Resmi Kompak & Sejajar Lurus dengan TopHeader (h-[72px]) */}
       <div className="h-[72px] px-3 border-b-2 border-[#D5C4B4] bg-[#EFE8E1]/60 relative select-none flex items-center justify-center shrink-0">
-        {/* Tombol Rahasia Miniatur Buroq di Pojok Kiri Header Sidebar */}
-        <Link
-          href="/miraj-journey"
-          onClick={onCloseMobile}
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full p-0.5 bg-[#FAF7F3] border border-[#D49B5B] shadow-2xs hover:scale-115 active:scale-95 transition-transform group flex items-center justify-center cursor-pointer z-10"
-          title="Rahasia Safar: Game Penunggang Buroq 🎮"
-        >
-          <img
-            src="/images/logo-kuda-api.png"
-            alt="Buroq Game Secret"
-            className="w-full h-full object-contain filter drop-shadow-2xs group-hover:rotate-6 transition-transform"
-          />
-        </Link>
-
         <Link
           href="/"
           onClick={onCloseMobile}
-          className="block group text-center space-y-0.5 pl-6"
+          className="block group text-center space-y-0.5"
         >
           <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#422F21] leading-none group-hover:text-[#8C6A47] transition-colors">
             HAUL & HAFLAH

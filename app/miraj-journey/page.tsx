@@ -72,14 +72,8 @@ interface LeaderboardEntry {
   tanggal: string;
 }
 
-const DEFAULT_LEADERBOARD: LeaderboardEntry[] = [
-  { nama: 'Fatimah Zahra', gelar: '👑 Khatimatul Maqam Al-A\'la', skor: 1000, tanggal: '25/09/2026' },
-  { nama: 'Aisyah Humaira', gelar: 'Sayyidatul Firdaus', skor: 780, tanggal: '25/09/2026' },
-  { nama: 'Nabila Khansa', gelar: 'Khadimah Roudhoh', skor: 340, tanggal: '24/09/2026' },
-  { nama: 'Zulfa Zakiyah', gelar: 'Mujahidah Hisab', skor: 95, tanggal: '24/09/2026' },
-  { nama: 'Maryam Nurul', gelar: 'Mujahidah Hisab', skor: 62, tanggal: '23/09/2026' },
-  { nama: 'Khadijah Al-Qur\'ani', gelar: 'Musafirah Dunia', skor: 28, tanggal: '23/09/2026' },
-];
+// Database papan peringkat dimulai dari kosong (otomatis terisi saat dimainkan)
+const DEFAULT_LEADERBOARD: LeaderboardEntry[] = [];
 
 export default function MirajJourneyGamePage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -101,8 +95,8 @@ export default function MirajJourneyGamePage() {
   const [magnetTimeLeft, setMagnetTimeLeft] = useState<number>(0);
   const [slowTimeLeft, setSlowTimeLeft] = useState<number>(0);
 
-  // Leaderboard Data
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(DEFAULT_LEADERBOARD);
+  // Leaderboard Data (Mulai Kosong)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   // Refs untuk audio synth dan engine loop
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -132,13 +126,20 @@ export default function MirajJourneyGamePage() {
       const savedLb = localStorage.getItem('miraj_leaderboard');
       if (savedLb) {
         const parsed = JSON.parse(savedLb);
-        if (Array.isArray(parsed) && parsed.length > 0) setLeaderboard(parsed);
+        // Bersihkan data dummy lama bila ada
+        const filtered = (Array.isArray(parsed) ? parsed : []).filter(
+          (item) => item.nama !== 'Fatimah Zahra' && item.nama !== 'Aisyah Humaira' && item.nama !== 'Nabila Khansa' && item.nama !== 'Zulfa Zakiyah' && item.nama !== 'Maryam Nurul' && item.nama !== 'Khadijah Al-Qur\'ani'
+        );
+        setLeaderboard(filtered);
+        localStorage.setItem('miraj_leaderboard', JSON.stringify(filtered));
+      } else {
+        setLeaderboard([]);
       }
     } catch {}
 
-    // Preload image sprite
+    // Preload image sprite (Karakter Santriwati Murni Tanpa Lingkaran Gelap)
     const img = new Image();
-    img.src = '/images/game/santriwati-buroq-transparent.png';
+    img.src = '/images/game/santriwati-buroq-pure.png';
     buroqSpriteRef.current = img;
 
     // Bersihkan AudioContext saat unmount
@@ -1166,15 +1167,42 @@ export default function MirajJourneyGamePage() {
         ctx.restore();
       }
 
-      // Gambar Sprite Karakter Santriwati Penunggang Buroq
+      // Efek Hembusan Angin Emas (Golden Flight Breeze) di Belakang Buroq
+      ctx.save();
+      for (let i = 0; i < 3; i++) {
+        const offsetTrail = (i + 1) * 16;
+        const trailAlpha = 0.35 - i * 0.1;
+        const wave = Math.sin(frameCount * 0.2 + i * 1.5) * 5;
+        ctx.beginPath();
+        ctx.moveTo(-bird.width / 2, wave);
+        ctx.bezierCurveTo(
+          -bird.width / 2 - offsetTrail * 0.6,
+          wave + 5,
+          -bird.width / 2 - offsetTrail * 1.3,
+          wave - 5,
+          -bird.width / 2 - offsetTrail * 2,
+          wave * 0.5
+        );
+        ctx.strokeStyle = `rgba(251, 191, 36, ${Math.max(0.1, trailAlpha)})`;
+        ctx.lineWidth = 3 - i * 0.8;
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Gambar Sprite Karakter Santriwati Penunggang Buroq (Animasi Kibasan Halus)
       if (buroqSpriteRef.current && buroqSpriteRef.current.complete) {
+        const flapOffset = Math.sin(frameCount * 0.3) * 3;
+        const scaleFlap = 1 + Math.sin(frameCount * 0.3) * 0.04;
+        ctx.save();
+        ctx.scale(1, scaleFlap);
         ctx.drawImage(
           buroqSpriteRef.current,
           -bird.width / 2,
-          -bird.height / 2,
+          -bird.height / 2 + flapOffset,
           bird.width,
           bird.height
         );
+        ctx.restore();
       } else {
         // Fallback jika gambar masih loading
         ctx.beginPath();
@@ -1232,8 +1260,8 @@ export default function MirajJourneyGamePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#020617] text-white flex flex-col select-none">
-      {/* Top Header Navigasi Game */}
-      <header className="h-16 px-4 sm:px-8 border-b border-slate-700/60 bg-slate-900/80 backdrop-blur-md flex items-center justify-between z-30">
+      {/* Top Header Navigasi Game (Disembunyikan saat Bermain agar Fullscreen) */}
+      <header className={`h-16 px-4 sm:px-8 border-b border-slate-700/60 bg-slate-900/80 backdrop-blur-md items-center justify-between z-30 transition-all ${gameState === 'PLAYING' ? 'hidden' : 'flex'}`}>
         <div className="flex items-center space-x-3">
           <Link
             href="/"
@@ -1246,9 +1274,6 @@ export default function MirajJourneyGamePage() {
           <div className="hidden sm:flex items-center space-x-2">
             <span className="text-amber-400 font-serif font-black text-sm tracking-wide">
               Mi'raj Journey: Penunggang Buroq
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
-              Versi Santriwati
             </span>
           </div>
         </div>
@@ -1292,7 +1317,8 @@ export default function MirajJourneyGamePage() {
       {/* Area Arena Game */}
       <main className="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 relative overflow-hidden">
         {/* Kontainer Kanvas Responsif */}
-        <div className="relative w-full max-w-4xl aspect-[4/3] max-h-[75vh] rounded-3xl overflow-hidden shadow-2xl border-4 border-[#8C6A47]/60 bg-black flex items-center justify-center">
+        {/* Kontainer Kanvas Responsif (Adaptif Layar HP & Layar Penuh) */}
+        <div className="relative w-full max-w-4xl h-[78vh] sm:h-auto sm:aspect-[4/3] max-h-[85vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 sm:border-4 border-[#8C6A47]/60 bg-black flex items-center justify-center">
           <canvas
             ref={canvasRef}
             className="w-full h-full object-contain cursor-pointer touch-none"
@@ -1347,41 +1373,49 @@ export default function MirajJourneyGamePage() {
                 </div>
               </div>
 
-              {/* High Score & Skor Live */}
-              <div className="text-right">
-                <div className="text-xs font-semibold text-slate-300 bg-black/50 px-3 py-1 rounded-full border border-slate-700 backdrop-blur-xs">
-                  Rekor Terbaik: <strong className="text-amber-400">{highScore}</strong>
+              {/* High Score & Tombol Kontrol Saat Bermain */}
+              <div className="text-right flex items-center space-x-2">
+                <div className="text-xs font-semibold text-slate-300 bg-black/60 px-3 py-1 rounded-full border border-slate-700 backdrop-blur-xs">
+                  Rekor: <strong className="text-amber-400">{highScore}</strong>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setGameState('START')}
+                  className="pointer-events-auto px-2.5 py-1 rounded-full bg-black/60 hover:bg-rose-950/80 text-slate-300 hover:text-rose-300 border border-slate-700 text-[11px] font-bold transition-colors flex items-center space-x-1 cursor-pointer"
+                  title="Kembali ke Menu Game"
+                >
+                  <span>✕ Keluar</span>
+                </button>
               </div>
             </div>
           )}
 
           {/* OVERLAY: LAYAR AWAL (START SCREEN) */}
           {gameState === 'START' && (
-            <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-slate-900/90 to-black/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20 space-y-4">
-              {/* Animasi Preview Karakter */}
-              <div className="relative w-28 h-28 sm:w-36 sm:h-36 animate-bounce duration-1000">
+            <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-slate-900/90 to-black/95 backdrop-blur-md flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 text-center z-20 space-y-3 sm:space-y-4 overflow-y-auto max-h-full">
+              {/* Animasi Preview Karakter Murni Halus (Tidak Menabrak Atas) */}
+              <div className="relative w-20 h-20 sm:w-28 sm:h-28 mt-1 sm:mt-0 animate-pulse duration-1000 flex-shrink-0">
                 <img
-                  src="/images/game/santriwati-buroq-transparent.png"
+                  src="/images/game/santriwati-buroq-pure.png"
                   alt="Santriwati Penunggang Buroq"
                   className="w-full h-full object-contain filter drop-shadow-[0_8px_16px_rgba(245,158,11,0.4)]"
                 />
               </div>
 
-              <div>
-                <span className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold tracking-widest uppercase mb-1">
+              <div className="flex-shrink-0">
+                <span className="inline-block px-3 py-0.5 sm:py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-1">
                   Game Arkade Santriwati
                 </span>
-                <h1 className="text-2xl sm:text-4xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-300 tracking-wide leading-tight">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-300 tracking-wide leading-tight">
                   Mi'raj Journey: Penunggang Buroq
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mt-1 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-300 max-w-md mx-auto mt-0.5 sm:mt-1 leading-relaxed">
                   Kendalikan santriwati menunggangi Buroq bersayap emas melintasi 3 dimensi spiritual hingga Sidratul Muntaha.
                 </p>
               </div>
 
               {/* Form Input Nama Santriwati */}
-              <div className="w-full max-w-xs space-y-1.5 text-left">
+              <div className="w-full max-w-xs space-y-1 text-left flex-shrink-0">
                 <label className="block text-[11px] font-bold text-slate-300">
                   Nama Santriwati Penunggang Buroq:
                 </label>
@@ -1391,7 +1425,7 @@ export default function MirajJourneyGamePage() {
                   onChange={(e) => setNamaSantri(e.target.value)}
                   placeholder="Masukkan nama santriwati..."
                   maxLength={24}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/90 border-2 border-amber-500/60 text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 uppercase text-center placeholder:text-slate-500"
+                  className="w-full px-3 py-2 sm:py-2.5 rounded-xl bg-slate-800/90 border-2 border-amber-500/60 text-white font-semibold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 uppercase text-center placeholder:text-slate-500"
                 />
               </div>
 
@@ -1399,13 +1433,13 @@ export default function MirajJourneyGamePage() {
               <button
                 type="button"
                 onClick={startGame}
-                className="w-full max-w-xs py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-lg shadow-amber-500/30 transition-all hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 border border-yellow-200 cursor-pointer"
+                className="w-full max-w-xs py-3 sm:py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-lg shadow-amber-500/30 transition-all hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 border border-yellow-200 cursor-pointer flex-shrink-0 mb-1"
               >
                 <Play className="w-5 h-5 fill-slate-950" />
                 <span>MULAI SAFAR (BISMILLAH)</span>
               </button>
 
-              <div className="flex items-center space-x-4 text-xs text-slate-400 pt-1">
+              <div className="flex items-center space-x-4 text-[11px] text-slate-400 pb-2 flex-shrink-0">
                 <span>⌨️ Tekan <strong className="text-amber-300">Spasi</strong> / Klik / Tap Layar untuk Terbang</span>
               </div>
             </div>
@@ -1413,22 +1447,27 @@ export default function MirajJourneyGamePage() {
 
           {/* OVERLAY: GAME OVER MODAL */}
           {gameState === 'GAMEOVER' && (
-            <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20 space-y-4 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-rose-500/20 border-2 border-rose-500/50 flex items-center justify-center text-3xl">
-                ✨
+            <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 text-center z-20 space-y-3 sm:space-y-4 animate-fade-in overflow-y-auto max-h-full">
+              {/* Animasi Santriwati Sedih Mengelus Buroq */}
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-2 border-amber-500/40 bg-slate-900/70 p-1 flex items-center justify-center shadow-lg shadow-amber-500/20 animate-pulse flex-shrink-0 mt-2 sm:mt-0">
+                <img
+                  src="/images/game/santriwati-sedih-elus-buroq.png"
+                  alt="Santriwati Sedih Mengelus Buroq"
+                  className="w-full h-full object-contain filter drop-shadow-md"
+                />
               </div>
 
-              <div>
+              <div className="flex-shrink-0">
                 <h2 className="text-xl sm:text-3xl font-serif font-black text-rose-400 tracking-wide">
                   Perjalanan Terhenti
                 </h2>
-                <p className="text-xs text-slate-300 mt-1">
+                <p className="text-[11px] sm:text-xs text-slate-300 mt-1">
                   Alhamdulillah atas pencapaian safar yang telah dilalui
                 </p>
               </div>
 
               {/* Rekap Nilai & Gelar */}
-              <div className="w-full max-w-xs bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 space-y-2">
+              <div className="w-full max-w-xs bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 space-y-2 flex-shrink-0">
                 <div className="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800 pb-1.5">
                   <span>Nama Musafirah:</span>
                   <strong className="text-white uppercase">{namaSantri}</strong>
@@ -1443,7 +1482,7 @@ export default function MirajJourneyGamePage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full max-w-xs pt-1">
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full max-w-xs pt-1 flex-shrink-0 pb-2">
                 <button
                   type="button"
                   onClick={startGame}

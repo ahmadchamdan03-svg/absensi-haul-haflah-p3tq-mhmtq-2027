@@ -171,24 +171,16 @@ export default function HomePage() {
                 className="h-14 sm:h-20 object-contain drop-shadow-[0_4px_8px_rgba(212,155,91,0.55)]"
               />
 
-              {/* Tombol Rahasia: Logo Kuda Api / Buroq Menuju Game "Mi'raj Journey: Penunggang Buroq" */}
+              {/* Logo Kuda Api / Buroq (Tombol Rahasia Menuju Game Mi'raj Journey) */}
               <Link
                 href="/miraj-journey"
-                className="group relative inline-block cursor-pointer focus:outline-none"
-                title="Rahasia Safar: Klik untuk Menunggangi Buroq!"
+                className="inline-block cursor-pointer focus:outline-none"
               >
-                {/* Efek Pendar Api Emas saat Hover */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300 animate-pulse" />
                 <img
                   src="/images/logo-kuda-api.png"
-                  alt="Logo Tema Kuda Api Haul Haflah (Tombol Rahasia Game)"
-                  className="relative z-10 h-14 sm:h-20 w-auto object-contain drop-shadow-[0_4px_8px_rgba(212,155,91,0.35)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 active:scale-95"
+                  alt="Logo Tema Kuda Api Haul Haflah"
+                  className="h-14 sm:h-20 w-auto object-contain drop-shadow-[0_4px_8px_rgba(212,155,91,0.35)]"
                 />
-                {/* Tooltip Rahasia Melayang Halus */}
-                <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-amber-900/90 text-amber-200 border border-amber-400/60 text-[10px] font-bold tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap shadow-lg pointer-events-none z-20 flex items-center space-x-1">
-                  <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-spin" />
-                  <span>Safar Buroq 🎮</span>
-                </span>
               </Link>
 
               <StageLantern className="w-6 h-10 hidden sm:block text-[#D49B5B]" />

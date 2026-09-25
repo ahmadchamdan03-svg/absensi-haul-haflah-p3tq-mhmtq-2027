@@ -25,6 +25,13 @@ import {
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 
+const getLiveBaseUrl = () => {
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+};
+
 export default function VerifikasiPage() {
   const [pembelianList, setPembelianList] = useState(() => store.getPembelianList());
   const [paguInfo, setPaguInfo] = useState(() => store.getPaguInfo());
@@ -167,7 +174,7 @@ export default function VerifikasiPage() {
             `• Total Kuota Keluarga: *${totalKuota} Kursi*\n` +
             `• Status: *Aktif pada QR Code Santri*\n\n` +
             `Tautan E-Undangan & Barcode Presensi Resmi:\n` +
-            `🔗 http://localhost:3000/u/${kel.kode}-resmi\n\n` +
+            `🔗 ${getLiveBaseUrl()}/u/${kel.kode}-resmi\n\n` +
             `Terima kasih atas partisipasi Anda.\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`;
 
@@ -236,7 +243,7 @@ export default function VerifikasiPage() {
             `• Total Jatah Masuk: *${totalKuota} Kursi*\n` +
             `• Status: *DIVERIFIKASI LANGSUNG (Aktif)*\n\n` +
             `Silakan akses E-Undangan Anda:\n` +
-            `🔗 http://localhost:3000/u/${kel.kode}-resmi\n\n` +
+            `🔗 ${getLiveBaseUrl()}/u/${kel.kode}-resmi\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`
           : `Assalamu'alaikum Wr. Wb.\n\n` +
             `Yth. Bapak/Ibu *${kel.namaWali}*,\n` +
@@ -294,7 +301,7 @@ export default function VerifikasiPage() {
           `🆔 *ID*: ${order.id}\n` +
           `📌 *Status*: ${order.status}\n\n` +
           `Akses Panel Verifikasi:\n` +
-          `🔗 http://localhost:3000/admin/verifikasi\n\n` +
+          `🔗 ${getLiveBaseUrl()}/admin/verifikasi\n\n` +
           `_Pesan Otomatis Gateway Panitia_`;
 
         const res = await fetch('/api/whatsapp/send', {
@@ -324,7 +331,7 @@ export default function VerifikasiPage() {
           `• Jumlah: ${order.jumlah} Kursi (Rp ${order.totalBayar.toLocaleString('id-ID')})\n` +
           `• Status Saat Ini: *${order.status}*\n\n` +
           `Tautan Undangan & Pembelian:\n` +
-          `🔗 http://localhost:3000/beli/${kel?.kode}-resmi\n\n` +
+          `🔗 ${getLiveBaseUrl()}/beli/${kel?.kode}-resmi\n\n` +
           `_Panitia Haul & Haflah P3TQ - MHMTQ_`;
 
         const res = await fetch('/api/whatsapp/send', {

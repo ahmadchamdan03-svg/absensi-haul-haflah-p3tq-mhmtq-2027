@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   Sparkles,
   MessageCircle,
-  Compass,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
@@ -278,14 +277,6 @@ export default function PortalWaliPage() {
                 <span>Simpan Gambar QR</span>
               </a>
             )}
-            <button
-              type="button"
-              onClick={() => setIsDenahOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] font-bold text-xs flex items-center space-x-2 shadow-xs border border-[#D5C4B4] transition-colors cursor-pointer"
-            >
-              <Compass className="w-3.5 h-3.5 text-[#8C6A47]" />
-              <span>Lihat Denah &amp; Posisi Duduk</span>
-            </button>
           </div>
         </div>
 
