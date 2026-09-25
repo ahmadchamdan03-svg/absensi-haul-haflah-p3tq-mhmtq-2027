@@ -34,7 +34,7 @@ export const INITIAL_EVENT: EventConfig = {
   waktuMulai: '2027-01-02T06:30:00+07:00',
   tempat: 'Aula Muktamar Pondok Pesantren Lirboyo Kediri',
   kunciHmac: 'p3tq_secret_hmac_key_2027',
-  linkGrupWa: 'https://chat.whatsapp.com/HaflahP3TQ2027Official',
+  linkGrupWa: '',
   kebijakanKuota: {
     lintasKategori: 'MAX',
     hangusMenit: 300,
@@ -434,10 +434,91 @@ class DataStore {
   private kuotaTambahanBuka = false;
   private storageKey = 'haflah_store_v51_all_cleared';
 
+  private isSyncing = false;
+  private lastCloudSync = 0;
+
   constructor() {
     this.loadFromStorage();
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        this.syncCloud();
+      }, 100);
+    }
   }
 
+  public applyState(state: any) {
+    if (!state || typeof state !== 'object') return;
+    if (Array.isArray(state.keluargaList)) {
+      this.keluargaList = state.keluargaList;
+    }
+    if (Array.isArray(state.undanganList)) {
+      this.undanganList = state.undanganList;
+    }
+    if (Array.isArray(state.presensiLogs)) {
+      this.presensiLogs = state.presensiLogs;
+    }
+    if (Array.isArray(state.pembelianList)) {
+      this.pembelianList = state.pembelianList;
+    }
+    if (typeof state.paguTerjual === 'number') {
+      this.paguTerjual = state.paguTerjual;
+    }
+    if (typeof state.kuotaTambahanBuka === 'boolean') {
+      this.kuotaTambahanBuka = state.kuotaTambahanBuka;
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        const payload = {
+          keluargaList: this.keluargaList,
+          undanganList: this.undanganList,
+          pembelianList: this.pembelianList,
+          presensiLogs: this.presensiLogs,
+          paguTerjual: this.paguTerjual,
+          kuotaTambahanBuka: this.kuotaTambahanBuka,
+        };
+        localStorage.setItem(this.storageKey, JSON.stringify(payload));
+      } catch (e) {}
+    }
+    this.evaluasiBatasWaktu();
+  }
+
+  public async syncCloud(forceAction?: 'RESET' | 'PUSH' | 'MERGE'): Promise<boolean> {
+    if (typeof window === 'undefined' || this.isSyncing) return false;
+    this.isSyncing = true;
+    try {
+      const localState = {
+        keluargaList: this.keluargaList,
+        undanganList: this.undanganList,
+        pembelianList: this.pembelianList,
+        presensiLogs: this.presensiLogs,
+        paguTerjual: this.paguTerjual,
+        kuotaTambahanBuka: this.kuotaTambahanBuka,
+      };
+
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: forceAction || 'MERGE',
+          localState,
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.ok && json.state) {
+          this.applyState(json.state);
+          this.lastCloudSync = Date.now();
+          return true;
+        }
+      }
+    } catch (e) {
+      // Offline fallback
+    } finally {
+      this.isSyncing = false;
+    }
+    return false;
+  }
 
   private saveToStorage() {
     if (typeof window !== 'undefined') {
@@ -454,6 +535,7 @@ class DataStore {
       } catch (e) {
         console.error('Error saving store to localStorage', e);
       }
+      this.syncCloud('MERGE');
     }
   }
 

@@ -161,7 +161,7 @@ export default function ManajemenPesertaPage() {
     nama: '',
     kategoriUtama: 'BIL_GHOIB' as 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN',
     bagianTamatan: 'A.01',
-    kamar: 'Hafidzah',
+    kamar: '',
     namaWali: '',
     noHp: '',
     alamat: '',
@@ -173,8 +173,8 @@ export default function ManajemenPesertaPage() {
     namaPutra: '',
     namaPutri: '',
     kategori: 'VVIP',
-    instansi: 'Kediri',
-    alamat: 'Kediri',
+    instansi: '',
+    alamat: '',
     kuotaDasar: 2,
   });
 
@@ -201,8 +201,8 @@ export default function ManajemenPesertaPage() {
       namaPutra: '',
       namaPutri: '',
       kategori: defaultKategori,
-      instansi: gol === 'UMUM' ? 'Pondok Pesantren Lirboyo' : 'Kediri',
-      alamat: 'Kediri',
+      instansi: '',
+      alamat: '',
       kuotaDasar: gol === 'ISTIMEWA' ? 2 : gol === 'KEHORMATAN' ? 4 : 2,
     });
     setCustomKategoriInput('');
@@ -773,7 +773,7 @@ export default function ManajemenPesertaPage() {
         nama: '',
         kategoriUtama: 'BIL_GHOIB',
         bagianTamatan: 'A.01',
-        kamar: 'Hafidzah',
+        kamar: '',
         namaWali: '',
         noHp: '',
         alamat: '',
@@ -823,12 +823,12 @@ export default function ManajemenPesertaPage() {
     let finalInstansi = '';
 
     if (selectedGolonganUndangan === 'ISTIMEWA' || selectedGolonganUndangan === 'KEHORMATAN') {
-      finalAlamat = (undanganForm.alamat || undanganForm.instansi || 'Kediri').trim();
+      finalAlamat = (undanganForm.alamat || undanganForm.instansi || '').trim();
       finalInstansi = finalAlamat;
     } else {
       // UMUM
-      finalInstansi = (undanganForm.instansi || 'Pondok Pesantren Lirboyo').trim();
-      finalAlamat = (undanganForm.alamat || 'Kediri').trim();
+      finalInstansi = (undanganForm.instansi || '').trim();
+      finalAlamat = (undanganForm.alamat || '').trim();
     }
 
     const res = store.tambahUndangan({
@@ -851,8 +851,8 @@ export default function ManajemenPesertaPage() {
         namaPutra: '',
         namaPutri: '',
         kategori: OPSI_UNDANGAN_ISTIMEWA[0],
-        instansi: 'Kediri',
-        alamat: 'Kediri',
+        instansi: '',
+        alamat: '',
         kuotaDasar: 2,
       });
       setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
@@ -1818,7 +1818,7 @@ export default function ManajemenPesertaPage() {
                   required
                   value={formData.nama}
                   onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                  placeholder="Contoh: AISYAH NURUL JANNAH"
+                  placeholder=""
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
                 />
               </div>
@@ -1830,7 +1830,7 @@ export default function ManajemenPesertaPage() {
                   type="text"
                   value={formData.kamar}
                   onChange={(e) => setFormData({ ...formData, kamar: e.target.value })}
-                  placeholder="Contoh: Hafidzah / Maryam 02"
+                  placeholder=""
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
                 />
               </div>
@@ -1844,7 +1844,7 @@ export default function ManajemenPesertaPage() {
                     required
                     value={formData.namaWali}
                     onChange={(e) => setFormData({ ...formData, namaWali: e.target.value })}
-                    placeholder="Contoh: BPK. ABDULLAH"
+                    placeholder=""
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
                   />
                 </div>
@@ -1854,7 +1854,7 @@ export default function ManajemenPesertaPage() {
                     type="text"
                     value={formData.noHp}
                     onChange={(e) => setFormData({ ...formData, noHp: e.target.value })}
-                    placeholder="081234567890"
+                    placeholder=""
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
                   />
                 </div>
@@ -1867,7 +1867,7 @@ export default function ManajemenPesertaPage() {
                   type="text"
                   value={formData.alamat}
                   onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
-                  placeholder="Contoh: KEDIRI / SURABAYA"
+                  placeholder=""
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
                 />
               </div>
@@ -1945,8 +1945,8 @@ export default function ManajemenPesertaPage() {
                       setUndanganForm({
                         ...undanganForm,
                         kategori: OPSI_UNDANGAN_ISTIMEWA[0],
-                        instansi: 'Kediri',
-                        alamat: 'Kediri',
+                        instansi: '',
+                        alamat: '',
                         kuotaDasar: 2,
                       });
                       setCustomKategoriInput('');
@@ -1968,8 +1968,8 @@ export default function ManajemenPesertaPage() {
                       setUndanganForm({
                         ...undanganForm,
                         kategori: 'Tamu Kehormatan',
-                        instansi: 'Kediri',
-                        alamat: 'Kediri',
+                        instansi: '',
+                        alamat: '',
                         kuotaDasar: 4,
                       });
                       setCustomKategoriInput('');
@@ -1992,8 +1992,8 @@ export default function ManajemenPesertaPage() {
                       setUndanganForm({
                         ...undanganForm,
                         kategori: OPSI_UNDANGAN_UMUM[0],
-                        instansi: 'Pondok Pesantren Lirboyo',
-                        alamat: 'Kediri',
+                        instansi: '',
+                        alamat: '',
                         kuotaDasar: 2,
                       });
                       setCustomKategoriInput('');
@@ -2032,7 +2032,7 @@ export default function ManajemenPesertaPage() {
                         type="text"
                         value={undanganForm.namaPutra}
                         onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
-                        placeholder="Contoh: K.H. ABDULLAH KAFABIH MAHRUS"
+                        placeholder=""
                         className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                       />
                     </div>
@@ -2045,7 +2045,7 @@ export default function ManajemenPesertaPage() {
                         type="text"
                         value={undanganForm.namaPutri}
                         onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
-                        placeholder="Contoh: NYAI HJ. TUTIK"
+                        placeholder=""
                         className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                       />
                     </div>
@@ -2069,7 +2069,7 @@ export default function ManajemenPesertaPage() {
                     required
                     value={undanganForm.nama}
                     onChange={(e) => setUndanganForm({ ...undanganForm, nama: e.target.value })}
-                    placeholder="Contoh: K.H. ABDULLAH KAFABIH MAHRUS"
+                    placeholder=""
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
                   />
                 </div>
@@ -2119,7 +2119,7 @@ export default function ManajemenPesertaPage() {
                           setCustomKategoriInput(val);
                           setUndanganForm({ ...undanganForm, kategori: val });
                         }}
-                        placeholder="Ketik kategori baru"
+                        placeholder=""
                         className="w-full px-3.5 py-2.5 rounded-xl border-2 border-opera-500 bg-opera-50/50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium placeholder:text-slate-400"
                       />
                     </div>
@@ -2139,7 +2139,7 @@ export default function ManajemenPesertaPage() {
                     onChange={(e) =>
                       setUndanganForm({ ...undanganForm, alamat: e.target.value, instansi: e.target.value })
                     }
-                    placeholder="Contoh: Bandar Kidul, Kediri / Blitar / Kunir"
+                    placeholder=""
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
@@ -2157,7 +2157,7 @@ export default function ManajemenPesertaPage() {
                     onChange={(e) =>
                       setUndanganForm({ ...undanganForm, alamat: e.target.value, instansi: e.target.value })
                     }
-                    placeholder="Contoh: Kediri / Ploso / Sarang / Rembang / Jakarta"
+                    placeholder=""
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">Alamat asal / kediaman Masyayikh & Ulama Sepuh</p>
@@ -2174,7 +2174,7 @@ export default function ManajemenPesertaPage() {
                       onChange={(e) =>
                         setUndanganForm({ ...undanganForm, instansi: e.target.value })
                       }
-                      placeholder="Contoh: Pondok Pesantren Lirboyo / Unit MHMTQ"
+                      placeholder=""
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                     />
                   </div>
@@ -2187,7 +2187,7 @@ export default function ManajemenPesertaPage() {
                       onChange={(e) =>
                         setUndanganForm({ ...undanganForm, alamat: e.target.value })
                       }
-                      placeholder="Contoh: Lirboyo, Mojoroto, Kota Kediri"
+                      placeholder=""
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                     />
                     <p className="text-[10px] text-slate-400 mt-1">Alamat domisili atau tempat tinggal</p>
@@ -2357,7 +2357,7 @@ export default function ManajemenPesertaPage() {
                               const combined = p.trim() && w.trim() ? `${p.trim()} & ${w.trim()}` : (p.trim() || w.trim());
                               setEditingItem({ ...editingItem, namaPutra: p, nama: combined });
                             }}
-                            placeholder="Contoh: K.H. ABDULLAH KAFABIH MAHRUS"
+                            placeholder=""
                             className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                           />
                         </div>
@@ -2375,7 +2375,7 @@ export default function ManajemenPesertaPage() {
                               const combined = p.trim() && w.trim() ? `${p.trim()} & ${w.trim()}` : (p.trim() || w.trim());
                               setEditingItem({ ...editingItem, namaPutri: w, nama: combined });
                             }}
-                            placeholder="Contoh: NYAI HJ. TUTIK"
+                            placeholder=""
                             className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                           />
                         </div>
@@ -2399,7 +2399,7 @@ export default function ManajemenPesertaPage() {
                         required
                         value={editingItem.nama || ''}
                         onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
-                        placeholder="Contoh: K.H. ABDULLAH KAFABIH MAHRUS"
+                        placeholder=""
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
                       />
                     </div>
@@ -2463,7 +2463,7 @@ export default function ManajemenPesertaPage() {
                             instansi: e.target.value,
                           })
                         }
-                        placeholder="Contoh: Bandar Kidul, Kediri / Blitar / Kunir"
+                        placeholder=""
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                       />
                       <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
@@ -2485,7 +2485,7 @@ export default function ManajemenPesertaPage() {
                             instansi: e.target.value,
                           })
                         }
-                        placeholder="Contoh: Kediri / Ploso / Sarang / Rembang / Jakarta"
+                        placeholder=""
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                       />
                       <p className="text-[10px] text-slate-400 mt-1">Alamat asal / kediaman Masyayikh & Ulama Sepuh</p>
@@ -2505,7 +2505,7 @@ export default function ManajemenPesertaPage() {
                               instansi: e.target.value,
                             })
                           }
-                          placeholder="Contoh: Pondok Pesantren Lirboyo / Unit MHMTQ"
+                          placeholder=""
                           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                         />
                       </div>
@@ -2521,7 +2521,7 @@ export default function ManajemenPesertaPage() {
                               alamat: e.target.value,
                             })
                           }
-                          placeholder="Contoh: Lirboyo, Mojoroto, Kota Kediri"
+                          placeholder=""
                           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
                         />
                         <p className="text-[10px] text-slate-400 mt-1">Alamat domisili atau tempat tinggal</p>

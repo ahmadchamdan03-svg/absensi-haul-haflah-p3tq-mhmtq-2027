@@ -29,7 +29,7 @@ import { BAGIAN_TAMATAN_LIST, extractBagianTamatan } from '@/lib/types';
 export default function WhatsAppPage() {
   const [gelombang, setGelombang] = useState<1 | 2 | 3>(1);
   const [kuotaTambahanBuka, setKuotaTambahanBuka] = useState(false);
-  const [linkGrupWa, setLinkGrupWa] = useState(INITIAL_EVENT.linkGrupWa);
+  const [linkGrupWa, setLinkGrupWa] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('SEMUA');
   const [filterKonfirmasi, setFilterKonfirmasi] = useState<'SEMUA' | 'BELUM' | 'SUDAH'>('SEMUA');
   const [filterKategori, setFilterKategori] = useState<string>('SEMUA');
@@ -215,6 +215,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
   // Handler Kirim Otomatis via API Fonnte
   const handleKirimFonnte = async (kel: any) => {
+    if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
+      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nSesuai SOP, link grup WA harus selalu diisi dan diperbarui setiap kali mau mengirim pesan undangan. Silakan masukkan tautan grup WhatsApp aktif pada kolom "Link Grup WhatsApp Resmi Wali Santri" di atas sebelum melanjutkan.');
+      return false;
+    }
+
     const rawHp = kel.noHp;
     if (!rawHp || rawHp.trim() === '') {
       alert(`Nomor HP untuk ${kel.namaWali} tidak terdaftar!`);
@@ -257,6 +262,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
   // Handler Kirim Manual (Direct WhatsApp Web)
   const handleKirimManualWA = (kel: any) => {
+    if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
+      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nSesuai SOP, link grup WA harus selalu diisi dan diperbarui setiap kali mau mengirim pesan undangan. Silakan masukkan tautan grup WhatsApp aktif pada kolom "Link Grup WhatsApp Resmi Wali Santri" di atas sebelum melanjutkan.');
+      return;
+    }
+
     const rawHp = kel.noHp;
     if (!rawHp || rawHp.trim() === '') {
       alert('Nomor HP tidak terdaftar atau kosong!');
@@ -332,6 +342,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
   // Handler Batch Blasting via Fonnte Otomatis
   const handleStartBatchBlast = async () => {
+    if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
+      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nPengiriman massal otomatis (Blast) dibatalkan karena link grup WA belum diisi. Harap masukkan tautan grup WhatsApp resmi terkini pada kolom di atas sebelum melakukan blasting.');
+      return;
+    }
+
     const unsentList = filteredList.filter(
       (k) => !sentRecords[k.kode] && k.noHp && k.noHp.trim().length >= 8
     );
@@ -678,21 +693,48 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
         )}
 
         {/* Pengaturan Link Grup WA */}
-        <div className="mt-4 p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div
+          className={`mt-4 p-4 rounded-2xl border transition-all ${
+            !linkGrupWa.trim()
+              ? 'bg-amber-50/70 border-amber-300 ring-2 ring-amber-300/40'
+              : 'bg-[#FAF7F3] border-[#D5C4B4]'
+          } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
+        >
           <div>
-            <label className="block font-bold text-[#422F21] mb-1">
-              Link Grup WhatsApp Resmi Wali Santri:
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block font-bold text-[#422F21]">
+                Link Grup WhatsApp Resmi Wali Santri:
+              </label>
+              {!linkGrupWa.trim() ? (
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">
+                  ⚠️ Belum Diisi (Wajib Update)
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  ✓ Link Terisi
+                </span>
+              )}
+            </div>
             <input
               type="text"
               value={linkGrupWa}
               onChange={(e) => setLinkGrupWa(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] text-xs font-mono bg-white"
+              placeholder="Wajib selalu diisi setiap mau kirim: https://chat.whatsapp.com/..."
+              className={`w-full px-3 py-2 rounded-xl border text-xs font-mono transition-all ${
+                !linkGrupWa.trim()
+                  ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-2 focus:ring-rose-400 focus:outline-none placeholder:text-rose-400'
+                  : 'border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none'
+              }`}
             />
+            {!linkGrupWa.trim() && (
+              <p className="mt-1.5 text-[11px] font-semibold text-rose-600 flex items-center gap-1">
+                <span>⚠️</span> Kolom ini otomatis dikosongkan. Wajib selalu diperbarui &amp; diisi setiap kali mau kirim pesan undangan.
+              </p>
+            )}
           </div>
           <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
             <div className="text-[11px] text-[#7A624E] leading-relaxed">
-              <strong className="text-[#8C6A47]">Otomasi Fonnte:</strong> Panitia tidak perlu mengetik atau membuka browser WhatsApp satu per satu. Klik tombol <strong>Kirim via Fonnte</strong> dan pesan langsung terkirim dari nomor panitia!
+              <strong className="text-[#8C6A47]">Keamanan Link Grup:</strong> Kolom link grup sengaja selalu dikosongkan agar panitia selalu meng-update tautan grup WA terbaru yang valid. Jika belum diisi, pengiriman undangan otomatis diblokir sistem untuk mencegah link kadaluwarsa.
             </div>
           </div>
         </div>

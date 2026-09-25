@@ -118,7 +118,10 @@ export default function DasborPage() {
     setCurrentPage(1);
   };
 
-  const refreshData = () => {
+  const refreshData = async () => {
+    try {
+      await store.syncCloud();
+    } catch (e) {}
     setStats(store.getStatistikLive());
     setPagu(store.getPaguInfo());
     setDaftarHadir(store.getDaftarHadirRealtime());

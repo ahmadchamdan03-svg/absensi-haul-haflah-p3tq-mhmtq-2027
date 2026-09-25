@@ -66,10 +66,10 @@ export const DAFTAR_LOKASI_DENAH: LokasiDenah[] = [
     badge: '🟢 Bil Ghoib + Emas ★',
     warna: '#059669',
     warnaBg: 'bg-emerald-500/20 text-emerald-900 border-emerald-400',
-    deskripsi: 'Tempat duduk 64 santriwati Khadimatul Qur-an Bil Ghoib dan wali perempuan pemegang Tiket Emas Panggung.',
+    deskripsi: 'Tempat duduk 63 santriwati Khadimatul Qur-an Takhtiman Bil Ghoibi (57 murni + 6 rangkap tamatan) dan wali perempuan pemegang Tiket Emas Panggung.',
     pintuMasuk: 'Gerbang Selatan (Bola Dunia) → Pintu Timur Aula',
     fasilitas: 'Akses langsung tangga naik ke Panggung Kehormatan untuk Ibu Kandung, Tiket Emas Khusus',
-    kapasitas: '64 Santriwati + 64 Wali Perempuan (Ibu)',
+    kapasitas: '63 Santriwati (57 Murni + 6 Tamatan) + 63 Wali Ibu',
     targetZoom: { scale: 2.7, x: -540, y: -480 },
     svgArea: { x: 340, y: 470, width: 200, height: 50 },
   },
@@ -80,10 +80,10 @@ export const DAFTAR_LOKASI_DENAH: LokasiDenah[] = [
     badge: '🔵 Bin Nadzori (Biru)',
     warna: '#2563EB',
     warnaBg: 'bg-blue-500/20 text-blue-900 border-blue-400',
-    deskripsi: 'Tempat duduk santri khataman Bin Nadzori dari 6 jenjang kelas berderet rapi di tengah aula.',
+    deskripsi: 'Tempat duduk 166 santriwati khataman Bin Nadzori (153 murni + 13 rangkap tamatan) dari 6 jenjang kelas berderet rapi di tengah aula.',
     pintuMasuk: 'Gerbang Selatan (Bola Dunia) → Koridor Tengah Aula',
     fasilitas: 'Tiket Biru, barisan teratur per jenjang kelas, monitor LED samping',
-    kapasitas: '159 Santriwati',
+    kapasitas: '166 Santriwati (153 Murni + 13 Tamatan)',
     targetZoom: { scale: 2.6, x: -540, y: -540 },
     svgArea: { x: 340, y: 520, width: 200, height: 60 },
   },
@@ -94,10 +94,10 @@ export const DAFTAR_LOKASI_DENAH: LokasiDenah[] = [
     badge: '🟡 Tamatan (Kuning)',
     warna: '#D97706',
     warnaBg: 'bg-amber-500/20 text-amber-900 border-amber-400',
-    deskripsi: 'Tempat duduk santriwati purna studi Tamatan Madrasah Hidayatul Mubtadi-aat Al-Qur-aniyyah Bagian A.01 s/d B.03.',
+    deskripsi: 'Tempat duduk 307 santriwati purna studi Tamatan Madrasah Hidayatul Mubtadi-aat Al-Qur-aniyyah Bagian A.01 s/d B.03 (Total 326 tamatan termasuk 6 Bil Ghoib & 13 Bin Nadzori).',
     pintuMasuk: 'Gerbang Selatan (Bola Dunia) → Jalur Masuk Santri Aula',
     fasilitas: 'Tiket Kuning, barisan per kelompok bagian ujian tamatan',
-    kapasitas: '326 Santriwati',
+    kapasitas: '307 Santriwati (Total 326 Tamatan)',
     targetZoom: { scale: 2.5, x: -540, y: -640 },
     svgArea: { x: 340, y: 595, width: 200, height: 85 },
   },
@@ -560,7 +560,7 @@ export default function InteractiveDenah({
                   TAKHTIMAN BIL-GHOIBI
                 </text>
                 <text x="440" y="437" textAnchor="middle" fill="#047857" fontSize="9" fontWeight="semibold">
-                  64 Santriwati · Jatah Tiket Emas Panggung ★
+                  63 Santriwati · Jatah Tiket Emas Panggung ★
                 </text>
               </g>
 
@@ -584,7 +584,7 @@ export default function InteractiveDenah({
                   TAKHTIMAN BIN-NADZORI
                 </text>
                 <text x="440" y="502" textAnchor="middle" fill="#1D4ED8" fontSize="9">
-                  159 Santriwati (Kelas 1 s/d 6)
+                  166 Santriwati (Kelas 1 s/d 6)
                 </text>
               </g>
 
@@ -608,7 +608,7 @@ export default function InteractiveDenah({
                   TAMATAN ALIYAH
                 </text>
                 <text x="440" y="572" textAnchor="middle" fill="#B45309" fontSize="9">
-                  326 Santriwati · Bagian A.01 s/d B.03
+                  307 Santriwati · Bagian A.01 s/d B.03
                 </text>
               </g>
 
