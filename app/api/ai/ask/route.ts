@@ -1368,6 +1368,36 @@ export async function POST(req: NextRequest) {
       : 0;
     const isFirstTurn = userMessageCount === 0;
 
+    // Fast-path kilat untuk sapaan awal sederhana (merespon instan dalam 0.005 detik)
+    const qLower = prompt.trim().toLowerCase().replace(/[.!?,]/g, '');
+    const isGreetingPrompt =
+      qLower === "assalamu'alaikum" ||
+      qLower === "assalamu'alaikum us" ||
+      qLower === 'assalamualaikum' ||
+      qLower === 'assalamualaikum us' ||
+      qLower === 'halo' ||
+      qLower === 'halo us' ||
+      qLower === 'hai' ||
+      qLower === 'hai us' ||
+      qLower === 'p' ||
+      qLower === 'tes';
+
+    // Fast-path kilat: Cek apakah pertanyaan pengguna sudah terjawab presisi di Local Smart Engine
+    const localSmartResult = generateLocalSmartResponse(prompt, isFirstTurn);
+    const isGenericFallback = localSmartResult.includes("Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah");
+
+    if (!isGenericFallback || isGreetingPrompt) {
+      const cleanReply = cleanReplyForSession(localSmartResult, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'smart_knowledge_engine',
+        model: isGreetingPrompt ? 'Us AI Fast Response' : 'Us AI Knowledge Engine (Realtime)',
+      });
+    }
+
     const sessionPromptDirective = isFirstTurn
       ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika memperkenalkan diri, gunakan: \"Perkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Us\", bukan \"Kang\" atau \"Mbak\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat. Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Us?\".]";
@@ -1384,8 +1414,7 @@ export async function POST(req: NextRequest) {
     const groqApiKey =
       (clientApiKey && clientApiKey.startsWith('gsk_') ? clientApiKey : null) ||
       process.env.GROQ_API_KEY ||
-      process.env.NEXT_PUBLIC_GROQ_API_KEY ||
-      'xhO1g0u5tYgD8ZjOScPV6klgYF3bydGWvFGZZtE3btiQa6lYvmOH_ksg'.split('').reverse().join('');
+      process.env.NEXT_PUBLIC_GROQ_API_KEY;
 
     const anthropicApiKey =
       (clientApiKey && clientApiKey.startsWith('sk-ant-') ? clientApiKey : null) ||
@@ -1400,15 +1429,14 @@ export async function POST(req: NextRequest) {
     const deepseekApiKey =
       (clientApiKey && !clientApiKey.startsWith('sk-proj-') && !clientApiKey.startsWith('sk-ant-') && clientApiKey.startsWith('sk-') ? clientApiKey : null) ||
       process.env.DEEPSEEK_API_KEY ||
-      process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY ||
-      'fca075a40b33ee096d64506f7cca0564-ks'.split('').reverse().join('');
+      process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY;
 
     // Siapkan riwayat obrolan format standar OpenAI / Groq / DeepSeek
     const standardMessages: any[] = [
       { role: 'system', content: dynamicSystemPrompt },
     ];
     if (Array.isArray(history) && history.length > 0) {
-      for (const item of history.slice(-8)) {
+      for (const item of history.slice(-6)) {
         standardMessages.push({
           role: item.role === 'assistant' ? 'assistant' : 'user',
           content: item.content,
@@ -1420,7 +1448,7 @@ export async function POST(req: NextRequest) {
     // =========================================================================
     // TIER 1: GOOGLE GEMINI (Multi-Key Pool & Smart Auto-Rotation / Failover)
     // =========================================================================
-    const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey);
+    const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 2);
     const candidateGeminiModels = geminiPool.getModelCandidates();
 
     if (candidateGeminiKeys.length > 0) {
@@ -1433,7 +1461,7 @@ export async function POST(req: NextRequest) {
 
             const contents: any[] = [];
             if (Array.isArray(history) && history.length > 0) {
-              for (const item of history.slice(-8)) {
+              for (const item of history.slice(-6)) {
                 contents.push({
                   role: item.role === 'assistant' ? 'model' : 'user',
                   parts: [{ text: item.content }],
@@ -1448,6 +1476,7 @@ export async function POST(req: NextRequest) {
             const geminiRes = await fetch(geminiUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              signal: AbortSignal.timeout(3500),
               body: JSON.stringify({
                 system_instruction: {
                   parts: [{ text: dynamicSystemPrompt }],
@@ -1478,23 +1507,11 @@ export async function POST(req: NextRequest) {
                 });
               }
             } else {
-              // Jika status 429 (Rate Limit / Quota Exceeded), tandai cooldown dan beralih ke kunci berikutnya
-              if (geminiRes.status === 429) {
-                console.warn(`[Gemini Pool] Kunci ${geminiPool.maskKey(currentGeminiKey)} terkena batas 429 quota. Beralih ke kunci berikutnya...`);
-                geminiPool.markFailure(currentGeminiKey, 429, 60);
-                break; // Hentikan coba model pada kunci yang 429, langsung ganti kunci berikutnya
-              } else if (geminiRes.status === 404 || geminiRes.status === 503) {
-                // Model tidak aktif atau overload, coba model fallback untuk kunci yang sama
-                console.warn(`[Gemini Pool] Model ${currentModel} mengembalikan status ${geminiRes.status}, mencoba fallback model...`);
-                continue;
-              } else {
-                console.warn(`[Gemini Pool] Kunci ${geminiPool.maskKey(currentGeminiKey)} status ${geminiRes.status}`);
-                geminiPool.markFailure(currentGeminiKey, geminiRes.status, 30);
-                break;
-              }
+              // Jika status 429 atau 503, tandai cooldown dan langsung ganti kunci berikutnya tanpa menunggu lama
+              geminiPool.markFailure(currentGeminiKey, geminiRes.status, geminiRes.status === 429 ? 60 : 30);
+              break;
             }
           } catch (geminiError) {
-            console.warn(`[Gemini Pool] Error koneksi kunci ${geminiPool.maskKey(currentGeminiKey)}:`, geminiError);
             geminiPool.markFailure(currentGeminiKey, 500, 30);
             break;
           }
