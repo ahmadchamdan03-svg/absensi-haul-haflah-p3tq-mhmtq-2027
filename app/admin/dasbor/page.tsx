@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCheck,
+  UserX,
   MapPin,
   ShieldCheck,
   Radio,
@@ -1006,6 +1007,73 @@ export default function DasborPage() {
             </button>
           </div>
         )}
+
+        {/* 2 Pilihan Segmented Control: Seluruh yang Sudah Hadir vs Siapa Saja yang Belum Hadir */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-2 border-t border-[#D5C4B4]/60">
+          <div className="flex items-center bg-[#EFE8E1] p-1.5 rounded-2xl border border-[#D5C4B4] gap-1.5 self-start lg:self-auto shadow-2xs">
+            <button
+              type="button"
+              onClick={() => {
+                setStatusHadirFilter('SUDAH');
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2.5 rounded-xl text-xs font-serif font-black transition-all flex items-center space-x-2 ${
+                statusHadirFilter === 'SUDAH'
+                  ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
+                  : 'text-[#7A624E] hover:text-[#422F21] hover:bg-white/60'
+              }`}
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>1. Seluruh yang Sudah Hadir ({allUnifiedPeserta.filter((p) => p.statusKehadiran === 'SUDAH').length})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusHadirFilter('BELUM');
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2.5 rounded-xl text-xs font-serif font-black transition-all flex items-center space-x-2 ${
+                statusHadirFilter === 'BELUM'
+                  ? 'bg-amber-800 text-white shadow-md border border-amber-900'
+                  : 'text-[#7A624E] hover:text-[#422F21] hover:bg-white/60'
+              }`}
+            >
+              <UserX className="w-4 h-4" />
+              <span>2. Siapa Saja yang Belum Hadir ({allUnifiedPeserta.filter((p) => p.statusKehadiran === 'BELUM').length})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusHadirFilter('SEMUA');
+                setCurrentPage(1);
+              }}
+              className={`px-3 py-2.5 rounded-xl text-xs font-serif font-bold transition-all ${
+                statusHadirFilter === 'SEMUA'
+                  ? 'bg-white text-[#422F21] shadow-xs border border-[#D5C4B4]'
+                  : 'text-[#7A624E] hover:text-[#422F21]'
+              }`}
+            >
+              Semua ({allUnifiedPeserta.length})
+            </button>
+          </div>
+
+          {/* Quick Metrics Badges (Sesuai Screenshot media_1790335207719) */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="px-3 py-1.5 rounded-xl bg-white border border-[#D5C4B4] font-semibold text-[#422F21] shadow-2xs">
+              Peserta / Keluarga: <strong>{filteredPesertaList.length}</strong>
+            </span>
+            <span className="px-3 py-1.5 rounded-xl bg-emerald-100 border border-emerald-300 font-semibold text-emerald-900 shadow-2xs">
+              Total Jiwa Hadir: <strong>{filteredPesertaList.reduce((acc, c) => acc + (c.terpakai || 0), 0)} Jiwa</strong>
+            </span>
+            <span className="px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 font-semibold text-blue-900 shadow-2xs">
+              L: <strong>{filteredPesertaList.reduce((acc, c) => acc + (c.jumlahL || 0), 0)}</strong> | P: <strong>{filteredPesertaList.reduce((acc, c) => acc + (c.jumlahP || 0), 0)}</strong>
+            </span>
+            <span className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300 font-semibold text-amber-950 shadow-2xs flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Panggung: <strong>{filteredPesertaList.reduce((acc, c) => acc + (c.tiketPanggungDiberi || 0), 0)}</strong></span>
+            </span>
+          </div>
+        </div>
 
         {/* BAR PENCARIAN & DROPDOWN FILTER GANDA (KATEGORI & STATUS HADIR) */}
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">

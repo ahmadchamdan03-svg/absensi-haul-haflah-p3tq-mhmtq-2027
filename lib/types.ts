@@ -14,6 +14,44 @@ export function extractBagianTamatan(text?: string): string {
 
 export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas';
 
+export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
+
+export function getGolonganUndangan(u: any): GolonganUndangan {
+  if (!u) return 'UMUM';
+  if (u.golongan) {
+    if (u.golongan === 'KEHORMATAN' || u.golongan === 'UNDANGAN_KEHORMATAN') return 'KEHORMATAN';
+    if (u.golongan === 'ISTIMEWA' || u.golongan === 'UNDANGAN_ISTIMEWA') return 'ISTIMEWA';
+    if (u.golongan === 'UMUM' || u.golongan === 'UNDANGAN_UMUM') return 'UMUM';
+  }
+
+  const text = `${u.kategori || ''} ${u.nama || ''} ${u.instansi || ''} ${u.alamat || ''}`.toLowerCase();
+
+  if (
+    text.includes('kehormatan') ||
+    text.includes('masyayikh') ||
+    text.includes('masyaikh') ||
+    text.includes('habaib') ||
+    text.includes('pejabat') ||
+    text.includes('forkopimda') ||
+    text.includes('pengasuh') ||
+    text.includes('tokoh')
+  ) {
+    return 'KEHORMATAN';
+  }
+
+  if (
+    text.includes('istimewa') ||
+    text.includes('vvip') ||
+    text.includes('bani') ||
+    text.includes('bandar') ||
+    text.includes('kunir')
+  ) {
+    return 'ISTIMEWA';
+  }
+
+  return 'UMUM';
+}
+
 export type JalurPemeriksaan = 'BARAT' | 'TIMUR' | 'REKONSILIASI';
 
 export type StatusHadirEstimasi = 'BELUM' | 'HADIR' | 'RAGU' | 'BERHALANGAN';
@@ -108,6 +146,7 @@ export interface DaftarBelumHadirItem {
   kode: string;
   tipe: 'SANTRI' | 'UNDANGAN';
   kategoriUtama: 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN' | 'UNDANGAN';
+  golonganUndangan?: GolonganUndangan;
   nama: string;
   waliAtauInstansi: string;
   kategori: string;
@@ -132,6 +171,7 @@ export interface PesertaHadirItem {
   kode: string;
   tipe: 'SANTRI' | 'UNDANGAN';
   kategoriUtama: 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN' | 'UNDANGAN';
+  golonganUndangan?: GolonganUndangan;
   nama: string;
   waliAtauInstansi: string;
   kategori: string;

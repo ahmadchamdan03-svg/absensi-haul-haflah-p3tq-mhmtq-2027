@@ -20,6 +20,7 @@ import {
   DaftarBelumHadirItem,
   PesertaHadirItem,
   extractBagianTamatan,
+  getGolonganUndangan,
   CheckinResult,
   JalurPemeriksaan,
 } from './types';
@@ -1875,6 +1876,7 @@ class DataStore {
           kode: und.kode,
           tipe: 'UNDANGAN',
           kategoriUtama: 'UNDANGAN',
+          golonganUndangan: (und as any).golongan || getGolonganUndangan(und),
           nama: und.nama,
           waliAtauInstansi: und.instansi || 'Tamu Kehormatan',
           kategori: und.kategori,
@@ -1974,6 +1976,7 @@ class DataStore {
           kode: und.kode,
           tipe: 'UNDANGAN',
           kategoriUtama: 'UNDANGAN',
+          golonganUndangan: (und as any).golongan || getGolonganUndangan(und),
           nama: und.nama,
           waliAtauInstansi: und.instansi || (und as any).alamat || '-',
           kategori: und.kategori || 'Tamu Undangan Khusus',

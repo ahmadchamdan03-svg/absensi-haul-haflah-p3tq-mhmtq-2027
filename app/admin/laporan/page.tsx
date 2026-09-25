@@ -20,84 +20,22 @@ import {
   Phone,
 } from 'lucide-react';
 import { store, INITIAL_EVENT } from '@/lib/mock-data';
+import { getGolonganUndangan } from '@/lib/types';
 import * as XLSX from 'xlsx';
 
 export default function LaporanPage() {
   const stats = store.getStatistikLive();
   const pagu = store.getPaguInfo();
 
-  const [selectedKategori, setSelectedKategori] = useState<string>('SEMUA');
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [modalKategori, setModalKategori] = useState<string | null>(null);
   const [modalSearch, setModalSearch] = useState<string>('');
-  const [tabKehadiran, setTabKehadiran] = useState<'HADIR' | 'BELUM_HADIR'>('HADIR');
   const [modalTab, setModalTab] = useState<'HADIR' | 'BELUM_HADIR'>('HADIR');
 
   const allHadirList = store.getDaftarHadirSantriDanTamu();
   const allBelumHadirList = store.getDaftarBelumHadir();
 
-  // Filter untuk section peserta SUDAH HADIR di bawah lembar rekap
-  const filteredHadirList = allHadirList.filter((item) => {
-    let matchKategori = true;
-    if (selectedKategori !== 'SEMUA') {
-      const sk = selectedKategori.toLowerCase();
-      if (selectedKategori === 'TAMBAHAN') {
-        matchKategori = item.kuotaTambahan > 0;
-      } else {
-        matchKategori =
-          item.kategori.toLowerCase().includes(sk) ||
-          item.kategoriUtama.toLowerCase().includes(sk) ||
-          item.kelasAtauSub.toLowerCase().includes(sk);
-      }
-    }
-
-    let matchSearch = true;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      matchSearch =
-        item.nama.toLowerCase().includes(q) ||
-        item.waliAtauInstansi.toLowerCase().includes(q) ||
-        item.kode.toLowerCase().includes(q) ||
-        item.kategori.toLowerCase().includes(q) ||
-        item.kelasAtauSub.toLowerCase().includes(q) ||
-        (Boolean(item.alamat) && item.alamat!.toLowerCase().includes(q));
-    }
-
-    return matchKategori && matchSearch;
-  });
-
-  // Filter untuk section peserta BELUM HADIR di bawah lembar rekap
-  const filteredBelumHadirList = allBelumHadirList.filter((item) => {
-    let matchKategori = true;
-    if (selectedKategori !== 'SEMUA') {
-      const sk = selectedKategori.toLowerCase();
-      if (selectedKategori === 'TAMBAHAN') {
-        matchKategori = item.kuotaTambahan > 0;
-      } else {
-        matchKategori =
-          item.kategori.toLowerCase().includes(sk) ||
-          item.kategoriUtama.toLowerCase().includes(sk) ||
-          item.kelasAtauSub.toLowerCase().includes(sk);
-      }
-    }
-
-    let matchSearch = true;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      matchSearch =
-        item.nama.toLowerCase().includes(q) ||
-        item.waliAtauInstansi.toLowerCase().includes(q) ||
-        item.kode.toLowerCase().includes(q) ||
-        item.kategori.toLowerCase().includes(q) ||
-        item.kelasAtauSub.toLowerCase().includes(q) ||
-        (Boolean(item.alamat) && item.alamat!.toLowerCase().includes(q));
-    }
-
-    return matchKategori && matchSearch;
-  });
-
   // Helper pencocokan kategori untuk modal
-  const matchCategoryItem = (itemKategori: string, itemKatUtama: string, itemSub: string, itemKuotaTambahan: number, itemTipe: string) => {
+  const matchCategoryItem = (itemKategori: string, itemKatUtama: string, itemSub: string, itemKuotaTambahan: number, itemTipe: string, rawItem?: any) => {
     if (!modalKategori) return false;
     if (modalKategori.includes('Kuota Tambahan')) {
       return itemKuotaTambahan > 0;
@@ -117,6 +55,12 @@ export default function LaporanPage() {
         (itemKatUtama === 'TAMATAN' || itemKategori.toLowerCase().includes('tamatan')) &&
         (!part || itemKategori.toLowerCase().includes(part) || itemSub.toLowerCase().includes(part))
       );
+    } else if (mk.includes('kehormatan')) {
+      return itemTipe === 'UNDANGAN' && ((rawItem as any)?.golonganUndangan === 'KEHORMATAN' || getGolonganUndangan(rawItem) === 'KEHORMATAN');
+    } else if (mk.includes('istimewa')) {
+      return itemTipe === 'UNDANGAN' && ((rawItem as any)?.golonganUndangan === 'ISTIMEWA' || getGolonganUndangan(rawItem) === 'ISTIMEWA');
+    } else if (mk.includes('umum')) {
+      return itemTipe === 'UNDANGAN' && ((rawItem as any)?.golonganUndangan === 'UMUM' || getGolonganUndangan(rawItem) === 'UMUM');
     } else if (mk.includes('penguji')) {
       return itemTipe === 'UNDANGAN' && (itemSub.toLowerCase().includes('penguji') || itemKategori.toLowerCase().includes('penguji'));
     } else if (mk.includes('asatidz') || mk.includes('masyaikh')) {
@@ -133,7 +77,7 @@ export default function LaporanPage() {
   // Data peserta SUDAH HADIR di modal drilldown
   const modalHadirAttendees = modalKategori
     ? allHadirList.filter((item) => {
-        const matchKat = matchCategoryItem(item.kategori, item.kategoriUtama, item.kelasAtauSub, item.kuotaTambahan, item.tipe);
+        const matchKat = matchCategoryItem(item.kategori, item.kategoriUtama, item.kelasAtauSub, item.kuotaTambahan, item.tipe, item);
         if (modalSearch.trim()) {
           const q = modalSearch.toLowerCase().trim();
           return (
@@ -150,7 +94,7 @@ export default function LaporanPage() {
   // Data peserta BELUM HADIR di modal drilldown
   const modalBelumHadirAttendees = modalKategori
     ? allBelumHadirList.filter((item) => {
-        const matchKat = matchCategoryItem(item.kategori, item.kategoriUtama, item.kelasAtauSub, item.kuotaTambahan, item.tipe);
+        const matchKat = matchCategoryItem(item.kategori, item.kategoriUtama, item.kelasAtauSub, item.kuotaTambahan, item.tipe, item);
         if (modalSearch.trim()) {
           const q = modalSearch.toLowerCase().trim();
           return (
@@ -163,15 +107,6 @@ export default function LaporanPage() {
         return matchKat;
       })
     : [];
-
-  const totalJiwaHadir = filteredHadirList.reduce((acc, curr) => acc + curr.terpakai, 0);
-  const totalLHadir = filteredHadirList.reduce((acc, curr) => acc + curr.jumlahL, 0);
-  const totalPHadir = filteredHadirList.reduce((acc, curr) => acc + curr.jumlahP, 0);
-  const totalPanggungDiberi = filteredHadirList.reduce((acc, curr) => acc + curr.tiketPanggungDiberi, 0);
-
-  const totalKuotaBelumHadir = filteredBelumHadirList.reduce((acc, curr) => acc + curr.totalKuota, 0);
-  const totalKonfirmasiSudah = filteredBelumHadirList.filter((c) => c.statusKonfirmasi === 'SUDAH').length;
-  const totalKonfirmasiBelum = filteredBelumHadirList.filter((c) => c.statusKonfirmasi === 'BELUM').length;
 
   const keluargaList = store.getKeluargaList();
   const undanganList = store.getUndanganList();
@@ -313,12 +248,13 @@ export default function LaporanPage() {
     },
   ];
 
-  // Hitung akumulasi riil Blok 3: Tamu Undangan Khusus
-  let pengujiSH = 0, pengujiL = 0, pengujiP = 0, pengujiTotal = 0, pengujiKuota = 0;
-  let masyaikhSH = 0, masyaikhL = 0, masyaikhP = 0, masyaikhTotal = 0, masyaikhKuota = 0;
+  // Hitung akumulasi riil Blok 3: Tamu Undangan (Kehormatan, Istimewa & Umum)
+  let kehormatanSH = 0, kehormatanL = 0, kehormatanP = 0, kehormatanTotal = 0, kehormatanKuota = 0;
+  let istimewaSH = 0, istimewaL = 0, istimewaP = 0, istimewaTotal = 0, istimewaKuota = 0;
+  let umumSH = 0, umumL = 0, umumP = 0, umumTotal = 0, umumKuota = 0;
 
   for (const und of undanganList) {
-    const isPenguji = (und.kategori || '').toLowerCase().includes('penguji') || und.subKategori === 'PENGUJI';
+    const gol = getGolonganUndangan(und);
     const kTotal = und.kuota.kuotaDasar + (und.kuota.kuotaTambahan || 0);
     const terpakai = und.kuota.terpakai || 0;
 
@@ -334,42 +270,59 @@ export default function LaporanPage() {
       lHadir = terpakai;
     }
 
-    if (isPenguji) {
-      pengujiSH++;
-      pengujiKuota += kTotal;
-      pengujiL += lHadir;
-      pengujiP += pHadir;
-      pengujiTotal += terpakai;
+    if (gol === 'KEHORMATAN') {
+      kehormatanSH++;
+      kehormatanKuota += kTotal;
+      kehormatanL += lHadir;
+      kehormatanP += pHadir;
+      kehormatanTotal += terpakai;
+    } else if (gol === 'ISTIMEWA') {
+      istimewaSH++;
+      istimewaKuota += kTotal;
+      istimewaL += lHadir;
+      istimewaP += pHadir;
+      istimewaTotal += terpakai;
     } else {
-      masyaikhSH++;
-      masyaikhKuota += kTotal;
-      masyaikhL += lHadir;
-      masyaikhP += pHadir;
-      masyaikhTotal += terpakai;
+      umumSH++;
+      umumKuota += kTotal;
+      umumL += lHadir;
+      umumP += pHadir;
+      umumTotal += terpakai;
     }
   }
 
   const blokUndangan = [
     {
       no: 16,
-      kategori: 'Penguji Al-Qur-an & Huffadh',
-      sh: pengujiSH,
-      l: pengujiL,
-      p: pengujiP,
-      total: pengujiTotal,
-      kuota: pengujiKuota,
-      pct: pengujiKuota > 0 ? Math.round((pengujiTotal / pengujiKuota) * 1000) / 10 : 0,
+      kategori: 'Tamu Kehormatan',
+      sh: kehormatanSH,
+      l: kehormatanL,
+      p: kehormatanP,
+      total: kehormatanTotal,
+      kuota: kehormatanKuota,
+      pct: kehormatanKuota > 0 ? Math.round((kehormatanTotal / kehormatanKuota) * 1000) / 10 : 0,
       warna: 'Putih',
     },
     {
       no: 17,
-      kategori: 'Asatidz Purna Bakti, Masyaikh & Dzuriyyah',
-      sh: masyaikhSH,
-      l: masyaikhL,
-      p: masyaikhP,
-      total: masyaikhTotal,
-      kuota: masyaikhKuota,
-      pct: masyaikhKuota > 0 ? Math.round((masyaikhTotal / masyaikhKuota) * 1000) / 10 : 0,
+      kategori: 'Tamu Istimewa',
+      sh: istimewaSH,
+      l: istimewaL,
+      p: istimewaP,
+      total: istimewaTotal,
+      kuota: istimewaKuota,
+      pct: istimewaKuota > 0 ? Math.round((istimewaTotal / istimewaKuota) * 1000) / 10 : 0,
+      warna: 'Putih',
+    },
+    {
+      no: 18,
+      kategori: 'Tamu Umum',
+      sh: umumSH,
+      l: umumL,
+      p: umumP,
+      total: umumTotal,
+      kuota: umumKuota,
+      pct: umumKuota > 0 ? Math.round((umumTotal / umumKuota) * 1000) / 10 : 0,
       warna: 'Putih',
     },
   ];
@@ -394,7 +347,7 @@ export default function LaporanPage() {
       ['-- BLOK KUOTA TAMBAHAN --'],
       ...blokTambahan.map((r) => [r.no, r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
       [],
-      ['-- BLOK TAMU UNDANGAN --'],
+      ['-- BLOK TAMU UNDANGAN (KEHORMATAN, ISTIMEWA & UMUM) --'],
       ...blokUndangan.map((r) => [r.no, r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
     ];
 
@@ -712,7 +665,7 @@ export default function LaporanPage() {
         {/* TABEL BLOK 3: TAMU UNDANGAN (§17.1) */}
         <div className="space-y-2">
           <div className="font-serif font-bold text-xs text-opera-900 uppercase tracking-wide bg-opera-50 p-2.5 rounded-xl border border-opera-200 flex items-center justify-between">
-            <span>BLOK 3: TAMU UNDANGAN KHUSUS</span>
+            <span>BLOK 3: TAMU UNDANGAN (KEHORMATAN, ISTIMEWA & UMUM)</span>
             <span className="text-[11px] font-normal normal-case text-[#8C6A47] no-print">
               💡 Klik baris untuk melihat tamu VIP yang sudah absen
             </span>
@@ -774,384 +727,28 @@ export default function LaporanPage() {
         </div>
       </div>
 
-      {/* SECTION INTERAKTIF: RINCIAN SIAPA SAJA YANG SUDAH ABSEN MASUK (NO-PRINT) */}
-      {/* SECTION INTERAKTIF: RINCIAN PESERTA SESUAI KATEGORI (NO-PRINT) */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-6 sm:p-8 shadow-sm border-2 border-[#D5C4B4] space-y-6 no-print">
-        {/* Header Section dengan 2 Pilihan Segmented Control: Sudah Hadir vs Belum Hadir */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#D5C4B4] pb-5">
-          <div className="flex items-center space-x-3">
-            <div
-              className={`p-2.5 rounded-2xl border shadow-xs ${
-                tabKehadiran === 'HADIR'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  : 'bg-amber-50 text-amber-800 border-amber-300'
-              }`}
-            >
-              {tabKehadiran === 'HADIR' ? (
-                <UserCheck className="w-6 h-6" />
-              ) : (
-                <UserX className="w-6 h-6" />
-              )}
-            </div>
-            <div>
-              <h2 className="text-lg font-serif font-black text-[#422F21]">
-                {tabKehadiran === 'HADIR'
-                  ? 'Daftar Rincian Peserta yang Sudah Absen Masuk'
-                  : 'Daftar Rincian Peserta yang Belum Hadir'}
-              </h2>
-              <p className="text-xs text-[#7A624E] mt-0.5">
-                {tabKehadiran === 'HADIR'
-                  ? 'Daftar seluruh santri dan tamu undangan yang telah berhasil scan presensi di gerbang masuk (kuota terpakai > 0).'
-                  : 'Daftar santri dan tamu undangan yang belum melakukan scan barcode masuk ke lokasi acara (kuota terpakai = 0).'}
-              </p>
-            </div>
+      {/* BANNER NAVIGASI KE LIVE DASBOR (NO-PRINT) */}
+      <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 shrink-0">
+            <UserCheck className="w-5 h-5" />
           </div>
-
-          {/* 2 Pilihan Tombol Segmented */}
-          <div className="flex items-center bg-[#EFE8E1] p-1.5 rounded-2xl border border-[#D5C4B4] gap-1 shadow-2xs self-start lg:self-auto">
-            <button
-              onClick={() => setTabKehadiran('HADIR')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                tabKehadiran === 'HADIR'
-                  ? 'bg-[#8C6A47] text-white shadow-sm'
-                  : 'text-[#7A624E] hover:text-[#422F21] hover:bg-[#D5C4B4]/50'
-              }`}
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>1. Seluruh yang Sudah Hadir ({allHadirList.length})</span>
-            </button>
-            <button
-              onClick={() => setTabKehadiran('BELUM_HADIR')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                tabKehadiran === 'BELUM_HADIR'
-                  ? 'bg-amber-800 text-white shadow-sm'
-                  : 'text-[#7A624E] hover:text-[#422F21] hover:bg-[#D5C4B4]/50'
-              }`}
-            >
-              <UserX className="w-4 h-4" />
-              <span>2. Siapa Saja yang Belum Hadir ({allBelumHadirList.length})</span>
-            </button>
+          <div>
+            <h3 className="font-serif font-black text-sm text-[#422F21]">
+              Rincian Absensi Realtime & Daftar Hadir / Belum Hadir
+            </h3>
+            <p className="text-xs text-[#7A624E]">
+              Seluruh rincian santri dan tamu undangan yang sudah hadir maupun yang belum hadir dapat dipantau langsung di <strong>Live Dasbor</strong>.
+            </p>
           </div>
         </div>
-
-        {/* Quick Metrics Baris Kedua */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {tabKehadiran === 'HADIR' ? (
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-[#D5C4B4] shadow-xs flex items-center gap-1.5">
-                <span className="text-slate-500 font-medium">Peserta / Keluarga:</span>
-                <span className="font-bold text-[#422F21]">{filteredHadirList.length}</span>
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-[#D5C4B4] shadow-xs flex items-center gap-1.5">
-                <span className="text-slate-500 font-medium">Total Jiwa Hadir:</span>
-                <span className="font-bold text-emerald-700">{totalJiwaHadir} Jiwa</span>
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-[#D5C4B4] shadow-xs flex items-center gap-1.5">
-                <span className="text-blue-700 font-bold">L: {totalLHadir}</span>
-                <span className="text-slate-300">|</span>
-                <span className="text-pink-700 font-bold">P: {totalPHadir}</span>
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-amber-300 shadow-xs flex items-center gap-1 text-amber-800 font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>Panggung: {totalPanggungDiberi}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-[#D5C4B4] shadow-xs flex items-center gap-1.5">
-                <span className="text-slate-500 font-medium">Peserta Belum Hadir:</span>
-                <span className="font-bold text-amber-800">{filteredBelumHadirList.length}</span>
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-[#D5C4B4] shadow-xs flex items-center gap-1.5">
-                <span className="text-slate-500 font-medium">Potensi Kuota:</span>
-                <span className="font-bold text-slate-800">{totalKuotaBelumHadir} Kursi</span>
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-emerald-300 shadow-xs flex items-center gap-1.5">
-                <span className="text-emerald-700 font-bold">Sudah Konfirmasi: {totalKonfirmasiSudah}</span>
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-rose-300 shadow-xs flex items-center gap-1.5">
-                <span className="text-rose-700 font-bold">Belum Konfirmasi: {totalKonfirmasiBelum}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Search Bar */}
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder={
-                tabKehadiran === 'HADIR'
-                  ? 'Cari peserta sudah hadir...'
-                  : 'Cari peserta belum hadir...'
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 text-xs bg-white border border-[#D5C4B4] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 text-[#422F21]"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {[
-            { id: 'SEMUA', label: 'Semua Kategori' },
-            { id: 'Bil Ghoib', label: `Bil Ghoib (${countBilGhoib})` },
-            { id: 'Bin Nadzori', label: `Bin Nadzori (${countBinNadzor})` },
-            { id: 'Tamatan', label: `Tamatan (${countTamatan})` },
-            { id: 'TAMBAHAN', label: 'Kuota Tambahan' },
-            { id: 'UNDANGAN', label: `Tamu Undangan VIP (${undanganList.length})` },
-          ].map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedKategori(cat.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                selectedKategori === cat.id
-                  ? 'bg-[#8C6A47] text-white shadow-xs'
-                  : 'bg-[#EFE8E1] text-[#7A624E] hover:bg-[#D5C4B4]'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* TABEL PILIHAN 1: PESERTA SUDAH HADIR MASUK */}
-        {tabKehadiran === 'HADIR' && (
-          <div className="bg-white rounded-2xl border border-[#D5C4B4] shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead className="bg-[#EFE8E1] text-[#422F21] font-bold border-b border-[#D5C4B4]">
-                  <tr>
-                    <th className="p-3 w-10 text-center">NO</th>
-                    <th className="p-3">KODE & TIKET</th>
-                    <th className="p-3">NAMA SANTRI / TAMU</th>
-                    <th className="p-3">WALI / INSTANSI</th>
-                    <th className="p-3">KATEGORI / SUB-KELAS</th>
-                    <th className="p-3 text-center">JAM & JALUR</th>
-                    <th className="p-3 text-center">HADIR (L / P)</th>
-                    <th className="p-3 text-center">TOTAL HADIR</th>
-                    <th className="p-3 text-center">KUOTA TOTAL</th>
-                    <th className="p-3 text-center">TIKET PANGGUNG</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredHadirList.length === 0 ? (
-                    <tr>
-                      <td colSpan={10} className="p-8 text-center text-slate-500">
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <Users className="w-8 h-8 text-slate-300" />
-                          <p className="font-medium text-slate-600">Tidak ada data peserta hadir yang cocok.</p>
-                          <p className="text-[11px] text-slate-400">Silakan sesuaikan pilihan kategori atau kata kunci pencarian.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredHadirList.map((item, idx) => (
-                      <tr key={`${item.kode}-${idx}`} className="hover:bg-[#FAF7F3] transition-colors">
-                        <td className="p-3 text-center font-mono text-slate-500 font-semibold">{idx + 1}</td>
-                        <td className="p-3 font-mono">
-                          <div className="font-bold text-slate-900">{item.kode}</div>
-                          <span
-                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold mt-0.5 ${
-                              item.warnaTiket.includes('Hijau')
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : item.warnaTiket.includes('Kuning')
-                                ? 'bg-amber-100 text-amber-800'
-                                : item.warnaTiket.includes('Biru')
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-slate-100 text-slate-800 border border-slate-300'
-                            }`}
-                          >
-                            {item.warnaTiket}
-                          </span>
-                        </td>
-                        <td className="p-3 font-semibold text-slate-900">
-                          <div>{item.nama}</div>
-                          {item.alamat && (
-                            <div className="text-[10px] text-slate-400 font-normal truncate max-w-xs">
-                              {item.alamat}
-                            </div>
-                          )}
-                        </td>
-                        <td className="p-3 text-slate-700 font-medium">{item.waliAtauInstansi}</td>
-                        <td className="p-3">
-                          <span className="font-bold text-slate-800">{item.kategori}</span>
-                          <div className="text-[10px] text-slate-500">{item.kelasAtauSub}</div>
-                        </td>
-                        <td className="p-3 text-center whitespace-nowrap">
-                          <div className="flex items-center justify-center gap-1 font-mono text-[11px] text-slate-700">
-                            <Clock className="w-3 h-3 text-slate-400" />
-                            <span>{item.jamMasuk || '08:15:00'}</span>
-                          </div>
-                          <span
-                            className={`inline-block px-1.5 py-0.2 rounded text-[10px] font-bold mt-0.5 ${
-                              item.jalur === 'BARAT'
-                                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                                : 'bg-amber-50 text-amber-700 border border-amber-200'
-                            }`}
-                          >
-                            Pintu {item.jalur || 'TIMUR'}
-                          </span>
-                        </td>
-                        <td className="p-3 text-center whitespace-nowrap">
-                          <span className="text-blue-700 font-bold">{item.jumlahL} L</span>
-                          <span className="text-slate-300 mx-1">/</span>
-                          <span className="text-pink-700 font-bold">{item.jumlahP} P</span>
-                        </td>
-                        <td className="p-3 text-center font-black text-emerald-800 text-sm">
-                          {item.terpakai} Jiwa
-                        </td>
-                        <td className="p-3 text-center font-mono">
-                          <span className="font-bold text-slate-800">{item.totalKuota}</span>
-                          {item.kuotaTambahan > 0 && (
-                            <span className="block text-[10px] text-pink-600 font-semibold">
-                              (+{item.kuotaTambahan} Tambahan)
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3 text-center">
-                          {item.tiketPanggungDiberi > 0 ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                              <Sparkles className="w-3 h-3 text-amber-600" />
-                              <span>Diberikan (1)</span>
-                            </span>
-                          ) : item.tiketPanggungJatah > 0 ? (
-                            <span className="text-[10px] text-slate-400 font-medium">Jatah (Belum)</span>
-                          ) : (
-                            <span className="text-slate-300">-</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* TABEL PILIHAN 2: PESERTA BELUM HADIR */}
-        {tabKehadiran === 'BELUM_HADIR' && (
-          <div className="bg-white rounded-2xl border border-[#D5C4B4] shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead className="bg-[#EFE8E1] text-[#422F21] font-bold border-b border-[#D5C4B4]">
-                  <tr>
-                    <th className="p-3 w-10 text-center">NO</th>
-                    <th className="p-3">KODE & TIKET</th>
-                    <th className="p-3">NAMA SANTRI / TAMU</th>
-                    <th className="p-3">WALI / INSTANSI</th>
-                    <th className="p-3">KATEGORI / SUB-KELAS</th>
-                    <th className="p-3 text-center">KUOTA JATAH</th>
-                    <th className="p-3 text-center">KONFIRMASI WA</th>
-                    <th className="p-3 text-center">ESTIMASI KEDATANGAN</th>
-                    <th className="p-3 text-center">NO. HANDPHONE</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredBelumHadirList.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="p-8 text-center text-slate-500">
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <UserCheck className="w-8 h-8 text-emerald-400" />
-                          <p className="font-medium text-slate-700">Luar biasa! Seluruh peserta pada kategori ini telah hadir masuk.</p>
-                          <p className="text-[11px] text-slate-400">Tidak ada peserta yang belum hadir.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredBelumHadirList.map((item, idx) => (
-                      <tr key={`${item.kode}-${idx}`} className="hover:bg-[#FAF7F3] transition-colors">
-                        <td className="p-3 text-center font-mono text-slate-500 font-semibold">{idx + 1}</td>
-                        <td className="p-3 font-mono">
-                          <div className="font-bold text-slate-900">{item.kode}</div>
-                          <span
-                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold mt-0.5 ${
-                              item.warnaTiket.includes('Hijau')
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : item.warnaTiket.includes('Kuning')
-                                ? 'bg-amber-100 text-amber-800'
-                                : item.warnaTiket.includes('Biru')
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-slate-100 text-slate-800 border border-slate-300'
-                            }`}
-                          >
-                            {item.warnaTiket}
-                          </span>
-                        </td>
-                        <td className="p-3 font-semibold text-slate-900">
-                          <div>{item.nama}</div>
-                          {item.alamat && (
-                            <div className="text-[10px] text-slate-400 font-normal truncate max-w-xs">
-                              {item.alamat}
-                            </div>
-                          )}
-                        </td>
-                        <td className="p-3 text-slate-700 font-medium">{item.waliAtauInstansi}</td>
-                        <td className="p-3">
-                          <span className="font-bold text-slate-800">{item.kategori}</span>
-                          <div className="text-[10px] text-slate-500">{item.kelasAtauSub}</div>
-                        </td>
-                        <td className="p-3 text-center font-mono">
-                          <span className="font-black text-slate-900 text-sm">{item.totalKuota}</span>
-                          <span className="text-[10px] text-slate-500 block">
-                            ({item.kuotaDasar} Dasar{item.kuotaTambahan > 0 ? ` + ${item.kuotaTambahan} Tambahan` : ''})
-                          </span>
-                        </td>
-                        <td className="p-3 text-center">
-                          {item.statusKonfirmasi === 'SUDAH' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              <span>Sudah Konfirmasi</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300">
-                              <Clock className="w-3 h-3 text-slate-400" />
-                              <span>Belum Konfirmasi</span>
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3 text-center font-mono text-xs whitespace-nowrap">
-                          {item.statusKonfirmasi === 'SUDAH' ? (
-                            <div>
-                              <span className="text-blue-700 font-bold">{item.estimasiL || 0} L</span>
-                              <span className="text-slate-300 mx-1">/</span>
-                              <span className="text-pink-700 font-bold">{item.estimasiP || 0} P</span>
-                              <div className="text-[10px] text-slate-500 font-semibold">
-                                Total: {(item.estimasiL || 0) + (item.estimasiP || 0)} Jiwa
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-slate-400 italic text-[11px]">Belum diisi</span>
-                          )}
-                        </td>
-                        <td className="p-3 text-center font-mono text-xs">
-                          {item.noHp && item.noHp !== '-' ? (
-                            <div className="flex items-center justify-center gap-1 text-slate-700">
-                              <Phone className="w-3 h-3 text-emerald-600" />
-                              <span>{item.noHp}</span>
-                            </div>
-                          ) : (
-                            <span className="text-slate-300">-</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        <a
+          href="/admin/dasbor"
+          className="px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow flex items-center space-x-2 transition-colors shrink-0"
+        >
+          <span>Buka Live Dasbor Kehadiran</span>
+          <span>→</span>
+        </a>
       </div>
 
       {/* MODAL DRILLDOWN KETIKA BARIS 3-BLOK DIKLIK */}
@@ -1230,26 +827,12 @@ export default function LaporanPage() {
                   </button>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  setSelectedKategori(
-                    modalKategori.includes('Bil Ghoib')
-                      ? 'Bil Ghoib'
-                      : modalKategori.includes('Bin Nadzori')
-                      ? 'Bin Nadzori'
-                      : modalKategori.includes('Tamatan')
-                      ? 'Tamatan'
-                      : modalKategori.includes('Kuota Tambahan')
-                      ? 'TAMBAHAN'
-                      : 'UNDANGAN'
-                  );
-                  setTabKehadiran(modalTab);
-                  setModalKategori(null);
-                }}
+              <a
+                href="/admin/dasbor"
                 className="px-3.5 py-2 rounded-xl bg-[#8C6A47] text-white text-xs font-bold hover:bg-[#735334] transition-colors whitespace-nowrap"
               >
-                Buka di Tabel Utama
-              </button>
+                Buka di Live Dasbor →
+              </a>
             </div>
 
             {/* Modal Table Content */}
