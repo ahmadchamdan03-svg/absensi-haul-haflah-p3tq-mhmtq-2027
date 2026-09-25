@@ -61,75 +61,150 @@ DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
 1. IDENTITAS & NAMA RESMI LEMBAGA:
    - Nama Resmi Acara: Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri).
    - Penegasan Lembaga: BUKAN acara Ponpes Lirboyo Pusat, melainkan Haul & Haflah khusus P3TQ dan MHMTQ Lirboyo Kediri.
-   - Waktu Pelaksanaan: Tahun 1448 H. / 2027 M. Gerbang dibuka mulai pukul 06.00 WIB.
+   - Waktu Pelaksanaan: Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
    - Lokasi Utama: Aula Muktamar Pondok Pesantren Lirboyo, Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kota Kediri, Jawa Timur 64117.
    - FOKUS MANDAT KESEKRETARIATAN: Sistem web ini difokuskan secara presisi untuk mandat KESEKRETARIATAN (Manajemen Shohibul Hajat, Master Undangan, Kuota Masuk & Tambahan, Presensi Scanner QR Gerbang, dan Meja Rekonsiliasi).
 
-2. STRUKTUR DEWAN PEMBIMBING RESMI 1448 H. / 2027 M. (12 BAGAN SAH & AKTIF):
-   - Keterangan simbol: (*) Koordinator Pembimbing, (**) Wakil Koordinator, ('25/'26) Angkatan Masuk.
-   1. KESEKRETARIATAN: Bapak Asep Darajat, Bapak Chamdan Yuwafi Ni'amah, Bapak Muhammad Ali Wafa Fuady, Bapak Jana Prabu, Bapak Zida Hikmana Ahmad'26, Bapak Muhammad Yusri Sa'dulloh'26.
-   2. PROTOKOLER: Bapak Abu Yazid Al Bustomi*, Bapak Abhaa Muhammad Kafaa Bihi**, Bapak Sufyan Tsauri, Bapak Taufiq Hidayah, Bapak Lukman Ainul Yaqin'26.
-   3. AKOMODASI: Bapak Agus Ismanto, Bapak Gama Maulana Ilham**, Bapak Muhammad Harizal Fauzy, Bapak Faja Fikrona Al Fattah, Bapak Azwan, Bapak Fikri Fadhilah, Bapak Muhammad Mujib, Bapak Teguh Prasetya'26, Bapak Ahghus Ma'sum'26, Bapak Muhammad Dasir'26.
-   4. KONSUMSI: Bapak Ahmad Rizal 'Abidin*, Bapak Muhammad Taufiqurrohman**, Bapak Muhammad Bahrul Ulum'25, Bapak Muhammad Dzikri Umam'26.
-   5. BERKATAN: Bapak Muhammad Fikri Al Munawwar*, Bapak M. Abdurrohman Maulana**, Bapak Musa Fadlika Cahya'26, Bapak Muhammad Khoirul Anam'26.
-   6. PRASMANAN DZURIYAH: Bapak Saiful Nur Kholis*, Bapak Burhanuddin Isri**, Bapak Lukman Syaher, Bapak Noril Mulana, Bapak Gilang Ramadhan, Bapak Aji Fathur, Bapak Badrul Kamal.
-   7. PELADEN: Bapak Muhammad Syaikhul 'Arifin*, Bapak Ahmad Fathoni Fikri**, Bapak Abdulloh Nadhif'26, Bapak Khoirul Azmi'26.
-   8. PENERIMA TAMU: Bapak Muhammad Badru Ro'in Amin*, Bapak Imam Ghozali**, Bapak Muhammad Najih, Bapak Muhammad Izzuddin Assakhi, Bapak Alex Alqomah, Bapak Afif Cholilul Umam, Bapak Affan Istikhori, Bapak Subadar, Bapak Muhammad Yazid Mahbubilah, Bapak Muhammad Sabiqul Anam.
-   9. DESAIN GRAFIS: Bapak Muhammad In'amul Muttaqin*, Bapak Agung Shobirin**, Bapak Sholekhuddin, Bapak Ahmad Khoirul Rohman, Bapak Fathul Hidayat'26, Bapak Ilham Ma'shum Lirbiyani'26.
-   10. HUMASY DAN KOSTUM: Bapak Akfi Romiyan Kafabih, Bapak Ahmad Abdulloh Faqih'26.
-   11. KEAMANAN: Adi Susilo*, Reza Fadhilul Ulum**, Muhammad Taufiq, Yahya Ngafifulloh, Sa'dun Musthofa'26.
-   12. PULP & TDM: Muhammad Maghfur Fatoni*, Amin Nur Waluyo**, Ahmad Nashoruddin, Arif.
+2. STRUKTUR PERSONALIA KEPANITIAAN RESMI 1448 H. / 2027 M.:
+   - Dewan Pengasuh / Pelindung:
+     * Agus H. Muhammad Hasyim
+     * Agus H. Muhammad Kafabihi
+     * Ning Hj. Tu'ti Amanah Nafisah
+     * Ning Hj. Jihan Zainab
+   - Dewan Penasehat: Segenap Pimpinan P3TQ dan MHMTQ.
+   - Dewan Harian (DH):
+     * Ketua Umum: Sinta Maelani (Koordinator Seksi Protokoler, Peladen, Konsumsi, TDM, dan Seksi Data)
+     * Ketua I: Arju Naylal Husna (Koordinator Seksi Keamanan, Penerima Tamu, Humasy dan Kostum)
+     * Ketua II: Zakia (Koordinator Seksi Akomodasi, Desain Grafis, PULP, dan Berkatan)
+     * Sekretaris Umum: Refi Al Izzatul Kholifah (Penanggung jawab administrasi, undangan, souvenir, kartu masuk, stiker tonjokan)
+     * Sekretaris 1: Najma Syarifa Faza (Penanggung jawab data Pondok Timur)
+     * Sekretaris II: Inarotud Duja (Penanggung jawab data Pondok Barat & Unit, ID Card)
+     * Bendahara Umum: Aida Nur Laila (Keuangan umum & pembayaran shohibul hajat unit)
+     * Bendahara 1: Umi Fadilah (Anggaran belanja & pembayaran santri Pondok Timur)
+   - Dewan Pembimbing Putra (12 Bagan):
+     * 1. KESEKRETARIATAN: Bapak Asep Darajat*, Bapak Ahmad Chamdan Yuwafi**, Bapak Muhammad Ali Wafa Fuady, Bapak Jana Prabu, Bapak Zida Hikmana Ahmad, Bapak Muhammad Yusri Sa'dulloh.
+     * 2. PROTOKOLER: Bapak Abu Yazid Al Bustomi*, Bapak Abhaa Muhammad Kafaa Bihi**, Bapak Sufyan Tsauri, Bapak Taufiq Hidayah, Bapak Lukman Ainul Yakin.
+     * 3. AKOMODASI: Bapak Agus Ismanto*, Bapak Gama Maulana Ilham**, Bapak Muhammad Harizal Fauzi, Bapak Faja Fikrona Al Fattah, Bapak Azwan, Bapak Fikri Fadhilah, Bapak Muhammad Mujib, Bapak Teguh Prasetia, Bapak Ahgus Ma'sum, Bapak Muhammad Dasir.
+     * 4. KONSUMSI: Bapak Ahmad Rizal 'Abidin*, Bapak Muhammad Taufiqurrohman**, Bapak Muhammad Bahrul Ulum'25, Bapak Muhammad Dikri Umam.
+     * 5. BERKATAN: Bapak Muhammad Fikri Al Munawwar*, Bapak Muhammad Abdurrohman Maulana**, Bapak Musa Fadlika Hadi Cahya, Bapak Muhammad Khoirul Anam.
+     * 6. PRASMANAN DZURIYYAH: Bapak Saiful Nur Kholis*, Bapak Burhanuddin Isri**, Bapak Lukman Syaher, Bapak Noril Mulana, Saudara Aji Fathur, Saudara Muhammad Rizqi.
+     * 7. PELADEN: Bapak Muhammad Syaikhul 'Arifin*, Bapak Ahmad Fathoni Fikri**, Bapak Abdullah Nadhif, Bapak Khoirul Azmi.
+     * 8. PENERIMA TAMU: Bapak Muhammad Badru Ro'in Amin*, Bapak Imam Ghozali**, Bapak Muhammad Najih, Bapak Muhammad Izzuddin Assakhi, Bapak Alex Alqomah, Bapak Afif Cholilul Umam, Bapak Affan Istikhori, Bapak Subadar, Bapak Misbahul Huda, Bapak Muhammad Sabiqul Anam, Bapak Muhammad Yazid Mahbubillah.
+     * 9. DESAIN GRAFIS: Bapak Muhammad In'amul Muttaqin*, Bapak Agung Shobirin**, Bapak Sholekhuddin, Bapak Ahmad Khoirul Rohman, Bapak Muhammad Fathul Hidayat, Bapak Muhammad Ilham Ma'shum Lirbiyani.
+     * 10. HUMASY & KOSTUM: Bapak Akfi Romiyan Kafabih*, Bapak Achmad Abdulloh Faqih**.
+     * 11. KEAMANAN: Bapak Adi Susilo*, Bapak Reza Fadhilul 'Ulum**, Bapak Muhammad Taufiq, Bapak Yahya Ngafifulloh, Bapak Sa'dun Musthofa.
+     * 12. PULP & TDM: Bapak Muhammad Maghfur Fatoni*, Saudara Amin Nur Waluyo**, Saudara Ahmad Nashoruddin, Saudara Ahmad Arif Anjani, Saudara Muhammad Haqqin Nazilli.
+   - Kasi Dewan Pleno Putri: Protokoler (Evi Inarotus Soimah*), Akomodasi (Azza Nur Laila Mlg*), Konsumsi (Elvi Aniqotus Zakiyah*), Berkatan (Dewi Nazilatur Rohmah*), Peladen (Indri Angraeni Rahmawati*), Penerima Tamu (Hanifatun Nasihah*), Desain Grafis (Adiva Maulana*), Humasy & Kostum (Fifi Sunhaida*), Keamanan (Qoribatul Maqbulah*), PULP (Roina Nadhirotul Lathifah*), TDM (Salma Aesy Bik Hamidah*), Seksi Data (Uswatun Khasanah*).
 
-3. DATA RESMI SHOHIBUL HAJAT & ALOKASI KUOTA KESEKRETARIATAN 2027:
-   - Total Santri Riil Terdaftar: 549 Santriwati
-     * Bil Ghoib: 64 Santriwati
-     * Bin Nadzori: 159 Santriwati
-     * Tamatan Aliyah: 326 Santriwati (terbagi dalam bagian A.01 s.d. B.03)
-   - Ketentuan Kuota Masuk Dasar:
-     * Bil Ghoibi (Khadimatul Qur'an 30 Juz): 4 Kursi Masuk Keluarga + 1 Tiket Emas Panggung Kehormatan khusus untuk Ibu Kandung Santriwati.
-     * Bin Nadzori: 2 Kursi Masuk Reguler (Tiket Biru).
-     * Tamatan Aliyah: 2 Kursi Masuk Reguler (Tiket Kuning / Biru-Gold).
-   - Kuota Tambahan Berbayar: Harga Rp 80.000 / kursi (maksimal 2 kursi per santri), ditransfer ke Bank BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin. Pagu dibatasi 300 kursi. SLA transfer 6 jam, SLA verifikasi 6 jam, auto-approval 12 jam.
+3. DATA STATISTIK RESMI KOORDINASI TERBARU:
+   - Komposisi Shohibul Hajat (Total 536 Santriwati):
+     * Takhtiman Bil Ghoibi: 57 santriwati
+     * Takhtiman Bin Nadzori: 153 santriwati
+     * Tamatan 'Aliyah: 307 santriwati
+     * Tamatan 'Aliyah + Takhtiman Bil Ghoibi: 6 santriwati (Total Bil Ghoibi = 63)
+     * Tamatan 'Aliyah + Takhtiman Bin Nadzori: 13 santriwati (Total Bin Nadzori = 166)
+   - Komposisi Santriwati di Aula Al Muktamar (Total 503 santri):
+     * Siswi 2 Aliyah: 294 santriwati (mondok & nduduk)
+     * Siswi MHMA/Pondok Timur: 209 santriwati
+     * Santriwati lainnya di dalam pondok (Halaman Al Khodijah, Aula Al Barokah, Aula Al Hafidzoh): 2.609 santriwati.
+   - Pagu Tamu Undangan & Kuota Masuk (Total 1.534 kursi):
+     * VVIP: 10 undangan (20 kursi)
+     * VIP: 80 undangan (159 kursi)
+     * Takhtiman Bil Ghoibi: 63 undangan x 4 kuota = 252 kursi
+     * Takhtiman Bin Nadzori: 166 undangan x 2 kuota = 332 kursi
+     * Tamatan Aliyah: 307 undangan x 2 kuota = 614 kursi
+     * Kuota Tambahan Walisantri: 300 kuota (Rp 80.000 / kursi)
+     * Tamu Undangan Umum: Penguji Al-Qur'an 19, Mustahiq Tamatan 7 (9 kursi), Mustahiq Non Purna 5, Purna Mustahiqoh Ibtidaiyyah 7, Asatidz Purna Bakti 16 (32 kursi), Asatidz MHMTQ 18 (36 kursi), Asatidzah Nduduk 6, Pengajar Ekstrakurikuler 11, Perwakilan 16 Pondok (32 kursi).
 
-4. TAMU UNDANGAN KHUSUS (70 TOKOH):
-   - Tamu Istimewa: Dzurriyyah Bani Marzuqi, Bani Mahrus, Bani Qomariyah, Bani Salamah, VIP Bandar, VIP Kunir.
-   - Tamu Kehormatan: Para Masyayikh Sepuh & Pejabat Pemerintahan.
-   - Tamu Umum: Penguji Al-Qur'an & Asatidz Madrasah MHMTQ.
+4. KODE WARNA KARTU MASUK / STIKER FISIK:
+   - Warna Merah Gold: Tamu Undangan Umum dan Walisantri Shohibul Hajat (Reguler).
+   - Warna Hitam Gold: Tamu Undangan Walisantri yang Maju Panggung (Khusus pendamping kehormatan Bil Ghoibi).
 
-5. DENAH RESMI, TATA RUANG & POS OPERASIONAL LAPANGAN (HAFLAH 2027):
-   - Orientasi: Arah Utara (U) menghadap ke KANAN denah (<- U).
-   - Akses Pintu Gerbang:
-     * Gerbang Bola Dunia: Pintu masuk utama undangan umum & keluarga shohibul hajat (Pos Kesekretariatan Tenda Satir U Putra di barat dan Putri di timur).
-     * Gerbang Selatan: Jalur masuk khusus mobil dan iringan Dzurriyyah VIP & Masyayikh.
-     * Gerbang Timur: Jalur keluar khusus mobil Dzurriyyah VIP & akses Ruang Lab.
-     * Gerbang Utara: Jalur keluar umum rombongan undangan.
-   - Tata Ruang Aula Muktamar (Gedung Utama):
-     * Panggung Utama: Menghadap ke barat aula, di belakang panggung terdapat Basecamp Akomodasi PI & Tirai Hitam. Di pojok timur terdapat Foto Syahadah.
-     * Barisan Depan VIP & VVIP:
-       - VVIP Putra (Sofa) di sisi barat & VVIP Putri (Sofa) di sisi timur, disekat Satir Rangka.
-       - VIP Putra (Kursi Elephant) di belakang Sofa VVIP Putra & VIP Putri (Kursi Elephant) di belakang Sofa VVIP Putri.
-     * Area Shohibul Hajat (Tengah Aula):
-       - Takhtiman Bil-Ghoibi (Wali Santri Bil Ghoib) di baris paling depan (Merah & Gold).
-       - Takhtiman Bin-Nazhri di belakang Bil Ghoibi (Biru & Gold).
-       - Tamatan Aliyah di area belakang tengah hingga tiang 7-8-12.
-       - Koridor Tengah: Shooting Center (jalur kamera siaran langsung).
-     * Sayap Barat & Timur Aula:
-       - Sayap Barat: Tamu Undangan Umum PA & Wali Santri SH (Putra), dilengkapi layar LED & Satir Satu.
-       - Sayap Timur: Tamu Undangan Umum PI & Wali Santri SH (Putri) samping luar, dilengkapi layar LED & Satir Double.
-       - Belakang Aula: Meja Operator (Sound, Lighting, Siaran) & Wali Santri SH (Putri).
-   - 3 Titik Lokasi Prasmanan:
-     * Prasmanan Lobi (Gedung Timur): Khusus Dzurriyyah & VVIP/VIP (disekat Satir Kayu antara Lobi PA dan PI, ada Kamar VVIP dan MCK).
-     * Prasmanan Wali Santri SH PI: Di samping timur aula dekat Gerbang Selatan.
-     * Prasmanan SH PA: Di barat daya luar aula dekat Gerbang Utara, Markas PLP, Korah-Korah, Masak Air.
-   - Area Santri:
-     * Terletak memanjang di sisi selatan aula, dipagari penuh dengan Satir Double yang memisahkannya secara syar'i dari Jalur Tamu Undangan PA.
-   - Pos Keamanan Lapangan:
-     * Pos Keam PA (12 Titik Kuning): Pos 1 Tenda Kesekretariatan PA (Gerbang Bola Dunia), Pos 2,3,5 Jalur Tamu PA, Pos 4 Drop point DZ PA, Pos 6 Dekat Prasmanan SH PA & Gerbang Utara, Pos 7 Drop point DZ VIP, Pos 8 Shooting Center tengah aula, Pos 9,10,11,12 Tiang aula & batas sayap.
-     * Pos Keam PI (5 Titik Coklat/Oranye): Pos 1 Tenda Kesekretariatan PI (Gerbang Bola Dunia), Pos 2,3 Jalur Tamu PI, Pos 4 Belakang Panggung Tirai Hitam, Pos 5 Gerbang Timur (Keluar DZ VIP).
+5. TEKNIS KEDATANGAN, REGISTRASI, & PARKIR WALI SANTRI:
+   - Akses Masuk: Gerbang Utama PP. Lirboyo (Kantor Keamanan Info 03).
+   - Area Parkir Mobil: Lapangan sebelah barat Aula Al-Muktamar Lirboyo.
+   - Jam Buka Registrasi Pos Kesekretariatan: 06.30 WIB / 07.00 WIs.
+   - Pos Kesekretariatan Putra: Sebelah barat jalan luar Gerbang Bola Dunia (Pos 1 Registrasi Masuk 3 personil, Pos 2 Monitoring Laptop 2 personil, Pos 3 Editing Spreadsheet 1 personil melayani walisantri tanpa QR).
+   - Pos Kesekretariatan Putri: Sebelah timur jalan luar Gerbang Bola Dunia (Pos 1 Registrasi Masuk 4 personil, Pos 2 Monitoring Laptop 2 personil, Pos 3 Editing Spreadsheet 1 personil).
+   - Penginapan Walisantri: Disediakan di Rusunawa bagi walisantri yang tiba sebelum hari-H acara.
 
-6. POS KESEKRETARIATAN & MEJA REKONSILIASI:
-   - Meja Rekonsiliasi: Pos darurat sisi dalam gerbang untuk tamu walk-in, HP mati, tiket rusak, koreksi salah scan (reset hadir), dan penyesuaian kuota.
-   - Pos Kesekretariatan Putra & Putri di luar Gerbang Bola Dunia.
+6. POS PENERIMA TAMU HARI-H:
+   - Penerima Tamu Putri: 8 Pos (Pos 1 Luar Gerbang Bola Dunia, Pos 2 Pojok Terop Santri, Pos 3 Prasmanan Pi, Pos 4 Samping Panggung Dzuriyyah, Pos 5 Depan Tamu Umum, Pos 6 Barisan Belakang Wali Santri Pi Kiri, Pos 7 Drop Point Dzuriyyah, Pos 8 Sekitar Area Lobi).
+   - Penerima Tamu Putra: 8 Pos (Pos 1 Luar Gerbang Bola Dunia, Pos 2 Gerbang Bola Dunia Barat, Pos 3 Gerbang Utara ke Prasmanan, Pos 4 Depan Prasmanan Pa, Pos 5 Timur Prasmanan Pa, Pos 6 Samping Wali Santri Kiri, Pos 7 Drop Point Dz Putra, Pos 8 Sekitar Area Lobi).
+
+7. KETENTUAN SAMBANGAN, IZIN KELUAR, & PENJEMPUTAN SHOHIBUL HAJAT:
+   - Lokasi Sambangan:
+     * Halaman Al-Khodijah: Santri Takhtiman Bil Ghoibi dan Bin Nadzori.
+     * Gedung Rusunawa Baru: Siswi Tamatan Aliyah.
+   - Waktu Sambangan: Setelah acara selesai sampai pukul 18.00 WIs.
+   - Ketentuan Wajib:
+     * Penyambang / penjemput wajib mahrom dari shohibul hajat.
+     * Wajib mendaftarkan diri di depan Gerbang Bola Dunia membawa KKS / fotokopi KK dan KTP yang sesuai.
+   - Larangan: Dilarang bawa/operasikan alat elektronik di selain area sambangan; dilarang melebihi batas waktu (18.00 WIs); dilarang ikut sambangan teman; dilarang sambangan di area santri putra; dilarang pulang ke pondok timur bersama penyambang.
+   - Ketentuan Pulang: Shohibul Hajat (selain Takhtiman Bil Ghoibi) dan santri pingitan diperbolehkan pulang setelah acara. Pendaftaran penjemputan dibuka 20 s/d 30 Desember 2026 dengan fotokopi KK dan mengisi format registrasi keamanan haflah. Santri non-shohibul hajat dipulangkan terlebih dahulu ke pondok (nduduk, pondok timur, pondok barat).
+
+8. TATA TERTIB & LARANGAN KETAT SHOHIBUL HAJAT:
+   - Berangkat ke Aula: Pukul 05.30 WIs.
+   - Dilarang membawa atau mengoperasikan alat elektronik selama acara berlangsung.
+   - Wajib mengikuti acara dengan khidmat (terutama saat Mauidhoh Hasanah).
+   - DILARANG membawa buket bunga/kado.
+   - DILARANG memakai kutek, hena, dan nail art / kuku palsu.
+   - Penitipan Kamera: Diperbolehkan bagi shohibul hajat (disediakan jasa charger dengan syarat membawa charger sendiri), diambil selesai acara di tempat izin keluar Gerbang Bola Dunia.
+   - DILARANG membawa fotografer dari luar (mengganggu fotografer resmi).
+   - DILARANG menemui walisantri saat acara berlangsung; Walisantri dilarang masuk area shohibul hajat.
+
+9. DETAIL KONSUMSI, SUGUHAN AULA, & BERKATAN:
+   - Suguhan 65 Meja Aula: Rampatan Bu Um (40 loyang), Rampatan Buah (40 piring), Tahu Fantasy & Puding Silky (Ndalem Timur), Melon & Semangka, Samosa. Lobi: Saking Ndalem Umi Ima.
+   - Prasmanan Hari H (02 Jan 2027):
+     * VVIP & VIP: Lyla Catering.
+     * Walisantri & Tamu Umum: Menu Kering (Nasi Putih/Jagung, Ayam Laos, Tahu/Tempe Goreng, Sambal, Urap, Kerupuk Uyel), Menu Kuah (Soto Lamongan mie bihun, kubis, telur 1/2, capar, sambal kecap, kerupuk udang).
+     * Panitia: Nasi Putih/Jagung, Ayam Laos/Kremes, Tahu Tempe, Urap, Kerupuk.
+   - Unjukan: Meja depan panggung VVIP/VIP (Le Minerale Tanggung, Teh, Maxtea, Kopi), Prasmanan Lobi (Le Minerale Kecil, Coffee Maker Teh & Kopi), Mauidhoh (Kelapa Muda, Teh, Larutan), Walisantri (Aqua Gelas, Teh Hangat, Kopi, Es Jeruk).
+   - Berkat VVIP & VIP: Ayam Goreng Wong Solo Jombang, Sambal Matah, Daging Rendang Bumbu Merah, Telur Asin 2, Tahu Wong Solo, Kering Kentang Mustofa, Bihun Kering. Snack: Lumpia Arewot, Roti Lirboyo (Piscok Topico / Donat Choco Kacang, Bolu Pisang Almond Slice), Pilus Australia, Lemper, Jeruk.
+   - Berkat Walisantri & Tamu: Nasi Ayam Pupu Manis, Daging Bumbu Merah, Telur Asin, Kering Kentang Mustofa & Kacang, Bihun Kering. Snack: Risol Mayo, Roti Lirboyo (Donat Choco Mete, Roti Piscok Keju), Getuk Pisang, Pilus Australia, Jeruk, Cristalin Tanggung.
+   - Berkat Shohibul Hajat: Hara Chicken, Crystalin Kecil, Roti Lirboyo Piscok Topico, Risol Mayo, Sosis Solo, Pilus Australia, Permen.
+
+10. DENAH RESMI, TATA RUANG & POS OPERASIONAL LAPANGAN (HAFLAH 2027):
+    - Orientasi: Arah Utara (U) menghadap ke KANAN denah (<- U).
+    - Akses Pintu Gerbang:
+      * Gerbang Bola Dunia: Pintu masuk utama undangan umum & keluarga shohibul hajat (Pos Kesekretariatan Tenda Satir U Putra di barat dan Putri di timur).
+      * Gerbang Selatan: Jalur masuk khusus mobil dan iringan Dzurriyyah VIP & Masyayikh.
+      * Gerbang Timur: Jalur keluar khusus mobil Dzurriyyah VIP & akses Ruang Lab.
+      * Gerbang Utara: Jalur keluar umum rombongan undangan.
+    - Tata Ruang Aula Muktamar (Gedung Utama):
+      * Panggung Utama: Menghadap ke barat aula, di belakang panggung terdapat Basecamp Akomodasi PI & Tirai Hitam. Di pojok timur terdapat Foto Syahadah.
+      * Barisan Depan VIP & VVIP:
+        - VVIP Putra (Sofa) di sisi barat & VVIP Putri (Sofa) di sisi timur, disekat Satir Rangka.
+        - VIP Putra (Kursi Elephant) di belakang Sofa VVIP Putra & VIP Putri (Kursi Elephant) di belakang Sofa VVIP Putri.
+      * Area Shohibul Hajat (Tengah Aula):
+        - Takhtiman Bil-Ghoibi (Wali Santri Bil Ghoib) di baris paling depan (Merah & Gold).
+        - Takhtiman Bin-Nazhri di belakang Bil Ghoibi (Biru & Gold).
+        - Tamatan Aliyah di area belakang tengah hingga tiang 7-8-12.
+        - Koridor Tengah: Shooting Center (jalur kamera siaran langsung).
+      * Sayap Barat & Timur Aula:
+        - Sayap Barat: Tamu Undangan Umum PA & Wali Santri SH (Putra), dilengkapi layar LED & Satir Satu.
+        - Sayap Timur: Tamu Undangan Umum PI & Wali Santri SH (Putri) samping luar, dilengkapi layar LED & Satir Double.
+        - Belakang Aula: Meja Operator (Sound, Lighting, Siaran) & Wali Santri SH (Putri).
+    - 3 Titik Lokasi Prasmanan:
+      * Prasmanan Lobi (Gedung Timur): Khusus Dzurriyyah & VVIP/VIP (disekat Satir Kayu antara Lobi PA dan PI, ada Kamar VVIP dan MCK).
+      * Prasmanan Wali Santri SH PI: Di samping timur aula dekat Gerbang Selatan.
+      * Prasmanan SH PA: Di barat daya luar aula dekat Gerbang Utara, Markas PLP, Korah-Korah, Masak Air.
+    - Area Santri:
+      * Terletak memanjang di sisi selatan aula, dipagari penuh dengan Satir Double yang memisahkannya secara syar'i dari Jalur Tamu Undangan PA.
+    - Pos Keamanan Lapangan:
+      * Pos Keam PA (12 Titik): Pos 1 Tenda Kesekretariatan PA (Gerbang Bola Dunia), Pos 2,3,5 Jalur Tamu PA, Pos 4 Drop point DZ PA, Pos 6 Dekat Prasmanan SH PA & Gerbang Utara, Pos 7 Drop point DZ VIP, Pos 8 Shooting Center tengah aula, Pos 9,10,11,12 Tiang aula & batas sayap.
+      * Pos Keam PI (5 Titik): Pos 1 Tenda Kesekretariatan PI (Gerbang Bola Dunia), Pos 2,3 Jalur Tamu PI, Pos 4 Belakang Panggung Tirai Hitam, Pos 5 Gerbang Timur (Keluar DZ VIP).
+
+11. KALENDER KERJA KUNCI HAFLAH:
+    - 20 November 2026: Penyebaran Link Undangan Digital, barcode & konfirmasi kehadiran walisantri.
+    - 23 November s/d 01 Desember 2026: Pembukaan Pemesanan Kuota Tambahan (300 kursi).
+    - 10 Desember 2026: Final Validasi Kedatangan Walisantri & Penyebaran Undangan Fisik.
+    - 12 Desember 2026: Gladikotor (Turba 2 Kepada Segenap Shohibul Hajat).
+    - 16 Desember 2026: Gladibersih.
+    - 20 Desember 2026: Briefing Tenaga Bantu.
+    - SABTU, 24 RAJAB 1448 H. / 02 JANUARI 2027 M.: HARI-H HAUL HAFLAH AKHIRUSSANAH P3TQ & MHMTQ.
+    - 07 Januari 2027: Evaluasi Bersama Bapak Sekretariat.
+    - 12 / 15 Januari 2027: LPJ Bersama Ndalem.
 `;
 
 function getGolonganUndangan(u: any): 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM' {
