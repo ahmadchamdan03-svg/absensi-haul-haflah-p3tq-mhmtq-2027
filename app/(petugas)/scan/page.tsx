@@ -478,41 +478,6 @@ export default function ScanPage() {
             </form>
           </div>
 
-          {/* Uji Coba Cepat dengan Sampel Data Riil */}
-          <div className="pt-2 space-y-2">
-            <div className="text-xs font-semibold text-slate-500">
-              Sampel Cepat Data Riil (Klik untuk Tes):
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                onClick={() => handleScanCode('SH0001')}
-                className="p-3 text-left rounded-2xl bg-emerald-50/70 hover:bg-emerald-100 border border-emerald-200 transition-colors"
-              >
-                <div className="text-xs font-bold text-emerald-950">SH0001 · Bil Ghoib</div>
-                <div className="text-[11px] text-emerald-800">
-                  Afifatun Nisaa (4 Kursi + 1 Emas Panggung ★)
-                </div>
-              </button>
-              <button
-                onClick={() => handleScanCode('SH0065')}
-                className="p-3 text-left rounded-2xl bg-blue-50/70 hover:bg-blue-100 border border-blue-200 transition-colors"
-              >
-                <div className="text-xs font-bold text-blue-950">SH0065 · Bin Nadzori</div>
-                <div className="text-[11px] text-blue-800">
-                  Abidah Ardelia (2 Kursi · Tiket Biru)
-                </div>
-              </button>
-              <button
-                onClick={() => handleScanCode('SH0224')}
-                className="p-3 text-left rounded-2xl bg-amber-50/70 hover:bg-amber-100 border border-amber-300 transition-colors sm:col-span-2"
-              >
-                <div className="text-xs font-bold text-amber-950">SH0224 · Tamatan</div>
-                <div className="text-[11px] text-amber-800">
-                  Abwa&apos; Isroqul Faroh (3 ALY A.01 · 2 Kursi · Tiket Kuning)
-                </div>
-              </button>
-            </div>
-          </div>
 
           {errorMsg && (
             <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
