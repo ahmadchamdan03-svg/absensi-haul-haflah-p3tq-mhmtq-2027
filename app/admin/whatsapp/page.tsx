@@ -387,8 +387,35 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     setIsBlasting(false);
   };
 
-  const totalTerkirim = Object.keys(sentRecords).length;
-  const pctTerkirim = Math.round((totalTerkirim / keluargaList.length) * 100) || 0;
+  const sentForCurrentList = keluargaList.filter((k) => sentRecords[k.kode] || sentRecords[k.id]);
+  const totalTerkirim = sentForCurrentList.length;
+  const pctTerkirim = keluargaList.length > 0 ? Math.min(100, Math.round((totalTerkirim / keluargaList.length) * 100)) : 0;
+
+  const countBilGhoib = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'BIL_GHOIB').length;
+  const countBinNadzor = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'BIN_NADZOR').length;
+  const countTamatan = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'TAMATAN').length;
+
+  const countPerBagian = useMemo(() => {
+    const map: Record<string, number> = {
+      'A.01': 0,
+      'A.02': 0,
+      'A.03': 0,
+      'A.04': 0,
+      'B.01': 0,
+      'B.02': 0,
+      'B.03': 0,
+    };
+    for (const k of keluargaList) {
+      const santri = k.santri?.[0];
+      if (santri?.kategoriUtama === 'TAMATAN') {
+        const bg = extractBagianTamatan(santri?.kelas || santri?.subKategori);
+        if (bg && map[bg] !== undefined) {
+          map[bg]++;
+        }
+      }
+    }
+    return map;
+  }, [keluargaList]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -404,7 +431,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                 Panel WhatsApp & Fonnte Gateway
               </h1>
               <p className="text-xs text-[#7A624E] font-normal">
-                Kirim undangan, penawaran kuota, dan pengingat konfirmasi kehadiran otomatis lewat Fonnte untuk <strong>549 Santri Riil</strong>.
+                Kirim undangan, penawaran kuota, dan pengingat konfirmasi kehadiran otomatis lewat Fonnte untuk <strong>{keluargaList.length} Santri Terdaftar</strong>.
               </p>
             </div>
           </div>
@@ -706,10 +733,10 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
               }}
               className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
             >
-              <option value="SEMUA">Semua Kategori (549)</option>
-              <option value="BIL_GHOIB">Bil Ghoib (64)</option>
-              <option value="BIN_NADZOR">Bin Nadzori (159)</option>
-              <option value="TAMATAN">Tamatan (326)</option>
+              <option value="SEMUA">Semua Kategori ({keluargaList.length})</option>
+              <option value="BIL_GHOIB">Bil Ghoib ({countBilGhoib})</option>
+              <option value="BIN_NADZOR">Bin Nadzori ({countBinNadzor})</option>
+              <option value="TAMATAN">Tamatan ({countTamatan})</option>
             </select>
 
             {/* Filter Sub / Bagian (Bil Ghoib, Bin Nadzor, Bagian A.01–B.03) */}
@@ -725,13 +752,13 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
               }}
               className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
             >
-              <option value="SEMUA">Semua Kategori & Bagian</option>
-              <option value="BIL_GHOIB">Bil Ghoib (64)</option>
-              <option value="BIN_NADZOR">Bin Nadzori (159)</option>
-              <option value="TAMATAN_SEMUA">Semua Bagian Tamatan (326)</option>
+              <option value="SEMUA">Semua Kategori & Bagian ({keluargaList.length})</option>
+              <option value="BIL_GHOIB">Bil Ghoib ({countBilGhoib})</option>
+              <option value="BIN_NADZOR">Bin Nadzori ({countBinNadzor})</option>
+              <option value="TAMATAN_SEMUA">Semua Bagian Tamatan ({countTamatan})</option>
               {BAGIAN_TAMATAN_LIST.map((bg) => (
                 <option key={bg} value={bg}>
-                  Bagian {bg}
+                  Bagian {bg} ({countPerBagian[bg] || 0})
                 </option>
               ))}
             </select>

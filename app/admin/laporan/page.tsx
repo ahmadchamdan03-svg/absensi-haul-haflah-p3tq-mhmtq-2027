@@ -173,23 +173,101 @@ export default function LaporanPage() {
   const totalKonfirmasiSudah = filteredBelumHadirList.filter((c) => c.statusKonfirmasi === 'SUDAH').length;
   const totalKonfirmasiBelum = filteredBelumHadirList.filter((c) => c.statusKonfirmasi === 'BELUM').length;
 
-  // Data Blok 1: 549 Santri Riil (64 Bil Ghoib + 159 Bin Nadzori + 326 Tamatan)
-  const blokSantri = [
-    { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', sh: 64, l: 48, p: 64, total: 112, kuota: 256, pct: 43.8, warna: 'Hijau (+Emas ★)' },
-    { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', sh: 5, l: 3, p: 5, total: 8, kuota: 10, pct: 80.0, warna: 'Biru' },
-    { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', sh: 21, l: 15, p: 20, total: 35, kuota: 42, pct: 83.3, warna: 'Biru' },
-    { no: 4, kategori: 'Bin Nadzori 1 Aliyah', sh: 42, l: 30, p: 38, total: 68, kuota: 84, pct: 81.0, warna: 'Biru' },
-    { no: 5, kategori: 'Bin Nadzori 2 Aliyah', sh: 59, l: 45, p: 52, total: 97, kuota: 118, pct: 82.2, warna: 'Biru' },
-    { no: 6, kategori: 'Bin Nadzori 3 Aliyah', sh: 14, l: 10, p: 12, total: 22, kuota: 28, pct: 78.6, warna: 'Biru' },
-    { no: 7, kategori: 'Bin Nadzori Mutakhorijat', sh: 18, l: 12, p: 16, total: 28, kuota: 36, pct: 77.8, warna: 'Biru' },
-    { no: 8, kategori: 'Tamatan Bagian A.01', sh: 47, l: 32, p: 40, total: 72, kuota: 94, pct: 76.6, warna: 'Kuning' },
-    { no: 9, kategori: 'Tamatan Bagian A.02', sh: 46, l: 31, p: 38, total: 69, kuota: 92, pct: 75.0, warna: 'Kuning' },
-    { no: 10, kategori: 'Tamatan Bagian A.03', sh: 46, l: 30, p: 39, total: 69, kuota: 92, pct: 75.0, warna: 'Kuning' },
-    { no: 11, kategori: 'Tamatan Bagian A.04', sh: 47, l: 33, p: 40, total: 73, kuota: 94, pct: 77.7, warna: 'Kuning' },
-    { no: 12, kategori: 'Tamatan Bagian B.01', sh: 46, l: 31, p: 37, total: 68, kuota: 92, pct: 73.9, warna: 'Kuning' },
-    { no: 13, kategori: 'Tamatan Bagian B.02', sh: 47, l: 32, p: 41, total: 73, kuota: 94, pct: 77.7, warna: 'Kuning' },
-    { no: 14, kategori: 'Tamatan Bagian B.03', sh: 47, l: 33, p: 41, total: 74, kuota: 94, pct: 78.7, warna: 'Kuning' },
+  const keluargaList = store.getKeluargaList();
+  const undanganList = store.getUndanganList();
+  const presensiLogs = store.getPresensiLogs();
+
+  // Helper pengelompokan 14 kategori santri
+  const templateBlokSantri = [
+    { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Hijau (+Emas ★)' },
+    { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Biru' },
+    { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', warna: 'Biru' },
+    { no: 4, kategori: 'Bin Nadzori 1 Aliyah', warna: 'Biru' },
+    { no: 5, kategori: 'Bin Nadzori 2 Aliyah', warna: 'Biru' },
+    { no: 6, kategori: 'Bin Nadzori 3 Aliyah', warna: 'Biru' },
+    { no: 7, kategori: 'Bin Nadzori Mutakhorijat', warna: 'Biru' },
+    { no: 8, kategori: 'Tamatan Bagian A.01', warna: 'Kuning' },
+    { no: 9, kategori: 'Tamatan Bagian A.02', warna: 'Kuning' },
+    { no: 10, kategori: 'Tamatan Bagian A.03', warna: 'Kuning' },
+    { no: 11, kategori: 'Tamatan Bagian A.04', warna: 'Kuning' },
+    { no: 12, kategori: 'Tamatan Bagian B.01', warna: 'Kuning' },
+    { no: 13, kategori: 'Tamatan Bagian B.02', warna: 'Kuning' },
+    { no: 14, kategori: 'Tamatan Bagian B.03', warna: 'Kuning' },
   ];
+
+  const getKategoriIndex = (k: (typeof keluargaList)[0]) => {
+    const s = k.santri?.[0];
+    const kat = s?.kategoriUtama || 'BIN_NADZOR';
+    const sub = (s?.subKategori || '').toLowerCase();
+    const kelas = (s?.kelas || '').toLowerCase();
+
+    if (kat === 'BIL_GHOIB' || sub.includes('bil ghoib')) return 0;
+
+    if (kat === 'BIN_NADZOR') {
+      if (kelas.includes('2 tsanawiyah') || kelas.includes('2 tsanawi') || kelas.includes('2 tsn') || sub.includes('2 tsn')) return 1;
+      if (kelas.includes('3 tsanawiyah') || kelas.includes('3 tsanawi') || kelas.includes('3 tsn') || sub.includes('3 tsn')) return 2;
+      if (kelas.includes('1 aliyah') || kelas.includes('1 aly') || sub.includes('1 aly')) return 3;
+      if (kelas.includes('2 aliyah') || kelas.includes('2 aly') || sub.includes('2 aly')) return 4;
+      if (sub.includes('mutakhorijat') || kelas.includes('mutakhorijat')) return 6;
+      if (kelas.includes('3 aliyah') || kelas.includes('3 aly') || sub.includes('3 aly')) return 5;
+      return 3;
+    }
+
+    if (kat === 'TAMATAN') {
+      const combined = (sub + ' ' + kelas).toUpperCase();
+      if (combined.includes('A.01')) return 7;
+      if (combined.includes('A.02')) return 8;
+      if (combined.includes('A.03')) return 9;
+      if (combined.includes('A.04')) return 10;
+      if (combined.includes('B.01')) return 11;
+      if (combined.includes('B.02')) return 12;
+      if (combined.includes('B.03')) return 13;
+      return 7;
+    }
+
+    return 1;
+  };
+
+  const blokSantri = templateBlokSantri.map((tpl) => ({
+    ...tpl,
+    sh: 0,
+    l: 0,
+    p: 0,
+    total: 0,
+    kuota: 0,
+    pct: 0,
+  }));
+
+  for (const kel of keluargaList) {
+    const idx = getKategoriIndex(kel);
+    if (blokSantri[idx]) {
+      blokSantri[idx].sh += 1;
+      const kTot = kel.kuota.kuotaDasar + (kel.kuota.kuotaTambahan || 0);
+      blokSantri[idx].kuota += kTot;
+
+      const logs = presensiLogs.filter(
+        (l) => l.kuotaId === kel.kuota.id || l.kuotaId === `q_${kel.kode}`
+      );
+      let hadirL = 0;
+      let hadirP = 0;
+      if (logs.length > 0) {
+        for (const l of logs) {
+          hadirL += l.jumlahL || 0;
+          hadirP += l.jumlahP || 0;
+        }
+      } else if (kel.kuota.terpakai > 0) {
+        hadirL += Math.ceil(kel.kuota.terpakai / 2);
+        hadirP += Math.floor(kel.kuota.terpakai / 2);
+      }
+      blokSantri[idx].l += hadirL;
+      blokSantri[idx].p += hadirP;
+      blokSantri[idx].total += (hadirL + hadirP);
+    }
+  }
+
+  for (const row of blokSantri) {
+    row.pct = row.kuota > 0 ? Math.round((row.total / row.kuota) * 1000) / 10 : 0;
+  }
 
   // Hitung Subtotal Blok Santri
   const subtotalSantri = blokSantri.reduce(
@@ -202,18 +280,103 @@ export default function LaporanPage() {
     }),
     { sh: 0, l: 0, p: 0, total: 0, kuota: 0 }
   );
-  const pctSubtotalSantri = Math.round((subtotalSantri.total / subtotalSantri.kuota) * 1000) / 10;
+  const pctSubtotalSantri = subtotalSantri.kuota > 0
+    ? Math.round((subtotalSantri.total / subtotalSantri.kuota) * 1000) / 10
+    : 0;
 
-  // Data Blok 2: Kuota Tambahan Berbayar (§17.1)
+  // Hitung akumulasi riil Blok 2: Kuota Tambahan Berbayar
+  let tambahanHadirL = 0;
+  let tambahanHadirP = 0;
+  let tambahanHadirTotal = 0;
+
+  for (const kel of keluargaList) {
+    if (kel.kuota.kuotaTambahan > 0 && kel.kuota.terpakai > kel.kuota.kuotaDasar) {
+      const lebih = kel.kuota.terpakai - kel.kuota.kuotaDasar;
+      const pakai = Math.min(kel.kuota.kuotaTambahan, lebih);
+      tambahanHadirTotal += pakai;
+      tambahanHadirL += Math.ceil(pakai / 2);
+      tambahanHadirP += Math.floor(pakai / 2);
+    }
+  }
+
   const blokTambahan = [
-    { no: 14, kategori: 'Kuota Tambahan (Dibeli Berbayar Pagu 300)', sh: pagu.terjual, l: 45, p: 55, total: 100, kuota: 300, pct: 33.3, warna: 'Merah muda' },
+    {
+      no: 15,
+      kategori: 'Kuota Tambahan (Dibeli Berbayar Pagu 300)',
+      sh: pagu.terjual,
+      l: tambahanHadirL,
+      p: tambahanHadirP,
+      total: tambahanHadirTotal,
+      kuota: pagu.paguTotal,
+      pct: pagu.paguTotal > 0 ? Math.round((tambahanHadirTotal / pagu.paguTotal) * 1000) / 10 : 0,
+      warna: 'Merah muda',
+    },
   ];
 
-  // Data Blok 3: Tamu Undangan Khusus (§17.1)
+  // Hitung akumulasi riil Blok 3: Tamu Undangan Khusus
+  let pengujiSH = 0, pengujiL = 0, pengujiP = 0, pengujiTotal = 0, pengujiKuota = 0;
+  let masyaikhSH = 0, masyaikhL = 0, masyaikhP = 0, masyaikhTotal = 0, masyaikhKuota = 0;
+
+  for (const und of undanganList) {
+    const isPenguji = (und.kategori || '').toLowerCase().includes('penguji') || und.subKategori === 'PENGUJI';
+    const kTotal = und.kuota.kuotaDasar + (und.kuota.kuotaTambahan || 0);
+    const terpakai = und.kuota.terpakai || 0;
+
+    const logs = presensiLogs.filter((l) => l.kuotaId === und.kuota.id || l.kuotaId === `qu_${und.kode}`);
+    let lHadir = 0;
+    let pHadir = 0;
+    if (logs.length > 0) {
+      for (const log of logs) {
+        lHadir += log.jumlahL || 0;
+        pHadir += log.jumlahP || 0;
+      }
+    } else if (terpakai > 0) {
+      lHadir = terpakai;
+    }
+
+    if (isPenguji) {
+      pengujiSH++;
+      pengujiKuota += kTotal;
+      pengujiL += lHadir;
+      pengujiP += pHadir;
+      pengujiTotal += terpakai;
+    } else {
+      masyaikhSH++;
+      masyaikhKuota += kTotal;
+      masyaikhL += lHadir;
+      masyaikhP += pHadir;
+      masyaikhTotal += terpakai;
+    }
+  }
+
   const blokUndangan = [
-    { no: 15, kategori: 'Penguji Al-Qur-an & Huffadh', sh: 25, l: 18, p: 2, total: 20, kuota: 50, pct: 40.0, warna: 'Putih' },
-    { no: 16, kategori: 'Asatidz Purna Bakti & Masyaikh', sh: 45, l: 20, p: 2, total: 22, kuota: 90, pct: 24.4, warna: 'Putih' },
+    {
+      no: 16,
+      kategori: 'Penguji Al-Qur-an & Huffadh',
+      sh: pengujiSH,
+      l: pengujiL,
+      p: pengujiP,
+      total: pengujiTotal,
+      kuota: pengujiKuota,
+      pct: pengujiKuota > 0 ? Math.round((pengujiTotal / pengujiKuota) * 1000) / 10 : 0,
+      warna: 'Putih',
+    },
+    {
+      no: 17,
+      kategori: 'Asatidz Purna Bakti, Masyaikh & Dzuriyyah',
+      sh: masyaikhSH,
+      l: masyaikhL,
+      p: masyaikhP,
+      total: masyaikhTotal,
+      kuota: masyaikhKuota,
+      pct: masyaikhKuota > 0 ? Math.round((masyaikhTotal / masyaikhKuota) * 1000) / 10 : 0,
+      warna: 'Putih',
+    },
   ];
+
+  const countBilGhoib = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'BIL_GHOIB').length;
+  const countBinNadzor = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'BIN_NADZOR').length;
+  const countTamatan = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'TAMATAN').length;
 
   // Ekspor ke Spreadsheet Excel via SheetJS (Multi-Sheet: Rekap 3 Blok, Detail Sudah Hadir, Detail Belum Hadir)
   const handleExportExcel = () => {
@@ -226,7 +389,7 @@ export default function LaporanPage() {
       [],
       ['No', 'Kategori / Sub-Kelas', 'Warna Tiket', 'Jumlah SH', 'WS Laki-laki', 'WS Perempuan', 'Total Hadir', 'Total Kuota', 'Prosentase (%)'],
       ...blokSantri.map((r) => [r.no, r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
-      ['', 'SUBTOTAL SOHIBUL HAJAT (549 SANTRI)', '', subtotalSantri.sh, subtotalSantri.l, subtotalSantri.p, subtotalSantri.total, subtotalSantri.kuota, `${pctSubtotalSantri}%`],
+      ['', `SUBTOTAL SOHIBUL HAJAT (${subtotalSantri.sh} SANTRI)`, '', subtotalSantri.sh, subtotalSantri.l, subtotalSantri.p, subtotalSantri.total, subtotalSantri.kuota, `${pctSubtotalSantri}%`],
       [],
       ['-- BLOK KUOTA TAMBAHAN --'],
       ...blokTambahan.map((r) => [r.no, r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
@@ -417,14 +580,14 @@ export default function LaporanPage() {
             <span>·</span>
             <span>Gerbang Masuk: Gerbang Selatan Bola Dunia</span>
             <span>·</span>
-            <span>Total Siswi: 549 Santri (64 Bil Ghoib · 159 Bin Nadzori · 326 Tamatan)</span>
+            <span>Total Siswi: {subtotalSantri.sh} Santri Terdaftar ({countBilGhoib} Bil Ghoib · {countBinNadzor} Bin Nadzori · {countTamatan} Tamatan)</span>
           </div>
         </div>
 
-        {/* TABEL BLOK 1: SOHIBUL HAJAT 549 SANTRI (§17.1) */}
+        {/* TABEL BLOK 1: SOHIBUL HAJAT */}
         <div className="space-y-2">
           <div className="font-serif font-bold text-xs text-opera-900 uppercase tracking-wide bg-opera-50 p-2.5 rounded-xl border border-opera-200 flex items-center justify-between">
-            <span>BLOK 1: SANTRI SOHIBUL HAJAT (64 BIL GHOIB, 159 TAKHTIMAN BIN NADZORI & 326 WISUDAWATI TAMATAN)</span>
+            <span>BLOK 1: SANTRI SOHIBUL HAJAT ({subtotalSantri.sh} SANTRI TERDAFTAR)</span>
             <span className="text-[11px] font-normal normal-case text-[#8C6A47] no-print">
               💡 Klik baris untuk melihat rincian santri yang sudah absen
             </span>
@@ -484,7 +647,7 @@ export default function LaporanPage() {
                 {/* Subtotal Baris Santri */}
                 <tr className="bg-slate-200 font-black text-slate-900">
                   <td colSpan={3} className="p-2 border border-slate-300 text-right">
-                    SUBTOTAL SOHIBUL HAJAT (549 SANTRI):
+                    SUBTOTAL SOHIBUL HAJAT ({subtotalSantri.sh} SANTRI):
                   </td>
                   <td className="p-2 border border-slate-300 text-center">{subtotalSantri.sh}</td>
                   <td className="p-2 border border-slate-300 text-center">{subtotalSantri.l}</td>
@@ -600,13 +763,13 @@ export default function LaporanPage() {
             <p>Mengetahui,</p>
             <p className="font-bold mt-1">Ketua Panitia Haul & Haflah</p>
             <div className="h-16"></div>
-            <p className="font-bold underline">( ............................................ )</p>
+            <p className="font-bold underline">( Sinta Maelani )</p>
           </div>
           <div>
             <p>Kediri, 02 Januari 2027</p>
             <p className="font-bold mt-1">Koordinator Presensi & Rekonsiliasi</p>
             <div className="h-16"></div>
-            <p className="font-bold underline">( Ahmad Chamdan Yuwafin )</p>
+            <p className="font-bold underline">( Ahmad Chamdan Yuwafi )</p>
           </div>
         </div>
       </div>
@@ -741,11 +904,11 @@ export default function LaporanPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {[
             { id: 'SEMUA', label: 'Semua Kategori' },
-            { id: 'Bil Ghoib', label: 'Bil Ghoib (64)' },
-            { id: 'Bin Nadzori', label: 'Bin Nadzori (159)' },
-            { id: 'Tamatan', label: 'Tamatan (326)' },
+            { id: 'Bil Ghoib', label: `Bil Ghoib (${countBilGhoib})` },
+            { id: 'Bin Nadzori', label: `Bin Nadzori (${countBinNadzor})` },
+            { id: 'Tamatan', label: `Tamatan (${countTamatan})` },
             { id: 'TAMBAHAN', label: 'Kuota Tambahan' },
-            { id: 'UNDANGAN', label: 'Tamu Undangan VIP' },
+            { id: 'UNDANGAN', label: `Tamu Undangan VIP (${undanganList.length})` },
           ].map((cat) => (
             <button
               key={cat.id}
