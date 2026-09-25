@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'KFGQPC Utsman Taha Naskh';
+  src: local('KFGQPC Uthman Taha Naskh Regular'),
+       local('KFGQPC Utsman Taha Naskh'),
+       local('KFGQPC Uthman Taha Naskh'),
+       url('/fonts/KFGQPC-Uthman-Taha-Naskh.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'KFGQPC Uthmanic Script HAFS';
+  src: local('KFGQPC Uthmanic Script HAFS Regular'),
+       local('KFGQPC Uthmanic Script HAFS'),
+       url('/fonts/KFGQPC-Uthmanic-Script-HAFS.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-arabic,
+.font-utsman {
+  font-family: 'KFGQPC Utsman Taha Naskh', 'KFGQPC Uthmanic Script HAFS', 'Amiri', 'Traditional Arabic', serif;
+}
+
+:root {
+  /* Palet Warna Desain Warm Latte & Cinnamon Mocha Coffee (Sesuai Gambar Referensi): */
+  /* 1. Warna Dasar (Dominan): Warm Oat Cream #EFE8E1 (RGB 239, 232, 225) */
+  /* 2. Warna Aksen: Rich Cinnamon Mocha #8C6A47 (RGB 140, 106, 71) */
+  /* 3. Warna Sekunder: Biscuit Tan #C4A88E (RGB 196, 168, 142) */
+  /* 4. Warna Ambience: Golden Caramel Crema #D49B5B (RGB 212, 155, 91) */
+  /* 5. Warna Teks: Deep Roasted Espresso #422F21 (RGB 66, 47, 33) */
+
+  --stage-latte: #EFE8E1;
+  --stage-mocha: #8C6A47;
+  --stage-tan: #C4A88E;
+  --stage-caramel: #D49B5B;
+  --stage-espresso: #422F21;
+
+  --foreground-rgb: 66, 47, 33;
+  --background-start: #FAF7F3;
+  --background-end: #EFE8E1;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #EFE8E1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Serif SC', 'Songti SC', SimSun, serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Latte & Mocha Decor Utilities */
+.stage-ivory-bg, .latte-bg {
+  background-color: #EFE8E1;
+}
+
+.stage-border-gold {
+  border: 1px solid rgba(212, 155, 91, 0.55);
+  box-shadow: 0 0 0 1px rgba(140, 106, 71, 0.1), inset 0 0 0 1px rgba(212, 155, 91, 0.25);
+}
+
+.stage-border-chinoiserie {
+  border: 1px solid rgba(140, 106, 71, 0.35);
+}
+
+.stage-amber-glow {
+  color: #D49B5B;
+  text-shadow: 0 0 12px rgba(212, 155, 91, 0.4);
+}
+
+.stage-seal-tag {
+  background: #8C6A47;
+  color: #FAF7F3;
+  border: 1px solid #D49B5B;
+  box-shadow: 0 0 8px rgba(212, 155, 91, 0.35);
+}
+
+/* Print Styles for Recap and Tickets */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
