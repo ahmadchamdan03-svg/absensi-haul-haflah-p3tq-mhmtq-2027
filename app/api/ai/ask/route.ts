@@ -1527,44 +1527,45 @@ export async function POST(req: NextRequest) {
     }
 
     // =========================================================================
-    // TIER ZHIPU AI: GLM-4-Flash (100% Free & Fast Inference via BigModel)
+    // TIER ZHIPU AI: GLM Flash Models (glm-5.3-flash / glm-4-flash)
     // =========================================================================
     if (zhipuApiKey) {
-      try {
-        const zhipuRes = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${zhipuApiKey}`,
-          },
-          signal: AbortSignal.timeout(4500),
-          body: JSON.stringify({
-            model: 'glm-4-flash',
-            messages: standardMessages,
-            temperature: 0.35,
-            max_tokens: 1200,
-          }),
-        });
+      const zhipuModels = ['glm-5.3-flash', 'glm-4-flash', 'glm-4.5-air'];
+      for (const zModel of zhipuModels) {
+        try {
+          const zhipuRes = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${zhipuApiKey}`,
+            },
+            signal: AbortSignal.timeout(3500),
+            body: JSON.stringify({
+              model: zModel,
+              messages: standardMessages,
+              temperature: 0.35,
+              max_tokens: 1200,
+            }),
+          });
 
-        if (zhipuRes.ok) {
-          const zhipuData = await zhipuRes.json();
-          const replyText = zhipuData?.choices?.[0]?.message?.content;
-          if (replyText) {
-            const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
-            const expr = detectExpression(cleanReply, prompt, isFirstTurn);
-            return NextResponse.json({
-              reply: cleanReply,
-              expression: expr,
-              avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
-              source: 'zhipu_ai',
-              model: 'GLM-4-Flash (Zhipu AI)',
-            });
+          if (zhipuRes.ok) {
+            const zhipuData = await zhipuRes.json();
+            const replyText = zhipuData?.choices?.[0]?.message?.content;
+            if (replyText) {
+              const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+              const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+              return NextResponse.json({
+                reply: cleanReply,
+                expression: expr,
+                avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+                source: 'zhipu_ai',
+                model: `${zModel.toUpperCase()} (Zhipu AI)`,
+              });
+            }
           }
-        } else {
-          console.warn('Tier Zhipu AI non-OK status:', zhipuRes.status);
+        } catch (zhipuError) {
+          // failover quietly to next model or next tier
         }
-      } catch (zhipuError) {
-        console.warn('Tier Zhipu AI error, falling back:', zhipuError);
       }
     }
 
