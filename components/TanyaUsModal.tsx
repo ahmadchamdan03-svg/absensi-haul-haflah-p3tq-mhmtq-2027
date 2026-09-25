@@ -434,10 +434,11 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load API key dari localStorage (OpenAI / Gemini)
+  // Load API key dari localStorage (Zhipu / OpenAI / Gemini)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored =
+        localStorage.getItem('haflah_zhipu_api_key') ||
         localStorage.getItem('haflah_openai_api_key') ||
         localStorage.getItem('haflah_gemini_api_key') ||
         '';
@@ -485,12 +486,15 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
     setSavedApiKey(trimmed);
     if (typeof window !== 'undefined') {
       if (trimmed) {
-        if (trimmed.startsWith('sk-')) {
+        if (trimmed.includes('.') && trimmed.length >= 30) {
+          localStorage.setItem('haflah_zhipu_api_key', trimmed);
+        } else if (trimmed.startsWith('sk-')) {
           localStorage.setItem('haflah_openai_api_key', trimmed);
         } else {
           localStorage.setItem('haflah_gemini_api_key', trimmed);
         }
       } else {
+        localStorage.removeItem('haflah_zhipu_api_key');
         localStorage.removeItem('haflah_openai_api_key');
         localStorage.removeItem('haflah_gemini_api_key');
       }
@@ -709,14 +713,14 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
               </button>
             </div>
             <p className="text-[11px] leading-relaxed text-[#7A624E]">
-              Sistem mendukung <strong>Multi-Key Gemini Auto-Rotation</strong>. Anda dapat memasukkan beberapa kunci API dipisahkan koma (<code>,</code>) untuk merotasi kuota gratis secara otomatis:
+              Sistem mendukung <strong>Zhipu AI (GLM-4-Flash)</strong>, <strong>Multi-Key Gemini</strong>, atau <strong>OpenAI GPT-4o</strong>:
             </p>
             <div className="flex items-center space-x-2">
               <input
                 type="password"
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="AQ...1, AQ...2 (bisa lebih dari satu, pisah koma)"
+                placeholder="Masukkan API Key Zhipu AI / Gemini / OpenAI..."
                 className="flex-1 px-3 py-1.5 rounded-xl border border-[#D5C4B4] bg-white text-xs font-mono focus:outline-none focus:border-[#8C6A47]"
               />
               <button

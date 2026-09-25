@@ -1426,6 +1426,11 @@ export async function POST(req: NextRequest) {
       process.env.OPENAI_API_KEY ||
       process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
+    const zhipuApiKey =
+      (clientApiKey && clientApiKey.includes('.') && clientApiKey.length >= 30 ? clientApiKey : null) ||
+      process.env.ZHIPU_API_KEY ||
+      process.env.NEXT_PUBLIC_ZHIPU_API_KEY;
+
     const deepseekApiKey =
       (clientApiKey && !clientApiKey.startsWith('sk-proj-') && !clientApiKey.startsWith('sk-ant-') && clientApiKey.startsWith('sk-') ? clientApiKey : null) ||
       process.env.DEEPSEEK_API_KEY ||
@@ -1518,6 +1523,48 @@ export async function POST(req: NextRequest) {
         }
 
         if (keySucceeded) break;
+      }
+    }
+
+    // =========================================================================
+    // TIER ZHIPU AI: GLM-4-Flash (100% Free & Fast Inference via BigModel)
+    // =========================================================================
+    if (zhipuApiKey) {
+      try {
+        const zhipuRes = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${zhipuApiKey}`,
+          },
+          signal: AbortSignal.timeout(4500),
+          body: JSON.stringify({
+            model: 'glm-4-flash',
+            messages: standardMessages,
+            temperature: 0.35,
+            max_tokens: 1200,
+          }),
+        });
+
+        if (zhipuRes.ok) {
+          const zhipuData = await zhipuRes.json();
+          const replyText = zhipuData?.choices?.[0]?.message?.content;
+          if (replyText) {
+            const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+            const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+            return NextResponse.json({
+              reply: cleanReply,
+              expression: expr,
+              avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+              source: 'zhipu_ai',
+              model: 'GLM-4-Flash (Zhipu AI)',
+            });
+          }
+        } else {
+          console.warn('Tier Zhipu AI non-OK status:', zhipuRes.status);
+        }
+      } catch (zhipuError) {
+        console.warn('Tier Zhipu AI error, falling back:', zhipuError);
       }
     }
 
