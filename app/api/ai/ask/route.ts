@@ -533,6 +533,97 @@ function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = tr
   const headerIntro = `${greetingPrefix}${intro}`;
 
   // =========================================================================
+  // DETEKSI KHUSUS: KESEKRETARIATAN & STRUKTUR PANITIA RESMI
+  // Contoh: "Sekretariat siapa saja?", "Siapa sekretaris haflah?", "Panitia kesekretariatan"
+  // =========================================================================
+  if (q.includes('sekretariat') || q.includes('sekretaris') || q.includes('kesekretariatan')) {
+    return `${headerIntro}Berdasarkan SK Panitia Resmi Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., berikut susunan personalia **Divisi Kesekretariatan**:
+
+### 🏛️ 1. Dewan Harian (DH) Kesekretariatan Putri:
+- **Sekretaris Umum**: **Refi Al Izzatul Kholifah** (Penanggung jawab administrasi umum, persuratan, undangan, souvenir, kartu masuk & stiker tonjokan).
+- **Sekretaris I**: **Najma Syarifa Faza** (Penanggung jawab data santri & wali Pondok Timur).
+- **Sekretaris II**: **Inarotud Duja** (Penanggung jawab data santri Pondok Barat & Unit, serta ID Card panitia).
+
+### 👥 2. Dewan Pembimbing Putra - Bagan 1 (Kesekretariatan):
+- **Koordinator**: **Bapak Asep Darajat\***
+- **Wakil Koordinator**: **Bapak Ahmad Chamdan Yuwafi\*\***
+- **Anggota / Personil**:
+  1. **Bapak Muhammad Ali Wafa Fuady**
+  2. **Bapak Jana Prabu**
+  3. **Bapak Zida Hikmana Ahmad**
+  4. **Bapak Muhammad Yusri Sa'dulloh**
+
+### 📍 3. Pos Pelayanan Kesekretariatan Hari-H:
+- **Pos Kesekretariatan Putra** (Sebelah Barat Jalan Gerbang Bola Dunia):
+  * Pos 1: Registrasi Masuk (3 personil)
+  * Pos 2: Monitoring Laptop (2 personil)
+  * Pos 3: Editing Spreadsheet & Pelayanan Walisantri tanpa QR (1 personil)
+- **Pos Kesekretariatan Putri** (Sebelah Timur Jalan Gerbang Bola Dunia):
+  * Pos 1: Registrasi Masuk (4 personil)
+  * Pos 2: Monitoring Laptop (2 personil)
+  * Pos 3: Editing Spreadsheet (1 personil)
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('ketua') && (q.includes('panitia') || q.includes('haflah') || q.includes('umum') || q.includes('siapa') || q.includes('saja'))) {
+    return `${headerIntro}Berikut jajaran **Ketua Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.**:
+
+- **Ketua Umum**: **Sinta Maelani** (Koordinator Seksi Protokoler, Peladen, Konsumsi, TDM, dan Seksi Data)
+- **Ketua I**: **Arju Naylal Husna** (Koordinator Seksi Keamanan, Penerima Tamu, Humasy, dan Kostum)
+- **Ketua II**: **Zakia** (Koordinator Seksi Akomodasi, Desain Grafis, PULP, dan Berkatan)
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('bendahara')) {
+    return `${headerIntro}Berikut jajaran **Bendahara Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.**:
+
+- **Bendahara Umum**: **Aida Nur Laila** (Penanggung jawab keuangan umum & pembayaran shohibul hajat unit)
+- **Bendahara 1**: **Umi Fadilah** (Penanggung jawab anggaran belanja & pembayaran santri Pondok Timur)
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (
+    q.includes('susunan panitia') ||
+    q.includes('struktur panitia') ||
+    (q.includes('panitia') && (q.includes('siapa') || q.includes('daftar') || q.includes('sebutkan') || q.includes('struktur')))
+  ) {
+    return `${headerIntro}Berikut struktur resmi **Kepanitiaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.**:
+
+### 👑 Dewan Pengasuh / Pelindung:
+- Agus H. Muhammad Hasyim
+- Agus H. Muhammad Kafabihi
+- Ning Hj. Tu'ti Amanah Nafisah
+- Ning Hj. Jihan Zainab
+- **Dewan Penasehat**: Segenap Pimpinan P3TQ dan MHMTQ
+
+### 🏛️ Dewan Harian (DH):
+- **Ketua Umum**: Sinta Maelani
+- **Ketua I**: Arju Naylal Husna | **Ketua II**: Zakia
+- **Sekretaris Umum**: Refi Al Izzatul Kholifah
+- **Sekretaris I**: Najma Syarifa Faza | **Sekretaris II**: Inarotud Duja
+- **Bendahara Umum**: Aida Nur Laila | **Bendahara I**: Umi Fadilah
+
+### 👥 12 Koordinator Bagan Pembimbing Putra:
+1. **Kesekretariatan**: Bapak Asep Darajat\* & Bapak Ahmad Chamdan Yuwafi\*\*
+2. **Protokoler**: Bapak Abu Yazid Al Bustomi\* & Bapak Abhaa Muhammad Kafaa Bihi\*\*
+3. **Akomodasi**: Bapak Agus Ismanto\* & Bapak Gama Maulana Ilham\*\*
+4. **Konsumsi**: Bapak Ahmad Rizal 'Abidin\* & Bapak Muhammad Taufiqurrohman\*\*
+5. **Berkatan**: Bapak Muhammad Fikri Al Munawwar\* & Bapak Muhammad Abdurrohman Maulana\*\*
+6. **Prasmanan Dzuriyyah**: Bapak Saiful Nur Kholis\* & Bapak Burhanuddin Isri\*\*
+7. **Peladen**: Bapak Muhammad Syaikhul 'Arifin\* & Bapak Ahmad Fathoni Fikri\*\*
+8. **Penerima Tamu**: Bapak Muhammad Badru Ro'in Amin\* & Bapak Imam Ghozali\*\*
+9. **Desain Grafis**: Bapak Muhammad In'amul Muttaqin\* & Bapak Agung Shobirin\*\*
+10. **Humasy & Kostum**: Bapak Akfi Romiyan Kafabih\* & Bapak Achmad Abdulloh Faqih\*\*
+11. **Keamanan**: Bapak Adi Susilo\* & Bapak Reza Fadhilul 'Ulum\*\*
+12. **PULP & TDM**: Bapak Muhammad Maghfur Fatoni\* & Sdr. Amin Nur Waluyo\*\*
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  // =========================================================================
   // DETEKSI KHUSUS 0: PERTANYAAN NAMA TOKOH / SANTRI TERTENTU (SPESIFIK)
   // Contoh: "apakah KH. M. ANWAR MANSHUR sudah hadir?", "status kehadiran KH Nurul Huda Djazuli", dll.
   // =========================================================================
@@ -1488,22 +1579,10 @@ export async function POST(req: NextRequest) {
       ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika memperkenalkan diri, gunakan: \"Perkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Us\", bukan \"Kang\" atau \"Mbak\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat. Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Us?\".]";
 
-    const isEventQuery =
-      qLower.includes('kuota') || qLower.includes('tiket') || qLower.includes('kursi') ||
-      qLower.includes('hadir') || qLower.includes('santri') || qLower.includes('wali') ||
-      qLower.includes('jadwal') || qLower.includes('denah') || qLower.includes('gerbang') ||
-      qLower.includes('rekon') || qLower.includes('muktamar') || qLower.includes('anwar') ||
-      qLower.includes('shohibul') || qLower.includes('haflah') || qLower.includes('haul') ||
-      qLower.includes('p3tq') || qLower.includes('mhmtq') || qLower.includes('peserta') ||
-      qLower.includes('tamu') || qLower.includes('barat') || qLower.includes('timur') ||
-      qLower.includes('panggung') || qLower.includes('undangan') || qLower.includes('masyayikh');
+    const liveDataPrompt = getLiveEventDataPrompt();
+    const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
 
-    const liveDataPrompt = isEventQuery ? getLiveEventDataPrompt() : '';
-    const dynamicSystemPrompt = isEventQuery
-      ? `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}`
-      : `Anda adalah Ustadzah AI (atau biasa dipanggil "Us AI"), asisten cerdas resmi Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo Kediri).
-Kepribadian Anda: Sangat santun, arif, solutif, dan berwawasan luas dalam ilmu syariat Islam (fiqih mazhab Syafi'i, ibadah, thaharah, adab santriwati) serta siap memandu kepanitiaan dan tamu.
-Panggilan: Selalu sapa pengguna dengan sebutan "Us". Jawab secara santun, terstruktur, berbasis kitab fiqih mu'tabar (seperti Safinatun Naja, Fathul Qorib) jika ditanya soal ibadah. Di akhir jawaban, tanyakan "Wonten ingkang saget dibantu malih Us?".${sessionPromptDirective}`;
+[PANDUAN KEPANITIAAN & DATA RESMI: Jika ditanya mengenai susunan panitia, divisi kesekretariatan, ketua, bendahara, seksi-seksi, ataupun teknis gerbang dan denah, Anda WAJIB memberikan nama-nama dan data aktual yang sudah tercantum lengkap di atas. DILARANG menyatakan kepengurusan belum diputuskan atau menyuruh mengecek SK lain, karena data kepanitiaan di atas adalah data resmi final SK Haflah 1448 H./ 2027 M.]`;
 
     // Identifikasi Kunci API (Klien / Environment)
     const geminiApiKey =
