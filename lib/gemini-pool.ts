@@ -242,8 +242,9 @@ class GeminiPoolManager {
   public getModelCandidates(): string[] {
     const configuredModel = process.env.GEMINI_MODEL;
     const defaultModels = [
-      'gemini-3-flash-preview',
-      'gemini-3.1-flash-lite-preview',
+      'gemini-flash-lite-latest',
+      'gemini-flash-latest',
+      'gemini-2.5-flash',
     ];
 
     if (configuredModel && !defaultModels.includes(configuredModel)) {

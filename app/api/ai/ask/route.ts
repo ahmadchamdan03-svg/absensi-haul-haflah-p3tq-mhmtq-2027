@@ -1124,6 +1124,92 @@ $$\\text{Total Porsi Konsumsi} = \\text{Total Kuota Global} \\times 0.87 \\times
 - **13.00 WIB**: Penutupan & ramah tamah.`;
   }
 
+  // =========================================================================
+  // DETEKSI KHUSUS: KEBINGUNGAN / BUTUH PANDUAN CEPAT ("SAYA BINGUNG")
+  // =========================================================================
+  if (
+    q.includes('bingung') ||
+    q.includes('bantu saya') ||
+    q.includes('tolong saya') ||
+    q.includes('panduan') ||
+    q.includes('cara pakai') ||
+    q.includes('harus bagaimana') ||
+    q.includes('gimana caranya')
+  ) {
+    return `${headerIntro}Mboten usah bingung Us, Ustadzah AI siap mendampingi panitia dan keluarga tamu shohibul hajat dengan senang hati! 😊
+
+Kira-kira babagan (hal) menapa yang sedang membuat Us bingung?
+1. 🎟️ **Pemesanan Kuota & Tiket Masuk**: Kuota dasar 2 kursi, pemesanan tambahan maksimal 4 kursi (Rp 80.000/kursi) dengan batas waktu konfirmasi transfer 6 jam.
+2. 🕌 **Jadwal & Rundown Acara**: Gerbang dibuka pukul 06.00 WIB, Khotmil Qur'an Bil Ghoib & Bin Nadzori pukul 08.30 WIB.
+3. 🗺️ **Denah Tempat Duduk**: Sayap Barat untuk tamu putra & Sayap Timur untuk tamu putri. Tiket Emas panggung kehormatan khusus Ibu Kandung Bil Ghoib.
+4. 📱 **Alur Presensi Gerbang & Meja Rekon**: Tunjukkan QR Code di HP atau cetak fisik. Jika HP mati atau ada kendala tiket, langsung ke Meja Rekonsiliasi di tenda satir.
+
+[👉 Buka Live Dasbor](/admin/dasbor) [🗺️ Buka Denah Interaktif](/denah) [👉 Buka Meja Rekon](/rekon)
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  // =========================================================================
+  // DETEKSI KHUSUS: FIQIH IBADAH DASAR (SHOLAT, WUDHU, RUKUN ISLAM & IMAN)
+  // =========================================================================
+  if (q.includes('rukun sholat') || q.includes('rukun solat') || (q.includes('rukun') && q.includes('sholat'))) {
+    return `${headerIntro}Berdasarkan kitab fiqih mu'tabar mazhab Syafi'i (seperti *Safinatun Naja* dan *Fathul Qorib*), **Rukun Sholat ada 13 perkara** (atau 17 perkara bila thuma'ninah dihitung terpisah):
+
+1. **Niat** (di dalam hati berbarengan dengan takbiratul ihram)
+2. **Berdiri bagi yang mampu** (pada sholat fardhu)
+3. **Takbiratul Ihram** (mengucapkan *Allahu Akbar*)
+4. **Membaca Surat Al-Fatihah** (pada setiap rakaat beserta basmalah & tajwidnya)
+5. **Ruku'** serta **Thuma'ninah** (tenang sejenak sekadar membaca tasbih)
+6. **I'tidal** serta **Thuma'ninah**
+7. **Sujud dua kali** serta **Thuma'ninah**
+8. **Duduk di antara dua sujud** serta **Thuma'ninah**
+9. **Duduk untuk Tasyahud Akhir**
+10. **Membaca Tasyahud Akhir**
+11. **Membaca Shalawat atas Nabi SAW** pada tasyahud akhir
+12. **Mengucapkan Salam Pertama** (menoleh ke kanan)
+13. **Tertib** (melaksanakan rukun-rukun di atas secara berurutan)
+
+> إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا
+
+Semoga ibadah sholat kita senantiasa diterima oleh Allah SWT. Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('rukun wudhu') || q.includes('rukun wudlu') || (q.includes('rukun') && q.includes('wudhu'))) {
+    return `${headerIntro}Menurut mazhab Syafi'i, **Rukun Wudhu ada 6 perkara**:
+
+1. **Niat** ketika membasuh sebagian wajah
+2. **Membasuh seluruh muka / wajah**
+3. **Membasuh kedua tangan beserta kedua siku**
+4. **Mengusap sebagian kulit atau rambut kepala**
+5. **Membasuh kedua kaki beserta kedua mata kaki**
+6. **Tertib** (berurutan dari awal sampai akhir)
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('rukun islam')) {
+    return `${headerIntro}**Rukun Islam ada 5 perkara**:
+1. Mengucapkan dua kalimat syahadat (*Asyhadu alla ilaha illallah wa asyhadu anna Muhammadar Rasulullah*)
+2. Mendirikan sholat lima waktu
+3. Menunaikan zakat
+4. Menjalankan puasa di bulan Ramadhan
+5. Menunaikan ibadah haji ke Baitullah bagi yang mampu.
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('rukun iman')) {
+    return `${headerIntro}**Rukun Iman ada 6 perkara**:
+1. Iman kepada Allah SWT
+2. Iman kepada Malaikat-malaikat Allah
+3. Iman kepada Kitab-kitab Allah
+4. Iman kepada Rasul-rasul Allah
+5. Iman kepada Hari Akhir (Kiamat)
+6. Iman kepada Qadha dan Qadar (takdir baik maupun buruk dari Allah SWT).
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
   // Jawaban Cerdas Standar (Ringkas & Santun)
   return `${headerIntro}Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., Us AI siap membantu dengan senang hati! 😊`;
 }
@@ -1402,8 +1488,22 @@ export async function POST(req: NextRequest) {
       ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika memperkenalkan diri, gunakan: \"Perkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Us\", bukan \"Kang\" atau \"Mbak\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat. Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Us?\".]";
 
-    const liveDataPrompt = getLiveEventDataPrompt();
-    const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}`;
+    const isEventQuery =
+      qLower.includes('kuota') || qLower.includes('tiket') || qLower.includes('kursi') ||
+      qLower.includes('hadir') || qLower.includes('santri') || qLower.includes('wali') ||
+      qLower.includes('jadwal') || qLower.includes('denah') || qLower.includes('gerbang') ||
+      qLower.includes('rekon') || qLower.includes('muktamar') || qLower.includes('anwar') ||
+      qLower.includes('shohibul') || qLower.includes('haflah') || qLower.includes('haul') ||
+      qLower.includes('p3tq') || qLower.includes('mhmtq') || qLower.includes('peserta') ||
+      qLower.includes('tamu') || qLower.includes('barat') || qLower.includes('timur') ||
+      qLower.includes('panggung') || qLower.includes('undangan') || qLower.includes('masyayikh');
+
+    const liveDataPrompt = isEventQuery ? getLiveEventDataPrompt() : '';
+    const dynamicSystemPrompt = isEventQuery
+      ? `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}`
+      : `Anda adalah Ustadzah AI (atau biasa dipanggil "Us AI"), asisten cerdas resmi Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo Kediri).
+Kepribadian Anda: Sangat santun, arif, solutif, dan berwawasan luas dalam ilmu syariat Islam (fiqih mazhab Syafi'i, ibadah, thaharah, adab santriwati) serta siap memandu kepanitiaan dan tamu.
+Panggilan: Selalu sapa pengguna dengan sebutan "Us". Jawab secara santun, terstruktur, berbasis kitab fiqih mu'tabar (seperti Safinatun Naja, Fathul Qorib) jika ditanya soal ibadah. Di akhir jawaban, tanyakan "Wonten ingkang saget dibantu malih Us?".${sessionPromptDirective}`;
 
     // Identifikasi Kunci API (Klien / Environment)
     const geminiApiKey =
@@ -1453,7 +1553,7 @@ export async function POST(req: NextRequest) {
     // =========================================================================
     // TIER 1: GOOGLE GEMINI (Multi-Key Pool & Smart Auto-Rotation / Failover)
     // =========================================================================
-    const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 2);
+    const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 3);
     const candidateGeminiModels = geminiPool.getModelCandidates();
 
     if (candidateGeminiKeys.length > 0) {
@@ -1481,7 +1581,7 @@ export async function POST(req: NextRequest) {
             const geminiRes = await fetch(geminiUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              signal: AbortSignal.timeout(3500),
+              signal: AbortSignal.timeout(4000),
               body: JSON.stringify({
                 system_instruction: {
                   parts: [{ text: dynamicSystemPrompt }],
@@ -1489,7 +1589,7 @@ export async function POST(req: NextRequest) {
                 contents,
                 generationConfig: {
                   temperature: 0.35,
-                  maxOutputTokens: 1200,
+                  maxOutputTokens: 800,
                 },
               }),
             });
@@ -1539,12 +1639,12 @@ export async function POST(req: NextRequest) {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${zhipuApiKey}`,
             },
-            signal: AbortSignal.timeout(3500),
+            signal: AbortSignal.timeout(3000),
             body: JSON.stringify({
               model: zModel,
               messages: standardMessages,
               temperature: 0.35,
-              max_tokens: 1200,
+              max_tokens: 600,
             }),
           });
 
@@ -1570,21 +1670,31 @@ export async function POST(req: NextRequest) {
     }
 
     // =========================================================================
-    // TIER 2: GROQ LPU (Model GPT-OSS 120B / Qwen - 100% Free & Super Kilat 0.1s)
+    // TIER 2: GROQ LPU (Model GPT-OSS 20B / Qwen 27B - 100% Free & Super Kilat 0.1s)
     // =========================================================================
     if (groqApiKey) {
       try {
+        const groqSysPrompt = dynamicSystemPrompt.length > 3500
+          ? dynamicSystemPrompt.slice(0, 3500) + '\n\n[Ringkasan Data Selesai]'
+          : dynamicSystemPrompt;
+        const groqMessages = [
+          { role: 'system', content: groqSysPrompt },
+          ...standardMessages.slice(1),
+        ];
+
         const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${groqApiKey}`,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
           },
+          signal: AbortSignal.timeout(3000),
           body: JSON.stringify({
-            model: 'openai/gpt-oss-120b',
-            messages: standardMessages,
+            model: 'openai/gpt-oss-20b',
+            messages: groqMessages,
             temperature: 0.35,
-            max_tokens: 1200,
+            max_tokens: 600,
           }),
         });
 
@@ -1599,7 +1709,7 @@ export async function POST(req: NextRequest) {
               expression: expr,
               avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
               source: 'groq_lpu',
-              model: 'Groq (GPT-OSS 120B)',
+              model: 'Groq (GPT-OSS 20B)',
             });
           }
         } else {
@@ -1609,12 +1719,14 @@ export async function POST(req: NextRequest) {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${groqApiKey}`,
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
             },
+            signal: AbortSignal.timeout(3000),
             body: JSON.stringify({
               model: 'qwen/qwen3.8-27b',
-              messages: standardMessages,
+              messages: groqMessages,
               temperature: 0.35,
-              max_tokens: 1200,
+              max_tokens: 600,
             }),
           });
 
@@ -1633,10 +1745,9 @@ export async function POST(req: NextRequest) {
               });
             }
           }
-          console.warn('Tier 2 (Groq) non-OK status:', groqRes.status);
         }
       } catch (groqError) {
-        console.warn('Tier 2 (Groq) error, switching to Tier 3:', groqError);
+        // failover quietly to Tier 3
       }
     }
 
