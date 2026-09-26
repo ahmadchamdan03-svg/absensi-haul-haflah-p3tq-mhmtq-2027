@@ -24,7 +24,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'LPTQ Jawa Timur',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0102',
@@ -33,7 +33,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Jam\'iyyatul Qurro\' wal Huffadh PBNU',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0103',
@@ -42,7 +42,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Lajnah Pentashih Al-Qur\'an',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0104',
@@ -51,7 +51,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Pondok Yanbu\'ul Qur\'an Kudus',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0105',
@@ -60,7 +60,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Masjid Nasional Al-Akbar Surabaya',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0106',
@@ -69,7 +69,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Kanwil Kemenag Jawa Timur',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0107',
@@ -78,7 +78,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Penguji Huffadh Putri PP. Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0108',
@@ -87,7 +87,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Al-Munawwir Krapyak Yogyakarta',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0109',
@@ -96,7 +96,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'LPTQ Kota & Kab. Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0110',
@@ -105,7 +105,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PIQ Singosari Malang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0111',
@@ -114,7 +114,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Tahfizh Yanbu\' Kudus',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0112',
@@ -123,7 +123,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Lembaga Dakwah PBNU',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0113',
@@ -132,7 +132,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Madrasatul Qur\'an Tebuireng',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0114',
@@ -141,7 +141,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Jam\'iyyatul Huffadh Tuban',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0115',
@@ -150,7 +150,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'LPTQ Kabupaten Blitar',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0116',
@@ -159,7 +159,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Al-Huda Tulungagung',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0117',
@@ -168,7 +168,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Pondok Pesantren Babakan Ciwaringin Cirebon',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0118',
@@ -177,7 +177,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'Penguji Huffadh Pasuruan',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0119',
@@ -186,7 +186,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Asshodiqiyyah Semarang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0120',
@@ -195,7 +195,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Tahfizh Al-Fattah Nganjuk',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0121',
@@ -204,7 +204,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'LPTQ Bojonegoro',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0122',
@@ -213,7 +213,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'LPTQ Mojokerto',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0123',
@@ -222,7 +222,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Tahfizh Putri Surabaya',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0124',
@@ -231,7 +231,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Al-Hidayah Lasem',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0125',
@@ -240,7 +240,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'PENGUJI',
     instansi: 'PP. Raudlatut Thalibin Rembang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
 
   // --- 45 ASATIDZ PURNA BAKTI & MASYAIKH (90 KUOTA) ---
@@ -251,7 +251,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Pengasuh Utama PP. Lirboyo Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0127',
@@ -260,7 +260,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Pengasuh PP. Lirboyo / Rektor IAIT',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0128',
@@ -269,7 +269,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Masyayikh PP. Al-Falah Ploso Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0129',
@@ -278,7 +278,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Masyayikh Pesantren Ponorogo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0130',
@@ -287,7 +287,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Majelis Masyayikh PP. Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0131',
@@ -296,7 +296,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Masyayikh PP. Lirboyo / IAIT',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0132',
@@ -305,7 +305,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Masyayikh PP. Lirboyo Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0133',
@@ -314,7 +314,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidz Sepuh MHMTQ Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0134',
@@ -323,7 +323,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Ketua Umum MUI / PP. Al-Amien Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0135',
@@ -332,7 +332,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Bumi Shalawat Sidoarjo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0136',
@@ -341,7 +341,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Sabilurrosyad Gasek Malang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0137',
@@ -350,7 +350,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Assalafiyah Brebes Jawa Tengah',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0138',
@@ -359,7 +359,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidzah Purna Bakti P3TQ Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0139',
@@ -368,7 +368,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Al-Hidayat Lasem Rembang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0140',
@@ -377,7 +377,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Al-Munawwir Krapyak Yogyakarta',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0141',
@@ -386,7 +386,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidzah Sepuh P3TQ Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0142',
@@ -395,7 +395,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Darur Rahman Jakarta',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0143',
@@ -404,7 +404,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidz Sepuh MHM Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0144',
@@ -413,7 +413,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Lirboyo Unit Darussalam',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0145',
@@ -422,7 +422,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Masyayikh PP. Lirboyo HM Al-Mahrusiyah',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0146',
@@ -431,7 +431,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidz Purna Bakti MHMTQ',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0147',
@@ -440,7 +440,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Nurul Haromain Pujon Malang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0148',
@@ -449,7 +449,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidz Sepuh Pondok Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0149',
@@ -458,7 +458,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. At-Taujieh Al-Islamy Banyumas',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0150',
@@ -467,7 +467,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Keluarga Ndalem Masyayikh Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0151',
@@ -476,7 +476,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Salafiyah Syafi\'iyah Sukorejo Situbondo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0152',
@@ -485,7 +485,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. KHAS Kempek Cirebon',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0153',
@@ -494,7 +494,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidz Purna Bakti Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0154',
@@ -503,7 +503,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidzah Purna Bakti MHMTQ',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0155',
@@ -512,7 +512,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Darussalam Nganjuk',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0156',
@@ -521,7 +521,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Tokoh Alumni Sepuh Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0157',
@@ -530,7 +530,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Masyayikh PP. Al-Falah Ploso',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0158',
@@ -539,7 +539,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Ketua MUI Bidang Dakwah',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0159',
@@ -548,7 +548,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Fathul Ulum Kwagean Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0160',
@@ -557,7 +557,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Ketua PW Muslimat NU Jawa Timur',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0161',
@@ -566,7 +566,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. An-Nawawi Berjan Purworejo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0162',
@@ -575,7 +575,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Sunan Bejagung Tuban',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0163',
@@ -584,7 +584,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Al-Falah Ploso Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0164',
@@ -593,7 +593,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. LP3IA Narukan Kragan Rembang',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0165',
@@ -602,7 +602,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidzah Purna Bakti P3TQ Kediri',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0166',
@@ -611,7 +611,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Tremas Pacitan Jawa Timur',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0167',
@@ -620,7 +620,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidz Purna Bakti MHM Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0168',
@@ -629,7 +629,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Al-Fithrah Kedinding Surabaya',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0169',
@@ -638,7 +638,7 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'Asatidzah Sepuh P3TQ Lirboyo',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
   {
     code: 'UND0170',
@@ -647,6 +647,6 @@ export const MASTER_UNDANGAN_LIST: MasterUndangan[] = [
     subKategori: 'ASATIDZ_MASYAIKH',
     instansi: 'PP. Langitan Widang Tuban',
     kuotaDasar: 2,
-    warnaTiket: 'Putih VIP',
+    warnaTiket: 'Merah Gold',
   },
 ];

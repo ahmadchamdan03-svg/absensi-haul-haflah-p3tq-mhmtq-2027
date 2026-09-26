@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
@@ -8,7 +8,6 @@ import {
   Calendar,
   Clock,
   MapPin,
-  Download,
   Users,
   CheckCircle2,
   ShoppingBag,
@@ -17,39 +16,70 @@ import {
   ShieldCheck,
   Sparkles,
   MessageCircle,
+  Volume2,
+  VolumeX,
+  MailOpen,
+  ArrowRight,
+  Copy,
+  Check,
+  Compass,
+  AlertCircle,
+  HelpCircle,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
-import { TraditionalCorner, BegoniaCartouche } from '@/components/Ornaments';
 import DenahModal from '@/components/DenahModal';
+import TanyaUsModal from '@/components/TanyaUsModal';
 
-export default function PortalWaliPage() {
+export default function UndanganWaliPage() {
   const params = useParams();
   const token = (params?.token as string) || '';
   const kodeSH = token.split('-')[0] || 'SH0001';
 
+  // State Item & Data
   const [item, setItem] = useState<any>(() => store.findByKode(kodeSH) || store.findByKode('SH0001'));
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [fullQrPayload, setFullQrPayload] = useState<string>('');
 
+  // State Interaktif Undangan Pernikahan Style
+  const [isOpened, setIsOpened] = useState(false);
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // State Estimasi Kehadiran (RSVP)
   const [estL, setEstL] = useState(1);
   const [estP, setEstP] = useState(1);
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
   const [estimasiSaved, setEstimasiSaved] = useState(false);
-  const [kuotaTambahanBuka, setKuotaTambahanBuka] = useState(false);
+
+  // State Modal Denah & Ustadzah AI
   const [isDenahOpen, setIsDenahOpen] = useState(false);
+  const [isUsModalOpen, setIsUsModalOpen] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  // Countdown Timer ke Sabtu, 02 Januari 2027 06:30:00 WIB
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
-    setKuotaTambahanBuka(store.isKuotaTambahanBuka());
-    const handleSync = () => {
-      setKuotaTambahanBuka(store.isKuotaTambahanBuka());
+    const targetDate = new Date('2027-01-02T06:30:00+07:00').getTime();
+    const updateCountdown = () => {
+      const now = Date.now();
+      const diff = Math.max(0, targetDate - now);
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
     };
-    window.addEventListener('storage', handleSync);
-    window.addEventListener('kuota_tambahan_toggle', handleSync);
-    return () => {
-      window.removeEventListener('storage', handleSync);
-      window.removeEventListener('kuota_tambahan_toggle', handleSync);
-    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -66,7 +96,6 @@ export default function PortalWaliPage() {
           setLastSavedTime(found.estimasi.diisiAt);
         }
       } else {
-        // Default awal: 1 Laki-laki dan sisa untuk Perempuan (maks totalK)
         setEstL(Math.min(1, totalK));
         setEstP(Math.max(0, Math.min(1, totalK - 1)));
       }
@@ -74,8 +103,8 @@ export default function PortalWaliPage() {
       formatQrPayload(found.kuota.kodeQr).then((payload) => {
         setFullQrPayload(payload);
         QRCode.toDataURL(payload, {
-          width: 380,
-          margin: 2,
+          width: 360,
+          margin: 1.5,
           color: {
             dark: '#422F21',
             light: '#FAF7F3',
@@ -84,6 +113,32 @@ export default function PortalWaliPage() {
       });
     }
   }, [kodeSH]);
+
+  // Handler Buka Undangan & Putar Musik
+  const handleOpenInvitation = () => {
+    setIsOpened(true);
+    try {
+      if (audioRef.current) {
+        audioRef.current.play().then(() => {
+          setIsPlayingMusic(true);
+        }).catch(() => {
+          // Autoplay dicegah browser, user dapat klik tombol musik manual
+        });
+      }
+    } catch (e) {}
+  };
+
+  const toggleMusic = () => {
+    if (!audioRef.current) return;
+    if (isPlayingMusic) {
+      audioRef.current.pause();
+      setIsPlayingMusic(false);
+    } else {
+      audioRef.current.play().then(() => {
+        setIsPlayingMusic(true);
+      }).catch(() => {});
+    }
+  };
 
   const handleSimpanEstimasi = () => {
     if (!item) return;
@@ -95,332 +150,425 @@ export default function PortalWaliPage() {
     setTimeout(() => setEstimasiSaved(false), 4000);
   };
 
-  if (!item) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#EFE8E1]">
-        <div className="bg-[#FAF7F3] p-6 rounded-3xl shadow text-center max-w-sm border-2 border-[#D5C4B4]">
-          <Info className="w-8 h-8 text-[#8C6A47] mx-auto mb-2" />
-          <h2 className="font-bold text-[#422F21]">Undangan Tidak Ditemukan</h2>
-        </div>
-      </div>
-    );
-  }
+  const handleCopyKode = () => {
+    if (!item) return;
+    navigator.clipboard.writeText(item.kuota.kodeQr);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2500);
+  };
 
-  const santri = item.santri;
-  const kuota = item.kuota;
-  const totalKuota = kuota.kuotaDasar + kuota.kuotaTambahan;
+  const santri = item?.santri;
+  const kuota = item?.kuota;
+  const isBilGhoib = santri?.kategoriUtama === 'BIL_GHOIB';
 
   return (
-    <div className="min-h-screen bg-[#EFE8E1] py-8 px-4 sm:px-6">
-      <div className="max-w-xl mx-auto space-y-6">
-        {/* Header Resmi: Warm Latte & Cinnamon Mocha Aesthetic dengan Ornamen Tradisional */}
-        {/* Warna Dasar: Warm Oat Cream #EFE8E1 · Aksen: Cinnamon Mocha #8C6A47 · Ambience: Golden Caramel Crema #D49B5B */}
-        <div className="bg-gradient-to-b from-[#FAF7F3] via-[#EFE8E1] to-[#E5DCD2] rounded-3xl p-6 sm:p-8 text-[#422F21] text-center shadow-xl border-2 border-[#8C6A47]/40 relative overflow-hidden">
-          {/* 4 Sudut Ornamen Tradisional Fretwork */}
-          <div className="absolute top-2.5 left-2.5 z-10 opacity-70">
-            <TraditionalCorner position="top-left" className="w-8 h-8" />
-          </div>
-          <div className="absolute top-2.5 right-2.5 z-10 opacity-70">
-            <TraditionalCorner position="top-right" className="w-8 h-8" />
-          </div>
-          <div className="absolute bottom-2.5 left-2.5 z-10 opacity-70">
-            <TraditionalCorner position="bottom-left" className="w-8 h-8" />
-          </div>
-          <div className="absolute bottom-2.5 right-2.5 z-10 opacity-70">
-            <TraditionalCorner position="bottom-right" className="w-8 h-8" />
-          </div>
+    <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
+      {/* Audio Elemen Tersembunyi (Ultra Lightweight ~500KB Audio) */}
+      <audio
+        ref={audioRef}
+        src="/audio/backsound-haflah.wav"
+        loop
+        preload="auto"
+      />
 
-          {/* Ornamen Plakat Begonia Tradisional */}
-          <div className="flex justify-center mb-3">
-            <BegoniaCartouche
-              title="UNDANGAN RESMI WALI SANTRI"
-              subtitle="Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo"
-              className="w-full max-w-sm sm:max-w-md"
-            />
-          </div>
+      {/* Floating Music Button (Tampil Setelah Undangan Dibuka) */}
+      {isOpened && (
+        <button
+          onClick={toggleMusic}
+          type="button"
+          className="fixed top-4 right-4 z-40 w-11 h-11 rounded-full bg-white/90 backdrop-blur-md border-2 border-[#D5C4B4] text-[#8C6A47] shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title={isPlayingMusic ? 'Jeda Musik' : 'Putar Musik'}
+        >
+          {isPlayingMusic ? (
+            <Volume2 className="w-5 h-5 text-[#8C6A47] animate-pulse" />
+          ) : (
+            <VolumeX className="w-5 h-5 text-stone-400" />
+          )}
+        </button>
+      )}
 
-          {/* Logo Kembar P3TQ & MHMTQ */}
-          <div className="flex justify-center items-center space-x-3 mb-3">
-            <div className="w-14 h-14 p-1 rounded-full bg-white border-2 border-[#8C6A47] shadow-sm">
-              <img src="/images/logo-p3tq.png" alt="P3TQ" className="w-full h-full object-contain" />
+      {/* ========================================================================= */}
+      {/* LAYAR 1: COVER AMPLOP PEMBUKA (SEPERTI UNDANGAN NIKAH MEWAH) */}
+      {/* ========================================================================= */}
+      {!isOpened ? (
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
+          <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
+            {/* Sudut Emas Ornamen Sederhana */}
+            <div className="w-16 h-16 rounded-full bg-[#FAF0E6] text-[#8C6A47] mx-auto flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm">
+              <Sparkles className="w-8 h-8 text-[#8C6A47]" />
             </div>
-            <div className="w-14 h-14 p-1 rounded-full bg-white border-2 border-[#8C6A47] shadow-sm">
-              <img src="/images/logo-mhmtq.png" alt="MHMTQ" className="w-full h-full object-contain" />
-            </div>
-          </div>
 
-          {/* Kaligrafi Haul Haflah Emas */}
-          <div className="my-2 flex justify-center">
-            <img
-              src="/images/logo-haul-gold.png"
-              alt="Kaligrafi Haul Haflah"
-              className="h-12 sm:h-14 object-contain drop-shadow-[0_4px_8px_rgba(212,155,91,0.55)]"
-            />
-          </div>
-
-          <div className="text-[11px] font-serif font-black text-[#8C6A47] tracking-widest uppercase">
-            UNDANGAN RESMI WALI SANTRI
-          </div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black mt-1 tracking-tight text-[#422F21]">
-            HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.
-          </h1>
-          <p className="text-xs text-[#7A624E] mt-1 font-medium">
-            Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ) Lirboyo Kediri
-          </p>
-          <div className="mt-1.5 text-[11px] text-[#8C6A47] flex items-center justify-center gap-1 font-medium">
-            <MapPin className="w-3.5 h-3.5 text-[#D49B5B] shrink-0" />
-            <span>Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kabupaten Kediri, Jawa Timur 64117</span>
-          </div>
-
-          <div className="mt-4 pt-4 border-t-2 border-[#8C6A47]/25 flex justify-center items-center gap-4 text-xs text-[#5C3E28]">
-            <span className="flex items-center gap-1 font-bold">
-              <Calendar className="w-3.5 h-3.5 text-[#D49B5B]" />
-              Sabtu, 02 Januari 2027
-            </span>
-            <span>·</span>
-            <span className="flex items-center gap-1 font-bold">
-              <Clock className="w-3.5 h-3.5 text-[#D49B5B]" />
-              06.30 WIB - Selesai
-            </span>
-          </div>
-        </div>
-
-        {/* BAGIAN 1: DETAIL SOHIBUL HAJAT (§7.2) */}
-        <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
-          <div className="text-center pb-4 border-b border-[#D5C4B4]/50">
-            <div className="text-xs text-[#8C6A47] font-bold uppercase tracking-wider">
-              SOHIBUL HAJAT / SANTRI:
-            </div>
-            <h2 className="text-2xl font-serif font-black text-[#422F21] mt-1">
-              {santri?.nama}
-            </h2>
-            <div className="inline-block mt-2 px-3.5 py-1 rounded-full bg-[#EFE8E1] text-[#422F21] font-bold text-xs border border-[#D5C4B4]">
-              {santri?.subKategori} {santri?.kamar ? `· Kamar: ${santri.kamar}` : ''}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-3.5 rounded-2xl bg-[#EFE8E1]/60 border border-[#D5C4B4]">
-              <div className="text-[#7A624E] font-medium">Nama Wali Santri</div>
-              <div className="font-bold text-[#422F21] mt-0.5">{item.entitas.namaWali}</div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-[#EFE8E1]/60 border border-[#D5C4B4]">
-              <div className="text-[#7A624E] font-medium">Jatah Kuota Masuk</div>
-              <div className="font-bold text-[#8C6A47] mt-0.5">
-                {totalKuota} Kursi {kuota.kuotaTambahan > 0 && `(+${kuota.kuotaTambahan} Beli)`}
+            <div className="space-y-1">
+              <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
+                UNDANGAN RESMI KHIDMAT
               </div>
-            </div>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-[#FCF3E4] border border-[#D49B5B]/50 text-xs text-[#543C28] flex items-start space-x-2.5">
-            <MapPin className="w-4 h-4 text-[#D49B5B] shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold">Lokasi Acara & Gerbang Masuk:</span>
-              <p className="mt-0.5 text-[#7A4D15]">
-                Aula Muktamar Pondok Pesantren Lirboyo Kediri. Seluruh tamu masuk melalui{' '}
-                <strong>Gerbang Selatan (Bola Dunia)</strong>.
+              <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
+                Haul & Haflah Akhirussanah 1448 H. / 2027 M.
+              </h1>
+              <p className="text-xs text-[#7A624E] font-medium pt-0.5">
+                P3TQ & MHMTQ Lirboyo Kota Kediri
               </p>
             </div>
-          </div>
 
-          {/* PESAN / TOMBOL BELI KUOTA TAMBAHAN (Hanya muncul jika panitia sudah meng-ON-kan tombol switch) */}
-          {kuotaTambahanBuka && (
-            <Link
-              href={`/beli/${token}`}
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-black text-xs shadow-md shadow-[#8C6A47]/25 flex items-center justify-between border border-[#735334] animate-in fade-in slide-in-from-top-2 duration-300"
-            >
-              <div className="flex items-center space-x-2">
-                <ShoppingBag className="w-4 h-4 text-white" />
-                <span>Ingin menambah kuota untuk kerabat? Beli Kuota Tambahan</span>
-              </div>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          )}
-        </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
 
-        {/* BAGIAN 3: KODE QR STATIS (§7.2 & §4) */}
-        <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] text-center space-y-4">
-          <div className="space-y-1">
-            <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-[#EFE8E1] text-[#422F21] text-[11px] font-bold border border-[#D5C4B4]">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#8C6A47]" />
-              <span>QR RESMI MULTI-PAKAI STATIS</span>
-            </div>
-            <h3 className="text-lg font-serif font-black text-[#422F21]">
-              Tunjukkan QR Ini di Gerbang Masuk
-            </h3>
-            <p className="text-xs text-[#7A624E] max-w-sm mx-auto font-normal">
-              QR ini statis dan aman disimpan ke galeri ponsel Anda. Boleh di-screenshot dan digunakan berulang kali untuk rombongan yang datang bertahap sampai kuota habis.
-            </p>
-          </div>
-
-          <div className="p-4 bg-[#EFE8E1] rounded-3xl border-2 border-[#8C6A47]/30 inline-block shadow-inner">
-            {qrDataUrl ? (
-              <img src={qrDataUrl} alt="QR Code Undangan" className="w-64 h-64 mx-auto rounded-2xl border border-[#D5C4B4]" />
-            ) : (
-              <div className="w-64 h-64 bg-[#EFE8E1] animate-pulse rounded-2xl flex items-center justify-center text-xs text-[#7A624E]">
-                Membuat Kode QR...
-              </div>
-            )}
-            <div className="mt-2 font-mono text-xs font-bold text-[#422F21] tracking-wider">
-              {fullQrPayload || kuota.kodeQr}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-2.5">
-            {qrDataUrl && (
-              <a
-                href={qrDataUrl}
-                download={`QR_Undangan_${santri?.nama?.replace(/\s+/g, '_')}_${kuota.kodeQr}.png`}
-                className="px-4 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs flex items-center space-x-2 shadow-md border border-[#735334] transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Simpan Gambar QR</span>
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* BAGIAN 2: ESTIMASI KEHADIRAN (§7.2 & §8) */}
-        <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
-          <div>
-            <div className="text-xs text-[#8C6A47] font-bold uppercase tracking-wider">
-              BANTU PANITIA MENYIAPKAN KURSI & KONSUMSI
-            </div>
-            <h3 className="text-base font-serif font-black text-[#422F21] mt-0.5">
-              Konfirmasi Perkiraan Kehadiran
-            </h3>
-            <p className="text-xs text-[#7A624E] mt-0.5 font-normal">
-              Zona duduk laki-laki dan perempuan dipisah. Mohon isi perkiraan rombongan yang akan hadir:
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#EFE8E1]/60 border border-[#D5C4B4]">
-              <div>
-                <div className="text-xs font-bold text-[#422F21]">Wali Santri Laki-laki</div>
-                <div className="text-[10px] text-[#7A624E]">Zona Duduk Sayap Barat</div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button
-                  type="button"
-                  disabled={estL <= 0}
-                  onClick={() => setEstL(Math.max(0, estL - 1))}
-                  className="w-8 h-8 rounded-lg bg-white border border-[#D5C4B4] font-bold text-[#422F21] hover:bg-[#FAF7F3] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                >
-                  −
-                </button>
-                <span className="w-6 text-center font-black text-[#422F21] text-base">{estL}</span>
-                <button
-                  type="button"
-                  disabled={estL + estP >= totalKuota}
-                  onClick={() => {
-                    if (estL + estP < totalKuota) setEstL(estL + 1);
-                  }}
-                  className="w-8 h-8 rounded-lg bg-white border border-[#D5C4B4] font-bold text-[#422F21] hover:bg-[#FAF7F3] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#EFE8E1]/60 border border-[#D5C4B4]">
-              <div>
-                <div className="text-xs font-bold text-[#422F21]">Wali Santri Perempuan</div>
-                <div className="text-[10px] text-[#7A624E]">Zona Duduk Sayap Timur</div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button
-                  type="button"
-                  disabled={estP <= 0}
-                  onClick={() => setEstP(Math.max(0, estP - 1))}
-                  className="w-8 h-8 rounded-lg bg-white border border-[#D5C4B4] font-bold text-[#422F21] hover:bg-[#FAF7F3] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                >
-                  −
-                </button>
-                <span className="w-6 text-center font-black text-[#422F21] text-base">{estP}</span>
-                <button
-                  type="button"
-                  disabled={estL + estP >= totalKuota}
-                  onClick={() => {
-                    if (estL + estP < totalKuota) setEstP(estP + 1);
-                  }}
-                  className="w-8 h-8 rounded-lg bg-white border border-[#D5C4B4] font-bold text-[#422F21] hover:bg-[#FAF7F3] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-white border border-[#D5C4B4]/70 text-xs font-bold text-[#7A624E]">
-              <span>Total Estimasi Rombongan:</span>
-              <span className="text-[#8C6A47] font-black text-sm">
-                {estL + estP} / {totalKuota} Kursi
+            <div className="space-y-2 py-1">
+              <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
+                Kepada Yth. Bapak/Ibu Wali Santri dari:
               </span>
+              <h2 className="text-lg sm:text-xl font-serif font-black text-[#422F21]">
+                {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
+              </h2>
+              <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
+                {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : (item?.entitas?.kategori || 'Tamu Undangan')}
+              </div>
             </div>
 
-            {estL + estP >= totalKuota && (
-              <div className="text-[11px] text-amber-900 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200 font-medium text-center">
-                🔒 Kuota maksimal ({totalKuota} orang) telah terisi penuh.
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleOpenInvitation}
+                className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
+              >
+                <MailOpen className="w-4 h-4 text-amber-200" />
+                <span>Buka Undangan ✉️</span>
+              </button>
+            </div>
+
+            <p className="text-[10px] text-stone-400">
+              Platform Berbasis Web Murni · Dibuka langsung di browser HP
+            </p>
+          </div>
+        </div>
+      ) : (
+        /* ========================================================================= */
+        /* LAYAR 2: KONTEN LENGKAP UNDANGAN (SCROLL REVEAL RINGAN & RESPONSIF) */
+        /* ========================================================================= */
+        <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
+          {/* HEADER KARTU UNDANGAN */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF0E6] border border-[#D5C4B4] text-[#8C6A47] text-xs font-bold shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#8C6A47]" />
+              <span>Haul & Haflah P3TQ - MHMTQ 2027</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
+              Undangan Resmi Khidmat
+            </h1>
+            <p className="text-xs text-[#7A624E]">
+              Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo Kediri
+            </p>
+          </div>
+
+          {/* SECTION 2: PROFIL SANTRIWATI & WALI SANTRI */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <div className="text-center space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                Shohibul Hajat
+              </span>
+              <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
+                {santri?.nama || item?.entitas?.nama}
+              </h2>
+              <p className="text-xs text-stone-600 font-medium">
+                {santri?.subKategori} · Kamar: <strong>{santri?.kamar || '-'}</strong>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-100 text-xs">
+              <div className="p-3 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] space-y-0.5">
+                <span className="text-stone-500 text-[10px] uppercase font-bold">Nama Wali:</span>
+                <p className="font-bold text-[#422F21] truncate">{item?.entitas?.namaWali || item?.entitas?.nama}</p>
               </div>
-            )}
+              <div className="p-3 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] space-y-0.5">
+                <span className="text-stone-500 text-[10px] uppercase font-bold">Asal / Alamat:</span>
+                <p className="font-bold text-[#422F21] truncate">{item?.entitas?.alamat || 'Kediri'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 3: QR CODE & KODE MASUK (SERINGAN MUNGKIN, TANPA SIMULASI FISIK BERAT) */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
+            <div className="space-y-1">
+              <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
+                KODE AKSES RESMI GERBANG MASUK
+              </span>
+              <h3 className="font-serif font-black text-lg text-[#322116]">
+                Tunjukkan QR Code Ini Kepada Petugas Gerbang
+              </h3>
+              <p className="text-xs text-stone-500">
+                Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
+              </p>
+            </div>
+
+            {/* Gambar QR Code Bersih & Tajam */}
+            <div className="flex flex-col items-center justify-center">
+              <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    alt={`QR Code ${kuota?.kodeQr}`}
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                ) : (
+                  <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
+                )}
+              </div>
+
+              {/* Kode Teks & Tombol Salin */}
+              <div className="mt-3 flex items-center space-x-2">
+                <span className="text-xl font-mono font-black text-[#422F21] tracking-widest bg-[#FAF0E6] px-4 py-1.5 rounded-xl border border-[#D5C4B4]">
+                  {kuota?.kodeQr}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyKode}
+                  className="p-2 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs shadow-xs transition-colors"
+                  title="Salin Kode"
+                >
+                  {copiedCode ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Rincian Kuota Masuk */}
+            <div className="grid grid-cols-3 gap-2 bg-[#FAF7F3] p-3 rounded-2xl border border-[#D5C4B4] text-xs">
+              <div>
+                <span className="text-[10px] text-stone-500 uppercase font-bold">KUOTA DASAR</span>
+                <p className="font-serif font-black text-lg text-[#422F21]">{kuota?.kuotaDasar || 2}</p>
+              </div>
+              <div className="border-x border-stone-200">
+                <span className="text-[10px] text-stone-500 uppercase font-bold">TAMBAHAN</span>
+                <p className="font-serif font-black text-lg text-emerald-700">+{kuota?.kuotaTambahan || 0}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-stone-500 uppercase font-bold">TERPAKAI</span>
+                <p className="font-serif font-black text-lg text-stone-700">{kuota?.terpakai || 0}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 4: WAKTU, LOKASI & COUNTDOWN TIMER */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                Waktu & Tempat Pelaksanaan
+              </span>
+              <h3 className="font-serif font-black text-xl text-[#422F21]">
+                Aula Al-Muktamar Pondok Pesantren Lirboyo
+              </h3>
+              <p className="text-xs text-stone-600">
+                Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+              </p>
+            </div>
+
+            {/* Countdown Box */}
+            <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+              <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.days}</div>
+                <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
+              </div>
+              <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.hours}</div>
+                <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
+              </div>
+              <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.minutes}</div>
+                <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
+              </div>
+              <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.seconds}</div>
+                <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
+              </div>
+            </div>
+
+            {/* Tombol Denah */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setIsDenahOpen(true)}
+                className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-colors cursor-pointer"
+              >
+                <Compass className="w-4 h-4 text-[#8C6A47]" />
+                <span>Buka Denah Lokasi & Parkir</span>
+              </button>
+            </div>
+          </div>
+
+          {/* SECTION 5: RANGKAIAN ADICARA UTAMA (TIMELINE) */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
+              Rangkaian Acara Hari H (02 Januari 2027)
+            </h3>
+            <div className="space-y-3 text-xs">
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">05.30 WIs</span>
+                <p className="text-stone-700">Persiapan Shohibul Hajat diberangkatkan ke Aula Al-Muktamar.</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.00 WIs</span>
+                <p className="text-stone-700">Lalaran Tamatan Aliyah & Senandung Sholawat Syauqul Ahibba'.</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.30 WIs</span>
+                <p className="text-stone-700">
+                  <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) & Tartilan Khotmil Qur'an.
+                </p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">07.30 WIs</span>
+                <p className="text-stone-700">Pembukaan, Qiro'at, Tahlil, dan Sambutan-Sambutan Masyayikh.</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">08.52 WIs</span>
+                <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi & Bin Nadzori.</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">10.12 WIs</span>
+                <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, & Pembagian Ijazah Tamatan.</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">13.01 WIs</span>
+                <p className="text-stone-700">Penayangan Video Closing "Sajak Akhirussanah" dan Sesi Foto.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 6: TATA TERTIB & KETENTUAN SAMBANGAN (RESMI KOORDINASI II) */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
+              Tata Tertib & Ketentuan Sambangan
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1">
+                <span className="font-bold text-amber-900 block">🚫 Larangan Selama Acara:</span>
+                <p className="text-amber-800 leading-relaxed text-[11px]">
+                  • Dilarang membawa <strong>buket</strong> ke aula.<br />
+                  • Dilarang memakai kutek, hena, & nail art.<br />
+                  • Dilarang membawa fotografer dari luar.<br />
+                  • Wali dilarang memasuki area steril santriwati saat acara.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
+                <span className="font-bold text-emerald-900 block">📍 Jadwal & Lokasi Sambangan:</span>
+                <p className="text-emerald-800 leading-relaxed text-[11px]">
+                  • Dibuka <strong>setelah acara s.d. 18.00 WIs</strong>.<br />
+                  • <strong>Halaman Al-Khodijah:</strong> Bil Ghoibi & Bin Nadzori.<br />
+                  • <strong>Gedung Rusunawa Baru:</strong> Tamatan Aliyah.<br />
+                  • Wajib mahrom sah (bawa KKS/KTP).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 7: KONFIRMASI KEHADIRAN (RSVP MANDIRI WALI) */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <div className="space-y-1">
+              <h3 className="font-serif font-black text-base text-[#422F21]">
+                Konfirmasi Kehadiran (RSVP)
+              </h3>
+              <p className="text-xs text-[#7A624E]">
+                Bantu panitia menyiapkan tempat duduk dan konsumsi dengan mengisi perkiraan jumlah yang hadir.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-[#422F21]">Wali Laki-Laki</div>
+                  <div className="text-[10px] text-stone-500">Zona Putra</div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setEstL(Math.max(0, estL - 1))}
+                    className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs"
+                  >
+                    −
+                  </button>
+                  <span className="font-black text-sm w-4 text-center">{estL}</span>
+                  <button
+                    type="button"
+                    onClick={() => setEstL(estL + 1)}
+                    className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-[#422F21]">Wali Perempuan</div>
+                  <div className="text-[10px] text-stone-500">Zona Putri</div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setEstP(Math.max(0, estP - 1))}
+                    className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs"
+                  >
+                    −
+                  </button>
+                  <span className="font-black text-sm w-4 text-center">{estP}</span>
+                  <button
+                    type="button"
+                    onClick={() => setEstP(estP + 1)}
+                    className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <button
               type="button"
               onClick={handleSimpanEstimasi}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-black text-xs shadow-md border-2 border-white transition-all uppercase tracking-wider"
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
             >
-              {lastSavedTime ? '[ PERBARUI KONFIRMASI ]' : '[ SIMPAN KONFIRMASI ]'}
+              <CheckCircle2 className="w-4 h-4 text-amber-200" />
+              <span>Simpan Konfirmasi Kehadiran</span>
             </button>
 
             {estimasiSaved && (
-              <div className="p-3.5 rounded-xl bg-emerald-50 text-emerald-900 text-xs border border-emerald-300 flex items-start space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold">Konfirmasi Kehadiran Berhasil Disimpan & Diperbarui!</div>
-                  <div className="text-[11px] text-emerald-800 mt-0.5">
-                    Data kehadiran ({estL} Laki-laki + {estP} Perempuan) telah diperbarui di sistem panitia. Anda dapat mengisi ulang sewaktu-waktu.
-                  </div>
-                </div>
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs text-center font-bold animate-in fade-in">
+                ✓ Konfirmasi kehadiran Anda berhasil disimpan ke sistem panitia.
               </div>
             )}
+          </div>
 
-            {lastSavedTime && !estimasiSaved && (
-              <div className="text-center text-[11px] text-[#7A624E]">
-                Terakhir dikonfirmasi: <span className="font-semibold text-[#422F21]">{new Date(lastSavedTime).toLocaleString('id-ID')}</span>
-              </div>
-            )}
-
-            {/* Tombol Hubungi Panitia via WhatsApp */}
-            <div className="pt-3 border-t border-[#D5C4B4]/60">
-              <a
-                href="https://wa.me/6285181805377?text=Us%20Mau%20Tanya."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-black text-xs shadow-md transition-all flex items-center justify-center space-x-2 active:scale-95 group tracking-wide uppercase"
-                title="Hubungi Panitia via WhatsApp (Us Mau Tanya)"
-              >
-                <MessageCircle className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-                <span>Hubungi Panitia via WhatsApp (Us Mau Tanya.)</span>
-              </a>
-            </div>
+          {/* FOOTER INFORMASI WEB MURNI */}
+          <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
+            <p className="font-serif font-bold text-[#422F21]">
+              Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo
+            </p>
+            <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Modal Denah Interaktif */}
-      <DenahModal
-        isOpen={isDenahOpen}
-        onClose={() => setIsDenahOpen(false)}
-        initialLocationId={
-          santri?.kategoriUtama === 'BIL_GHOIB'
-            ? 'bil_ghoib'
-            : santri?.kategoriUtama === 'BIN_NADZOR'
-            ? 'bin_nadzori'
-            : santri?.kategoriUtama === 'TAMATAN'
-            ? 'tamatan'
-            : 'gerbang_bola_dunia'
-        }
-      />
+      {/* FLOATING USTADZAH AI BUTTON KHUSUS WALI SANTRI (POJOK KANAN BAWAH) */}
+      <button
+        type="button"
+        onClick={() => setIsUsModalOpen(true)}
+        className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#D49B5B] hover:brightness-110 text-white font-serif font-bold text-xs shadow-2xl flex items-center space-x-2 border-2 border-amber-200/60 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+      >
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+        <span>Tanya Ustadzah AI</span>
+        <Sparkles className="w-4 h-4 text-amber-200" />
+      </button>
+
+      {/* MODAL USTADZAH AI (MODE WALI DENGAN SAFE GUARDRAILS) */}
+      {isUsModalOpen && (
+        <TanyaUsModal
+          isOpen={isUsModalOpen}
+          onClose={() => setIsUsModalOpen(false)}
+          role="WALI"
+        />
+      )}
+
+      {/* MODAL DENAH LOKASI */}
+      <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
     </div>
   );
 }

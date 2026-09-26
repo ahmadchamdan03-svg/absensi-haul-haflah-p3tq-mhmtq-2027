@@ -180,15 +180,25 @@ interface TanyaUsModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialQuestion?: string;
+  role?: 'ADMIN' | 'PENERIMA_TAMU' | 'PIMPINAN' | 'PENJAGA_GERBANG' | 'WALI';
 }
 
-const CONTOH_PERTANYAAN = [
-  'Berapa kuota & jatah tiket santri Bil Ghoib?',
+const CONTOH_PERTANYAAN_WALI = [
+  'Kapan registrasi gerbang dibuka?',
+  'Apa warna kartu masuk saya?',
+  'Apakah boleh membawa buket atau fotografer luar?',
+  'Dimana lokasi & jam sambangan?',
+  'Bagaimana tata krama sowan ke Masyayikh?',
+  'Doa musafir & kelancaran khotmil Qur\'an',
+];
+
+const CONTOH_PERTANYAAN_PANITIA = [
+  'Jelaskan tugas 8 Pos Penerima Tamu',
   'Jelaskan alur kuota tambahan 6 jam panitia',
   'Dimana posisi Meja Rekonsiliasi & fungsinya?',
   'Berapa jumlah total tamu undangan & kategorinya?',
   'Bagaimana jika HP wali santri mati saat antri gerbang?',
-  'Berapa estimasi konsumsi untuk 620 orang?',
+  'Berapa estimasi konsumsi untuk tamu?',
 ];
 
 function renderFormattedContent(
@@ -394,6 +404,7 @@ export default function TanyaUsModal({
   isOpen,
   onClose,
   initialQuestion,
+  role = 'WALI',
 }: TanyaUsModalProps) {
   const router = useRouter();
 
@@ -561,6 +572,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
           prompt: query,
           history: historyPayload,
           apiKey: savedApiKey || undefined,
+          role: role,
         }),
       });
 

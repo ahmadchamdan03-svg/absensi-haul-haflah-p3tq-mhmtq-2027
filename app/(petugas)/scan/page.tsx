@@ -38,6 +38,7 @@ export default function ScanPage() {
   // Result state
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [checkinResult, setCheckinResult] = useState<CheckinResult | null>(null);
+  const [buzzerTested, setBuzzerTested] = useState(false);
 
   // Camera scanner state
   const [cameraActive, setCameraActive] = useState(false);
@@ -48,12 +49,14 @@ export default function ScanPage() {
   const scannerRef = useRef<any>(null);
   const isScanningRef = useRef(false);
 
-  // Audio synthesizer beep saat scan berhasil
+  // Audio synthesizer beep saat scan QR berhasil dideteksi
   const playBeep = () => {
     try {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -61,7 +64,7 @@ export default function ScanPage() {
       osc.frequency.setValueAtTime(784, ctx.currentTime); // G5
       osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.12); // C6
 
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
 
       osc.connect(gain);
@@ -72,6 +75,82 @@ export default function ScanPage() {
     } catch (e) {
       // Browser audio not allowed before user interaction, ignore safely
     }
+  };
+
+  // Audio synthesizer buzzer error (suara peringatan keras berfrekuensi rendah + getar HP di kerumunan ramai)
+  const playBuzzerError = () => {
+    try {
+      // 1. Haptic feedback getaran HP petugas gerbang (pola getar tajam 3 ritme: buzz-buzz-buzz)
+      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([280, 100, 280, 100, 350]);
+      }
+
+      // 2. Synthesizer Web Audio API
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      // Dual harsh low-pitch sawtooth buzzer: "BZZT - BZZT"
+      // Sawtooth wave kaya nada harmonik ganjil & genap, sangat tajam menembus kebisingan massa & sound system lapangan
+      const playBuzzPulse = (delaySec: number, durationSec: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(175, ctx.currentTime + delaySec);
+        osc.frequency.linearRampToValueAtTime(115, ctx.currentTime + delaySec + durationSec);
+
+        // Volume tinggi & attack instan
+        gain.gain.setValueAtTime(0.85, ctx.currentTime + delaySec);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delaySec + durationSec);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + delaySec);
+        osc.stop(ctx.currentTime + delaySec + durationSec);
+      };
+
+      playBuzzPulse(0, 0.22);
+      playBuzzPulse(0.26, 0.32);
+    } catch (e) {
+      // Browser audio policy safety
+    }
+  };
+
+  // Suara konfirmasi sukses merdu (arpeggio 3 nada C5 - E5 - G5)
+  const playSuccessChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const playTone = (freq: number, start: number, dur: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        gain.gain.setValueAtTime(0.35, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      };
+
+      playTone(523.25, 0, 0.12);     // C5
+      playTone(659.25, 0.1, 0.12);    // E5
+      playTone(783.99, 0.2, 0.25);    // G5
+    } catch (e) {}
+  };
+
+  // Tes manual buzzer dan getar untuk petugas lapangan
+  const handleTestBuzzer = () => {
+    playBuzzerError();
+    setBuzzerTested(true);
+    setTimeout(() => setBuzzerTested(false), 3500);
   };
 
   // Handler memproses kode QR (baik dari kamera maupun input manual)
@@ -93,19 +172,30 @@ export default function ScanPage() {
 
     const item = store.findByKode(cleanKode);
     if (!item) {
-      setErrorMsg(`Kode QR "${cleanKode}" tidak terdaftar dalam database!`);
+      setErrorMsg(`Kode QR "${cleanKode}" TIDAK TERDAFTAR dalam basis data!`);
+      playBuzzerError();
       setActiveItem(null);
       return;
     }
 
-    playBeep();
+    // Evaluasi sisa kuota saat pemindaian
+    const sisa = item.kuota.kuotaDasar + item.kuota.kuotaTambahan - item.kuota.terpakai;
+    if (sisa <= 0) {
+      // Peringatan buzzer keras jika kuota sudah habis terpakai sebelumnya
+      playBuzzerError();
+      setErrorMsg(
+        `PERINGATAN KUOTA HABIS: Seluruh tiket untuk "${item.santri?.nama || item.entitas.nama}" sudah terpakai (${item.kuota.terpakai}/${item.kuota.kuotaDasar + item.kuota.kuotaTambahan})!`
+      );
+    } else {
+      playBeep();
+    }
+
     setActiveItem(item);
     setKodeInput(cleanKode);
 
     // Stop sementara scanner kamera agar tidak dobel scan saat input L/P
     stopCamera();
 
-    const sisa = item.kuota.kuotaDasar + item.kuota.kuotaTambahan - item.kuota.terpakai;
     if (sisa > 0) {
       setJumlahL(1);
       setJumlahP(Math.min(1, sisa - 1));

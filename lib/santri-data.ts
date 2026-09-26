@@ -32,7 +32,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081515979544",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0002",
@@ -46,7 +46,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085708633780",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0003",
@@ -60,7 +60,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082154205636",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0004",
@@ -74,7 +74,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085327040613",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0005",
@@ -88,7 +88,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "0895393231656",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0006",
@@ -102,7 +102,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0007",
@@ -116,7 +116,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085746908331",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0008",
@@ -130,7 +130,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081252760020",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0009",
@@ -144,7 +144,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082330221287",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0010",
@@ -158,7 +158,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081654985501",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0011",
@@ -172,7 +172,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085604682835",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0012",
@@ -186,7 +186,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "08219443995",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0013",
@@ -200,7 +200,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085749851035",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0014",
@@ -214,7 +214,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "0895618081778",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0015",
@@ -228,7 +228,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082228476717",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0016",
@@ -242,7 +242,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081335817882",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0017",
@@ -256,7 +256,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082337220020",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0018",
@@ -270,7 +270,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085765452110",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0019",
@@ -284,7 +284,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081331223289",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0020",
@@ -298,7 +298,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085732922109",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0021",
@@ -312,7 +312,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081216571173",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0022",
@@ -326,7 +326,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085175309399",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0023",
@@ -340,7 +340,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082173760533",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0024",
@@ -354,7 +354,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "087738196746",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0025",
@@ -368,7 +368,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "08980095900",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0026",
@@ -382,7 +382,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081330050958",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0027",
@@ -396,7 +396,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081328233385",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0028",
@@ -410,7 +410,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085236871296",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0029",
@@ -424,7 +424,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081991818729",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0030",
@@ -438,7 +438,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085707093389",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0031",
@@ -452,7 +452,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085357082599",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0032",
@@ -466,7 +466,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085755506046",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0033",
@@ -480,7 +480,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0034",
@@ -494,7 +494,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081216284616",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0035",
@@ -508,7 +508,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085647520370",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0036",
@@ -522,7 +522,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085655670690",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0037",
@@ -536,7 +536,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081210691999",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0038",
@@ -550,7 +550,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081232790660",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0039",
@@ -564,7 +564,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085731003692",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0040",
@@ -578,7 +578,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085853577773",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0041",
@@ -592,7 +592,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081933829792",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0042",
@@ -606,7 +606,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082333327993",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0043",
@@ -620,7 +620,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082331575670",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0044",
@@ -634,7 +634,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085736274651",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0045",
@@ -648,7 +648,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081277257944",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0046",
@@ -662,7 +662,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085708147917",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0047",
@@ -676,7 +676,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "08978105277",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0048",
@@ -690,7 +690,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081214157800",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0049",
@@ -704,7 +704,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081227080368",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0050",
@@ -718,7 +718,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0051",
@@ -732,7 +732,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082337558075",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0052",
@@ -746,7 +746,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082234658778",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0053",
@@ -760,7 +760,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085808434359",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0054",
@@ -774,7 +774,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081335708933",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0055",
@@ -788,7 +788,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "081914792249",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0056",
@@ -802,7 +802,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082319854354",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0057",
@@ -816,7 +816,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085217046144",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0058",
@@ -830,7 +830,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082131561730",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0059",
@@ -844,7 +844,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082121823699",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0060",
@@ -858,7 +858,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085232109608",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0061",
@@ -872,7 +872,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082331512257",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0062",
@@ -886,7 +886,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085292923868",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0063",
@@ -900,7 +900,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "082117723352",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0064",
@@ -914,7 +914,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "noHp": "085645875976",
     "kuotaDasar": 4,
     "tiketPanggungJatah": 1,
-    "warnaTiket": "Hijau (+Emas Panggung)"
+    "warnaTiket": "Hitam Gold"
   },
   {
     "code": "SH0065",
@@ -927,7 +927,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085941029460",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -941,7 +941,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "08139247712",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -955,7 +955,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KLATEN",
     "noHp": "085815208073",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -969,7 +969,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MALANG",
     "noHp": "0878814881365",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -983,7 +983,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "WONOSOBO",
     "noHp": "081328535838",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -997,7 +997,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "085875475416",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1011,7 +1011,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "085215498262",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1025,7 +1025,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085655686866",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1039,7 +1039,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BEKASI",
     "noHp": "089502209165",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1053,7 +1053,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "085282146397",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1067,7 +1067,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "082143211124",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1081,7 +1081,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081996610581",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1095,7 +1095,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "081216567765",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1109,7 +1109,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BONDOWOSO",
     "noHp": "082331572093",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1123,7 +1123,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "082179081378",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1137,7 +1137,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONOROGO",
     "noHp": "082139545202",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1151,7 +1151,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "083861331583",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1165,7 +1165,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JEMBER",
     "noHp": "081230189049",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1179,7 +1179,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "082275408079",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1193,7 +1193,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BOGOR",
     "noHp": "089636966557",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1207,7 +1207,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "081368811232",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1221,7 +1221,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGAGUNG",
     "noHp": "082140074296",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1235,7 +1235,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085604333343",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1249,7 +1249,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KALIMANTAN",
     "noHp": "085332788320",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1263,7 +1263,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "REMBANG",
     "noHp": "081227185870",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1277,7 +1277,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BOJONEGORO",
     "noHp": "088230363945",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1291,7 +1291,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "08568562004",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1305,7 +1305,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BONDOWOSO",
     "noHp": "085330199586",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1319,7 +1319,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081515918227",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1333,7 +1333,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JEMBER",
     "noHp": "085258802032",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1347,7 +1347,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KARANGANYAR",
     "noHp": "081393098479",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1361,7 +1361,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "082327898882",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1375,7 +1375,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONOROGO",
     "noHp": "081359367567",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1389,7 +1389,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TUBAN",
     "noHp": "081212834256",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1403,7 +1403,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085852289478",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1417,7 +1417,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGAGUNG",
     "noHp": "08125959981",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1431,7 +1431,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "081216357541",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1445,7 +1445,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085708726440",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1459,7 +1459,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082326815474",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1473,7 +1473,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "082228323089",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1487,7 +1487,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGAWI",
     "noHp": "085334170499",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1501,7 +1501,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081336485035",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1515,7 +1515,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KALIMANTAN",
     "noHp": "085822273183",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1529,7 +1529,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONOROGO",
     "noHp": "085648812738",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1543,7 +1543,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "085373131606",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1557,7 +1557,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEMANGGUNG",
     "noHp": "085330480333",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1571,7 +1571,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085785150338",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1585,7 +1585,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085853275379",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1599,7 +1599,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085786400665",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1613,7 +1613,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "081558997115",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1627,7 +1627,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGAGUNG",
     "noHp": "085850254559",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1641,7 +1641,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "083853510394",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1655,7 +1655,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082335135332",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1669,7 +1669,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SEMARANG",
     "noHp": "081225832975",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1683,7 +1683,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085791139917",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1697,7 +1697,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SEMARANG",
     "noHp": "081586158710",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1711,7 +1711,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "087831870038",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1725,7 +1725,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "GROBOGAN",
     "noHp": "081326205566",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1739,7 +1739,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "085273404440",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1753,7 +1753,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081212796833",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1767,7 +1767,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "082372702201",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1781,7 +1781,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KALIMANTAN",
     "noHp": "082233829980",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1795,7 +1795,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "082289265796",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1809,7 +1809,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081995657626",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1823,7 +1823,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "085231076903",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1837,7 +1837,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "0895328681084",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1851,7 +1851,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "085731595363",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1865,7 +1865,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085649393353",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1879,7 +1879,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085232604071",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1893,7 +1893,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANTEN",
     "noHp": "08561011274",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1907,7 +1907,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1921,7 +1921,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADURA",
     "noHp": "081230057999",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1935,7 +1935,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANDUNG",
     "noHp": "085721000375",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1949,7 +1949,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085649882668",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1963,7 +1963,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGAWI",
     "noHp": "085234110109",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1977,7 +1977,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085735769157",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -1991,7 +1991,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "GRESIK",
     "noHp": "082139720431",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2005,7 +2005,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "085607020625",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2019,7 +2019,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085600516240",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2033,7 +2033,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADURA",
     "noHp": "085726644931",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2047,7 +2047,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LUMAJANG",
     "noHp": "088989038639",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2061,7 +2061,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "0853301244340",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2075,7 +2075,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SURABAYA",
     "noHp": "085732880979",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2089,7 +2089,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANJARNEGARA",
     "noHp": "082310653787",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2103,7 +2103,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085257688499",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2117,7 +2117,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANTEN",
     "noHp": "085790294513",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2131,7 +2131,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "082175747921",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2145,7 +2145,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085869581962",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2159,7 +2159,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081554804417",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2173,7 +2173,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085606306767",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2187,7 +2187,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085784823757",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2201,7 +2201,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2215,7 +2215,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "INDRAMAYU",
     "noHp": "083133180138",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2229,7 +2229,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "085378501628",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2243,7 +2243,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082331232242",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2257,7 +2257,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2271,7 +2271,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADURA",
     "noHp": "082330724009",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2285,7 +2285,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085785497275",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2299,7 +2299,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SEMARANG",
     "noHp": "081393851732",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2313,7 +2313,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANGKA BELITUNG",
     "noHp": "08138083006",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2327,7 +2327,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BENGKULU",
     "noHp": "082220900125",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2341,7 +2341,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BATAM",
     "noHp": "087742501519",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2355,7 +2355,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "082229587574",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2369,7 +2369,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KENDAL",
     "noHp": "087731323222",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2383,7 +2383,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "082286862586",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2397,7 +2397,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085895915381",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2411,7 +2411,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SOLO",
     "noHp": "085728040860",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2425,7 +2425,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "081216144263",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2439,7 +2439,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RIAU",
     "noHp": "081371281089",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2453,7 +2453,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085972554600",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2467,7 +2467,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGAGUNG",
     "noHp": "085777721712",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2481,7 +2481,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "085293363405",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2495,7 +2495,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADURA",
     "noHp": "085606440586",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2509,7 +2509,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085820021546",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2523,7 +2523,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085866235399",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2537,7 +2537,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "DEMAK",
     "noHp": "083840892251",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2551,7 +2551,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085234391813",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2565,7 +2565,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAKARTA",
     "noHp": "085717539089",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2579,7 +2579,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "087888240653",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2593,7 +2593,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "085640909176",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2607,7 +2607,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONTIANAK",
     "noHp": "085753228397",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2621,7 +2621,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "087723511056",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2635,7 +2635,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "083898610792",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2649,7 +2649,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081555337230",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2663,7 +2663,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085604023249",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2677,7 +2677,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "082331006822",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2691,7 +2691,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MALANG",
     "noHp": "085249911048",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2705,7 +2705,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "089619773920",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2719,7 +2719,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "087816282257",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2733,7 +2733,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KALIMANTAN",
     "noHp": "085787155307",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2747,7 +2747,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "085642095015",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2761,7 +2761,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085785355053",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2775,7 +2775,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "082221405634",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2789,7 +2789,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KALIMANTAN",
     "noHp": "085346506549",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2803,7 +2803,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEGAL",
     "noHp": "085212927983",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2817,7 +2817,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CILACAP",
     "noHp": "081296336660",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2831,7 +2831,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "085383805778",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2845,7 +2845,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BENGKULU",
     "noHp": "081264678956",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2859,7 +2859,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TRENGGALEK",
     "noHp": "087701992289",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2873,7 +2873,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085848368290",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2887,7 +2887,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085854823068",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2901,7 +2901,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KARANGANYAR",
     "noHp": "082223450801",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2915,7 +2915,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2929,7 +2929,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEMANGGUNG",
     "noHp": "083861028406",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2943,7 +2943,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "089627164485",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2957,7 +2957,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2971,7 +2971,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEGAL",
     "noHp": "081903228294",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2985,7 +2985,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "085267711463",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -2999,7 +2999,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085865467889",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3013,7 +3013,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085852062492",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3027,7 +3027,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MAGELANG",
     "noHp": "085740653444",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3041,7 +3041,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "REMBANG",
     "noHp": "08886609499",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3055,7 +3055,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "08563585591",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3069,7 +3069,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085230117970",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3083,7 +3083,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085232688368",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3097,7 +3097,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SITUBONDO",
     "noHp": "085232605855",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3111,7 +3111,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TUBAN",
     "noHp": "085232300605",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3125,7 +3125,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081237940507",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3139,7 +3139,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JEPARA",
     "noHp": "085329932680",
     "kuotaDasar": 2,
-    "warnaTiket": "Biru",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3153,7 +3153,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MALANG",
     "noHp": "081515401111",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3167,7 +3167,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMONGAN",
     "noHp": "085646451632",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3181,7 +3181,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LUMAJANG",
     "noHp": "082337100749",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3195,7 +3195,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085706988906",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3209,7 +3209,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MOJOKERTO",
     "noHp": "081359527724",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3223,7 +3223,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "081259847871",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3237,7 +3237,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081336899950",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3251,7 +3251,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "087788481913",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3265,7 +3265,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MALANG",
     "noHp": "085784181615",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3279,7 +3279,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3293,7 +3293,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085330358090",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3307,7 +3307,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGAGUNG",
     "noHp": "081237573984",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3321,7 +3321,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "081229491845",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3335,7 +3335,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "081229416794",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3349,7 +3349,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SULAWESI",
     "noHp": "081242059991",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3363,7 +3363,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085234430944",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3377,7 +3377,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BENGKULU",
     "noHp": "081367628851",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3391,7 +3391,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANGKALAN",
     "noHp": "083114240704",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3405,7 +3405,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085646692072",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3419,7 +3419,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "085191694519",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3433,7 +3433,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TENGERANG",
     "noHp": "081703421952",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3447,7 +3447,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAKARTA",
     "noHp": "085156147977",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3461,7 +3461,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081994346263",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3475,7 +3475,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "085876057654",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3489,7 +3489,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEGAL",
     "noHp": "081211076695",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3503,7 +3503,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "YOGYAKARTA",
     "noHp": "081390359237",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3517,7 +3517,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "085604608264",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3531,7 +3531,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085707336150",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3545,7 +3545,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085735883709",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3559,7 +3559,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "085381142369",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3573,7 +3573,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "081330427112",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3587,7 +3587,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085749895734",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3601,7 +3601,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085965900812",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3615,7 +3615,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAKARTA",
     "noHp": "081933829792",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3629,7 +3629,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANGKALAN",
     "noHp": "081913573999",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3643,7 +3643,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085339056520",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3657,7 +3657,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEBUMEN",
     "noHp": "085226917030",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3671,7 +3671,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082142915738",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3685,7 +3685,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MOJOKERTO",
     "noHp": "082143903114",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3699,7 +3699,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "082117723352",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3713,7 +3713,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MAGELANG",
     "noHp": "083147210122",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3727,7 +3727,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082142915738",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3741,7 +3741,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "089619773920",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3755,7 +3755,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BONDOWOSO",
     "noHp": "081233324078",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3769,7 +3769,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "082122685392",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3783,7 +3783,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BATAM",
     "noHp": "08970509569",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3797,7 +3797,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGAGUNG",
     "noHp": "081555913138",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3811,7 +3811,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "085730209939",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3825,7 +3825,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085755273162",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3839,7 +3839,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085335894445",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3853,7 +3853,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAKARTA SELATAN",
     "noHp": "085777377341",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3867,7 +3867,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085701972933",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3881,7 +3881,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085851359446",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3895,7 +3895,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CILACAP",
     "noHp": "088985384469",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3909,7 +3909,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "082318918703",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3923,7 +3923,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MOJOKERTO",
     "noHp": "085649524475",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3937,7 +3937,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SIDOARJO",
     "noHp": "082331041121",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3951,7 +3951,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SURABAYA",
     "noHp": "081358489697",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3965,7 +3965,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085210302791",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3979,7 +3979,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "089654811815",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -3993,7 +3993,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085175309399",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4007,7 +4007,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SUBANG",
     "noHp": "082126575328",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4021,7 +4021,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "085809069712",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4035,7 +4035,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONOROGO",
     "noHp": "085706822979",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4049,7 +4049,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEGAL",
     "noHp": "085643419129",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4063,7 +4063,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085811495281",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4077,7 +4077,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "081818244601",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4091,7 +4091,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEBADARAN",
     "noHp": "082285971143",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4105,7 +4105,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PROBOLINGGO",
     "noHp": "08113494411",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4119,7 +4119,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "081574607288",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4133,7 +4133,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "082322735050",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4147,7 +4147,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "081271870838",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4161,7 +4161,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PASURUAN",
     "noHp": "085606057327",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4175,7 +4175,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "082141065589",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4189,7 +4189,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BEKASI",
     "noHp": "081284724951",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4203,7 +4203,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KUNINGAN",
     "noHp": "089657762394",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4217,7 +4217,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KARANGANYAR",
     "noHp": "081391735084",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4231,7 +4231,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SUKOHARJO",
     "noHp": "081227080368",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4245,7 +4245,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "087824800385",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4259,7 +4259,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "089619110608",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4273,7 +4273,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "082128590273",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4287,7 +4287,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085600790936",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4301,7 +4301,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNGANGUNG",
     "noHp": "089649856948",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4315,7 +4315,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085808434359",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4329,7 +4329,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082338399165",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4343,7 +4343,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081548743740",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4357,7 +4357,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BONDOWOSO",
     "noHp": "081233637594",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4371,7 +4371,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "REMBANG",
     "noHp": "082139838640",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4385,7 +4385,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BALIKPAPAN",
     "noHp": "081332373270",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4399,7 +4399,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANYUWANGI",
     "noHp": "085234000287",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4413,7 +4413,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "081553149418",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4427,7 +4427,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "08315522426",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4441,7 +4441,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085748081750",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4455,7 +4455,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KARAWANG",
     "noHp": "085779113307",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4469,7 +4469,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "085708908831",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4483,7 +4483,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BENGKULU",
     "noHp": "081264678956",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4497,7 +4497,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MOJOKERTO",
     "noHp": "085785465180",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4511,7 +4511,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CILACAP",
     "noHp": "0895322321348",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4525,7 +4525,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KALIMANTAN BARAT",
     "noHp": "082154837283",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4539,7 +4539,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "082125318598",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4553,7 +4553,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "081218164917",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4567,7 +4567,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085649524547",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4581,7 +4581,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MOJOKERTO",
     "noHp": "085735748000",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4595,7 +4595,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081235489663",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4609,7 +4609,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085331381981",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4623,7 +4623,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082133510404",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4637,7 +4637,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BONDOWOSO",
     "noHp": "085253854997",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4651,7 +4651,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEGAL BINANGUN",
     "noHp": "085273337951085716443945",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4665,7 +4665,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "081281025759",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4679,7 +4679,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SURABAYA",
     "noHp": "081259895998",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4693,7 +4693,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RIAU",
     "noHp": "085374314331",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4707,7 +4707,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CILACAP",
     "noHp": "085290181644",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4721,7 +4721,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANDUNG",
     "noHp": "08817883875",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4735,7 +4735,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081336485035",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4749,7 +4749,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "082221405634",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4763,7 +4763,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085655635691",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4777,7 +4777,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "08563681104",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4791,7 +4791,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085791734494",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4805,7 +4805,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SIDOARJO",
     "noHp": "081387377878",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4819,7 +4819,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085785355053",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4833,7 +4833,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "085773039172",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4847,7 +4847,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANYUWANGI",
     "noHp": "085339189971",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4861,7 +4861,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BOGOR",
     "noHp": "089675637675089512859527",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4875,7 +4875,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "085707284836",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4889,7 +4889,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "082128847602",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4903,7 +4903,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RIAU",
     "noHp": "082384805143",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4917,7 +4917,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LUMAJANG",
     "noHp": "081337488837",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4931,7 +4931,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085735682993",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4945,7 +4945,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MAGELANG",
     "noHp": "085702116535",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4959,7 +4959,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "087877154815",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4973,7 +4973,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BATANG",
     "noHp": "081990764030",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -4987,7 +4987,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085848368290",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5001,7 +5001,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PROBOLINGGO",
     "noHp": "082331512257",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5015,7 +5015,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "081373222240",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5029,7 +5029,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SOLO",
     "noHp": "081393647379",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5043,7 +5043,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEMANGGUNG",
     "noHp": "082245599691",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5057,7 +5057,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082363634949",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5071,7 +5071,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SIDOARJO",
     "noHp": "081235333845",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5085,7 +5085,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JEMBER",
     "noHp": "082131911358",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5099,7 +5099,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "0813352220003",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5113,7 +5113,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAKARTA",
     "noHp": "085813337329",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5127,7 +5127,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JOMBANG",
     "noHp": "089516527479",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5141,7 +5141,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "087788027337",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5155,7 +5155,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "085702645635",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5169,7 +5169,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "08132534335",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5183,7 +5183,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SURABAYA",
     "noHp": "081259856899",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5197,7 +5197,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085655860612",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5211,7 +5211,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SUKABUMI",
     "noHp": "085798801428",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5225,7 +5225,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "08157639182",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5239,7 +5239,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CILACAP",
     "noHp": "081296336660",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5253,7 +5253,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LUMAJANG",
     "noHp": "085713243909",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5267,7 +5267,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085706853680",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5281,7 +5281,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "081272702522",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5295,7 +5295,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085967099656",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5309,7 +5309,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "0895329629225",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5323,7 +5323,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEMALANG",
     "noHp": "087834657650",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5337,7 +5337,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "082258906653",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5351,7 +5351,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085735047727",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5365,7 +5365,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PATI",
     "noHp": "081216729383",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5379,7 +5379,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "081244775396",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5393,7 +5393,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JEPARA",
     "noHp": "085940797994",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5407,7 +5407,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TUBAN",
     "noHp": "087816042086",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5421,7 +5421,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TRENGGALEK",
     "noHp": "082399469926",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5435,7 +5435,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BOJONEGORO",
     "noHp": "081938523558",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5449,7 +5449,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "ACEH",
     "noHp": "081262561318",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5463,7 +5463,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONOROGO",
     "noHp": "08125946427",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5477,7 +5477,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PALEMBANG",
     "noHp": "085707114014",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5491,7 +5491,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RIAU",
     "noHp": "082214759078",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5505,7 +5505,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "085607058571",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5519,7 +5519,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGAWI",
     "noHp": "081515106386",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5533,7 +5533,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SIDOARJO",
     "noHp": "089682148637",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5547,7 +5547,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MAGELANG",
     "noHp": "085293550924",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5561,7 +5561,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "089516602978",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5575,7 +5575,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RIAU",
     "noHp": "082284275235",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5589,7 +5589,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "082374431575",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5603,7 +5603,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MAJALENGKA",
     "noHp": "085860787616",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5617,7 +5617,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SIDOARJO",
     "noHp": "0859183960031",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5631,7 +5631,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085203428033",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5645,7 +5645,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "08123221477",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5659,7 +5659,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085815005373",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5673,7 +5673,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "087816282257",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5687,7 +5687,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "089661434811",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5701,7 +5701,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "082333459956",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5715,7 +5715,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SULAWESI",
     "noHp": "082396198807",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5729,7 +5729,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "082302031179",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5743,7 +5743,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BREBES",
     "noHp": "083822285435",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5757,7 +5757,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081259968955",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5771,7 +5771,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085804715233",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5785,7 +5785,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5799,7 +5799,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGAWI",
     "noHp": "085608585309",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5813,7 +5813,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085649119090",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5827,7 +5827,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BONDOWOSO",
     "noHp": "085231590583",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5841,7 +5841,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "085267531585",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5855,7 +5855,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "081906680956",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5869,7 +5869,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "INDRAMAYU",
     "noHp": "089660036553",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5883,7 +5883,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TULUNG AGUNG",
     "noHp": "081909012266",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5897,7 +5897,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "085383805778",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5911,7 +5911,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TRENGGALEK",
     "noHp": "082234059410",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5925,7 +5925,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "TEGAL",
     "noHp": "085212927983",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5939,7 +5939,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CIREBON",
     "noHp": "083824386615",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5953,7 +5953,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "082131565359",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5967,7 +5967,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "085708059001",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5981,7 +5981,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "085732166109",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -5995,7 +5995,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANGKA BELITUNG",
     "noHp": "089634941598",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6009,7 +6009,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "JAMBI",
     "noHp": "085378501628",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6023,7 +6023,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SRAGEN",
     "noHp": "082143211124",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6037,7 +6037,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "081548047600",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6051,7 +6051,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PEKALONGAN",
     "noHp": "085728449638",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6065,7 +6065,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "082331302588",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6079,7 +6079,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SIDOARJO",
     "noHp": "082223337449",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6093,7 +6093,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "DEMAK",
     "noHp": "081356331541",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6107,7 +6107,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RULUNG AGUNG",
     "noHp": "085851610308",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6121,7 +6121,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "CILACAP",
     "noHp": "085606251421",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6135,7 +6135,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "081332303113",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6149,7 +6149,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "KEDIRI",
     "noHp": "085604274314",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6163,7 +6163,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PONOROGO",
     "noHp": "081331495848",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6177,7 +6177,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "SEMARANG",
     "noHp": "085878482321",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6191,7 +6191,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADURA",
     "noHp": "081246755333",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6205,7 +6205,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085607007700",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6219,7 +6219,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MALANG",
     "noHp": "081236877019",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6233,7 +6233,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANDUNG",
     "noHp": "085603398469",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6247,7 +6247,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANTEN",
     "noHp": "081290351592",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6261,7 +6261,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MALANG",
     "noHp": "082331461088",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6275,7 +6275,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANTEN",
     "noHp": "081910955338",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6289,7 +6289,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "MADIUN",
     "noHp": "085708059858",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6303,7 +6303,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BANYUWANGI",
     "noHp": "085184696324",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6317,7 +6317,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "PADANG",
     "noHp": "085743513959",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6331,7 +6331,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6345,7 +6345,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "RIAU",
     "noHp": "085362138175",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6359,7 +6359,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "BLITAR",
     "noHp": "085649149941",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6373,7 +6373,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "LAMPUNG",
     "noHp": "085781057143",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6387,7 +6387,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "NGANJUK",
     "noHp": "085608062335",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6401,7 +6401,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kalimantan",
     "noHp": "085346506549",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6415,7 +6415,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Jakarta",
     "noHp": "08111887792",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6429,7 +6429,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Blitar",
     "noHp": "085880440750",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6443,7 +6443,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Boyolali",
     "noHp": "085708165077",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6457,7 +6457,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "087782622087",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6471,7 +6471,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Pontianak",
     "noHp": "085787155307",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6485,7 +6485,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Blitar",
     "noHp": "0811554115213",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6499,7 +6499,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Madiun",
     "noHp": "085792512130",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6513,7 +6513,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "089628797857",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6527,7 +6527,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Mojokerto",
     "noHp": "085745955751",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6541,7 +6541,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Trenggalek",
     "noHp": "081325409497",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6555,7 +6555,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kalimantan",
     "noHp": "081287146255",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6569,7 +6569,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "085645070387",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6583,7 +6583,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Brebes",
     "noHp": "082324047920",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6597,7 +6597,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "082359217195",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6611,7 +6611,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Banten",
     "noHp": "087808281444",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6625,7 +6625,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Brebes",
     "noHp": "0895348505736",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6639,7 +6639,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Palembang",
     "noHp": "085266229662",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6653,7 +6653,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Tegal",
     "noHp": "088987049989",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6667,7 +6667,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kalimantan",
     "noHp": "081256684210",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6681,7 +6681,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "081359818900",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6695,7 +6695,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Pekalongan",
     "noHp": "085865467889",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6709,7 +6709,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Banyuwangi",
     "noHp": "08138074782",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6723,7 +6723,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Palembang",
     "noHp": "085273651367",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6737,7 +6737,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Batang",
     "noHp": "0816550927",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6751,7 +6751,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Palembang",
     "noHp": "085215802406",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6765,7 +6765,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Jember",
     "noHp": "085171121206",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6779,7 +6779,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Aceh",
     "noHp": "085381788362",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6793,7 +6793,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "085804058388",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6807,7 +6807,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "081233135857",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6821,7 +6821,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Cirebon",
     "noHp": "085194265932",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6835,7 +6835,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Temanggung",
     "noHp": "085708165077",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6849,7 +6849,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Lampung",
     "noHp": "085377514590",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6863,7 +6863,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Lampung",
     "noHp": "082375856177",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6877,7 +6877,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Blitar",
     "noHp": "085604040626",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6891,7 +6891,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Mojokerto",
     "noHp": "081913117038",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6905,7 +6905,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "085708444863",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6919,7 +6919,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Trenggalek",
     "noHp": "081914792249",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6933,7 +6933,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Lampung",
     "noHp": "085709113945",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6947,7 +6947,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Trenggalek",
     "noHp": "085722741379",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6961,7 +6961,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Cirebon",
     "noHp": "089658169336",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6975,7 +6975,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Brebes",
     "noHp": "085870306990",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -6989,7 +6989,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Banyuwangi",
     "noHp": "",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7003,7 +7003,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Cirebon",
     "noHp": "08889487033",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7017,7 +7017,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Madura",
     "noHp": "087846033636",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7031,7 +7031,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Malang",
     "noHp": "085109332608",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7045,7 +7045,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Cirebon",
     "noHp": "085642095015",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7059,7 +7059,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Lumajang",
     "noHp": "087838244676",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7073,7 +7073,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Tegal",
     "noHp": "085846068061",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7087,7 +7087,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Malang",
     "noHp": "0895335414274",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7101,7 +7101,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "085235538609",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7115,7 +7115,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Pekalongan",
     "noHp": "0882003833144",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7129,7 +7129,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "082333819929",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7143,7 +7143,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Pemalang",
     "noHp": "0895358216201",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7157,7 +7157,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kalimantan",
     "noHp": "081522890790",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7171,7 +7171,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Sulawesi",
     "noHp": "081241833585",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7185,7 +7185,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Pasuruan",
     "noHp": "082231285499",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7199,7 +7199,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Pekalongan",
     "noHp": "085786400665",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7213,7 +7213,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Rembang",
     "noHp": "0895406527252",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7227,7 +7227,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Batang",
     "noHp": "082338933645",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7241,7 +7241,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Jambi",
     "noHp": "08117440557",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7255,7 +7255,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Trenggalek",
     "noHp": "087701992289",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7269,7 +7269,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Jambi",
     "noHp": "085366850487",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7283,7 +7283,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "087753883367",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7297,7 +7297,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Batang",
     "noHp": "085806166526",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7311,7 +7311,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "081234589219",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7325,7 +7325,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "082132899125",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7339,7 +7339,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "081916807087",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7353,7 +7353,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Jambi",
     "noHp": "082346345645",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7367,7 +7367,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "085735933995",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7381,7 +7381,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Bondowoso",
     "noHp": "085222616699",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7395,7 +7395,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Lamongan",
     "noHp": "085645451622",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7409,7 +7409,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Malang",
     "noHp": "085785267470",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7423,7 +7423,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Malang",
     "noHp": "085755863162",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7437,7 +7437,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "083850575314",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7451,7 +7451,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Brebes",
     "noHp": "085700869886",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7465,7 +7465,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "085648004939",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7479,7 +7479,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Magelang",
     "noHp": "085641353504",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7493,7 +7493,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Madiun",
     "noHp": "083853371474",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7507,7 +7507,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Mojokerto",
     "noHp": "085852610231",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7521,7 +7521,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Magelang",
     "noHp": "081217008915",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7535,7 +7535,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Palembang",
     "noHp": "085841444562",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7549,7 +7549,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Bojonegoro",
     "noHp": "085707461871",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7563,7 +7563,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Magetan",
     "noHp": "085655379521",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7577,7 +7577,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "085784064954",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7591,7 +7591,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Riau",
     "noHp": "082268862208",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7605,7 +7605,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Madura",
     "noHp": "087850550585",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7619,7 +7619,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Cirebon",
     "noHp": "081222793334",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7633,7 +7633,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Nganjuk",
     "noHp": "082131062205",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7647,7 +7647,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Blitar",
     "noHp": "085706058751",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7661,7 +7661,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Brebes",
     "noHp": "08176495675",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7675,7 +7675,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Magelang",
     "noHp": "085743260976",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7689,7 +7689,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Batang",
     "noHp": "085878885448",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   },
   {
@@ -7703,7 +7703,7 @@ export const REAL_SANTRI_LIST: MasterSantri[] = [
     "alamat": "Kediri",
     "noHp": "085854823068",
     "kuotaDasar": 2,
-    "warnaTiket": "Kuning",
+    "warnaTiket": "Merah Gold",
     "tiketPanggungJatah": 0
   }
 ];

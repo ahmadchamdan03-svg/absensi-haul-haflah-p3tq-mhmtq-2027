@@ -12,7 +12,7 @@ export function extractBagianTamatan(text?: string): string {
   return match ? match[0].toUpperCase() : '';
 }
 
-export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas';
+export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold';
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 

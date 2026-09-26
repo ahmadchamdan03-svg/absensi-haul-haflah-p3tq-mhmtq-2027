@@ -43,396 +43,24 @@ export const INITIAL_EVENT: EventConfig = {
   status: 'AKTIF',
 };
 
-// Buat 549 data keluarga & santri riil dari REAL_SANTRI_LIST (64 Bil Ghoib + 159 Bin Nadzori + 326 Tamatan)
-export const INITIAL_KELUARGA: (Keluarga & { kuota: Kuota; estimasi?: EstimasiKehadiran })[] =
-  REAL_SANTRI_LIST.map((s: MasterSantri, idx: number) => {
-    const kelId = `k_${s.code}`;
-    const santriId = `s_${s.code}`;
-    const kuotaId = `q_${s.code}`;
+// Basis Data Kosong Bersih (Menunggu Pengisian Manual oleh Panitia)
+export const INITIAL_KELUARGA: (Keluarga & { kuota: Kuota; estimasi?: EstimasiKehadiran })[] = [];
 
-    // Contoh kedatangan bertahap awal representatif untuk demo live monitoring
-    let demoTerpakai = 0;
-    let demoPanggungDiberi = 0;
+export const INITIAL_UNDANGAN: (typeof INITIAL_KELUARGA) = [];
 
-    if (idx === 0) {
-      // SH0001 (Bil Ghoib) - 1 Wali Perempuan hadir (Tiket Panggung)
-      demoTerpakai = 1;
-      demoPanggungDiberi = 1;
-    } else if (idx === 1) {
-      // SH0002 (Bil Ghoib) - 2 Hadir
-      demoTerpakai = 2;
-    } else if (idx === 2) {
-      // SH0003 (Bil Ghoib) - 3 Hadir (1 Panggung + 2 Reguler)
-      demoTerpakai = 3;
-      demoPanggungDiberi = 1;
-    } else if (idx === 64) {
-      // SH0065 (Bin Nadzori) - 2 Hadir
-      demoTerpakai = 2;
-    } else if (idx === 65) {
-      // SH0066 (Bin Nadzori) - 2 Hadir
-      demoTerpakai = 2;
-    } else if (idx === 223) {
-      // SH0224 (Tamatan III Aliyah) - 2 Hadir
-      demoTerpakai = 2;
-    } else if (idx === 224) {
-      // SH0225 (Tamatan III Aliyah) - 2 Hadir
-      demoTerpakai = 2;
-    } else if (idx === 225) {
-      // SH0226 (Tamatan III Aliyah) - 2 Hadir
-      demoTerpakai = 2;
-    }
+export const INITIAL_PEMBELIAN_KUOTA: PembelianKuota[] = [];
 
-    return {
-      id: kelId,
-      kode: s.code,
-      namaWali: s.namaWali,
-      noHp: s.noHp,
-      alamat: s.alamat || 'Kediri',
-      santri: [
-        {
-          id: santriId,
-          keluargaId: kelId,
-          nis: s.code,
-          nama: s.nama,
-          unit: 'P3TQ',
-          kelas: s.kelas,
-          kamar: s.kamar || '',
-          kategoriUtama: s.kategoriUtama,
-          subKategori: s.subKategori,
-        },
-      ],
-      kuota: {
-        id: kuotaId,
-        eventId: INITIAL_EVENT.id,
-        pemilikTipe: 'KELUARGA',
-        pemilikId: kelId,
-        kodeQr: s.code,
-        kuotaDasar: s.kuotaDasar,
-        kuotaTambahan: idx === 1 ? 1 : 0,
-        terpakai: demoTerpakai,
-        tiketPanggungJatah: s.tiketPanggungJatah || 0,
-        tiketPanggungDiberi: demoPanggungDiberi,
-        hangus: false,
-      },
-      estimasi: {
-        kuotaId,
-        perkiraanL: idx % 3 === 0 ? 1 : 0,
-        perkiraanP: idx % 3 === 0 ? 1 : 0,
-        statusHadir: 'HADIR',
-        statusKonfirmasi: (idx % 3 === 0 ? 'SUDAH' : 'BELUM') as 'SUDAH' | 'BELUM',
-        diisiAt: idx % 3 === 0 ? '2026-11-20T10:00:00Z' : '',
-        diubahOleh: idx % 3 === 0 ? 'WALI_MANDIRI' : undefined,
-      },
-    };
-  });
-
-// Buat 70 Tamu Undangan Khusus dari MASTER_UNDANGAN_LIST (25 Penguji Al-Qur'an + 45 Asatidz Purna Bakti & Masyaikh)
-export const INITIAL_UNDANGAN = MASTER_UNDANGAN_LIST.map((u: MasterUndangan, idx: number) => {
-  const undId = `u_${u.code}`;
-  const kuotaId = `qu_${u.code}`;
-
-  // Beberapa tamu kehormatan disimulasikan tiba untuk demo monitoring VIP realtime
-  let demoTerpakai = 0;
-  if (idx === 0) demoTerpakai = 2; // KH. Abdullah Faqih (Penguji)
-  else if (idx === 6) demoTerpakai = 2; // Nyai Hj. Nihayah (Penguji Huffadh Putri)
-  else if (idx === 25) demoTerpakai = 2; // KH. M. Anwar Manshur (Pengasuh Utama PP. Lirboyo)
-  else if (idx === 27) demoTerpakai = 2; // KH. Nurul Huda Djazuli (Masyayikh PP. Al-Falah Ploso)
-  else if (idx === 37) demoTerpakai = 2; // Nyai Hj. Azimatul Qudsiyyah (Asatidzah Purna Bakti)
-  else if (idx === 38) demoTerpakai = 2; // Nyai Hj. Azizah Ma'shoem (Lasem)
-
-  return {
-    id: undId,
-    kode: u.code,
-    kategori: u.kategori,
-    subKategori: u.subKategori,
-    nama: u.nama,
-    instansi: u.instansi,
-    polaKuota: u.kuotaDasar,
-    kuota: {
-      id: kuotaId,
-      eventId: INITIAL_EVENT.id,
-      pemilikTipe: 'UNDANGAN' as const,
-      pemilikId: undId,
-      kodeQr: u.code,
-      kuotaDasar: u.kuotaDasar,
-      kuotaTambahan: 0,
-      terpakai: demoTerpakai,
-      tiketPanggungJatah: 0,
-      tiketPanggungDiberi: 0,
-      hangus: false,
-    },
-  };
-});
-
-export const INITIAL_PEMBELIAN_KUOTA: PembelianKuota[] = [
-  {
-    id: 'b001',
-    eventId: INITIAL_EVENT.id,
-    keluargaId: 'k_SH0002',
-    jumlah: 1,
-    totalBayar: 80000,
-    buktiUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400',
-    status: 'DIVERIFIKASI',
-    kedaluwarsaAt: '2026-12-01T12:00:00Z',
-    buktiUploadedAt: '2026-12-01T08:30:00Z',
-    batasVerifikasiAt: '2026-12-01T14:30:00Z',
-    autoApproveAt: '2026-12-01T20:30:00Z',
-    catatanPanitia: 'Transfer valid via BRI 320701010266508 (Diverifikasi manual oleh panitia)',
-    createdAt: '2026-12-01T08:00:00Z',
-    diputusAt: '2026-12-01T09:30:00Z',
-  },
-  {
-    id: 'b002',
-    eventId: INITIAL_EVENT.id,
-    keluargaId: 'k_SH0003',
-    jumlah: 1,
-    totalBayar: 80000,
-    buktiUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400',
-    status: 'MENUNGGU_VERIFIKASI',
-    kedaluwarsaAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
-    buktiUploadedAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    batasVerifikasiAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(), // Target SLA 6 jam panitia (sisa 4 jam)
-    autoApproveAt: new Date(Date.now() + 10 * 3600 * 1000).toISOString(), // Batas toleransi auto-approve 12 jam (sisa 10 jam)
-    catatanPanitia: 'Wali santri sudah upload bukti transfer, menunggu verifikasi manual panitia (Target 6 Jam)',
-    createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'b003',
-    eventId: INITIAL_EVENT.id,
-    keluargaId: 'k_SH0065',
-    jumlah: 2,
-    totalBayar: 160000,
-    status: 'DIPESAN',
-    kedaluwarsaAt: new Date(Date.now() + 5 * 3600 * 1000).toISOString(), // Terkunci 6 jam (sisa 5 jam untuk transfer & upload)
-    catatanPanitia: 'Pesanan terkunci 6 jam menunggu transfer & upload bukti oleh wali santri',
-    createdAt: new Date(Date.now() - 1 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'b004',
-    eventId: INITIAL_EVENT.id,
-    keluargaId: 'k_SH0224',
-    jumlah: 1,
-    totalBayar: 80000,
-    buktiUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400',
-    status: 'DIVERIFIKASI',
-    autoApprovedBySystem: true,
-    kedaluwarsaAt: '2026-11-20T12:00:00Z',
-    buktiUploadedAt: '2026-11-20T06:00:00Z',
-    batasVerifikasiAt: '2026-11-20T12:00:00Z',
-    autoApproveAt: '2026-11-20T18:00:00Z',
-    catatanPanitia: 'Otomatis Berhasil oleh Sistem (Batas Waktu Verifikasi Panitia 12 Jam Terlampaui)',
-    createdAt: '2026-11-20T05:30:00Z',
-    diputusAt: '2026-11-20T18:00:00Z',
-  },
-];
-
-export const INITIAL_PRESENSI_LOGS: PresensiLog[] = [
-  {
-    id: 13,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0226',
-    hasil: 'SUKSES',
-    jumlahL: 2,
-    jumlahP: 0,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-13',
-    serverTime: '08:45:10',
-    catatan: 'Tamatan III Aliyah - Jalur Barat Putra',
-  },
-  {
-    id: 12,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'qu_UND0139',
-    hasil: 'SUKSES',
-    jumlahL: 0,
-    jumlahP: 2,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'TIMUR',
-    panitiaId: 'panitia-putri',
-    nonce: 'nonce-12',
-    serverTime: '08:42:00',
-    catatan: 'Tamu VIP: Nyai Hj. Azizah Ma\'shoem (Lasem)',
-  },
-  {
-    id: 11,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0225',
-    hasil: 'SUKSES',
-    jumlahL: 1,
-    jumlahP: 1,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-11',
-    serverTime: '08:37:15',
-    catatan: 'Tamatan III Aliyah',
-  },
-  {
-    id: 10,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'qu_UND0138',
-    hasil: 'SUKSES',
-    jumlahL: 0,
-    jumlahP: 2,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'TIMUR',
-    panitiaId: 'panitia-putri',
-    nonce: 'nonce-10',
-    serverTime: '08:33:20',
-    catatan: 'Tamu VIP: Nyai Hj. Azimatul Qudsiyyah',
-  },
-  {
-    id: 9,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0003',
-    hasil: 'SUKSES',
-    jumlahL: 1,
-    jumlahP: 2,
-    tiketPanggung: true,
-    jumlahBalita: 1,
-    jalur: 'TIMUR',
-    panitiaId: 'panitia-putri',
-    nonce: 'nonce-9',
-    serverTime: '08:28:40',
-    catatan: 'Santri Bil Ghoib + Penyerahan Tiket Emas Panggung',
-  },
-  {
-    id: 8,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'qu_UND0128',
-    hasil: 'SUKSES',
-    jumlahL: 2,
-    jumlahP: 0,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-8',
-    serverTime: '08:24:10',
-    catatan: 'Tamu VIP: KH. Nurul Huda Djazuli (Ploso)',
-  },
-  {
-    id: 7,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0224',
-    hasil: 'SUKSES',
-    jumlahL: 2,
-    jumlahP: 0,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-7',
-    serverTime: '08:20:05',
-    catatan: 'Tamatan III Aliyah Bagian A',
-  },
-  {
-    id: 6,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'qu_UND0126',
-    hasil: 'SUKSES',
-    jumlahL: 2,
-    jumlahP: 0,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-6',
-    serverTime: '08:15:30',
-    catatan: 'Tamu VIP: KH. M. Anwar Manshur (Lirboyo)',
-  },
-  {
-    id: 5,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'qu_UND0107',
-    hasil: 'SUKSES',
-    jumlahL: 0,
-    jumlahP: 2,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'TIMUR',
-    panitiaId: 'panitia-putri',
-    nonce: 'nonce-5',
-    serverTime: '08:11:50',
-    catatan: 'Tamu VIP: Nyai Hj. Nihayah (Penguji Huffadh)',
-  },
-  {
-    id: 4,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0065',
-    hasil: 'SUKSES',
-    jumlahL: 0,
-    jumlahP: 2,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'TIMUR',
-    panitiaId: 'panitia-putri',
-    nonce: 'nonce-4',
-    serverTime: '08:06:12',
-    catatan: 'Bin Nadzori - Jalur Putri',
-  },
-  {
-    id: 3,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'qu_UND0101',
-    hasil: 'SUKSES',
-    jumlahL: 2,
-    jumlahP: 0,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-3',
-    serverTime: '08:02:45',
-    catatan: 'Tamu VIP: KH. Abdullah Faqih (Penguji LPTQ)',
-  },
-  {
-    id: 2,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0002',
-    hasil: 'SUKSES',
-    jumlahL: 1,
-    jumlahP: 1,
-    tiketPanggung: false,
-    jumlahBalita: 0,
-    jalur: 'BARAT',
-    panitiaId: 'panitia-putra',
-    nonce: 'nonce-2',
-    serverTime: '07:55:00',
-    catatan: 'Santri Bil Ghoib',
-  },
-  {
-    id: 1,
-    eventId: INITIAL_EVENT.id,
-    kuotaId: 'q_SH0001',
-    hasil: 'SUKSES',
-    jumlahL: 0,
-    jumlahP: 1,
-    tiketPanggung: true,
-    jumlahBalita: 0,
-    jalur: 'TIMUR',
-    panitiaId: 'panitia-putri',
-    nonce: 'nonce-1',
-    serverTime: '07:41:00',
-    catatan: 'Kedatangan bertahap pertama + Tiket Panggung Emas',
-  },
-];
+export const INITIAL_PRESENSI_LOGS: PresensiLog[] = [];
 
 class DataStore {
-  private keluargaList: (Keluarga & { kuota: Kuota; estimasi?: EstimasiKehadiran })[] = [...INITIAL_KELUARGA];
-  private undanganList: (typeof INITIAL_UNDANGAN) = [...INITIAL_UNDANGAN];
-  private pembelianList: PembelianKuota[] = [...INITIAL_PEMBELIAN_KUOTA];
-  private presensiLogs: PresensiLog[] = [...INITIAL_PRESENSI_LOGS];
+  private keluargaList: (Keluarga & { kuota: Kuota; estimasi?: EstimasiKehadiran })[] = [];
+  private undanganList: any[] = [];
+  private pembelianList: PembelianKuota[] = [];
+  private presensiLogs: PresensiLog[] = [];
   private paguTotal = 300;
   private paguTerjual = 0;
   private kuotaTambahanBuka = false;
-  private storageKey = 'haflah_store_v52_full_seeded';
+  private storageKey = 'haflah_store_v70_clean_manual';
 
   private isSyncing = false;
   private lastCloudSync = 0;
@@ -706,9 +334,9 @@ class DataStore {
   }
 
   public pulihkanDataDefault() {
-    this.keluargaList = [...INITIAL_KELUARGA];
-    this.undanganList = [...INITIAL_UNDANGAN];
-    this.presensiLogs = [...INITIAL_PRESENSI_LOGS];
+    this.keluargaList = [];
+    this.undanganList = [];
+    this.presensiLogs = [];
     this.paguTerjual = 1;
     this.saveToStorage();
     return { ok: true, pesan: 'Data bawaan 549 santri dan 70 tamu undangan berhasil dipulihkan.' };
@@ -1132,10 +760,11 @@ class DataStore {
 
     this.saveToStorage();
 
-    let warna = 'Biru';
-    if (santri?.kategoriUtama === 'TAMATAN') warna = 'Kuning';
-    else if (santri?.kategoriUtama === 'BIL_GHOIB') warna = 'Hijau';
-    else if (item.tipe === 'UNDANGAN') warna = 'Putih';
+    // Standar Resmi Materi Koordinasi 2: Hitam Gold untuk Maju Panggung (Bil Ghoib), Merah Gold untuk Reguler & Tamu
+    let warna = 'Merah Gold';
+    if (santri?.kategoriUtama === 'BIL_GHOIB' || isPanggung) {
+      warna = 'Hitam Gold';
+    }
 
     return {
       ok: true,

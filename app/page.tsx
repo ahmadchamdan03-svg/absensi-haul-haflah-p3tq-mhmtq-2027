@@ -1,521 +1,480 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
-  QrCode,
-  RotateCcw,
-  LayoutDashboard,
-  Send,
   ShieldCheck,
-  FileSpreadsheet,
-  ExternalLink,
   Users,
-  CheckCircle2,
-  RefreshCw,
-  Award,
-  BookOpen,
-  MapPin,
+  LayoutDashboard,
+  QrCode,
+  Ticket,
+  Lock,
   ArrowRight,
+  Globe,
   Sparkles,
+  KeyRound,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  HelpCircle,
+  Clock,
+  Compass,
 } from 'lucide-react';
-import { store } from '@/lib/mock-data';
-import {
-  TraditionalCorner,
-  TraditionalHeaderBanner,
-  TraditionalLatticeRoundel,
-  BegoniaCartouche,
-  StageLantern,
-  StagePillarAccent,
-} from '@/components/Ornaments';
+import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole } from '@/lib/auth-roles';
+import TanyaUsModal from '@/components/TanyaUsModal';
 
-export default function HomePage() {
-  const [stats, setStats] = useState(() => store.getStatistikLive());
-  const [pagu, setPagu] = useState(() => store.getPaguInfo());
-  const [keluargaList, setKeluargaList] = useState<any[]>(() => store.getKeluargaList());
-  const [undanganList, setUndanganList] = useState<any[]>(() => store.getUndanganList());
+export default function LandingPortalPage() {
+  const router = useRouter();
 
-  useEffect(() => {
-    const refresh = () => {
-      setStats(store.getStatistikLive());
-      setPagu(store.getPaguInfo());
-      setKeluargaList([...store.getKeluargaList()]);
-      setUndanganList([...store.getUndanganList()]);
-    };
-    refresh();
-    const interval = setInterval(refresh, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  // State Dialog Password Modal
+  const [selectedRole, setSelectedRole] = useState<AppRole | null>(null);
+  const [inputPassword, setInputPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
-  const komposisi = useMemo(() => {
-    let bilGhoib = 0;
-    let tsn2 = 0;
-    let tsn3 = 0;
-    let aly1 = 0;
-    let aly2 = 0;
-    let aly3 = 0;
-    let tamatan = 0;
+  // State Input Kode Wali Santri
+  const [kodeInput, setKodeInput] = useState('');
+  const [kodeError, setKodeError] = useState<string | null>(null);
 
-    keluargaList.forEach((k) => {
-      const s = k.santri?.[0];
-      const kat = s?.kategoriUtama;
-      const txt = `${s?.kelas || ''} ${s?.subKategori || ''}`.toLowerCase();
+  // State Modal Ustadzah AI
+  const [isUsModalOpen, setIsUsModalOpen] = useState(false);
 
-      if (kat === 'BIL_GHOIB') {
-        bilGhoib++;
-      } else if (kat === 'TAMATAN') {
-        tamatan++;
-      } else if (kat === 'BIN_NADZOR') {
-        if (txt.includes('2 tsanawiyah') || txt.includes('2 tsanawiyyah') || txt.includes('2 tsn')) {
-          tsn2++;
-        } else if (txt.includes('3 tsanawiyah') || txt.includes('3 tsanawiyyah') || txt.includes('3 tsn')) {
-          tsn3++;
-        } else if (txt.includes('1 aliyah') || txt.includes('1 aly')) {
-          aly1++;
-        } else if (txt.includes('2 aliyah') || txt.includes('2 aly')) {
-          aly2++;
-        } else if (txt.includes('3 aliyah') || txt.includes('mutakhorijat') || txt.includes('3 aly')) {
-          aly3++;
-        } else {
-          aly1++;
-        }
+  const handleOpenRoleModal = (roleKey: AppRole) => {
+    setSelectedRole(roleKey);
+    setInputPassword('');
+    setShowPassword(false);
+    setPasswordError(false);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedRole(null);
+    setInputPassword('');
+    setPasswordError(false);
+  };
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRole) return;
+
+    const isValid = verifyRolePassword(selectedRole, inputPassword);
+    if (isValid) {
+      setActiveRole(selectedRole);
+      const targetRoute = ROLES_CONFIG[selectedRole].route;
+      handleCloseModal();
+      router.push(targetRoute);
+    } else {
+      setPasswordError(true);
+      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100]);
       }
-    });
+    }
+  };
 
-    const binNadzorTotal = tsn2 + tsn3 + aly1 + aly2 + aly3;
-
-    return {
-      totalSantri: keluargaList.length,
-      bilGhoib,
-      binNadzorTotal,
-      tsn2,
-      tsn3,
-      aly1,
-      aly2,
-      aly3,
-      tamatan,
-    };
-  }, [keluargaList]);
+  const handleOpenWaliPortal = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = kodeInput.trim().toUpperCase();
+    if (!clean) {
+      setKodeError('Silakan masukkan Kode Undangan Anda (contoh: SH0001 atau UND0101)');
+      return;
+    }
+    setKodeError(null);
+    router.push(`/u/${clean}`);
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Banner Hero: Warm Latte & Cinnamon Mocha Coffee Aesthetic dengan Ornamen Tradisional */}
-      {/* Warna Dasar: Warm Oat Cream #EFE8E1 · Aksen: Cinnamon Mocha #8C6A47 · Ambience: Golden Caramel Crema #D49B5B */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#FAF7F3] via-[#EFE8E1] to-[#E5DCD2] p-6 sm:p-10 text-[#422F21] shadow-xl border-2 border-[#8C6A47]/40">
-        {/* 4 Sudut Ornamen Tradisional Fretwork (sesuai referensi) */}
-        <div className="absolute top-3 left-3 z-10 opacity-70">
-          <TraditionalCorner position="top-left" className="w-10 h-10" />
-        </div>
-        <div className="absolute top-3 right-3 z-10 opacity-70">
-          <TraditionalCorner position="top-right" className="w-10 h-10" />
-        </div>
-        <div className="absolute bottom-3 left-3 z-10 opacity-70">
-          <TraditionalCorner position="bottom-left" className="w-10 h-10" />
-        </div>
-        <div className="absolute bottom-3 right-3 z-10 opacity-70">
-          <TraditionalCorner position="bottom-right" className="w-10 h-10" />
-        </div>
+    <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] flex flex-col justify-between selection:bg-[#8C6A47]/20 selection:text-[#422F21]">
+      {/* Background Ornamen Halus */}
+      <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#D5C4B4_1px,transparent_1px)] [background-size:24px_24px]" />
 
-        {/* 2 Logo Utama Pondok (P3TQ) & Madrasah (MHMTQ) Besar Bersandingan di Tengah */}
-        <div className="flex flex-col items-center justify-center mb-6">
-          <div className="flex items-center justify-center gap-8 sm:gap-16 mb-4">
-            {/* Logo Pondok Pesantren Putri Tahfizhil Qur'an (P3TQ) */}
-            <div className="flex flex-col items-center group">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-2.5 bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-lg shadow-[#8C6A47]/15 ring-4 ring-[#FAF7F3] flex items-center justify-center group-hover:scale-105 transition-all duration-300">
-                <img
-                  src="/images/logo-p3tq.png"
-                  alt="Logo P3TQ"
-                  className="w-full h-full object-contain filter drop-shadow-sm"
-                />
-              </div>
-              <span className="mt-2.5 text-base sm:text-lg font-serif font-black tracking-widest text-[#422F21]">
-                P3TQ
-              </span>
+      {/* HEADER UTAMA */}
+      <header className="relative z-10 border-b border-[#E8DFD5] bg-[#FAF7F3]/90 backdrop-blur-md sticky top-0 px-4 py-3 sm:py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#EFE8E1] border-2 border-[#8C6A47] flex items-center justify-center font-bold text-[#8C6A47] shadow-xs">
+              <Sparkles className="w-5 h-5 text-[#8C6A47]" />
             </div>
-
-            {/* Logo Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ) */}
-            <div className="flex flex-col items-center group">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-2.5 bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-lg shadow-[#8C6A47]/15 ring-4 ring-[#FAF7F3] flex items-center justify-center group-hover:scale-105 transition-all duration-300">
-                <img
-                  src="/images/logo-mhmtq.png"
-                  alt="Logo MHMTQ"
-                  className="w-full h-full object-contain filter drop-shadow-sm"
-                />
+            <div>
+              <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
+                PORTAL RESMI HAFLAH 1448 H. / 2027 M.
               </div>
-              <span className="mt-2.5 text-base sm:text-lg font-serif font-black tracking-widest text-[#422F21]">
-                MHMTQ
-              </span>
+              <h1 className="font-serif font-black text-sm sm:text-base text-[#422F21] leading-tight">
+                P3TQ & MHMTQ Lirboyo Kediri
+              </h1>
             </div>
           </div>
 
-          {/* Header Banner Ornamen Tradisional di Bagian Atas */}
-          <TraditionalHeaderBanner title="HAUL & HAFLAH 1448 H / 2027 M" />
-        </div>
-
-        {/* Ornamen Watermark Kaligrafi */}
-        <div className="absolute -right-10 -bottom-10 w-96 h-96 opacity-5 pointer-events-none">
-          <img
-            src="/images/logo-haul-black.png"
-            alt="Watermark Kaligrafi"
-            className="w-full h-full object-contain"
-          />
-        </div>
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-4 max-w-3xl">
-            {/* Kaligrafi Emas Haul Haflah & Logo Kuda Api Islami Terbaru (Hanya Logo Saja) */}
-            <div className="pt-1 flex flex-wrap items-center gap-4 sm:gap-6">
-              <img
-                src="/images/logo-haul-gold.png"
-                alt="Kaligrafi Haul & Haflah"
-                className="h-14 sm:h-20 object-contain drop-shadow-[0_4px_8px_rgba(212,155,91,0.55)]"
-              />
-
-              {/* Logo Kuda Api / Buroq (Tombol Rahasia Menuju Game Mi'raj Journey) */}
-              <Link
-                href="/miraj-journey"
-                className="inline-block cursor-pointer focus:outline-none"
-              >
-                <img
-                  src="/images/logo-kuda-api.png"
-                  alt="Logo Tema Kuda Api Haul Haflah"
-                  className="h-14 sm:h-20 w-auto object-contain drop-shadow-[0_4px_8px_rgba(212,155,91,0.35)]"
-                />
-              </Link>
-
-              <StageLantern className="w-6 h-10 hidden sm:block text-[#D49B5B]" />
-            </div>
-
-            <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-wide text-[#422F21] leading-tight">
-              Sistem Absensi & Manajemen Kuota Haul–Haflah
-            </h1>
-
-            {/* Deskripsi Lembaga, Alamat Resmi di Bawahnya, dan Kalimat Penyesuaian */}
-            <div className="text-xs sm:text-sm text-[#7A624E] font-normal leading-relaxed space-y-1.5">
-              <p className="text-[#422F21] font-medium">
-                Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ) Lirboyo Kediri.
-              </p>
-              <p className="flex items-center space-x-1.5 text-xs text-[#8C6A47] font-medium">
-                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                <span>Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kota Kediri, Jawa Timur 64117</span>
-              </p>
-              <p>
-                Sistem database resmi Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. memuat data santri riil ({komposisi.bilGhoib} Bil Ghoib, {komposisi.binNadzorTotal} Takhtiman Bin Nadzori & {komposisi.tamatan} Wisudawati Tamatan) serta seluruh Tamu Undangan Kehormatan, Istimewa & Umum.
-              </p>
-            </div>
-          </div>
-
-          {/* Tombol Aksi Cepat Panggung: Cinnamon Mocha Pill CTA */}
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
-            <Link
-              href="/scan"
-              className="inline-flex items-center justify-center space-x-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-black text-sm shadow-lg shadow-[#8C6A47]/30 transition-transform active:scale-95 border-2 border-white"
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsUsModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all"
             >
-              <QrCode className="w-5 h-5 text-white" />
-              <span>Buka Scanner Gerbang</span>
-            </Link>
-            <Link
-              href="/admin/dasbor"
-              className="inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#422F21] font-bold text-xs border-2 border-[#8C6A47] shadow-sm transition-colors"
-            >
-              <LayoutDashboard className="w-4 h-4 text-[#8C6A47]" />
-              <span>Pantau Live Realtime</span>
-            </Link>
+              <HelpCircle className="w-3.5 h-3.5 text-amber-200" />
+              <span>Tanya Us AI</span>
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* 4 Kartu Metrik di atas Warm Oat Cream - Interaktif & Bisa Diklik */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t-2 border-[#8C6A47]/25">
-          <Link
-            href="/admin/peserta?tab=SEMUA"
-            className="group bg-[#FAF7F3] hover:bg-[#F5EFE6] rounded-2xl p-4 border-2 border-[#D5C4B4] hover:border-[#8C6A47] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between cursor-pointer"
-            title={`Buka Database ${komposisi.totalSantri} Santri Terdaftar`}
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-serif font-bold text-[#8C6A47]">Total Santri Terdaftar</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-2xl font-black text-[#422F21] mt-1">
-                {komposisi.totalSantri} <span className="text-xs font-normal text-[#7A624E]">Santri</span>
-              </div>
-            </div>
-            <div className="text-[11px] text-[#8C6A47] mt-1 font-medium">{komposisi.bilGhoib} Bil Ghoib · {komposisi.binNadzorTotal} Bin Nadzori · {komposisi.tamatan} Tamatan</div>
-          </Link>
+      {/* KONTEN UTAMA */}
+      <main className="relative z-10 max-w-6xl mx-auto px-4 py-8 sm:py-12 space-y-10 sm:space-y-14 flex-1">
+        {/* BANNER UTAMA & PENJELASAN WEB MURNI */}
+        <div className="text-center space-y-3 sm:space-y-4 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF0E6] border border-[#D5C4B4] text-[#8C6A47] text-xs font-bold shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-[#8C6A47]" />
+            <span>Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar</span>
+          </div>
 
-          <Link
-            href="/admin/dasbor"
-            className="group bg-[#FAF7F3] hover:bg-[#F5EFE6] rounded-2xl p-4 border-2 border-[#D5C4B4] hover:border-[#8C6A47] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between cursor-pointer"
-            title="Pantau Monitoring Pagu & Okupansi Kuota Kursi Aula"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-serif font-bold text-[#8C6A47]">Total Pagu Kuota Kursi</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-2xl font-black text-[#422F21] mt-1">
-                {stats.totalKuota} <span className="text-xs font-normal text-[#7A624E]">Kursi</span>
-              </div>
-            </div>
-            <div className="text-[11px] text-emerald-800 mt-1 font-medium">{komposisi.totalSantri * 2} Santri (Dasar) + 300 Tambahan</div>
-          </Link>
-
-          <Link
-            href="/admin/dasbor?status=SUDAH"
-            className="group bg-[#FAF7F3] hover:bg-[#F5EFE6] rounded-2xl p-4 border-2 border-[#D5C4B4] hover:border-[#8C6A47] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between cursor-pointer"
-            title="Lihat Daftar Hadir Realtime di Live Dasbor"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-serif font-bold text-[#8C6A47]">Kehadiran Live Saat Ini</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#D49B5B] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-2xl font-black text-[#D49B5B] mt-1">
-                {stats.totalHadir} <span className="text-xs font-normal text-[#7A624E]">Hadir</span>
-              </div>
-            </div>
-            <div className="text-[11px] text-[#7A624E] mt-1 font-medium">
-              {stats.totalLaki} Laki-laki : {stats.totalPerempuan} Perempuan
-            </div>
-          </Link>
-
-          <Link
-            href="/admin/verifikasi"
-            className="group bg-[#FAF7F3] hover:bg-[#F5EFE6] rounded-2xl p-4 border-2 border-[#D5C4B4] hover:border-[#8C6A47] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between cursor-pointer"
-            title="Kelola & Verifikasi Kuota Tambahan Berbayar"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-serif font-bold text-[#8C6A47]">Pagu Kuota Tambahan (300)</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-2xl font-black text-[#422F21] mt-1">
-                {pagu.terjual} <span className="text-xs font-normal text-[#7A624E]">/ {pagu.paguTotal}</span>
-              </div>
-            </div>
-            <div className="text-[11px] text-[#8C6A47] mt-1 font-medium">Sisa {pagu.sisa} unit (Rp 80.000)</div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Grid Menu Fitur Utama */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base sm:text-lg font-serif font-black text-[#422F21] flex items-center space-x-2">
-            <Users className="w-5 h-5 text-[#8C6A47]" />
-            <span>Pusat Kendali & Modul Operasional</span>
+          <h2 className="text-2xl sm:text-4xl font-serif font-black text-[#322116] tracking-tight leading-snug">
+            Sistem Manajemen Presensi & Undangan Digital
           </h2>
-        </div>
+          <p className="text-xs sm:text-sm text-[#7A624E] leading-relaxed max-w-2xl mx-auto">
+            Selamat datang di gerbang digital resmi Haul & Haflah Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at Lirboyo. Silakan pilih portal bagan panitia atau masukkan kode undangan Anda.
+          </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Box 1: PWA Scanner Gerbang */}
-          <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] flex flex-col justify-between hover:border-[#8C6A47] transition-colors">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4]">
-                <QrCode className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif font-bold text-[#422F21] text-base">
-                Gerbang Masuk (PWA Operator)
-              </h3>
-              <p className="text-xs text-[#7A624E] leading-relaxed font-normal">
-                Pemindaian kamera & barcode USB di Gerbang Selatan Bola Dunia (Jalur Barat Putra & Jalur Timur Putri). Validasi kuota atomik dan penyerahan tiket fisik berwarna (Biru / Kuning / Hijau).
-              </p>
-            </div>
-            <div className="mt-5 pt-3 border-t border-[#D5C4B4]/50 flex gap-2">
-              <Link
-                href="/scan"
-                className="flex-1 py-2.5 text-center rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow border border-[#735334]"
-              >
-                Layar Scanner
-              </Link>
-              <Link
-                href="/rekon"
-                className="px-4 py-2.5 text-center rounded-xl bg-[#EFE8E1] hover:bg-[#E5DCD2] text-[#422F21] text-xs font-semibold border border-[#D5C4B4]"
-              >
-                Rekonsiliasi
-              </Link>
-            </div>
-          </div>
-
-          {/* Box 2: Portal Wali Santri */}
-          <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] flex flex-col justify-between hover:border-[#D49B5B] transition-colors">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#FCF3E4] text-[#D49B5B] flex items-center justify-center font-bold border border-[#D49B5B]/50">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif font-bold text-[#422F21] text-base">
-                Portal Undangan Resmi Wali Santri
-              </h3>
-              <p className="text-xs text-[#7A624E] leading-relaxed font-normal">
-                Akses publik tanpa login via token URL: Undangan digital resmi, form konfirmasi estimasi kehadiran L & P, QR statis resolusi tinggi, dan pembelian kuota tambahan.
-              </p>
-            </div>
-          </div>
-
-          {/* Box 3: Panel Panitia Inti */}
-          <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] flex flex-col justify-between hover:border-[#8C6A47] transition-colors">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#8C6A47] text-[#FAF7F3] flex items-center justify-center font-bold border border-[#735334]">
-                <Award className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif font-bold text-[#422F21] text-base">
-                Panel Administrasi & Laporan
-              </h3>
-              <p className="text-xs text-[#7A624E] leading-relaxed font-normal">
-                Monitoring live realtime, pengiriman pesan WhatsApp 2 gelombang untuk seluruh wali santri, verifikasi mutasi rekening BRI, serta rekapitulasi 3 blok siap cetak / ekspor ke Excel.
-              </p>
-            </div>
-            <div className="mt-5 pt-3 border-t border-[#D5C4B4]/50 grid grid-cols-2 gap-2">
-              <Link
-                href="/admin/dasbor"
-                className="py-2 text-center rounded-xl bg-[#EFE8E1] hover:bg-[#E5DCD2] text-[#422F21] text-xs font-semibold border border-[#D5C4B4]"
-              >
-                Live Dasbor
-              </Link>
-              <Link
-                href="/admin/whatsapp"
-                className="py-2 text-center rounded-xl bg-[#EFE8E1] hover:bg-[#E5DCD2] text-[#422F21] text-xs font-semibold border border-[#D5C4B4]"
-              >
-                Kirim WhatsApp
-              </Link>
-              <Link
-                href="/admin/verifikasi"
-                className="py-2 text-center rounded-xl bg-[#EFE8E1] hover:bg-[#E5DCD2] text-[#422F21] text-xs font-semibold border border-[#D5C4B4]"
-              >
-                Verifikasi Kuota
-              </Link>
-              <Link
-                href="/admin/laporan"
-                className="py-2 text-center rounded-xl bg-[#EFE8E1] hover:bg-[#E5DCD2] text-[#422F21] text-xs font-semibold border border-[#D5C4B4]"
-              >
-                Rekap & Ekspor
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Rincian Komposisi Santri Riil Terdaftar */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <h3 className="font-serif font-black text-[#422F21] text-sm sm:text-base flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#8C6A47]"></span>
-            <span>Komposisi Data Santri Riil ({komposisi.totalSantri} Santri Terdaftar)</span>
-          </h3>
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-[#7A624E] hidden md:inline">
-              Klik kartu untuk memfilter santri di Database Peserta
+          {/* Catatan Tegas: Web Murni Tanpa Perlu Download */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium shadow-xs">
+            <Globe className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>
+              <strong>Platform Berbasis Web Murni:</strong> Dibuka langsung melalui peramban (browser) HP maupun Laptop tanpa perlu mengunduh aplikasi tambahan.
             </span>
-            <Link
-              href="/admin/dasbor"
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#8C6A47] hover:text-[#422F21] transition-colors"
-            >
-              <span>Lihat Dasbor Live</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-xs">
-          <Link
-            href="/admin/peserta?tab=BIL_GHOIB"
-            className="group p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-300 hover:border-emerald-500 hover:bg-emerald-100/70 hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
+        {/* ========================================================================= */}
+        {/* BAGIAN 1: 4 PORTAL AKSES PANITIA SESUAI BAGAN & OTORITAS */}
+        {/* ========================================================================= */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E8DFD5] pb-2">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-emerald-950">Bil Ghoib</span>
-                <ArrowRight className="w-3.5 h-3.5 text-emerald-600 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-lg font-black text-emerald-900 mt-1">{komposisi.bilGhoib} Santri</div>
+              <h3 className="font-serif font-black text-lg text-[#422F21]">
+                Akses Bagan & Kepanitiaan
+              </h3>
+              <p className="text-xs text-[#7A624E]">
+                Akses terproteksi sandi sesuai tugas dan wewenang masing-masing seksi
+              </p>
             </div>
-            <span className="text-[10px] text-emerald-700 font-medium mt-1">{komposisi.bilGhoib * 2} Tiket + {komposisi.bilGhoib} Panggung</span>
-          </Link>
+            <span className="text-[11px] font-mono text-[#8C6A47] bg-[#FAF0E6] px-2.5 py-1 rounded-lg border border-[#D5C4B4]">
+              4 Otoritas Resmi
+            </span>
+          </div>
 
-          <Link
-            href="/admin/peserta?tab=BIN_NADZOR&q=2 Tsanawiyah"
-            className="group p-3.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] hover:border-[#8C6A47] hover:bg-[#E5DCD2] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#422F21]">2 Tsanawiyyah</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {/* 1. ADMIN */}
+            <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] hover:border-[#8C6A47] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center font-bold shadow-2xs">
+                    <ShieldCheck className="w-6 h-6 text-rose-700" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                    Semua Akses
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-serif font-black text-base text-[#422F21] group-hover:text-[#8C6A47] transition-colors">
+                    Administrator
+                  </h4>
+                  <p className="text-[11px] text-[#8C6A47] font-semibold mt-0.5">
+                    Seksi Kesekretariatan & Sistem
+                  </p>
+                  <p className="text-xs text-[#7A624E] leading-relaxed mt-2">
+                    Kelola master data santri & tamu, rekonsiliasi kuota, audit log, buka/tutup kuota tambahan, dan ekspor data Excel/PDF.
+                  </p>
+                </div>
               </div>
-              <div className="text-lg font-black text-[#8C6A47] mt-1">{komposisi.tsn2} Santri</div>
-            </div>
-            <span className="text-[10px] text-[#7A624E] font-medium mt-1">{komposisi.tsn2 * 2} Tiket Biru</span>
-          </Link>
 
-          <Link
-            href="/admin/peserta?tab=BIN_NADZOR&q=3 Tsanawiyah"
-            className="group p-3.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] hover:border-[#8C6A47] hover:bg-[#E5DCD2] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#422F21]">3 Tsanawiyyah</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-lg font-black text-[#8C6A47] mt-1">{komposisi.tsn3} Santri</div>
+              <button
+                type="button"
+                onClick={() => handleOpenRoleModal('ADMIN')}
+                className="w-full py-2.5 px-4 rounded-2xl bg-[#FAF7F3] hover:bg-[#8C6A47] text-[#5C3E28] hover:text-white border border-[#D5C4B4] hover:border-[#8C6A47] text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Masuk Admin</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-[10px] text-[#7A624E] font-medium mt-1">{komposisi.tsn3 * 2} Tiket Biru</span>
-          </Link>
 
-          <Link
-            href="/admin/peserta?tab=BIN_NADZOR&q=1 Aliyah"
-            className="group p-3.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] hover:border-[#8C6A47] hover:bg-[#E5DCD2] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#422F21]">1 Aliyah</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+            {/* 2. PENERIMA TAMU */}
+            <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] hover:border-emerald-600 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold shadow-2xs">
+                    <Users className="w-6 h-6 text-emerald-700" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    Dasbor & Absen Tamu
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-serif font-black text-base text-[#422F21] group-hover:text-emerald-700 transition-colors">
+                    Penerima Tamu
+                  </h4>
+                  <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                    Pos Meja Transit & Protokoler
+                  </p>
+                  <p className="text-xs text-[#7A624E] leading-relaxed mt-2">
+                    Live dasbor tamu, akses absen cepat tamu undangan kehormatan & VIP tanpa antre gerbang, serta panduan 8 pos jaga.
+                  </p>
+                </div>
               </div>
-              <div className="text-lg font-black text-[#8C6A47] mt-1">{komposisi.aly1} Santri</div>
-            </div>
-            <span className="text-[10px] text-[#7A624E] font-medium mt-1">{komposisi.aly1 * 2} Tiket Biru</span>
-          </Link>
 
-          <Link
-            href="/admin/peserta?tab=BIN_NADZOR&q=2 Aliyah"
-            className="group p-3.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] hover:border-[#8C6A47] hover:bg-[#E5DCD2] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#422F21]">2 Aliyah</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-lg font-black text-[#8C6A47] mt-1">{komposisi.aly2} Santri</div>
+              <button
+                type="button"
+                onClick={() => handleOpenRoleModal('PENERIMA_TAMU')}
+                className="w-full py-2.5 px-4 rounded-2xl bg-emerald-50/70 hover:bg-emerald-700 text-emerald-900 hover:text-white border border-emerald-200 hover:border-emerald-700 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Masuk Penerima Tamu</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-[10px] text-[#7A624E] font-medium mt-1">{komposisi.aly2 * 2} Tiket Biru</span>
-          </Link>
 
-          <Link
-            href="/admin/peserta?tab=BIN_NADZOR&q=3 Aliyah"
-            className="group p-3.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] hover:border-[#8C6A47] hover:bg-[#E5DCD2] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#422F21]">3 Aliyah & Mutakhorijat</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8C6A47] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+            {/* 3. PIMPINAN */}
+            <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] hover:border-amber-600 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center font-bold shadow-2xs">
+                    <LayoutDashboard className="w-6 h-6 text-amber-700" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                    Executive View
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-serif font-black text-base text-[#422F21] group-hover:text-amber-700 transition-colors">
+                    Pimpinan & Masyayikh
+                  </h4>
+                  <p className="text-[11px] text-amber-700 font-semibold mt-0.5">
+                    Dewan Pengasuh & Penasehat
+                  </p>
+                  <p className="text-xs text-[#7A624E] leading-relaxed mt-2">
+                    Live dasbor eksekutif: Okupansi kursi Aula Al-Muktamar, rasio kehadiran putra vs putri, dan grafik kedatangan per jam.
+                  </p>
+                </div>
               </div>
-              <div className="text-lg font-black text-[#8C6A47] mt-1">{komposisi.aly3} Santri</div>
-            </div>
-            <span className="text-[10px] text-[#7A624E] font-medium mt-1">{komposisi.aly3 * 2} Tiket Biru</span>
-          </Link>
 
-          <Link
-            href="/admin/peserta?tab=TAMATAN"
-            className="group p-3.5 rounded-2xl bg-[#FCF3E4] border border-[#D49B5B]/60 hover:border-[#D49B5B] hover:bg-[#F8E7CD] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#543C28]">Tamatan (7 Bagian)</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#D49B5B] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="text-lg font-black text-[#D49B5B] mt-1">{komposisi.tamatan} Santri</div>
+              <button
+                type="button"
+                onClick={() => handleOpenRoleModal('PIMPINAN')}
+                className="w-full py-2.5 px-4 rounded-2xl bg-amber-50/70 hover:bg-amber-700 text-amber-900 hover:text-white border border-amber-200 hover:border-amber-700 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Buka Dasbor Pimpinan</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-[10px] text-[#8C6A47] font-medium mt-1">{komposisi.tamatan * 2} Tiket Kuning</span>
-          </Link>
+
+            {/* 4. PENJAGA GERBANG */}
+            <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] hover:border-blue-600 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-bold shadow-2xs">
+                    <QrCode className="w-6 h-6 text-blue-700" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                    Scanner & Cek Peserta
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-serif font-black text-base text-[#422F21] group-hover:text-blue-700 transition-colors">
+                    Penjaga Gerbang
+                  </h4>
+                  <p className="text-[11px] text-blue-700 font-semibold mt-0.5">
+                    Seksi Keamanan & Petugas Pintu
+                  </p>
+                  <p className="text-xs text-[#7A624E] leading-relaxed mt-2">
+                    PWA scanner QR kamera & barcode USB, verifikasi fisik tiket Hitam Gold vs Merah Gold, dan audio buzzer error.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleOpenRoleModal('PENJAGA_GERBANG')}
+                className="w-full py-2.5 px-4 rounded-2xl bg-blue-50/70 hover:bg-blue-700 text-blue-900 hover:text-white border border-blue-200 hover:border-blue-700 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Buka Scanner Gerbang</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* ========================================================================= */}
+        {/* BAGIAN 2: PORTAL KHUSUS WALI SANTRI & TAMU UNDANGAN (TANPA PASSWORD) */}
+        {/* ========================================================================= */}
+        <div className="bg-gradient-to-br from-[#FAF7F3] via-white to-[#F4EFE6] rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-sm space-y-6">
+          <div className="max-w-2xl space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EFE8E1] text-[#8C6A47] text-xs font-bold">
+              <Ticket className="w-3.5 h-3.5 text-[#8C6A47]" />
+              <span>Akses Walisantri & Tamu Undangan</span>
+            </div>
+            <h3 className="font-serif font-black text-xl sm:text-2xl text-[#322116]">
+              Buka Undangan Digital & Kartu Masuk Anda
+            </h3>
+            <p className="text-xs sm:text-sm text-[#7A624E] leading-relaxed">
+              Wali santri dan tamu undangan dapat langsung membuka kartu undangan tanpa password panitia. Silakan ketik Kode Registrasi Anda (misal: <code className="font-mono font-bold text-[#8C6A47]">SH0001</code> atau <code className="font-mono font-bold text-[#8C6A47]">UND0101</code>).
+            </p>
+          </div>
+
+          <form onSubmit={handleOpenWaliPortal} className="max-w-xl space-y-3">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={kodeInput}
+                onChange={(e) => setKodeInput(e.target.value)}
+                placeholder="Ketik kode: SH0001, SH0042, UND0101..."
+                className="flex-1 px-4 py-3 rounded-2xl bg-white border-2 border-[#D5C4B4] focus:border-[#8C6A47] focus:outline-none text-sm font-mono uppercase tracking-wider text-[#422F21] placeholder:text-stone-400 shadow-inner"
+              />
+              <button
+                type="submit"
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-serif font-black text-sm shadow-md transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer active:scale-95"
+              >
+                <span>Buka Undangan ✉️</span>
+                <ArrowRight className="w-4 h-4 text-amber-200" />
+              </button>
+            </div>
+
+            {kodeError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{kodeError}</span>
+              </div>
+            )}
+          </form>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs text-[#7A624E] border-t border-[#E8DFD5]">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-[#8C6A47]"></span>
+              <span>Registrasi Buka: <strong>06.30 WIB / 07.00 WIs</strong></span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <span>Lokasi: <strong>Aula Al-Muktamar Lirboyo</strong></span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-amber-600"></span>
+              <span>Konsultasi: <strong>Ustadzah AI Siap Menjawab</strong></span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="relative z-10 border-t border-[#E8DFD5] bg-[#FAF7F3] px-4 py-6 text-center text-xs text-[#7A624E] space-y-1">
+        <p className="font-serif font-bold text-[#422F21]">
+          Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at
+        </p>
+        <p>Lirboyo Kota Kediri Jawa Timur 1448 H. / 2027 M.</p>
+        <p className="text-[11px] text-stone-500 pt-1">
+          Sistem Web Murni Terintegrasi · Tanpa Instalasi Aplikasi
+        </p>
+      </footer>
+
+      {/* ========================================================================= */}
+      {/* MODAL INPUT PASSWORD UNTUK BAGAN PANITIA */}
+      {/* ========================================================================= */}
+      {selectedRole && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-[#D5C4B4] space-y-6 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#FAF0E6] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4]">
+                  <KeyRound className="w-5 h-5 text-[#8C6A47]" />
+                </div>
+                <div>
+                  <h4 className="font-serif font-black text-base text-[#422F21]">
+                    Otentikasi {ROLES_CONFIG[selectedRole].title}
+                  </h4>
+                  <p className="text-xs text-[#7A624E]">
+                    {ROLES_CONFIG[selectedRole].subtitle}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-xs text-[#7A624E] space-y-1">
+              <div className="font-bold text-[#422F21]">Otoritas Fitur:</div>
+              <p className="leading-relaxed">{ROLES_CONFIG[selectedRole].description}</p>
+            </div>
+
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#422F21] block">
+                  Masukkan Kata Sandi {ROLES_CONFIG[selectedRole].title}:
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={inputPassword}
+                    onChange={(e) => {
+                      setInputPassword(e.target.value);
+                      setPasswordError(false);
+                    }}
+                    placeholder={`Ketik kata sandi ${ROLES_CONFIG[selectedRole].title}...`}
+                    autoFocus
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-sm text-[#422F21] pr-12 focus:outline-none transition-colors ${
+                      passwordError
+                        ? 'border-rose-500 bg-rose-50/50'
+                        : 'border-[#D5C4B4] focus:border-[#8C6A47]'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-800 p-1"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {passwordError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2 animate-shake">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>Kata sandi tidak sesuai. Silakan periksa kembali sandi resmi Anda.</span>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 py-3 rounded-2xl border border-[#D5C4B4] text-[#7A624E] hover:bg-[#FAF7F3] text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={!inputPassword.trim()}
+                  className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <span>Masuk Portal</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL USTADZAH AI (MODE WALI / UMUM) */}
+      {isUsModalOpen && (
+        <TanyaUsModal
+          isOpen={isUsModalOpen}
+          onClose={() => setIsUsModalOpen(false)}
+          role="WALI"
+        />
+      )}
     </div>
   );
 }
