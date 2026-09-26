@@ -425,14 +425,14 @@ export const INITIAL_PRESENSI_LOGS: PresensiLog[] = [
 ];
 
 class DataStore {
-  private keluargaList: (Keluarga & { kuota: Kuota; estimasi?: EstimasiKehadiran })[] = [];
-  private undanganList: (typeof INITIAL_UNDANGAN) = [];
-  private pembelianList: PembelianKuota[] = [];
-  private presensiLogs: PresensiLog[] = [];
+  private keluargaList: (Keluarga & { kuota: Kuota; estimasi?: EstimasiKehadiran })[] = [...INITIAL_KELUARGA];
+  private undanganList: (typeof INITIAL_UNDANGAN) = [...INITIAL_UNDANGAN];
+  private pembelianList: PembelianKuota[] = [...INITIAL_PEMBELIAN_KUOTA];
+  private presensiLogs: PresensiLog[] = [...INITIAL_PRESENSI_LOGS];
   private paguTotal = 300;
   private paguTerjual = 0;
   private kuotaTambahanBuka = false;
-  private storageKey = 'haflah_store_v51_all_cleared';
+  private storageKey = 'haflah_store_v52_full_seeded';
 
   private isSyncing = false;
   private lastCloudSync = 0;

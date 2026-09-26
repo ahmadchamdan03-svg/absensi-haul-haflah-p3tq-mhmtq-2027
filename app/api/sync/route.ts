@@ -114,7 +114,25 @@ function mergeStates(cloudState: any, clientState: any) {
     if (p && p.id) pembelianMap.set(p.id, p);
   }
 
-  const paguTerjual = Math.max(cloudState.paguTerjual || 0, clientState.paguTerjual || 0);
+  // 5. Evaluasi Batas Waktu 6 Jam Otomatis untuk Seluruh Pesanan
+  const now = Date.now();
+  let recalculatedPagu = 0;
+  for (const p of Array.from(pembelianMap.values())) {
+    if (p.status === 'DIPESAN') {
+      const exp = new Date(p.kedaluwarsaAt).getTime();
+      if (now > exp) {
+        p.status = 'KEDALUWARSA';
+        p.diputusAt = new Date().toISOString();
+        p.catatanPanitia = 'Kedaluwarsa otomatis: Batas waktu transfer dan upload bukti 6 jam telah habis';
+      } else {
+        recalculatedPagu += p.jumlah || 0;
+      }
+    } else if (p.status === 'DIVERIFIKASI' || p.status === 'MENUNGGU_VERIFIKASI') {
+      recalculatedPagu += p.jumlah || 0;
+    }
+  }
+
+  const paguTerjual = Math.min(300, recalculatedPagu);
   const kuotaTambahanBuka = clientState.kuotaTambahanBuka ?? cloudState.kuotaTambahanBuka ?? false;
 
   return {
