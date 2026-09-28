@@ -87,17 +87,6 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <span>Sabtu, 02 Jan 2027 · 24 Rajab 1448 H</span>
         </div>
 
-        {/* Tombol Keluar Sesi */}
-        <button
-          type="button"
-          onClick={() => { clearActiveRole(); router.replace('/'); }}
-          className="inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs transition-all border border-rose-200 cursor-pointer"
-          title="Keluar dari sesi dan kembali ke halaman login"
-        >
-          <LogOut className="w-3.5 h-3.5 text-rose-600" />
-          <span className="text-[11px] sm:text-xs">Keluar</span>
-        </button>
-
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}
         <Link
           href="/scan"
@@ -117,6 +106,17 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#8C6A47]" />
           <span className="hidden md:inline ml-1.5">Live Dasbor</span>
         </Link>
+
+        {/* Tombol Keluar Sesi (paling kanan) */}
+        <button
+          type="button"
+          onClick={() => { clearActiveRole(); router.replace('/'); }}
+          className="inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs transition-all border border-rose-200 cursor-pointer"
+          title="Keluar dari sesi dan kembali ke halaman login"
+        >
+          <LogOut className="w-3.5 h-3.5 text-rose-600" />
+          <span className="text-[11px] sm:text-xs">Keluar</span>
+        </button>
       </div>
     </header>
   );
