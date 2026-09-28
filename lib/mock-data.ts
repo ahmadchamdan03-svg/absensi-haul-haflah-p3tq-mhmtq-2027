@@ -60,7 +60,7 @@ class DataStore {
   private paguTotal = 300;
   private paguTerjual = 0;
   private kuotaTambahanBuka = false;
-  private storageKey = 'haflah_store_v70_clean_manual';
+  private storageKey = 'haflah_store_v71_empty';
 
   private isSyncing = false;
   private lastCloudSync = 0;
