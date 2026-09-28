@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { clearActiveRole } from '@/lib/auth-roles';
 import {
   Home,
   LayoutDashboard,
@@ -18,6 +19,7 @@ import {
   ExternalLink,
   GripVertical,
   Search,
+  LogOut,
   Bot,
 } from 'lucide-react';
 import UniversalSearchModal from '@/components/UniversalSearchModal';
@@ -42,6 +44,7 @@ interface NavGroup {
 
 export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   // State untuk pengaturan lebar sidebar manual (Desktop)
   const [sidebarWidth, setSidebarWidth] = useState<number>(280);
@@ -141,7 +144,6 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     {
       groupTitle: 'MENU UTAMA',
       items: [
-        { href: '/', label: 'Beranda', icon: Home },
         { href: '/admin/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
       ],
     },
@@ -253,8 +255,20 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         ))}
       </div>
 
+      {/* Tombol Keluar (Logout) */}
+      <div className="px-3 pb-2 border-t-2 border-[#D5C4B4] pt-3">
+        <button
+          type="button"
+          onClick={() => { clearActiveRole(); router.replace('/'); }}
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-colors cursor-pointer"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Keluar dari Sesi</span>
+        </button>
+      </div>
+
       {/* Footer Sidebar: Karakter Ustadzah AI (Tanpa Pop Up Chat Bubble) */}
-      <div className="pt-2 pb-3 px-2 border-t-2 border-[#D5C4B4] bg-gradient-to-b from-[#FAF7F3] to-[#EFE8E1] select-none flex flex-col items-center justify-center">
+      <div className="pt-2 pb-3 px-2 border-t border-[#E8DFD5] bg-gradient-to-b from-[#FAF7F3] to-[#EFE8E1] select-none flex flex-col items-center justify-center">
         <button
           type="button"
           onClick={() => setTanyaUsOpen(true)}

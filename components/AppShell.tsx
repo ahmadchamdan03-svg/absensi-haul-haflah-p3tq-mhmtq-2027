@@ -15,7 +15,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   // Halaman publik wali santri (portal undangan / beli kuota tambahan) tidak menggunakan sidebar panitia
-  const isPublicPage = pathname.startsWith('/u/') || pathname.startsWith('/beli/');
+  const isPublicPage = pathname === '/' || pathname.startsWith('/u/') || pathname.startsWith('/beli/') || pathname === '/penerima-tamu' || pathname === '/pimpinan';
 
   if (isPublicPage) {
     return <main className="min-h-screen bg-[#FAF7F3]">{children}</main>;

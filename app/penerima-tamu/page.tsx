@@ -21,6 +21,7 @@ import {
 import { store } from '@/lib/mock-data';
 import { clearActiveRole } from '@/lib/auth-roles';
 import TanyaUsModal from '@/components/TanyaUsModal';
+import AuthGuard from '@/components/AuthGuard';
 
 export default function PenerimaTamuPage() {
   const router = useRouter();
@@ -80,6 +81,7 @@ export default function PenerimaTamuPage() {
   };
 
   return (
+    <AuthGuard allowedRoles={['PENERIMA_TAMU', 'ADMIN']}>
     <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] pb-24">
       {/* HEADER */}
       <header className="border-b border-[#E8DFD5] bg-[#FAF7F3]/90 backdrop-blur-md sticky top-0 z-20 px-4 py-3 sm:py-4">
@@ -465,5 +467,6 @@ export default function PenerimaTamuPage() {
         />
       )}
     </div>
+    </AuthGuard>
   );
 }

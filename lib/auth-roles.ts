@@ -27,7 +27,7 @@ export const ROLES_CONFIG: Record<AppRole, RoleConfig> = {
     description: 'Semua akses kelola: Master data 549 santri & 70 tamu, rekonsiliasi kuota, audit log, buka/tutup kuota, dan ekspor data.',
     badge: 'Semua Akses',
     badgeColor: 'bg-rose-100 text-rose-800 border-rose-300',
-    route: '/admin/peserta',
+    route: '/admin/dasbor',
     requirePassword: true,
     password: 'admin_haflah',
     hasAI: true,
