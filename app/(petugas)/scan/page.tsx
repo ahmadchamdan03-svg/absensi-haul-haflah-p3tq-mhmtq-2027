@@ -153,6 +153,16 @@ export default function ScanPage() {
     setTimeout(() => setBuzzerTested(false), 3500);
   };
 
+  // =========================================================================
+  // GLOBAL USB BARCODE SCANNER LISTENER
+  // Scanner USB HID mengetik karakter sangat cepat (<50ms antar karakter)
+  // lalu mengirim Enter. Listener ini menangkap pola tersebut secara global
+  // tanpa perlu input field di-focus terlebih dahulu.
+  // =========================================================================
+  const inputRef = useRef<HTMLInputElement>(null);
+  const scanBufferRef = useRef('');
+  const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Handler memproses kode QR (baik dari kamera maupun input manual)
   const handleScanCode = useCallback((scannedRaw: string) => {
     setErrorMsg(null);
@@ -213,6 +223,52 @@ export default function ScanPage() {
       setSerahkanTiketEmas(false);
     }
   }, []);
+
+  // =========================================================================
+  // GLOBAL USB BARCODE SCANNER LISTENER
+  // Scanner USB HID mengetik karakter sangat cepat (<50ms antar karakter)
+  // lalu mengirim Enter. Listener ini menangkap pola tersebut secara global
+  // tanpa perlu input field di-focus terlebih dahulu.
+  // =========================================================================
+  useEffect(() => {
+    // Auto-focus input field saat halaman dimuat
+    if (inputRef.current) inputRef.current.focus();
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Abaikan jika user sedang mengetik di input field (biar form handler yang proses)
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+
+      // Abaikan modifier keys
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      if (e.key === 'Enter') {
+        // Enter = akhir input dari scanner USB
+        if (scanBufferRef.current.length >= 3) {
+          handleScanCode(scanBufferRef.current);
+        }
+        scanBufferRef.current = '';
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        e.preventDefault();
+        return;
+      }
+
+      // Hanya tangkap karakter printable
+      if (e.key.length === 1) {
+        scanBufferRef.current += e.key;
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        scanTimerRef.current = setTimeout(() => {
+          scanBufferRef.current = '';
+        }, 100);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+    };
+  }, [handleScanCode]);
 
   // Inisialisasi & Start Kamera
   const startCamera = async (mode: 'environment' | 'user' = facingMode) => {
@@ -541,8 +597,11 @@ export default function ScanPage() {
           {/* Form Input Barcode / Manual USB Scanner */}
           <div className="space-y-2 pt-2 border-t border-slate-100">
             <div className="flex items-center justify-between text-xs text-slate-500">
-              <span className="font-semibold">Atau Scan dengan Barcode Scanner USB / Ketik Kode:</span>
-              <span className="text-[11px] font-mono text-opera-700">Database: 549 Santri</span>
+              <span className="font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                Scanner USB Aktif / Ketik Kode Manual:
+              </span>
+              <span className="text-[11px] font-mono text-opera-700">Auto-detect USB HID</span>
             </div>
 
             <form
@@ -553,10 +612,12 @@ export default function ScanPage() {
               className="flex gap-2"
             >
               <input
+                ref={inputRef}
                 type="text"
                 value={kodeInput}
                 onChange={(e) => setKodeInput(e.target.value)}
-                placeholder="Scan barcode USB / ketik SH0001, SH0160..."
+                placeholder="Arahkan QR ke scanner / ketik SH0001..."
+                autoFocus
                 className="flex-1 px-4 py-3 text-sm rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
               />
               <button
