@@ -2,10 +2,11 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { clearActiveRole } from '@/lib/auth-roles';
 import {
   Menu,
-  Sparkles,
+  LogOut,
   QrCode,
   LayoutDashboard,
   Calendar,
@@ -17,6 +18,7 @@ interface TopHeaderProps {
 
 export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   // Helper untuk menentukan judul dan breadcrumb berdasarkan pathname
   const getPageInfo = () => {
@@ -85,19 +87,15 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <span>Sabtu, 02 Jan 2027 · 24 Rajab 1448 H</span>
         </div>
 
-        {/* Pintasan Aksi Cepat: Tanya Us AI */}
+        {/* Tombol Keluar Sesi */}
         <button
           type="button"
-          onClick={() => {
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('open-tanya-us'));
-            }
-          }}
-          className="inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-amber-50 hover:bg-amber-100 text-[#735334] text-xs font-bold shadow-2xs transition-all border border-amber-300"
-          title="Tanya Us AI (Asisten Haflah)"
+          onClick={() => { clearActiveRole(); router.replace('/'); }}
+          className="inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs transition-all border border-rose-200 cursor-pointer"
+          title="Keluar dari sesi dan kembali ke halaman login"
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-          <span className="text-[11px] sm:text-xs">Tanya Us</span>
+          <LogOut className="w-3.5 h-3.5 text-rose-600" />
+          <span className="text-[11px] sm:text-xs">Keluar</span>
         </button>
 
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}

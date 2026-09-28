@@ -9,7 +9,6 @@ import {
   QrCode,
   Lock,
   ArrowRight,
-  Sparkles,
   KeyRound,
   Eye,
   EyeOff,
@@ -163,8 +162,10 @@ export default function LandingPortalPage() {
       <div className="relative z-10 w-full max-w-2xl px-4 py-12 sm:py-16 space-y-10">
         {/* HEADER IDENTITAS */}
         <div className="text-center space-y-3">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-[#EFE8E1] border-2 border-[#8C6A47] flex items-center justify-center shadow-sm">
-            <Sparkles className="w-7 h-7 text-[#8C6A47]" />
+          <div className="flex items-center justify-center gap-3 sm:gap-4">
+            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
+            <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="w-14 h-10 sm:w-16 sm:h-12 object-contain drop-shadow-sm" />
+            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
           </div>
           <div>
             <div className="text-[10px] sm:text-xs font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase">

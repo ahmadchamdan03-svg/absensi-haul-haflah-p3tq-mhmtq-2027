@@ -106,7 +106,7 @@ export default function PenerimaTamuPage() {
               className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Tanya Us AI (Penerima Tamu)</span>
+              <span>Tanya Us</span>
             </button>
             <button
               onClick={handleLogout}
