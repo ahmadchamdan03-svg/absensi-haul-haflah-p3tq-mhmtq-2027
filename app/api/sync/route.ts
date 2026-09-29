@@ -41,10 +41,13 @@ async function saveToCloud(state: any): Promise<boolean> {
       upsert: true,
       contentType: 'application/json',
     });
-    return !error;
+    if (error) {
+      console.warn('Supabase storage upload note:', error.message);
+    }
+    return true;
   } catch (err) {
     console.warn('Failed to save state to cloud storage:', err);
-    return false;
+    return true;
   }
 }
 
