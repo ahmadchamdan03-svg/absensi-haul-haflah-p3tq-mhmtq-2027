@@ -148,7 +148,7 @@ class DataStore {
     return false;
   }
 
-  public saveToStorage() {
+  public saveToStorage(forceAction?: 'RESET' | 'PUSH' | 'MERGE') {
     if (typeof window !== 'undefined') {
       try {
         const payload = {
@@ -163,7 +163,7 @@ class DataStore {
       } catch (e) {
         console.error('Error saving store to localStorage', e);
       }
-      this.syncCloud('MERGE');
+      this.syncCloud(forceAction || 'PUSH');
     }
   }
 

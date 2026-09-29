@@ -771,7 +771,7 @@ export default function ManajemenPesertaPage() {
     if (res.ok) {
       try {
         // Insert langsung ke tabel Supabase 'peserta_santri'
-        await supabase.from('peserta_santri').insert([
+        const { error } = await supabase.from('peserta_santri').insert([
           {
             nis: res.code,
             nama: formData.nama.trim().toUpperCase(),
@@ -784,6 +784,10 @@ export default function ManajemenPesertaPage() {
             kuota_dasar: formData.kategoriUtama === 'BIL_GHOIB' ? 4 : 2,
           },
         ]);
+        if (error) {
+          console.error('Supabase insert error (peserta_santri):', error);
+          showToast(`⚠️ Supabase DB Note: ${error.message || 'Tersimpan lokal'}`);
+        }
       } catch (err) {
         console.warn('Supabase direct insert warning:', err);
       }
@@ -868,7 +872,7 @@ export default function ManajemenPesertaPage() {
     if (res.ok) {
       try {
         // Insert langsung ke tabel Supabase 'tamu_undangan'
-        await supabase.from('tamu_undangan').insert([
+        const { error } = await supabase.from('tamu_undangan').insert([
           {
             kode: res.code,
             nama: finalNama,
@@ -880,6 +884,10 @@ export default function ManajemenPesertaPage() {
             kuota_dasar: kuotaBase,
           },
         ]);
+        if (error) {
+          console.error('Supabase insert error (tamu_undangan):', error);
+          showToast(`⚠️ Supabase DB Note: ${error.message || 'Tersimpan lokal'}`);
+        }
       } catch (err) {
         console.warn('Supabase direct insert tamu_undangan warning:', err);
       }

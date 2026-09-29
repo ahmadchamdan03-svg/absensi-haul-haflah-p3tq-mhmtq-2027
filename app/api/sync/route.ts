@@ -178,6 +178,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, state: emptyState });
     }
 
+    if (action === 'PUSH' && localState) {
+      const stateToSave = {
+        ...localState,
+        lastUpdated: Date.now(),
+      };
+      await saveToCloud(stateToSave);
+      return NextResponse.json({ ok: true, state: stateToSave });
+    }
+
     let currentCloud = memoryCache?.state;
     if (!currentCloud) {
       currentCloud = await loadFromCloud();
