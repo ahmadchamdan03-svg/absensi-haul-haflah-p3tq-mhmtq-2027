@@ -164,7 +164,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch (e) {}
     const { action, localState } = body;
 
     if (action === 'RESET') {
