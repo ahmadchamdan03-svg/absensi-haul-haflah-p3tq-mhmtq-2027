@@ -148,7 +148,7 @@ class DataStore {
     return false;
   }
 
-  private saveToStorage() {
+  public saveToStorage() {
     if (typeof window !== 'undefined') {
       try {
         const payload = {

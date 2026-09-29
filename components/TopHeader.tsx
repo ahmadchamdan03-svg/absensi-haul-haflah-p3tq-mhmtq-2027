@@ -66,17 +66,17 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Breadcrumb & Judul Halaman */}
-        <div className="min-w-0">
-          <div className="hidden sm:flex items-center space-x-1.5 text-[11px] text-[#8C6A47] font-semibold tracking-wide truncate">
-            <span>{pageInfo.category}</span>
+        {/* Breadcrumb & Judul Halaman (Klik menuju Dasbor Admin) */}
+        <Link href="/admin/dasbor" className="min-w-0 group cursor-pointer block" title="Kembali ke Dasbor Admin">
+          <div className="hidden sm:flex items-center space-x-1.5 text-[11px] text-[#8C6A47] font-semibold tracking-wide truncate group-hover:text-[#5C3E28] transition-colors">
+            <span className="font-serif font-black">HAUL &amp; HAFLAH P3TQ &amp; MHMTQ Lirboyo</span>
             <span>/</span>
-            <span className="text-[#422F21] font-bold">{pageInfo.title}</span>
+            <span>{pageInfo.category}</span>
           </div>
-          <h2 className="text-sm sm:text-lg font-serif font-black text-[#422F21] leading-tight truncate">
+          <h2 className="text-sm sm:text-lg font-serif font-black text-[#422F21] group-hover:text-[#8C6A47] transition-colors leading-tight truncate">
             {pageInfo.title}
           </h2>
-        </div>
+        </Link>
       </div>
 
       {/* Sisi Kanan: Badge Tanggal Acara & Pintasan Aksi Cepat */}

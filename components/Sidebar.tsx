@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { clearActiveRole } from '@/lib/auth-roles';
+import { clearActiveRole, getActiveRole } from '@/lib/auth-roles';
 import {
   Home,
   LayoutDashboard,
@@ -140,7 +140,9 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     };
   }, [isResizing, sidebarWidth]);
 
-  const navGroups: NavGroup[] = [
+  const activeRole = typeof window !== 'undefined' ? getActiveRole() : null;
+
+  const allNavGroups: NavGroup[] = [
     {
       groupTitle: 'MENU UTAMA',
       items: [
@@ -170,6 +172,18 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       ],
     },
   ];
+
+  // Untuk role Penjaga Gerbang: sembunyikan seluruh menu kecuali Scanner Gerbang & Tanya Us AI
+  const navGroups: NavGroup[] = activeRole === 'PENJAGA_GERBANG'
+    ? [
+        {
+          groupTitle: 'OPERASIONAL GERBANG',
+          items: [
+            { href: '/scan', label: 'Scanner Gerbang', icon: QrCode },
+          ],
+        },
+      ]
+    : allNavGroups;
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#FAF7F3] border-r-2 border-[#D5C4B4] text-[#422F21]">

@@ -948,13 +948,42 @@ export default function LaporanPage() {
                               )}
                             </td>
                             <td className="p-2.5 text-center font-mono text-[11px]">
-                              {m.noHp && m.noHp !== '-' ? (
-                                <div className="flex items-center justify-center gap-1 text-slate-700">
-                                  <Phone className="w-2.5 h-2.5 text-emerald-600" />
-                                  <span>{m.noHp}</span>
+                              {m.noHp && m.noHp.trim().length >= 8 ? (
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <a
+                                    href={`https://wa.me/${m.noHp.replace(/\D/g, '')}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-emerald-700 hover:text-emerald-900 font-bold underline flex items-center gap-1"
+                                    title="Kirim pesan manual via wa.me"
+                                  >
+                                    <Phone className="w-3 h-3 text-emerald-600" />
+                                    <span>{m.noHp}</span>
+                                  </a>
                                 </div>
                               ) : (
-                                <span className="text-slate-300">-</span>
+                                <div className="flex items-center justify-center gap-1">
+                                  <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold border border-rose-300">
+                                    Nomor Tidak Terdaftar
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      const newHp = prompt(`Edit Nomor HP untuk ${m.nama}:`, m.noHp || '');
+                                      if (newHp !== null) {
+                                        const k = store.getKeluargaList().find((kel) => kel.kode === m.kode);
+                                        if (k) {
+                                          k.noHp = newHp;
+                                          store.saveToStorage();
+                                          alert('Nomor HP berhasil disimpan!');
+                                        }
+                                      }
+                                    }}
+                                    className="text-[10px] font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-1.5 py-0.5 rounded border border-amber-300"
+                                    title="Edit Nomor HP"
+                                  >
+                                    Edit
+                                  </button>
+                                </div>
                               )}
                             </td>
                           </tr>

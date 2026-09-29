@@ -43,21 +43,17 @@ export default function PenerimaTamuPage() {
   }, []);
 
   const filteredUndangan = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return undanganList;
     return undanganList.filter((u) => {
-      const q = searchQuery.toLowerCase();
-      const matchSearch =
+      return (
         u.nama.toLowerCase().includes(q) ||
         (u.instansi && u.instansi.toLowerCase().includes(q)) ||
         u.kode.toLowerCase().includes(q) ||
-        u.kategori.toLowerCase().includes(q);
-
-      if (!matchSearch) return false;
-      if (selectedSub === 'SEMUA') return true;
-      if (selectedSub === 'PENGUJI') return u.subKategori === 'PENGUJI';
-      if (selectedSub === 'ASATIDZ_MASYAIKH') return u.subKategori === 'ASATIDZ_MASYAIKH';
-      return u.subKategori !== 'PENGUJI' && u.subKategori !== 'ASATIDZ_MASYAIKH';
+        (u.kategori && u.kategori.toLowerCase().includes(q))
+      );
     });
-  }, [undanganList, searchQuery, selectedSub]);
+  }, [undanganList, searchQuery]);
 
   const handleQuickCheckin = (u: any) => {
     const sisa = u.kuota.kuotaDasar + u.kuota.kuotaTambahan - u.kuota.terpakai;
@@ -203,22 +199,6 @@ export default function PenerimaTamuPage() {
                 </p>
               </div>
 
-              {/* Filter Sub-kategori */}
-              <div className="flex gap-1.5 overflow-x-auto pb-1">
-                {(['SEMUA', 'PENGUJI', 'ASATIDZ_MASYAIKH'] as const).map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => setSelectedSub(sub)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
-                      selectedSub === sub
-                        ? 'bg-emerald-800 text-white shadow-2xs'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                    }`}
-                  >
-                    {sub === 'SEMUA' ? 'Semua' : sub === 'PENGUJI' ? 'Penguji Al-Qur\'an' : 'Asatidz & Masyaikh'}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Input Pencarian */}

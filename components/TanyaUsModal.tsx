@@ -875,6 +875,88 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
 
         {/* Input Bar Tanya Us AI */}
         <div className="p-3 sm:p-4 bg-[#FAF7F3] border-t-2 border-[#D5C4B4] shrink-0 space-y-2">
+          {/* Quick Action Chips per Role */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+            {role === 'ADMIN' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/scan')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  👉 Buka Scanner
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/admin/dasbor')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  📊 Cek Rekap Kehadiran
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/admin/whatsapp')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  💬 Kirim WA Gateway
+                </button>
+              </>
+            )}
+            {role === 'PENJAGA_GERBANG' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/scan')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  👉 Buka Scanner Gerbang
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSendMessage('Bagaimana status kedatangan di gerbang saat ini?')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  📊 Status Kedatangan Gerbang
+                </button>
+              </>
+            )}
+            {role === 'PIMPINAN' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleSendMessage('Berapa persen tingkat okupansi dan jumlah total yang sudah hadir saat ini?')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  📊 Ringkasan Kehadiran
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSendMessage('Siapa saja Masyayikh dan Tamu Kehormatan yang sudah hadir?')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  👑 Status Tamu VIP
+                </button>
+              </>
+            )}
+            {role === 'PENERIMA_TAMU' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleSendMessage('Siapa saja tamu undangan yang sudah tiba dan yang belum hadir?')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  👥 Cek Status Tamu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('/penerima-tamu')}
+                  className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+                >
+                  📋 Presensi Tamu Masuk
+                </button>
+              </>
+            )}
+          </div>
 
           <form
             onSubmit={(e) => {

@@ -41,7 +41,7 @@ const OPSI_UNDANGAN_ISTIMEWA = [
   'VIP Bani Aisyah',
   'VIP Bandar',
   'VIP Keluarga Kunir – Blitar',
-  'VIP Lainnya',
+  'VIP IDS',
   'Lainnya (Ketik Sendiri...)',
 ];
 
@@ -175,6 +175,7 @@ export default function ManajemenPesertaPage() {
     kategori: 'VVIP',
     instansi: '',
     alamat: '',
+    noHp: '',
     kuotaDasar: 2,
   });
 
@@ -203,6 +204,7 @@ export default function ManajemenPesertaPage() {
       kategori: defaultKategori,
       instansi: '',
       alamat: '',
+      noHp: '',
       kuotaDasar: gol === 'ISTIMEWA' ? 2 : gol === 'KEHORMATAN' ? 4 : 2,
     });
     setCustomKategoriInput('');
@@ -853,6 +855,7 @@ export default function ManajemenPesertaPage() {
         kategori: OPSI_UNDANGAN_ISTIMEWA[0],
         instansi: '',
         alamat: '',
+        noHp: '',
         kuotaDasar: 2,
       });
       setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
@@ -2176,6 +2179,19 @@ export default function ManajemenPesertaPage() {
               )}
 
               <div>
+                <label className="block font-bold text-slate-700 mb-1">Nomor WhatsApp / HP</label>
+                <input
+                  type="text"
+                  value={undanganForm.noHp}
+                  onChange={(e) =>
+                    setUndanganForm({ ...undanganForm, noHp: e.target.value })
+                  }
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+                />
+              </div>
+
+              <div>
                 <label className="block font-bold text-slate-700 mb-1">Jatah Kuota Kursi</label>
                 <input
                   type="number"
@@ -2947,6 +2963,35 @@ export default function ManajemenPesertaPage() {
                   Salin Link
                 </button>
               </div>
+
+              {qrDetailItem.tipe === 'UNDANGAN' && (
+                <button
+                  onClick={() => {
+                    const link = `${window.location.origin}/u/${qrDetailItem.kode}`;
+                    const waText = `Assalamu'alaikum Wr. Wb.
+
+Yth. *${qrDetailItem.nama}* (${qrDetailItem.instansi || qrDetailItem.kategori || 'Tamu Undangan'})
+
+Pondok Pesantren Putri Tahfizhil Qur'an (P3TQ) & MHMTQ Lirboyo Kediri mengharapkan kehadiran Bapak/Ibu/Saudara/i dalam acara *Haul & Haflah Akhirussanah 1448 H / 2027 M*.
+
+📋 *Detail Undangan:*
+• Jatah Kuota: *${qrDetailItem.kuotaDasar + qrDetailItem.kuotaTambahan} Kursi VIP*
+• Tautan Undangan & QR Code Digital:
+${link}
+
+Mohon tunjukkan QR Code pada tautan di atas kepada petugas saat tiba di gerbang lokasi acara.
+
+Wassalamu'alaikum Wr. Wb.
+Pemerhati Haul & Haflah P3TQ - MHMTQ Lirboyo Kediri`;
+
+                    navigator.clipboard.writeText(waText);
+                    showToast(`✓ Pesan WA santun untuk ${qrDetailItem.nama} berhasil disalin!`);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer mt-2"
+                >
+                  <span>📋 Salin Template Chat WA Santun</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
