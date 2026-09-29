@@ -60,7 +60,7 @@ class DataStore {
   private paguTotal = 300;
   private paguTerjual = 0;
   private kuotaTambahanBuka = false;
-  private storageKey = 'haflah_store_v71_empty';
+  private storageKey = 'haflah_store_v72_pure_empty_v2';
 
   private isSyncing = false;
   private lastCloudSync = 0;
@@ -69,7 +69,7 @@ class DataStore {
     this.loadFromStorage();
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        this.syncCloud();
+        this.syncCloud('PUSH');
       }, 100);
     }
   }
@@ -127,7 +127,7 @@ class DataStore {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: forceAction || 'MERGE',
+          action: forceAction || 'PUSH',
           localState,
         }),
       });
@@ -170,6 +170,16 @@ class DataStore {
   private loadFromStorage() {
     if (typeof window !== 'undefined') {
       try {
+        // Hapus seluruh cache key lama dari localStorage browser
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('haflah_store_') && k !== this.storageKey) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+
         const saved = localStorage.getItem(this.storageKey);
         if (saved) {
           const parsed = JSON.parse(saved);
