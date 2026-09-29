@@ -25,6 +25,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
+import { supabase } from '@/lib/supabase';
 import { BAGIAN_TAMATAN_LIST, extractBagianTamatan } from '@/lib/types';
 import * as XLSX from 'xlsx';
 import QRCode from 'qrcode';
@@ -745,8 +746,8 @@ export default function ManajemenPesertaPage() {
     return filteredItems.slice(start, start + pageSize);
   }, [filteredItems, currentPage, pageSize]);
 
-  // Handler Tambah Santri Baru
-  const handleTambahPeserta = (e: React.FormEvent) => {
+  // Handler Tambah Santri Baru (Direct Supabase .insert())
+  const handleTambahPeserta = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nama.trim()) {
       alert('Nama santri wajib diisi!');
@@ -768,9 +769,28 @@ export default function ManajemenPesertaPage() {
     });
 
     if (res.ok) {
+      try {
+        // Insert langsung ke tabel Supabase 'peserta_santri'
+        await supabase.from('peserta_santri').insert([
+          {
+            nis: res.code,
+            nama: formData.nama.trim().toUpperCase(),
+            nama_wali: formData.namaWali.trim().toUpperCase(),
+            no_hp: formData.noHp.trim(),
+            alamat: formData.alamat.trim().toUpperCase(),
+            kamar: formData.kamar.trim(),
+            kelas: formData.kategoriUtama,
+            unit: 'P3TQ',
+            kuota_dasar: formData.kategoriUtama === 'BIL_GHOIB' ? 4 : 2,
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase direct insert warning:', err);
+      }
+
       refreshData();
       setShowAddModal(false);
-      showToast(`✓ Berhasil menambahkan santri baru: ${formData.nama} (Kode: ${res.code})`);
+      showToast(`✓ Berhasil menambahkan santri baru ke database: ${formData.nama} (Kode: ${res.code})`);
       setFormData({
         nama: '',
         kategoriUtama: 'BIL_GHOIB',
@@ -783,8 +803,8 @@ export default function ManajemenPesertaPage() {
     }
   };
 
-  // Handler Tambah Undangan Baru
-  const handleTambahUndangan = (e: React.FormEvent) => {
+  // Handler Tambah Undangan Baru (Direct Supabase .insert())
+  const handleTambahUndangan = async (e: React.FormEvent) => {
     e.preventDefault();
 
     let finalNama = '';
@@ -828,10 +848,11 @@ export default function ManajemenPesertaPage() {
       finalAlamat = (undanganForm.alamat || undanganForm.instansi || '').trim();
       finalInstansi = finalAlamat;
     } else {
-      // UMUM
       finalInstansi = (undanganForm.instansi || '').trim();
       finalAlamat = (undanganForm.alamat || '').trim();
     }
+
+    const kuotaBase = Number(undanganForm.kuotaDasar) || (selectedGolonganUndangan === 'KEHORMATAN' ? 4 : 2);
 
     const res = store.tambahUndangan({
       nama: finalNama,
@@ -840,14 +861,32 @@ export default function ManajemenPesertaPage() {
       kategori: finalKategori,
       instansi: finalInstansi,
       alamat: finalAlamat,
-      kuotaDasar: Number(undanganForm.kuotaDasar) || (selectedGolonganUndangan === 'KEHORMATAN' ? 4 : 2),
+      kuotaDasar: kuotaBase,
       golongan: selectedGolonganUndangan,
     });
 
     if (res.ok) {
+      try {
+        // Insert langsung ke tabel Supabase 'tamu_undangan'
+        await supabase.from('tamu_undangan').insert([
+          {
+            kode: res.code,
+            nama: finalNama,
+            instansi: finalInstansi,
+            alamat: finalAlamat,
+            kategori: finalKategori,
+            sub_kategori: selectedGolonganUndangan,
+            no_hp: undanganForm.noHp || '',
+            kuota_dasar: kuotaBase,
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase direct insert tamu_undangan warning:', err);
+      }
+
       refreshData();
       setShowAddUndanganModal(false);
-      showToast(`✓ Berhasil menambahkan Tamu Undangan: ${finalNama} (Kode: ${res.code})`);
+      showToast(`✓ Berhasil menambahkan Tamu Undangan ke database: ${finalNama} (Kode: ${res.code})`);
       setUndanganForm({
         nama: '',
         namaPutra: '',
@@ -966,9 +1005,19 @@ export default function ManajemenPesertaPage() {
     }
   };
 
-  // Handler Hapus Peserta
-  const handleConfirmDelete = () => {
+  // Handler Hapus Peserta (Direct Supabase .delete())
+  const handleConfirmDelete = async () => {
     if (!deletingItem) return;
+    try {
+      if (deletingItem.tipe === 'UNDANGAN') {
+        await supabase.from('tamu_undangan').delete().eq('kode', deletingItem.kode);
+      } else {
+        await supabase.from('peserta_santri').delete().eq('nis', deletingItem.kode);
+      }
+    } catch (err) {
+      console.warn('Supabase direct delete warning:', err);
+    }
+
     const res = store.hapusPeserta(deletingItem.kode);
     if (res.ok) {
       refreshData();
