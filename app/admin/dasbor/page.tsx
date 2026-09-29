@@ -1197,9 +1197,9 @@ export default function DasborPage() {
                     <td colSpan={6} className="py-10 text-center text-[#7A624E]">
                       <div className="flex flex-col items-center justify-center space-y-2">
                         <Users className="w-8 h-8 text-[#8C6A47]/40" />
-                        <div className="font-bold text-sm">Tidak ada data peserta yang cocok dengan filter ini</div>
+                        <div className="font-bold text-sm">Belum ada data peserta / tamu</div>
                         <div className="text-[11px] text-[#7A624E]">
-                          Coba sesuaikan tab kategori, sub-bagian, atau status hadir di atas.
+                          Silakan panitia menambahkan data peserta atau tamu melalui menu Manajemen Data Peserta.
                         </div>
                       </div>
                     </td>

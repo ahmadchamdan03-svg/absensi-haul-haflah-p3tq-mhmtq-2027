@@ -19,6 +19,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
+import { supabase } from '@/lib/supabase';
 import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
@@ -360,8 +361,8 @@ export default function ScanPage() {
     };
   }, [activeItem, checkinResult]);
 
-  // Handler Konfirmasi Checkin
-  const handleConfirmCheckin = () => {
+  // Handler Konfirmasi Checkin (Direct Real-time Supabase presensi_log insert)
+  const handleConfirmCheckin = async () => {
     if (!activeItem) return;
     setErrorMsg(null);
 
@@ -378,6 +379,25 @@ export default function ScanPage() {
     if (!result.ok) {
       setErrorMsg(result.pesan || result.reason || 'Check-in gagal');
       return;
+    }
+
+    try {
+      // Direct insertion to Supabase 'presensi_log' table
+      await supabase.from('presensi_log').insert([
+        {
+          kuota_id: activeItem.kuota?.id || activeItem.kode,
+          hasil: 'SUKSES',
+          jumlah_l: jumlahL,
+          jumlah_p: jumlahP,
+          jumlah_balita: jumlahBalita,
+          jalur: jalur,
+          panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
+          catatan: activeItem.nama,
+          server_time: new Date().toISOString(),
+        },
+      ]);
+    } catch (e) {
+      console.warn('Supabase presensi_log insert error:', e);
     }
 
     confetti({

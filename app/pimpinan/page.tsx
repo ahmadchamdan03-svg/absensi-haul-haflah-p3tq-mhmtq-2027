@@ -16,6 +16,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
+import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import AuthGuard from '@/components/AuthGuard';
@@ -23,54 +24,120 @@ import AuthGuard from '@/components/AuthGuard';
 export default function PimpinanPage() {
   const router = useRouter();
   const [stats, setStats] = useState(() => store.getStatistikLive());
-  const [keluargaList, setKeluargaList] = useState<any[]>(() => store.getKeluargaList());
-  const [undanganList, setUndanganList] = useState<any[]>(() => store.getUndanganList());
+  const [keluargaList, setKeluargaList] = useState<any[]>([]);
+  const [undanganList, setUndanganList] = useState<any[]>([]);
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const refresh = () => {
-      setStats(store.getStatistikLive());
+  // Live Supabase view metrics state
+  const [supaMetrics, setSupaMetrics] = useState<{
+    totalSantri: number;
+    wsHadir: number;
+    wsKuota: number;
+    totalTamu: number;
+    tamuHadir: number;
+    tamuKuota: number;
+  }>({
+    totalSantri: 0,
+    wsHadir: 0,
+    wsKuota: 0,
+    totalTamu: 0,
+    tamuHadir: 0,
+    tamuKuota: 0,
+  });
+
+  const fetchDasborPimpinan = async () => {
+    try {
+      // 1. Fetch live metrics from Supabase view 'v_dasbor_pimpinan'
+      const { data: vData } = await supabase.from('v_dasbor_pimpinan').select('*').single();
+      if (vData) {
+        setSupaMetrics({
+          totalSantri: vData.total_santri_terdaftar || 0,
+          wsHadir: vData.total_ws_hadir || 0,
+          wsKuota: vData.total_kuota_ws || 0,
+          totalTamu: vData.total_tamu_terdaftar || 0,
+          tamuHadir: vData.total_tamu_hadir || 0,
+          tamuKuota: vData.total_kuota_tamu || 0,
+        });
+      }
+
+      // 2. Fetch peserta_santri & tamu_undangan live tables
+      const [resSantri, resUndangan] = await Promise.all([
+        supabase.from('peserta_santri').select('*'),
+        supabase.from('tamu_undangan').select('*'),
+      ]);
+
+      if (resSantri.data) {
+        setKeluargaList(
+          resSantri.data.map((s) => ({
+            id: s.id,
+            kode: s.nis,
+            namaWali: s.nama_wali,
+            santri: [{ nama: s.nama, kelas: s.kelas }],
+            kuota: {
+              kuotaDasar: s.kuota_dasar || 2,
+              kuotaTambahan: 0,
+              terpakai: s.terpakai || 0,
+            },
+          }))
+        );
+      }
+      if (resUndangan.data) {
+        setUndanganList(
+          resUndangan.data.map((u) => ({
+            id: u.id,
+            kode: u.kode,
+            nama: u.nama,
+            kategori: u.kategori,
+            instansi: u.instansi || u.alamat,
+            kuota: {
+              kuotaDasar: u.kuota_dasar || 2,
+              kuotaTambahan: 0,
+              terpakai: u.terpakai || 0,
+            },
+          }))
+        );
+      }
+    } catch (e) {
+      // Fallback local store
       setKeluargaList([...store.getKeluargaList()]);
       setUndanganList([...store.getUndanganList()]);
-    };
-    refresh();
-    const interval = setInterval(refresh, 2500);
+    }
+  };
+
+  useEffect(() => {
+    fetchDasborPimpinan();
+    const interval = setInterval(fetchDasborPimpinan, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  // Total kuota & terpakai Wali Santri
-  let totalKuotaWaliSantri = 0;
-  let totalHadirWaliSantri = 0;
-  keluargaList.forEach((k) => {
-    totalKuotaWaliSantri += (k.kuota?.kuotaDasar || 0) + (k.kuota?.kuotaTambahan || 0);
-    totalHadirWaliSantri += k.kuota?.terpakai || 0;
-  });
+  // Compute Wali Santri & Tamu totals
+  const totalKuotaWaliSantri = supaMetrics.wsKuota || keluargaList.reduce((acc, k) => acc + (k.kuota?.kuotaDasar || 0), 0);
+  const totalHadirWaliSantri = supaMetrics.wsHadir || keluargaList.reduce((acc, k) => acc + (k.kuota?.terpakai || 0), 0);
 
-  // Total kuota & terpakai Tamu Undangan
-  let totalKuotaTamu = 0;
-  let totalHadirTamu = 0;
-  undanganList.forEach((u) => {
-    totalKuotaTamu += (u.kuota?.kuotaDasar || 0) + (u.kuota?.kuotaTambahan || 0);
-    totalHadirTamu += u.kuota?.terpakai || 0;
-  });
+  const totalKuotaTamu = supaMetrics.tamuKuota || undanganList.reduce((acc, u) => acc + (u.kuota?.kuotaDasar || 0), 0);
+  const totalHadirTamu = supaMetrics.tamuHadir || undanganList.reduce((acc, u) => acc + (u.kuota?.terpakai || 0), 0);
 
   const grandTotalHadir = totalHadirWaliSantri + totalHadirTamu;
   const targetKursi = 1534;
-  const okupansiPersen = Math.min(100, Math.round((grandTotalHadir / targetKursi) * 100));
+  const okupansiPersen = targetKursi > 0 ? Math.min(100, Math.round((grandTotalHadir / targetKursi) * 100)) : 0;
 
-  // Filter pencarian kehadiran real-time berdasarkan nama
+  // Filter pencarian kehadiran real-time berdasarkan nama di Supabase
   const searchResults = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return [];
-    
+
     const res: any[] = [];
-    
+
     // Cari di wali santri
     keluargaList.forEach((k) => {
       const namaWali = k.namaWali || '';
       const namaSantri = k.santri?.[0]?.nama || '';
-      if (namaWali.toLowerCase().includes(q) || namaSantri.toLowerCase().includes(q) || k.kode.toLowerCase().includes(q)) {
+      if (
+        namaWali.toLowerCase().includes(q) ||
+        namaSantri.toLowerCase().includes(q) ||
+        k.kode.toLowerCase().includes(q)
+      ) {
         res.push({
           id: k.id,
           kode: k.kode,
@@ -86,7 +153,11 @@ export default function PimpinanPage() {
 
     // Cari di tamu undangan
     undanganList.forEach((u) => {
-      if (u.nama.toLowerCase().includes(q) || (u.instansi && u.instansi.toLowerCase().includes(q)) || u.kode.toLowerCase().includes(q)) {
+      if (
+        u.nama.toLowerCase().includes(q) ||
+        (u.instansi && u.instansi.toLowerCase().includes(q)) ||
+        u.kode.toLowerCase().includes(q)
+      ) {
         res.push({
           id: u.id,
           kode: u.kode,
@@ -130,6 +201,7 @@ export default function PimpinanPage() {
 
             <div className="flex items-center space-x-2">
               <button
+                type="button"
                 onClick={() => setIsUsModalOpen(true)}
                 className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-700 to-amber-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
               >
@@ -137,6 +209,7 @@ export default function PimpinanPage() {
                 <span>Tanya Us AI</span>
               </button>
               <button
+                type="button"
                 onClick={handleLogout}
                 className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-bold shadow-2xs flex items-center space-x-1.5 transition-all cursor-pointer"
                 title="Keluar Sesi"
@@ -156,7 +229,7 @@ export default function PimpinanPage() {
                 <div className="flex items-center space-x-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span className="text-xs font-serif font-bold uppercase tracking-wider text-[#F5C26B]">
-                    Live Okupansi Kursi Aula Al-Muktamar
+                    Live Okupansi Kursi Aula Al-Muktamar (Supabase Dynamic)
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-3xl font-serif font-black text-white mt-1">
@@ -229,7 +302,7 @@ export default function PimpinanPage() {
           <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E8DFD5] shadow-sm space-y-4">
             <div>
               <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
-                Cek Status Kehadiran Real-time
+                Cek Status Kehadiran Real-time (Supabase)
               </h3>
               <p className="text-xs text-[#7A624E]">
                 Ketik nama wali santri, nama santri, kiai/tokoh, atau kode barcode untuk mengecek status kehadiran langsung.
@@ -247,12 +320,12 @@ export default function PimpinanPage() {
               />
             </div>
 
-            {searchQuery && (
+            {searchQuery ? (
               <div className="space-y-2 pt-2">
                 <div className="text-xs font-bold text-stone-500">Hasil Pencarian ({searchResults.length}):</div>
                 {searchResults.length === 0 ? (
                   <div className="p-4 rounded-2xl bg-stone-50 text-center text-xs text-stone-500 border border-dashed border-stone-200">
-                    Tidak ditemukan data yang cocok dengan "{searchQuery}".
+                    Belum ada data peserta / tamu yang cocok dengan "{searchQuery}".
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -298,6 +371,12 @@ export default function PimpinanPage() {
                   </div>
                 )}
               </div>
+            ) : (
+              (keluargaList.length === 0 && undanganList.length === 0) && (
+                <div className="p-4 rounded-2xl bg-stone-50 text-center text-xs text-stone-500 border border-dashed border-stone-200">
+                  Belum ada data peserta / tamu
+                </div>
+              )
             )}
           </div>
 
@@ -313,7 +392,7 @@ export default function PimpinanPage() {
                 </p>
               </div>
               <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
-                Sistem Siap Operasi
+                Sistem Supabase Terhubung
               </span>
             </div>
 
