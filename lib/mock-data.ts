@@ -261,7 +261,6 @@ class DataStore {
           keluargaId: kelId,
           nis: nextCode,
           nama: input.nama,
-          unit: 'P3TQ',
           kelas: resolvedKelas,
           kamar: input.kamar || '',
           kategoriUtama: input.kategoriUtama,

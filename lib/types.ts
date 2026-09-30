@@ -98,7 +98,6 @@ export interface Santri {
   keluargaId: string;
   nis: string;
   nama: string;
-  unit: 'P3TQ' | 'MHMTQ' | 'MHMA Timur';
   kelas: string;
   kategoriUtama: KategoriKode;
   kategoriSekunder?: KategoriKode[];
