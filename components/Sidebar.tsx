@@ -186,22 +186,22 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     : allNavGroups;
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#FAF7F3] border-r-2 border-[#D5C4B4] text-[#422F21]">
+    <div className="flex flex-col h-full bg-[#FAF7F3] dark:bg-[#251E18] border-r-2 border-[#D5C4B4] dark:border-[#3D3226] text-[#422F21] dark:text-[#F5EFE6] transition-colors duration-300">
       {/* Header Sidebar: Identitas Resmi Kompak & Sejajar Lurus dengan TopHeader (h-[72px]) */}
-      <div className="h-[72px] px-3 border-b-2 border-[#D5C4B4] bg-[#EFE8E1]/60 relative select-none flex items-center justify-center shrink-0">
+      <div className="h-[72px] px-3 border-b-2 border-[#D5C4B4] dark:border-[#3D3226] bg-[#EFE8E1]/60 dark:bg-[#2E251C]/60 relative select-none flex items-center justify-center shrink-0">
         <Link
           href="/"
           onClick={onCloseMobile}
           className="block group text-center space-y-0.5"
         >
-          <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#422F21] leading-none group-hover:text-[#8C6A47] transition-colors">
+          <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#422F21] dark:text-[#F5EFE6] leading-none group-hover:text-[#8C6A47] dark:group-hover:text-[#C19A6B] transition-colors">
             HAUL & HAFLAH
           </div>
-          <div className="text-[11px] font-bold text-[#735334] tracking-wide leading-tight">
+          <div className="text-[11px] font-bold text-[#735334] dark:text-[#D5C0AB] tracking-wide leading-tight">
             P3TQ & MHMTQ Lirboyo
           </div>
           <div className="pt-0.5">
-            <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#FAF7F3] text-[#8C6A47] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs">
+            <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#FAF7F3] dark:bg-[#1A1512] text-[#8C6A47] dark:text-[#C19A6B] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs">
               1448 H. / 2027 M.
             </span>
           </div>
@@ -210,7 +210,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         {/* Tombol Tutup Mobile Drawer */}
         <button
           onClick={onCloseMobile}
-          className="lg:hidden absolute top-2 right-2 p-1 rounded-xl bg-white border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21]"
+          className="lg:hidden absolute top-2 right-2 p-1 rounded-xl bg-white dark:bg-[#2E251C] border border-[#D5C4B4] dark:border-[#3D3226] text-[#7A624E] dark:text-[#B8A99A] hover:text-[#422F21] dark:hover:text-white"
           aria-label="Tutup menu"
         >
           <X className="w-3.5 h-3.5" />
@@ -221,7 +221,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {navGroups.map((group) => (
           <div key={group.groupTitle} className="space-y-1">
-            <div className="px-3 text-[10px] font-black uppercase tracking-wider text-[#8C6A47]/80">
+            <div className="px-3 text-[10px] font-black uppercase tracking-wider text-[#8C6A47]/80 dark:text-[#C19A6B]/80">
               {group.groupTitle}
             </div>
 
@@ -239,12 +239,12 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                     onClick={onCloseMobile}
                     className={`sidebar-transition flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide ${
                       isActive
-                        ? 'bg-[#8C6A47] text-white shadow-sm font-bold border border-[#735334]'
-                        : 'text-[#422F21] hover:bg-[#EFE8E1] hover:text-[#8C6A47]'
+                        ? 'bg-[#8C6A47] dark:bg-[#C19A6B] text-white dark:text-[#1A1512] shadow-sm font-bold border border-[#735334] dark:border-[#9E7A4F]'
+                        : 'text-[#422F21] dark:text-[#F5EFE6] hover:bg-[#EFE8E1] dark:hover:bg-[#382D22] hover:text-[#8C6A47] dark:hover:text-[#C19A6B]'
                     }`}
                   >
                     <div className="flex items-center space-x-2.5">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#8C6A47]'}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-white dark:text-[#1A1512]' : 'text-[#8C6A47] dark:text-[#C19A6B]'}`} />
                       <span>{item.label}</span>
                     </div>
 
@@ -252,10 +252,10 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                       <span
                         className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
                           isActive
-                            ? 'bg-white/20 text-white'
+                            ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1A1512]'
                             : item.badge === 'Live'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                            : 'bg-amber-100 text-amber-900 border border-amber-300'
+                            ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                            : 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
                         }`}
                       >
                         {item.badge}
@@ -271,7 +271,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
 
       {/* Footer Sidebar: Karakter Ustadzah AI (Tanpa Pop Up Chat Bubble) */}
-      <div className="pt-2 pb-3 px-2 border-t border-[#E8DFD5] bg-gradient-to-b from-[#FAF7F3] to-[#EFE8E1] select-none flex flex-col items-center justify-center">
+      <div className="pt-2 pb-3 px-2 border-t border-[#E8DFD5] dark:border-[#3D3226] bg-gradient-to-b from-[#FAF7F3] to-[#EFE8E1] dark:from-[#251E18] dark:to-[#1A1512] select-none flex flex-col items-center justify-center">
         <button
           type="button"
           onClick={() => setTanyaUsOpen(true)}

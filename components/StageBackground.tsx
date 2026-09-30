@@ -22,11 +22,11 @@ export default function StageBackground() {
         className="absolute inset-0 bg-[url('/images/panggung-haul-haflah.jpg')] bg-cover bg-center bg-no-repeat bg-fixed filter brightness-[0.92] contrast-[1.02] transform scale-[1.01]"
       />
 
-      {/* 2. OVERLAY KREM TRANSPARAN MENYELURUH (Sesuai Spesifikasi: bg-[#F5EFE6]/40) */}
-      <div className="absolute inset-0 bg-[#F5EFE6]/40" />
+      {/* 2. OVERLAY KREM TRANSPARAN MENYELURUH (Light: bg-[#F5EFE6]/40, Dark: bg-[#1A1512]/70) */}
+      <div className="absolute inset-0 bg-[#F5EFE6]/40 dark:bg-[#1A1512]/70 transition-colors duration-300" />
 
-      {/* 3. OVERLAY GRADIENT UNTUK KEDALAMAN (from-black/25 via-transparent to-black/20) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/20" />
+      {/* 3. OVERLAY GRADIENT UNTUK KEDALAMAN (from-black/30 via-transparent to-black/20) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/20 dark:from-black/60 dark:to-black/40" />
 
       {/* 4. VIGNETTE LEMBUT DI TEPI (radial-gradient transparent 50%, rgba(0,0,0,0.2) 100%) */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(0,0,0,0.22)_100%)]" />

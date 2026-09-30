@@ -20,12 +20,12 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const router = useRouter();
 
   return (
-    <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3]/95 backdrop-blur-md border-b-2 border-[#D5C4B4] text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none">
+    <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3]/95 dark:bg-[#251E18]/95 backdrop-blur-md border-b-2 border-[#D5C4B4] dark:border-[#3D3226] text-[#422F21] dark:text-[#F5EFE6] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none transition-colors duration-300">
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         {/* Tombol Hamburger di HP/Tablet */}
         <button
           onClick={onOpenMobile}
-          className="lg:hidden p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] hover:bg-[#EFE8E1] transition-colors shrink-0"
+          className="lg:hidden p-2 rounded-xl bg-white dark:bg-[#2E251C] border border-[#D5C4B4] dark:border-[#3D3226] text-[#8C6A47] dark:text-[#C19A6B] hover:bg-[#EFE8E1] dark:hover:bg-[#382D22] transition-colors shrink-0"
           aria-label="Buka Menu Navigasi"
         >
           <Menu className="w-5 h-5" />
@@ -44,8 +44,8 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
       {/* Sisi Kanan: Badge Tanggal Acara & Pintasan Aksi Cepat */}
       <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
         {/* Info Tanggal Acara */}
-        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] text-xs font-semibold text-[#5C3E28]">
-          <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
+        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] dark:bg-[#2E251C] border border-[#D5C4B4] dark:border-[#3D3226] text-xs font-semibold text-[#5C3E28] dark:text-[#D5C0AB]">
+          <Calendar className="w-3.5 h-3.5 text-[#8C6A47] dark:text-[#C19A6B]" />
           <span>Sabtu, 02 Jan 2027 · 24 Rajab 1448 H</span>
         </div>
 
@@ -62,7 +62,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Live Dasbor */}
         <Link
           href="/admin/dasbor"
-          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] text-xs font-bold shadow-2xs border-2 border-[#D5C4B4]"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white dark:bg-[#2E251C] hover:bg-[#FAF7F3] dark:hover:bg-[#382D22] text-[#8C6A47] dark:text-[#C19A6B] shadow-2xs border-2 border-[#D5C4B4] dark:border-[#3D3226]"
           title="Buka Live Dasbor Kedatangan"
         >
           <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#8C6A47]" />
