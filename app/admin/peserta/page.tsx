@@ -960,20 +960,24 @@ export default function ManajemenPesertaPage() {
           {
             kode: res.code,
             nama: finalNama,
-            instansi: finalInstansi,
-            alamat: finalAlamat,
+            instansi: finalInstansi || '-',
+            alamat: finalAlamat || '-',
             kategori: finalKategori,
-            sub_kategori: selectedGolonganUndangan,
-            no_hp: undanganForm.noHp || '',
+            sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
+            no_hp: undanganForm.noHp || '-',
             kuota_dasar: kuotaBase,
+            kuota_terpakai: 0,
           },
         ]);
         if (error) {
           console.error('Supabase insert error (tamu_undangan):', error);
-          showToast(`⚠️ Supabase DB Note: ${error.message || 'Tersimpan lokal'}`);
+          alert(`Gagal menyimpan Tamu Undangan ke Supabase DB: ${error.message}`);
+          return;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn('Supabase direct insert tamu_undangan warning:', err);
+        alert(`Terjadi kesalahan: ${err.message || err}`);
+        return;
       }
 
       refreshData();

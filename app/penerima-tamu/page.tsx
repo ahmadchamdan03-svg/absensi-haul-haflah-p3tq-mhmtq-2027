@@ -179,20 +179,24 @@ export default function PenerimaTamuPage() {
         {
           kode: newKode,
           nama: formData.nama.trim().toUpperCase(),
-          instansi: formData.instansi.trim().toUpperCase(),
-          alamat: formData.alamat.trim().toUpperCase(),
-          kategori: formData.kategori,
-          sub_kategori: formData.golongan,
-          no_hp: formData.noHp.trim(),
+          instansi: formData.instansi.trim().toUpperCase() || '-',
+          alamat: formData.alamat.trim().toUpperCase() || formData.instansi.trim().toUpperCase() || 'KEDIRI',
+          kategori: formData.kategori || 'VIP IDS',
+          sub_kategori: formData.golongan || 'ISTIMEWA',
+          no_hp: formData.noHp.trim() || '-',
           kuota_dasar: kuotaVal,
-          terpakai: 0,
+          kuota_terpakai: 0,
         },
       ]);
       if (error) {
         console.error('Supabase insert tamu_undangan error:', error);
+        alert(`Gagal menyimpan data tamu ke Supabase: ${error.message}`);
+        return;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Supabase direct insert exception:', err);
+      alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
+      return;
     }
 
     // Sync to store
