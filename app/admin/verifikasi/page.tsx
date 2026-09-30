@@ -24,6 +24,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
+import { supabase } from '@/lib/supabase';
 
 const getLiveBaseUrl = () => {
   if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
@@ -44,10 +45,11 @@ export default function VerifikasiPage() {
   const [filterStatus, setFilterStatus] = useState<'SEMUA' | 'MENUNGGU' | 'DIVERIFIKASI' | 'BATAL'>('SEMUA');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modal Tambah Manual & Verifikasi Langsung
+  // Modal Tambah Manual & Verifikasi Langsung (Live Supabase DB)
   const [showAddManualModal, setShowAddManualModal] = useState(false);
+  const [dbSantriList, setDbSantriList] = useState<any[]>([]);
   const [searchSantriText, setSearchSantriText] = useState('');
-  const [selectedKeluargaId, setSelectedKeluargaId] = useState('');
+  const [selectedSantriKode, setSelectedSantriKode] = useState('');
   const [manualJumlah, setManualJumlah] = useState(1);
   const [manualMetode, setManualMetode] = useState<'TUNAI' | 'TRANSFER'>('TUNAI');
   const [manualLangsungVerifikasi, setManualLangsungVerifikasi] = useState(true);
@@ -63,6 +65,31 @@ export default function VerifikasiPage() {
   const [fotoTandaTangan, setFotoTandaTangan] = useState('');
 
   const keluargaList = useMemo(() => store.getKeluargaList(), []);
+
+  // Fetch data peserta_santri riil langsung dari Supabase
+  const fetchSantriData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('peserta_santri')
+        .select('*')
+        .order('nama', { ascending: true });
+      if (!error && data) {
+        setDbSantriList(data);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil data peserta_santri dari Supabase:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSantriData();
+  }, []);
+
+  useEffect(() => {
+    if (showAddManualModal) {
+      fetchSantriData();
+    }
+  }, [showAddManualModal]);
 
   const refresh = () => {
     store.evaluasiBatasWaktu();
@@ -87,31 +114,33 @@ export default function VerifikasiPage() {
     return `${minutes} menit lagi`;
   };
 
-  // Filter santri untuk autocomplete di modal tambah manual
+  // Filter santri real-time dari Supabase DB
   const filteredSantriList = useMemo(() => {
     if (!searchSantriText.trim()) {
-      return keluargaList.slice(0, 15);
+      return [];
     }
-    const q = searchSantriText.toLowerCase();
-    return keluargaList
-      .filter((k) => {
-        const santri = k.santri?.[0];
+    const q = searchSantriText.toLowerCase().trim();
+    return dbSantriList
+      .filter((s) => {
+        const nama = (s.nama || '').toLowerCase();
+        const wali = (s.nama_wali || '').toLowerCase();
+        const kelas = (s.kelas || '').toLowerCase();
+        const kode = (s.kode || '').toLowerCase();
         return (
-          santri?.nama.toLowerCase().includes(q) ||
-          k.namaWali.toLowerCase().includes(q) ||
-          k.kode.toLowerCase().includes(q) ||
-          santri?.kelas.toLowerCase().includes(q) ||
-          santri?.kategoriUtama.toLowerCase().includes(q) ||
-          santri?.subKategori.toLowerCase().includes(q)
+          nama.includes(q) ||
+          wali.includes(q) ||
+          kelas.includes(q) ||
+          kode.includes(q)
         );
       })
-      .slice(0, 25);
-  }, [keluargaList, searchSantriText]);
+      .slice(0, 30);
+  }, [dbSantriList, searchSantriText]);
 
-  // Santri yang sedang dipilih di form manual
-  const selectedKeluarga = useMemo(() => {
-    return keluargaList.find((k) => k.id === selectedKeluargaId) || null;
-  }, [keluargaList, selectedKeluargaId]);
+  // Santri yang sedang dipilih di form manual (dari Supabase DB)
+  const selectedSantri = useMemo(() => {
+    if (!selectedSantriKode) return null;
+    return dbSantriList.find((s) => s.kode === selectedSantriKode) || null;
+  }, [dbSantriList, selectedSantriKode]);
 
   // Filter pesanan di tabel
   const filteredOrders = useMemo(() => {
@@ -196,8 +225,8 @@ export default function VerifikasiPage() {
   // Handler Tambah Manual & Verifikasi Langsung
   const handleSubmitTambahManual = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedKeluargaId) {
-      alert('Pilih santri terlebih dahulu dari daftar 549 santri!');
+    if (!selectedSantriKode || !selectedSantri) {
+      alert('Pilih santri terlebih dahulu dari hasil pencarian!');
       return;
     }
     if (manualJumlah <= 0) {
@@ -211,43 +240,68 @@ export default function VerifikasiPage() {
 
     setIsSubmittingManual(true);
     try {
-      const res = store.tambahPesananManual({
-        keluargaId: selectedKeluargaId,
-        jumlah: manualJumlah,
-        metodeBayar: manualMetode,
-        langsungVerifikasi: manualLangsungVerifikasi,
-        catatan: manualCatatan,
-      });
+      const currentTambah = Number(selectedSantri.kuota_tambahan) || 0;
+      const newTambah = currentTambah + manualJumlah;
 
-      if (!res.ok) {
-        setStatusMsg({ tipe: 'error', text: res.pesan || 'Gagal menambahkan pesanan manual' });
+      // 1. Direct update Supabase DB tabel 'peserta_santri'
+      const { error: updateErr } = await supabase
+        .from('peserta_santri')
+        .update({ kuota_tambahan: newTambah })
+        .eq('kode', selectedSantri.kode);
+
+      if (updateErr) {
+        console.error('Supabase update kuota_tambahan error:', updateErr);
+        alert(`Gagal menyimpan kuota tambahan ke Supabase: ${updateErr.message}`);
         setIsSubmittingManual(false);
         return;
       }
 
-      const kel = selectedKeluarga;
-      const santri = kel?.santri?.[0];
+      // 2. Direct insert ke 'pembelian_kuota' jika tersedia
+      const orderId = `INV-${Math.floor(100000 + Math.random() * 900000)}`;
+      try {
+        await supabase.from('pembelian_kuota').insert([
+          {
+            id: orderId,
+            kode: selectedSantri.kode,
+            jumlah: manualJumlah,
+            metode_bayar: manualMetode,
+            total_bayar: manualJumlah * 80000,
+            status: manualLangsungVerifikasi ? 'DIVERIFIKASI' : 'MENUNGGU_VERIFIKASI',
+            catatan: manualCatatan || 'Tambah Manual Panitia',
+            created_at: new Date().toISOString(),
+          },
+        ]);
+      } catch (errP) {
+        console.warn('pembelian_kuota insert warning:', errP);
+      }
 
-      // Kirim pesan WhatsApp otomatis ke wali santri jika opsi dicentang
-      if (manualKirimWa && kel?.noHp && kel.noHp !== '-' && kel.noHp.length >= 9) {
+      // 3. Sync ke DataStore lokal
+      store.rekonsiliasiKoreksiPeserta({
+        kode: selectedSantri.kode,
+        kuotaTambahan: newTambah,
+        catatanRekon: manualCatatan || 'Tambah Manual Panitia',
+      });
+
+      // 4. Kirim WhatsApp ke Wali Santri jika dicentang
+      if (manualKirimWa && selectedSantri.no_hp && selectedSantri.no_hp !== '-' && selectedSantri.no_hp.length >= 9) {
         const totalBiaya = manualJumlah * 80000;
-        const totalKuota = (kel.kuota?.kuotaDasar || 2) + (kel.kuota?.kuotaTambahan || 0);
+        const totalKuota = (selectedSantri.kuota_dasar || 2) + newTambah;
 
         const pesanWa = manualLangsungVerifikasi
           ? `Assalamu'alaikum Wr. Wb.\n\n` +
-            `Yth. Bapak/Ibu *${kel.namaWali}*,\n` +
-            `Panitia Haul & Haflah P3TQ - MHMTQ telah menambahkan *${manualJumlah} Kuota Tambahan* secara langsung untuk santri *${santri?.nama}* (${santri?.kelas}).\n\n` +
+            `Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
+            `Panitia Haul & Haflah P3TQ - MHMTQ telah menambahkan *${manualJumlah} Kuota Tambahan* secara langsung untuk santri *${selectedSantri.nama}* (${selectedSantri.kelas}).\n\n` +
             `📋 *Rincian Status*:\n` +
             `• Metode: ${manualMetode === 'TUNAI' ? 'Kas Tunai di Sekretariat' : 'Transfer Rekening BRI'}\n` +
             `• Jumlah: +${manualJumlah} Kursi (Rp ${totalBiaya.toLocaleString('id-ID')})\n` +
             `• Total Jatah Masuk: *${totalKuota} Kursi*\n` +
             `• Status: *DIVERIFIKASI LANGSUNG (Aktif)*\n\n` +
             `Silakan akses E-Undangan Anda:\n` +
-            `🔗 ${getLiveBaseUrl()}/u/${kel.kode}-resmi\n\n` +
+            `🔗 ${getLiveBaseUrl()}/u/${selectedSantri.kode}-resmi\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`
           : `Assalamu'alaikum Wr. Wb.\n\n` +
-            `Yth. Bapak/Ibu *${kel.namaWali}*,\n` +
-            `Pesanan *${manualJumlah} Kuota Tambahan* untuk santri *${santri?.nama}* telah dicatat oleh Panitia.\n` +
+            `Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
+            `Pesanan *${manualJumlah} Kuota Tambahan* untuk santri *${selectedSantri.nama}* telah dicatat oleh Panitia.\n` +
             `Total: Rp ${totalBiaya.toLocaleString('id-ID')}.\n` +
             `Mohon lakukan pelunasan agar kuota segera diaktifkan pada QR Code.\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`;
@@ -257,22 +311,24 @@ export default function VerifikasiPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              target: kel.noHp,
+              target: selectedSantri.no_hp,
               message: pesanWa,
             }),
           });
-        } catch (err) {
-          console.error('Gagal kirim WhatsApp ke wali:', err);
+        } catch (errW) {
+          console.error('Gagal kirim WA ke wali:', errW);
         }
       }
 
       setStatusMsg({
         tipe: 'success',
-        text: res.pesan || 'Pesanan manual berhasil ditambahkan!',
+        text: `✓ Berhasil menambahkan +${manualJumlah} kuota tambahan untuk ${selectedSantri.nama} (${selectedSantri.kode})!`,
       });
+
+      await fetchSantriData();
       refresh();
       setShowAddManualModal(false);
-      setSelectedKeluargaId('');
+      setSelectedSantriKode('');
       setSearchSantriText('');
       setManualJumlah(1);
       setManualCatatan('');
@@ -835,10 +891,10 @@ export default function VerifikasiPage() {
             </div>
 
             <form onSubmit={handleSubmitTambahManual} className="space-y-4 text-xs">
-              {/* 1. Pilih Santri dari 549 Data */}
+              {/* 1. Pilih Santri dari 549 Data Supabase */}
               <div>
                 <label className="block font-bold text-slate-800 mb-1.5">
-                  1. Pilih Santri (549 Data Santri Terdaftar):
+                  1. Pilih Santri ({dbSantriList.length || 549} Data Santri Terdaftar):
                 </label>
                 <div className="relative mb-2">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -847,79 +903,108 @@ export default function VerifikasiPage() {
                     value={searchSantriText}
                     onChange={(e) => setSearchSantriText(e.target.value)}
                     placeholder="Ketik nama santri, nama wali, atau kelas..."
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-pesantren-700"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-pesantren-700 text-xs"
                   />
                 </div>
 
                 {/* Dropdown / Scroll list santri */}
-                <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 divide-y divide-slate-100">
-                  {filteredSantriList.map((k) => {
-                    const santri = k.santri?.[0];
-                    const isSelected = selectedKeluargaId === k.id;
-                    const kuotaAktif = (k.kuota?.kuotaDasar || 2) + (k.kuota?.kuotaTambahan || 0);
+                {searchSantriText.trim() === '' ? (
+                  <div className="p-4 text-center text-slate-500 text-xs italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    🔍 Ketik nama santri, nama wali, atau kelas untuk mencari data.
+                  </div>
+                ) : filteredSantriList.length === 0 ? (
+                  <div className="p-4 text-center text-slate-500 text-xs italic bg-slate-50 rounded-xl border border-slate-200">
+                    Tidak ada data santri yang cocok dengan "{searchSantriText}".
+                  </div>
+                ) : (
+                  <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 divide-y divide-slate-100">
+                    {filteredSantriList.map((s) => {
+                      const isSelected = selectedSantriKode === s.kode;
+                      const kuotaAktif = (s.kuota_dasar || 2) + (s.kuota_tambahan || 0);
 
-                    return (
-                      <div
-                        key={k.id}
-                        onClick={() => setSelectedKeluargaId(k.id)}
-                        className={`p-2.5 cursor-pointer flex items-center justify-between transition-colors ${
-                          isSelected ? 'bg-amber-100/90 font-bold border-l-4 border-amber-600' : 'hover:bg-slate-100'
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-slate-900 font-bold">{santri?.nama}</span>
-                            <span className="text-[10px] text-slate-500">({santri?.kelas})</span>
-                            {santri?.kategoriUtama === 'BIL_GHOIB' && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-200 text-emerald-900 font-bold">
-                                Bil Ghoib
-                              </span>
-                            )}
-                            {santri?.kategoriUtama === 'BIN_NADZOR' && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-blue-200 text-blue-900 font-bold">
-                                Bin Nadzori
-                              </span>
-                            )}
-                            {santri?.kategoriUtama === 'TAMATAN' && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-200 text-amber-900 font-bold">
-                                Tamatan
-                              </span>
-                            )}
+                      return (
+                        <div
+                          key={s.kode}
+                          onClick={() => setSelectedSantriKode(s.kode)}
+                          className={`p-2.5 cursor-pointer flex items-center justify-between transition-colors ${
+                            isSelected ? 'bg-amber-100/90 font-bold border-l-4 border-amber-600' : 'hover:bg-slate-100'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-slate-900 font-bold">{s.nama}</span>
+                              <span className="text-[10px] text-slate-500">({s.kelas})</span>
+                              {s.kategori_utama === 'BIL_GHOIB' && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-200 text-emerald-900 font-bold">
+                                  Bil Ghoib
+                                </span>
+                              )}
+                              {s.kategori_utama === 'BIN_NADZOR' && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-blue-200 text-blue-900 font-bold">
+                                  Bin Nadzori
+                                </span>
+                              )}
+                              {s.kategori_utama === 'TAMATAN' && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-200 text-amber-900 font-bold">
+                                  Tamatan
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              Wali: {s.nama_wali} · Kode: <span className="font-mono">{s.kode}</span>
+                              {s.no_hp && s.no_hp !== '-' && ` · HP: ${s.no_hp}`}
+                            </div>
                           </div>
-                          <div className="text-[11px] text-slate-500">
-                            Wali: {k.namaWali} · Kode: <span className="font-mono">{k.kode}</span>
-                            {k.noHp && k.noHp !== '-' && ` · HP: ${k.noHp}`}
+
+                          <div className="text-right text-[11px] shrink-0 ml-2">
+                            <span className="text-slate-400">Kuota Saat Ini:</span>{' '}
+                            <span className="font-bold text-slate-800">{kuotaAktif} Kursi</span>
                           </div>
                         </div>
-
-                        <div className="text-right text-[11px] shrink-0 ml-2">
-                          <span className="text-slate-400">Kuota Saat Ini:</span>{' '}
-                          <span className="font-bold text-slate-800">{kuotaAktif} Kursi</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Info Santri Terpilih */}
-                {selectedKeluarga && (
+                {selectedSantri && (
                   <div className="mt-2.5 p-3 rounded-2xl bg-amber-50 border border-amber-300 flex items-center justify-between">
                     <div>
                       <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
                         SANTRI DIPILIH:
                       </div>
-                      <div className="text-sm font-black text-slate-900">
-                        {selectedKeluarga.santri?.[0]?.nama}
+                      <div className="text-sm font-black text-slate-900 flex items-center space-x-2">
+                        <span>{selectedSantri.nama}</span>
+                        {selectedSantri.kategori_utama === 'BIL_GHOIB' && (
+                          <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-200 text-emerald-900 font-bold">
+                            Bil Ghoib
+                          </span>
+                        )}
+                        {selectedSantri.kategori_utama === 'BIN_NADZOR' && (
+                          <span className="px-1.5 py-0.2 rounded text-[9px] bg-blue-200 text-blue-900 font-bold">
+                            Bin Nadzori
+                          </span>
+                        )}
+                        {selectedSantri.kategori_utama === 'TAMATAN' && (
+                          <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-200 text-amber-900 font-bold">
+                            Tamatan
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-slate-600">
-                        Wali: <strong>{selectedKeluarga.namaWali}</strong> · Kelas:{' '}
-                        {selectedKeluarga.santri?.[0]?.kelas}
+                        Wali: <strong>{selectedSantri.nama_wali}</strong> · Kelas: {selectedSantri.kelas}
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">
-                        Kode: {selectedKeluarga.kode}
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900 block mb-1">
+                        Kode: {selectedSantri.kode}
                       </span>
+                      <div className="text-[11px] text-slate-700">
+                        Kuota Saat Ini:{' '}
+                        <strong className="text-slate-900 font-bold">
+                          {(selectedSantri.kuota_dasar || 2) + (selectedSantri.kuota_tambahan || 0)} Kursi
+                        </strong>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1079,7 +1164,7 @@ export default function VerifikasiPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmittingManual || !selectedKeluargaId}
+                  disabled={isSubmittingManual || !selectedSantriKode}
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pesantren-900 to-pesantren-800 hover:from-pesantren-800 hover:to-pesantren-700 text-white font-bold shadow flex items-center space-x-2 disabled:opacity-50"
                 >
                   <Check className="w-4 h-4 stroke-[3]" />
