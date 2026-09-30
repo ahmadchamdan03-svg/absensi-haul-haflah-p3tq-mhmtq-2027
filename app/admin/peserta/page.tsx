@@ -998,10 +998,12 @@ export default function ManajemenPesertaPage() {
     }
   };
 
-  // Handler Edit Peserta
-  const handleSaveEdit = (e: React.FormEvent) => {
+  // Handler Edit Peserta (Direct Supabase Update by Kode)
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingItem) return;
+
+    const targetKode = editingItem.kode;
 
     if (editingItem.tipe === 'UNDANGAN') {
       let finalKat = '';
@@ -1049,7 +1051,33 @@ export default function ManajemenPesertaPage() {
         finalAlamat = (editingItem.alamat || 'Kediri').trim();
       }
 
-      const res = store.editPeserta(editingItem.kode, {
+      try {
+        const { error } = await supabase
+          .from('tamu_undangan')
+          .update({
+            nama: finalNama,
+            kategori: finalKat,
+            sub_kategori: editGolonganUndangan || 'ISTIMEWA',
+            instansi: finalInstansi || '-',
+            alamat: finalAlamat || '-',
+            no_hp: (editingItem.noHp || '').trim() || '-',
+            kuota_dasar: Number(editingItem.kuotaDasar) || 2,
+          })
+          .eq('kode', targetKode);
+
+        if (error) {
+          console.error('Supabase update error (tamu_undangan):', error);
+          alert(`Gagal memperbarui data tamu di Supabase: ${error.message}`);
+          return;
+        }
+      } catch (err: any) {
+        console.error('Exception updating tamu_undangan:', err);
+        alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
+        return;
+      }
+
+      // Sync store
+      store.editPeserta(targetKode, {
         nama: finalNama,
         namaPutra: p,
         namaPutri: w,
@@ -1060,16 +1088,13 @@ export default function ManajemenPesertaPage() {
         kuotaDasar: Number(editingItem.kuotaDasar) || 2,
       });
 
-      if (res.ok) {
-        refreshData();
-        setEditingItem(null);
-        showToast(`✓ Perubahan data tamu undangan ${editingItem.kode} berhasil disimpan!`);
-      } else {
-        alert(res.pesan || 'Gagal menyimpan perubahan.');
-      }
+      await refreshData();
+      setEditingItem(null);
+      showToast(`✓ Perubahan data tamu undangan ${targetKode} berhasil disimpan!`);
       return;
     }
 
+    // Edit Santri (Tabel peserta_santri)
     let subKat = 'Bin Nadzori';
     let kls = 'Bin Nadzori';
     if (editingItem.kategoriUtama === 'BIL_GHOIB') {
@@ -1080,7 +1105,35 @@ export default function ManajemenPesertaPage() {
       kls = `3 ALY ${editingItem.bagianTamatan || 'A.01'}`;
     }
 
-    const res = store.editPeserta(editingItem.kode, {
+    try {
+      const { error } = await supabase
+        .from('peserta_santri')
+        .update({
+          nama: (editingItem.nama || '').trim().toUpperCase(),
+          kategori_utama: editingItem.kategoriUtama || 'BIL_GHOIB',
+          sub_kategori: subKat,
+          kelas: kls,
+          nama_wali: (editingItem.namaWali || '').trim().toUpperCase() || '-',
+          no_hp: (editingItem.noHp || '').trim() || '-',
+          alamat: (editingItem.alamat || '').trim().toUpperCase() || 'KEDIRI',
+          kamar: (editingItem.kamar || '').trim() || '-',
+          kuota_dasar: Number(editingItem.kuotaDasar || 4),
+        })
+        .eq('kode', targetKode);
+
+      if (error) {
+        console.error('Supabase update error (peserta_santri):', error);
+        alert(`Gagal memperbarui data santri di Supabase: ${error.message}`);
+        return;
+      }
+    } catch (err: any) {
+      console.error('Exception updating peserta_santri:', err);
+      alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
+      return;
+    }
+
+    // Sync store
+    store.editPeserta(targetKode, {
       nama: editingItem.nama?.trim().toUpperCase(),
       namaWali: editingItem.namaWali?.trim().toUpperCase(),
       noHp: editingItem.noHp?.trim(),
@@ -1089,16 +1142,12 @@ export default function ManajemenPesertaPage() {
       kategoriUtama: editingItem.kategoriUtama,
       subKategori: subKat,
       kelas: kls,
-      kuotaDasar: Number(editingItem.kuotaDasar),
+      kuotaDasar: Number(editingItem.kuotaDasar || 4),
     });
 
-    if (res.ok) {
-      refreshData();
-      setEditingItem(null);
-      showToast(`✓ Perubahan data ${editingItem.kode} berhasil disimpan!`);
-    } else {
-      alert(res.pesan || 'Gagal menyimpan perubahan.');
-    }
+    await refreshData();
+    setEditingItem(null);
+    showToast(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
   };
 
   // Handler Hapus Peserta (Direct Supabase .delete())
