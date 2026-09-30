@@ -22,27 +22,28 @@ import {
 import { supabase } from '@/lib/supabase';
 import * as XLSX from 'xlsx';
 
-// Definisikan 19 Rincian Sub-Kategori Tamu Undangan (Blok 3)
+// Definisikan 20 Rincian Sub-Kategori Tamu Undangan (Blok 3)
 const BLOK_3_SUBKATEGORI_DEFINITIONS = [
-  { no: 16, kategori: 'VVIP', matchers: ['vvip'], warna: 'Putih' },
-  { no: 17, kategori: 'VIP Bani Marzuqi', matchers: ['marzuqi'], warna: 'Putih' },
-  { no: 18, kategori: 'VIP Bani Qomariyah', matchers: ['qomariyah'], warna: 'Putih' },
-  { no: 19, kategori: 'VIP Bani Mahrus (Zainab)', matchers: ['mahrus', 'zainab'], warna: 'Putih' },
-  { no: 20, kategori: 'VIP Bani Salamah', matchers: ['salamah'], warna: 'Putih' },
-  { no: 21, kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: 'Putih' },
-  { no: 22, kategori: 'VIP Bandar', matchers: ['bandar'], warna: 'Putih' },
-  { no: 23, kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: 'Putih' },
-  { no: 24, kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Putih' },
-  { no: 25, kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Putih' },
-  { no: 26, kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Putih' },
-  { no: 27, kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Putih' },
-  { no: 28, kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Putih' },
-  { no: 29, kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Putih' },
-  { no: 30, kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Putih' },
-  { no: 31, kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Putih' },
-  { no: 32, kategori: 'Penguji Al-Qur\'an', matchers: ['penguji'], warna: 'Putih' },
-  { no: 33, kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Putih' },
-  { no: 34, kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Putih' },
+  { no: 16, kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: 'Putih' },
+  { no: 17, kategori: 'VVIP', matchers: ['vvip'], warna: 'Putih' },
+  { no: 18, kategori: 'VIP Bani Marzuqi', matchers: ['marzuqi'], warna: 'Putih' },
+  { no: 19, kategori: 'VIP Bani Qomariyah', matchers: ['qomariyah'], warna: 'Putih' },
+  { no: 20, kategori: 'VIP Bani Mahrus (Zainab)', matchers: ['mahrus', 'zainab'], warna: 'Putih' },
+  { no: 21, kategori: 'VIP Bani Salamah', matchers: ['salamah'], warna: 'Putih' },
+  { no: 22, kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: 'Putih' },
+  { no: 23, kategori: 'VIP Bandar', matchers: ['bandar'], warna: 'Putih' },
+  { no: 24, kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: 'Putih' },
+  { no: 25, kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Putih' },
+  { no: 26, kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Putih' },
+  { no: 27, kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Putih' },
+  { no: 28, kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Putih' },
+  { no: 29, kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Putih' },
+  { no: 30, kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Putih' },
+  { no: 31, kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Putih' },
+  { no: 32, kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Putih' },
+  { no: 33, kategori: 'Penguji Al-Qur\'an', matchers: ['penguji'], warna: 'Putih' },
+  { no: 34, kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Putih' },
+  { no: 35, kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Putih' },
 ];
 
 export default function LaporanPage() {
