@@ -265,7 +265,7 @@ export default function LiveDasbor() {
                 tabCategory === 'SANTRI' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
               }`}
             >
-              Santri ({keluargaList.length})
+              Wali Santri ({keluargaList.length})
             </button>
             <button
               type="button"
