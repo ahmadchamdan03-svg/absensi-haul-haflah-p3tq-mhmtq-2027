@@ -23,6 +23,7 @@ import {
   UserCheck,
   Check,
   RotateCcw,
+  Info,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
@@ -900,20 +901,27 @@ export default function ManajemenPesertaPage() {
     let finalNama = '';
     const p = (undanganForm.namaPutra || '').trim().toUpperCase();
     const w = (undanganForm.namaPutri || '').trim().toUpperCase();
+    let kuotaBase = 1;
 
     if (selectedGolonganUndangan === 'ISTIMEWA') {
       if (!p && !w) {
         alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
         return;
       }
-      if (p && w) finalNama = `${p} & ${w}`;
-      else finalNama = p || w;
+      if (p && w) {
+        finalNama = `${p} & ${w}`;
+        kuotaBase = 2;
+      } else {
+        finalNama = p || w;
+        kuotaBase = 1;
+      }
     } else {
       if (!undanganForm.nama.trim()) {
         alert('Nama tamu undangan wajib diisi!');
         return;
       }
       finalNama = undanganForm.nama.trim().toUpperCase();
+      kuotaBase = 1;
     }
 
     let finalKategori = '';
@@ -941,8 +949,6 @@ export default function ManajemenPesertaPage() {
       finalInstansi = (undanganForm.instansi || '').trim();
       finalAlamat = (undanganForm.alamat || '').trim();
     }
-
-    const kuotaBase = Number(undanganForm.kuotaDasar) || (selectedGolonganUndangan === 'KEHORMATAN' ? 4 : 2);
 
     const res = store.tambahUndangan({
       nama: finalNama,
@@ -997,7 +1003,7 @@ export default function ManajemenPesertaPage() {
         instansi: '',
         alamat: '',
         noHp: '',
-        kuotaDasar: 2,
+        kuotaDasar: 1,
       });
       setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
       setCustomKategoriInput('');
@@ -1030,20 +1036,25 @@ export default function ManajemenPesertaPage() {
       let finalNama = (editingItem.nama || '').trim().toUpperCase();
       let p = (editingItem.namaPutra || '').trim().toUpperCase();
       let w = (editingItem.namaPutri || '').trim().toUpperCase();
+      let kuotaBase = 1;
 
       if (editGolonganUndangan === 'ISTIMEWA') {
         if (!p && !w && !finalNama) {
           alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
           return;
         }
-        if (p && w) finalNama = `${p} & ${w}`;
-        else if (p) finalNama = p;
-        else if (w) finalNama = w;
+        if (p && w) {
+          finalNama = `${p} & ${w}`;
+          kuotaBase = 2;
+        } else {
+          kuotaBase = 1;
+        }
       } else {
         if (!finalNama) {
           alert('Nama tamu undangan wajib diisi!');
           return;
         }
+        kuotaBase = 1;
       }
 
       let finalAlamat = '';
@@ -1069,7 +1080,7 @@ export default function ManajemenPesertaPage() {
             instansi: finalInstansi || '-',
             alamat: finalAlamat || '-',
             no_hp: (editingItem.noHp || '').trim() || '-',
-            kuota_dasar: Number(editingItem.kuotaDasar) || 2,
+            kuota_dasar: kuotaBase,
             warna_tiket: getWarnaTiketUndangan(editGolonganUndangan, finalKat),
           })
           .eq('kode', targetKode);
@@ -1094,7 +1105,7 @@ export default function ManajemenPesertaPage() {
         instansi: finalInstansi,
         alamat: finalAlamat,
         golongan: editGolonganUndangan,
-        kuotaDasar: Number(editingItem.kuotaDasar) || 2,
+        kuotaDasar: kuotaBase,
       });
 
       await refreshData();
@@ -2186,7 +2197,7 @@ export default function ManajemenPesertaPage() {
                         kategori: OPSI_UNDANGAN_UMUM[0],
                         instansi: '',
                         alamat: '',
-                        kuotaDasar: 2,
+                        kuotaDasar: 1,
                       });
                       setCustomKategoriInput('');
                     }}
@@ -2199,6 +2210,29 @@ export default function ManajemenPesertaPage() {
                     <Users className="w-3.5 h-3.5 text-cyan-700" />
                     <span>👥 Umum</span>
                   </button>
+                </div>
+
+                {/* INFO KUOTA OTOMATIS */}
+                <div className="mt-2.5 p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex items-start space-x-2">
+                  <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold block text-amber-950 mb-0.5">Penetapan Kuota Kursi Otomatis:</span>
+                    {selectedGolonganUndangan === 'ISTIMEWA' && (
+                      <p>
+                        Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra & Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
+                      </p>
+                    )}
+                    {selectedGolonganUndangan === 'KEHORMATAN' && (
+                      <p>
+                        Tamu Kehormatan otomatis mendapatkan <strong>1 kursi</strong>.
+                      </p>
+                    )}
+                    {selectedGolonganUndangan === 'UMUM' && (
+                      <p>
+                        Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -2400,20 +2434,6 @@ export default function ManajemenPesertaPage() {
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Jatah Kuota Kursi</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={undanganForm.kuotaDasar}
-                  onChange={(e) =>
-                    setUndanganForm({ ...undanganForm, kuotaDasar: Number(e.target.value) })
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono font-bold"
-                />
-              </div>
-
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
                 <button
                   type="button"
@@ -2532,6 +2552,29 @@ export default function ManajemenPesertaPage() {
                         <Users className="w-3.5 h-3.5 text-cyan-700" />
                         <span>👥 Umum</span>
                       </button>
+                    </div>
+
+                    {/* INFO KUOTA OTOMATIS */}
+                    <div className="mt-2.5 p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex items-start space-x-2">
+                      <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold block text-amber-950 mb-0.5">Penetapan Kuota Kursi Otomatis:</span>
+                        {editGolonganUndangan === 'ISTIMEWA' && (
+                          <p>
+                            Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra & Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
+                          </p>
+                        )}
+                        {editGolonganUndangan === 'KEHORMATAN' && (
+                          <p>
+                            Tamu Kehormatan otomatis mendapatkan <strong>1 kursi</strong>.
+                          </p>
+                        )}
+                        {editGolonganUndangan === 'UMUM' && (
+                          <p>
+                            Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -2733,20 +2776,6 @@ export default function ManajemenPesertaPage() {
                       </div>
                     </>
                   )}
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Jatah Kuota Kursi</label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={20}
-                      value={editingItem.kuotaDasar}
-                      onChange={(e) =>
-                        setEditingItem({ ...editingItem, kuotaDasar: Number(e.target.value) })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono font-bold"
-                    />
-                  </div>
                 </>
               )}
 
