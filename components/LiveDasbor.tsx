@@ -211,7 +211,7 @@ export default function LiveDasbor() {
             {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri}</span>
           </div>
           <p className="text-xs text-stone-500">
-            Format: Total Wali Santri Hadir / Total Kuota Wali Santri
+            Total wali santri hadir / total kuota wali santri keseluruhan
           </p>
         </div>
 
@@ -230,7 +230,7 @@ export default function LiveDasbor() {
             {totalHadirTamu} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaTamu}</span>
           </div>
           <p className="text-xs text-stone-500">
-            Format: Total Tamu Undangan Hadir / Total Tamu Undangan
+            Total tamu undangan hadir / total tamu undangan keseluruhan
           </p>
         </div>
       </div>
