@@ -41,8 +41,8 @@ const ROLE_BUTTONS: {
     key: 'ADMIN',
     icon: ShieldCheck,
     color: {
-      bg: 'bg-white',
-      border: 'border-[#E8DFD5]',
+      bg: 'bg-white/70 hover:bg-white/85 backdrop-blur-sm',
+      border: 'border-white/60',
       hoverBorder: 'hover:border-[#8C6A47]',
       iconBg: 'bg-rose-50',
       iconText: 'text-rose-700',
@@ -60,8 +60,8 @@ const ROLE_BUTTONS: {
     key: 'PENERIMA_TAMU',
     icon: Users,
     color: {
-      bg: 'bg-white',
-      border: 'border-[#E8DFD5]',
+      bg: 'bg-white/70 hover:bg-white/85 backdrop-blur-sm',
+      border: 'border-white/60',
       hoverBorder: 'hover:border-emerald-500',
       iconBg: 'bg-emerald-50',
       iconText: 'text-emerald-700',
@@ -79,8 +79,8 @@ const ROLE_BUTTONS: {
     key: 'PIMPINAN',
     icon: LayoutDashboard,
     color: {
-      bg: 'bg-white',
-      border: 'border-[#E8DFD5]',
+      bg: 'bg-white/70 hover:bg-white/85 backdrop-blur-sm',
+      border: 'border-white/60',
       hoverBorder: 'hover:border-amber-500',
       iconBg: 'bg-amber-50',
       iconText: 'text-amber-700',
@@ -98,8 +98,8 @@ const ROLE_BUTTONS: {
     key: 'PENJAGA_GERBANG',
     icon: QrCode,
     color: {
-      bg: 'bg-white',
-      border: 'border-[#E8DFD5]',
+      bg: 'bg-white/70 hover:bg-white/85 backdrop-blur-sm',
+      border: 'border-white/60',
       hoverBorder: 'hover:border-blue-500',
       iconBg: 'bg-blue-50',
       iconText: 'text-blue-700',
@@ -159,8 +159,8 @@ export default function LandingPortalPage() {
       {/* BACKGROUND PANGGUNG RESMI & ANIMASI DEBU EMAS */}
       <StageBackground />
 
-      {/* KONTEN UTAMA TERPUSAT */}
-      <div className="relative z-10 w-full max-w-2xl px-5 py-8 sm:py-12 sm:px-10 space-y-8 sm:space-y-10 bg-[#FAF7F3]/90 backdrop-blur-md border-2 border-[#D5C4B4]/70 shadow-[0_20px_60px_rgba(0,0,0,0.5)] rounded-3xl my-auto animate-in fade-in zoom-in-95 duration-300">
+      {/* KONTEN UTAMA TERPUSAT (KARTU TRANSPARAN MEWAH DI ATAS BACKDROP PANGGUNG) */}
+      <div className="relative z-10 w-full max-w-2xl px-5 py-8 sm:py-12 sm:px-10 space-y-8 sm:space-y-10 bg-white/30 backdrop-blur-md border border-white/50 shadow-xl shadow-black/10 rounded-3xl my-auto animate-in fade-in zoom-in-95 duration-300">
         {/* HEADER IDENTITAS */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -169,14 +169,14 @@ export default function LandingPortalPage() {
             <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-md" />
           </div>
           <div>
-            <div className="text-[10px] sm:text-xs font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase">
+            <div className="text-[10px] sm:text-xs font-serif font-black tracking-[0.2em] text-[#704E32] uppercase drop-shadow-xs">
               HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
             </div>
-            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight mt-1">
+            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#2B1B10] leading-tight mt-1 drop-shadow-sm">
               P3TQ &amp; MHMTQ Lirboyo Kediri
             </h1>
           </div>
-          <p className="text-xs text-[#7A624E] max-w-md mx-auto leading-relaxed font-medium">
+          <p className="text-xs text-[#4A3425] max-w-md mx-auto leading-relaxed font-semibold drop-shadow-xs">
             Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
           </p>
         </div>
@@ -190,22 +190,22 @@ export default function LandingPortalPage() {
                 key={key}
                 type="button"
                 onClick={() => handleOpenRoleModal(key)}
-                className={`${color.bg} rounded-2xl p-5 border-2 ${color.border} ${color.hoverBorder} shadow-sm hover:shadow-md transition-all text-left group cursor-pointer active:scale-[0.98]`}
+                className={`${color.bg} rounded-2xl p-5 border ${color.border} ${color.hoverBorder} shadow-sm hover:shadow-md transition-all text-left group cursor-pointer active:scale-[0.98]`}
               >
                 <div className="flex items-start gap-3.5">
                   <div className={`w-11 h-11 rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 flex items-center justify-center shrink-0`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-serif font-black text-sm text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
+                    <h3 className={`font-serif font-black text-sm text-[#322116] ${color.hoverAccent} transition-colors leading-tight`}>
                       {config.title}
                     </h3>
-                    <p className="text-[11px] text-[#7A624E] mt-0.5 leading-snug">
+                    <p className="text-[11px] text-[#5C4533] mt-0.5 leading-snug font-medium">
                       {config.subtitle}
                     </p>
                   </div>
                   <div className="shrink-0 mt-0.5">
-                    <Lock className="w-4 h-4 text-[#B5A28F] group-hover:text-[#8C6A47] transition-colors" />
+                    <Lock className="w-4 h-4 text-[#9A826C] group-hover:text-[#8C6A47] transition-colors" />
                   </div>
                 </div>
               </button>
@@ -214,11 +214,11 @@ export default function LandingPortalPage() {
         </div>
 
         {/* FOOTER KECIL */}
-        <div className="text-center space-y-1 pt-2 border-t border-[#E8DFD5]/80">
-          <p className="text-[11px] text-[#8C6A47] font-semibold">
+        <div className="text-center space-y-1 pt-3 border-t border-white/40">
+          <p className="text-[11px] text-[#5C3E28] font-bold drop-shadow-xs">
             Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
           </p>
-          <p className="text-[10px] text-stone-500">
+          <p className="text-[10px] text-[#6E5542] font-semibold">
             Sistem Web Murni · Dibuka langsung melalui browser
           </p>
         </div>
