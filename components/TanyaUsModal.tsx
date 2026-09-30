@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   CheckCircle2,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export type UstadzahExpression =
   | 'wave'
@@ -642,7 +643,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-5 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="w-full max-w-3xl h-[92dvh] sm:h-[88vh] max-h-[800px] flex flex-col rounded-2xl sm:rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-2xl overflow-hidden relative"
+        className="w-full max-w-3xl h-[92dvh] sm:h-[88vh] max-h-[800px] flex flex-col rounded-2xl sm:rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-2xl overflow-hidden relative motion-reduce:transform-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modal Ustadzah AI */}
@@ -996,3 +997,4 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
     </div>
   );
 }
+

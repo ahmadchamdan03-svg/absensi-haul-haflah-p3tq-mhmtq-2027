@@ -170,7 +170,7 @@ export default function LiveDasbor() {
           <button
             type="button"
             onClick={() => setIsDenahOpen(true)}
-            className="p-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] border-2 border-[#D5C4B4] shadow-xs transition-colors flex items-center space-x-1.5 text-xs font-bold cursor-pointer"
+            className="p-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] border-2 border-[#D5C4B4] shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <Compass className="w-4 h-4 text-[#8C6A47]" />
             <span>Denah Lapangan</span>
@@ -178,7 +178,7 @@ export default function LiveDasbor() {
           <button
             type="button"
             onClick={fetchLiveDasborData}
-            className="p-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border-2 border-[#8C6A47] shadow-sm transition-colors flex items-center space-x-1.5 text-xs font-bold cursor-pointer"
+            className="p-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border-2 border-[#8C6A47] shadow-sm flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Refresh</span>
@@ -189,13 +189,13 @@ export default function LiveDasbor() {
       {/* 2 KARTU METRIK UTAMA FORMAT DOKUMEN 2.0 (TANPA PEMISAHAN GENDER L/P) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* KARTU 1: TOTAL WALI SANTRI */}
-        <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3">
+        <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3 card-transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
               <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
               TOTAL WALI SANTRI
             </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 badge-transition">
               {totalKuotaWaliSantri > 0 ? Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100) : 0}% Hadir
             </span>
           </div>
@@ -208,13 +208,13 @@ export default function LiveDasbor() {
         </div>
 
         {/* KARTU 2: TOTAL TAMU UNDANGAN */}
-        <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3">
+        <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3 card-transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
               <Award className="w-4.5 h-4.5 text-emerald-700" />
               TOTAL TAMU UNDANGAN
             </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 badge-transition">
               {totalKuotaTamu > 0 ? Math.round((totalHadirTamu / totalKuotaTamu) * 100) : 0}% Hadir
             </span>
           </div>
@@ -244,7 +244,7 @@ export default function LiveDasbor() {
             <button
               type="button"
               onClick={() => setTabCategory('SEMUA')}
-              className={`px-3 py-1.5 rounded-xl transition-all ${
+              className={`px-3 py-1.5 rounded-xl btn-transition ${
                 tabCategory === 'SEMUA' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
               }`}
             >
@@ -253,7 +253,7 @@ export default function LiveDasbor() {
             <button
               type="button"
               onClick={() => setTabCategory('SANTRI')}
-              className={`px-3 py-1.5 rounded-xl transition-all ${
+              className={`px-3 py-1.5 rounded-xl btn-transition ${
                 tabCategory === 'SANTRI' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
               }`}
             >
@@ -262,7 +262,7 @@ export default function LiveDasbor() {
             <button
               type="button"
               onClick={() => setTabCategory('UNDANGAN')}
-              className={`px-3 py-1.5 rounded-xl transition-all ${
+              className={`px-3 py-1.5 rounded-xl btn-transition ${
                 tabCategory === 'UNDANGAN' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
               }`}
             >
@@ -280,7 +280,7 @@ export default function LiveDasbor() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari nama santri, wali, instansi, atau kode (cth: SH0001, KH. Abdullah)..."
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] text-xs sm:text-sm focus:outline-none input-transition"
             />
           </div>
 
@@ -289,7 +289,7 @@ export default function LiveDasbor() {
             <button
               type="button"
               onClick={() => setStatusFilter('SEMUA')}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
+              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                 statusFilter === 'SEMUA'
                   ? 'bg-stone-800 text-white border-stone-800 shadow-xs'
                   : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
@@ -300,7 +300,7 @@ export default function LiveDasbor() {
             <button
               type="button"
               onClick={() => setStatusFilter('SUDAH')}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
+              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                 statusFilter === 'SUDAH'
                   ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
                   : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-50'
@@ -311,7 +311,7 @@ export default function LiveDasbor() {
             <button
               type="button"
               onClick={() => setStatusFilter('BELUM')}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
+              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                 statusFilter === 'BELUM'
                   ? 'bg-amber-800 text-white border-amber-800 shadow-xs'
                   : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50'

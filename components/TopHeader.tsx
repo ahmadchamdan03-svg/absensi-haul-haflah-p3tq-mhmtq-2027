@@ -52,7 +52,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}
         <Link
           href="/scan"
-          className="inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-2xs transition-all border border-[#735334]"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-2xs border border-[#735334]"
           title="Buka Scanner QR Gerbang Masuk"
         >
           <QrCode className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-amber-200" />
@@ -62,7 +62,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Live Dasbor */}
         <Link
           href="/admin/dasbor"
-          className="inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] text-xs font-bold shadow-2xs transition-all border-2 border-[#D5C4B4]"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] text-xs font-bold shadow-2xs border-2 border-[#D5C4B4]"
           title="Buka Live Dasbor Kedatangan"
         >
           <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#8C6A47]" />
@@ -73,7 +73,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         <button
           type="button"
           onClick={() => { clearActiveRole(); router.replace('/'); }}
-          className="inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs transition-all border border-rose-200 cursor-pointer"
+          className="btn-transition inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs border border-rose-200 cursor-pointer"
           title="Keluar dari sesi dan kembali ke halaman login"
         >
           <LogOut className="w-3.5 h-3.5 text-rose-600" />

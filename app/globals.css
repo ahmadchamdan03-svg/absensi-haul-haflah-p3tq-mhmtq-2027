@@ -29,13 +29,7 @@
 }
 
 :root {
-  /* Palet Warna Desain Warm Latte & Cinnamon Mocha Coffee (Sesuai Gambar Referensi): */
-  /* 1. Warna Dasar (Dominan): Warm Oat Cream #EFE8E1 (RGB 239, 232, 225) */
-  /* 2. Warna Aksen: Rich Cinnamon Mocha #8C6A47 (RGB 140, 106, 71) */
-  /* 3. Warna Sekunder: Biscuit Tan #C4A88E (RGB 196, 168, 142) */
-  /* 4. Warna Ambience: Golden Caramel Crema #D49B5B (RGB 212, 155, 91) */
-  /* 5. Warna Teks: Deep Roasted Espresso #422F21 (RGB 66, 47, 33) */
-
+  /* Palet Warna Desain Warm Latte & Cinnamon Mocha Coffee: */
   --stage-latte: #EFE8E1;
   --stage-mocha: #8C6A47;
   --stage-tan: #C4A88E;
@@ -78,6 +72,29 @@ body {
   color: #FAF7F3;
   border: 1px solid #D49B5B;
   box-shadow: 0 0 8px rgba(212, 155, 91, 0.35);
+}
+
+@layer utilities {
+  /* Class Transisi Konsisten Berdasarkan Jenis Komponen */
+  .btn-transition {
+    @apply transition-all duration-150 ease-in-out hover:scale-[1.02] active:scale-[0.97] focus:ring-2 focus:ring-emerald-500/50 motion-reduce:transform-none;
+  }
+
+  .card-transition {
+    @apply transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none;
+  }
+
+  .input-transition {
+    @apply transition-all duration-150 ease-in-out focus:ring-2 focus:ring-emerald-700/30 focus:border-emerald-700;
+  }
+
+  .badge-transition {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .sidebar-transition {
+    @apply transition-all duration-150 ease-in-out hover:translate-x-0.5 motion-reduce:transform-none;
+  }
 }
 
 /* Print Styles for Recap and Tickets */
