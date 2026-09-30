@@ -358,23 +358,21 @@ export default function KonfirmasiPage() {
       )}
 
       {/* Header Halaman */}
-      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-6 shadow-sm border-2 border-[#8C6A47]/40">
-        <div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-xs font-serif font-black border-2 border-[#D49B5B]">
-            <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
-            <span>PANEL PANITIA · REKAPITULASI PRA-ACARA</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#422F21]">
-            Monitoring Konfirmasi Kehadiran Wali Santri
-          </h1>
-          <p className="text-xs text-[#7A624E] mt-0.5 font-medium">
-            Pantau total konfirmasi kehadiran, data rombongan Laki-laki &amp; Perempuan untuk alokasi konsumsi dan kursi, serta lakukan edit manual bila wali santri konfirmasi via telepon/offline.
-          </p>
+      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#8C6A47]/40 space-y-2">
+        <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
+          <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
+          <span className="truncate">PANEL PANITIA · REKAPITULASI PRA-ACARA</span>
         </div>
+        <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#422F21] leading-tight">
+          Monitoring Konfirmasi Kehadiran Wali Santri
+        </h1>
+        <p className="text-xs text-[#7A624E] font-medium leading-relaxed">
+          Pantau total konfirmasi kehadiran, data rombongan Laki-laki &amp; Perempuan untuk alokasi konsumsi dan kursi, serta lakukan edit manual bila wali santri konfirmasi via telepon/offline.
+        </p>
       </div>
 
-      {/* 4 KARTU METRIK RINGKASAN KONFIRMASI - INTERAKTIF & BISA DIKLIK */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 KARTU METRIK RINGKASAN KONFIRMASI (MOBILE 2 KOLOM x 2 BARIS, DESKTOP 4 KOLOM) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Card 1: Total Santri */}
         <button
           type="button"
@@ -383,7 +381,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className={`rounded-3xl p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 ${
+          className={`rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between ${
             filterStatus === 'SEMUA'
               ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
@@ -391,22 +389,19 @@ export default function KonfirmasiPage() {
           title="Klik untuk menampilkan seluruh santri riil"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#7A624E] uppercase tracking-wider group-hover:text-[#422F21]">
+            <span className="text-[10px] sm:text-xs font-bold text-[#7A624E] uppercase tracking-wider group-hover:text-[#422F21]">
               Total Santri Riil
             </span>
-            <div className="w-8 h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors">
-              <Users className="w-4 h-4" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif font-black text-[#422F21] mt-2">
+          <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
             {rekap.totalSantri}{' '}
-            <span className="text-sm font-sans font-medium text-[#7A624E]">Santri</span>
+            <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">Santri</span>
           </div>
-          <div className="text-xs text-[#8C6A47] font-semibold mt-1 flex items-center justify-between">
-            <span>Total Jatah Kuota: {rekap.totalKuotaSantri} Kursi</span>
-            <span className="text-[10px] text-[#7A624E] opacity-0 group-hover:opacity-100 transition-opacity">
-              Tampilkan Semua ↓
-            </span>
+          <div className="text-[10px] sm:text-xs text-[#8C6A47] font-semibold flex items-center justify-between truncate">
+            <span className="truncate">Kuota: {rekap.totalKuotaSantri} Kursi</span>
           </div>
         </button>
 
@@ -418,7 +413,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className={`rounded-3xl p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 ${
+          className={`rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between ${
             filterStatus === 'SUDAH'
               ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
@@ -426,24 +421,21 @@ export default function KonfirmasiPage() {
           title="Klik untuk memfilter wali santri yang SUDAH konfirmasi"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
               Sudah Konfirmasi
             </span>
-            <div className="w-8 h-8 rounded-full bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-emerald-700 transition-colors">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-emerald-700 transition-colors shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif font-black text-emerald-900 mt-2">
+          <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
             {rekap.sudahKonfirmasiCount}{' '}
-            <span className="text-sm font-sans font-medium text-emerald-700">
+            <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
               Wali ({rekap.persentaseSudah}%)
             </span>
           </div>
-          <div className="text-xs text-emerald-800 font-semibold mt-1 flex items-center justify-between">
-            <span>Estimasi: {rekap.totalEstimasiRombongan} Orang</span>
-            <span className="text-[10px] text-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity">
-              Filter Sudah ↓
-            </span>
+          <div className="text-[10px] sm:text-xs text-emerald-800 font-semibold truncate">
+            <span className="truncate">Est: {rekap.totalEstimasiRombongan} Orang</span>
           </div>
         </button>
 
@@ -455,7 +447,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className={`rounded-3xl p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 ${
+          className={`rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between ${
             filterStatus === 'BELUM'
               ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
@@ -463,24 +455,21 @@ export default function KonfirmasiPage() {
           title="Klik untuk memfilter wali santri yang BELUM konfirmasi"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-xs font-bold text-amber-800 uppercase tracking-wider">
               Belum Konfirmasi
             </span>
-            <div className="w-8 h-8 rounded-full bg-amber-100 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center text-amber-700 transition-colors">
-              <Clock className="w-4 h-4" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-100 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center text-amber-700 transition-colors shrink-0">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif font-black text-amber-900 mt-2">
+          <div className="text-xl sm:text-3xl font-serif font-black text-amber-900 my-1">
             {rekap.belumKonfirmasiCount}{' '}
-            <span className="text-sm font-sans font-medium text-amber-700">
+            <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
               Wali ({100 - rekap.persentaseSudah}%)
             </span>
           </div>
-          <div className="text-xs text-amber-800 font-semibold mt-1 flex items-center justify-between">
+          <div className="text-[10px] sm:text-xs text-amber-800 font-semibold truncate">
             <span>Menunggu konfirmasi</span>
-            <span className="text-[10px] text-amber-700 opacity-0 group-hover:opacity-100 transition-opacity">
-              Filter Belum ↓
-            </span>
           </div>
         </button>
 
@@ -492,36 +481,36 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="rounded-3xl p-5 shadow-sm border-2 border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6] text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5"
+          className="rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6] text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between"
           title="Klik untuk melihat rincian alokasi kursi hadir"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8C6A47] uppercase tracking-wider">
+            <span className="text-[10px] sm:text-xs font-bold text-[#8C6A47] uppercase tracking-wider">
               Estimasi Kursi Hadir
             </span>
-            <div className="w-8 h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors">
-              <Sparkles className="w-4 h-4" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-serif font-black text-[#422F21] mt-2">
+          <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
             {rekap.totalEstimasiRombongan}{' '}
-            <span className="text-sm font-sans font-medium text-[#7A624E]">Kursi</span>
+            <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">Kursi</span>
           </div>
-          <div className="text-xs text-[#7A624E] font-medium mt-1">
-            Total estimasi santri &amp; rombongan hadir
+          <div className="text-[10px] sm:text-xs text-[#7A624E] font-medium truncate">
+            Alokasi santri &amp; rombongan
           </div>
         </button>
       </div>
 
       {/* FILTER & PENCARIAN */}
-      <div id="tabel-konfirmasi" className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4 scroll-mt-6">
-        {/* Toggle Switch Status Konfirmasi */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-[#EFE8E1]/70 rounded-2xl border border-[#D5C4B4]">
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-[#7A624E] pl-2 hidden sm:inline">Status:</span>
+      <div id="tabel-konfirmasi" className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4 scroll-mt-6">
+        {/* Toggle Switch Status Konfirmasi dengan Scroll Horizontal di Mobile */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2 bg-[#EFE8E1]/70 rounded-2xl border border-[#D5C4B4]">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 -mx-1 px-1 whitespace-nowrap no-scrollbar">
+            <span className="text-xs font-bold text-[#7A624E] pl-1 hidden sm:inline">Status:</span>
             <button
               onClick={() => setFilterStatus('SEMUA')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 filterStatus === 'SEMUA'
                   ? 'bg-[#8C6A47] text-white shadow-sm'
                   : 'bg-white text-[#7A624E] hover:bg-[#FAF7F3] border border-[#D5C4B4]'
@@ -531,7 +520,7 @@ export default function KonfirmasiPage() {
             </button>
             <button
               onClick={() => setFilterStatus('SUDAH')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                 filterStatus === 'SUDAH'
                   ? 'bg-emerald-700 text-white shadow-sm'
                   : 'bg-white text-emerald-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
@@ -542,7 +531,7 @@ export default function KonfirmasiPage() {
             </button>
             <button
               onClick={() => setFilterStatus('BELUM')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                 filterStatus === 'BELUM'
                   ? 'bg-amber-700 text-white shadow-sm'
                   : 'bg-white text-amber-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
@@ -553,7 +542,7 @@ export default function KonfirmasiPage() {
             </button>
           </div>
 
-          <div className="text-xs text-[#7A624E] pr-2 font-medium">
+          <div className="text-[11px] sm:text-xs text-[#7A624E] font-medium self-end md:self-auto">
             Menampilkan {filteredList.length} dari {daftarSantri.length} santri
           </div>
         </div>
@@ -567,7 +556,7 @@ export default function KonfirmasiPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama santri, wali, kode (SH0001), kelas, kamar, alamat, atau no HP..."
+              placeholder="Cari nama santri, wali, kode (SH0001), kelas, kamar, alamat..."
               className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs text-[#422F21] placeholder-[#7A624E]/70 focus:outline-none focus:border-[#8C6A47] transition-colors"
             />
             {searchQuery && (
@@ -580,13 +569,13 @@ export default function KonfirmasiPage() {
             )}
           </div>
 
-          {/* Filter Kategori Dropdown (Dinamis dari Supabase) */}
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-[#7A624E] hidden sm:inline">Kategori:</span>
+          {/* Filter Kategori Dropdown */}
+          <div className="flex items-center space-x-2 w-full md:w-auto">
+            <span className="text-xs font-bold text-[#7A624E] hidden sm:inline shrink-0">Kategori:</span>
             <select
               value={filterKategori}
               onChange={(e) => setFilterKategori(e.target.value as any)}
-              className="px-3 py-2 rounded-xl bg-white border-2 border-[#D5C4B4] text-xs font-semibold text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
+              className="w-full md:w-auto px-3 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs font-semibold text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
             >
               <option value="SEMUA">Semua Kategori ({rekap.totalSantri})</option>
               <option value="BIL_GHOIB">Bil Ghoib ({rekap.bilGhoibCount} Santri)</option>

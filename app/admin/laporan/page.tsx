@@ -449,31 +449,31 @@ export default function LaporanPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* HEADER DAN AKSI UTAMA (NO-PRINT) */}
-      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-6 shadow-sm border-2 border-[#8C6A47]/40 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
-        <div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-xs font-serif font-black border-2 border-[#D49B5B]">
-            <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
-            <span>DOKUMEN RESMI REKAPITULASI PRESENSI</span>
+      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#8C6A47]/40 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+        <div className="min-w-0">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
+            <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
+            <span className="truncate">DOKUMEN RESMI REKAPITULASI PRESENSI</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#422F21]">
+          <h1 className="text-lg sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#422F21] leading-tight">
             Rekap &amp; Ekspor Laporan Presensi Realtime
           </h1>
-          <p className="text-xs text-[#7A624E] mt-0.5 font-medium">
+          <p className="text-xs text-[#7A624E] mt-1 font-medium leading-relaxed">
             Format rekapitulasi sesuai dokumen resmi Haul &amp; Haflah 2.0 (Blok Santri, Kuota Tambahan 300, &amp; Tamu Undangan terstruktur per Kategori Utama).
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto shrink-0">
           <button
             onClick={handleExportExcel}
-            className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow border border-emerald-700 flex items-center space-x-2 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow border border-emerald-700 flex items-center justify-center space-x-2 transition-colors cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span>Unduh Excel (.xlsx)</span>
           </button>
           <button
             onClick={handlePrint}
-            className="px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow border border-[#735334] flex items-center space-x-2 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow border border-[#735334] flex items-center justify-center space-x-2 transition-colors cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Cetak Rekap Fisik</span>
@@ -482,21 +482,21 @@ export default function LaporanPage() {
       </div>
 
       {/* DOKUMEN REKAP RESMI (SIAP CETAK) */}
-      <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200 space-y-6 print:p-0 print:border-none print:shadow-none">
+      <div className="bg-white rounded-3xl p-4 sm:p-10 shadow-sm border border-slate-200 space-y-6 print:p-0 print:border-none print:shadow-none">
         {/* Kop Resmi Lembar Rekap Panitia */}
-        <div className="text-center pb-6 border-b-2 border-slate-900 space-y-2">
-          <div className="flex justify-center items-center space-x-3 mb-2">
-            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="w-12 h-12 object-contain" />
-            <img src="/images/logo-haul-black.png" alt="Kaligrafi Haul Haflah" className="h-10 object-contain" />
-            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 object-contain" />
+        <div className="text-center pb-4 sm:pb-6 border-b-2 border-slate-900 space-y-2">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 mb-2">
+            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-9 sm:h-12 w-auto object-contain" />
+            <img src="/images/logo-haul-black.png" alt="Kaligrafi Haul Haflah" className="h-8 sm:h-10 w-auto object-contain" />
+            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-9 sm:h-12 w-auto object-contain" />
           </div>
-          <h2 className="text-lg sm:text-xl font-serif font-black text-slate-900 uppercase tracking-tight">
+          <h2 className="text-base sm:text-xl font-serif font-black text-slate-900 uppercase tracking-tight leading-snug">
             LEMBAR REKAPITULASI PRESENSI HAUL &amp; HAFLAH 1448 H / 2027 M
           </h2>
-          <p className="text-xs font-bold text-slate-700">
+          <p className="text-[11px] sm:text-xs font-bold text-slate-700 leading-tight">
             PONDOK PESANTREN PUTRI TAHFIZHIL QUR-AN (P3TQ) — MADRASAH HIDAYATUL MUBTADI-AAT FITTAHFIZHI WAL QIRO-AT (MHMTQ) LIRBOYO KEDIRI
           </p>
-          <p className="text-[11px] text-slate-500 font-medium">
+          <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium">
             Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kabupaten Kediri, Jawa Timur 64117
           </p>
           <div className="text-[11px] text-slate-500 flex justify-center items-center gap-3">

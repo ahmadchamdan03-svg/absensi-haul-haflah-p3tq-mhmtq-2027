@@ -432,65 +432,72 @@ export default function VerifikasiPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 md:space-y-6">
       {/* Header Panel Verifikasi: Warm Latte & Cinnamon Mocha Aesthetic */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] border-2 border-[#8C6A47]/40 flex items-center justify-center font-bold shrink-0">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold text-[#422F21]">
-                Verifikasi Mutasi & Kuota Tambahan
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#EFE8E1] text-[#422F21] border border-[#D5C4B4] uppercase">
-                Panel Panitia
-              </span>
+      <div className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
+        {/* Baris 1: Judul, Icon, Badge & Rekening */}
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+          <div className="flex items-start space-x-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] border-2 border-[#8C6A47]/40 flex items-center justify-center font-bold shrink-0 mt-0.5">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <p className="text-xs text-[#7A624E] mt-0.5">
-              Rekening Resmi: <strong>BRI 320701010266508</strong> a.n. Ahmad Chamdan Yuwafin · Pagu 300 Kursi
-            </p>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-lg sm:text-2xl font-bold text-[#422F21] leading-tight">
+                  Verifikasi Mutasi &amp; Kuota Tambahan
+                </h1>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#EFE8E1] text-[#422F21] border border-[#D5C4B4] uppercase shrink-0">
+                  Panel Panitia
+                </span>
+              </div>
+              <p className="text-xs text-[#7A624E] mt-1 leading-relaxed">
+                Rekening Resmi: <strong>BRI 320701010266508</strong> a.n. Ahmad Chamdan Yuwafin · Pagu 300 Kursi
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Ringkasan Pagu & Tombol Tambah Manual */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="bg-[#EFE8E1] border border-[#D5C4B4] px-4 py-2 rounded-2xl flex items-center space-x-4 text-xs">
-            <div>
-              <span className="text-[#8C6A47] block text-[10px] font-bold uppercase">Pagu Terjual:</span>
-              <span className="font-black text-[#422F21] text-sm">
+        {/* Baris 2: Ringkasan Metrik (2 Kolom di Mobile, Horizontal di Desktop) & Tombol Aksi */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-1 border-t border-[#E8DFD5]">
+          {/* Metrik Pagu */}
+          <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
+            <div className="bg-[#EFE8E1] border border-[#D5C4B4] px-3.5 py-2 rounded-2xl">
+              <span className="text-[#8C6A47] block text-[10px] font-bold uppercase tracking-wide">PAGU TERJUAL</span>
+              <span className="font-black text-[#422F21] text-sm sm:text-base">
                 {paguInfo.terjual} / {paguInfo.paguTotal}
               </span>
             </div>
-            <div className="border-l border-[#D5C4B4] pl-4">
-              <span className="text-[#8C6A47] block text-[10px] font-bold uppercase">Sisa Tersedia:</span>
-              <span className="font-black text-emerald-800 text-sm">{paguInfo.sisa} unit</span>
+            <div className="bg-[#EFE8E1] border border-[#D5C4B4] px-3.5 py-2 rounded-2xl">
+              <span className="text-[#8C6A47] block text-[10px] font-bold uppercase tracking-wide">SISA TERSEDIA</span>
+              <span className="font-black text-emerald-800 text-sm sm:text-base">{paguInfo.sisa} unit</span>
             </div>
           </div>
 
-          {/* Tombol Evaluasi Batas Waktu (6 Jam / 12 Jam Auto-Approve) */}
-          <button
-            type="button"
-            onClick={refresh}
-            className="px-3.5 py-2.5 rounded-2xl bg-[#EFE8E1] hover:bg-[#E5DACF] text-[#422F21] text-xs font-bold border border-[#D5C4B4] flex items-center space-x-1.5 transition-colors shadow-xs"
-            title="Periksa dan proses pesanan yang telah melewati batas 6 jam (kedaluwarsa) atau 12 jam (auto-approve)"
-          >
-            <Clock className="w-3.5 h-3.5 text-[#8C6A47]" />
-            <span>Cek Batas Waktu</span>
-          </button>
+          {/* Tombol Aksi (Stacked di Mobile, Inline di Desktop) */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+            {/* Tombol Evaluasi Batas Waktu */}
+            <button
+              type="button"
+              onClick={refresh}
+              className="btn-transition px-3.5 py-2.5 rounded-2xl bg-[#EFE8E1] hover:bg-[#E5DACF] text-[#422F21] text-xs font-bold border border-[#D5C4B4] flex items-center justify-center space-x-1.5 shadow-2xs"
+              title="Periksa dan proses pesanan yang telah melewati batas 6 jam (kedaluwarsa) atau 12 jam (auto-approve)"
+            >
+              <Clock className="w-3.5 h-3.5 text-[#8C6A47]" />
+              <span>Cek Batas Waktu</span>
+            </button>
 
-          {/* Tombol Utama: Tambah Manual & Verifikasi Langsung */}
-          <button
-            type="button"
-            onClick={() => setShowAddManualModal(true)}
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-black text-xs shadow-md border-2 border-white flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <div className="w-5 h-5 rounded-lg bg-white/30 flex items-center justify-center text-white">
-              <Plus className="w-3.5 h-3.5 stroke-[3]" />
-            </div>
-            <span>+ Tambah Manual & Verifikasi Langsung</span>
-          </button>
+            {/* Tombol Utama: Tambah Manual & Verifikasi Langsung */}
+            <button
+              type="button"
+              onClick={() => setShowAddManualModal(true)}
+              className="btn-transition px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-black text-xs shadow-md border-2 border-white flex items-center justify-center space-x-2"
+            >
+              <div className="w-5 h-5 rounded-lg bg-white/30 flex items-center justify-center text-white shrink-0">
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              </div>
+              <span className="truncate">+ Tambah Manual &amp; Verifikasi Langsung</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -521,13 +528,13 @@ export default function VerifikasiPage() {
       )}
 
       {/* Kontrol Filter & Pencarian Pesanan */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-5 shadow-sm border-2 border-[#D5C4B4] space-y-4">
+      <div className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-[#D5C4B4] space-y-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Filter Status Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+          {/* Filter Status Pills dengan Horizontal Scroll di Mobile */}
+          <div className="flex items-center gap-1.5 text-xs font-semibold overflow-x-auto pb-2 md:pb-0 -mx-1 px-1 whitespace-nowrap no-scrollbar">
             <button
               onClick={() => setFilterStatus('SEMUA')}
-              className={`px-3.5 py-2 rounded-xl transition-all ${
+              className={`px-3.5 py-2 rounded-xl transition-all shrink-0 ${
                 filterStatus === 'SEMUA'
                   ? 'bg-[#8C6A47] text-white shadow-sm font-bold border border-[#735334]'
                   : 'bg-[#EFE8E1] text-[#422F21] hover:bg-[#E5DCD2]'
@@ -537,7 +544,7 @@ export default function VerifikasiPage() {
             </button>
             <button
               onClick={() => setFilterStatus('MENUNGGU')}
-              className={`px-3 py-1.5 rounded-xl flex items-center space-x-1.5 transition-colors ${
+              className={`px-3 py-2 rounded-xl flex items-center space-x-1.5 transition-colors shrink-0 ${
                 filterStatus === 'MENUNGGU'
                   ? 'bg-amber-600 text-white shadow-sm'
                   : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
@@ -554,7 +561,7 @@ export default function VerifikasiPage() {
             </button>
             <button
               onClick={() => setFilterStatus('DIVERIFIKASI')}
-              className={`px-3 py-1.5 rounded-xl flex items-center space-x-1.5 transition-colors ${
+              className={`px-3 py-2 rounded-xl flex items-center space-x-1.5 transition-colors shrink-0 ${
                 filterStatus === 'DIVERIFIKASI'
                   ? 'bg-emerald-700 text-white shadow-sm'
                   : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
@@ -567,7 +574,7 @@ export default function VerifikasiPage() {
             </button>
             <button
               onClick={() => setFilterStatus('BATAL')}
-              className={`px-3 py-1.5 rounded-xl transition-colors ${
+              className={`px-3 py-2 rounded-xl transition-colors shrink-0 ${
                 filterStatus === 'BATAL'
                   ? 'bg-rose-700 text-white shadow-sm'
                   : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'
@@ -582,14 +589,14 @@ export default function VerifikasiPage() {
           </div>
 
           {/* Search Box */}
-          <div className="relative md:w-72">
+          <div className="relative w-full md:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari ID, santri, atau wali..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-pesantren-700 bg-slate-50"
+              className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-700 bg-slate-50"
             />
             {searchQuery && (
               <button
@@ -602,19 +609,19 @@ export default function VerifikasiPage() {
           </div>
         </div>
 
-        {/* Tabel Transaksi Kuota */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+        {/* Tabel Transaksi Kuota dengan Wrapper Scroll Horizontal */}
+        <div className="overflow-x-auto -mx-4 sm:mx-0 rounded-2xl border border-slate-200 bg-white">
+          <table className="w-full min-w-[900px] text-xs text-left">
+            <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-3">ID PESANAN</th>
-                <th className="py-3 px-3">WALI & SANTRI</th>
-                <th className="py-3 px-3">KATEGORI</th>
-                <th className="py-3 px-3">JUMLAH</th>
-                <th className="py-3 px-3">TOTAL</th>
-                <th className="py-3 px-3">BUKTI / METODE</th>
-                <th className="py-3 px-3">STATUS</th>
-                <th className="py-3 px-3 text-right">AKSI VERIFIKASI & WA</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">ID PESANAN</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">WALI &amp; SANTRI</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">KATEGORI</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">JUMLAH</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">TOTAL</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">BUKTI / METODE</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">STATUS</th>
+                <th className="py-3 px-3.5 text-right whitespace-nowrap">AKSI VERIFIKASI &amp; WA</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

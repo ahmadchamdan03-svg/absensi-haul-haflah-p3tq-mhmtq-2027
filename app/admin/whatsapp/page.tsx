@@ -871,34 +871,34 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
         {/* TAB SWITCHER UTAMA */}
-        <div className="flex flex-wrap items-center justify-between border-b-2 border-[#D5C4B4] pb-2 gap-4">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b-2 border-[#D5C4B4] pb-3 gap-3">
+          <div className="grid grid-cols-2 md:flex items-center gap-2 md:gap-3 w-full md:w-auto">
             <button
               onClick={() => setActiveTab('WALI_SANTRI')}
-              className={`px-5 py-2.5 rounded-2xl font-serif font-black text-sm transition-all flex items-center space-x-2 cursor-pointer ${
+              className={`px-3 sm:px-5 py-2.5 rounded-2xl font-serif font-black text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer text-center ${
                 activeTab === 'WALI_SANTRI'
                   ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
                   : 'bg-white hover:bg-[#FAF7F3] text-[#422F21] border border-[#D5C4B4]'
               }`}
             >
-              <Users className="w-4 h-4" />
-              <span>1. WALI SANTRI ({keluargaList.length})</span>
+              <Users className="w-4 h-4 shrink-0" />
+              <span className="truncate">1. WALI SANTRI ({keluargaList.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab('TAMU_UNDANGAN')}
-              className={`px-5 py-2.5 rounded-2xl font-serif font-black text-sm transition-all flex items-center space-x-2 cursor-pointer ${
+              className={`px-3 sm:px-5 py-2.5 rounded-2xl font-serif font-black text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer text-center ${
                 activeTab === 'TAMU_UNDANGAN'
                   ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
                   : 'bg-white hover:bg-[#FAF7F3] text-[#422F21] border border-[#D5C4B4]'
               }`}
             >
-              <UserCheck className="w-4 h-4" />
-              <span>2. WA TAMU UNDANGAN ({tamuList.length})</span>
+              <UserCheck className="w-4 h-4 shrink-0" />
+              <span className="truncate">2. WA TAMU ({tamuList.length})</span>
             </button>
           </div>
 
-          <div className="text-xs text-[#7A624E] font-medium hidden sm:block">
+          <div className="text-xs text-[#7A624E] font-medium hidden md:block">
             Modul WA Gateway Resmi Haul &amp; Haflah P3TQ - MHMTQ 2027
           </div>
         </div>
@@ -907,27 +907,27 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
         {/* CONTENT TAB 1: WALI SANTRI                                            */}
         {/* ===================================================================== */}
         {activeTab === 'WALI_SANTRI' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Header Panel WhatsApp Wali */}
-            <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4]">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4] shadow-sm">
-                    <MessageSquare className="w-6 h-6" />
+            <div className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4] shadow-sm shrink-0">
+                    <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <h1 className="text-xl font-serif font-black text-[#422F21]">
+                  <div className="min-w-0">
+                    <h1 className="text-lg sm:text-xl font-serif font-black text-[#422F21] truncate">
                       Panel WA Gateway — Wali Santri
                     </h1>
-                    <p className="text-xs text-[#7A624E] font-normal">
-                      Terhubung 100% langsung ke tabel Supabase `peserta_santri` (<strong>{keluargaList.length} Santri Terdaftar</strong>).
+                    <p className="text-xs text-[#7A624E] font-normal leading-tight">
+                      Terhubung 100% langsung ke tabel Supabase `peserta_santri` (<strong>{keluargaList.length} Santri</strong>).
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={fetchSantriWaData}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs shadow-xs flex items-center space-x-1.5 self-start md:self-auto cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs shadow-xs flex items-center justify-center space-x-1.5 w-full md:w-auto cursor-pointer"
                 >
                   <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
                   <span>Refresh Data DB</span>
@@ -935,15 +935,15 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
               </div>
 
               {/* Gelombang & Switch Kontrol Beli Kuota */}
-              <div className="mt-4 pt-4 border-t border-[#D5C4B4] flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-[#EFE8E1] p-1.5 rounded-2xl border border-[#D5C4B4] shadow-inner">
+              <div className="pt-3 border-t border-[#D5C4B4] flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5 bg-[#EFE8E1] p-1.5 rounded-2xl border border-[#D5C4B4] shadow-inner overflow-x-auto no-scrollbar whitespace-nowrap">
                   <button
                     type="button"
                     onClick={() => {
                       setGelombang(1);
                       setFilterKonfirmasi('SEMUA');
                     }}
-                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                       gelombang === 1
                         ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
                         : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/70'
@@ -957,7 +957,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                       setGelombang(2);
                       setFilterKonfirmasi('SEMUA');
                     }}
-                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                       gelombang === 2
                         ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
                         : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/70'
@@ -971,7 +971,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                       setGelombang(3);
                       setFilterKonfirmasi('BELUM');
                     }}
-                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                       gelombang === 3
                         ? 'bg-amber-800 text-white shadow-md border border-amber-900'
                         : 'text-[#422F21] hover:text-amber-800 hover:bg-white/70'
@@ -982,76 +982,78 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-2.5 px-3.5 py-2 bg-white rounded-xl border border-[#D5C4B4] shadow-xs shrink-0 self-start lg:self-auto">
+                <div className="flex items-center justify-between sm:justify-start space-x-2.5 px-3.5 py-2 bg-white rounded-xl border border-[#D5C4B4] shadow-xs shrink-0">
                   <span className="text-xs font-bold text-[#422F21] flex items-center space-x-1.5">
                     <ShoppingBag className="w-4 h-4 text-[#8C6A47]" />
-                    <span>Beli Kuota Tambahan:</span>
+                    <span>Beli Kuota:</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setKuotaTambahanBuka(!kuotaTambahanBuka)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-slate-300'
-                    }`}
-                  >
-                    <span className="sr-only">Toggle Kuota Tambahan</span>
-                    <span
-                      aria-hidden="true"
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        kuotaTambahanBuka ? 'translate-x-5' : 'translate-x-0'
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setKuotaTambahanBuka(!kuotaTambahanBuka)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-slate-300'
                       }`}
-                    />
-                  </button>
-                  <span
-                    className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                      kuotaTambahanBuka
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        : 'bg-slate-100 text-slate-500 border border-slate-200'
-                    }`}
-                  >
-                    {kuotaTambahanBuka ? 'ON (Buka)' : 'OFF (Tutup)'}
-                  </span>
+                    >
+                      <span className="sr-only">Toggle Kuota Tambahan</span>
+                      <span
+                        aria-hidden="true"
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          kuotaTambahanBuka ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span
+                      className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                        kuotaTambahanBuka
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : 'bg-slate-100 text-slate-500 border border-slate-200'
+                      }`}
+                    >
+                      {kuotaTambahanBuka ? 'ON' : 'OFF'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Fonnte Live Status Widget */}
-              <div className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] border-2 border-[#8C6A47]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm">
-                    <Wifi className="w-5 h-5 animate-pulse" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] border-2 border-[#8C6A47]/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm shrink-0">
+                    <Wifi className="w-4.5 h-4.5 animate-pulse" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-serif font-black text-[#422F21]">
+                      <span className="text-xs font-serif font-black text-[#422F21] truncate">
                         FONNTE GATEWAY TERHUBUNG
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400 shrink-0">
                         ONLINE
                       </span>
                     </div>
-                    <div className="text-xs text-[#7A624E] mt-0.5 font-medium">
-                      Pengirim: <strong>{fonnteStatus.name}</strong> ({fonnteStatus.device}) · Sisa Kuota API: <strong>{fonnteStatus.quota} Pesan</strong>
+                    <div className="text-[11px] sm:text-xs text-[#7A624E] mt-0.5 font-medium truncate">
+                      Pengirim: <strong>{fonnteStatus.name}</strong> ({fonnteStatus.device}) · Sisa: <strong>{fonnteStatus.quota} Pesan</strong>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="w-full md:w-auto">
                   {!isBlasting ? (
                     <button
                       onClick={handleStartBatchBlast}
-                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center space-x-1.5 transition-all border border-[#FAF7F3] cursor-pointer"
+                      className="w-full md:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center justify-center space-x-1.5 transition-all border border-[#FAF7F3] cursor-pointer"
                     >
                       <Zap className="w-4 h-4 fill-current" />
                       <span>
                         {gelombang === 3
-                          ? 'Blast Pengingat Konfirmasi (Fonnte)'
+                          ? 'Blast Pengingat (Fonnte)'
                           : 'Kirim Massal Otomatis (Fonnte)'}
                       </span>
                     </button>
                   ) : (
                     <button
                       onClick={handleStopBatchBlast}
-                      className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg flex items-center space-x-1.5 transition-all cursor-pointer"
+                      className="w-full md:w-auto px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
                     >
                       <Pause className="w-4 h-4" />
                       <span>Hentikan Blasting ({blastProgress.current}/{blastProgress.total})</span>

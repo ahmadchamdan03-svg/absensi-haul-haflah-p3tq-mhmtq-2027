@@ -550,57 +550,60 @@ export default function ScanPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-20">
       {/* Header Jalur Pemeriksaan */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-4 shadow-sm border-2 border-[#D5C4B4]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm">
+      <div className="bg-[#FAF7F3] rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        {/* Baris 1 (Mobile) / Sisi Kiri (Desktop): Info Gerbang & Tombol Denah */}
+        <div className="flex items-center justify-between w-full md:w-auto gap-3">
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm shrink-0">
               <QrCode className="w-5 h-5 text-[#8C6A47]" />
             </div>
-            <div>
-              <h1 className="font-serif font-black text-[#422F21] text-sm sm:text-base leading-tight">
+            <div className="min-w-0">
+              <h1 className="font-serif font-black text-[#422F21] text-xs sm:text-base leading-tight">
                 Gerbang Selatan (Bola Dunia)
               </h1>
-              <p className="text-xs text-[#7A624E] font-medium">PWA Scanner &amp; Penyerahan Tiket</p>
+              <p className="text-[11px] sm:text-xs text-[#7A624E] font-medium leading-tight">
+                PWA Scanner &amp; Penyerahan Tiket
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setIsDenahOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] flex items-center space-x-1.5 shadow-xs transition-colors cursor-pointer"
-              title="Buka Denah Lapangan Interaktif"
-            >
-              <Compass className="w-3.5 h-3.5 text-[#8C6A47]" />
-              <span className="hidden sm:inline">Denah Lokasi</span>
-            </button>
+          <button
+            type="button"
+            onClick={() => setIsDenahOpen(true)}
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
+            title="Buka Denah Lapangan Interaktif"
+          >
+            <Compass className="w-4 h-4 text-[#8C6A47]" />
+            <span className="hidden sm:inline">Denah Lokasi</span>
+          </button>
+        </div>
 
-            {/* Pemilih Jalur Barat vs Timur */}
-            <div className="flex bg-[#EFE8E1] p-1 rounded-xl border border-[#D5C4B4]">
-              <button
-                type="button"
-                onClick={() => setJalur('BARAT')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  jalur === 'BARAT'
-                    ? 'bg-[#8C6A47] text-white shadow-sm'
-                    : 'text-[#422F21] hover:text-[#8C6A47]'
-                }`}
-              >
-                Jalur Barat (Putra)
-              </button>
-              <button
-                type="button"
-                onClick={() => setJalur('TIMUR')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  jalur === 'TIMUR'
-                    ? 'bg-[#735334] text-[#FAF7F3] border border-[#D49B5B]/60 shadow-sm'
-                    : 'text-[#422F21] hover:text-[#8C6A47]'
-                }`}
-              >
-                Jalur Timur (Putri)
-              </button>
-            </div>
-          </div>
+        {/* Baris 2 (Mobile) / Sisi Kanan (Desktop): Pemilih Jalur Barat vs Timur */}
+        <div className="flex w-full md:w-auto bg-[#EFE8E1] p-1 rounded-xl border border-[#D5C4B4] gap-1.5">
+          <button
+            type="button"
+            onClick={() => setJalur('BARAT')}
+            className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-bold leading-tight text-center rounded-lg transition-all ${
+              jalur === 'BARAT'
+                ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
+                : 'text-[#422F21] hover:text-[#8C6A47]'
+            }`}
+          >
+            <span>Jalur Barat</span>
+            <span className="block text-[10px] font-medium opacity-90 sm:inline sm:ml-1">(Putra)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setJalur('TIMUR')}
+            className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-bold leading-tight text-center rounded-lg transition-all ${
+              jalur === 'TIMUR'
+                ? 'bg-[#735334] text-[#FAF7F3] border border-[#D49B5B]/60 shadow-sm'
+                : 'text-[#422F21] hover:text-[#8C6A47]'
+            }`}
+          >
+            <span>Jalur Timur</span>
+            <span className="block text-[10px] font-medium opacity-90 sm:inline sm:ml-1">(Putri)</span>
+          </button>
         </div>
       </div>
 
@@ -863,7 +866,7 @@ export default function ScanPage() {
                     htmlFor="checkbox-hitam-gold"
                     className="text-[11px] font-bold leading-tight cursor-pointer flex-1 flex items-center justify-between"
                   >
-                    <span>Kartu Hitam Gold sudah diberikan (Wali Santri Maju Panggung)</span>
+                    <span>Kartu Hitam Gold</span>
                     {kartuHitamGoldDiberi ? (
                       <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0">
                         ✓ DIBERIKAN

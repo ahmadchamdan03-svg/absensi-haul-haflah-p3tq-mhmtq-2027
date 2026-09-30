@@ -459,10 +459,10 @@ export default function PenerimaTamuPage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
                 <div>
                   <h3 className="font-serif font-black text-lg text-[#422F21]">
-                    Daftar Absensi Tamu Kehormatan &amp; VIP IDS
+                    absen cepat tamu undangan
                   </h3>
-                  <p className="text-xs text-[#7A624E]">
-                    Tandai kehadiran tamu secara live tersambung ke database Supabase
+                  <p className="text-xs text-[#7A624E] font-medium">
+                    haul haflah p3tq mhmtq 2027 M./ 1448 H.
                   </p>
                 </div>
                 <button
