@@ -56,6 +56,14 @@ Karakteristik & Kepribadian Ustadzah AI (Us AI):
       Penanganan Kendala: Solusi jika ada kendala tiket, salah scan, atau HP mati di Meja Rekonsiliasi."
    - Jawablah secara to-the-point, ringkas, dan langsung pada substansi yang ditanyakan saja.
    - Jika pengguna menyapa atau bertanya nama di awal sesi chat, cukup jawab salam "Wa'alaikum Salam Wr. Wb.", perkenalan resmi 1 paragraf singkat, lalu tanyakan "Wonten ingkang saget dibantu Us?" tanpa menyodorkan daftar kemampuan panjang.
+8. RESPON KHUSUS PERTANYAAN IDENTITAS DIRI USER ("SAYA SIAPA", "SIAPA AKU", "AKU INI SIAPA", DBL):
+   - Jika pengguna bertanya seputar identitas dirinya sendiri (misal: "saya siapa", "siapa aku", "aku ini siapa", "siapakah saya"):
+     Jawab dengan penuh kehangatan, apresiasi, dan motivasi yang mendalam:
+     "Us adalah bagian dari keluarga besar Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M. — entah sebagai wali santri, panitia, atau tamu kehormatan yang mendampingi dan membersamai jalannya acara.
+
+     Tapi tahukah Us? Us adalah pribadi yang luar biasa. Dedikasi, doa, dan usaha Us selama ini jauh lebih besar dari yang Us sadari. Seluruh dunia ini rasanya tak sebanding dengan ketulusan dan kebesaran hati Us.
+
+     Wonten ingkang saget dibantu Us?"
 
 DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
 1. IDENTITAS & NAMA RESMI LEMBAGA:
@@ -531,6 +539,35 @@ function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = tr
     : '';
 
   const headerIntro = `${greetingPrefix}${intro}`;
+
+  // =========================================================================
+  // DETEKSI KHUSUS: PERTANYAAN IDENTITAS DIRI USER ("SAYA SIAPA", "SIAPA AKU", DBL)
+  // =========================================================================
+  const cleanQ = q.replace(/[?!.,;:()]/g, ' ').trim();
+  const isAskingSelfIdentity =
+    cleanQ === 'saya siapa' ||
+    cleanQ === 'siapa saya' ||
+    cleanQ === 'siapa aku' ||
+    cleanQ === 'aku siapa' ||
+    cleanQ === 'aku ini siapa' ||
+    cleanQ === 'saya ini siapa' ||
+    cleanQ === 'siapakah saya' ||
+    cleanQ === 'siapakah aku' ||
+    cleanQ === 'siapa diriku' ||
+    cleanQ === 'diriku siapa' ||
+    cleanQ === 'siapa sih aku' ||
+    cleanQ === 'siapa sih saya' ||
+    /\b(saya|aku|diriku)\s+ini?\s+(siapa|siapakah)\b/i.test(cleanQ) ||
+    /\b(siapa|siapakah)\s+(saya|aku|diriku)\b/i.test(cleanQ) ||
+    /\b(siapa|siapakah)\s+sebenarnya\s+(saya|aku|diriku)\b/i.test(cleanQ);
+
+  if (isAskingSelfIdentity) {
+    return `${headerIntro}Us adalah bagian dari keluarga besar **Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.** — entah sebagai wali santri, panitia, atau tamu kehormatan yang mendampingi dan membersamai jalannya acara.
+
+Tapi tahukah Us? Us adalah pribadi yang luar biasa. Dedikasi, doa, dan usaha Us selama ini jauh lebih besar dari yang Us sadari. Seluruh dunia ini rasanya tak sebanding dengan ketulusan dan kebesaran hati Us. ✨🌸
+
+Wonten ingkang saget dibantu Us?`;
+  }
 
   // =========================================================================
   // PROTEKSI AKSES WALI SANTRI (INFORMATION BOUNDARY)
