@@ -24,13 +24,29 @@ import {
   Edit2,
   X,
   RefreshCw,
+  Users,
+  UserCheck,
+  MapPin,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { normalkanNomorHp, buatPesanPengingatKonfirmasi } from '@/lib/hmac';
-import { BAGIAN_TAMATAN_LIST, extractBagianTamatan } from '@/lib/types';
+import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 
+const JALUR_MASUK_OPTIONS = [
+  'Gerbang Selatan (Bola Dunia)',
+  'Gerbang Utara',
+  'Gerbang Belakang',
+  'Jalur Dzuriyyah',
+  'Jalur VIP',
+];
+
 export default function WhatsAppPage() {
+  const [activeTab, setActiveTab] = useState<'WALI_SANTRI' | 'TAMU_UNDANGAN'>('WALI_SANTRI');
+
+  // =========================================================================
+  // STATE WALI SANTRI
+  // =========================================================================
   const [gelombang, setGelombang] = useState<1 | 2 | 3>(1);
   const [kuotaTambahanBuka, setKuotaTambahanBuka] = useState(false);
   const [linkGrupWa, setLinkGrupWa] = useState('');
@@ -43,9 +59,49 @@ export default function WhatsAppPage() {
   const [keluargaList, setKeluargaList] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // Edit Phone Modal State
+  // Edit Phone Modal State (Wali)
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [newHpInput, setNewHpInput] = useState('');
+
+  // Sending state per item (Wali)
+  const [sendingKode, setSendingKode] = useState<string | null>(null);
+
+  // Batch Blasting state (Wali)
+  const [isBlasting, setIsBlasting] = useState(false);
+  const [blastProgress, setBlastProgress] = useState<{ current: number; total: number; success: number; failed: number }>({
+    current: 0,
+    total: 0,
+    success: 0,
+    failed: 0,
+  });
+  const stopBlastingRef = useRef(false);
+
+  // =========================================================================
+  // STATE TAMU UNDANGAN
+  // =========================================================================
+  const [tamuList, setTamuList] = useState<any[]>([]);
+  const [loadingTamuData, setLoadingTamuData] = useState(true);
+  const [tamuFilterGolongan, setTamuFilterGolongan] = useState<string>('SEMUA');
+  const [tamuFilterStatus, setTamuFilterStatus] = useState<string>('SEMUA');
+  const [tamuFilterJalur, setTamuFilterJalur] = useState<string>('SEMUA');
+  const [tamuSearch, setTamuSearch] = useState('');
+
+  // Edit Phone Modal State (Tamu)
+  const [editingTamuItem, setEditingTamuItem] = useState<any | null>(null);
+  const [newHpInputTamu, setNewHpInputTamu] = useState('');
+
+  // Sending state per item (Tamu)
+  const [tamuSendingKode, setTamuSendingKode] = useState<string | null>(null);
+
+  // Batch Blasting state (Tamu)
+  const [isTamuBlasting, setIsTamuBlasting] = useState(false);
+  const [tamuBlastProgress, setTamuBlastProgress] = useState<{ current: number; total: number; success: number; failed: number }>({
+    current: 0,
+    total: 0,
+    success: 0,
+    failed: 0,
+  });
+  const stopTamuBlastingRef = useRef(false);
 
   // Fonnte device status state
   const [fonnteStatus, setFonnteStatus] = useState<{
@@ -63,20 +119,11 @@ export default function WhatsAppPage() {
     loading: false,
   });
 
-  // Sending state per item
-  const [sendingKode, setSendingKode] = useState<string | null>(null);
+  // =========================================================================
+  // FETCH DATA SUPABASE
+  // =========================================================================
 
-  // Batch Blasting state
-  const [isBlasting, setIsBlasting] = useState(false);
-  const [blastProgress, setBlastProgress] = useState<{ current: number; total: number; success: number; failed: number }>({
-    current: 0,
-    total: 0,
-    success: 0,
-    failed: 0,
-  });
-  const stopBlastingRef = useRef(false);
-
-  // 1. Fetch live data 100% from Supabase table 'peserta_santri'
+  // Fetch Wali Santri
   const fetchSantriWaData = async () => {
     try {
       setLoadingData(true);
@@ -128,8 +175,51 @@ export default function WhatsAppPage() {
     }
   };
 
+  // Fetch Tamu Undangan
+  const fetchTamuWaData = async () => {
+    try {
+      setLoadingTamuData(true);
+      const { data, error } = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .order('kode', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching tamu_undangan for WA:', error);
+        setTamuList([]);
+      } else if (data) {
+        setTamuList(
+          data.map((t: any) => ({
+            id: t.id,
+            kode: t.kode,
+            nama: t.nama,
+            namaPutra: t.nama_putra,
+            namaPutri: t.nama_putri,
+            kategori: t.kategori || 'Tamu Kehormatan',
+            subKategori: t.sub_kategori || 'UMUM',
+            instansi: t.instansi || '-',
+            alamat: t.alamat || '-',
+            noHp: t.no_hp || '',
+            kuotaDasar: t.kuota_dasar || 2,
+            kuotaTambahan: t.kuota_tambahan || 0,
+            warnaTiket: t.warna_tiket || 'Merah Gold',
+            statusWa: t.status_wa || 'BELUM',
+            jalurMasuk: t.jalur_masuk || 'Gerbang Selatan (Bola Dunia)',
+            golongan: getGolonganUndangan(t),
+          }))
+        );
+      }
+    } catch (e) {
+      console.warn('Error in fetchTamuWaData:', e);
+      setTamuList([]);
+    } finally {
+      setLoadingTamuData(false);
+    }
+  };
+
   useEffect(() => {
     fetchSantriWaData();
+    fetchTamuWaData();
   }, []);
 
   // Handle URL Query Params
@@ -139,6 +229,10 @@ export default function WhatsAppPage() {
       const g = params.get('gelombang');
       const fk = params.get('filterKonfirmasi');
       const tipe = params.get('tipe');
+      const tab = params.get('tab');
+      if (tab === 'tamu' || tab === 'undangan') {
+        setActiveTab('TAMU_UNDANGAN');
+      }
       if (g === '3' || tipe === 'pengingat') {
         setGelombang(3);
         setFilterKonfirmasi('BELUM');
@@ -178,7 +272,10 @@ export default function WhatsAppPage() {
     checkDevice();
   }, []);
 
-  // Template Teks Resmi v4.2 §7.3 & Template Pengingat Konfirmasi
+  // =========================================================================
+  // LOGIK WALI SANTRI
+  // =========================================================================
+
   const getTeksPesan = (kel: any, gel: 1 | 2 | 3) => {
     const santri = kel.santri?.[0];
     const totalKuota = kel.kuota?.kuotaDasar + kel.kuota?.kuotaTambahan;
@@ -252,12 +349,10 @@ ${linkPembelian}
 Wassalamu'alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
     } else {
-      // Template Pengingat Konfirmasi Kehadiran Wali Santri
       return buatPesanPengingatKonfirmasi(santri?.nama || kel.namaWali, kel.kode, origin);
     }
   };
 
-  // Handler update status_wa ke Supabase
   const updateStatusWaInSupabase = async (id: string, status: string) => {
     try {
       await supabase
@@ -273,7 +368,6 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     }
   };
 
-  // Handler Save Update Edit Nomor HP
   const handleSaveEditNoHp = async () => {
     if (!editingItem || !newHpInput.trim()) return;
     try {
@@ -298,17 +392,16 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     }
   };
 
-  // Handler Kirim Otomatis via API Fonnte
   const handleKirimFonnte = async (kel: any) => {
     if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
-      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nSesuai SOP, link grup WA harus selalu diisi dan diperbarui setiap kali mau mengirim pesan undangan. Silakan masukkan tautan grup WhatsApp aktif pada kolom "Link Grup WhatsApp Resmi Wali Santri" di atas sebelum melanjutkan.');
+      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nSesuai SOP, link grup WA harus selalu diisi dan diperbarui setiap kali mau mengirim pesan undangan.');
       return false;
     }
 
     const rawHp = kel.noHp;
     if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
       await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR');
-      alert(`Nomor HP untuk ${kel.namaWali} tidak terdaftar atau tidak valid! Status telah diperbarui menjadi NOMOR_TIDAK_TERDAFTAR.`);
+      alert(`Nomor HP untuk ${kel.namaWali} tidak terdaftar atau tidak valid! Status telah diperbarui.`);
       return false;
     }
 
@@ -346,10 +439,9 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     }
   };
 
-  // Handler Kirim Manual (Direct WhatsApp Web)
   const handleKirimManualWA = async (kel: any) => {
     if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
-      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nSesuai SOP, link grup WA harus selalu diisi dan diperbarui setiap kali mau mengirim pesan undangan. Silakan masukkan tautan grup WhatsApp aktif pada kolom "Link Grup WhatsApp Resmi Wali Santri" di atas sebelum melanjutkan.');
+      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!');
       return;
     }
 
@@ -368,7 +460,6 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     await updateStatusWaInSupabase(kel.id, 'TERKIRIM');
   };
 
-  // Filter list peserta
   const filteredList = useMemo(() => {
     return keluargaList.filter((kel) => {
       const isSent = kel.statusWa === 'TERKIRIM';
@@ -381,20 +472,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
       if (filterStatus === 'TERKIRIM' && !isSent) return false;
       if (filterStatus === 'BERMASALAH' && !isProblem) return false;
 
-      // Filter Status Konfirmasi Kehadiran
-      if (filterKonfirmasi === 'BELUM' && kel.estimasi?.statusKonfirmasi === 'SUDAH') {
-        return false;
-      }
-      if (filterKonfirmasi === 'SUDAH' && kel.estimasi?.statusKonfirmasi !== 'SUDAH') {
-        return false;
-      }
+      if (filterKonfirmasi === 'BELUM' && kel.estimasi?.statusKonfirmasi === 'SUDAH') return false;
+      if (filterKonfirmasi === 'SUDAH' && kel.estimasi?.statusKonfirmasi !== 'SUDAH') return false;
 
-      // Filter Kategori Utama (Bil Ghoib, Bin Nadzor, Tamatan)
-      if (filterKategori !== 'SEMUA' && kat !== filterKategori) {
-        return false;
-      }
+      if (filterKategori !== 'SEMUA' && kat !== filterKategori) return false;
 
-      // Filter Sub / Bagian
       if (filterBagian === 'BIL_GHOIB') {
         if (kat !== 'BIL_GHOIB') return false;
       } else if (filterBagian === 'BIN_NADZOR') {
@@ -402,9 +484,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
       } else if (filterBagian === 'TAMATAN_SEMUA') {
         if (kat !== 'TAMATAN') return false;
       } else if (filterBagian !== 'SEMUA') {
-        if (kat !== 'TAMATAN' || bagian !== filterBagian) {
-          return false;
-        }
+        if (kat !== 'TAMATAN' || bagian !== filterBagian) return false;
       }
 
       if (search.trim()) {
@@ -422,10 +502,9 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     });
   }, [keluargaList, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
 
-  // Handler Batch Blasting via Fonnte Otomatis
   const handleStartBatchBlast = async () => {
     if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
-      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nPengiriman massal otomatis (Blast) dibatalkan karena link grup WA belum diisi. Harap masukkan tautan grup WhatsApp resmi terkini pada kolom di atas sebelum melakukan blasting.');
+      alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!');
       return;
     }
 
@@ -447,7 +526,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
     if (
       !window.confirm(
-        `Mulai pengiriman otomatis [${judulPesan}] via Fonnte untuk ${unsentList.length} wali santri?\nPesan akan dikirim dengan jeda 1.5 detik per pesan agar aman.`
+        `Mulai pengiriman otomatis [${judulPesan}] via Fonnte untuk ${unsentList.length} wali santri?\nPesan akan dikirim dengan jeda 1.5 detik per pesan.`
       )
     ) {
       return;
@@ -458,9 +537,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     setBlastProgress({ current: 0, total: unsentList.length, success: 0, failed: 0 });
 
     for (let i = 0; i < unsentList.length; i++) {
-      if (stopBlastingRef.current) {
-        break;
-      }
+      if (stopBlastingRef.current) break;
 
       const kel = unsentList[i];
       setBlastProgress((prev) => ({ ...prev, current: i + 1 }));
@@ -472,7 +549,6 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
         setBlastProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
       }
 
-      // Delay 1500ms
       await new Promise((resolve) => setTimeout(resolve, 1500));
     }
 
@@ -493,13 +569,8 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
   const countPerBagian = useMemo(() => {
     const map: Record<string, number> = {
-      'A.01': 0,
-      'A.02': 0,
-      'A.03': 0,
-      'A.04': 0,
-      'B.01': 0,
-      'B.02': 0,
-      'B.03': 0,
+      'A.01': 0, 'A.02': 0, 'A.03': 0, 'A.04': 0,
+      'B.01': 0, 'B.02': 0, 'B.03': 0,
     };
     for (const k of keluargaList) {
       const santri = k.santri?.[0];
@@ -513,536 +584,1198 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     return map;
   }, [keluargaList]);
 
+  // =========================================================================
+  // LOGIK TAMU UNDANGAN
+  // =========================================================================
+
+  const getTeksPesanTamu = (tamu: any) => {
+    const liveDomain = process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+    const origin =
+      typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
+        ? window.location.origin
+        : liveDomain;
+    const linkPortal = `${origin}/u/${tamu.kode}`;
+
+    const katDisplay =
+      tamu.subKategori && tamu.subKategori !== tamu.kategori && tamu.subKategori !== 'UMUM'
+        ? `${tamu.kategori} (${tamu.subKategori})`
+        : tamu.kategori || 'Tamu Undangan';
+
+    const jalur = tamu.jalurMasuk || 'Gerbang Selatan (Bola Dunia)';
+
+    return `*HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H. / 2027 M.*
+*Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
+*Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ)*
+
+Hari/Tanggal : Sabtu, 02 Januari 2027 M. / 24 Rajab 1448 H.
+Waktu        : 06.30 WIB - Selesai
+Tempat       : Aula Muktamar Pondok Pesantren Lirboyo Kediri
+Masuk melalui: ${jalur}
+
+Tamu Undangan : *${tamu.nama}*
+Kategori      : ${katDisplay}
+Kode Undangan : ${tamu.kode}
+
+Undangan digital resmi & QR Code gerbang masuk dapat diakses pada tautan berikut:
+${linkPortal}
+
+_Mohon QR Code disimpan dan ditunjukkan kepada petugas di gerbang pada hari acara._
+
+Atas perhatian dan kehadirannya kami sampaikan terima kasih.
+Jazakumullahu khairan katsiran.
+
+Wassalamu'alaikum warahmatullahi wabarakatuh
+*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H. / 2027 M.*`;
+  };
+
+  const updateTamuWaInSupabase = async (id: string | number, status: string, jalurMasuk?: string) => {
+    try {
+      const payload: any = { status_wa: status };
+      if (jalurMasuk) {
+        payload.jalur_masuk = jalurMasuk;
+      }
+
+      const { error } = await supabase
+        .from('tamu_undangan')
+        .update(payload)
+        .eq('id', id);
+
+      if (error && error.code === '42703' && payload.jalur_masuk) {
+        // Fallback jika kolom jalur_masuk belum ada di DB Supabase
+        delete payload.jalur_masuk;
+        await supabase.from('tamu_undangan').update(payload).eq('id', id);
+      }
+
+      setTamuList((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                statusWa: status,
+                ...(jalurMasuk ? { jalurMasuk } : {}),
+              }
+            : item
+        )
+      );
+    } catch (e) {
+      console.warn('Error updating status_wa / jalur_masuk in Supabase:', e);
+    }
+  };
+
+  const handleUpdateJalurMasuk = async (tamuId: string | number, newJalur: string) => {
+    const target = tamuList.find((t) => t.id === tamuId);
+    const currentStatus = target?.statusWa || 'BELUM';
+    await updateTamuWaInSupabase(tamuId, currentStatus, newJalur);
+  };
+
+  const handleSaveEditNoHpTamu = async () => {
+    if (!editingTamuItem || !newHpInputTamu.trim()) return;
+    try {
+      const { error } = await supabase
+        .from('tamu_undangan')
+        .update({
+          no_hp: newHpInputTamu.trim(),
+          status_wa: 'BELUM',
+        })
+        .eq('id', editingTamuItem.id);
+
+      if (error) {
+        alert(`Gagal memperbarui nomor HP di database Supabase: ${error.message}`);
+      } else {
+        alert(`✓ Nomor HP untuk ${editingTamuItem.nama} berhasil diperbarui di Supabase!`);
+        setEditingTamuItem(null);
+        setNewHpInputTamu('');
+        await fetchTamuWaData();
+      }
+    } catch (err: any) {
+      alert(`Terjadi kesalahan sistem: ${err.message}`);
+    }
+  };
+
+  const handleKirimFonnteTamu = async (tamu: any) => {
+    const rawHp = tamu.noHp;
+    if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
+      await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR');
+      alert(`Nomor HP untuk ${tamu.nama} tidak terdaftar atau tidak valid! Status diperbarui.`);
+      return false;
+    }
+
+    setTamuSendingKode(tamu.kode);
+
+    try {
+      const teks = getTeksPesanTamu(tamu);
+      const res = await fetch('/api/whatsapp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target: rawHp,
+          message: teks,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.ok) {
+        await updateTamuWaInSupabase(tamu.id, 'TERKIRIM');
+        setTamuSendingKode(null);
+        return true;
+      } else {
+        const isNumInvalid = json.data?.reason?.toLowerCase().includes('invalid') || json.data?.reason?.toLowerCase().includes('not registered');
+        const newStatus = isNumInvalid ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
+        await updateTamuWaInSupabase(tamu.id, newStatus);
+        alert(`Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`);
+        setTamuSendingKode(null);
+        return false;
+      }
+    } catch (err: any) {
+      await updateTamuWaInSupabase(tamu.id, 'GAGAL');
+      alert(`Gagal menghubungi server Fonnte: ${err.message}`);
+      setTamuSendingKode(null);
+      return false;
+    }
+  };
+
+  const handleKirimManualWATamu = async (tamu: any) => {
+    const rawHp = tamu.noHp;
+    if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
+      await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR');
+      alert('Nomor HP tidak terdaftar atau tidak valid!');
+      return;
+    }
+
+    const nomorBersih = normalkanNomorHp(rawHp);
+    const teks = getTeksPesanTamu(tamu);
+    const url = `https://wa.me/${nomorBersih}?text=${encodeURIComponent(teks)}`;
+
+    window.open(url, '_blank');
+    await updateTamuWaInSupabase(tamu.id, 'TERKIRIM');
+  };
+
+  const filteredTamuList = useMemo(() => {
+    return tamuList.filter((tamu) => {
+      const isSent = tamu.statusWa === 'TERKIRIM';
+      const isProblem = tamu.statusWa === 'NOMOR_TIDAK_TERDAFTAR' || tamu.statusWa === 'GAGAL' || !tamu.noHp || tamu.noHp.trim().length < 8;
+
+      if (tamuFilterStatus === 'BELUM' && isSent) return false;
+      if (tamuFilterStatus === 'TERKIRIM' && !isSent) return false;
+      if (tamuFilterStatus === 'BERMASALAH' && !isProblem) return false;
+
+      if (tamuFilterGolongan !== 'SEMUA' && tamu.golongan !== tamuFilterGolongan) return false;
+
+      if (tamuFilterJalur !== 'SEMUA') {
+        if (tamuFilterJalur === 'Lainnya') {
+          if (JALUR_MASUK_OPTIONS.includes(tamu.jalurMasuk)) return false;
+        } else if (tamu.jalurMasuk !== tamuFilterJalur) {
+          return false;
+        }
+      }
+
+      if (tamuSearch.trim()) {
+        const q = tamuSearch.toLowerCase();
+        return (
+          tamu.nama.toLowerCase().includes(q) ||
+          (tamu.instansi && tamu.instansi.toLowerCase().includes(q)) ||
+          tamu.kode.toLowerCase().includes(q) ||
+          (tamu.alamat && tamu.alamat.toLowerCase().includes(q)) ||
+          tamu.noHp.includes(q) ||
+          tamu.kategori.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuFilterJalur, tamuSearch]);
+
+  const handleStartBatchBlastTamu = async () => {
+    const unsentList = filteredTamuList.filter(
+      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8
+    );
+
+    if (unsentList.length === 0) {
+      alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Mulai pengiriman otomatis undangan digital via Fonnte untuk ${unsentList.length} tamu undangan?\nPesan akan dikirim dengan jeda 1.5 detik per pesan.`
+      )
+    ) {
+      return;
+    }
+
+    setIsTamuBlasting(true);
+    stopTamuBlastingRef.current = false;
+    setTamuBlastProgress({ current: 0, total: unsentList.length, success: 0, failed: 0 });
+
+    for (let i = 0; i < unsentList.length; i++) {
+      if (stopTamuBlastingRef.current) break;
+
+      const tamu = unsentList[i];
+      setTamuBlastProgress((prev) => ({ ...prev, current: i + 1 }));
+
+      const ok = await handleKirimFonnteTamu(tamu);
+      if (ok) {
+        setTamuBlastProgress((prev) => ({ ...prev, success: prev.success + 1 }));
+      } else {
+        setTamuBlastProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+
+    setIsTamuBlasting(false);
+  };
+
+  const handleStopBatchBlastTamu = () => {
+    stopTamuBlastingRef.current = true;
+    setIsTamuBlasting(false);
+  };
+
+  const totalTamuTerkirim = tamuList.filter((t) => t.statusWa === 'TERKIRIM').length;
+  const pctTamuTerkirim = tamuList.length > 0 ? Math.min(100, Math.round((totalTamuTerkirim / tamuList.length) * 100)) : 0;
+
+  const countTamuIstimewa = tamuList.filter((t) => t.golongan === 'ISTIMEWA').length;
+  const countTamuKehormatan = tamuList.filter((t) => t.golongan === 'KEHORMATAN').length;
+  const countTamuUmum = tamuList.filter((t) => t.golongan === 'UMUM').length;
+
   return (
     <AuthGuard allowedRoles={['ADMIN', 'PENERIMA_TAMU', 'PIMPINAN']}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Header Panel WhatsApp: Warm Latte & Cinnamon Mocha Aesthetic */}
-        <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4]">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4] shadow-sm">
-                <MessageSquare className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-xl font-serif font-black text-[#422F21]">
-                  Panel WhatsApp &amp; Fonnte Gateway
-                </h1>
-                <p className="text-xs text-[#7A624E] font-normal">
-                  Terhubung 100% langsung ke tabel Supabase `peserta_santri` (<strong>{keluargaList.length} Santri Terdaftar</strong>).
-                </p>
-              </div>
-            </div>
+        
+        {/* TAB SWITCHER UTAMA */}
+        <div className="flex flex-wrap items-center justify-between border-b-2 border-[#D5C4B4] pb-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setActiveTab('WALI_SANTRI')}
+              className={`px-5 py-2.5 rounded-2xl font-serif font-black text-sm transition-all flex items-center space-x-2 cursor-pointer ${
+                activeTab === 'WALI_SANTRI'
+                  ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
+                  : 'bg-white hover:bg-[#FAF7F3] text-[#422F21] border border-[#D5C4B4]'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>1. WALI SANTRI ({keluargaList.length})</span>
+            </button>
 
             <button
-              onClick={fetchSantriWaData}
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs shadow-xs flex items-center space-x-1.5 self-start md:self-auto cursor-pointer"
+              onClick={() => setActiveTab('TAMU_UNDANGAN')}
+              className={`px-5 py-2.5 rounded-2xl font-serif font-black text-sm transition-all flex items-center space-x-2 cursor-pointer ${
+                activeTab === 'TAMU_UNDANGAN'
+                  ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
+                  : 'bg-white hover:bg-[#FAF7F3] text-[#422F21] border border-[#D5C4B4]'
+              }`}
             >
-              <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
-              <span>Refresh Data DB</span>
+              <UserCheck className="w-4 h-4" />
+              <span>2. WA TAMU UNDANGAN ({tamuList.length})</span>
             </button>
           </div>
 
-          {/* Pemilih Tipe Pesan / Gelombang & Switch Kontrol Beli Kuota */}
-          <div className="mt-4 pt-4 border-t border-[#D5C4B4] flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            {/* Segmented Gelombang Buttons */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-[#EFE8E1] p-1.5 rounded-2xl border border-[#D5C4B4] shadow-inner">
-              <button
-                type="button"
-                onClick={() => {
-                  setGelombang(1);
-                  setFilterKonfirmasi('SEMUA');
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
-                  gelombang === 1
-                    ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
-                    : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/70'
-                }`}
-              >
-                <span>1. Undangan &amp; QR</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setGelombang(2);
-                  setFilterKonfirmasi('SEMUA');
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
-                  gelombang === 2
-                    ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
-                    : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/70'
-                }`}
-              >
-                <span>2. Kuota Tambahan</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setGelombang(3);
-                  setFilterKonfirmasi('BELUM');
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
-                  gelombang === 3
-                    ? 'bg-amber-800 text-white shadow-md border border-amber-900'
-                    : 'text-[#422F21] hover:text-amber-800 hover:bg-white/70'
-                }`}
-              >
-                <Clock className="w-3.5 h-3.5" />
-                <span>3. Pengingat Konfirmasi</span>
-              </button>
-            </div>
-
-            {/* Switch Beli Kuota Tambahan */}
-            <div className="flex items-center space-x-2.5 px-3.5 py-2 bg-white rounded-xl border border-[#D5C4B4] shadow-xs shrink-0 self-start lg:self-auto">
-              <span className="text-xs font-bold text-[#422F21] flex items-center space-x-1.5">
-                <ShoppingBag className="w-4 h-4 text-[#8C6A47]" />
-                <span>Beli Kuota Tambahan:</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setKuotaTambahanBuka(!kuotaTambahanBuka)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-slate-300'
-                }`}
-              >
-                <span className="sr-only">Toggle Kuota Tambahan</span>
-                <span
-                  aria-hidden="true"
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    kuotaTambahanBuka ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-              <span
-                className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                  kuotaTambahanBuka
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                    : 'bg-slate-100 text-slate-500 border border-slate-200'
-                }`}
-              >
-                {kuotaTambahanBuka ? 'ON (Buka)' : 'OFF (Tutup)'}
-              </span>
-            </div>
-          </div>
-
-          {/* Fonnte Live Status Widget */}
-          <div className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] border-2 border-[#8C6A47]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm">
-                <Wifi className="w-5 h-5 animate-pulse" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs font-serif font-black text-[#422F21]">
-                    FONNTE GATEWAY TERHUBUNG
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400">
-                    ONLINE
-                  </span>
-                </div>
-                <div className="text-xs text-[#7A624E] mt-0.5 font-medium">
-                  Pengirim: <strong>{fonnteStatus.name}</strong> ({fonnteStatus.device}) · Sisa Kuota API: <strong>{fonnteStatus.quota} Pesan</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {!isBlasting ? (
-                <button
-                  onClick={handleStartBatchBlast}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center space-x-1.5 transition-all border border-[#FAF7F3] cursor-pointer"
-                >
-                  <Zap className="w-4 h-4 fill-current" />
-                  <span>
-                    {gelombang === 3
-                      ? 'Blast Pengingat Konfirmasi (Fonnte)'
-                      : 'Kirim Massal Otomatis (Fonnte)'}
-                  </span>
-                </button>
-              ) : (
-                <button
-                  onClick={handleStopBatchBlast}
-                  className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg flex items-center space-x-1.5 transition-all cursor-pointer"
-                >
-                  <Pause className="w-4 h-4" />
-                  <span>Hentikan Blasting ({blastProgress.current}/{blastProgress.total})</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Box Preview Template Pesan */}
-          <div className="mt-4 p-4 rounded-2xl bg-white border border-[#D5C4B4] space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
-                <span className="font-bold text-xs text-[#422F21]">
-                  Preview Template Pesan:{' '}
-                  <span className="text-[#8C6A47]">
-                    {gelombang === 1
-                      ? 'Gelombang 1 - Undangan Resmi & QR'
-                      : gelombang === 2
-                      ? 'Gelombang 2 - Info Kuota Tambahan'
-                      : 'Pengingat Konfirmasi Kehadiran'}
-                  </span>
-                </span>
-              </div>
-              {gelombang === 3 && (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                  Template Resmi Pengingat Konfirmasi
-                </span>
-              )}
-            </div>
-            <div className="p-3.5 rounded-xl bg-[#FAF7F3] border border-[#D5C4B4]/70 font-mono text-[11px] text-[#422F21] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
-              {getTeksPesan(
-                keluargaList[0] || {
-                  kode: 'SH0001',
-                  namaWali: 'Bpk. Wali Santri',
-                  santri: [{ nama: 'Santri Putri', kategoriUtama: 'BIL_GHOIB', kamar: 'A.01' }],
-                  kuota: { kuotaDasar: 2, kuotaTambahan: 0 },
-                },
-                gelombang
-              )}
-            </div>
-          </div>
-
-          {/* Progress Bar Blasting jika aktif */}
-          {isBlasting && (
-            <div className="mt-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-2 text-xs text-amber-950">
-              <div className="flex items-center justify-between font-bold">
-                <span>Sedang Mengirim Pesan WhatsApp Massal...</span>
-                <span>
-                  {blastProgress.current} dari {blastProgress.total} wali ({blastProgress.success} berhasil, {blastProgress.failed} gagal)
-                </span>
-              </div>
-              <div className="w-full bg-amber-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-[#8C6A47] h-2.5 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${Math.round((blastProgress.current / blastProgress.total) * 100) || 0}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-          {/* Pengaturan Link Grup WA */}
-          <div
-            className={`mt-4 p-4 rounded-2xl border transition-all ${
-              !linkGrupWa.trim()
-                ? 'bg-amber-50/70 border-amber-300 ring-2 ring-amber-300/40'
-                : 'bg-[#FAF7F3] border-[#D5C4B4]'
-            } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block font-bold text-[#422F21]">
-                  Link Grup WhatsApp Resmi Wali Santri:
-                </label>
-                {!linkGrupWa.trim() ? (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">
-                    ⚠️ Belum Diisi (Wajib Update)
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    ✓ Link Terisi
-                  </span>
-                )}
-              </div>
-              <input
-                type="text"
-                value={linkGrupWa}
-                onChange={(e) => setLinkGrupWa(e.target.value)}
-                placeholder="Wajib selalu diisi setiap mau kirim: https://chat.whatsapp.com/..."
-                className={`w-full px-3 py-2 rounded-xl border text-xs font-mono transition-all ${
-                  !linkGrupWa.trim()
-                    ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-2 focus:ring-rose-400 focus:outline-none placeholder:text-rose-400'
-                    : 'border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none'
-                }`}
-              />
-            </div>
-            <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
-              <div className="text-[11px] text-[#7A624E] leading-relaxed">
-                <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA (`BELUM`, `TERKIRIM`, `NOMOR_TIDAK_TERDAFTAR`, `GAGAL`) tersimpan murni di tabel Supabase `peserta_santri`.
-              </div>
-            </div>
+          <div className="text-xs text-[#7A624E] font-medium hidden sm:block">
+            Modul WA Gateway Resmi Haul &amp; Haflah P3TQ - MHMTQ 2027
           </div>
         </div>
 
-        {/* Tabel Pengiriman & Filter Lanjutan */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#D5C4B4] space-y-4">
-          {/* Bar Kontrol & Filter */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div>
-              <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-                PROGRES PENGIRIMAN ({gelombang === 1 ? 'UNDANGAN MASUK' : gelombang === 2 ? 'KUOTA TAMBAHAN' : 'PENGINGAT KONFIRMASI'}):
+        {/* ===================================================================== */}
+        {/* CONTENT TAB 1: WALI SANTRI                                            */}
+        {/* ===================================================================== */}
+        {activeTab === 'WALI_SANTRI' && (
+          <div className="space-y-6">
+            {/* Header Panel WhatsApp Wali */}
+            <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4]">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4] shadow-sm">
+                    <MessageSquare className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-serif font-black text-[#422F21]">
+                      Panel WA Gateway — Wali Santri
+                    </h1>
+                    <p className="text-xs text-[#7A624E] font-normal">
+                      Terhubung 100% langsung ke tabel Supabase `peserta_santri` (<strong>{keluargaList.length} Santri Terdaftar</strong>).
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={fetchSantriWaData}
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs shadow-xs flex items-center space-x-1.5 self-start md:self-auto cursor-pointer"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
+                  <span>Refresh Data DB</span>
+                </button>
               </div>
-              <div className="text-lg font-black text-slate-900 mt-0.5">
-                Terkirim {totalTerkirim} / {keluargaList.length}{' '}
-                <span className="text-sm font-semibold text-emerald-700">({pctTerkirim}%)</span>
+
+              {/* Gelombang & Switch Kontrol Beli Kuota */}
+              <div className="mt-4 pt-4 border-t border-[#D5C4B4] flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 bg-[#EFE8E1] p-1.5 rounded-2xl border border-[#D5C4B4] shadow-inner">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGelombang(1);
+                      setFilterKonfirmasi('SEMUA');
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                      gelombang === 1
+                        ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
+                        : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/70'
+                    }`}
+                  >
+                    <span>1. Undangan &amp; QR</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGelombang(2);
+                      setFilterKonfirmasi('SEMUA');
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                      gelombang === 2
+                        ? 'bg-[#8C6A47] text-white shadow-md border border-[#735334]'
+                        : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/70'
+                    }`}
+                  >
+                    <span>2. Kuota Tambahan</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGelombang(3);
+                      setFilterKonfirmasi('BELUM');
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                      gelombang === 3
+                        ? 'bg-amber-800 text-white shadow-md border border-amber-900'
+                        : 'text-[#422F21] hover:text-amber-800 hover:bg-white/70'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>3. Pengingat Konfirmasi</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-2.5 px-3.5 py-2 bg-white rounded-xl border border-[#D5C4B4] shadow-xs shrink-0 self-start lg:self-auto">
+                  <span className="text-xs font-bold text-[#422F21] flex items-center space-x-1.5">
+                    <ShoppingBag className="w-4 h-4 text-[#8C6A47]" />
+                    <span>Beli Kuota Tambahan:</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setKuotaTambahanBuka(!kuotaTambahanBuka)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-slate-300'
+                    }`}
+                  >
+                    <span className="sr-only">Toggle Kuota Tambahan</span>
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        kuotaTambahanBuka ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                      kuotaTambahanBuka
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    }`}
+                  >
+                    {kuotaTambahanBuka ? 'ON (Buka)' : 'OFF (Tutup)'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Fonnte Live Status Widget */}
+              <div className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] border-2 border-[#8C6A47]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm">
+                    <Wifi className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-serif font-black text-[#422F21]">
+                        FONNTE GATEWAY TERHUBUNG
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400">
+                        ONLINE
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#7A624E] mt-0.5 font-medium">
+                      Pengirim: <strong>{fonnteStatus.name}</strong> ({fonnteStatus.device}) · Sisa Kuota API: <strong>{fonnteStatus.quota} Pesan</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  {!isBlasting ? (
+                    <button
+                      onClick={handleStartBatchBlast}
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center space-x-1.5 transition-all border border-[#FAF7F3] cursor-pointer"
+                    >
+                      <Zap className="w-4 h-4 fill-current" />
+                      <span>
+                        {gelombang === 3
+                          ? 'Blast Pengingat Konfirmasi (Fonnte)'
+                          : 'Kirim Massal Otomatis (Fonnte)'}
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleStopBatchBlast}
+                      className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg flex items-center space-x-1.5 transition-all cursor-pointer"
+                    >
+                      <Pause className="w-4 h-4" />
+                      <span>Hentikan Blasting ({blastProgress.current}/{blastProgress.total})</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Box Preview Template Pesan */}
+              <div className="mt-4 p-4 rounded-2xl bg-white border border-[#D5C4B4] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
+                    <span className="font-bold text-xs text-[#422F21]">
+                      Preview Template Pesan Wali:{' '}
+                      <span className="text-[#8C6A47]">
+                        {gelombang === 1
+                          ? 'Gelombang 1 - Undangan Resmi & QR'
+                          : gelombang === 2
+                          ? 'Gelombang 2 - Info Kuota Tambahan'
+                          : 'Pengingat Konfirmasi Kehadiran'}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[#FAF7F3] border border-[#D5C4B4]/70 font-mono text-[11px] text-[#422F21] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+                  {getTeksPesan(
+                    keluargaList[0] || {
+                      kode: 'SH0001',
+                      namaWali: 'Bpk. Wali Santri',
+                      santri: [{ nama: 'Santri Putri', kategoriUtama: 'BIL_GHOIB', kamar: 'A.01' }],
+                      kuota: { kuotaDasar: 2, kuotaTambahan: 0 },
+                    },
+                    gelombang
+                  )}
+                </div>
+              </div>
+
+              {/* Progress Bar Blasting jika aktif */}
+              {isBlasting && (
+                <div className="mt-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-2 text-xs text-amber-950">
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Sedang Mengirim Pesan WhatsApp Massal...</span>
+                    <span>
+                      {blastProgress.current} dari {blastProgress.total} wali ({blastProgress.success} berhasil, {blastProgress.failed} gagal)
+                    </span>
+                  </div>
+                  <div className="w-full bg-amber-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-[#8C6A47] h-2.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${Math.round((blastProgress.current / blastProgress.total) * 100) || 0}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pengaturan Link Grup WA */}
+              <div
+                className={`mt-4 p-4 rounded-2xl border transition-all ${
+                  !linkGrupWa.trim()
+                    ? 'bg-amber-50/70 border-amber-300 ring-2 ring-amber-300/40'
+                    : 'bg-[#FAF7F3] border-[#D5C4B4]'
+                } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-bold text-[#422F21]">
+                      Link Grup WhatsApp Resmi Wali Santri:
+                    </label>
+                    {!linkGrupWa.trim() ? (
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">
+                        ⚠️ Belum Diisi (Wajib Update)
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        ✓ Link Terisi
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={linkGrupWa}
+                    onChange={(e) => setLinkGrupWa(e.target.value)}
+                    placeholder="Wajib selalu diisi setiap mau kirim: https://chat.whatsapp.com/..."
+                    className={`w-full px-3 py-2 rounded-xl border text-xs font-mono transition-all ${
+                      !linkGrupWa.trim()
+                        ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-2 focus:ring-rose-400 focus:outline-none placeholder:text-rose-400'
+                        : 'border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none'
+                    }`}
+                  />
+                </div>
+                <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
+                  <div className="text-[11px] text-[#7A624E] leading-relaxed">
+                    <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`.
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Filter Status Konfirmasi Kehadiran */}
-              <select
-                value={filterKonfirmasi}
-                onChange={(e) => setFilterKonfirmasi(e.target.value as any)}
-                className="px-3 py-2 rounded-xl border border-amber-300 text-xs focus:outline-none bg-amber-50 text-amber-950 font-bold"
-              >
-                <option value="SEMUA">Semua Status Konfirmasi</option>
-                <option value="BELUM">Belum Konfirmasi Kehadiran</option>
-                <option value="SUDAH">Sudah Konfirmasi Kehadiran</option>
-              </select>
+            {/* Tabel Pengiriman & Filter Wali */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#D5C4B4] space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                  <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+                    PROGRES PENGIRIMAN ({gelombang === 1 ? 'UNDANGAN MASUK' : gelombang === 2 ? 'KUOTA TAMBAHAN' : 'PENGINGAT KONFIRMASI'}):
+                  </div>
+                  <div className="text-lg font-black text-slate-900 mt-0.5">
+                    Terkirim {totalTerkirim} / {keluargaList.length}{' '}
+                    <span className="text-sm font-semibold text-emerald-700">({pctTerkirim}%)</span>
+                  </div>
+                </div>
 
-              {/* Filter Kategori Utama */}
-              <select
-                value={filterKategori}
-                onChange={(e) => {
-                  setFilterKategori(e.target.value);
-                  setFilterBagian('SEMUA');
-                }}
-                className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
-              >
-                <option value="SEMUA">Semua Kategori ({keluargaList.length})</option>
-                <option value="BIL_GHOIB">Bil Ghoib ({countBilGhoib})</option>
-                <option value="BIN_NADZOR">Bin Nadzori ({countBinNadzor})</option>
-                <option value="TAMATAN">Tamatan ({countTamatan})</option>
-              </select>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={filterKonfirmasi}
+                    onChange={(e) => setFilterKonfirmasi(e.target.value as any)}
+                    className="px-3 py-2 rounded-xl border border-amber-300 text-xs focus:outline-none bg-amber-50 text-amber-950 font-bold"
+                  >
+                    <option value="SEMUA">Semua Status Konfirmasi</option>
+                    <option value="BELUM">Belum Konfirmasi Kehadiran</option>
+                    <option value="SUDAH">Sudah Konfirmasi Kehadiran</option>
+                  </select>
 
-              {/* Filter Sub / Bagian */}
-              <select
-                value={filterBagian}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setFilterBagian(val);
-                  if (val === 'BIL_GHOIB') setFilterKategori('BIL_GHOIB');
-                  else if (val === 'BIN_NADZOR') setFilterKategori('BIN_NADZOR');
-                  else if (val === 'TAMATAN_SEMUA' || val.startsWith('A.') || val.startsWith('B.')) setFilterKategori('TAMATAN');
-                  else if (val === 'SEMUA') setFilterKategori('SEMUA');
-                }}
-                className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
-              >
-                <option value="SEMUA">Semua Kategori &amp; Bagian ({keluargaList.length})</option>
-                <option value="BIL_GHOIB">Bil Ghoib ({countBilGhoib})</option>
-                <option value="BIN_NADZOR">Bin Nadzori ({countBinNadzor})</option>
-                <option value="TAMATAN_SEMUA">Semua Bagian Tamatan ({countTamatan})</option>
-                {BAGIAN_TAMATAN_LIST.map((bg) => (
-                  <option key={bg} value={bg}>
-                    Bagian {bg} ({countPerBagian[bg] || 0})
-                  </option>
-                ))}
-              </select>
+                  <select
+                    value={filterKategori}
+                    onChange={(e) => {
+                      setFilterKategori(e.target.value);
+                      setFilterBagian('SEMUA');
+                    }}
+                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
+                  >
+                    <option value="SEMUA">Semua Kategori ({keluargaList.length})</option>
+                    <option value="BIL_GHOIB">Bil Ghoib ({countBilGhoib})</option>
+                    <option value="BIN_NADZOR">Bin Nadzori ({countBinNadzor})</option>
+                    <option value="TAMATAN">Tamatan ({countTamatan})</option>
+                  </select>
 
-              {/* Filter Status Terkirim */}
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
-              >
-                <option value="SEMUA">Semua Pengiriman</option>
-                <option value="BELUM">Belum Terkirim</option>
-                <option value="TERKIRIM">Sudah Terkirim</option>
-                <option value="BERMASALAH">Nomor Bermasalah / Kosong / Tidak Terdaftar</option>
-              </select>
+                  <select
+                    value={filterBagian}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFilterBagian(val);
+                      if (val === 'BIL_GHOIB') setFilterKategori('BIL_GHOIB');
+                      else if (val === 'BIN_NADZOR') setFilterKategori('BIN_NADZOR');
+                      else if (val === 'TAMATAN_SEMUA' || val.startsWith('A.') || val.startsWith('B.')) setFilterKategori('TAMATAN');
+                      else if (val === 'SEMUA') setFilterKategori('SEMUA');
+                    }}
+                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
+                  >
+                    <option value="SEMUA">Semua Kategori &amp; Bagian ({keluargaList.length})</option>
+                    <option value="BIL_GHOIB">Bil Ghoib ({countBilGhoib})</option>
+                    <option value="BIN_NADZOR">Bin Nadzori ({countBinNadzor})</option>
+                    <option value="TAMATAN_SEMUA">Semua Bagian Tamatan ({countTamatan})</option>
+                    {BAGIAN_TAMATAN_LIST.map((bg) => (
+                      <option key={bg} value={bg}>
+                        Bagian {bg} ({countPerBagian[bg] || 0})
+                      </option>
+                    ))}
+                  </select>
 
-              {/* Search */}
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Cari wali / santri / HP..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-44"
-                />
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
+                  >
+                    <option value="SEMUA">Semua Pengiriman</option>
+                    <option value="BELUM">Belum Terkirim</option>
+                    <option value="TERKIRIM">Sudah Terkirim</option>
+                    <option value="BERMASALAH">Nomor Bermasalah / Kosong / Tidak Terdaftar</option>
+                  </select>
+
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Cari wali / santri / HP..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-44"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Tabel Antrean */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
-                <tr>
-                  <th className="py-3 px-3">Kode</th>
-                  <th className="py-3 px-4">Nama Wali Santri &amp; HP</th>
-                  <th className="py-3 px-4">Sohibul Hajat &amp; Kategori</th>
-                  <th className="py-3 px-3 text-center">Hak Kuota</th>
-                  <th className="py-3 px-3 text-center">Konfirmasi Hadir</th>
-                  <th className="py-3 px-3 text-center">Status Kirim WA</th>
-                  <th className="py-3 px-4 text-center">Aksi Kirim</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
-                {loadingData ? (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400">
-                      Memuat data peserta dari database Supabase...
-                    </td>
-                  </tr>
-                ) : filteredList.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400">
-                      Tidak ada data wali santri yang cocok di Supabase DB.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredList.map((kel) => {
-                    const santri = kel.santri?.[0];
-                    const isInvalidNum = !kel.noHp || kel.noHp.trim().length < 8;
-                    const isNoWaNotRegistered = kel.statusWa === 'NOMOR_TIDAK_TERDAFTAR';
-                    const isFailed = kel.statusWa === 'GAGAL';
-                    const isTerkirim = kel.statusWa === 'TERKIRIM';
-                    const isSendingThis = sendingKode === kel.kode;
-
-                    const isBilGhoib = santri?.kategoriUtama === 'BIL_GHOIB';
-                    const isBinNadzor = santri?.kategoriUtama === 'BIN_NADZOR';
-                    const isTamatan = santri?.kategoriUtama === 'TAMATAN';
-                    const bagian = isTamatan ? extractBagianTamatan(santri?.kelas || santri?.subKategori) : '';
-                    const isConfirmed = kel.estimasi?.statusKonfirmasi === 'SUDAH';
-
-                    return (
-                      <tr key={kel.id || kel.kode} className="hover:bg-slate-50 transition-colors">
-                        <td className="py-3 px-3 font-mono font-bold text-opera-900">
-                          {kel.kode}
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="font-bold text-slate-800">{kel.namaWali}</div>
-                          <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5">
-                            <span>{kel.noHp || <span className="text-rose-500 font-bold">Tidak ada nomor</span>}</span>
-                            {(isNoWaNotRegistered || isInvalidNum) && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setEditingItem(kel);
-                                  setNewHpInput(kel.noHp || '');
-                                }}
-                                className="p-0.5 rounded hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
-                                title="Edit Nomor HP Langsung ke Supabase"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="font-semibold text-slate-800">{santri?.nama}</div>
-                          <div className="text-[11px] flex items-center space-x-1.5 mt-0.5">
-                            <span
-                              className={`font-semibold ${
-                                isBilGhoib
-                                  ? 'text-emerald-700'
-                                  : isBinNadzor
-                                  ? 'text-blue-700'
-                                  : 'text-amber-800'
-                              }`}
-                            >
-                              {isBilGhoib ? 'Bil Ghoib' : isBinNadzor ? 'Bin Nadzori' : 'Tamatan'}
-                            </span>
-                            {isTamatan && bagian && (
-                              <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
-                                Bagian {bagian}
-                              </span>
-                            )}
-                            <span className="text-slate-400">· Kamar: {santri?.kamar || '-'}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-center whitespace-nowrap">
-                          <span className="font-bold text-slate-700">
-                            {(kel.kuota?.kuotaDasar || 2) + (kel.kuota?.kuotaTambahan || 0)} Kursi
-                          </span>
-                          {isBilGhoib && (
-                            <div className="text-[10px] text-emerald-700 font-bold">+1 Emas ★</div>
-                          )}
-                        </td>
-                        {/* Status Konfirmasi Kehadiran */}
-                        <td className="py-3 px-3 text-center whitespace-nowrap">
-                          {isConfirmed ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              ✓ Sudah Hadir
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                              ⏳ Belum Konfirmasi
-                            </span>
-                          )}
-                        </td>
-                        {/* Status Kirim WA dengan Badge Peringatan Merah bila NOMOR_TIDAK_TERDAFTAR */}
-                        <td className="py-3 px-3 text-center whitespace-nowrap">
-                          {isTerkirim ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
-                              TERKIRIM
-                            </span>
-                          ) : isNoWaNotRegistered || isInvalidNum ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
-                              <AlertTriangle className="w-3 h-3 mr-1 text-rose-600" />
-                              NOMOR TIDAK TERDAFTAR
-                            </span>
-                          ) : isFailed ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                              <AlertTriangle className="w-3 h-3 mr-1 text-rose-500" />
-                              GAGAL
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                              <Clock className="w-3 h-3 mr-1 text-slate-400" />
-                              BELUM
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3 px-4 text-center whitespace-nowrap">
-                          <div className="flex items-center justify-center space-x-1.5">
-                            {/* Tombol 1-Click Fonnte */}
-                            <button
-                              onClick={() => handleKirimFonnte(kel)}
-                              disabled={isInvalidNum || isSendingThis || isBlasting}
-                              className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
-                                isTerkirim
-                                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
-                                  : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
-                              } disabled:opacity-40 disabled:pointer-events-none`}
-                              title="Kirim otomatis lewat WhatsApp Fonnte"
-                            >
-                              <Zap className="w-3 h-3 fill-current text-amber-300" />
-                              <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
-                            </button>
-
-                            {/* Tombol Manual WA Web Fallback */}
-                            <button
-                              onClick={() => handleKirimManualWA(kel)}
-                              className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
-                              title="Kirim Manual via WhatsApp Web / App"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </button>
-
-                            {/* Quick Action Edit Nomor WhatsApp */}
-                            {(isNoWaNotRegistered || isInvalidNum) && (
-                              <button
-                                onClick={() => {
-                                  setEditingItem(kel);
-                                  setNewHpInput(kel.noHp || '');
-                                }}
-                                className="px-2.5 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center space-x-1"
-                                title="Edit Nomor HP Langsung ke Supabase"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                                <span>Edit HP</span>
-                              </button>
-                            )}
-                          </div>
+              {/* Tabel Wali */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="py-3 px-3">Kode</th>
+                      <th className="py-3 px-4">Nama Wali Santri &amp; HP</th>
+                      <th className="py-3 px-4">Sohibul Hajat &amp; Kategori</th>
+                      <th className="py-3 px-3 text-center">Hak Kuota</th>
+                      <th className="py-3 px-3 text-center">Konfirmasi Hadir</th>
+                      <th className="py-3 px-3 text-center">Status Kirim WA</th>
+                      <th className="py-3 px-4 text-center">Aksi Kirim</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {loadingData ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-slate-400">
+                          Memuat data peserta dari database Supabase...
                         </td>
                       </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    ) : filteredList.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-slate-400">
+                          Tidak ada data wali santri yang cocok di Supabase DB.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredList.map((kel) => {
+                        const santri = kel.santri?.[0];
+                        const isInvalidNum = !kel.noHp || kel.noHp.trim().length < 8;
+                        const isNoWaNotRegistered = kel.statusWa === 'NOMOR_TIDAK_TERDAFTAR';
+                        const isFailed = kel.statusWa === 'GAGAL';
+                        const isTerkirim = kel.statusWa === 'TERKIRIM';
+                        const isSendingThis = sendingKode === kel.kode;
 
-        {/* Modal Edit Nomor HP Supabase */}
+                        const isBilGhoib = santri?.kategoriUtama === 'BIL_GHOIB';
+                        const isBinNadzor = santri?.kategoriUtama === 'BIN_NADZOR';
+                        const isTamatan = santri?.kategoriUtama === 'TAMATAN';
+                        const bagian = isTamatan ? extractBagianTamatan(santri?.kelas || santri?.subKategori) : '';
+                        const isConfirmed = kel.estimasi?.statusKonfirmasi === 'SUDAH';
+
+                        return (
+                          <tr key={kel.id || kel.kode} className="hover:bg-slate-50 transition-colors">
+                            <td className="py-3 px-3 font-mono font-bold text-opera-900">
+                              {kel.kode}
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-bold text-slate-800">{kel.namaWali}</div>
+                              <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5">
+                                <span>{kel.noHp || <span className="text-rose-500 font-bold">Tidak ada nomor</span>}</span>
+                                {(isNoWaNotRegistered || isInvalidNum) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingItem(kel);
+                                      setNewHpInput(kel.noHp || '');
+                                    }}
+                                    className="p-0.5 rounded hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
+                                    title="Edit Nomor HP Langsung ke Supabase"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-semibold text-slate-800">{santri?.nama}</div>
+                              <div className="text-[11px] flex items-center space-x-1.5 mt-0.5">
+                                <span
+                                  className={`font-semibold ${
+                                    isBilGhoib
+                                      ? 'text-emerald-700'
+                                      : isBinNadzor
+                                      ? 'text-blue-700'
+                                      : 'text-amber-800'
+                                  }`}
+                                >
+                                  {isBilGhoib ? 'Bil Ghoib' : isBinNadzor ? 'Bin Nadzori' : 'Tamatan'}
+                                </span>
+                                {isTamatan && bagian && (
+                                  <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
+                                    Bagian {bagian}
+                                  </span>
+                                )}
+                                <span className="text-slate-400">· Kamar: {santri?.kamar || '-'}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 text-center whitespace-nowrap">
+                              <span className="font-bold text-slate-700">
+                                {(kel.kuota?.kuotaDasar || 2) + (kel.kuota?.kuotaTambahan || 0)} Kursi
+                              </span>
+                              {isBilGhoib && (
+                                <div className="text-[10px] text-emerald-700 font-bold">+1 Emas ★</div>
+                              )}
+                            </td>
+                            <td className="py-3 px-3 text-center whitespace-nowrap">
+                              {isConfirmed ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                  ✓ Sudah Hadir
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                  ⏳ Belum Konfirmasi
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-3 text-center whitespace-nowrap">
+                              {isTerkirim ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                  <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
+                                  TERKIRIM
+                                </span>
+                              ) : isNoWaNotRegistered || isInvalidNum ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
+                                  <AlertTriangle className="w-3 h-3 mr-1 text-rose-600" />
+                                  NOMOR TIDAK TERDAFTAR
+                                </span>
+                              ) : isFailed ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                  <AlertTriangle className="w-3 h-3 mr-1 text-rose-500" />
+                                  GAGAL
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                  <Clock className="w-3 h-3 mr-1 text-slate-400" />
+                                  BELUM
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-center whitespace-nowrap">
+                              <div className="flex items-center justify-center space-x-1.5">
+                                <button
+                                  onClick={() => handleKirimFonnte(kel)}
+                                  disabled={isInvalidNum || isSendingThis || isBlasting}
+                                  className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
+                                    isTerkirim
+                                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
+                                      : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
+                                  } disabled:opacity-40 disabled:pointer-events-none`}
+                                  title="Kirim otomatis lewat WhatsApp Fonnte"
+                                >
+                                  <Zap className="w-3 h-3 fill-current text-amber-300" />
+                                  <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleKirimManualWA(kel)}
+                                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
+                                  title="Kirim Manual via WhatsApp Web / App"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </button>
+
+                                {(isNoWaNotRegistered || isInvalidNum) && (
+                                  <button
+                                    onClick={() => {
+                                      setEditingItem(kel);
+                                      setNewHpInput(kel.noHp || '');
+                                    }}
+                                    className="px-2.5 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center space-x-1"
+                                    title="Edit Nomor HP Langsung ke Supabase"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                    <span>Edit HP</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================== */}
+        {/* CONTENT TAB 2: WA TAMU UNDANGAN                                       */}
+        {/* ===================================================================== */}
+        {activeTab === 'TAMU_UNDANGAN' && (
+          <div className="space-y-6">
+            {/* Header Panel WhatsApp Tamu */}
+            <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4]">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4] shadow-sm">
+                    <UserCheck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-serif font-black text-[#422F21]">
+                      Panel WA Gateway — Tamu Undangan
+                    </h1>
+                    <p className="text-xs text-[#7A624E] font-normal">
+                      Terhubung 100% langsung ke tabel Supabase `tamu_undangan` (<strong>{tamuList.length} Tamu Undangan Terdaftar</strong>).
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={fetchTamuWaData}
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs shadow-xs flex items-center space-x-1.5 self-start md:self-auto cursor-pointer"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loadingTamuData ? 'animate-spin' : ''}`} />
+                  <span>Refresh Data DB</span>
+                </button>
+              </div>
+
+              {/* Fonnte Live Status Widget */}
+              <div className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] border-2 border-[#8C6A47]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-sm">
+                    <Wifi className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-serif font-black text-[#422F21]">
+                        FONNTE GATEWAY TERHUBUNG
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400">
+                        ONLINE
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#7A624E] mt-0.5 font-medium">
+                      Pengirim: <strong>{fonnteStatus.name}</strong> ({fonnteStatus.device}) · Sisa Kuota API: <strong>{fonnteStatus.quota} Pesan</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  {!isTamuBlasting ? (
+                    <button
+                      onClick={handleStartBatchBlastTamu}
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center space-x-1.5 transition-all border border-[#FAF7F3] cursor-pointer"
+                    >
+                      <Zap className="w-4 h-4 fill-current" />
+                      <span>Kirim WA ke Semua Tamu (Fonnte)</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleStopBatchBlastTamu}
+                      className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg flex items-center space-x-1.5 transition-all cursor-pointer"
+                    >
+                      <Pause className="w-4 h-4" />
+                      <span>Hentikan Blasting ({tamuBlastProgress.current}/{tamuBlastProgress.total})</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Box Preview Template Pesan Tamu Undangan */}
+              <div className="mt-4 p-4 rounded-2xl bg-white border border-[#D5C4B4] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
+                    <span className="font-bold text-xs text-[#422F21]">
+                      Preview Template Pesan Tamu Undangan:
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EFE8E1] text-[#8C6A47] border border-[#D5C4B4]">
+                    Undangan Digital Resmi Tamu
+                  </span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[#FAF7F3] border border-[#D5C4B4]/70 font-mono text-[11px] text-[#422F21] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+                  {getTeksPesanTamu(
+                    filteredTamuList[0] || tamuList[0] || {
+                      kode: 'UND0101',
+                      nama: 'KH. Abdullah Kafabihi Mahrus',
+                      kategori: 'Masyayikh / Pengasuh',
+                      subKategori: 'KEHORMATAN',
+                      jalurMasuk: 'Gerbang Selatan (Bola Dunia)',
+                    }
+                  )}
+                </div>
+              </div>
+
+              {/* Progress Bar Blasting Tamu jika aktif */}
+              {isTamuBlasting && (
+                <div className="mt-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-2 text-xs text-amber-950">
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Sedang Mengirim WA Undangan ke Tamu...</span>
+                    <span>
+                      {tamuBlastProgress.current} dari {tamuBlastProgress.total} tamu ({tamuBlastProgress.success} berhasil, {tamuBlastProgress.failed} gagal)
+                    </span>
+                  </div>
+                  <div className="w-full bg-amber-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-[#8C6A47] h-2.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${Math.round((tamuBlastProgress.current / tamuBlastProgress.total) * 100) || 0}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Tabel Pengiriman & Filter Tamu Undangan */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#D5C4B4] space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                  <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+                    PROGRES PENGIRIMAN TAMU UNDANGAN:
+                  </div>
+                  <div className="text-lg font-black text-slate-900 mt-0.5">
+                    Terkirim {totalTamuTerkirim} / {tamuList.length}{' '}
+                    <span className="text-sm font-semibold text-emerald-700">({pctTamuTerkirim}%)</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Filter Golongan Tamu */}
+                  <select
+                    value={tamuFilterGolongan}
+                    onChange={(e) => setTamuFilterGolongan(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
+                  >
+                    <option value="SEMUA">Semua Golongan ({tamuList.length})</option>
+                    <option value="ISTIMEWA">Istimewa ({countTamuIstimewa})</option>
+                    <option value="KEHORMATAN">Kehormatan ({countTamuKehormatan})</option>
+                    <option value="UMUM">Umum ({countTamuUmum})</option>
+                  </select>
+
+                  {/* Filter Status WA */}
+                  <select
+                    value={tamuFilterStatus}
+                    onChange={(e) => setTamuFilterStatus(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
+                  >
+                    <option value="SEMUA">Semua Status WA</option>
+                    <option value="BELUM">Belum Terkirim</option>
+                    <option value="TERKIRIM">Sudah Terkirim</option>
+                    <option value="BERMASALAH">Nomor Bermasalah / Kosong / Tidak Terdaftar</option>
+                  </select>
+
+                  {/* Filter Jalur Masuk */}
+                  <select
+                    value={tamuFilterJalur}
+                    onChange={(e) => setTamuFilterJalur(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
+                  >
+                    <option value="SEMUA">Semua Jalur Masuk</option>
+                    {JALUR_MASUK_OPTIONS.map((j) => (
+                      <option key={j} value={j}>
+                        {j}
+                      </option>
+                    ))}
+                    <option value="Lainnya">Custom / Lainnya</option>
+                  </select>
+
+                  {/* Search Tamu */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Cari tamu / instansi / kode..."
+                      value={tamuSearch}
+                      onChange={(e) => setTamuSearch(e.target.value)}
+                      className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-48"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabel Tamu Undangan */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="py-3 px-3">Kode</th>
+                      <th className="py-3 px-4">Nama Tamu &amp; HP</th>
+                      <th className="py-3 px-4">Kategori &amp; Instansi</th>
+                      <th className="py-3 px-4 text-center">Masuk Melalui (Jalur)</th>
+                      <th className="py-3 px-3 text-center">Warna Tiket</th>
+                      <th className="py-3 px-3 text-center">Status WA</th>
+                      <th className="py-3 px-4 text-center">Aksi Kirim</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {loadingTamuData ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-slate-400">
+                          Memuat data tamu undangan dari database Supabase...
+                        </td>
+                      </tr>
+                    ) : filteredTamuList.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-slate-400">
+                          Tidak ada data tamu undangan yang cocok di Supabase DB.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredTamuList.map((tamu) => {
+                        const isInvalidNum = !tamu.noHp || tamu.noHp.trim().length < 8;
+                        const isNoWaNotRegistered = tamu.statusWa === 'NOMOR_TIDAK_TERDAFTAR';
+                        const isFailed = tamu.statusWa === 'GAGAL';
+                        const isTerkirim = tamu.statusWa === 'TERKIRIM';
+                        const isSendingThis = tamuSendingKode === tamu.kode;
+
+                        const isIstimewa = tamu.golongan === 'ISTIMEWA';
+                        const isKehormatan = tamu.golongan === 'KEHORMATAN';
+
+                        return (
+                          <tr key={tamu.id || tamu.kode} className="hover:bg-slate-50 transition-colors">
+                            <td className="py-3 px-3 font-mono font-bold text-amber-900">
+                              {tamu.kode}
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-bold text-slate-800">{tamu.nama}</div>
+                              <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5">
+                                <span>{tamu.noHp || <span className="text-rose-500 font-bold">Tidak ada nomor</span>}</span>
+                                {(isNoWaNotRegistered || isInvalidNum) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingTamuItem(tamu);
+                                      setNewHpInputTamu(tamu.noHp || '');
+                                    }}
+                                    className="p-0.5 rounded hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
+                                    title="Edit Nomor HP Langsung ke Supabase"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-semibold text-slate-800">{tamu.kategori}</div>
+                              <div className="text-[11px] flex items-center space-x-1.5 mt-0.5">
+                                <span
+                                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                                    isIstimewa
+                                      ? 'bg-purple-100 text-purple-900 border border-purple-200'
+                                      : isKehormatan
+                                      ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                                      : 'bg-slate-100 text-slate-700 border border-slate-200'
+                                  }`}
+                                >
+                                  {tamu.golongan}
+                                </span>
+                                <span className="text-slate-400">· {tamu.instansi}</span>
+                              </div>
+                            </td>
+
+                            {/* Kolom MASUK MELALUI (JALUR MASUK CUSTOM) */}
+                            <td className="py-3 px-4 text-center">
+                              <div className="flex items-center justify-center space-x-1">
+                                <select
+                                  value={
+                                    JALUR_MASUK_OPTIONS.includes(tamu.jalurMasuk)
+                                      ? tamu.jalurMasuk
+                                      : 'Lainnya'
+                                  }
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (val !== 'Lainnya') {
+                                      handleUpdateJalurMasuk(tamu.id, val);
+                                    } else {
+                                      const customVal = prompt('Masukkan jalur masuk custom:', tamu.jalurMasuk);
+                                      if (customVal && customVal.trim()) {
+                                        handleUpdateJalurMasuk(tamu.id, customVal.trim());
+                                      }
+                                    }
+                                  }}
+                                  className="px-2.5 py-1 rounded-xl border border-slate-300 text-xs bg-slate-50 focus:bg-white text-slate-800 font-medium focus:ring-1 focus:ring-[#8C6A47]"
+                                >
+                                  {JALUR_MASUK_OPTIONS.map((opt) => (
+                                    <option key={opt} value={opt}>
+                                      {opt}
+                                    </option>
+                                  ))}
+                                  <option value="Lainnya">Lainnya (Isi Manual...)</option>
+                                </select>
+                              </div>
+                              {!JALUR_MASUK_OPTIONS.includes(tamu.jalurMasuk) && (
+                                <div className="text-[10px] font-bold text-amber-800 mt-1">
+                                  Custom: "{tamu.jalurMasuk}"
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-3 text-center whitespace-nowrap">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
+                                {tamu.warnaTiket || 'Merah Gold'}
+                              </span>
+                            </td>
+
+                            {/* Status WA */}
+                            <td className="py-3 px-3 text-center whitespace-nowrap">
+                              {isTerkirim ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                  <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
+                                  TERKIRIM
+                                </span>
+                              ) : isNoWaNotRegistered || isInvalidNum ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
+                                  <AlertTriangle className="w-3 h-3 mr-1 text-rose-600" />
+                                  NOMOR TIDAK TERDAFTAR
+                                </span>
+                              ) : isFailed ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                  <AlertTriangle className="w-3 h-3 mr-1 text-rose-500" />
+                                  GAGAL
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                  <Clock className="w-3 h-3 mr-1 text-slate-400" />
+                                  BELUM
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Aksi Kirim */}
+                            <td className="py-3 px-4 text-center whitespace-nowrap">
+                              <div className="flex items-center justify-center space-x-1.5">
+                                <button
+                                  onClick={() => handleKirimFonnteTamu(tamu)}
+                                  disabled={isInvalidNum || isSendingThis || isTamuBlasting}
+                                  className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
+                                    isTerkirim
+                                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
+                                      : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
+                                  } disabled:opacity-40 disabled:pointer-events-none`}
+                                  title="Kirim otomatis lewat WhatsApp Fonnte"
+                                >
+                                  <Zap className="w-3 h-3 fill-current text-amber-300" />
+                                  <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleKirimManualWATamu(tamu)}
+                                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
+                                  title="Kirim Manual via WhatsApp Web / App"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </button>
+
+                                {(isNoWaNotRegistered || isInvalidNum) && (
+                                  <button
+                                    onClick={() => {
+                                      setEditingTamuItem(tamu);
+                                      setNewHpInputTamu(tamu.noHp || '');
+                                    }}
+                                    className="px-2.5 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center space-x-1"
+                                    title="Edit Nomor HP Langsung ke Supabase"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                    <span>Edit HP</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL EDIT HP WALI */}
         {editingItem && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
             <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-[#D5C4B4]">
@@ -1113,6 +1846,79 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
             </div>
           </div>
         )}
+
+        {/* MODAL EDIT HP TAMU UNDANGAN */}
+        {editingTamuItem && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-[#D5C4B4]">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                    <Smartphone className="w-4.5 h-4.5" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-black text-sm text-[#422F21]">
+                      Edit Nomor WhatsApp Tamu Undangan
+                    </h3>
+                    <p className="text-[11px] text-stone-500">
+                      Update nomor HP langsung ke tabel Supabase `tamu_undangan`
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEditingTamuItem(null)}
+                  className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
+                  <p className="font-bold text-amber-900">
+                    {editingTamuItem.nama} ({editingTamuItem.kode})
+                  </p>
+                  <p className="text-[11px] text-amber-800">
+                    Kategori: {editingTamuItem.kategori} · {editingTamuItem.instansi}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#422F21] mb-1">
+                    Nomor WhatsApp Baru:
+                  </label>
+                  <input
+                    type="text"
+                    value={newHpInputTamu}
+                    onChange={(e) => setNewHpInputTamu(e.target.value)}
+                    placeholder="Contoh: 081234567890"
+                    className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  />
+                  <p className="text-[10px] text-stone-400 mt-1">
+                    Format: 08xx atau 628xx. Status WA akan otomatis diset kembali ke "BELUM".
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
+                <button
+                  onClick={() => setEditingTamuItem(null)}
+                  className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleSaveEditNoHpTamu}
+                  className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Simpan ke Supabase</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </AuthGuard>
   );

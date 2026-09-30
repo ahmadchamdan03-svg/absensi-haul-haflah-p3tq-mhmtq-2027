@@ -57,13 +57,19 @@ CREATE TABLE IF NOT EXISTS tamu_undangan (
   sub_kategori VARCHAR(50) NOT NULL DEFAULT 'PENGUJI', -- PENGUJI, ASATIDZ_MASYAIKH, DZURIYYAH
   instansi VARCHAR(255) DEFAULT '-',
   alamat TEXT DEFAULT 'Kediri',
+  no_hp VARCHAR(50) DEFAULT '-',
   kuota_dasar SMALLINT NOT NULL DEFAULT 2,
   kuota_tambahan SMALLINT NOT NULL DEFAULT 0,
   kuota_terpakai SMALLINT NOT NULL DEFAULT 0,
   warna_tiket VARCHAR(50) DEFAULT 'Merah Gold',
+  status_wa VARCHAR(20) DEFAULT 'BELUM',
+  jalur_masuk VARCHAR(100) DEFAULT 'Gerbang Selatan (Bola Dunia)',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS status_wa VARCHAR(20) DEFAULT 'BELUM';
+ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS jalur_masuk VARCHAR(100) DEFAULT 'Gerbang Selatan (Bola Dunia)';
 
 CREATE INDEX IF NOT EXISTS idx_tamu_undangan_kode ON tamu_undangan (kode);
 CREATE INDEX IF NOT EXISTS idx_tamu_undangan_sub ON tamu_undangan (sub_kategori);

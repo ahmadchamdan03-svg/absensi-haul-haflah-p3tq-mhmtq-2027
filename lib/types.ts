@@ -192,6 +192,8 @@ export interface TamuUndanganDbRow {
   kuota_tambahan: number;
   kuota_terpakai: number;
   warna_tiket: string;
+  status_wa?: string | null;
+  jalur_masuk?: string | null;
   created_at?: string;
 }
 
