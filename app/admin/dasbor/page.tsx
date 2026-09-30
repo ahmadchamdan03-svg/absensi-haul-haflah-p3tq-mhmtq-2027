@@ -662,85 +662,59 @@ export default function DasborPage() {
           ></div>
         </div>
 
-        {/* Demographic Breakdown - Interactive Filter Buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
-          <button
-            type="button"
-            onClick={() => handleToggleDemographic('LAKI')}
-            className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative shadow-xs hover:shadow-md ${
-              demographicFilter === 'LAKI'
-                ? 'bg-white border-[#8C6A47] ring-2 ring-[#8C6A47]/40 shadow-sm'
-                : 'bg-[#EFE8E1]/80 border-[#D5C4B4] hover:bg-white hover:border-[#8C6A47]'
-            }`}
-          >
+        {/* 2 KARTU METRIK UTAMA FORMAT DOKUMEN 2.0 (TANPA PEMISAHAN GENDER L/P) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          {/* KARTU 1: TOTAL WALI SANTRI */}
+          <div className="p-5 rounded-2xl bg-white border border-[#D5C4B4] shadow-xs space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[#5C3E28] font-bold">Wali / Tamu Laki-laki</span>
-              {demographicFilter === 'LAKI' && (
-                <span className="text-[9px] bg-[#8C6A47] text-white px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">Aktif</span>
-              )}
+              <span className="text-xs font-bold text-stone-600 uppercase tracking-wide flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-[#8C6A47]" />
+                TOTAL WALI SANTRI
+              </span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                {categorySummaryStats.bilGhoibCount + categorySummaryStats.binNadzorCount + categorySummaryStats.tamatanCount > 0
+                  ? Math.round(
+                      ((categorySummaryStats.hadirBilGhoib + categorySummaryStats.hadirBinNadzor + categorySummaryStats.hadirTamatan) /
+                        (categorySummaryStats.bilGhoibCount + categorySummaryStats.binNadzorCount + categorySummaryStats.tamatanCount)) *
+                        100
+                    )
+                  : 0}% Hadir
+              </span>
             </div>
-            <div className="text-xl font-black text-[#422F21] mt-0.5">{stats.totalLaki} Orang</div>
-            <span className="text-[10px] text-[#8C6A47] block mt-0.5">Zona Laki-laki Aula · Klik filter</span>
-          </button>
+            <div className="text-2xl sm:text-3xl font-serif font-black text-[#422F21]">
+              {categorySummaryStats.hadirBilGhoib + categorySummaryStats.hadirBinNadzor + categorySummaryStats.hadirTamatan}{' '}
+              <span className="text-base font-sans font-normal text-stone-400">
+                / {categorySummaryStats.bilGhoibCount + categorySummaryStats.binNadzorCount + categorySummaryStats.tamatanCount}
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-500">
+              Format: Total Wali Santri Hadir / Total Kuota Wali Santri
+            </p>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => handleToggleDemographic('PEREMPUAN')}
-            className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative shadow-xs hover:shadow-md ${
-              demographicFilter === 'PEREMPUAN'
-                ? 'bg-white border-[#8C6A47] ring-2 ring-[#8C6A47]/40 shadow-sm'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:bg-white hover:border-[#8C6A47]'
-            }`}
-          >
+          {/* KARTU 2: TOTAL TAMU UNDANGAN */}
+          <div className="p-5 rounded-2xl bg-white border border-[#D5C4B4] shadow-xs space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[#5C3E28] font-bold">Wali / Tamu Perempuan</span>
-              {demographicFilter === 'PEREMPUAN' && (
-                <span className="text-[9px] bg-[#8C6A47] text-white px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">Aktif</span>
-              )}
+              <span className="text-xs font-bold text-stone-600 uppercase tracking-wide flex items-center gap-1.5">
+                <Award className="w-4 h-4 text-emerald-700" />
+                TOTAL TAMU UNDANGAN
+              </span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                {categorySummaryStats.undanganCount > 0
+                  ? Math.round((categorySummaryStats.hadirUndangan / categorySummaryStats.undanganCount) * 100)
+                  : 0}% Hadir
+              </span>
             </div>
-            <div className="text-xl font-black text-[#422F21] mt-0.5">{stats.totalPerempuan} Orang</div>
-            <span className="text-[10px] text-[#8C6A47] block mt-0.5">Zona Perempuan Aula · Klik filter</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleToggleDemographic('PANGGUNG')}
-            className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative shadow-xs hover:shadow-md ${
-              demographicFilter === 'PANGGUNG'
-                ? 'bg-white border-[#D49B5B] ring-2 ring-[#D49B5B]/50 shadow-sm'
-                : 'bg-[#FCF3E4] border-[#D49B5B]/50 hover:bg-white hover:border-[#D49B5B]'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[#543C28] font-bold">Tiket Panggung Emas</span>
-              {demographicFilter === 'PANGGUNG' && (
-                <span className="text-[9px] bg-[#D49B5B] text-white px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">Aktif</span>
-              )}
+            <div className="text-2xl sm:text-3xl font-serif font-black text-[#422F21]">
+              {categorySummaryStats.hadirUndangan}{' '}
+              <span className="text-base font-sans font-normal text-stone-400">
+                / {categorySummaryStats.undanganCount}
+              </span>
             </div>
-            <div className="text-xl font-black text-[#8C6A47] mt-0.5">
-              {stats.totalPanggung} <span className="text-xs font-normal">Diserahkan</span>
-            </div>
-            <span className="text-[10px] text-[#D49B5B] block mt-0.5">Ibu Santriwati Bil Ghoib · Klik filter</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleToggleDemographic('BALITA')}
-            className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative shadow-xs hover:shadow-md ${
-              demographicFilter === 'BALITA'
-                ? 'bg-white border-[#8C6A47] ring-2 ring-[#8C6A47]/40 shadow-sm'
-                : 'bg-[#EFE8E1]/60 border-[#D5C4B4] hover:bg-white hover:border-[#8C6A47]'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[#5C3E28] font-bold">Anak Balita (Non-Kuota)</span>
-              {demographicFilter === 'BALITA' && (
-                <span className="text-[9px] bg-[#8C6A47] text-white px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">Aktif</span>
-              )}
-            </div>
-            <div className="text-xl font-black text-[#422F21] mt-0.5">{stats.totalBalita} Anak</div>
-            <span className="text-[10px] text-[#7A624E] block mt-0.5">Dicatat Gerbang Masuk · Klik filter</span>
-          </button>
+            <p className="text-[11px] text-stone-500">
+              Format: Total Tamu Undangan Hadir / Total Tamu Undangan
+            </p>
+          </div>
         </div>
       </div>
 
