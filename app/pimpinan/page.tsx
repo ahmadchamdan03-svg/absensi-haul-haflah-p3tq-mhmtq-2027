@@ -59,9 +59,9 @@ export default function PimpinanPage() {
           </div>
         </header>
 
-        {/* KONTEN UTAMA: IDENTIK DENGAN LIVE DASBOR */}
+        {/* KONTEN UTAMA: IDENTIK DENGAN LIVE DASBOR (MODE PIMPINAN) */}
         <main className="max-w-6xl mx-auto px-4 py-6">
-          <LiveDasbor />
+          <LiveDasbor isPimpinanView={true} />
         </main>
 
         <TanyaUsModal isOpen={isUsModalOpen} onClose={() => setIsUsModalOpen(false)} />

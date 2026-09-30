@@ -9,13 +9,16 @@ import {
   Award,
   RefreshCw,
   Building,
-  Phone,
   Compass,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import DenahModal from '@/components/DenahModal';
 
-export default function LiveDasbor() {
+interface LiveDasborProps {
+  isPimpinanView?: boolean;
+}
+
+export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) {
   const [loading, setLoading] = useState(true);
   const [keluargaList, setKeluargaList] = useState<any[]>([]);
   const [undanganList, setUndanganList] = useState<any[]>([]);
@@ -48,53 +51,72 @@ export default function LiveDasbor() {
         });
       }
 
-      // 2. Fetch live tables 'peserta_santri' and 'tamu_undangan'
-      const [resSantri, resUndangan] = await Promise.all([
+      // 2. Fetch live tables 'peserta_santri', 'tamu_undangan', and 'presensi_log'
+      const [resSantri, resUndangan, resLogs] = await Promise.all([
         supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
         supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
+        supabase.from('presensi_log').select('*').order('server_time', { ascending: false }),
       ]);
+
+      const latestCheckinMap: Record<string, string> = {};
+      if (resLogs.data) {
+        for (const log of resLogs.data) {
+          const key = log.kuota_id || log.kode_qr;
+          if (key && !latestCheckinMap[key] && log.server_time) {
+            latestCheckinMap[key] = log.server_time;
+          }
+        }
+      }
 
       if (resSantri.data) {
         setKeluargaList(
-          resSantri.data.map((s) => ({
-            id: s.id,
-            kode: s.kode,
-            tipe: 'SANTRI',
-            nama: s.nama,
-            namaWali: s.nama_wali || '-',
-            subInfo: `Wali: ${s.nama_wali || '-'} (${s.kategori_utama || 'Bil Ghoib'})`,
-            kategori: s.kategori_utama || 'BIL_GHOIB',
-            subKategori: s.sub_kategori || 'Bil Ghoib',
-            kelas: s.kelas || '-',
-            kamar: s.kamar || '-',
-            noHp: s.no_hp || '-',
-            alamat: s.alamat || 'Kediri',
-            kuotaDasar: s.kuota_dasar || 2,
-            terpakai: s.kuota_terpakai || 0,
-            isHadir: (s.kuota_terpakai || 0) > 0,
-          }))
+          resSantri.data.map((s) => {
+            const checkinTime = latestCheckinMap[s.kode] || latestCheckinMap[s.id] || s.updated_at || s.created_at;
+            return {
+              id: s.id,
+              kode: s.kode,
+              tipe: 'SANTRI',
+              nama: s.nama,
+              namaWali: s.nama_wali || '-',
+              subInfo: `Wali: ${s.nama_wali || '-'} (${s.kategori_utama || 'Bil Ghoib'})`,
+              kategori: s.kategori_utama || 'BIL_GHOIB',
+              subKategori: s.sub_kategori || 'Bil Ghoib',
+              kelas: s.kelas || '-',
+              kamar: s.kamar || '-',
+              noHp: s.no_hp || '-',
+              alamat: s.alamat || 'Kediri',
+              kuotaDasar: s.kuota_dasar || 2,
+              terpakai: s.kuota_terpakai || 0,
+              isHadir: (s.kuota_terpakai || 0) > 0 || !!latestCheckinMap[s.kode] || !!latestCheckinMap[s.id],
+              lastCheckinTime: checkinTime,
+            };
+          })
         );
       }
 
       if (resUndangan.data) {
         setUndanganList(
-          resUndangan.data.map((u) => ({
-            id: u.id,
-            kode: u.kode,
-            tipe: 'UNDANGAN',
-            nama: u.nama,
-            namaWali: u.instansi || u.alamat || 'Tamu Undangan',
-            subInfo: `Instansi: ${u.instansi || u.alamat || '-'} (${u.kategori || 'Tamu'})`,
-            kategori: u.kategori || 'Tamu Undangan',
-            subKategori: u.sub_kategori || 'ISTIMEWA',
-            kelas: u.sub_kategori || 'VIP IDS',
-            kamar: '-',
-            noHp: u.no_hp || '-',
-            alamat: u.alamat || u.instansi || 'Kediri',
-            kuotaDasar: u.kuota_dasar || 2,
-            terpakai: u.kuota_terpakai || 0,
-            isHadir: (u.kuota_terpakai || 0) > 0,
-          }))
+          resUndangan.data.map((u) => {
+            const checkinTime = latestCheckinMap[u.kode] || latestCheckinMap[u.id] || u.updated_at || u.created_at;
+            return {
+              id: u.id,
+              kode: u.kode,
+              tipe: 'UNDANGAN',
+              nama: u.nama,
+              namaWali: u.instansi || u.alamat || 'Tamu Undangan',
+              subInfo: `Instansi: ${u.instansi || u.alamat || '-'} (${u.kategori || 'Tamu'})`,
+              kategori: u.kategori || 'Tamu Undangan',
+              subKategori: u.sub_kategori || 'ISTIMEWA',
+              kelas: u.sub_kategori || 'VIP IDS',
+              kamar: '-',
+              noHp: u.no_hp || '-',
+              alamat: u.alamat || u.instansi || 'Kediri',
+              kuotaDasar: u.kuota_dasar || 2,
+              terpakai: u.kuota_terpakai || 0,
+              isHadir: (u.kuota_terpakai || 0) > 0 || !!latestCheckinMap[u.kode] || !!latestCheckinMap[u.id],
+              lastCheckinTime: checkinTime,
+            };
+          })
         );
       }
     } catch (e) {
@@ -107,7 +129,37 @@ export default function LiveDasbor() {
   useEffect(() => {
     fetchLiveDasborData();
     const interval = setInterval(fetchLiveDasborData, 3000);
-    return () => clearInterval(interval);
+
+    // Supabase Realtime Subscription untuk update instant saat presensi di-absen
+    const channel = supabase
+      .channel('live_dasbor_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'presensi_log' },
+        () => {
+          fetchLiveDasborData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tamu_undangan' },
+        () => {
+          fetchLiveDasborData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'peserta_santri' },
+        () => {
+          fetchLiveDasborData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Total Wali Santri metric calculation
@@ -123,25 +175,60 @@ export default function LiveDasbor() {
     return [...keluargaList, ...undanganList];
   }, [keluargaList, undanganList]);
 
-  // Real-time filtering
+  // Filtering & Sorting berdasar role
   const filteredList = useMemo(() => {
+    if (isPimpinanView) {
+      const q = searchQuery.toLowerCase().trim();
+      if (!q) {
+        // SAAT SEARCH KOSONG DI AKUN PIMPINAN:
+        // HANYA Tamu Undangan yang SUDAH HADIR.
+        // Diurutkan berdasarkan WAKTU KEHADIRAN TERBARU (DESCENDING).
+        const arrivedGuests = undanganList.filter((u) => u.isHadir);
+        return arrivedGuests.sort((a, b) => {
+          const tA = new Date(a.lastCheckinTime || 0).getTime();
+          const tB = new Date(b.lastCheckinTime || 0).getTime();
+          return tB - tA;
+        });
+      }
+
+      // SAAT SEARCH DIISI DI AKUN PIMPINAN:
+      // Pencarian ke Tamu Undangan + Peserta Santri (termasuk yang belum hadir).
+      const matched = allUnifiedList.filter((item) => {
+        const matchKode = (item.kode || '').toLowerCase().includes(q);
+        const matchNama = (item.nama || '').toLowerCase().includes(q);
+        const matchWali = (item.namaWali || '').toLowerCase().includes(q);
+        const matchKat = (item.kategori || '').toLowerCase().includes(q);
+        const matchAlamat = (item.alamat || '').toLowerCase().includes(q);
+        const matchHp = (item.noHp || '').toLowerCase().includes(q);
+        return matchKode || matchNama || matchWali || matchKat || matchAlamat || matchHp;
+      });
+
+      // Tamu/wali yang sudah hadir diurutkan berdasar waktu (DESC), sisanya berdasar nama A-Z
+      const arrived = matched
+        .filter((i) => i.isHadir)
+        .sort((a, b) => new Date(b.lastCheckinTime || 0).getTime() - new Date(a.lastCheckinTime || 0).getTime());
+      const notArrived = matched
+        .filter((i) => !i.isHadir)
+        .sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
+
+      return [...arrived, ...notArrived];
+    }
+
+    // MODE DASBOR PETUGAS (Regular View)
     let list = allUnifiedList;
 
-    // Filter Kategori Tab
     if (tabCategory === 'SANTRI') {
       list = list.filter((i) => i.tipe === 'SANTRI');
     } else if (tabCategory === 'UNDANGAN') {
       list = list.filter((i) => i.tipe === 'UNDANGAN');
     }
 
-    // Quick Status Filter
     if (statusFilter === 'SUDAH') {
       list = list.filter((i) => i.isHadir);
     } else if (statusFilter === 'BELUM') {
       list = list.filter((i) => !i.isHadir);
     }
 
-    // Real-time Search Query Filter
     const q = searchQuery.toLowerCase().trim();
     if (!q) return list;
 
@@ -154,7 +241,7 @@ export default function LiveDasbor() {
       const matchHp = (item.noHp || '').toLowerCase().includes(q);
       return matchKode || matchNama || matchWali || matchKat || matchAlamat || matchHp;
     });
-  }, [allUnifiedList, tabCategory, statusFilter, searchQuery]);
+  }, [allUnifiedList, undanganList, tabCategory, statusFilter, searchQuery, isPimpinanView]);
 
   return (
     <div className="space-y-6">
@@ -186,7 +273,7 @@ export default function LiveDasbor() {
         </div>
       </div>
 
-      {/* 2 KARTU METRIK UTAMA FORMAT DOKUMEN 2.0 (TANPA PEMISAHAN GENDER L/P) */}
+      {/* 2 KARTU METRIK UTAMA */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* KARTU 1: TOTAL WALI SANTRI */}
         <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3 card-transition">
@@ -229,49 +316,52 @@ export default function LiveDasbor() {
 
       {/* FILTER & PENCARIAN REAL-TIME */}
       <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E8DFD5] shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
-          <div>
-            <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
-              Pencarian &amp; Filter Kehadiran Realtime
-            </h3>
-            <p className="text-xs text-[#7A624E]">
-              Ketik nama santri, nama wali, atau kode barcode untuk menyaring data secara instan
-            </p>
-          </div>
+        {/* SECTION HEADER & TABS HANYA MUNCUL DI AKUN PETUGAS (TIDAK DI PIMPINAN) */}
+        {!isPimpinanView && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+            <div>
+              <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+                Pencarian &amp; Filter Kehadiran Realtime
+              </h3>
+              <p className="text-xs text-[#7A624E]">
+                Ketik nama santri, nama wali, atau kode barcode untuk menyaring data secara instan
+              </p>
+            </div>
 
-          {/* TAB FILTER KATEGORI */}
-          <div className="flex bg-[#EFE8E1] p-1 rounded-2xl border border-[#D5C4B4] text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => setTabCategory('SEMUA')}
-              className={`px-3 py-1.5 rounded-xl btn-transition ${
-                tabCategory === 'SEMUA' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
-              }`}
-            >
-              Semua ({allUnifiedList.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setTabCategory('SANTRI')}
-              className={`px-3 py-1.5 rounded-xl btn-transition ${
-                tabCategory === 'SANTRI' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
-              }`}
-            >
-              Wali Santri ({keluargaList.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setTabCategory('UNDANGAN')}
-              className={`px-3 py-1.5 rounded-xl btn-transition ${
-                tabCategory === 'UNDANGAN' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
-              }`}
-            >
-              Tamu ({undanganList.length})
-            </button>
+            {/* TAB FILTER KATEGORI */}
+            <div className="flex bg-[#EFE8E1] p-1 rounded-2xl border border-[#D5C4B4] text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setTabCategory('SEMUA')}
+                className={`px-3 py-1.5 rounded-xl btn-transition ${
+                  tabCategory === 'SEMUA' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
+                }`}
+              >
+                Semua ({allUnifiedList.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabCategory('SANTRI')}
+                className={`px-3 py-1.5 rounded-xl btn-transition ${
+                  tabCategory === 'SANTRI' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
+                }`}
+              >
+                Wali Santri ({keluargaList.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabCategory('UNDANGAN')}
+                className={`px-3 py-1.5 rounded-xl btn-transition ${
+                  tabCategory === 'UNDANGAN' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
+                }`}
+              >
+                Tamu ({undanganList.length})
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* INPUT PENCARIAN REAL-TIME */}
+        {/* INPUT PENCARIAN REAL-TIME & TOMBOL STATUS */}
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
             <Search className="w-4.5 h-4.5 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -284,42 +374,44 @@ export default function LiveDasbor() {
             />
           </div>
 
-          {/* TOMBOL FILTER CEPAT STATUS KEHADIRAN */}
-          <div className="flex items-center space-x-1.5 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setStatusFilter('SEMUA')}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
-                statusFilter === 'SEMUA'
-                  ? 'bg-stone-800 text-white border-stone-800 shadow-xs'
-                  : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
-              }`}
-            >
-              Semua Status
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('SUDAH')}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
-                statusFilter === 'SUDAH'
-                  ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                  : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-50'
-              }`}
-            >
-              ✓ Sudah Hadir
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('BELUM')}
-              className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
-                statusFilter === 'BELUM'
-                  ? 'bg-amber-800 text-white border-amber-800 shadow-xs'
-                  : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50'
-              }`}
-            >
-              ⏱ Belum Hadir
-            </button>
-          </div>
+          {/* TOMBOL FILTER CEPAT STATUS KEHADIRAN (HANYA MUNCUL DI PETUGAS) */}
+          {!isPimpinanView && (
+            <div className="flex items-center space-x-1.5 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('SEMUA')}
+                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
+                  statusFilter === 'SEMUA'
+                    ? 'bg-stone-800 text-white border-stone-800 shadow-xs'
+                    : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
+                }`}
+              >
+                Semua Status
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('SUDAH')}
+                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
+                  statusFilter === 'SUDAH'
+                    ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
+                    : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-50'
+                }`}
+              >
+                ✓ Sudah Hadir
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('BELUM')}
+                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
+                  statusFilter === 'BELUM'
+                    ? 'bg-amber-800 text-white border-amber-800 shadow-xs'
+                    : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50'
+                }`}
+              >
+                ⏱ Belum Hadir
+              </button>
+            </div>
+          )}
         </div>
 
         {/* TABEL / GRID DAFTAR PESERTA & TAMU */}
@@ -329,10 +421,16 @@ export default function LiveDasbor() {
           </div>
         ) : filteredList.length === 0 ? (
           <div className="p-8 text-center text-xs bg-stone-50 rounded-2xl border border-dashed border-stone-200 space-y-1">
-            <p className="font-bold text-sm text-[#422F21]">Belum ada data peserta / tamu</p>
+            <p className="font-bold text-sm text-[#422F21]">
+              {isPimpinanView && !searchQuery
+                ? 'Belum ada tamu undangan yang hadir.'
+                : 'Belum ada data peserta / tamu'}
+            </p>
             <p className="text-stone-500">
               {searchQuery
                 ? `Tidak ditemukan data yang cocok dengan kata kunci "${searchQuery}".`
+                : isPimpinanView
+                ? 'Data kehadiran tamu undangan yang baru di-absen akan muncul di sini secara otomatis.'
                 : 'Silakan panitia menambahkan data peserta atau tamu melalui menu Manajemen Peserta atau Penerima Tamu.'}
             </p>
           </div>
@@ -341,14 +439,14 @@ export default function LiveDasbor() {
             {filteredList.map((item) => (
               <div
                 key={item.id || item.kode}
-                className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition-all animate-in fade-in slide-in-from-top-2 duration-300 ${
                   item.isHadir
                     ? 'bg-emerald-50/70 border-emerald-300'
                     : 'bg-white border-[#E8DFD5] hover:border-emerald-500'
                 }`}
               >
                 <div className="space-y-1 flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                     <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 border border-stone-200">
                       {item.kode}
                     </span>
