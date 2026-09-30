@@ -187,11 +187,8 @@ export default function PimpinanPage() {
                 <LayoutDashboard className="w-5 h-5 text-amber-700" />
               </div>
               <div>
-                <div className="text-[10px] font-serif font-black tracking-widest text-amber-800 uppercase">
-                  EXECUTIVE LIVE DASHBOARD · PIMPINAN
-                </div>
                 <h1 className="font-serif font-black text-sm sm:text-base text-[#422F21]">
-                  Haul &amp; Haflah P3TQ - MHMTQ 2027
+                  Laporan Realtime Jumlah Kehadiran Peserta Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.
                 </h1>
               </div>
             </div>

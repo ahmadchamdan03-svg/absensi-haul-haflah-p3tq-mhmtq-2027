@@ -26,7 +26,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
       return { title: 'Beranda Panitia', category: 'Haul & Haflah P3TQ & MHMTQ 2027' };
     }
     if (pathname === '/admin/dasbor') {
-      return { title: 'Live Dasbor Kedatangan', category: 'Monitoring Realtime' };
+      return { title: 'Laporan Realtime Jumlah Kehadiran Peserta', category: 'Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.' };
     }
     if (pathname === '/scan') {
       return { title: 'Scanner QR Gerbang', category: 'Operasional Masuk' };

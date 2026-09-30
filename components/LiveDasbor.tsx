@@ -8,7 +8,6 @@ import {
   Clock,
   Award,
   RefreshCw,
-  Radio,
   Building,
   Phone,
   Compass,
@@ -162,16 +161,9 @@ export default function LiveDasbor() {
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
-            <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span>EXECUTIVE LIVE DASHBOARD 2.0</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#422F21]">
-            Dasbor Realtime Kehadiran &amp; Manajemen Kuota
+          <h1 className="text-xl sm:text-2xl font-serif font-black tracking-tight text-[#422F21]">
+            Laporan Realtime Jumlah Kehadiran Peserta Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.
           </h1>
-          <p className="text-xs text-[#7A624E] mt-0.5 font-medium">
-            Terhubung langsung ke Supabase Cloud (`v_dasbor_pimpinan`, `peserta_santri`, `tamu_undangan`)
-          </p>
         </div>
 
         <div className="flex items-center space-x-2">
