@@ -177,6 +177,24 @@ export interface Kuota {
   hangusAt?: string | null;
 }
 
+export interface TamuUndanganDbRow {
+  id?: string | number;
+  kode: string;
+  nama: string;
+  nama_putra?: string | null;
+  nama_putri?: string | null;
+  kategori: string;
+  sub_kategori: string;
+  instansi?: string | null;
+  alamat?: string | null;
+  no_hp?: string | null;
+  kuota_dasar: number;
+  kuota_tambahan: number;
+  kuota_terpakai: number;
+  warna_tiket: string;
+  created_at?: string;
+}
+
 export interface EstimasiKehadiran {
   kuotaId: string;
   perkiraanL: number;

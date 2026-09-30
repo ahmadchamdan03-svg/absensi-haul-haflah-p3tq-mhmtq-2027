@@ -175,7 +175,7 @@ export default function PenerimaTamuPage() {
       // Direct Supabase update tamu_undangan
       const { error: errUpdate } = await supabase
         .from('tamu_undangan')
-        .update({ terpakai: newTerpakai })
+        .update({ kuota_terpakai: newTerpakai })
         .eq('kode', u.kode);
 
       if (errUpdate) {

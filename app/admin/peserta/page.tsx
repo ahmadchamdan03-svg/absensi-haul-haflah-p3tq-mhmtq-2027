@@ -1062,6 +1062,8 @@ export default function ManajemenPesertaPage() {
           .from('tamu_undangan')
           .update({
             nama: finalNama,
+            nama_putra: p || null,
+            nama_putri: w || null,
             kategori: finalKat,
             sub_kategori: editGolonganUndangan || 'ISTIMEWA',
             instansi: finalInstansi || '-',
