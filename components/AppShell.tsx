@@ -18,11 +18,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isPublicPage = pathname === '/' || pathname.startsWith('/u/') || pathname.startsWith('/beli/') || pathname === '/penerima-tamu' || pathname === '/pimpinan';
 
   if (isPublicPage) {
-    return <main className="min-h-screen bg-[#FAF7F3] dark:bg-[#1A1512] dark:text-[#F5EFE6] transition-colors duration-300">{children}</main>;
+    return <main className="min-h-screen bg-[#FAF7F3]">{children}</main>;
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F3] dark:bg-[#1A1512] dark:text-[#F5EFE6] flex transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF7F3] flex">
       {/* Sidebar Navigasi Samping */}
       <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
 
