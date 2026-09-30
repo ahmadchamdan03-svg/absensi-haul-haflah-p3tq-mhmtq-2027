@@ -91,7 +91,43 @@ export default function LaporanPage() {
           );
       }
 
-      setSantriList(rawSantri);
+      // Auto update massal di Supabase jika ada peserta_santri non-Bil Ghoib yang di database warna_tiket-nya belum 'Merah Gold'
+      const unassignedSantriInDb = rawSantri.filter((s: any) => {
+        const kat = (s.kategori_utama || '').toUpperCase();
+        const sub = (s.sub_kategori || '').toLowerCase();
+        const isBilGhoib = kat === 'BIL_GHOIB' || sub.includes('bil ghoib');
+        if (isBilGhoib) {
+          return s.warna_tiket !== 'Hitam Gold';
+        }
+        return s.warna_tiket !== 'Merah Gold';
+      });
+
+      if (unassignedSantriInDb.length > 0) {
+        supabase
+          .from('peserta_santri')
+          .update({ warna_tiket: 'Hitam Gold' })
+          .or('kategori_utama.eq.BIL_GHOIB,sub_kategori.ilike.%bil ghoib%')
+          .then(
+            () => {},
+            (err) => console.warn('Mass update santri Bil Ghoib warning:', err)
+          );
+
+        supabase
+          .from('peserta_santri')
+          .update({ warna_tiket: 'Merah Gold' })
+          .not('kategori_utama', 'eq', 'BIL_GHOIB')
+          .then(
+            () => {},
+            (err) => console.warn('Mass update santri Non-Bil Ghoib warning:', err)
+          );
+      }
+
+      setSantriList(
+        rawSantri.map((s: any) => ({
+          ...s,
+          warna_tiket: getWarnaTiketSantri(s.kategori_utama, s.sub_kategori),
+        }))
+      );
       setTamuList(
         rawTamu.map((u: any) => {
           const gol = (u.sub_kategori || u.golongan || '').toUpperCase();
@@ -122,19 +158,19 @@ export default function LaporanPage() {
   // Template 14 Kategori Santri
   const templateBlokSantri = [
     { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Hitam Gold' },
-    { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Biru' },
-    { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', warna: 'Biru' },
-    { no: 4, kategori: 'Bin Nadzori 1 Aliyah', warna: 'Biru' },
-    { no: 5, kategori: 'Bin Nadzori 2 Aliyah', warna: 'Biru' },
-    { no: 6, kategori: 'Bin Nadzori 3 Aliyah', warna: 'Biru' },
-    { no: 7, kategori: 'Bin Nadzori Mutakhorijat', warna: 'Biru' },
-    { no: 8, kategori: 'Tamatan Bagian A.01', warna: 'Kuning' },
-    { no: 9, kategori: 'Tamatan Bagian A.02', warna: 'Kuning' },
-    { no: 10, kategori: 'Tamatan Bagian A.03', warna: 'Kuning' },
-    { no: 11, kategori: 'Tamatan Bagian A.04', warna: 'Kuning' },
-    { no: 12, kategori: 'Tamatan Bagian B.01', warna: 'Kuning' },
-    { no: 13, kategori: 'Tamatan Bagian B.02', warna: 'Kuning' },
-    { no: 14, kategori: 'Tamatan Bagian B.03', warna: 'Kuning' },
+    { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Merah Gold' },
+    { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', warna: 'Merah Gold' },
+    { no: 4, kategori: 'Bin Nadzori 1 Aliyah', warna: 'Merah Gold' },
+    { no: 5, kategori: 'Bin Nadzori 2 Aliyah', warna: 'Merah Gold' },
+    { no: 6, kategori: 'Bin Nadzori 3 Aliyah', warna: 'Merah Gold' },
+    { no: 7, kategori: 'Bin Nadzori Mutakhorijat', warna: 'Merah Gold' },
+    { no: 8, kategori: 'Tamatan Bagian A.01', warna: 'Merah Gold' },
+    { no: 9, kategori: 'Tamatan Bagian A.02', warna: 'Merah Gold' },
+    { no: 10, kategori: 'Tamatan Bagian A.03', warna: 'Merah Gold' },
+    { no: 11, kategori: 'Tamatan Bagian A.04', warna: 'Merah Gold' },
+    { no: 12, kategori: 'Tamatan Bagian B.01', warna: 'Merah Gold' },
+    { no: 13, kategori: 'Tamatan Bagian B.02', warna: 'Merah Gold' },
+    { no: 14, kategori: 'Tamatan Bagian B.03', warna: 'Merah Gold' },
   ];
 
   const getSantriIndex = (s: any) => {
@@ -392,8 +428,8 @@ export default function LaporanPage() {
       ['Tanggal Acara: Sabtu, 02 Januari 2027 / 24 Rajab 1448 H'],
       [],
       ['No', 'Kategori Utama', 'Rincian Sub-Kategori', 'Warna Tiket', 'Jumlah Tamu', 'WS Laki-laki', 'WS Perempuan', 'Total Hadir', 'Total Kuota', 'Prosentase (%)'],
-      ...blokSantri.map((r) => [r.no, 'Santri Sohibul Hajat', r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
-      ['', '', `SUBTOTAL SOHIBUL HAJAT (${subtotalSantri.sh} SANTRI)`, '', subtotalSantri.sh, subtotalSantri.l, subtotalSantri.p, subtotalSantri.total, subtotalSantri.kuota, `${pctSubtotalSantri}%`],
+      ...blokSantri.map((r) => [r.no, 'Wali Santri Shohibul Hajat', r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
+      ['', '', `SUBTOTAL WALI SANTRI SHOHIBUL HAJAT (${subtotalSantri.sh} SANTRI)`, '', subtotalSantri.sh, subtotalSantri.l, subtotalSantri.p, subtotalSantri.total, subtotalSantri.kuota, `${pctSubtotalSantri}%`],
       [],
       ['-- BLOK 2: KUOTA TAMBAHAN (300) --'],
       ...blokTambahan.map((r) => [r.no, 'Kuota Tambahan', r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
@@ -472,10 +508,10 @@ export default function LaporanPage() {
           </div>
         </div>
 
-        {/* TABEL BLOK 1: SANTRI SOHIBUL HAJAT */}
+        {/* TABEL BLOK 1: WALI SANTRI SHOHIBUL HAJAT */}
         <div className="space-y-2">
           <div className="font-serif font-bold text-xs text-slate-900 uppercase tracking-wide bg-slate-100 p-2.5 rounded-xl border border-slate-300 flex items-center justify-between">
-            <span>BLOK 1: SANTRI SOHIBUL HAJAT ({subtotalSantri.sh} SANTRI TERDAFTAR)</span>
+            <span>BLOK 1: WALI SANTRI SHOHIBUL HAJAT ({subtotalSantri.sh} SANTRI TERDAFTAR)</span>
             <span className="text-[11px] font-normal normal-case text-[#8C6A47] no-print">
               💡 Klik baris untuk melihat rincian santri yang sudah absen
             </span>
@@ -553,7 +589,7 @@ export default function LaporanPage() {
                 {/* Subtotal Baris Santri */}
                 <tr className="bg-slate-200 font-black text-slate-900">
                   <td colSpan={3} className="p-2 border border-slate-300 text-right">
-                    SUBTOTAL SOHIBUL HAJAT ({subtotalSantri.sh} SANTRI):
+                    SUBTOTAL WALI SANTRI SHOHIBUL HAJAT ({subtotalSantri.sh} SANTRI):
                   </td>
                   <td className="p-2 border border-slate-300 text-center">{subtotalSantri.sh}</td>
                   <td className="p-2 border border-slate-300 text-center">{subtotalSantri.l}</td>

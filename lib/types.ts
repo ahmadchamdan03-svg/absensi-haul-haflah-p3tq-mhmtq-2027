@@ -20,10 +20,7 @@ export function getWarnaTiketSantri(kategoriUtama?: string, subKategori?: string
   if (kat === 'BIL_GHOIB' || sub.includes('bil ghoib')) {
     return 'Hitam Gold';
   }
-  if (kat === 'TAMATAN' || sub.includes('tamatan') || sub.includes('a.0') || sub.includes('b.0')) {
-    return 'Kuning';
-  }
-  return 'Biru';
+  return 'Merah Gold';
 }
 
 export function getWarnaTiketUndangan(golongan?: string, kategori?: string): string {
