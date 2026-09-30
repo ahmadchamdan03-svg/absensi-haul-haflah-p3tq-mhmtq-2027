@@ -263,6 +263,7 @@ export interface CheckinResult {
   zonaPerempuan?: number;
   zonaPanggung?: number;
   riwayat?: { waktu: string; jumlahL: number; jumlahP: number; jalur: string }[];
+  detail?: any;
 }
 
 export interface KategoriStat {
