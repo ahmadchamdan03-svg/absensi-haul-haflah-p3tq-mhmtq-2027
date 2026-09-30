@@ -116,8 +116,8 @@ export default function PimpinanPage() {
   const totalHadirTamu = supaMetrics.tamuHadir || undanganList.reduce((acc, u) => acc + (u.kuota?.terpakai || 0), 0);
 
   const grandTotalHadir = totalHadirWaliSantri + totalHadirTamu;
-  const targetKursi = 1534;
-  const okupansiPersen = targetKursi > 0 ? Math.min(100, Math.round((grandTotalHadir / targetKursi) * 100)) : 0;
+  const totalKapasitasKursi = (totalKuotaWaliSantri || 0) + (totalKuotaTamu || 0);
+  const okupansiPersen = totalKapasitasKursi > 0 ? Math.round((grandTotalHadir / totalKapasitasKursi) * 100) : 0;
 
   // Filter pencarian kehadiran real-time berdasarkan nama di Supabase
   const searchResults = useMemo(() => {
@@ -230,7 +230,7 @@ export default function PimpinanPage() {
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-3xl font-serif font-black text-white mt-1">
-                  {grandTotalHadir} Hadir / {targetKursi} Kapasitas Kursi
+                  {grandTotalHadir} Hadir / {totalKapasitasKursi} Kapasitas Kursi
                 </h2>
               </div>
               <div className="text-left sm:text-right">
@@ -252,7 +252,7 @@ export default function PimpinanPage() {
             <div className="flex flex-wrap items-center justify-between text-xs text-stone-300 pt-1 border-t border-white/10 relative z-10">
               <span>Wali Santri Hadir: <strong>{totalHadirWaliSantri} Hadir</strong></span>
               <span>Tamu Undangan Hadir: <strong>{totalHadirTamu} Hadir</strong></span>
-              <span>Sisa Kursi Kosong: <strong>{Math.max(0, targetKursi - grandTotalHadir)} Kursi</strong></span>
+              <span>Sisa Kursi Kosong: <strong>{Math.max(0, totalKapasitasKursi - grandTotalHadir)} Kursi</strong></span>
             </div>
           </div>
 
