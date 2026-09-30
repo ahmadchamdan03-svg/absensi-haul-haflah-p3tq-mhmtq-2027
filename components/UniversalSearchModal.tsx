@@ -26,6 +26,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
+import { supabase } from '@/lib/supabase';
 
 export interface SearchItem {
   id: string;
@@ -273,57 +274,65 @@ export default function UniversalSearchModal({
     }
   }, [messages, activeTab]);
 
+  const [supaPesertaItems, setSupaPesertaItems] = useState<SearchItem[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const fetchSupaPeserta = async () => {
+      try {
+        const [resSantri, resUndangan] = await Promise.all([
+          supabase.from('peserta_santri').select('*'),
+          supabase.from('tamu_undangan').select('*'),
+        ]);
+
+        const items: SearchItem[] = [];
+
+        if (resSantri.data) {
+          for (const s of resSantri.data) {
+            const terpakai = s.kuota_terpakai || 0;
+            const sudahHadir = terpakai > 0;
+            items.push({
+              id: `s-${s.kode}`,
+              tipe: 'PESERTA',
+              title: s.nama,
+              subtitle: `${s.kode} · ${s.kelas || s.kategori_utama || 'Santri'} · Wali: ${s.nama_wali || '-'} (${s.alamat || 'Kediri'})`,
+              badge: sudahHadir ? `Hadir (${terpakai} Kursi)` : 'Belum Hadir',
+              badgeColor: sudahHadir
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                : 'bg-amber-100 text-amber-900 border-amber-300',
+              href: `/admin/peserta?q=${s.kode}`,
+            });
+          }
+        }
+
+        if (resUndangan.data) {
+          for (const u of resUndangan.data) {
+            const terpakai = u.kuota_terpakai || 0;
+            const sudahHadir = terpakai > 0;
+            items.push({
+              id: `u-${u.kode}`,
+              tipe: 'PESERTA',
+              title: u.nama,
+              subtitle: `${u.kode} · ${u.kategori || 'VIP'} · ${u.instansi || u.alamat || '-'}`,
+              badge: sudahHadir ? `VIP Hadir (${terpakai} Kursi)` : 'VIP Belum Hadir',
+              badgeColor: sudahHadir
+                ? 'bg-purple-100 text-purple-900 border-purple-300'
+                : 'bg-stone-100 text-stone-800 border-stone-300',
+              href: `/admin/peserta?q=${u.kode}`,
+            });
+          }
+        }
+
+        setSupaPesertaItems(items);
+      } catch (e) {}
+    };
+    fetchSupaPeserta();
+  }, [isOpen]);
+
   // Data Peserta Live Search
   const pesertaItems = useMemo(() => {
-    const keluarga = store.getKeluargaList();
-    const undangan = store.getUndanganList();
-
-    const items: SearchItem[] = [];
-
-    for (const k of keluarga) {
-      const santri = k.santri?.[0];
-      const sudahHadir = k.kuota.terpakai > 0;
-      let badgeKat = 'Bil Ghoib';
-      let badgeCol = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-
-      if (santri?.kategoriUtama === 'BIN_NADZOR') {
-        badgeKat = 'Bin Nadzori';
-        badgeCol = 'bg-blue-100 text-blue-800 border-blue-300';
-      } else if (santri?.kategoriUtama === 'TAMATAN') {
-        badgeKat = 'Tamatan';
-        badgeCol = 'bg-amber-100 text-amber-900 border-amber-300';
-      }
-
-      items.push({
-        id: `s-${k.kode}`,
-        tipe: 'PESERTA',
-        title: santri?.nama || 'Santri',
-        subtitle: `${k.kode} · ${santri?.kelas || badgeKat} · Wali: ${k.namaWali} (${k.alamat})`,
-        badge: sudahHadir ? `Hadir (${k.kuota.terpakai} Kursi)` : 'Belum Hadir',
-        badgeColor: sudahHadir
-          ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-          : 'bg-amber-100 text-amber-900 border-amber-300',
-        href: `/admin/peserta?q=${k.kode}`,
-      });
-    }
-
-    for (const u of undangan) {
-      const sudahHadir = u.kuota.terpakai > 0;
-      items.push({
-        id: `u-${u.kode}`,
-        tipe: 'PESERTA',
-        title: u.nama,
-        subtitle: `${u.kode} · ${u.kategori || 'VIP'} · ${u.instansi || (u as any).alamat || '-'}`,
-        badge: sudahHadir ? `VIP Hadir (${u.kuota.terpakai} Kursi)` : 'VIP Belum Hadir',
-        badgeColor: sudahHadir
-          ? 'bg-purple-100 text-purple-900 border-purple-300'
-          : 'bg-stone-100 text-stone-800 border-stone-300',
-        href: `/admin/peserta?q=${u.kode}`,
-      });
-    }
-
-    return items;
-  }, []);
+    return supaPesertaItems;
+  }, [supaPesertaItems]);
 
   // Filter Search
   const searchResults = useMemo(() => {

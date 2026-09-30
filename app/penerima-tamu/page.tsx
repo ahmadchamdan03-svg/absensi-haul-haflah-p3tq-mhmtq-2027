@@ -71,16 +71,15 @@ export default function PenerimaTamuPage() {
             kodeQr: d.kode,
             kuotaDasar: d.kuota_dasar || 2,
             kuotaTambahan: 0,
-            terpakai: d.terpakai || 0,
+            terpakai: d.kuota_terpakai || 0,
           },
         }));
         setUndanganList(mapped);
       } else {
-        // Fallback to store
-        setUndanganList([...store.getUndanganList()]);
+        setUndanganList([]);
       }
     } catch (e) {
-      setUndanganList([...store.getUndanganList()]);
+      setUndanganList([]);
     } finally {
       setLoading(false);
     }

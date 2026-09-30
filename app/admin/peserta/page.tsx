@@ -373,8 +373,8 @@ export default function ManajemenPesertaPage() {
       }
     } catch (e) {
       console.warn('Error in refreshData:', e);
-      setKeluargaList([...store.getKeluargaList()]);
-      setUndanganList([...store.getUndanganList()]);
+      setKeluargaList([]);
+      setUndanganList([]);
     }
   };
 

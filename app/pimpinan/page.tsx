@@ -71,13 +71,13 @@ export default function PimpinanPage() {
         setKeluargaList(
           resSantri.data.map((s) => ({
             id: s.id,
-            kode: s.nis,
+            kode: s.kode || s.nis || 'SH000',
             namaWali: s.nama_wali,
             santri: [{ nama: s.nama, kelas: s.kelas }],
             kuota: {
               kuotaDasar: s.kuota_dasar || 2,
               kuotaTambahan: 0,
-              terpakai: s.terpakai || 0,
+              terpakai: s.kuota_terpakai || 0,
             },
           }))
         );
@@ -93,15 +93,14 @@ export default function PimpinanPage() {
             kuota: {
               kuotaDasar: u.kuota_dasar || 2,
               kuotaTambahan: 0,
-              terpakai: u.terpakai || 0,
+              terpakai: u.kuota_terpakai || 0,
             },
           }))
         );
       }
     } catch (e) {
-      // Fallback local store
-      setKeluargaList([...store.getKeluargaList()]);
-      setUndanganList([...store.getUndanganList()]);
+      setKeluargaList([]);
+      setUndanganList([]);
     }
   };
 
