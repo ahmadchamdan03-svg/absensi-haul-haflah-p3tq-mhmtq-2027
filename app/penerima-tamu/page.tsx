@@ -336,36 +336,38 @@ export default function PenerimaTamuPage() {
   return (
     <AuthGuard allowedRoles={['PENERIMA_TAMU', 'ADMIN']}>
       <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] pb-24">
-        {/* HEADER */}
-        <header className="border-b border-[#E8DFD5] bg-[#FAF7F3]/90 backdrop-blur-md sticky top-0 z-20 px-4 py-3 sm:py-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-800 border-2 border-emerald-600 flex items-center justify-center font-bold shadow-xs">
-                <Users className="w-5 h-5 text-emerald-700" />
+        {/* HEADER RESPONSIF (MOBILE STACKED, DESKTOP INLINE) */}
+        <header className="border-b border-[#E8DFD5] bg-[#FAF7F3]/95 backdrop-blur-md sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            {/* BARIS PERTAMA (MOBILE): LOGO & JUDUL POS PENERIMA TAMU */}
+            <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-800 border-2 border-emerald-600 flex items-center justify-center font-bold shadow-xs shrink-0">
+                <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-700" />
               </div>
-              <div>
-                <div className="text-[10px] font-serif font-black tracking-widest text-emerald-800 uppercase">
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs font-serif font-black tracking-wider text-emerald-800 uppercase leading-tight truncate">
                   POS PENERIMA TAMU · MEJA TRANSIT
                 </div>
-                <h1 className="font-serif font-black text-sm sm:text-base text-[#422F21]">
+                <h1 className="font-serif font-black text-xs sm:text-base text-[#422F21] leading-tight truncate">
                   Haul &amp; Haflah P3TQ - MHMTQ 2027
                 </h1>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            {/* BARIS KEDUA (MOBILE) / KANAN (DESKTOP): TOMBOL AKSI */}
+            <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-0.5 md:pb-0">
               <button
                 type="button"
-                onClick={() => setShowAddModal(true)}
-                className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs flex items-center space-x-1 transition-all cursor-pointer"
+                onClick={() => handleOpenAddModal('ISTIMEWA')}
+                className="flex-1 md:flex-none justify-center px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs flex items-center space-x-1 transition-all cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
-                <span>Tambah Tamu</span>
+                <span>+ Tambah Tamu</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsUsModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
+                className="flex-1 md:flex-none justify-center px-3 py-2 sm:py-1.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-emerald-200" />
                 <span>Tanya Us</span>
@@ -373,11 +375,11 @@ export default function PenerimaTamuPage() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-bold shadow-2xs flex items-center space-x-1.5 transition-all cursor-pointer"
+                className="px-3 py-2 sm:py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-bold shadow-2xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
                 title="Keluar / Ganti Peran"
               >
                 <LogOut className="w-3.5 h-3.5 text-stone-500" />
-                <span className="hidden sm:inline">Ganti Peran</span>
+                <span className="inline">Keluar</span>
               </button>
             </div>
           </div>
