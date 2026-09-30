@@ -29,6 +29,34 @@ import { getWarnaTiketUndangan } from '@/lib/types';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import AuthGuard from '@/components/AuthGuard';
 
+type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
+
+const OPSI_UNDANGAN_ISTIMEWA = [
+  'VVIP',
+  'VIP Bani Marzuqi',
+  'VIP Bani Qomariyah',
+  'VIP Bani Mahrus (Zainab)',
+  'VIP Bani Salamah',
+  'VIP Bani Aisyah',
+  'VIP Bandar',
+  'VIP Keluarga Kunir – Blitar',
+  'VIP IDS',
+  'Lainnya (Ketik Sendiri...)',
+];
+
+const OPSI_UNDANGAN_UMUM = [
+  'Asatidz Mhmtq Sekalian',
+  'Asatidz Purna Bakti',
+  'Asatidzah Mhmtq Nduduk Rumah',
+  'Mustahiq Tamatan Non Purna',
+  'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah',
+  'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)',
+  'Pengajar Unit',
+  'Penguji Al-Qur\'an',
+  'Perwakilan Pondok',
+  'Lainnya (Ketik Sendiri...)',
+];
+
 export default function PenerimaTamuPage() {
   const router = useRouter();
   const [undanganList, setUndanganList] = useState<any[]>([]);
@@ -37,17 +65,41 @@ export default function PenerimaTamuPage() {
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'ABSENSI' | 'POS_JAGA'>('ABSENSI');
 
-  // Modal Tambah Tamu Baru
+  // Modal Tambah Tamu Baru (Identik dengan Admin)
   const [showAddModal, setShowAddModal] = useState(false);
-  const [formData, setFormData] = useState({
+  const [selectedGolonganUndangan, setSelectedGolonganUndangan] = useState<GolonganUndangan>('ISTIMEWA');
+  const [undanganForm, setUndanganForm] = useState({
     nama: '',
-    kategori: 'VIP IDS',
-    golongan: 'ISTIMEWA' as 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM',
+    namaPutra: '',
+    namaPutri: '',
+    kategori: OPSI_UNDANGAN_ISTIMEWA[0],
     instansi: '',
     alamat: '',
     noHp: '',
     kuotaDasar: 2,
   });
+  const [undanganKategoriDropdown, setUndanganKategoriDropdown] = useState<string>(OPSI_UNDANGAN_ISTIMEWA[0]);
+  const [customKategoriInput, setCustomKategoriInput] = useState<string>('');
+
+  const handleOpenAddModal = (gol: GolonganUndangan = 'ISTIMEWA') => {
+    setSelectedGolonganUndangan(gol);
+    let defaultKategori = OPSI_UNDANGAN_ISTIMEWA[0];
+    if (gol === 'KEHORMATAN') defaultKategori = 'Tamu Kehormatan';
+    else if (gol === 'UMUM') defaultKategori = OPSI_UNDANGAN_UMUM[0];
+    setUndanganKategoriDropdown(defaultKategori);
+    setUndanganForm({
+      nama: '',
+      namaPutra: '',
+      namaPutri: '',
+      kategori: defaultKategori,
+      instansi: '',
+      alamat: '',
+      noHp: '',
+      kuotaDasar: gol === 'ISTIMEWA' ? 2 : gol === 'KEHORMATAN' ? 4 : 2,
+    });
+    setCustomKategoriInput('');
+    setShowAddModal(true);
+  };
 
   const fetchTamuData = async () => {
     try {
@@ -62,6 +114,8 @@ export default function PenerimaTamuPage() {
           id: d.id,
           kode: d.kode,
           nama: d.nama,
+          namaPutra: d.nama_putra || '',
+          namaPutri: d.nama_putri || '',
           kategori: d.kategori || 'VIP IDS',
           instansi: d.instansi || d.alamat || '',
           alamat: d.alamat || '',
@@ -163,36 +217,79 @@ export default function PenerimaTamuPage() {
     await fetchTamuData();
   };
 
-  // Handler Tambah Tamu Baru (VIP IDS / Tamu Umum)
+  // Handler Tambah Tamu Baru (Identik 100% dengan Admin)
   const handleTambahTamu = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nama.trim()) {
-      alert('Nama tamu undangan wajib diisi!');
-      return;
+
+    let finalNama = '';
+    const p = (undanganForm.namaPutra || '').trim().toUpperCase();
+    const w = (undanganForm.namaPutri || '').trim().toUpperCase();
+
+    if (selectedGolonganUndangan === 'ISTIMEWA') {
+      if (!p && !w) {
+        alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
+        return;
+      }
+      if (p && w) finalNama = `${p} & ${w}`;
+      else finalNama = p || w;
+    } else {
+      if (!undanganForm.nama.trim()) {
+        alert('Nama tamu undangan wajib diisi!');
+        return;
+      }
+      finalNama = undanganForm.nama.trim().toUpperCase();
     }
 
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const newKode = `UND-${randomNum}`;
-    const kuotaVal = Number(formData.kuotaDasar) || 2;
+    let finalKategori = '';
+    if (selectedGolonganUndangan === 'KEHORMATAN') {
+      finalKategori = 'Tamu Kehormatan';
+    } else {
+      finalKategori =
+        undanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)'
+          ? customKategoriInput.trim()
+          : undanganKategoriDropdown.trim();
+
+      if (!finalKategori) {
+        alert('Kategori undangan wajib diisi atau diketik!');
+        return;
+      }
+    }
+
+    let finalAlamat = '';
+    let finalInstansi = '';
+
+    if (selectedGolonganUndangan === 'ISTIMEWA' || selectedGolonganUndangan === 'KEHORMATAN') {
+      finalAlamat = (undanganForm.alamat || undanganForm.instansi || '').trim();
+      finalInstansi = finalAlamat;
+    } else {
+      finalInstansi = (undanganForm.instansi || '').trim();
+      finalAlamat = (undanganForm.alamat || '').trim();
+    }
+
+    const kuotaBase = Number(undanganForm.kuotaDasar) || (selectedGolonganUndangan === 'KEHORMATAN' ? 4 : 2);
+    const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;
 
     try {
       const { error } = await supabase.from('tamu_undangan').insert([
         {
           kode: newKode,
-          nama: formData.nama.trim().toUpperCase(),
-          instansi: formData.instansi.trim().toUpperCase() || '-',
-          alamat: formData.alamat.trim().toUpperCase() || formData.instansi.trim().toUpperCase() || 'KEDIRI',
-          kategori: formData.kategori || 'VIP IDS',
-          sub_kategori: formData.golongan || 'ISTIMEWA',
-          no_hp: formData.noHp.trim() || '-',
-          kuota_dasar: kuotaVal,
+          nama: finalNama,
+          nama_putra: p || null,
+          nama_putri: w || null,
+          instansi: finalInstansi || '-',
+          alamat: finalAlamat || '-',
+          kategori: finalKategori,
+          sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
+          no_hp: undanganForm.noHp || '-',
+          kuota_dasar: kuotaBase,
+          kuota_tambahan: 0,
           kuota_terpakai: 0,
-          warna_tiket: getWarnaTiketUndangan(formData.golongan, formData.kategori),
+          warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
         },
       ]);
       if (error) {
-        console.error('Supabase insert tamu_undangan error:', error);
-        alert(`Gagal menyimpan data tamu ke Supabase: ${error.message}`);
+        console.error('Supabase insert error (tamu_undangan):', error);
+        alert(`Gagal menyimpan Tamu Undangan ke Supabase DB: ${error.message}`);
         return;
       }
     } catch (err: any) {
@@ -201,27 +298,34 @@ export default function PenerimaTamuPage() {
       return;
     }
 
-    // Sync to store
+    // Sync store
     store.tambahUndangan({
-      nama: formData.nama.trim().toUpperCase(),
-      kategori: formData.kategori,
-      instansi: formData.instansi.trim().toUpperCase(),
-      alamat: formData.alamat.trim().toUpperCase(),
-      kuotaDasar: kuotaVal,
-      golongan: formData.golongan,
+      nama: finalNama,
+      namaPutra: p,
+      namaPutri: w,
+      kategori: finalKategori,
+      instansi: finalInstansi,
+      alamat: finalAlamat,
+      kuotaDasar: kuotaBase,
+      golongan: selectedGolonganUndangan,
     });
 
     await fetchTamuData();
     setShowAddModal(false);
-    setFormData({
+    alert(`✓ Berhasil menambahkan Tamu Undangan ke Supabase: ${finalNama} (Kode: ${newKode})`);
+
+    setUndanganForm({
       nama: '',
-      kategori: 'VIP IDS',
-      golongan: 'ISTIMEWA',
+      namaPutra: '',
+      namaPutri: '',
+      kategori: OPSI_UNDANGAN_ISTIMEWA[0],
       instansi: '',
       alamat: '',
       noHp: '',
       kuotaDasar: 2,
     });
+    setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
+    setCustomKategoriInput('');
   };
 
   const handleLogout = () => {
@@ -675,115 +779,341 @@ export default function PenerimaTamuPage() {
           )}
         </main>
 
-        {/* MODAL TAMBAH TAMU BARU (VIP IDS / TAMU UMUM) */}
+        {/* MODAL TAMBAH TAMU BARU (IDENTIK WITH ADMIN PESERTA) */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#E8DFD5] shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <h3 className="font-serif font-black text-lg text-[#422F21]">
-                  Tambah Tamu Undangan (Live Supabase)
-                </h3>
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in">
+            <div className="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-emerald-800 overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-950 to-emerald-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-amber-500/40 shrink-0">
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 shrink-0">
+                    <Plus className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-serif font-black text-sm sm:text-base text-amber-300 truncate">
+                      Tambah Tamu {selectedGolonganUndangan === 'ISTIMEWA' ? 'Istimewa' : selectedGolonganUndangan === 'KEHORMATAN' ? 'Kehormatan' : 'Umum'}
+                    </h3>
+                    <p className="text-[10px] sm:text-[11px] text-emerald-200 truncate">
+                      {selectedGolonganUndangan === 'ISTIMEWA'
+                        ? 'VVIP & Dzurriyyah / Keluarga Mahrus / Kunir / Bandar'
+                        : selectedGolonganUndangan === 'KEHORMATAN'
+                        ? 'Masyayikh, Habaib, Pejabat & Ulama Sepuh'
+                        : 'Asatidz MHMTQ, Mustahiq, Pengajar Unit & Penguji'}
+                    </p>
+                  </div>
+                </div>
                 <button
-                  type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="p-1 rounded-full text-stone-400 hover:text-stone-600"
+                  className="text-emerald-200 hover:text-white p-1"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleTambahTamu} className="space-y-3.5 text-xs">
+              <form onSubmit={handleTambahTamu} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+                {/* 3 Kotak Pemilih Golongan Undangan */}
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">Nama Tamu Undangan *</label>
-                  <input
-                    type="text"
-                    value={formData.nama}
-                    onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                    placeholder="Contoh: KH. Abdullah Faqih / VIP IDS..."
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-700 text-xs"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">Kategori Undangan</label>
-                    <input
-                      type="text"
-                      value={formData.kategori}
-                      onChange={(e) => setFormData({ ...formData, kategori: e.target.value })}
-                      placeholder="VIP IDS / Penguji / Tamu Umum"
-                      className="w-full px-3 py-2 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-700 text-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">Golongan</label>
-                    <select
-                      value={formData.golongan}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          golongan: e.target.value as 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM',
-                        })
-                      }
-                      className="w-full px-3 py-2 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-700 text-xs"
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Pilih Golongan Tamu Undangan *
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedGolonganUndangan('ISTIMEWA');
+                        setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
+                        setUndanganForm({
+                          ...undanganForm,
+                          kategori: OPSI_UNDANGAN_ISTIMEWA[0],
+                          instansi: '',
+                          alamat: '',
+                          kuotaDasar: 2,
+                        });
+                        setCustomKategoriInput('');
+                      }}
+                      className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                        selectedGolonganUndangan === 'ISTIMEWA'
+                          ? 'bg-amber-100 text-amber-900 border-amber-400 ring-2 ring-amber-400/30 shadow-sm'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
                     >
-                      <option value="ISTIMEWA">Istimewa (VVIP / VIP IDS)</option>
-                      <option value="KEHORMATAN">Kehormatan (Masyayikh)</option>
-                      <option value="UMUM">Umum</option>
-                    </select>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>🌟 Istimewa</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedGolonganUndangan('KEHORMATAN');
+                        setUndanganForm({
+                          ...undanganForm,
+                          kategori: 'Tamu Kehormatan',
+                          instansi: '',
+                          alamat: '',
+                          kuotaDasar: 4,
+                        });
+                        setCustomKategoriInput('');
+                      }}
+                      className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                        selectedGolonganUndangan === 'KEHORMATAN'
+                          ? 'bg-purple-100 text-purple-900 border-purple-400 ring-2 ring-purple-400/30 shadow-sm'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Building className="w-3.5 h-3.5 text-purple-600" />
+                      <span>🏛️ Kehormatan</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedGolonganUndangan('UMUM');
+                        setUndanganKategoriDropdown(OPSI_UNDANGAN_UMUM[0]);
+                        setUndanganForm({
+                          ...undanganForm,
+                          kategori: OPSI_UNDANGAN_UMUM[0],
+                          instansi: '',
+                          alamat: '',
+                          kuotaDasar: 2,
+                        });
+                        setCustomKategoriInput('');
+                      }}
+                      className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                        selectedGolonganUndangan === 'UMUM'
+                          ? 'bg-cyan-100 text-cyan-900 border-cyan-400 ring-2 ring-cyan-400/30 shadow-sm'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5 text-cyan-700" />
+                      <span>👥 Umum</span>
+                    </button>
                   </div>
                 </div>
 
+                {/* NAMA TAMU UNDANGAN: JIKA ISTIMEWA BISA INPUT PUTRA & PUTRI, JIKA LAINNYA 1 FIELD NAMA */}
+                {selectedGolonganUndangan === 'ISTIMEWA' ? (
+                  <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Nama Tamu Undangan Istimewa *</span>
+                      </label>
+                      <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-semibold">
+                        Bisa diisi salah satu atau keduanya
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+                          🤵 Nama Tamu Putra (Gus / Kyai)
+                        </label>
+                        <input
+                          type="text"
+                          value={undanganForm.namaPutra}
+                          onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
+                          placeholder=""
+                          className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+                          🧕 Nama Tamu Putri (Ning / Nyai)
+                        </label>
+                        <input
+                          type="text"
+                          value={undanganForm.namaPutri}
+                          onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
+                          placeholder=""
+                          className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-[10px] text-amber-800/80">
+                      * Gabungan nama yang tercetak di kartu undangan:{' '}
+                      <strong className="text-amber-950">
+                        {undanganForm.namaPutra.trim() && undanganForm.namaPutri.trim()
+                          ? `${undanganForm.namaPutra.trim().toUpperCase()} & ${undanganForm.namaPutri.trim().toUpperCase()}`
+                          : (undanganForm.namaPutra.trim().toUpperCase() || undanganForm.namaPutri.trim().toUpperCase() || '(Belum diisi)')}
+                      </strong>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Nama Tamu / Tokoh / Kyai *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={undanganForm.nama}
+                      onChange={(e) => setUndanganForm({ ...undanganForm, nama: e.target.value })}
+                      placeholder=""
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 uppercase font-semibold"
+                    />
+                  </div>
+                )}
+
+                {/* KATEGORI UNDANGAN: DIHAPUS UNTUK KEHORMATAN, HANYA MUNCUL DI ISTIMEWA DAN UMUM */}
+                {selectedGolonganUndangan !== 'KEHORMATAN' && (
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Kategori Undangan *
+                    </label>
+                    <select
+                      value={undanganKategoriDropdown}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUndanganKategoriDropdown(val);
+                        if (val !== 'Lainnya (Ketik Sendiri...)') {
+                          setUndanganForm({ ...undanganForm, kategori: val });
+                        } else {
+                          setUndanganForm({ ...undanganForm, kategori: customKategoriInput });
+                        }
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-white font-medium text-slate-800"
+                    >
+                      {(selectedGolonganUndangan === 'ISTIMEWA'
+                        ? OPSI_UNDANGAN_ISTIMEWA
+                        : OPSI_UNDANGAN_UMUM
+                      ).map((kat) => (
+                        <option key={kat} value={kat}>
+                          {kat}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Input Khusus jika memilih opsi terakhir 'Lainnya (Ketik Sendiri...)' */}
+                    {undanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)' && (
+                      <div className="mt-2.5 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <label className="block text-[11px] font-bold text-emerald-900">
+                          Ketik Kategori Undangan Sendiri *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={customKategoriInput}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCustomKategoriInput(val);
+                            setUndanganForm({ ...undanganForm, kategori: val });
+                          }}
+                          placeholder=""
+                          className="w-full px-3.5 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium placeholder:text-slate-400"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* INSTANSI / ALAMAT SESUAI GOLONGAN */}
+                {selectedGolonganUndangan === 'ISTIMEWA' && (
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Alamat *
+                    </label>
+                    <input
+                      type="text"
+                      value={undanganForm.alamat}
+                      onChange={(e) =>
+                        setUndanganForm({ ...undanganForm, alamat: e.target.value, instansi: e.target.value })
+                      }
+                      placeholder=""
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
+                  </div>
+                )}
+
+                {selectedGolonganUndangan === 'KEHORMATAN' && (
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Alamat *
+                    </label>
+                    <input
+                      type="text"
+                      value={undanganForm.alamat}
+                      onChange={(e) =>
+                        setUndanganForm({ ...undanganForm, alamat: e.target.value, instansi: e.target.value })
+                      }
+                      placeholder=""
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Alamat asal / kediaman Masyayikh & Ulama Sepuh</p>
+                  </div>
+                )}
+
+                {selectedGolonganUndangan === 'UMUM' && (
+                  <>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Instansi / Asal Lembaga</label>
+                      <input
+                        type="text"
+                        value={undanganForm.instansi}
+                        onChange={(e) =>
+                          setUndanganForm({ ...undanganForm, instansi: e.target.value })
+                        }
+                        placeholder=""
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Alamat</label>
+                      <input
+                        type="text"
+                        value={undanganForm.alamat}
+                        onChange={(e) =>
+                          setUndanganForm({ ...undanganForm, alamat: e.target.value })
+                        }
+                        placeholder=""
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">Alamat domisili atau tempat tinggal</p>
+                    </div>
+                  </>
+                )}
+
                 <div>
-                  <label className="block font-bold text-stone-700 mb-1">Nomor WhatsApp (Opsional)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Nomor WhatsApp / HP</label>
                   <input
                     type="text"
-                    value={formData.noHp}
-                    onChange={(e) => setFormData({ ...formData, noHp: e.target.value })}
-                    placeholder="08123456789"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-700 text-xs font-mono"
+                    value={undanganForm.noHp}
+                    onChange={(e) =>
+                      setUndanganForm({ ...undanganForm, noHp: e.target.value })
+                    }
+                    placeholder="08xxxxxxxxxx"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-mono"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">Instansi / Kota (Opsional)</label>
-                    <input
-                      type="text"
-                      value={formData.instansi}
-                      onChange={(e) => setFormData({ ...formData, instansi: e.target.value })}
-                      placeholder="Kediri / Lirboyo"
-                      className="w-full px-3 py-2 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-700 text-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">Kuota Kursi (Opsional)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.kuotaDasar}
-                      onChange={(e) => setFormData({ ...formData, kuotaDasar: Number(e.target.value) })}
-                      className="w-full px-3 py-2 rounded-xl border border-stone-300 focus:outline-none focus:border-emerald-700 text-xs"
-                    />
-                  </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Jatah Kuota Kursi</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={undanganForm.kuotaDasar}
+                    onChange={(e) =>
+                      setUndanganForm({ ...undanganForm, kuotaDasar: Number(e.target.value) })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-mono font-bold"
+                  />
                 </div>
 
-                <div className="pt-2 flex justify-end space-x-2">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-50 font-bold transition-all"
+                    className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-emerald-800 text-white hover:bg-emerald-900 font-bold shadow-xs transition-all"
+                    className="px-6 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-serif font-black shadow border border-emerald-600"
                   >
-                    Simpan ke Supabase
+                    Simpan Undangan
                   </button>
                 </div>
               </form>
