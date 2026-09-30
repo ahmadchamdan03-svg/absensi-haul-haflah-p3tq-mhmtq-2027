@@ -14,6 +14,7 @@ import {
   Search,
   AlertCircle,
   UserCheck,
+  Calendar,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
@@ -183,17 +184,18 @@ export default function PimpinanPage() {
         <header className="border-b border-[#E8DFD5] bg-[#FAF7F3]/90 backdrop-blur-md sticky top-0 z-20 px-4 py-3 sm:py-4">
           <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-800 border-2 border-amber-600 flex items-center justify-center font-bold shadow-xs">
-                <LayoutDashboard className="w-5 h-5 text-amber-700" />
-              </div>
-              <div>
-                <h1 className="font-serif font-black text-sm sm:text-base text-[#422F21]">
-                  Laporan Realtime Jumlah Kehadiran Peserta Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.
-                </h1>
-              </div>
+              <img
+                src="/images/logo-haul-gold.png"
+                alt="Logo Haul &amp; Haflah P3TQ MHMTQ"
+                className="h-10 sm:h-12 w-auto object-contain"
+              />
             </div>
 
             <div className="flex items-center space-x-2">
+              <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] text-xs font-semibold text-[#5C3E28]">
+                <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
+                <span>Sabtu, 02 Jan 2027 · 24 Rajab 1448 H</span>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsUsModalOpen(true)}

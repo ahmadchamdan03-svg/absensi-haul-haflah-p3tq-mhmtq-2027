@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { clearActiveRole } from '@/lib/auth-roles';
 import {
   Menu,
@@ -17,42 +17,7 @@ interface TopHeaderProps {
 }
 
 export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
-  const pathname = usePathname();
   const router = useRouter();
-
-  // Helper untuk menentukan judul dan breadcrumb berdasarkan pathname
-  const getPageInfo = () => {
-    if (pathname === '/') {
-      return { title: 'Beranda Panitia', category: 'Haul & Haflah P3TQ & MHMTQ 2027' };
-    }
-    if (pathname === '/admin/dasbor') {
-      return { title: 'Laporan Realtime Jumlah Kehadiran Peserta', category: 'Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.' };
-    }
-    if (pathname === '/scan') {
-      return { title: 'Scanner QR Gerbang', category: 'Operasional Masuk' };
-    }
-    if (pathname === '/admin/verifikasi') {
-      return { title: 'Verifikasi Manual Gerbang', category: 'Operasional Masuk' };
-    }
-    if (pathname === '/admin/peserta') {
-      return { title: 'Data Peserta & Tamu VIP', category: 'Master Data' };
-    }
-    if (pathname === '/admin/konfirmasi') {
-      return { title: 'Monitoring Konfirmasi Kehadiran', category: 'Pra-Acara & Konsumsi' };
-    }
-    if (pathname === '/admin/whatsapp') {
-      return { title: 'WhatsApp Gateway & Fonnte', category: 'Otomatisasi Pesan' };
-    }
-    if (pathname === '/rekon') {
-      return { title: 'Rekonsiliasi Kuota', category: 'Audit & Penyesuaian' };
-    }
-    if (pathname === '/admin/laporan') {
-      return { title: 'Rekapitulasi & Ekspor', category: 'Pelaporan Resmi' };
-    }
-    return { title: 'Panel Panitia', category: 'Sistem Haul-Haflah' };
-  };
-
-  const pageInfo = getPageInfo();
 
   return (
     <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3]/95 backdrop-blur-md border-b-2 border-[#D5C4B4] text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none">
@@ -66,16 +31,13 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Breadcrumb & Judul Halaman (Klik menuju Dasbor Admin) */}
-        <Link href="/admin/dasbor" className="min-w-0 group cursor-pointer block" title="Kembali ke Dasbor Admin">
-          <div className="hidden sm:flex items-center space-x-1.5 text-[11px] text-[#8C6A47] font-semibold tracking-wide truncate group-hover:text-[#5C3E28] transition-colors">
-            <span className="font-serif font-black">HAUL &amp; HAFLAH P3TQ &amp; MHMTQ Lirboyo</span>
-            <span>/</span>
-            <span>{pageInfo.category}</span>
-          </div>
-          <h2 className="text-sm sm:text-lg font-serif font-black text-[#422F21] group-hover:text-[#8C6A47] transition-colors leading-tight truncate">
-            {pageInfo.title}
-          </h2>
+        {/* Logo Haul Haflah (Menggantikan Breadcrumb & Judul Halaman) */}
+        <Link href="/admin/dasbor" className="min-w-0 shrink-0 block group cursor-pointer" title="Kembali ke Dasbor Admin">
+          <img
+            src="/images/logo-haul-gold.png"
+            alt="Logo Haul &amp; Haflah P3TQ MHMTQ"
+            className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+          />
         </Link>
       </div>
 
