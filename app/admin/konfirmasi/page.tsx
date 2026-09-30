@@ -15,12 +15,9 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Send,
-  UserCheck,
-  Zap,
-  Loader2,
   Check,
-  Pause,
+  Loader2,
+  Zap,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
@@ -361,7 +358,7 @@ export default function KonfirmasiPage() {
       )}
 
       {/* Header Halaman */}
-      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-6 shadow-sm border-2 border-[#8C6A47]/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-6 shadow-sm border-2 border-[#8C6A47]/40">
         <div>
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-xs font-serif font-black border-2 border-[#D49B5B]">
             <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
@@ -374,82 +371,7 @@ export default function KonfirmasiPage() {
             Pantau total konfirmasi kehadiran, data rombongan Laki-laki &amp; Perempuan untuk alokasi konsumsi dan kursi, serta lakukan edit manual bila wali santri konfirmasi via telepon/offline.
           </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-center">
-          {/* Tombol Blast Pengingat Fonnte */}
-          {isBlasting ? (
-            <button
-              onClick={handleStopBlast}
-              className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-sm transition-all border border-red-700 animate-pulse"
-            >
-              <Pause className="w-3.5 h-3.5" />
-              <span>Hentikan Blasting ({blastProgress.current}/{blastProgress.total})</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleStartBatchBlast}
-              className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition-all border border-amber-700"
-              title="Kirim pesan pengingat konfirmasi via API Fonnte ke wali santri yang belum konfirmasi"
-            >
-              <Zap className="w-3.5 h-3.5 text-amber-200" />
-              <span>Blast Pengingat Fonnte ({rekap.belumKonfirmasiCount} Belum)</span>
-            </button>
-          )}
-
-          <Link
-            href="/admin/whatsapp?gelombang=3&filterKonfirmasi=BELUM"
-            className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition-all border border-emerald-800"
-            title="Buka panel blast WhatsApp lengkap"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>Panel WA Lengkap</span>
-          </Link>
-          <Link
-            href="/admin/dasbor"
-            className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] text-xs font-bold shadow-sm transition-all border-2 border-[#D5C4B4]"
-          >
-            <UserCheck className="w-3.5 h-3.5" />
-            <span>Lihat Live Dasbor</span>
-          </Link>
-        </div>
       </div>
-
-      {/* Banner Progres Blasting Pengingat Fonnte */}
-      {isBlasting && (
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-4 shadow-sm space-y-2 animate-pulse">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-amber-900">
-            <div className="flex items-center space-x-2">
-              <Loader2 className="w-4 h-4 animate-spin text-amber-700" />
-              <span>
-                Sedang Mengirim Pesan Pengingat Otomatis via Fonnte... ({blastProgress.current} dari{' '}
-                {blastProgress.total})
-              </span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-emerald-700 font-bold">✓ Berhasil: {blastProgress.sukses}</span>
-              <span className="text-red-600 font-bold">✕ Gagal: {blastProgress.gagal}</span>
-              <button
-                onClick={handleStopBlast}
-                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow-sm"
-              >
-                Hentikan
-              </button>
-            </div>
-          </div>
-          <div className="w-full bg-amber-200 h-2.5 rounded-full overflow-hidden">
-            <div
-              className="bg-amber-600 h-full transition-all duration-300 rounded-full"
-              style={{
-                width: `${
-                  blastProgress.total > 0
-                    ? Math.round((blastProgress.current / blastProgress.total) * 100)
-                    : 0
-                }%`,
-              }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* 4 KARTU METRIK RINGKASAN KONFIRMASI - INTERAKTIF & BISA DIKLIK */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
