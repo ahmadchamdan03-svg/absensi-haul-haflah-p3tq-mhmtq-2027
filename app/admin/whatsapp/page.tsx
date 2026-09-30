@@ -514,7 +514,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
   }, [keluargaList]);
 
   return (
-    <AuthGuard allowedRoles={['ADMIN', 'PANITIA']}>
+    <AuthGuard allowedRoles={['ADMIN', 'PENERIMA_TAMU', 'PIMPINAN']}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header Panel WhatsApp: Warm Latte & Cinnamon Mocha Aesthetic */}
         <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4]">
