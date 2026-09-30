@@ -301,7 +301,7 @@ export default function LaporanPage() {
       total: tambahanHadirTotal,
       kuota: tambahanKuota > 0 ? tambahanKuota : 300,
       pct: (tambahanKuota > 0 ? tambahanKuota : 300) > 0 ? Math.round((tambahanHadirTotal / (tambahanKuota > 0 ? tambahanKuota : 300)) * 1000) / 10 : 0,
-      warna: 'Merah muda',
+      warna: 'Merah Gold',
     },
   ];
 
@@ -669,8 +669,8 @@ export default function LaporanPage() {
                   <th className="p-2 border border-slate-300">RINCIAN SUB-KATEGORI (LABEL REKAP)</th>
                   <th className="p-2 border border-slate-300 text-center">WARNA TIKET</th>
                   <th className="p-2 border border-slate-300 text-center">JUMLAH TAMU</th>
-                  <th className="p-2 border border-slate-300 text-center">WS. LAKI-LAKI</th>
-                  <th className="p-2 border border-slate-300 text-center">WS. PEREMPUAN</th>
+                  <th className="p-2 border border-slate-300 text-center">TAMU LAKI-LAKI</th>
+                  <th className="p-2 border border-slate-300 text-center">TAMU PEREMPUAN</th>
                   <th className="p-2 border border-slate-300 text-center font-black">TOTAL HADIR</th>
                   <th className="p-2 border border-slate-300 text-center">TOTAL KUOTA</th>
                   <th className="p-2 border border-slate-300 text-center font-black">PROSENTASE</th>
