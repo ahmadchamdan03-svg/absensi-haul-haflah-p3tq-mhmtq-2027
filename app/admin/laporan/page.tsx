@@ -25,30 +25,30 @@ import * as XLSX from 'xlsx';
 // Definisikan 20 Rincian Sub-Kategori Tamu Undangan (Blok 3) Terkelompok Berdasarkan 3 Kategori Utama
 const BLOK_3_SUBKATEGORI_DEFINITIONS = [
   // ── KATEGORI UTAMA 1: TAMU ISTIMEWA ──
-  { no: 16, kategoriUtama: 'Tamu Istimewa', kategori: 'VVIP', matchers: ['vvip'], warna: 'Putih' },
-  { no: 17, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Marzuqi', matchers: ['marzuqi'], warna: 'Putih' },
-  { no: 18, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Qomariyah', matchers: ['qomariyah'], warna: 'Putih' },
-  { no: 19, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Mahrus (Zainab)', matchers: ['mahrus', 'zainab'], warna: 'Putih' },
-  { no: 20, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Salamah', matchers: ['salamah'], warna: 'Putih' },
-  { no: 21, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: 'Putih' },
-  { no: 22, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bandar', matchers: ['bandar'], warna: 'Putih' },
-  { no: 23, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: 'Putih' },
-  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Putih' },
+  { no: 16, kategoriUtama: 'Tamu Istimewa', kategori: 'VVIP', matchers: ['vvip'], warna: '' },
+  { no: 17, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Marzuqi', matchers: ['marzuqi'], warna: '' },
+  { no: 18, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Qomariyah', matchers: ['qomariyah'], warna: '' },
+  { no: 19, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Mahrus (Zainab)', matchers: ['mahrus', 'zainab'], warna: '' },
+  { no: 20, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Salamah', matchers: ['salamah'], warna: '' },
+  { no: 21, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: '' },
+  { no: 22, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bandar', matchers: ['bandar'], warna: '' },
+  { no: 23, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: '' },
+  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: '' },
 
   // ── KATEGORI UTAMA 2: TAMU KEHORMATAN ──
-  { no: 25, kategoriUtama: 'Tamu Kehormatan', kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: 'Putih' },
+  { no: 25, kategoriUtama: 'Tamu Kehormatan', kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: '' },
 
   // ── KATEGORI UTAMA 3: TAMU UMUM ──
-  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Putih' },
-  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Putih' },
-  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Putih' },
-  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Putih' },
-  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Putih' },
-  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Putih' },
-  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Putih' },
-  { no: 33, kategoriUtama: 'Tamu Umum', kategori: 'Penguji Al-Qur\'an', matchers: ['penguji'], warna: 'Putih' },
-  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Putih' },
-  { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Putih' },
+  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: '' },
+  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: '' },
+  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: '' },
+  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: '' },
+  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: '' },
+  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: '' },
+  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: '' },
+  { no: 33, kategoriUtama: 'Tamu Umum', kategori: 'Penguji Al-Qur\'an', matchers: ['penguji'], warna: '' },
+  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: '' },
+  { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: '' },
 ];
 
 export default function LaporanPage() {
@@ -157,6 +157,11 @@ export default function LaporanPage() {
       const kTot = Number(s.kuota_dasar || 2) + Number(s.kuota_tambahan || 0);
       blokSantri[idx].kuota += kTot;
 
+      // Ambil warna_tiket murni dari DB jika ada
+      if (s.warna_tiket) {
+        blokSantri[idx].warna = s.warna_tiket;
+      }
+
       const terpakai = Number(s.kuota_terpakai || 0);
       const logs = presensiLogs.filter(
         (l) => l.kuota_id === s.kode || l.kuota_id === s.id || l.kode_qr === s.kode
@@ -263,7 +268,7 @@ export default function LaporanPage() {
     no: tpl.no,
     kategoriUtama: tpl.kategoriUtama,
     kategori: tpl.kategori,
-    warna: tpl.warna,
+    warna: '', // Tarikan murni DB / acuan referensi jika ada
     sh: 0,
     l: 0,
     p: 0,
@@ -278,6 +283,19 @@ export default function LaporanPage() {
       blokUndangan[idx].sh += 1;
       const kTot = Number(und.kuota_dasar || 2) + Number(und.kuota_tambahan || 0);
       blokUndangan[idx].kuota += kTot;
+
+      // 1. Ambil warna_tiket murni dari DB jika ada
+      if (und.warna_tiket && !blokUndangan[idx].warna) {
+        blokUndangan[idx].warna = und.warna_tiket;
+      }
+      // 2. Acuan referensi warna sesuai panduan jika di DB warna_tiket kosong
+      else if (!blokUndangan[idx].warna) {
+        if (und.tiket_panggung_jatah > 0 || und.tiket_panggung_diberi > 0) {
+          blokUndangan[idx].warna = 'Hitam Gold';
+        } else if (und.sub_kategori === 'KEHORMATAN' || und.golongan === 'KEHORMATAN' || und.kategori === 'Tamu Kehormatan' || und.sub_kategori === 'UMUM' || und.golongan === 'UMUM') {
+          blokUndangan[idx].warna = 'Merah Gold';
+        }
+      }
 
       const terpakai = Number(und.kuota_terpakai || 0);
       const logs = presensiLogs.filter(
@@ -352,14 +370,14 @@ export default function LaporanPage() {
       ['Tanggal Acara: Sabtu, 02 Januari 2027 / 24 Rajab 1448 H'],
       [],
       ['No', 'Kategori Utama', 'Rincian Sub-Kategori', 'Warna Tiket', 'Jumlah Tamu', 'WS Laki-laki', 'WS Perempuan', 'Total Hadir', 'Total Kuota', 'Prosentase (%)'],
-      ...blokSantri.map((r) => [r.no, 'Santri Sohibul Hajat', r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
+      ...blokSantri.map((r) => [r.no, 'Santri Sohibul Hajat', r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
       ['', '', `SUBTOTAL SOHIBUL HAJAT (${subtotalSantri.sh} SANTRI)`, '', subtotalSantri.sh, subtotalSantri.l, subtotalSantri.p, subtotalSantri.total, subtotalSantri.kuota, `${pctSubtotalSantri}%`],
       [],
       ['-- BLOK 2: KUOTA TAMBAHAN (300) --'],
-      ...blokTambahan.map((r) => [r.no, 'Kuota Tambahan', r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
+      ...blokTambahan.map((r) => [r.no, 'Kuota Tambahan', r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
       [],
       ['-- BLOK 3: TAMU UNDANGAN (TERKELOMPOK KATEGORI UTAMA) --'],
-      ...blokUndangan.map((r) => [r.no, r.kategoriUtama, r.kategori, r.warna, r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
+      ...blokUndangan.map((r) => [r.no, r.kategoriUtama, r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
       ['', '', `SUBTOTAL TAMU UNDANGAN KESELURUHAN (${subtotalUndangan.sh} TAMU)`, '', subtotalUndangan.sh, subtotalUndangan.l, subtotalUndangan.p, subtotalUndangan.total, subtotalUndangan.kuota, `${pctSubtotalUndangan}%`],
     ];
 
@@ -478,9 +496,27 @@ export default function LaporanPage() {
                       </div>
                     </td>
                     <td className="p-2 border border-slate-300 text-center font-semibold">
-                      <span className={row.warna === 'Biru' ? 'text-blue-700' : 'text-amber-700'}>
-                        {row.warna}
-                      </span>
+                      {row.warna ? (
+                        <span
+                          className={
+                            row.warna.toLowerCase().includes('biru')
+                              ? 'text-blue-700 font-bold'
+                              : row.warna.toLowerCase().includes('kuning')
+                              ? 'text-amber-700 font-bold'
+                              : row.warna.toLowerCase().includes('hijau')
+                              ? 'text-emerald-700 font-bold'
+                              : row.warna.toLowerCase().includes('merah')
+                              ? 'text-rose-700 font-bold'
+                              : row.warna.toLowerCase().includes('hitam')
+                              ? 'text-slate-900 font-black'
+                              : 'text-slate-700'
+                          }
+                        >
+                          {row.warna}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300"></span>
+                      )}
                     </td>
                     <td className="p-2 border border-slate-300 text-center font-bold">{row.sh}</td>
                     <td className="p-2 border border-slate-300 text-center text-blue-800 font-bold">{row.l}</td>
@@ -610,7 +646,23 @@ export default function LaporanPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="p-2 border border-slate-300 text-center text-slate-700 font-semibold">{row.warna}</td>
+                    <td className="p-2 border border-slate-300 text-center font-semibold">
+                      {row.warna ? (
+                        <span
+                          className={
+                            row.warna.toLowerCase().includes('merah')
+                              ? 'text-rose-700 font-bold'
+                              : row.warna.toLowerCase().includes('hitam')
+                              ? 'text-slate-900 font-black'
+                              : 'text-slate-700'
+                          }
+                        >
+                          {row.warna}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300"></span>
+                      )}
+                    </td>
                     <td className="p-2 border border-slate-300 text-center font-bold">{row.sh}</td>
                     <td className="p-2 border border-slate-300 text-center text-blue-800 font-bold">{row.l}</td>
                     <td className="p-2 border border-slate-300 text-center text-pink-800 font-bold">{row.p}</td>
@@ -658,7 +710,23 @@ export default function LaporanPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="p-2 border border-slate-300 text-center text-slate-700 font-semibold">{row.warna}</td>
+                    <td className="p-2 border border-slate-300 text-center font-semibold">
+                      {row.warna ? (
+                        <span
+                          className={
+                            row.warna.toLowerCase().includes('merah')
+                              ? 'text-rose-700 font-bold'
+                              : row.warna.toLowerCase().includes('hitam')
+                              ? 'text-slate-900 font-black'
+                              : 'text-slate-700'
+                          }
+                        >
+                          {row.warna}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300"></span>
+                      )}
+                    </td>
                     <td className="p-2 border border-slate-300 text-center font-bold">{row.sh}</td>
                     <td className="p-2 border border-slate-300 text-center text-blue-800 font-bold">{row.l}</td>
                     <td className="p-2 border border-slate-300 text-center text-pink-800 font-bold">{row.p}</td>
@@ -706,7 +774,23 @@ export default function LaporanPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="p-2 border border-slate-300 text-center text-slate-700 font-semibold">{row.warna}</td>
+                    <td className="p-2 border border-slate-300 text-center font-semibold">
+                      {row.warna ? (
+                        <span
+                          className={
+                            row.warna.toLowerCase().includes('merah')
+                              ? 'text-rose-700 font-bold'
+                              : row.warna.toLowerCase().includes('hitam')
+                              ? 'text-slate-900 font-black'
+                              : 'text-slate-700'
+                          }
+                        >
+                          {row.warna}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300"></span>
+                      )}
+                    </td>
                     <td className="p-2 border border-slate-300 text-center font-bold">{row.sh}</td>
                     <td className="p-2 border border-slate-300 text-center text-blue-800 font-bold">{row.l}</td>
                     <td className="p-2 border border-slate-300 text-center text-pink-800 font-bold">{row.p}</td>
