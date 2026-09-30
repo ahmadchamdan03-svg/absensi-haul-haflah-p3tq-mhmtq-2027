@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole } from '@/lib/auth-roles';
+import StageBackground from '@/components/StageBackground';
 
 // Konfigurasi visual 4 tombol role
 const ROLE_BUTTONS: {
@@ -154,18 +155,18 @@ export default function LandingPortalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative">
-      {/* Background Ornamen Halus */}
-      <div className="absolute inset-0 pointer-events-none opacity-30 bg-[radial-gradient(#D5C4B4_1px,transparent_1px)] [background-size:24px_24px]" />
+    <div className="min-h-screen text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-hidden py-10 px-4 sm:px-6">
+      {/* BACKGROUND PANGGUNG RESMI & ANIMASI DEBU EMAS */}
+      <StageBackground />
 
       {/* KONTEN UTAMA TERPUSAT */}
-      <div className="relative z-10 w-full max-w-2xl px-4 py-12 sm:py-16 space-y-10">
+      <div className="relative z-10 w-full max-w-2xl px-5 py-8 sm:py-12 sm:px-10 space-y-8 sm:space-y-10 bg-[#FAF7F3]/90 backdrop-blur-md border-2 border-[#D5C4B4]/70 shadow-[0_20px_60px_rgba(0,0,0,0.5)] rounded-3xl my-auto animate-in fade-in zoom-in-95 duration-300">
         {/* HEADER IDENTITAS */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
-            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
-            <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="w-14 h-10 sm:w-16 sm:h-12 object-contain drop-shadow-sm" />
-            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
+            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-md" />
+            <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="w-14 h-10 sm:w-16 sm:h-12 object-contain drop-shadow-md" />
+            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-md" />
           </div>
           <div>
             <div className="text-[10px] sm:text-xs font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase">
@@ -175,7 +176,7 @@ export default function LandingPortalPage() {
               P3TQ &amp; MHMTQ Lirboyo Kediri
             </h1>
           </div>
-          <p className="text-xs text-[#7A624E] max-w-md mx-auto leading-relaxed">
+          <p className="text-xs text-[#7A624E] max-w-md mx-auto leading-relaxed font-medium">
             Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
           </p>
         </div>
@@ -213,11 +214,11 @@ export default function LandingPortalPage() {
         </div>
 
         {/* FOOTER KECIL */}
-        <div className="text-center space-y-1 pt-2">
-          <p className="text-[11px] text-[#9A8873] font-medium">
+        <div className="text-center space-y-1 pt-2 border-t border-[#E8DFD5]/80">
+          <p className="text-[11px] text-[#8C6A47] font-semibold">
             Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
           </p>
-          <p className="text-[10px] text-stone-400">
+          <p className="text-[10px] text-stone-500">
             Sistem Web Murni · Dibuka langsung melalui browser
           </p>
         </div>

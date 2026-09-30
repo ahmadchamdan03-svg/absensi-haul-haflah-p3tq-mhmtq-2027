@@ -107,3 +107,69 @@ body {
     display: none !important;
   }
 }
+
+/* Landing Page Stage Backdrop Animations */
+@keyframes lightShimmer {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.4;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.85;
+  }
+  100% {
+    background-position: 0% 0%;
+    opacity: 0.4;
+  }
+}
+
+@keyframes cloudFloat {
+  0% {
+    transform: translateX(-10%) translateY(0);
+  }
+  50% {
+    transform: translateX(10%) translateY(-6px);
+  }
+  100% {
+    transform: translateX(-10%) translateY(0);
+  }
+}
+
+@keyframes particleRise {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.65;
+  }
+  80% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(-105vh) translateX(25px) scale(1.25);
+    opacity: 0;
+  }
+}
+
+.animate-lightShimmer {
+  animation: lightShimmer 10s ease-in-out infinite;
+}
+
+.animate-cloudFloat {
+  animation: cloudFloat 55s ease-in-out infinite;
+}
+
+.animate-particleRise {
+  animation: particleRise linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-lightShimmer,
+  .animate-cloudFloat,
+  .animate-particleRise {
+    animation: none !important;
+  }
+}
+
