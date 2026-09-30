@@ -22,12 +22,13 @@ import {
   Check,
   Pause,
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
 import { buatPesanPengingatKonfirmasi, normalkanNomorHp } from '@/lib/hmac';
 
 export default function KonfirmasiPage() {
-  const [rekap, setRekap] = useState(() => store.getRekapKonfirmasi());
-  const [daftarSantri, setDaftarSantri] = useState(() => store.getDaftarKonfirmasiSantri());
+  const [daftarSantri, setDaftarSantri] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Filter & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,16 +49,101 @@ export default function KonfirmasiPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successToast, setSuccessToast] = useState('');
 
-  const refreshData = () => {
-    setRekap(store.getRekapKonfirmasi());
-    setDaftarSantri(store.getDaftarKonfirmasiSantri());
+  // 1. Fetch data murni 100% dari Supabase tabel 'peserta_santri'
+  const fetchKonfirmasiData = async () => {
+    try {
+      const { data: supaSantri, error } = await supabase
+        .from('peserta_santri')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (supaSantri && !error) {
+        const mapped = supaSantri.map((s: any) => {
+          const kDasar = Number(s.kuota_dasar || 2);
+          const kTambahan = Number(s.kuota_tambahan || 0);
+          const totKuota = kDasar + kTambahan;
+          const terpakai = Number(s.kuota_terpakai || 0);
+
+          const estL = Number(s.perkiraan_l || 0);
+          const estP = Number(s.perkiraan_p || 0);
+          const totalEst = estL + estP > 0 ? estL + estP : terpakai;
+
+          const status = s.status_konfirmasi
+            ? s.status_konfirmasi
+            : totalEst > 0 || terpakai > 0
+            ? 'SUDAH'
+            : 'BELUM';
+
+          return {
+            id: s.id,
+            kode: s.kode || s.nis || 'SH000',
+            namaSantri: s.nama || '-',
+            namaWali: s.nama_wali || '-',
+            noHp: s.no_hp || '-',
+            alamat: s.alamat || '-',
+            kamar: s.kamar || '-',
+            kategoriUtama: s.kategori_utama || 'BIL_GHOIB',
+            subKategori: s.sub_kategori || 'Bil Ghoib',
+            kelas: s.kelas || '-',
+            kuotaDasar: kDasar,
+            kuotaTambahan: kTambahan,
+            totalKuota: totKuota,
+            statusKonfirmasi: status,
+            perkiraanL: estL,
+            perkiraanP: estP,
+            totalEstimasi: totalEst,
+            catatan: s.catatan_konfirmasi || s.catatan || '',
+            diubahOleh: s.diubah_oleh || (status === 'SUDAH' ? 'PANITIA_MANUAL' : 'WALI_SANTRI'),
+            diisiAt: s.created_at || s.updated_at,
+          };
+        });
+        setDaftarSantri(mapped);
+      } else {
+        setDaftarSantri([]);
+      }
+    } catch (e) {
+      console.error('Error fetching konfirmasi data:', e);
+      setDaftarSantri([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    refreshData();
-    const interval = setInterval(refreshData, 3000);
+    fetchKonfirmasiData();
+    const interval = setInterval(fetchKonfirmasiData, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // 2. Kalkulasi Metrik Ringkasan Realtime
+  const rekap = useMemo(() => {
+    const totalSantri = daftarSantri.length;
+    const totalKuotaSantri = daftarSantri.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
+    const sudahKonfirmasiCount = daftarSantri.filter((s) => s.statusKonfirmasi === 'SUDAH').length;
+    const belumKonfirmasiCount = Math.max(0, totalSantri - sudahKonfirmasiCount);
+    const persentaseSudah = totalSantri > 0 ? Math.round((sudahKonfirmasiCount / totalSantri) * 100) : 0;
+    const totalEstimasiRombongan = daftarSantri.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0);
+    const totalEstL = daftarSantri.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
+    const totalEstP = daftarSantri.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
+
+    const bilGhoibCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIL_GHOIB').length;
+    const binNadzorCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
+    const tamatanCount = daftarSantri.filter((s) => s.kategoriUtama === 'TAMATAN').length;
+
+    return {
+      totalSantri,
+      totalKuotaSantri,
+      sudahKonfirmasiCount,
+      belumKonfirmasiCount,
+      persentaseSudah,
+      totalEstimasiRombongan,
+      totalEstL,
+      totalEstP,
+      bilGhoibCount,
+      binNadzorCount,
+      tamatanCount,
+    };
+  }, [daftarSantri]);
 
   // Filtered List
   const filteredList = useMemo(() => {
@@ -113,8 +199,8 @@ export default function KonfirmasiPage() {
     setErrorMsg('');
   };
 
-  // Simpan Edit Manual
-  const handleSimpanEdit = (e: React.FormEvent) => {
+  // Simpan Edit Manual (Direct Supabase .update())
+  const handleSimpanEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!modalItem) return;
 
@@ -125,13 +211,32 @@ export default function KonfirmasiPage() {
       return;
     }
 
-    const res = store.editKonfirmasiManual(modalItem.kode, editL, editP, editCatatan);
-    if (!res.ok) {
-      setErrorMsg(res.pesan || 'Gagal menyimpan konfirmasi manual');
+    try {
+      const { error } = await supabase
+        .from('peserta_santri')
+        .update({
+          perkiraan_l: editL,
+          perkiraan_p: editP,
+          status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
+          catatan_konfirmasi: editCatatan,
+        })
+        .eq('kode', modalItem.kode);
+
+      if (error) {
+        console.error('Error updating konfirmasi in Supabase:', error);
+        setErrorMsg(`Gagal menyimpan ke Supabase DB: ${error.message}`);
+        return;
+      }
+    } catch (err: any) {
+      console.error('Exception updating konfirmasi:', err);
+      setErrorMsg(`Terjadi kesalahan: ${err.message || err}`);
       return;
     }
 
-    refreshData();
+    // Sync store
+    store.editKonfirmasiManual(modalItem.kode, editL, editP, editCatatan);
+
+    await fetchKonfirmasiData();
     setSuccessToast(
       `Konfirmasi santri ${modalItem.namaSantri} (${modalItem.kode}) berhasil diperbarui secara manual!`
     );
@@ -150,7 +255,7 @@ export default function KonfirmasiPage() {
 
   // Kirim Pengingat Fonnte Satuan
   const handleKirimFonnte = async (item: any) => {
-    if (!item.noHp || item.noHp.trim().length < 8) {
+    if (!item.noHp || item.noHp.trim().length < 8 || item.noHp === '-') {
       alert(`Nomor WhatsApp untuk wali ${item.namaWali} tidak valid atau kosong!`);
       return false;
     }
@@ -192,7 +297,7 @@ export default function KonfirmasiPage() {
   // Batch Blasting Fonnte untuk Santri yang Belum Konfirmasi
   const handleStartBatchBlast = async () => {
     const targetList = daftarSantri.filter(
-      (s) => s.statusKonfirmasi === 'BELUM' && s.noHp && s.noHp.trim().length >= 8 && !sentFonnteKodes[s.kode]
+      (s) => s.statusKonfirmasi === 'BELUM' && s.noHp && s.noHp.trim().length >= 8 && s.noHp !== '-' && !sentFonnteKodes[s.kode]
     );
 
     if (targetList.length === 0) {
@@ -200,16 +305,18 @@ export default function KonfirmasiPage() {
       return;
     }
 
-    const confirmBlast = window.confirm(
-      `PERHATIAN: Anda akan mengirimkan Pesan Pengingat Konfirmasi Kehadiran via API Fonnte ke ${targetList.length} wali santri yang BELUM konfirmasi.\n\nPesan akan dikirim otomatis dengan jeda aman 1.5 detik per pesan.\n\nLanjutkan?`
-    );
-    if (!confirmBlast) return;
+    if (
+      !confirm(
+        `PERHATIAN: Anda akan mengirimkan Pesan Pengingat Konfirmasi Kehadiran via API Fonnte ke ${targetList.length} wali santri yang BELUM konfirmasi.\n\nPesan akan dikirim otomatis dengan jeda aman 1.5 detik per pesan.\n\nLanjutkan?`
+      )
+    ) {
+      return;
+    }
 
     setIsBlasting(true);
     stopBlastRef.current = false;
     setBlastProgress({ current: 0, total: targetList.length, sukses: 0, gagal: 0 });
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haflah.p3tq.id';
     let suksesCount = 0;
     let gagalCount = 0;
 
@@ -221,26 +328,10 @@ export default function KonfirmasiPage() {
       const item = targetList[i];
       setBlastProgress((prev) => ({ ...prev, current: i + 1 }));
 
-      try {
-        const teks = buatPesanPengingatKonfirmasi(item.namaSantri !== '-' ? item.namaSantri : item.namaWali, item.kode, origin);
-        const res = await fetch('/api/whatsapp/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            target: item.noHp,
-            message: teks,
-          }),
-        });
-
-        const json = await res.json();
-        if (json.ok) {
-          suksesCount++;
-          const timeStr = new Date().toTimeString().split(' ')[0] + ' WIB';
-          setSentFonnteKodes((prev) => ({ ...prev, [item.kode]: timeStr }));
-        } else {
-          gagalCount++;
-        }
-      } catch (err) {
+      const ok = await handleKirimFonnte(item);
+      if (ok) {
+        suksesCount++;
+      } else {
         gagalCount++;
       }
 
@@ -282,7 +373,7 @@ export default function KonfirmasiPage() {
             Monitoring Konfirmasi Kehadiran Wali Santri
           </h1>
           <p className="text-xs text-[#7A624E] mt-0.5 font-medium">
-            Pantau total konfirmasi kehadiran, data rombongan Laki-laki & Perempuan untuk alokasi konsumsi dan kursi, serta lakukan edit manual bila wali santri konfirmasi via telepon/offline.
+            Pantau total konfirmasi kehadiran, data rombongan Laki-laki &amp; Perempuan untuk alokasi konsumsi dan kursi, serta lakukan edit manual bila wali santri konfirmasi via telepon/offline.
           </p>
         </div>
 
@@ -473,7 +564,7 @@ export default function KonfirmasiPage() {
           </div>
         </button>
 
-        {/* Card 4: Alokasi Kursi Putra & Putri */}
+        {/* Card 4: Estimasi Kursi Hadir Keseluruhan */}
         <button
           type="button"
           onClick={() => {
@@ -497,8 +588,7 @@ export default function KonfirmasiPage() {
             <span className="text-sm font-sans font-medium text-[#7A624E]">Kursi</span>
           </div>
           <div className="text-xs text-[#7A624E] font-medium mt-1">
-            Putra: <span className="font-bold text-[#422F21]">{rekap.totalEstL}</span> · Putri:{' '}
-            <span className="font-bold text-[#422F21]">{rekap.totalEstP}</span>
+            Total estimasi santri &amp; rombongan hadir
           </div>
         </button>
       </div>
@@ -570,7 +660,7 @@ export default function KonfirmasiPage() {
             )}
           </div>
 
-          {/* Filter Kategori Dropdown */}
+          {/* Filter Kategori Dropdown (Dinamis dari Supabase) */}
           <div className="flex items-center space-x-2">
             <span className="text-xs font-bold text-[#7A624E] hidden sm:inline">Kategori:</span>
             <select
@@ -578,10 +668,10 @@ export default function KonfirmasiPage() {
               onChange={(e) => setFilterKategori(e.target.value as any)}
               className="px-3 py-2 rounded-xl bg-white border-2 border-[#D5C4B4] text-xs font-semibold text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
             >
-              <option value="SEMUA">Semua Kategori (549)</option>
-              <option value="BIL_GHOIB">Bil Ghoib (64 Santri)</option>
-              <option value="BIN_NADZOR">Bin Nadzori (159 Santri)</option>
-              <option value="TAMATAN">Tamatan III Aliyah (326 Santri)</option>
+              <option value="SEMUA">Semua Kategori ({rekap.totalSantri})</option>
+              <option value="BIL_GHOIB">Bil Ghoib ({rekap.bilGhoibCount} Santri)</option>
+              <option value="BIN_NADZOR">Bin Nadzori ({rekap.binNadzorCount} Santri)</option>
+              <option value="TAMATAN">Tamatan III Aliyah ({rekap.tamatanCount} Santri)</option>
             </select>
           </div>
         </div>
@@ -590,7 +680,7 @@ export default function KonfirmasiPage() {
         <div className="md:hidden px-3.5 py-2 bg-amber-50/90 border-2 border-b-0 border-[#D5C4B4] rounded-t-2xl text-[11px] font-semibold text-[#8C6A47] flex items-center justify-between mt-3">
           <span className="flex items-center space-x-1.5">
             <span>👉</span>
-            <span>Geser tabel ke samping untuk melihat Kontak, Kuota & Aksi</span>
+            <span>Geser tabel ke samping untuk melihat Kontak, Kuota &amp; Aksi</span>
           </span>
           <span className="text-xs">↔️</span>
         </div>
@@ -600,9 +690,9 @@ export default function KonfirmasiPage() {
           <table className="w-full text-left text-xs text-[#422F21]">
             <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold uppercase tracking-wider border-b border-[#D5C4B4]">
               <tr>
-                <th className="py-3 px-3.5 whitespace-nowrap">Kode & Santri</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">Kategori & Kelas</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">Nama Wali & Kontak WA</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">Kode &amp; Santri</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">Kategori &amp; Kelas</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">Nama Wali &amp; Kontak WA</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">Jatah Kuota</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">Status Konfirmasi</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">Estimasi Kursi</th>
@@ -656,11 +746,11 @@ export default function KonfirmasiPage() {
                       </div>
                     </td>
 
-                    {/* Nama Wali & Kontak */}
+                    {/* Nama Wali & Kontak WA (Riil dari Supabase DB) */}
                     <td className="py-3 px-4">
                       <div className="font-semibold text-[#422F21]">{item.namaWali}</div>
                       <div className="text-[11px] text-[#7A624E] flex items-center space-x-2 mt-0.5">
-                        {item.noHp && item.noHp !== '-' ? (
+                        {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' ? (
                           <a
                             href={`https://wa.me/${item.noHp.replace(/\D/g, '').replace(/^0/, '62')}`}
                             target="_blank"
@@ -675,7 +765,7 @@ export default function KonfirmasiPage() {
                           <span className="text-[10px] text-gray-400">Tanpa Kontak HP</span>
                         )}
                       </div>
-                      {item.alamat && (
+                      {item.alamat && item.alamat !== '-' && (
                         <div className="text-[10px] text-[#7A624E]/80 mt-0.5 truncate max-w-xs">
                           {item.alamat}
                         </div>
@@ -756,7 +846,7 @@ export default function KonfirmasiPage() {
                         {/* Edit Manual */}
                         <button
                           onClick={() => handleOpenEdit(item)}
-                          className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs flex items-center space-x-1 shadow-sm transition-all"
+                          className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer"
                           title="Edit Konfirmasi Secara Manual"
                         >
                           <Edit3 className="w-3 h-3" />
@@ -764,7 +854,7 @@ export default function KonfirmasiPage() {
                         </button>
 
                         {/* Kirim via Fonnte Otomatis */}
-                        {item.noHp && item.noHp !== '-' ? (
+                        {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' ? (
                           sentFonnteKodes[item.kode] ? (
                             <div
                               className="px-2.5 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-[11px] flex items-center space-x-1"
@@ -777,7 +867,7 @@ export default function KonfirmasiPage() {
                             <button
                               onClick={() => handleKirimFonnte(item)}
                               disabled={sendingFonnteKode === item.kode || isBlasting}
-                              className={`px-2.5 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all ${
+                              className={`px-2.5 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
                                 item.statusKonfirmasi === 'BELUM'
                                   ? 'bg-amber-600 hover:bg-amber-700 text-white border border-amber-700'
                                   : 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-800'
@@ -804,7 +894,7 @@ export default function KonfirmasiPage() {
                         ) : null}
 
                         {/* Link Chat WhatsApp Web Manual */}
-                        {item.noHp && item.noHp !== '-' && (
+                        {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' && (
                           <a
                             href={`https://wa.me/${normalkanNomorHp(item.noHp)}?text=${encodeURIComponent(
                               buatPesanPengingatKonfirmasi(
@@ -815,7 +905,7 @@ export default function KonfirmasiPage() {
                             )}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 transition-all"
+                            className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 transition-all cursor-pointer"
                             title="Buka Chat Pengingat Resmi di WhatsApp Web"
                           >
                             <MessageSquare className="w-3.5 h-3.5" />
@@ -848,7 +938,7 @@ export default function KonfirmasiPage() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage <= 1}
-              className="p-1.5 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#FAF7F3] disabled:opacity-40 disabled:hover:bg-white text-[#422F21] transition-colors"
+              className="p-1.5 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#FAF7F3] disabled:opacity-40 disabled:hover:bg-white text-[#422F21] transition-colors cursor-pointer"
               title="Halaman Sebelumnya"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -859,7 +949,7 @@ export default function KonfirmasiPage() {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
-              className="p-1.5 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#FAF7F3] disabled:opacity-40 disabled:hover:bg-white text-[#422F21] transition-colors"
+              className="p-1.5 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#FAF7F3] disabled:opacity-40 disabled:hover:bg-white text-[#422F21] transition-colors cursor-pointer"
               title="Halaman Selanjutnya"
             >
               <ChevronRight className="w-4 h-4" />
@@ -868,7 +958,7 @@ export default function KonfirmasiPage() {
         </div>
       </div>
 
-      {/* MODAL EDIT MANUAL KONFIRMASI */}
+      {/* MODAL EDIT MANUAL KONFIRMASI (Direct Supabase update) */}
       {modalItem && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#FAF7F3] rounded-3xl p-6 max-w-md w-full shadow-2xl border-2 border-[#8C6A47]/40 space-y-4 animate-scale-up">
@@ -883,7 +973,7 @@ export default function KonfirmasiPage() {
               </div>
               <button
                 onClick={() => setModalItem(null)}
-                className="w-8 h-8 rounded-full bg-white border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21] flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -925,7 +1015,7 @@ export default function KonfirmasiPage() {
                     type="button"
                     disabled={editL <= 0}
                     onClick={() => setEditL(Math.max(0, editL - 1))}
-                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all"
+                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
                   >
                     −
                   </button>
@@ -936,7 +1026,7 @@ export default function KonfirmasiPage() {
                     onClick={() => {
                       if (editL + editP < modalItem.totalKuota) setEditL(editL + 1);
                     }}
-                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all"
+                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
                   >
                     +
                   </button>
@@ -954,7 +1044,7 @@ export default function KonfirmasiPage() {
                     type="button"
                     disabled={editP <= 0}
                     onClick={() => setEditP(Math.max(0, editP - 1))}
-                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all"
+                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
                   >
                     −
                   </button>
@@ -965,7 +1055,7 @@ export default function KonfirmasiPage() {
                     onClick={() => {
                       if (editL + editP < modalItem.totalKuota) setEditP(editP + 1);
                     }}
-                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all"
+                    className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
                   >
                     +
                   </button>
@@ -997,13 +1087,13 @@ export default function KonfirmasiPage() {
                 <button
                   type="button"
                   onClick={() => setModalItem(null)}
-                  className="px-4 py-2 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-[#FAF7F3]"
+                  className="px-4 py-2 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-[#FAF7F3] cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-black shadow-md transition-all"
+                  className="px-5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-black shadow-md transition-all cursor-pointer"
                 >
                   Simpan Konfirmasi
                 </button>
