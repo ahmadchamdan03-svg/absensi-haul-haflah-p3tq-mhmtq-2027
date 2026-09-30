@@ -33,14 +33,6 @@ import { normalkanNomorHp, buatPesanPengingatKonfirmasi } from '@/lib/hmac';
 import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 
-const JALUR_MASUK_OPTIONS = [
-  'Gerbang Selatan (Bola Dunia)',
-  'Gerbang Utara',
-  'Gerbang Belakang',
-  'Jalur Dzuriyyah',
-  'Jalur VIP',
-];
-
 export default function WhatsAppPage() {
   const [activeTab, setActiveTab] = useState<'WALI_SANTRI' | 'TAMU_UNDANGAN'>('WALI_SANTRI');
 
@@ -83,8 +75,9 @@ export default function WhatsAppPage() {
   const [loadingTamuData, setLoadingTamuData] = useState(true);
   const [tamuFilterGolongan, setTamuFilterGolongan] = useState<string>('SEMUA');
   const [tamuFilterStatus, setTamuFilterStatus] = useState<string>('SEMUA');
-  const [tamuFilterJalur, setTamuFilterJalur] = useState<string>('SEMUA');
+  const [tamuFilterJalurStatus, setTamuFilterJalurStatus] = useState<string>('SEMUA');
   const [tamuSearch, setTamuSearch] = useState('');
+  const [massJalurInputText, setMassJalurInputText] = useState('');
 
   // Edit Phone Modal State (Tamu)
   const [editingTamuItem, setEditingTamuItem] = useState<any | null>(null);
@@ -175,7 +168,7 @@ export default function WhatsAppPage() {
     }
   };
 
-  // Fetch Tamu Undangan
+  // Fetch Tamu Undangan 100% dari Supabase
   const fetchTamuWaData = async () => {
     try {
       setLoadingTamuData(true);
@@ -204,7 +197,7 @@ export default function WhatsAppPage() {
             kuotaTambahan: t.kuota_tambahan || 0,
             warnaTiket: t.warna_tiket || 'Merah Gold',
             statusWa: t.status_wa || 'BELUM',
-            jalurMasuk: t.jalur_masuk || 'Gerbang Selatan (Bola Dunia)',
+            jalurMasuk: t.jalur_masuk || '',
             golongan: getGolonganUndangan(t),
           }))
         );
@@ -585,38 +578,30 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
   }, [keluargaList]);
 
   // =========================================================================
-  // LOGIK TAMU UNDANGAN
+  // LOGIK TAMU UNDANGAN (FORMAT FIX & MANUAL JALUR MASUK WAJIB)
   // =========================================================================
 
+  // Format pesan WA persis sesuai permintaan resmi
   const getTeksPesanTamu = (tamu: any) => {
-    const liveDomain = process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
-    const origin =
-      typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
-        ? window.location.origin
-        : liveDomain;
-    const linkPortal = `${origin}/u/${tamu.kode}`;
+    const baseUrl = 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+    const linkPortal = `${baseUrl}/u/${tamu.kode || 'UNDxxxx'}`;
+    const jalur = (tamu.jalurMasuk || '').trim();
 
-    const katDisplay =
-      tamu.subKategori && tamu.subKategori !== tamu.kategori && tamu.subKategori !== 'UMUM'
-        ? `${tamu.kategori} (${tamu.subKategori})`
-        : tamu.kategori || 'Tamu Undangan';
+    return `Yth. Bapak/Ibu 
+*${tamu.nama}*
 
-    const jalur = tamu.jalurMasuk || 'Gerbang Selatan (Bola Dunia)';
+Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
 
-    return `*HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H. / 2027 M.*
+*HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.*
 *Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
 *Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ)*
 
 Hari/Tanggal : Sabtu, 02 Januari 2027 M. / 24 Rajab 1448 H.
 Waktu        : 06.30 WIB - Selesai
 Tempat       : Aula Muktamar Pondok Pesantren Lirboyo Kediri
-Masuk melalui: ${jalur}
+Masuk melalui: ${jalur || '[JALUR MASUK - MANUAL INPUT]'}
 
-Tamu Undangan : *${tamu.nama}*
-Kategori      : ${katDisplay}
-Kode Undangan : ${tamu.kode}
-
-Undangan digital resmi & QR Code gerbang masuk dapat diakses pada tautan berikut:
+Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk dapat diakses pada tautan berikut:
 ${linkPortal}
 
 _Mohon QR Code disimpan dan ditunjukkan kepada petugas di gerbang pada hari acara._
@@ -625,13 +610,13 @@ Atas perhatian dan kehadirannya kami sampaikan terima kasih.
 Jazakumullahu khairan katsiran.
 
 Wassalamu'alaikum warahmatullahi wabarakatuh
-*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H. / 2027 M.*`;
+*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
   };
 
   const updateTamuWaInSupabase = async (id: string | number, status: string, jalurMasuk?: string) => {
     try {
       const payload: any = { status_wa: status };
-      if (jalurMasuk) {
+      if (jalurMasuk !== undefined) {
         payload.jalur_masuk = jalurMasuk;
       }
 
@@ -640,8 +625,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
         .update(payload)
         .eq('id', id);
 
-      if (error && error.code === '42703' && payload.jalur_masuk) {
-        // Fallback jika kolom jalur_masuk belum ada di DB Supabase
+      if (error && (error.code === '42703' || error.code === 'PGRST204') && payload.jalur_masuk !== undefined) {
         delete payload.jalur_masuk;
         await supabase.from('tamu_undangan').update(payload).eq('id', id);
       }
@@ -652,7 +636,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
             ? {
                 ...item,
                 statusWa: status,
-                ...(jalurMasuk ? { jalurMasuk } : {}),
+                ...(jalurMasuk !== undefined ? { jalurMasuk } : {}),
               }
             : item
         )
@@ -666,6 +650,29 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     const target = tamuList.find((t) => t.id === tamuId);
     const currentStatus = target?.statusWa || 'BELUM';
     await updateTamuWaInSupabase(tamuId, currentStatus, newJalur);
+  };
+
+  const handleApplyMassJalurMasuk = async (newJalur: string) => {
+    if (!newJalur || !newJalur.trim()) {
+      alert('Masukkan teks jalur masuk terlebih dahulu!');
+      return;
+    }
+    const targetVal = newJalur.trim();
+    const emptyList = tamuList.filter((t) => !t.jalurMasuk || !t.jalurMasuk.trim());
+    if (emptyList.length === 0) {
+      alert('Seluruh tamu sudah memiliki Jalur Masuk!');
+      return;
+    }
+
+    setTamuList((prev) =>
+      prev.map((t) => (!t.jalurMasuk || !t.jalurMasuk.trim() ? { ...t, jalurMasuk: targetVal } : t))
+    );
+
+    for (const t of emptyList) {
+      await updateTamuWaInSupabase(t.id, t.statusWa, targetVal);
+    }
+
+    alert(`✓ Berhasil menerapkan Jalur Masuk "${targetVal}" ke ${emptyList.length} tamu!`);
   };
 
   const handleSaveEditNoHpTamu = async () => {
@@ -693,6 +700,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
   };
 
   const handleKirimFonnteTamu = async (tamu: any) => {
+    if (!tamu.jalurMasuk || !tamu.jalurMasuk.trim()) {
+      alert(`⚠️ PERINGATAN WAJIB:\nJalur masuk untuk ${tamu.nama} masih KOSONG!\n\nHarap isi kolom "Masuk Melalui" (contoh: Gerbang Selatan (Bola Dunia)) sebelum mengirim pesan undangan.`);
+      return false;
+    }
+
     const rawHp = tamu.noHp;
     if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
       await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR');
@@ -735,6 +747,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
   };
 
   const handleKirimManualWATamu = async (tamu: any) => {
+    if (!tamu.jalurMasuk || !tamu.jalurMasuk.trim()) {
+      alert(`⚠️ PERINGATAN WAJIB:\nJalur masuk untuk ${tamu.nama} masih KOSONG!\n\nHarap isi kolom "Masuk Melalui" sebelum mengirim pesan.`);
+      return;
+    }
+
     const rawHp = tamu.noHp;
     if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
       await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR');
@@ -754,6 +771,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     return tamuList.filter((tamu) => {
       const isSent = tamu.statusWa === 'TERKIRIM';
       const isProblem = tamu.statusWa === 'NOMOR_TIDAK_TERDAFTAR' || tamu.statusWa === 'GAGAL' || !tamu.noHp || tamu.noHp.trim().length < 8;
+      const isJalurKosong = !tamu.jalurMasuk || !tamu.jalurMasuk.trim();
 
       if (tamuFilterStatus === 'BELUM' && isSent) return false;
       if (tamuFilterStatus === 'TERKIRIM' && !isSent) return false;
@@ -761,13 +779,8 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
       if (tamuFilterGolongan !== 'SEMUA' && tamu.golongan !== tamuFilterGolongan) return false;
 
-      if (tamuFilterJalur !== 'SEMUA') {
-        if (tamuFilterJalur === 'Lainnya') {
-          if (JALUR_MASUK_OPTIONS.includes(tamu.jalurMasuk)) return false;
-        } else if (tamu.jalurMasuk !== tamuFilterJalur) {
-          return false;
-        }
-      }
+      if (tamuFilterJalurStatus === 'TERISI' && isJalurKosong) return false;
+      if (tamuFilterJalurStatus === 'KOSONG' && !isJalurKosong) return false;
 
       if (tamuSearch.trim()) {
         const q = tamuSearch.toLowerCase();
@@ -777,45 +790,59 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
           tamu.kode.toLowerCase().includes(q) ||
           (tamu.alamat && tamu.alamat.toLowerCase().includes(q)) ||
           tamu.noHp.includes(q) ||
-          tamu.kategori.toLowerCase().includes(q)
+          tamu.kategori.toLowerCase().includes(q) ||
+          (tamu.jalurMasuk && tamu.jalurMasuk.toLowerCase().includes(q))
         );
       }
       return true;
     });
-  }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuFilterJalur, tamuSearch]);
+  }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuFilterJalurStatus, tamuSearch]);
 
   const handleStartBatchBlastTamu = async () => {
-    const unsentList = filteredTamuList.filter(
-      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8
+    const validList = filteredTamuList.filter(
+      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8 && t.jalurMasuk && t.jalurMasuk.trim()
     );
 
-    if (unsentList.length === 0) {
-      alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
+    const skippedJalurKosongCount = filteredTamuList.filter(
+      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8 && (!t.jalurMasuk || !t.jalurMasuk.trim())
+    ).length;
+
+    if (validList.length === 0) {
+      if (skippedJalurKosongCount > 0) {
+        alert(`⚠️ Terdapat ${skippedJalurKosongCount} tamu yang belum terkirim, namun DILEWATI (SKIP) karena kolom "Masuk Melalui" (Jalur Masuk) masih KOSONG.\n\nHarap isi kolom Jalur Masuk untuk tamu-tamu tersebut terlebih dahulu.`);
+      } else {
+        alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
+      }
       return;
     }
 
-    if (
-      !window.confirm(
-        `Mulai pengiriman otomatis undangan digital via Fonnte untuk ${unsentList.length} tamu undangan?\nPesan akan dikirim dengan jeda 1.5 detik per pesan.`
-      )
-    ) {
+    const promptMsg = skippedJalurKosongCount > 0
+      ? `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu via Fonnte?\n\n⚠️ CATATAN: ${skippedJalurKosongCount} tamu akan DILEWATI (SKIP) karena Jalur Masuk belum diisi.`
+      : `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu undangan via Fonnte?`;
+
+    if (!window.confirm(promptMsg)) {
       return;
     }
 
     setIsTamuBlasting(true);
     stopTamuBlastingRef.current = false;
-    setTamuBlastProgress({ current: 0, total: unsentList.length, success: 0, failed: 0 });
+    setTamuBlastProgress({ current: 0, total: validList.length, success: 0, failed: 0 });
 
-    for (let i = 0; i < unsentList.length; i++) {
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < validList.length; i++) {
       if (stopTamuBlastingRef.current) break;
 
-      const tamu = unsentList[i];
+      const tamu = validList[i];
       setTamuBlastProgress((prev) => ({ ...prev, current: i + 1 }));
 
       const ok = await handleKirimFonnteTamu(tamu);
       if (ok) {
+        successCount++;
         setTamuBlastProgress((prev) => ({ ...prev, success: prev.success + 1 }));
       } else {
+        failedCount++;
         setTamuBlastProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
       }
 
@@ -823,6 +850,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     }
 
     setIsTamuBlasting(false);
+    alert(`✓ Pengiriman Massal Selesai!\n• Terkirim: ${successCount} tamu\n• Gagal: ${failedCount} tamu\n• Dilewati (Jalur Kosong): ${skippedJalurKosongCount} tamu`);
   };
 
   const handleStopBatchBlastTamu = () => {
@@ -836,6 +864,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
   const countTamuIstimewa = tamuList.filter((t) => t.golongan === 'ISTIMEWA').length;
   const countTamuKehormatan = tamuList.filter((t) => t.golongan === 'KEHORMATAN').length;
   const countTamuUmum = tamuList.filter((t) => t.golongan === 'UMUM').length;
+  const countJalurKosong = tamuList.filter((t) => !t.jalurMasuk || !t.jalurMasuk.trim()).length;
 
   return (
     <AuthGuard allowedRoles={['ADMIN', 'PENERIMA_TAMU', 'PIMPINAN']}>
@@ -1390,7 +1419,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
         )}
 
         {/* ===================================================================== */}
-        {/* CONTENT TAB 2: WA TAMU UNDANGAN                                       */}
+        {/* CONTENT TAB 2: WA TAMU UNDANGAN (FORMAT FIX & MANUAL JALUR INPUT)     */}
         {/* ===================================================================== */}
         {activeTab === 'TAMU_UNDANGAN' && (
           <div className="space-y-6">
@@ -1462,26 +1491,24 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                 </div>
               </div>
 
-              {/* Box Preview Template Pesan Tamu Undangan */}
+              {/* Box Preview Template Pesan Tamu Undangan (Format Resmi Persis) */}
               <div className="mt-4 p-4 rounded-2xl bg-white border border-[#D5C4B4] space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
                     <span className="font-bold text-xs text-[#422F21]">
-                      Preview Template Pesan Tamu Undangan:
+                      Preview Format Pesan WA Resmi Tamu Undangan:
                     </span>
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EFE8E1] text-[#8C6A47] border border-[#D5C4B4]">
-                    Undangan Digital Resmi Tamu
+                    Format Resmi Haul 2027
                   </span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-[#FAF7F3] border border-[#D5C4B4]/70 font-mono text-[11px] text-[#422F21] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
                   {getTeksPesanTamu(
                     filteredTamuList[0] || tamuList[0] || {
-                      kode: 'UND0101',
+                      kode: 'UND0107',
                       nama: 'KH. Abdullah Kafabihi Mahrus',
-                      kategori: 'Masyayikh / Pengasuh',
-                      subKategori: 'KEHORMATAN',
                       jalurMasuk: 'Gerbang Selatan (Bola Dunia)',
                     }
                   )}
@@ -1507,6 +1534,35 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* BAR ISI MASSAL JALUR MASUK UNTUK BARIS KOSONG */}
+            <div className="bg-[#FAF7F3] rounded-3xl p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-4.5 h-4.5 text-[#8C6A47]" />
+                <div>
+                  <span className="font-bold text-[#422F21]">Isi Jalur Masuk Massal untuk Baris Kosong:</span>
+                  <span className="text-[11px] text-amber-800 font-medium block sm:inline sm:ml-2">
+                    ({countJalurKosong} tamu belum memiliki jalur masuk)
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                <input
+                  type="text"
+                  placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
+                  value={massJalurInputText}
+                  onChange={(e) => setMassJalurInputText(e.target.value)}
+                  className="px-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleApplyMassJalurMasuk(massJalurInputText)}
+                  className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow-sm cursor-pointer whitespace-nowrap"
+                >
+                  Terapkan ke Baris Kosong
+                </button>
+              </div>
             </div>
 
             {/* Tabel Pengiriman & Filter Tamu Undangan */}
@@ -1547,19 +1603,15 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                     <option value="BERMASALAH">Nomor Bermasalah / Kosong / Tidak Terdaftar</option>
                   </select>
 
-                  {/* Filter Jalur Masuk */}
+                  {/* Filter Status Jalur Masuk */}
                   <select
-                    value={tamuFilterJalur}
-                    onChange={(e) => setTamuFilterJalur(e.target.value)}
+                    value={tamuFilterJalurStatus}
+                    onChange={(e) => setTamuFilterJalurStatus(e.target.value)}
                     className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
                   >
                     <option value="SEMUA">Semua Jalur Masuk</option>
-                    {JALUR_MASUK_OPTIONS.map((j) => (
-                      <option key={j} value={j}>
-                        {j}
-                      </option>
-                    ))}
-                    <option value="Lainnya">Custom / Lainnya</option>
+                    <option value="TERISI">Jalur Masuk Terisi</option>
+                    <option value="KOSONG">Jalur Masuk Kosong ({countJalurKosong})</option>
                   </select>
 
                   {/* Search Tamu */}
@@ -1567,7 +1619,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                     <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
-                      placeholder="Cari tamu / instansi / kode..."
+                      placeholder="Cari tamu / instansi / jalur / kode..."
                       value={tamuSearch}
                       onChange={(e) => setTamuSearch(e.target.value)}
                       className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-48"
@@ -1582,9 +1634,9 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                   <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
                     <tr>
                       <th className="py-3 px-3">Kode</th>
-                      <th className="py-3 px-4">Nama Tamu &amp; HP</th>
+                      <th className="py-3 px-4">Nama Penerima &amp; HP</th>
                       <th className="py-3 px-4">Kategori &amp; Instansi</th>
-                      <th className="py-3 px-4 text-center">Masuk Melalui (Jalur)</th>
+                      <th className="py-3 px-4 text-center">Masuk Melalui (Jalur Wajib Input)</th>
                       <th className="py-3 px-3 text-center">Warna Tiket</th>
                       <th className="py-3 px-3 text-center">Status WA</th>
                       <th className="py-3 px-4 text-center">Aksi Kirim</th>
@@ -1605,11 +1657,13 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                       </tr>
                     ) : (
                       filteredTamuList.map((tamu) => {
+                        const isJalurKosong = !tamu.jalurMasuk || !tamu.jalurMasuk.trim();
                         const isInvalidNum = !tamu.noHp || tamu.noHp.trim().length < 8;
                         const isNoWaNotRegistered = tamu.statusWa === 'NOMOR_TIDAK_TERDAFTAR';
                         const isFailed = tamu.statusWa === 'GAGAL';
                         const isTerkirim = tamu.statusWa === 'TERKIRIM';
                         const isSendingThis = tamuSendingKode === tamu.kode;
+                        const isSendDisabled = isInvalidNum || isJalurKosong || isSendingThis || isTamuBlasting;
 
                         const isIstimewa = tamu.golongan === 'ISTIMEWA';
                         const isKehormatan = tamu.golongan === 'KEHORMATAN';
@@ -1656,41 +1710,37 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                               </div>
                             </td>
 
-                            {/* Kolom MASUK MELALUI (JALUR MASUK CUSTOM) */}
+                            {/* Kolom MASUK MELALUI (TEXT INPUT MANUAL WAJIB) */}
                             <td className="py-3 px-4 text-center">
-                              <div className="flex items-center justify-center space-x-1">
-                                <select
-                                  value={
-                                    JALUR_MASUK_OPTIONS.includes(tamu.jalurMasuk)
-                                      ? tamu.jalurMasuk
-                                      : 'Lainnya'
-                                  }
+                              <div className="flex flex-col items-center justify-center gap-1">
+                                <input
+                                  type="text"
+                                  value={tamu.jalurMasuk || ''}
                                   onChange={(e) => {
                                     const val = e.target.value;
-                                    if (val !== 'Lainnya') {
-                                      handleUpdateJalurMasuk(tamu.id, val);
-                                    } else {
-                                      const customVal = prompt('Masukkan jalur masuk custom:', tamu.jalurMasuk);
-                                      if (customVal && customVal.trim()) {
-                                        handleUpdateJalurMasuk(tamu.id, customVal.trim());
-                                      }
-                                    }
+                                    setTamuList((prev) =>
+                                      prev.map((item) =>
+                                        item.id === tamu.id ? { ...item, jalurMasuk: val } : item
+                                      )
+                                    );
                                   }}
-                                  className="px-2.5 py-1 rounded-xl border border-slate-300 text-xs bg-slate-50 focus:bg-white text-slate-800 font-medium focus:ring-1 focus:ring-[#8C6A47]"
-                                >
-                                  {JALUR_MASUK_OPTIONS.map((opt) => (
-                                    <option key={opt} value={opt}>
-                                      {opt}
-                                    </option>
-                                  ))}
-                                  <option value="Lainnya">Lainnya (Isi Manual...)</option>
-                                </select>
+                                  onBlur={(e) => {
+                                    handleUpdateJalurMasuk(tamu.id, e.target.value.trim());
+                                  }}
+                                  placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
+                                  className={`w-56 px-3 py-1.5 rounded-xl border text-xs focus:outline-none transition-all ${
+                                    isJalurKosong
+                                      ? 'border-amber-400 bg-amber-50/80 text-amber-950 placeholder:text-amber-400 focus:ring-2 focus:ring-amber-500'
+                                      : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]'
+                                  }`}
+                                />
+                                {isJalurKosong && (
+                                  <span className="text-[10px] font-bold text-amber-700 flex items-center gap-0.5">
+                                    <AlertTriangle className="w-3 h-3" />
+                                    Jalur Wajib Diisi
+                                  </span>
+                                )}
                               </div>
-                              {!JALUR_MASUK_OPTIONS.includes(tamu.jalurMasuk) && (
-                                <div className="text-[10px] font-bold text-amber-800 mt-1">
-                                  Custom: "{tamu.jalurMasuk}"
-                                </div>
-                              )}
                             </td>
 
                             <td className="py-3 px-3 text-center whitespace-nowrap">
@@ -1729,13 +1779,17 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                               <div className="flex items-center justify-center space-x-1.5">
                                 <button
                                   onClick={() => handleKirimFonnteTamu(tamu)}
-                                  disabled={isInvalidNum || isSendingThis || isTamuBlasting}
+                                  disabled={isSendDisabled}
                                   className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
                                     isTerkirim
                                       ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
                                       : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
                                   } disabled:opacity-40 disabled:pointer-events-none`}
-                                  title="Kirim otomatis lewat WhatsApp Fonnte"
+                                  title={
+                                    isJalurKosong
+                                      ? 'Isi kolom "Masuk Melalui" terlebih dahulu'
+                                      : 'Kirim otomatis lewat WhatsApp Fonnte'
+                                  }
                                 >
                                   <Zap className="w-3 h-3 fill-current text-amber-300" />
                                   <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
@@ -1743,7 +1797,8 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
                                 <button
                                   onClick={() => handleKirimManualWATamu(tamu)}
-                                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
+                                  disabled={isJalurKosong}
+                                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
                                   title="Kirim Manual via WhatsApp Web / App"
                                 >
                                   <ExternalLink className="w-3.5 h-3.5" />
