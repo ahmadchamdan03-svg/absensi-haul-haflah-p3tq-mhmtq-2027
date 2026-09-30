@@ -15,7 +15,6 @@ import {
   AlertCircle,
   UserCheck,
 } from 'lucide-react';
-import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
 import TanyaUsModal from '@/components/TanyaUsModal';
@@ -23,7 +22,6 @@ import AuthGuard from '@/components/AuthGuard';
 
 export default function PimpinanPage() {
   const router = useRouter();
-  const [stats, setStats] = useState(() => store.getStatistikLive());
   const [keluargaList, setKeluargaList] = useState<any[]>([]);
   const [undanganList, setUndanganList] = useState<any[]>([]);
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
