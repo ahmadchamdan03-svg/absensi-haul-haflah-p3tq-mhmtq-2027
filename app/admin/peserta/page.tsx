@@ -300,9 +300,82 @@ export default function ManajemenPesertaPage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const refreshData = () => {
-    setKeluargaList([...store.getKeluargaList()]);
-    setUndanganList([...store.getUndanganList()]);
+  const refreshData = async () => {
+    try {
+      const { data: santriData, error: sErr } = await supabase
+        .from('peserta_santri')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (sErr) {
+        console.error('Error fetching peserta_santri:', sErr);
+      } else if (santriData) {
+        const mappedKeluarga = santriData.map((d: any) => ({
+          id: d.id,
+          kode: d.kode,
+          namaWali: d.nama_wali || '-',
+          noHp: d.no_hp || '-',
+          alamat: d.alamat || 'Kediri',
+          kamar: d.kamar || '-',
+          santri: [
+            {
+              id: d.id,
+              nis: d.kode,
+              nama: d.nama,
+              kelas: d.kelas || '-',
+              kategoriUtama: d.kategori_utama || 'BIL_GHOIB',
+              subKategori: d.sub_kategori || 'Bil Ghoib',
+              bagianTamatan: d.sub_kategori || 'A.01',
+            },
+          ],
+          kuota: {
+            id: d.id,
+            kodeQr: d.kode,
+            kuotaDasar: d.kuota_dasar || 2,
+            kuotaTambahan: d.kuota_tambahan || 0,
+            terpakai: d.kuota_terpakai || 0,
+            tiketPanggungJatah: d.tiket_panggung_jatah || 0,
+            warnaTiket: d.warna_tiket || 'Biru',
+          },
+        }));
+        setKeluargaList(mappedKeluarga);
+      }
+
+      const { data: uData, error: uErr } = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (uErr) {
+        console.error('Error fetching tamu_undangan:', uErr);
+      } else if (uData) {
+        const mappedUndangan = uData.map((u: any) => ({
+          id: u.id,
+          kode: u.kode,
+          nama: u.nama,
+          namaPutra: u.nama_putra || '',
+          namaPutri: u.nama_putri || '',
+          kategori: u.kategori || 'Tamu Kehormatan',
+          golongan: u.sub_kategori || 'ISTIMEWA',
+          instansi: u.instansi || u.alamat || '-',
+          alamat: u.alamat || '-',
+          noHp: u.no_hp || '-',
+          kuota: {
+            id: u.id,
+            kodeQr: u.kode,
+            kuotaDasar: u.kuota_dasar || 2,
+            kuotaTambahan: u.kuota_tambahan || 0,
+            terpakai: u.kuota_terpakai || 0,
+            warnaTiket: u.warna_tiket || 'Merah Gold',
+          },
+        }));
+        setUndanganList(mappedUndangan);
+      }
+    } catch (e) {
+      console.warn('Error in refreshData:', e);
+      setKeluargaList([...store.getKeluargaList()]);
+      setUndanganList([...store.getUndanganList()]);
+    }
   };
 
   useEffect(() => {
@@ -758,43 +831,52 @@ export default function ManajemenPesertaPage() {
       return;
     }
 
-    const res = store.tambahPeserta({
-      nama: formData.nama.trim().toUpperCase(),
-      kategoriUtama: formData.kategoriUtama,
-      bagianTamatan: formData.kategoriUtama === 'TAMATAN' ? formData.bagianTamatan : undefined,
-      kamar: formData.kamar.trim(),
-      namaWali: formData.namaWali.trim().toUpperCase(),
-      noHp: formData.noHp.trim(),
-      alamat: formData.alamat.trim().toUpperCase(),
-    });
+    const kodeBaru = 'SH' + Math.floor(1000 + Math.random() * 9000);
+    const subKat =
+      formData.kategoriUtama === 'TAMATAN'
+        ? formData.bagianTamatan
+        : formData.kategoriUtama === 'BIL_GHOIB'
+        ? 'Bil Ghoib'
+        : 'Bin Nadzori';
 
-    if (res.ok) {
-      try {
-        // Insert langsung ke tabel Supabase 'peserta_santri'
-        const { error } = await supabase.from('peserta_santri').insert([
-          {
-            nis: res.code,
-            nama: formData.nama.trim().toUpperCase(),
-            nama_wali: formData.namaWali.trim().toUpperCase(),
-            no_hp: formData.noHp.trim(),
-            alamat: formData.alamat.trim().toUpperCase(),
-            kamar: formData.kamar.trim(),
-            kelas: formData.kategoriUtama,
-            unit: 'P3TQ',
-            kuota_dasar: formData.kategoriUtama === 'BIL_GHOIB' ? 4 : 2,
-          },
-        ]);
-        if (error) {
-          console.error('Supabase insert error (peserta_santri):', error);
-          showToast(`⚠️ Supabase DB Note: ${error.message || 'Tersimpan lokal'}`);
-        }
-      } catch (err) {
-        console.warn('Supabase direct insert warning:', err);
+    const kuotaVal = Number(formData.kategoriUtama === 'BIL_GHOIB' ? 4 : 2);
+    const warna = formData.kategoriUtama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold';
+
+    try {
+      const { data, error } = await supabase.from('peserta_santri').insert([
+        {
+          kode: kodeBaru,
+          nama: formData.nama.trim().toUpperCase(),
+          kategori_utama: formData.kategoriUtama || 'BIL_GHOIB',
+          sub_kategori: subKat || 'Bil Ghoib',
+          kelas: formData.kategoriUtama || '-',
+          kamar: formData.kamar.trim() || '-',
+          nama_wali: formData.namaWali.trim().toUpperCase() || '-',
+          no_hp: formData.noHp.trim() || '-',
+          alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
+          kuota_dasar: kuotaVal,
+          warna_tiket: warna,
+        },
+      ]);
+
+      if (error) {
+        alert(`Gagal menambahkan data santri ke database Supabase: ${error.message}`);
+        return;
       }
 
-      refreshData();
+      store.tambahPeserta({
+        nama: formData.nama.trim().toUpperCase(),
+        kategoriUtama: formData.kategoriUtama,
+        bagianTamatan: formData.kategoriUtama === 'TAMATAN' ? formData.bagianTamatan : undefined,
+        kamar: formData.kamar.trim(),
+        namaWali: formData.namaWali.trim().toUpperCase(),
+        noHp: formData.noHp.trim(),
+        alamat: formData.alamat.trim().toUpperCase(),
+      });
+
+      await refreshData();
       setShowAddModal(false);
-      showToast(`✓ Berhasil menambahkan santri baru ke database: ${formData.nama} (Kode: ${res.code})`);
+      showToast(`✓ Berhasil menambahkan santri baru ke database Supabase: ${formData.nama} (Kode: ${kodeBaru})`);
       setFormData({
         nama: '',
         kategoriUtama: 'BIL_GHOIB',
@@ -804,6 +886,8 @@ export default function ManajemenPesertaPage() {
         noHp: '',
         alamat: '',
       });
+    } catch (err: any) {
+      alert(`Terjadi kesalahan sistem saat menghubungi Supabase: ${err?.message || err}`);
     }
   };
 
@@ -1018,22 +1102,27 @@ export default function ManajemenPesertaPage() {
     if (!deletingItem) return;
     try {
       if (deletingItem.tipe === 'UNDANGAN') {
-        await supabase.from('tamu_undangan').delete().eq('kode', deletingItem.kode);
+        const { error } = await supabase.from('tamu_undangan').delete().eq('kode', deletingItem.kode);
+        if (error) {
+          alert(`Gagal menghapus tamu dari Supabase DB: ${error.message}`);
+          return;
+        }
       } else {
-        await supabase.from('peserta_santri').delete().eq('nis', deletingItem.kode);
+        const { error } = await supabase.from('peserta_santri').delete().eq('kode', deletingItem.kode);
+        if (error) {
+          alert(`Gagal menghapus santri dari Supabase DB: ${error.message}`);
+          return;
+        }
       }
-    } catch (err) {
-      console.warn('Supabase direct delete warning:', err);
+    } catch (err: any) {
+      alert(`Terjadi kesalahan saat menghapus data: ${err?.message || err}`);
+      return;
     }
 
-    const res = store.hapusPeserta(deletingItem.kode);
-    if (res.ok) {
-      refreshData();
-      showToast(`✓ Peserta ${deletingItem.nama} (${deletingItem.kode}) telah berhasil dihapus.`);
-      setDeletingItem(null);
-    } else {
-      alert(res.pesan || 'Gagal menghapus peserta.');
-    }
+    store.hapusPeserta(deletingItem.kode);
+    await refreshData();
+    showToast(`✓ Peserta ${deletingItem.nama} (${deletingItem.kode}) telah berhasil dihapus dari database.`);
+    setDeletingItem(null);
   };
 
   // Handler Ekspor Excel
