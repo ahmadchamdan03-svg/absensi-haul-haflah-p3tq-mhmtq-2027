@@ -66,13 +66,11 @@ export default function KonfirmasiPage() {
 
           const estL = Number(s.perkiraan_l || 0);
           const estP = Number(s.perkiraan_p || 0);
-          const totalEst = estL + estP > 0 ? estL + estP : terpakai;
+          const sumEst = estL + estP;
 
-          const status = s.status_konfirmasi
-            ? s.status_konfirmasi
-            : totalEst > 0 || terpakai > 0
-            ? 'SUDAH'
-            : 'BELUM';
+          const isSudah = s.status_konfirmasi === 'SUDAH' || (s.status_konfirmasi !== 'BELUM' && (sumEst > 0 || terpakai > 0));
+          const status = isSudah ? 'SUDAH' : 'BELUM';
+          const totalEst = isSudah ? (sumEst > 0 ? sumEst : terpakai) : 0;
 
           return {
             id: s.id,

@@ -38,9 +38,19 @@ CREATE TABLE IF NOT EXISTS peserta_santri (
   tiket_panggung_jatah SMALLINT NOT NULL DEFAULT 0, -- 1 untuk Bil Ghoib (Wali Maju Panggung)
   tiket_panggung_diberi SMALLINT NOT NULL DEFAULT 0,
   warna_tiket VARCHAR(50) DEFAULT 'Merah Gold', -- 'Hitam Gold' (Maju Panggung) / 'Merah Gold' (Reguler)
+  status_konfirmasi VARCHAR(20) DEFAULT 'BELUM',
+  perkiraan_l SMALLINT DEFAULT 0,
+  perkiraan_p SMALLINT DEFAULT 0,
+  catatan_konfirmasi TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE peserta_santri
+  ADD COLUMN IF NOT EXISTS status_konfirmasi VARCHAR(20) DEFAULT 'BELUM',
+  ADD COLUMN IF NOT EXISTS perkiraan_l SMALLINT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS perkiraan_p SMALLINT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS catatan_konfirmasi TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_peserta_santri_kode ON peserta_santri (kode);
 CREATE INDEX IF NOT EXISTS idx_peserta_santri_kat ON peserta_santri (kategori_utama);
