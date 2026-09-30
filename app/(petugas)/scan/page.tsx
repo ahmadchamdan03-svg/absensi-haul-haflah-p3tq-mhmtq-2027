@@ -34,6 +34,7 @@ export default function ScanPage() {
   const [jumlahP, setJumlahP] = useState(0);
   const [jumlahBalita, setJumlahBalita] = useState(0);
   const [serahkanTiketEmas, setSerahkanTiketEmas] = useState(true);
+  const [kartuHitamGoldDiberi, setKartuHitamGoldDiberi] = useState(false);
 
   // Result state
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -203,6 +204,14 @@ export default function ScanPage() {
       const totalKuota = kuotaDasar + kuotaTambahan;
       const sisa = Math.max(0, totalKuota - terpakai);
 
+      const isBilGhoib = isSantri && (
+        (entity.kategori_utama || '').toUpperCase().includes('BIL_GHOIB') ||
+        (entity.kategori_utama || '').toUpperCase().includes('GHOIB') ||
+        (entity.sub_kategori || '').toUpperCase().includes('GHOIB')
+      );
+      const initialGold = Boolean(entity.kartu_hitam_gold_diberi);
+      setKartuHitamGoldDiberi(initialGold);
+
       const itemObj = {
         id: entity.id,
         kode: entity.kode || entity.nis || cleanCode,
@@ -215,6 +224,8 @@ export default function ScanPage() {
         kamar: entity.kamar || '-',
         alamat: entity.alamat || 'Kediri',
         noHp: entity.no_hp || '-',
+        isBilGhoib,
+        kartuHitamGoldDiberi: initialGold,
         santri: isSantri
           ? [
               {
@@ -425,17 +436,36 @@ export default function ScanPage() {
     try {
       // 1. Update kuota_terpakai di Supabase DB (peserta_santri atau tamu_undangan)
       if (activeItem.tipe === 'KELUARGA') {
+        const updatePayload: any = {
+          kuota_terpakai: nextTerpakai,
+          tiket_panggung_diberi: nextTiketPanggung,
+          kartu_hitam_gold_diberi: activeItem.isBilGhoib ? kartuHitamGoldDiberi : Boolean(activeItem.kartuHitamGoldDiberi),
+        };
+
         const { error: updateErr } = await supabase
           .from('peserta_santri')
-          .update({
-            kuota_terpakai: nextTerpakai,
-            tiket_panggung_diberi: nextTiketPanggung,
-          })
+          .update(updatePayload)
           .eq('id', activeItem.id);
 
         if (updateErr) {
-          setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${updateErr.message}`);
-          return;
+          if (updateErr.message?.includes('kartu_hitam_gold_diberi')) {
+            // Fallback if column not yet added/reloaded in DB
+            const { error: fallbackErr } = await supabase
+              .from('peserta_santri')
+              .update({
+                kuota_terpakai: nextTerpakai,
+                tiket_panggung_diberi: nextTiketPanggung,
+              })
+              .eq('id', activeItem.id);
+
+            if (fallbackErr) {
+              setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${fallbackErr.message}`);
+              return;
+            }
+          } else {
+            setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${updateErr.message}`);
+            return;
+          }
         }
       } else {
         const { error: updateErr } = await supabase
@@ -514,6 +544,7 @@ export default function ScanPage() {
     setJumlahP(0);
     setJumlahBalita(0);
     setSerahkanTiketEmas(false);
+    setKartuHitamGoldDiberi(false);
   };
 
   return (
@@ -749,56 +780,57 @@ export default function ScanPage() {
       {/* TAMPILAN 2: DETAIL PESERTA DARI SUPABASE SAAT QR TERPINDAI */}
       {/* ========================================================================= */}
       {activeItem && !checkinResult && (
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-opera-700 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/30">
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-opera-700 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-w-md mx-auto">
+          {/* Header Compact */}
+          <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-3.5 py-2.5 flex items-center justify-between border-b border-gold-500/30">
             <div className="flex items-center space-x-2">
-              <span className="w-3 h-3 rounded-full bg-gold-400 animate-ping"></span>
-              <span className="text-xs font-serif font-bold tracking-wider text-gold-300">
+              <span className="w-2.5 h-2.5 rounded-full bg-gold-400 animate-ping"></span>
+              <span className="text-[11px] font-serif font-bold tracking-wider text-gold-300">
                 ✓ QR SUPABASE TERVERIFIKASI
               </span>
             </div>
-            <span className="text-xs text-opera-200 font-mono">KODE: {activeItem.kode}</span>
+            <span className="text-[11px] text-opera-200 font-mono font-bold">KODE: {activeItem.kode}</span>
           </div>
 
-          <div className="p-6 space-y-5">
+          <div className="p-4 space-y-3">
             <div>
-              <div className="text-xs text-slate-400 font-bold uppercase tracking-wide">
+              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">
                 {activeItem.tipe === 'KELUARGA' ? 'SOHIBUL HAJAT (SANTRI)' : 'TAMU UNDANGAN'}
               </div>
-              <h2 className="text-xl sm:text-2xl font-serif font-black text-slate-900 mt-0.5">
+              <h2 className="text-base sm:text-lg font-serif font-black text-slate-900 leading-snug mt-0.5">
                 {activeItem.nama}
               </h2>
-              <p className="text-xs text-slate-600 font-medium mt-0.5">
+              <p className="text-[11px] text-slate-600 font-medium leading-tight mt-0.5">
                 {activeItem.tipe === 'KELUARGA'
-                  ? `${activeItem.subKategori} · Kelas: ${activeItem.kelas} · Wali: ${activeItem.namaWali} (${activeItem.alamat})`
-                  : `${activeItem.kategori} · Instansi/Alamat: ${activeItem.namaWali}`}
+                  ? `${activeItem.subKategori} · Kelas: ${activeItem.kelas} · Wali: ${activeItem.namaWali}`
+                  : `${activeItem.kategori} · ${activeItem.namaWali}`}
               </p>
             </div>
 
-            {/* Kotak Indikator Kuota */}
+            {/* Kotak Indikator Kuota Ringkas */}
             {(() => {
               const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
               const terpakai = activeItem.kuota.terpakai;
               const sisa = Math.max(0, totalKuota - terpakai);
               return (
-                <div className="grid grid-cols-3 gap-2 text-center bg-opera-50/40 p-3.5 rounded-2xl border border-opera-200">
-                  <div className="border-r border-opera-200">
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase">KUOTA</div>
-                    <div className="text-2xl font-serif font-black text-slate-800 mt-0.5">
+                <div className="grid grid-cols-3 gap-1.5 text-center bg-stone-50 p-2.5 rounded-2xl border border-stone-200">
+                  <div className="border-r border-stone-200 pr-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase">KUOTA</div>
+                    <div className="text-xl font-serif font-black text-slate-800">
                       {totalKuota}
                     </div>
                   </div>
-                  <div className="border-r border-opera-200">
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase">TERPAKAI</div>
-                    <div className="text-2xl font-serif font-black text-slate-800 mt-0.5">
+                  <div className="border-r border-stone-200 pr-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase">TERPAKAI</div>
+                    <div className="text-xl font-serif font-black text-slate-800">
                       {terpakai}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase">SISA</div>
+                    <div className="text-[10px] font-bold text-slate-500 uppercase">SISA</div>
                     <div
-                      className={`text-2xl font-serif font-black mt-0.5 ${
-                        sisa > 0 ? 'text-opera-800' : 'text-rose-600'
+                      className={`text-xl font-serif font-black ${
+                        sisa > 0 ? 'text-emerald-700' : 'text-rose-600'
                       }`}
                     >
                       {sisa}
@@ -808,85 +840,56 @@ export default function ScanPage() {
               );
             })()}
 
-            {/* Checklist Tiket Panggung Indicator untuk Bil Ghoib */}
-            {activeItem.kuota.tiketPanggungJatah > 0 && (
-              <div className="space-y-2">
-                {activeItem.kuota.tiketPanggungDiberi >= activeItem.kuota.tiketPanggungJatah ? (
-                  <div className="p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-xs text-emerald-950 flex items-center justify-between shadow-xs">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
-                        <Check className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="font-bold flex items-center space-x-1">
-                          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Tiket Emas Panggung (Wali Perempuan)</span>
-                        </div>
-                        <div className="text-[11px] text-emerald-700 font-medium">
-                          Status: <strong>SUDAH DIBERIKAN</strong> pada pemindaian sebelumnya
-                        </div>
-                      </div>
-                    </div>
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
-                      Sudah Diterima
-                    </span>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => setSerahkanTiketEmas(!serahkanTiketEmas)}
-                    className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer select-none shadow-xs ${
-                      serahkanTiketEmas
-                        ? 'bg-gradient-to-r from-amber-50 to-[#FCF3E4] border-[#D49B5B] ring-2 ring-[#D49B5B]/30'
-                        : 'bg-slate-50 border-slate-300 hover:border-slate-400'
-                    }`}
+            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB */}
+            {activeItem.isBilGhoib && (
+              <div
+                onClick={() => setKartuHitamGoldDiberi(!kartuHitamGoldDiberi)}
+                className={`p-2.5 rounded-xl border-2 transition-all cursor-pointer select-none ${
+                  kartuHitamGoldDiberi
+                    ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs'
+                    : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21]'
+                }`}
+              >
+                <div className="flex items-center space-x-2.5">
+                  <input
+                    type="checkbox"
+                    id="checkbox-hitam-gold"
+                    checked={kartuHitamGoldDiberi}
+                    onChange={(e) => setKartuHitamGoldDiberi(e.target.checked)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 cursor-pointer accent-amber-600"
+                  />
+                  <label
+                    htmlFor="checkbox-hitam-gold"
+                    className="text-[11px] font-bold leading-tight cursor-pointer flex-1 flex items-center justify-between"
                   >
-                    <div className="flex items-start space-x-3">
-                      <input
-                        type="checkbox"
-                        id="checklist-tiket-emas"
-                        checked={serahkanTiketEmas}
-                        onChange={(e) => setSerahkanTiketEmas(e.target.checked)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-0.5 w-5 h-5 rounded-md text-[#8C6A47] border-2 border-[#D49B5B] focus:ring-[#8C6A47] cursor-pointer accent-[#8C6A47]"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <label
-                            htmlFor="checklist-tiket-emas"
-                            className="font-serif font-black text-xs sm:text-sm text-[#422F21] flex items-center space-x-1.5 cursor-pointer"
-                          >
-                            <Sparkles className="w-4 h-4 text-[#D49B5B]" />
-                            <span>Checklist Tiket Emas Panggung (Ibu)</span>
-                          </label>
-                          <span
-                            className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                              serahkanTiketEmas
-                                ? 'bg-[#8C6A47] text-white shadow-xs'
-                                : 'bg-slate-200 text-slate-700'
-                            }`}
-                          >
-                            {serahkanTiketEmas ? '✓ Diserahkan Sekarang' : '✕ Belum Diserahkan'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                    <span>Kartu Hitam Gold sudah diberikan (Wali Santri Maju Panggung)</span>
+                    {kartuHitamGoldDiberi ? (
+                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0">
+                        ✓ DIBERIKAN
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-semibold text-stone-500 px-2 py-0.5 rounded-full bg-stone-100 ml-1 shrink-0">
+                        BELUM
+                      </span>
+                    )}
+                  </label>
+                </div>
               </div>
             )}
 
             {/* Input Form Jumlah Kehadiran (L / P) */}
-            <div className="space-y-4 pt-2 border-t border-slate-100">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1">
                     JUMLAH PRIA (L)
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1.5">
                     <button
                       type="button"
                       onClick={() => setJumlahL(Math.max(0, jumlahL - 1))}
-                      className="w-8 h-8 rounded-xl bg-white border border-slate-300 font-black text-sm text-slate-700 shadow-xs cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
                     >
                       -
                     </button>
@@ -895,27 +898,27 @@ export default function ScanPage() {
                       min={0}
                       value={jumlahL}
                       onChange={(e) => setJumlahL(parseInt(e.target.value, 10) || 0)}
-                      className="w-full text-center font-bold text-base bg-white border border-slate-300 rounded-xl py-1"
+                      className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
                     />
                     <button
                       type="button"
                       onClick={() => setJumlahL(jumlahL + 1)}
-                      className="w-8 h-8 rounded-xl bg-white border border-slate-300 font-black text-sm text-slate-700 shadow-xs cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
                     >
                       +
                     </button>
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1">
                     JUMLAH WANITA (P)
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1.5">
                     <button
                       type="button"
                       onClick={() => setJumlahP(Math.max(0, jumlahP - 1))}
-                      className="w-8 h-8 rounded-xl bg-white border border-slate-300 font-black text-sm text-slate-700 shadow-xs cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
                     >
                       -
                     </button>
@@ -924,12 +927,12 @@ export default function ScanPage() {
                       min={0}
                       value={jumlahP}
                       onChange={(e) => setJumlahP(parseInt(e.target.value, 10) || 0)}
-                      className="w-full text-center font-bold text-base bg-white border border-slate-300 rounded-xl py-1"
+                      className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
                     />
                     <button
                       type="button"
                       onClick={() => setJumlahP(jumlahP + 1)}
-                      className="w-8 h-8 rounded-xl bg-white border border-slate-300 font-black text-sm text-slate-700 shadow-xs cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
                     >
                       +
                     </button>
@@ -938,26 +941,26 @@ export default function ScanPage() {
               </div>
 
               {errorMsg && (
-                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
-              <div className="flex items-center space-x-2 pt-2">
+              <div className="flex items-center space-x-2 pt-1">
                 <button
                   type="button"
                   onClick={handleResetForNext}
-                  className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmCheckin}
-                  className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 text-white font-serif font-black text-sm shadow-md flex items-center justify-center space-x-2 transition-all cursor-pointer"
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
                 >
-                  <Check className="w-5 h-5 text-emerald-200" />
+                  <Check className="w-4 h-4 text-emerald-200" />
                   <span>Konfirmasi Presensi / Masuk</span>
                 </button>
               </div>
