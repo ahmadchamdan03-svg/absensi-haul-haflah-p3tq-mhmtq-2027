@@ -20,6 +20,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getWarnaTiketUndangan, getWarnaTiketSantri } from '@/lib/types';
 import * as XLSX from 'xlsx';
 
 // Definisikan 20 Rincian Sub-Kategori Tamu Undangan (Blok 3) Terkelompok Berdasarkan 3 Kategori Utama
@@ -61,7 +62,7 @@ export default function LaporanPage() {
   const [modalSearch, setModalSearch] = useState<string>('');
   const [modalTab, setModalTab] = useState<'HADIR' | 'BELUM_HADIR'>('HADIR');
 
-  // Fetch data murni 100% dari Supabase Cloud
+  // Fetch data murni 100% dari Supabase Cloud & Massal Sync ke Database
   const fetchLaporanData = async () => {
     try {
       const [resSantri, resTamu, resLogs] = await Promise.all([
@@ -70,8 +71,37 @@ export default function LaporanPage() {
         supabase.from('presensi_log').select('*'),
       ]);
 
-      setSantriList(resSantri.data || []);
-      setTamuList(resTamu.data || []);
+      const rawSantri = resSantri.data || [];
+      const rawTamu = resTamu.data || [];
+
+      // Auto update massal di Supabase jika ada Tamu Umum yang di database warna_tiket-nya belum 'Merah Gold'
+      const unassignedUmumInDb = rawTamu.filter((u: any) => {
+        const gol = (u.sub_kategori || u.golongan || '').toUpperCase();
+        return (gol === 'UMUM' || gol === 'UNDANGAN_UMUM' || gol === 'TAMU_UMUM') && u.warna_tiket !== 'Merah Gold';
+      });
+
+      if (unassignedUmumInDb.length > 0) {
+        supabase
+          .from('tamu_undangan')
+          .update({ warna_tiket: 'Merah Gold' })
+          .or('sub_kategori.eq.UMUM,sub_kategori.eq.UNDANGAN_UMUM,sub_kategori.eq.TAMU_UMUM')
+          .then(
+            () => {},
+            (err) => console.warn('Mass update warning:', err)
+          );
+      }
+
+      setSantriList(rawSantri);
+      setTamuList(
+        rawTamu.map((u: any) => {
+          const gol = (u.sub_kategori || u.golongan || '').toUpperCase();
+          const isUmum = gol === 'UMUM' || gol === 'UNDANGAN_UMUM' || gol === 'TAMU_UMUM';
+          return {
+            ...u,
+            warna_tiket: isUmum ? 'Merah Gold' : (u.warna_tiket || getWarnaTiketUndangan(u.sub_kategori, u.kategori)),
+          };
+        })
+      );
       setPresensiLogs(resLogs.data || []);
     } catch (e) {
       console.error('Error fetching laporan data:', e);
