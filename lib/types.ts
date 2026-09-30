@@ -12,7 +12,58 @@ export function extractBagianTamatan(text?: string): string {
   return match ? match[0].toUpperCase() : '';
 }
 
-export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold';
+export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold' | '';
+
+export function getWarnaTiketSantri(kategoriUtama?: string, subKategori?: string): string {
+  const kat = (kategoriUtama || '').toUpperCase();
+  const sub = (subKategori || '').toLowerCase();
+  if (kat === 'BIL_GHOIB' || sub.includes('bil ghoib')) {
+    return 'Hitam Gold';
+  }
+  if (kat === 'TAMATAN' || sub.includes('tamatan') || sub.includes('a.0') || sub.includes('b.0')) {
+    return 'Kuning';
+  }
+  return 'Biru';
+}
+
+export function getWarnaTiketUndangan(golongan?: string, kategori?: string): string {
+  const gol = (golongan || '').toUpperCase();
+  const kat = (kategori || '').toLowerCase();
+
+  if (gol === 'UMUM' || gol === 'UNDANGAN_UMUM') {
+    return 'Merah Gold';
+  }
+
+  if (gol === 'ISTIMEWA' || gol === 'UNDANGAN_ISTIMEWA') {
+    if (kat.includes('ids')) {
+      return 'Merah Gold';
+    }
+    return '';
+  }
+
+  if (gol === 'KEHORMATAN' || gol === 'UNDANGAN_KEHORMATAN') {
+    return '';
+  }
+
+  if (kat.includes('ids')) return 'Merah Gold';
+  if (
+    kat.includes('vvip') ||
+    kat.includes('marzuqi') ||
+    kat.includes('qomariyah') ||
+    kat.includes('mahrus') ||
+    kat.includes('zainab') ||
+    kat.includes('salamah') ||
+    kat.includes('aisyah') ||
+    kat.includes('bandar') ||
+    kat.includes('kunir') ||
+    kat.includes('blitar') ||
+    kat.includes('kehormatan')
+  ) {
+    return '';
+  }
+
+  return 'Merah Gold';
+}
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 

@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
-import { BAGIAN_TAMATAN_LIST, extractBagianTamatan } from '@/lib/types';
+import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getWarnaTiketSantri, getWarnaTiketUndangan } from '@/lib/types';
 import * as XLSX from 'xlsx';
 import QRCode from 'qrcode';
 
@@ -335,7 +335,7 @@ export default function ManajemenPesertaPage() {
             kuotaTambahan: d.kuota_tambahan || 0,
             terpakai: d.kuota_terpakai || 0,
             tiketPanggungJatah: d.tiket_panggung_jatah || 0,
-            warnaTiket: d.warna_tiket || 'Biru',
+            warnaTiket: d.warna_tiket || getWarnaTiketSantri(d.kategori_utama, d.sub_kategori),
           },
         }));
         setKeluargaList(mappedKeluarga);
@@ -366,7 +366,9 @@ export default function ManajemenPesertaPage() {
             kuotaDasar: u.kuota_dasar || 2,
             kuotaTambahan: u.kuota_tambahan || 0,
             terpakai: u.kuota_terpakai || 0,
-            warnaTiket: u.warna_tiket || 'Merah Gold',
+            warnaTiket: u.warna_tiket !== undefined && u.warna_tiket !== null && u.warna_tiket !== ''
+              ? u.warna_tiket
+              : getWarnaTiketUndangan(u.sub_kategori, u.kategori),
           },
         }));
         setUndanganList(mappedUndangan);
@@ -840,7 +842,7 @@ export default function ManajemenPesertaPage() {
         : 'Bin Nadzori';
 
     const kuotaVal = Number(formData.kategoriUtama === 'BIL_GHOIB' ? 4 : 2);
-    const warna = formData.kategoriUtama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold';
+    const warna = getWarnaTiketSantri(formData.kategoriUtama, subKat);
 
     try {
       const { data, error } = await supabase.from('peserta_santri').insert([
@@ -967,6 +969,7 @@ export default function ManajemenPesertaPage() {
             no_hp: undanganForm.noHp || '-',
             kuota_dasar: kuotaBase,
             kuota_terpakai: 0,
+            warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
           },
         ]);
         if (error) {
@@ -1062,6 +1065,7 @@ export default function ManajemenPesertaPage() {
             alamat: finalAlamat || '-',
             no_hp: (editingItem.noHp || '').trim() || '-',
             kuota_dasar: Number(editingItem.kuotaDasar) || 2,
+            warna_tiket: getWarnaTiketUndangan(editGolonganUndangan, finalKat),
           })
           .eq('kode', targetKode);
 
@@ -1118,6 +1122,7 @@ export default function ManajemenPesertaPage() {
           alamat: (editingItem.alamat || '').trim().toUpperCase() || 'KEDIRI',
           kamar: (editingItem.kamar || '').trim() || '-',
           kuota_dasar: Number(editingItem.kuotaDasar || 4),
+          warna_tiket: getWarnaTiketSantri(editingItem.kategoriUtama, subKat),
         })
         .eq('kode', targetKode);
 

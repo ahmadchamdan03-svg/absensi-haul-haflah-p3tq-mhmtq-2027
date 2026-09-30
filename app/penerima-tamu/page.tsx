@@ -25,6 +25,7 @@ import {
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
+import { getWarnaTiketUndangan } from '@/lib/types';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import AuthGuard from '@/components/AuthGuard';
 
@@ -186,6 +187,7 @@ export default function PenerimaTamuPage() {
           no_hp: formData.noHp.trim() || '-',
           kuota_dasar: kuotaVal,
           kuota_terpakai: 0,
+          warna_tiket: getWarnaTiketUndangan(formData.golongan, formData.kategori),
         },
       ]);
       if (error) {

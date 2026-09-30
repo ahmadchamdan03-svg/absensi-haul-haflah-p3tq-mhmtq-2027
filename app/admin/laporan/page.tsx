@@ -33,22 +33,22 @@ const BLOK_3_SUBKATEGORI_DEFINITIONS = [
   { no: 21, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: '' },
   { no: 22, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bandar', matchers: ['bandar'], warna: '' },
   { no: 23, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: '' },
-  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: '' },
+  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Merah Gold' },
 
   // ── KATEGORI UTAMA 2: TAMU KEHORMATAN ──
   { no: 25, kategoriUtama: 'Tamu Kehormatan', kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: '' },
 
   // ── KATEGORI UTAMA 3: TAMU UMUM ──
-  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: '' },
-  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: '' },
-  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: '' },
-  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: '' },
-  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: '' },
-  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: '' },
-  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: '' },
-  { no: 33, kategoriUtama: 'Tamu Umum', kategori: 'Penguji Al-Qur\'an', matchers: ['penguji'], warna: '' },
-  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: '' },
-  { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: '' },
+  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Merah Gold' },
+  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Merah Gold' },
+  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Merah Gold' },
+  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Merah Gold' },
+  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Merah Gold' },
+  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Merah Gold' },
+  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Merah Gold' },
+  { no: 33, kategoriUtama: 'Tamu Umum', kategori: 'Penguji Al-Qur\'an', matchers: ['penguji'], warna: 'Merah Gold' },
+  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Merah Gold' },
+  { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Merah Gold' },
 ];
 
 export default function LaporanPage() {
@@ -91,7 +91,7 @@ export default function LaporanPage() {
 
   // Template 14 Kategori Santri
   const templateBlokSantri = [
-    { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Hijau (+Emas ★)' },
+    { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Hitam Gold' },
     { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Biru' },
     { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', warna: 'Biru' },
     { no: 4, kategori: 'Bin Nadzori 1 Aliyah', warna: 'Biru' },
@@ -268,7 +268,7 @@ export default function LaporanPage() {
     no: tpl.no,
     kategoriUtama: tpl.kategoriUtama,
     kategori: tpl.kategori,
-    warna: '', // Tarikan murni DB / acuan referensi jika ada
+    warna: tpl.warna, // Default warna tiket sesuai ketetapan resmi
     sh: 0,
     l: 0,
     p: 0,
@@ -284,17 +284,9 @@ export default function LaporanPage() {
       const kTot = Number(und.kuota_dasar || 2) + Number(und.kuota_tambahan || 0);
       blokUndangan[idx].kuota += kTot;
 
-      // 1. Ambil warna_tiket murni dari DB jika ada
-      if (und.warna_tiket && !blokUndangan[idx].warna) {
+      // Ambil warna_tiket murni dari DB jika ada
+      if (und.warna_tiket !== undefined && und.warna_tiket !== null && und.warna_tiket !== '') {
         blokUndangan[idx].warna = und.warna_tiket;
-      }
-      // 2. Acuan referensi warna sesuai panduan jika di DB warna_tiket kosong
-      else if (!blokUndangan[idx].warna) {
-        if (und.tiket_panggung_jatah > 0 || und.tiket_panggung_diberi > 0) {
-          blokUndangan[idx].warna = 'Hitam Gold';
-        } else if (und.sub_kategori === 'KEHORMATAN' || und.golongan === 'KEHORMATAN' || und.kategori === 'Tamu Kehormatan' || und.sub_kategori === 'UMUM' || und.golongan === 'UMUM') {
-          blokUndangan[idx].warna = 'Merah Gold';
-        }
       }
 
       const terpakai = Number(und.kuota_terpakai || 0);
