@@ -2908,6 +2908,23 @@ export default function ManajemenPesertaPage() {
                           Otomatis terisi berdasarkan golongan (Istimewa/Kehormatan: "Jalur VIP", Umum: "Gerbang Selatan (Bola Dunia)"), tetap dapat di-edit manual.
                         </p>
                       </div>
+
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1">Nomor WhatsApp / HP</label>
+                        <input
+                          type="text"
+                          value={editingItem.noHp || ''}
+                          onChange={(e) =>
+                            setEditingItem({
+                              ...editingItem,
+                              noHp: e.target.value,
+                            })
+                          }
+                          placeholder="08xxxxxxxxxx"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+                        />
+                        <p className="text-[10px] text-slate-400 mt-1">Format: 08xx atau 628xx. Boleh kosong (opsional).</p>
+                      </div>
                     </>
                   )}
                 </>
