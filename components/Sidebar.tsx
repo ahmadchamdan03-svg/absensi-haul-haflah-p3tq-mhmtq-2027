@@ -147,6 +147,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       groupTitle: 'MENU UTAMA',
       items: [
         { href: '/admin/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
+        { href: '/penerima-tamu', label: 'Penerima Tamu', icon: Users },
       ],
     },
     {
@@ -173,13 +174,15 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     },
   ];
 
-  // Untuk role Penjaga Gerbang: sembunyikan seluruh menu kecuali Scanner Gerbang & Tanya Us AI
+  // Untuk role Penjaga Gerbang: Tampilkan Scanner Gerbang, Live Dasbor, dan Penerima Tamu
   const navGroups: NavGroup[] = activeRole === 'PENJAGA_GERBANG'
     ? [
         {
-          groupTitle: 'OPERASIONAL GERBANG',
+          groupTitle: 'MENU UTAMA',
           items: [
             { href: '/scan', label: 'Scanner Gerbang', icon: QrCode },
+            { href: '/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
+            { href: '/penerima-tamu', label: 'Penerima Tamu', icon: Users },
           ],
         },
       ]
