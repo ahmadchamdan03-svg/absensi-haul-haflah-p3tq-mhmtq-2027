@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   RotateCcw,
   Search,
@@ -18,760 +18,1066 @@ import {
   ShieldCheck,
   Clock,
   Ticket,
+  X,
+  RefreshCw,
+  Phone,
+  Building,
+  MapPin,
+  Save,
+  Trash2,
+  Info,
+  UserPlus,
 } from 'lucide-react';
-import { store } from '@/lib/mock-data';
-import { BAGIAN_TAMATAN_LIST, extractBagianTamatan } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
+import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import AuthGuard from '@/components/AuthGuard';
+
+type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
 export default function RekonPage() {
   const [keyword, setKeyword] = useState('');
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [modeTab, setModeTab] = useState<'CHECKIN' | 'EDIT'>('CHECKIN');
-  const [hasilMsg, setHasilMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [santriList, setSantriList] = useState<any[]>([]);
+  const [tamuList, setTamuList] = useState<any[]>([]);
+  const [toastMsg, setToastMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
 
-  // Form Check-in Biasa
-  const [catatan, setCatatan] = useState('');
-  const [jumlahL, setJumlahL] = useState(1);
-  const [jumlahP, setJumlahP] = useState(1);
+  // Modal State
+  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [showWalkinModal, setShowWalkinModal] = useState(false);
+  const [savingWalkin, setSavingWalkin] = useState(false);
 
-  // Form Edit & Koreksi Data
-  const [editStatusHadir, setEditStatusHadir] = useState<'HADIR' | 'BELUM_HADIR'>('BELUM_HADIR');
-  const [editJumlahL, setEditJumlahL] = useState(1);
-  const [editJumlahP, setEditJumlahP] = useState(1);
-  const [editKategoriUtama, setEditKategoriUtama] = useState<'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN'>('BIL_GHOIB');
-  const [editBagianTamatan, setEditBagianTamatan] = useState<string>('A.01');
-  const [editKelas, setEditKelas] = useState<string>('3 Tsanawiyah');
-  const [editKuotaTambahan, setEditKuotaTambahan] = useState<number>(0);
-  const [editCatatanRekon, setEditCatatanRekon] = useState<string>('');
+  // Walk-in Form State
+  const [walkinForm, setWalkinForm] = useState({
+    golongan: 'ISTIMEWA' as GolonganUndangan,
+    nama: '',
+    namaPutra: '',
+    namaPutri: '',
+    kategori: 'VVIP',
+    instansi: '',
+    alamat: '',
+    noHp: '',
+    kuotaDasar: 2,
+    jalurMasuk: 'Jalur VIP',
+    langsungCheckin: true,
+  });
 
-  const keluargaList = store.getKeluargaList();
-  const undanganList = store.getUndanganList();
+  // Fetch Live Data & Realtime Subscription
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      const [resSantri, resTamu] = await Promise.all([
+        supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
+        supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
+      ]);
 
-  // Pencarian
-  const searchResults = keyword.trim()
-    ? [
-        ...keluargaList
-          .filter(
-            (k) =>
-              k.namaWali.toLowerCase().includes(keyword.toLowerCase()) ||
-              k.kode.toLowerCase().includes(keyword.toLowerCase()) ||
-              k.noHp.includes(keyword) ||
-              k.santri?.some(
-                (s) =>
-                  s.nama.toLowerCase().includes(keyword.toLowerCase()) ||
-                  s.nis.includes(keyword) ||
-                  s.kelas.toLowerCase().includes(keyword.toLowerCase())
-              )
-          )
-          .map((k) => ({ tipe: 'KELUARGA', data: k })),
-        ...undanganList
-          .filter(
-            (u) =>
-              u.nama.toLowerCase().includes(keyword.toLowerCase()) ||
-              u.kode.toLowerCase().includes(keyword.toLowerCase()) ||
-              u.kategori.toLowerCase().includes(keyword.toLowerCase())
-          )
-          .map((u) => ({ tipe: 'UNDANGAN', data: u })),
-      ]
-    : [];
-
-  const handleSelectItem = (item: any) => {
-    setSelectedItem(item);
-    setHasilMsg(null);
-    setCatatan('');
-
-    const kuota = item.data.kuota;
-    const sudahHadir = kuota.terpakai > 0;
-    setEditStatusHadir(sudahHadir ? 'HADIR' : 'BELUM_HADIR');
-
-    // Estimasi L/P
-    if (kuota.terpakai > 1) {
-      setEditJumlahL(1);
-      setEditJumlahP(kuota.terpakai - 1);
-    } else if (kuota.terpakai === 1) {
-      setEditJumlahL(0);
-      setEditJumlahP(1);
-    } else {
-      setEditJumlahL(1);
-      setEditJumlahP(1);
+      if (resSantri.data) setSantriList(resSantri.data);
+      if (resTamu.data) setTamuList(resTamu.data);
+    } catch (e) {
+      console.warn('Error fetching rekon data:', e);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setEditKuotaTambahan(kuota.kuotaTambahan || 0);
-    setEditCatatanRekon((item.data as any).catatanRekon || '');
+  useEffect(() => {
+    fetchAllData();
 
-    if (item.tipe === 'KELUARGA') {
-      const santri = item.data.santri?.[0];
-      if (santri) {
-        setEditKategoriUtama(santri.kategoriUtama || 'BIL_GHOIB');
-        setEditBagianTamatan(extractBagianTamatan(santri.subKategori) || 'A.01');
-        setEditKelas(santri.kelas || '3 Tsanawiyah');
+    // Supabase Realtime Subscription
+    const channel = supabase
+      .channel('rekon_realtime_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, fetchAllData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchAllData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchAllData)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const showToast = (text: string, tipe: 'success' | 'error' = 'success') => {
+    setToastMsg({ tipe, text });
+    setTimeout(() => setToastMsg(null), 6000);
+  };
+
+  // Filter Hasil Pencarian
+  const searchResults = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
+    if (!q) return [];
+
+    const santriFiltered = santriList
+      .filter((s) => {
+        return (
+          (s.nama && s.nama.toLowerCase().includes(q)) ||
+          (s.nama_wali && s.nama_wali.toLowerCase().includes(q)) ||
+          (s.kode && s.kode.toLowerCase().includes(q)) ||
+          (s.no_hp && s.no_hp.includes(q)) ||
+          (s.alamat && s.alamat.toLowerCase().includes(q)) ||
+          (s.sub_kategori && s.sub_kategori.toLowerCase().includes(q)) ||
+          (s.kelas && s.kelas.toLowerCase().includes(q)) ||
+          (s.kamar && s.kamar.toLowerCase().includes(q))
+        );
+      })
+      .map((s) => ({ tipe: 'SANTRI', data: s }));
+
+    const tamuFiltered = tamuList
+      .filter((t) => {
+        return (
+          (t.nama && t.nama.toLowerCase().includes(q)) ||
+          (t.nama_putra && t.nama_putra.toLowerCase().includes(q)) ||
+          (t.nama_putri && t.nama_putri.toLowerCase().includes(q)) ||
+          (t.kode && t.kode.toLowerCase().includes(q)) ||
+          (t.no_hp && t.no_hp.includes(q)) ||
+          (t.instansi && t.instansi.toLowerCase().includes(q)) ||
+          (t.alamat && t.alamat.toLowerCase().includes(q)) ||
+          (t.kategori && t.kategori.toLowerCase().includes(q))
+        );
+      })
+      .map((t) => ({ tipe: 'UNDANGAN', data: t }));
+
+    return [...santriFiltered, ...tamuFiltered];
+  }, [keyword, santriList, tamuList]);
+
+  // Quick Action: Tandai Hadir / Batalkan Hadir
+  const handleToggleHadir = async (item: any) => {
+    const isSantri = item.tipe === 'SANTRI';
+    const d = item.data;
+    const currentTerpakai = Number(d.kuota_terpakai || 0);
+    const kBase = Number(d.kuota_dasar || 2);
+    const kExtra = Number(d.kuota_tambahan || 0);
+    const totalKuota = kBase + kExtra;
+
+    const isHadir = currentTerpakai > 0;
+    const targetTable = isSantri ? 'peserta_santri' : 'tamu_undangan';
+
+    try {
+      if (isHadir) {
+        // Batalkan Hadir (Reset kuota_terpakai = 0)
+        const { error } = await supabase
+          .from(targetTable)
+          .update({ kuota_terpakai: 0, updated_at: new Date().toISOString() })
+          .eq('kode', d.kode);
+
+        if (error) throw error;
+
+        // Log audit
+        await supabase.from('audit_log').insert([
+          {
+            tabel: targetTable,
+            kode: d.kode,
+            field: 'kuota_terpakai (batal hadir)',
+            nilai_lama: String(currentTerpakai),
+            nilai_baru: '0',
+            panitia_id: 'panitia-rekonsiliasi',
+          },
+        ]);
+
+        showToast(`✓ Berhasil membatalkan kehadiran untuk ${d.nama || d.kode}. (kuota_terpakai reset ke 0).`);
+      } else {
+        // Tandai Hadir (Set kuota_terpakai = 1)
+        const newTerpakai = 1;
+        const { error } = await supabase
+          .from(targetTable)
+          .update({ kuota_terpakai: newTerpakai, updated_at: new Date().toISOString() })
+          .eq('kode', d.kode);
+
+        if (error) throw error;
+
+        // Insert presensi_log
+        await supabase.from('presensi_log').insert([
+          {
+            kuota_id: String(d.id || d.kode),
+            kode_qr: d.kode,
+            nama_peserta: d.nama,
+            tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
+            hasil: 'SUKSES',
+            jalur: d.jalur_masuk || 'MEJA_REKONSILIASI',
+            panitia_id: 'panitia-rekonsiliasi',
+            jumlah_l: 1,
+            jumlah_p: 0,
+            jumlah_balita: 0,
+            tiket_panggung: d.tiket_panggung_jatah || 0,
+            server_time: new Date().toISOString(),
+          },
+        ]);
+
+        // Log audit
+        await supabase.from('audit_log').insert([
+          {
+            tabel: targetTable,
+            kode: d.kode,
+            field: 'kuota_terpakai (tandai hadir)',
+            nilai_lama: '0',
+            nilai_baru: String(newTerpakai),
+            panitia_id: 'panitia-rekonsiliasi',
+          },
+        ]);
+
+        showToast(`✓ Berhasil menandai HADIR untuk ${d.nama || d.kode} (1/${totalKuota} Kursi).`);
       }
+
+      await fetchAllData();
+    } catch (err: any) {
+      console.error('Error toggling hadir:', err);
+      showToast(`Gagal memperbarui status kehadiran: ${err.message || err}`, 'error');
     }
   };
 
-  // Handler Check-in Biasa
-  const handleProsesRekon = () => {
-    if (!selectedItem) return;
-    setHasilMsg(null);
+  // Open Edit Modal (Edit Lengkap)
+  const handleOpenEdit = (item: any) => {
+    const isSantri = item.tipe === 'SANTRI';
+    const d = item.data;
 
-    const kodeQr = selectedItem.data.kode;
-    const res = store.checkin(kodeQr, jumlahL, jumlahP, 'REKONSILIASI', 0, 'panitia-rekon');
-
-    if (!res.ok) {
-      setHasilMsg({
-        tipe: 'error',
-        text: res.pesan || res.reason || 'Proses rekonsiliasi gagal',
-      });
-      return;
-    }
-
-    setHasilMsg({
-      tipe: 'success',
-      text: `✓ Berhasil check-in rekonsiliasi untuk ${res.namaSantri || selectedItem.data.kode}. Serahkan ${
-        res.tiketReguler || 0
-      } tiket ${res.warnaTiket} ${res.tiketPanggung ? '+ 1 Tiket Maju Panggung' : ''}.`,
+    setEditingItem({
+      tipe: item.tipe,
+      id: d.id,
+      kode: d.kode,
+      nama: d.nama || '',
+      namaPutra: d.nama_putra || '',
+      namaPutri: d.nama_putri || '',
+      namaWali: d.nama_wali || '',
+      noHp: d.no_hp || '',
+      alamat: d.alamat || '',
+      kelas: d.kelas || '',
+      kamar: d.kamar || '',
+      kategoriUtama: d.kategori_utama || 'BIL_GHOIB',
+      subKategori: d.sub_kategori || '',
+      kategori: d.kategori || 'Tamu Undangan',
+      instansi: d.instansi || '',
+      kuotaDasar: d.kuota_dasar !== undefined && d.kuota_dasar !== null ? d.kuota_dasar : (isSantri ? (d.kategori_utama === 'BIL_GHOIB' ? 4 : 2) : 2),
+      kuotaTambahan: d.kuota_tambahan || 0,
+      kuotaTerpakai: d.kuota_terpakai || 0,
+      tiketPanggungJatah: d.tiket_panggung_jatah || 0,
+      tiketPanggungDiberi: d.tiket_panggung_diberi || 0,
+      kartuHitamGoldDiberi: Boolean(d.kartu_hitam_gold_diberi),
+      warnaTiket: d.warna_tiket || (isSantri ? (d.kategori_utama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold') : 'Merah Gold'),
+      statusKonfirmasi: d.status_konfirmasi || 'BELUM',
+      perkiraanL: d.perkiraan_l || 0,
+      perkiraanP: d.perkiraan_p || 0,
+      statusWa: d.status_wa || 'BELUM',
+      jalurMasuk: d.jalur_masuk || (isSantri ? 'Gerbang Selatan (Bola Dunia)' : 'Jalur VIP'),
+      catatanKonfirmasi: d.catatan_konfirmasi || '',
     });
-
-    setSelectedItem(null);
-    setKeyword('');
-    setCatatan('');
   };
 
-  // Handler Koreksi & Edit Data Rekonsiliasi
-  const handleSimpanKoreksi = () => {
-    if (!selectedItem) return;
-    setHasilMsg(null);
+  // Save Edit Lengkap to Supabase
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
 
-    const kodeQr = selectedItem.data.kode;
-    const isKel = selectedItem.tipe === 'KELUARGA';
+    const confirmSave = confirm(
+      `Anda akan mengubah data "${editingItem.nama || editingItem.kode}" (${editingItem.kode}).\nPerubahan langsung tersinkron ke seluruh sistem. Lanjutkan?`
+    );
+    if (!confirmSave) return;
 
-    const res = store.rekonsiliasiKoreksiPeserta({
-      kode: kodeQr,
-      statusKehadiran: editStatusHadir,
-      jumlahL: editJumlahL,
-      jumlahP: editJumlahP,
-      kategoriUtama: isKel ? editKategoriUtama : undefined,
-      subKategori:
-        isKel && editKategoriUtama === 'TAMATAN'
-          ? `3 ALY ${editBagianTamatan}`
-          : isKel && editKategoriUtama === 'BIL_GHOIB'
-          ? 'Bil Ghoib'
-          : editKelas,
-      kelas:
-        isKel && editKategoriUtama === 'TAMATAN'
-          ? `3 ALY ${editBagianTamatan}`
-          : isKel && editKategoriUtama === 'BIL_GHOIB'
-          ? 'Bil Ghoib'
-          : editKelas,
-      bagianTamatan: editBagianTamatan,
-      kuotaTambahan: editKuotaTambahan,
-      catatanRekon: editCatatanRekon.trim() || 'Koreksi data meja rekonsiliasi',
-      petugas: 'Panitia Rekonsiliasi',
-    });
+    setSavingEdit(true);
 
-    if (!res.ok) {
-      setHasilMsg({
-        tipe: 'error',
-        text: res.pesan || 'Gagal menyimpan perubahan rekonsiliasi.',
-      });
-      return;
+    const isSantri = editingItem.tipe === 'SANTRI';
+    const targetTable = isSantri ? 'peserta_santri' : 'tamu_undangan';
+
+    try {
+      let payload: any = {};
+
+      if (isSantri) {
+        payload = {
+          nama: editingItem.nama.trim(),
+          nama_wali: editingItem.namaWali.trim() || '-',
+          no_hp: editingItem.noHp.trim() || '-',
+          alamat: editingItem.alamat.trim() || 'Kediri',
+          kelas: editingItem.kelas.trim() || '-',
+          kamar: editingItem.kamar.trim() || '-',
+          kategori_utama: editingItem.kategoriUtama,
+          sub_kategori: editingItem.subKategori.trim() || 'Bil Ghoib',
+          kuota_dasar: Math.max(0, Number(editingItem.kuotaDasar)),
+          kuota_tambahan: Math.max(0, Number(editingItem.kuotaTambahan)),
+          kuota_terpakai: Math.max(0, Number(editingItem.kuotaTerpakai)),
+          tiket_panggung_jatah: Math.max(0, Number(editingItem.tiketPanggungJatah)),
+          tiket_panggung_diberi: Math.max(0, Number(editingItem.tiketPanggungDiberi)),
+          kartu_hitam_gold_diberi: editingItem.kartuHitamGoldDiberi,
+          warna_tiket: editingItem.warnaTiket,
+          status_konfirmasi: editingItem.statusKonfirmasi,
+          perkiraan_l: Math.max(0, Number(editingItem.perkiraanL)),
+          perkiraan_p: Math.max(0, Number(editingItem.perkiraanP)),
+          status_wa: editingItem.statusWa,
+          catatan_konfirmasi: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : null,
+          updated_at: new Date().toISOString(),
+        };
+      } else {
+        payload = {
+          nama: editingItem.nama.trim(),
+          nama_putra: editingItem.namaPutra.trim() || null,
+          nama_putri: editingItem.namaPutri.trim() || null,
+          instansi: editingItem.instansi.trim() || '-',
+          alamat: editingItem.alamat.trim() || '-',
+          no_hp: editingItem.noHp.trim() || '-',
+          kategori: editingItem.kategori.trim() || 'Tamu Undangan',
+          sub_kategori: editingItem.subKategori || 'ISTIMEWA',
+          kuota_dasar: Math.max(0, Number(editingItem.kuotaDasar)),
+          kuota_tambahan: Math.max(0, Number(editingItem.kuotaTambahan)),
+          kuota_terpakai: Math.max(0, Number(editingItem.kuotaTerpakai)),
+          warna_tiket: editingItem.warnaTiket,
+          jalur_masuk: editingItem.jalurMasuk.trim() || 'Jalur VIP',
+          status_konfirmasi: editingItem.statusKonfirmasi,
+          perkiraan_l: Math.max(0, Number(editingItem.perkiraanL)),
+          perkiraan_p: Math.max(0, Number(editingItem.perkiraanP)),
+          status_wa: editingItem.statusWa,
+          catatan_konfirmasi: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : null,
+          updated_at: new Date().toISOString(),
+        };
+      }
+
+      const { error } = await supabase
+        .from(targetTable)
+        .update(payload)
+        .eq('kode', editingItem.kode);
+
+      if (error) throw error;
+
+      // Log audit
+      try {
+        await supabase.from('audit_log').insert([
+          {
+            tabel: targetTable,
+            kode: editingItem.kode,
+            field: 'edit_lengkap_rekonsiliasi',
+            nilai_baru: JSON.stringify(payload),
+            panitia_id: 'panitia-rekonsiliasi',
+          },
+        ]);
+      } catch (aErr) {}
+
+      showToast(`✓ Perubahan data "${editingItem.nama}" (${editingItem.kode}) berhasil disimpan & tersinkron ke seluruh sistem.`);
+      setEditingItem(null);
+      await fetchAllData();
+    } catch (err: any) {
+      console.error('Error saving edit:', err);
+      showToast(`Gagal menyimpan perubahan: ${err.message || err}`, 'error');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  // Handle Tamu Walk-in Baru
+  const handleSaveWalkin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingWalkin(true);
+
+    let finalNama = '';
+    const p = walkinForm.namaPutra.trim().toUpperCase();
+    const w = walkinForm.namaPutri.trim().toUpperCase();
+    let kuotaBase = walkinForm.kuotaDasar;
+
+    if (walkinForm.golongan === 'ISTIMEWA') {
+      if (!p && !w) {
+        showToast('Isi minimal salah satu: Nama Putra atau Nama Putri!', 'error');
+        setSavingWalkin(false);
+        return;
+      }
+      finalNama = p && w ? `${p} & ${w}` : p || w;
+      kuotaBase = p && w ? 2 : 1;
+    } else {
+      if (!walkinForm.nama.trim()) {
+        showToast('Nama Tamu Walk-in wajib diisi!', 'error');
+        setSavingWalkin(false);
+        return;
+      }
+      finalNama = walkinForm.nama.trim().toUpperCase();
     }
 
-    setHasilMsg({
-      tipe: 'success',
-      text: `✓ Berhasil memperbarui data rekonsiliasi untuk ${selectedItem.data.kode}. Status Kehadiran: ${
-        editStatusHadir === 'HADIR' ? 'Sudah Hadir' : 'Belum Hadir (Reset)'
-      }, Total Kuota: ${
-        (isKel && editKategoriUtama === 'BIL_GHOIB' ? 4 : 2) + editKuotaTambahan
-      } Kursi. Data otomatis tersimpan & terhubung ke Live Dasbor.`,
-    });
+    const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;
 
-    setSelectedItem(null);
-    setKeyword('');
+    try {
+      const payload = {
+        kode: newKode,
+        nama: finalNama,
+        nama_putra: p || null,
+        nama_putri: w || null,
+        instansi: walkinForm.instansi.trim() || walkinForm.alamat.trim() || '-',
+        alamat: walkinForm.alamat.trim() || '-',
+        kategori: walkinForm.kategori.trim() || 'Tamu Walk-in',
+        sub_kategori: walkinForm.golongan,
+        no_hp: walkinForm.noHp.trim() || '-',
+        kuota_dasar: kuotaBase,
+        kuota_tambahan: 0,
+        kuota_terpakai: walkinForm.langsungCheckin ? 1 : 0,
+        warna_tiket: getWarnaTiketUndangan(walkinForm.golongan, walkinForm.kategori),
+        jalur_masuk: walkinForm.jalurMasuk.trim() || getDefaultJalurMasuk(walkinForm.golongan),
+      };
+
+      const { error } = await supabase.from('tamu_undangan').insert([payload]);
+      if (error) throw error;
+
+      if (walkinForm.langsungCheckin) {
+        await supabase.from('presensi_log').insert([
+          {
+            kuota_id: newKode,
+            kode_qr: newKode,
+            nama_peserta: finalNama,
+            tipe_peserta: 'UNDANGAN',
+            hasil: 'SUKSES',
+            jalur: walkinForm.jalurMasuk,
+            panitia_id: 'panitia-rekonsiliasi',
+            jumlah_l: 1,
+            jumlah_p: 0,
+            server_time: new Date().toISOString(),
+          },
+        ]);
+      }
+
+      showToast(`✓ Berhasil mendaftarkan Tamu Walk-in: ${finalNama} (${newKode}) ${walkinForm.langsungCheckin ? '· Langsung Hadir' : ''}.`);
+      setShowWalkinModal(false);
+      setWalkinForm({
+        golongan: 'ISTIMEWA',
+        nama: '',
+        namaPutra: '',
+        namaPutri: '',
+        kategori: 'VVIP',
+        instansi: '',
+        alamat: '',
+        noHp: '',
+        kuotaDasar: 2,
+        jalurMasuk: 'Jalur VIP',
+        langsungCheckin: true,
+      });
+
+      await fetchAllData();
+    } catch (err: any) {
+      console.error('Error adding walk-in:', err);
+      showToast(`Gagal mendaftarkan walk-in: ${err.message || err}`, 'error');
+    } finally {
+      setSavingWalkin(false);
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-      {/* Header Meja Rekonsiliasi */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4]">
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="w-10 h-10 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] border-2 border-[#8C6A47]/40 flex items-center justify-center font-bold shadow-xs">
-            <RotateCcw className="w-5 h-5 text-[#8C6A47]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-serif font-black text-[#422F21]">
-              Meja Rekonsiliasi & Kasus Khusus Gerbang
-            </h1>
-            <p className="text-xs text-[#7A624E]">
-              Gerbang Selatan (Sisi Dalam). Menangani tamu walk-in, barcode bermasalah, serta koreksi status kehadiran, kategori santri, & kuota.
-            </p>
-          </div>
-        </div>
+    <AuthGuard allowedRoles={['ADMIN', 'PENJAGA_GERBANG']}>
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 text-[#422F21]">
+        {/* HEADER & ACTION BUTTONS */}
+        <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-11 h-11 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] border-2 border-[#8C6A47]/40 flex items-center justify-center font-bold shadow-xs shrink-0">
+                <RotateCcw className="w-5 h-5 text-[#8C6A47]" />
+              </div>
+              <div>
+                <h1 className="text-xl font-serif font-black text-[#422F21]">
+                  Meja Rekonsiliasi &amp; Kasus Khusus Gerbang
+                </h1>
+                <p className="text-xs text-[#7A624E]">
+                  Gerbang Selatan (Sisi Dalam). Menangani tamu walk-in, barcode bermasalah, koreksi kuota, &amp; audit identitas.
+                </p>
+              </div>
+            </div>
 
-        {/* Notifikasi / Alert Box */}
-        {hasilMsg && (
-          <div
-            className={`mt-4 p-4 rounded-2xl text-xs flex items-center space-x-2.5 shadow-xs transition-all ${
-              hasilMsg.tipe === 'success'
-                ? 'bg-emerald-50 text-emerald-900 border-2 border-emerald-300'
-                : 'bg-rose-50 text-rose-900 border-2 border-rose-300'
-            }`}
-          >
-            {hasilMsg.tipe === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            ) : (
-              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
-            )}
-            <span className="font-semibold leading-relaxed">{hasilMsg.text}</span>
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => setShowWalkinModal(true)}
+                className="px-3.5 py-2.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
+              >
+                <UserPlus className="w-4 h-4 text-emerald-200" />
+                <span>+ Daftarkan Walk-in</span>
+              </button>
+              <button
+                type="button"
+                onClick={fetchAllData}
+                className="p-2.5 rounded-2xl bg-white hover:bg-stone-100 text-[#8C6A47] border-2 border-[#D5C4B4] shadow-2xs flex items-center justify-center transition-all cursor-pointer"
+                title="Refresh Data"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* Form Cari Santri / Tamu */}
-        <div className="mt-6 space-y-4">
+          {/* TOAST / ALERT BOX NOTIFIKASI */}
+          {toastMsg && (
+            <div
+              className={`p-4 rounded-2xl text-xs flex items-center space-x-2.5 shadow-xs transition-all animate-in fade-in ${
+                toastMsg.tipe === 'success'
+                  ? 'bg-emerald-50 text-emerald-900 border-2 border-emerald-300'
+                  : 'bg-rose-50 text-rose-900 border-2 border-rose-300'
+              }`}
+            >
+              {toastMsg.tipe === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+              )}
+              <span className="font-bold leading-relaxed">{toastMsg.text}</span>
+            </div>
+          )}
+
+          {/* SEARCH BAR PENCARIAN MASIF */}
           <div className="relative">
             <Search className="w-5 h-5 text-[#8C6A47] absolute left-3.5 top-3.5" />
             <input
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="Cari berdasarkan Nama Santri, Nama Wali, Tamu VIP, No. HP, atau Kode SH0001..."
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border-2 border-[#D5C4B4] text-xs focus:outline-none focus:border-[#8C6A47] font-semibold bg-white text-[#422F21] placeholder-[#7A624E]/70"
+              placeholder="Cari berdasarkan Nama Santri, Nama Wali, Tamu VIP, No. HP, atau Kode (SH0001 / UND0101)..."
+              className="w-full pl-11 pr-10 py-3 rounded-2xl border-2 border-[#D5C4B4] text-xs sm:text-sm focus:outline-none focus:border-[#8C6A47] font-semibold bg-white text-[#422F21] placeholder-[#7A624E]/70"
             />
             {keyword && (
               <button
+                type="button"
                 onClick={() => setKeyword('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[#7A624E] hover:text-[#422F21]"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-sm font-bold"
               >
                 ✕
               </button>
             )}
           </div>
-
-          {/* List Hasil Pencarian */}
-          {searchResults.length > 0 && (
-            <div className="border-2 border-[#D5C4B4] rounded-2xl divide-y divide-[#EFE8E1] max-h-72 overflow-y-auto bg-white shadow-xs">
-              {searchResults.map((item: any) => {
-                const isKel = item.tipe === 'KELUARGA';
-                const santri = isKel ? item.data.santri?.[0] : null;
-                const kuota = item.data.kuota;
-                const sudahHadir = kuota.terpakai > 0;
-                const sisa = kuota.kuotaDasar + kuota.kuotaTambahan - kuota.terpakai;
-
-                let badgeKategori = 'bg-[#FAF7F3] text-[#8C6A47] border-[#D5C4B4]';
-                if (santri?.kategoriUtama === 'BIL_GHOIB') {
-                  badgeKategori = 'bg-emerald-50 text-emerald-800 border-emerald-300';
-                } else if (santri?.kategoriUtama === 'BIN_NADZOR') {
-                  badgeKategori = 'bg-blue-50 text-blue-800 border-blue-300';
-                } else if (santri?.kategoriUtama === 'TAMATAN') {
-                  badgeKategori = 'bg-amber-50 text-amber-900 border-amber-300';
-                } else if (!isKel) {
-                  badgeKategori = 'bg-purple-50 text-purple-900 border-purple-300';
-                }
-
-                return (
-                  <div
-                    key={item.data.id}
-                    onClick={() => handleSelectItem(item)}
-                    className={`p-3 sm:p-3.5 hover:bg-[#FAF7F3] cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition-colors ${
-                      selectedItem?.data.id === item.data.id
-                        ? 'bg-[#EFE8E1] border-l-4 border-[#8C6A47]'
-                        : ''
-                    }`}
-                  >
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
-                        <span className="font-serif font-black text-xs sm:text-sm text-[#422F21]">
-                          {isKel ? santri?.nama : item.data.nama}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shrink-0 ${badgeKategori}`}>
-                          {isKel ? santri?.kategoriUtama : 'TAMU UNDANGAN'}
-                        </span>
-                        {sudahHadir ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center space-x-1 shrink-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                            <span>Sudah Hadir ({kuota.terpakai} Kursi)</span>
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center space-x-1 shrink-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                            <span>Belum Hadir</span>
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-[#7A624E] truncate">
-                        {isKel
-                          ? `${santri?.kelas || santri?.subKategori} · Wali: ${item.data.namaWali} (${item.data.noHp})`
-                          : `${item.data.kategori} · ${item.data.instansi || '-'}`}
-                      </div>
-                    </div>
-
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center text-xs shrink-0 pt-1.5 sm:pt-0 border-t sm:border-t-0 border-[#D5C4B4]/40">
-                      <span className="font-mono px-2 py-0.5 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] text-[#8C6A47] font-black text-xs">
-                        {item.data.kode}
-                      </span>
-                      <div className="text-[11px] text-[#7A624E] sm:mt-1">
-                        Total: <strong>{kuota.kuotaDasar + (kuota.kuotaTambahan || 0)}</strong> · Sisa:{' '}
-                        <strong className={sisa > 0 ? 'text-emerald-700' : 'text-rose-600'}>
-                          {sisa}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
-      </div>
 
-      {/* Detail & Aksi Rekonsiliasi */}
-      {selectedItem && (
-        <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#8C6A47]/60 space-y-5 animate-in fade-in">
-          {/* Header Peserta Terpilih */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-[#D5C4B4] pb-4 gap-3">
-            <div>
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white text-[#8C6A47] text-[10px] font-black border border-[#D5C4B4]">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#D49B5B]" />
-                <span>MEJA KASUS KHUSUS GERBANG SELATAN</span>
-              </div>
-              <h3 className="text-lg font-serif font-black text-[#422F21] mt-1.5">
-                {selectedItem.tipe === 'KELUARGA'
-                  ? selectedItem.data.santri?.[0]?.nama
-                  : selectedItem.data.nama}
-              </h3>
-              <div className="flex items-center space-x-3 text-xs text-[#7A624E] mt-0.5">
-                <span className="font-mono font-bold text-[#8C6A47]">{selectedItem.data.kode}</span>
-                <span>•</span>
-                <span>
-                  {selectedItem.tipe === 'KELUARGA'
-                    ? `Wali: ${selectedItem.data.namaWali} (${selectedItem.data.noHp})`
-                    : `${selectedItem.data.kategori} · ${selectedItem.data.instansi || '-'}`}
-                </span>
-              </div>
+        {/* LIST HASIL PENCARIAN */}
+        {keyword.trim() !== '' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-[#7A624E]">
+              <span>Hasil Pencarian ({searchResults.length} ditemukan):</span>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-black border ${
-                  selectedItem.data.kuota.terpakai > 0
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                    : 'bg-amber-100 text-amber-900 border-amber-300'
-                }`}
-              >
-                {selectedItem.data.kuota.terpakai > 0
-                  ? `Sudah Masuk (${selectedItem.data.kuota.terpakai} Kursi)`
-                  : 'Belum Masuk Lokasi'}
-              </span>
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="p-1.5 rounded-xl bg-white border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21] text-xs font-bold"
-              >
-                ✕ Tutup
-              </button>
-            </div>
+            {searchResults.length === 0 ? (
+              <div className="p-8 text-center bg-white rounded-3xl border-2 border-dashed border-stone-200 text-stone-500 text-xs">
+                <p className="font-bold text-sm text-[#422F21]">Data tidak ditemukan</p>
+                <p className="mt-1">
+                  Tidak ada peserta / tamu yang cocok dengan kata kunci "{keyword}". Gunakan tombol "+ Daftarkan Walk-in" jika tamu hadir tanpa registrasi awal.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {searchResults.map((item: any) => {
+                  const isSantri = item.tipe === 'SANTRI';
+                  const d = item.data;
+                  const currentTerpakai = Number(d.kuota_terpakai || 0);
+                  const kBase = Number(d.kuota_dasar || 2);
+                  const kExtra = Number(d.kuota_tambahan || 0);
+                  const totalKuota = kBase + kExtra;
+                  const isHadir = currentTerpakai > 0;
+
+                  return (
+                    <div
+                      key={d.id || d.kode}
+                      className={`p-4 sm:p-5 rounded-3xl border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
+                        isHadir ? 'bg-emerald-50/60 border-emerald-300' : 'bg-white border-[#E8DFD5]'
+                      }`}
+                    >
+                      {/* INFORMASI UTAMA PESERTA */}
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                          <span className="font-mono text-xs font-black px-2.5 py-0.5 rounded-lg bg-[#FAF0E6] text-[#422F21] border border-[#D5C4B4]">
+                            {d.kode}
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                              isSantri
+                                ? 'bg-blue-100 text-blue-900 border-blue-200'
+                                : 'bg-purple-100 text-purple-900 border-purple-200'
+                            }`}
+                          >
+                            {isSantri ? 'PESERTA SANTRI' : 'TAMU UNDANGAN'}
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                              d.warna_tiket === 'Hitam Gold'
+                                ? 'bg-stone-900 text-amber-300 border-stone-800'
+                                : 'bg-amber-100 text-amber-900 border-amber-300'
+                            }`}
+                          >
+                            {d.warna_tiket || 'Merah Gold'}
+                          </span>
+                          {isHadir ? (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-emerald-950 border border-emerald-300 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                              <span>HADIR ({currentTerpakai}/{totalKuota} Kursi)</span>
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-stone-200 text-stone-700 border border-stone-300">
+                              BELUM (0/{totalKuota} Kursi)
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+                          {d.nama}
+                        </h3>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs text-stone-600">
+                          {isSantri ? (
+                            <>
+                              <div>Wali: <strong>{d.nama_wali || '-'}</strong> ({d.no_hp || '-'})</div>
+                              <div>Kategori: <strong>{d.sub_kategori || d.kategori_utama}</strong> (Kamar: {d.kamar || '-'})</div>
+                            </>
+                          ) : (
+                            <>
+                              <div>Instansi: <strong>{d.instansi || d.alamat || '-'}</strong> ({d.no_hp || '-'})</div>
+                              <div>Golongan: <strong>{d.sub_kategori || 'ISTIMEWA'}</strong> ({d.kategori})</div>
+                            </>
+                          )}
+                          <div>Alamat: <strong>{d.alamat || 'Kediri'}</strong></div>
+                          <div>Jalur: <strong>{d.jalur_masuk || (isSantri ? 'Gerbang Selatan' : 'Jalur VIP')}</strong></div>
+                        </div>
+                      </div>
+
+                      {/* BUTTON REKONSILIASI CEPAT & EDIT LENGKAP */}
+                      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 border-t md:border-t-0 border-stone-200 pt-3 md:pt-0 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleHadir(item)}
+                          className={`w-full md:w-auto px-4 py-2 rounded-2xl text-xs font-bold shadow-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                            isHadir
+                              ? 'bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300'
+                              : 'bg-emerald-800 hover:bg-emerald-900 text-white'
+                          }`}
+                        >
+                          {isHadir ? (
+                            <>
+                              <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                              <span>Batalkan HADIR</span>
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="w-3.5 h-3.5 text-emerald-200" />
+                              <span>Tandai HADIR</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(item)}
+                          className="w-full md:w-auto px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border-2 border-[#D5C4B4] font-bold text-xs shadow-2xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-[#8C6A47]" />
+                          <span>Edit Lengkap</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
+        )}
 
-          {/* TAB SWITCHER: MODE CHECK-IN VS MODE EDIT DATA */}
-          <div className="grid grid-cols-2 gap-2 p-1.5 bg-[#EFE8E1] rounded-2xl border border-[#D5C4B4]">
-            <button
-              type="button"
-              onClick={() => setModeTab('CHECKIN')}
-              className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-2 ${
-                modeTab === 'CHECKIN'
-                  ? 'bg-[#8C6A47] text-white shadow-sm'
-                  : 'text-[#7A624E] hover:text-[#422F21]'
-              }`}
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>Mode 1: Check-in Cepat Masuk</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setModeTab('EDIT')}
-              className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-2 ${
-                modeTab === 'EDIT'
-                  ? 'bg-[#8C6A47] text-white shadow-sm'
-                  : 'text-[#7A624E] hover:text-[#422F21]'
-              }`}
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>Mode 2: Edit & Koreksi Data (Audit)</span>
-            </button>
-          </div>
-
-          {/* ========================================================================= */}
-          {/* TAB 1: FORM CHECK-IN CEPAT (MASUK / SCAN LANGSUNG)                       */}
-          {/* ========================================================================= */}
-          {modeTab === 'CHECKIN' && (
-            <div className="space-y-4 pt-1">
-              <div className="p-3.5 rounded-2xl bg-white border border-[#D5C4B4] flex items-center justify-between">
+        {/* MODAL EDIT LENGKAP (REKONSILIASI KOREKSI MASIF) */}
+        {editingItem && (
+          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 border border-[#E8DFD5] max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-4">
                 <div>
-                  <div className="text-[11px] text-[#7A624E] font-medium">Sisa Kuota Tersedia:</div>
-                  <div className="text-xl font-serif font-black text-[#422F21]">
-                    {Math.max(
-                      0,
-                      selectedItem.data.kuota.kuotaDasar +
-                        (selectedItem.data.kuota.kuotaTambahan || 0) -
-                        selectedItem.data.kuota.terpakai
-                    )}{' '}
-                    <span className="text-xs font-normal text-[#7A624E]">
-                      dari {selectedItem.data.kuota.kuotaDasar + (selectedItem.data.kuota.kuotaTambahan || 0)} Kursi
-                    </span>
+                  <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-[10px] font-bold border border-[#D5C4B4]">
+                    <Edit3 className="w-3.5 h-3.5 text-[#8C6A47]" />
+                    <span>PANEL EDIT LENGKAP REKONSILIASI</span>
+                  </div>
+                  <h3 className="text-lg font-serif font-black text-[#422F21] mt-1">
+                    Edit Data {editingItem.tipe === 'SANTRI' ? 'Peserta Santri' : 'Tamu Undangan'}: {editingItem.kode}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  className="p-1.5 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-stone-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
+                {/* BLOK 1: IDENTITAS & KONTAK */}
+                <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+                  <h4 className="font-serif font-black text-sm text-[#422F21]">1. Identitas &amp; Kontak Utama</h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Nama Utama:</label>
+                      <input
+                        type="text"
+                        value={editingItem.nama}
+                        onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-semibold text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        required
+                      />
+                    </div>
+
+                    {editingItem.tipe === 'SANTRI' ? (
+                      <div>
+                        <label className="block font-bold text-[#422F21] mb-1">Nama Wali:</label>
+                        <input
+                          type="text"
+                          value={editingItem.namaWali}
+                          onChange={(e) => setEditingItem({ ...editingItem, namaWali: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block font-bold text-[#422F21] mb-1">Instansi / Asal:</label>
+                        <input
+                          type="text"
+                          value={editingItem.instansi}
+                          onChange={(e) => setEditingItem({ ...editingItem, instansi: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Nomor WhatsApp / HP:</label>
+                      <input
+                        type="text"
+                        value={editingItem.noHp}
+                        onChange={(e) => setEditingItem({ ...editingItem, noHp: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Alamat Domisili:</label>
+                      <input
+                        type="text"
+                        value={editingItem.alamat}
+                        onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4]">
-                    Tiket{' '}
-                    {selectedItem.data.kuota.tiketPanggungJatah > 0
-                      ? 'Hitam Gold'
-                      : selectedItem.tipe === 'UNDANGAN'
-                      ? 'Putih VIP'
-                      : 'Merah Gold'}
-                  </span>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#422F21] mb-1">
-                    Jumlah Laki-laki Hadir
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={jumlahL}
-                    onChange={(e) => setJumlahL(parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2.5 rounded-xl border-2 border-[#D5C4B4] text-xs font-bold text-[#422F21] bg-white focus:outline-none focus:border-[#8C6A47]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#422F21] mb-1">
-                    Jumlah Perempuan Hadir
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={jumlahP}
-                    onChange={(e) => setJumlahP(parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2.5 rounded-xl border-2 border-[#D5C4B4] text-xs font-bold text-[#422F21] bg-white focus:outline-none focus:border-[#8C6A47]"
-                  />
-                </div>
-              </div>
+                {/* BLOK 2: KATEGORI & KUOTA */}
+                <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+                  <h4 className="font-serif font-black text-sm text-[#422F21]">2. Kategori, Kuota &amp; Warna Tiket</h4>
 
-              <div>
-                <label className="block text-xs font-bold text-[#422F21] mb-1">
-                  Catatan Kasus Lapangan (Opsional)
-                </label>
-                <textarea
-                  value={catatan}
-                  onChange={(e) => setCatatan(e.target.value)}
-                  placeholder="Misal: Ponsel mati, undangan fisik tertinggal, tamu VIP langsung diantar panitia..."
-                  rows={2}
-                  className="w-full px-3 py-2 rounded-xl border-2 border-[#D5C4B4] text-xs focus:outline-none focus:border-[#8C6A47] bg-white text-[#422F21]"
-                />
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {editingItem.tipe === 'SANTRI' ? (
+                      <>
+                        <div>
+                          <label className="block font-bold text-[#422F21] mb-1">Kategori Utama:</label>
+                          <select
+                            value={editingItem.kategoriUtama}
+                            onChange={(e) => setEditingItem({ ...editingItem, kategoriUtama: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-semibold"
+                          >
+                            <option value="BIL_GHOIB">BIL_GHOIB (Hitam Gold)</option>
+                            <option value="BIN_NADZOR">BIN_NADZOR (Merah Gold)</option>
+                            <option value="TAMATAN">TAMATAN (Merah Gold)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block font-bold text-[#422F21] mb-1">Sub-Kategori / Kelas:</label>
+                          <input
+                            type="text"
+                            value={editingItem.subKategori}
+                            onChange={(e) => setEditingItem({ ...editingItem, subKategori: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold text-[#422F21] mb-1">Kamar Santri:</label>
+                          <input
+                            type="text"
+                            value={editingItem.kamar}
+                            onChange={(e) => setEditingItem({ ...editingItem, kamar: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block font-bold text-[#422F21] mb-1">Golongan Undangan:</label>
+                          <select
+                            value={editingItem.subKategori}
+                            onChange={(e) => setEditingItem({ ...editingItem, subKategori: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-semibold"
+                          >
+                            <option value="ISTIMEWA">ISTIMEWA (VVIP / VIP)</option>
+                            <option value="KEHORMATAN">KEHORMATAN (Masyayikh / Habaib)</option>
+                            <option value="UMUM">UMUM (Asatidz / Mustahiq)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block font-bold text-[#422F21] mb-1">Kategori Khusus:</label>
+                          <input
+                            type="text"
+                            value={editingItem.kategori}
+                            onChange={(e) => setEditingItem({ ...editingItem, kategori: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold text-[#422F21] mb-1">Jalur Masuk:</label>
+                          <input
+                            type="text"
+                            value={editingItem.jalurMasuk}
+                            onChange={(e) => setEditingItem({ ...editingItem, jalurMasuk: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
 
-              <div className="flex justify-end space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedItem(null)}
-                  className="px-4 py-2.5 rounded-xl border-2 border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-white transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleProsesRekon}
-                  className="px-6 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md transition-colors flex items-center space-x-2"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Selesaikan & Terbitkan Gelang Tiket</span>
-                </button>
-              </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Kuota Dasar:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingItem.kuotaDasar}
+                        onChange={(e) => setEditingItem({ ...editingItem, kuotaDasar: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Kuota Tambahan:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingItem.kuotaTambahan}
+                        onChange={(e) => setEditingItem({ ...editingItem, kuotaTambahan: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs text-emerald-800"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Kuota Terpakai:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingItem.kuotaTerpakai}
+                        onChange={(e) => setEditingItem({ ...editingItem, kuotaTerpakai: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs text-blue-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Warna Tiket:</label>
+                      <select
+                        value={editingItem.warnaTiket}
+                        onChange={(e) => setEditingItem({ ...editingItem, warnaTiket: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs"
+                      >
+                        <option value="Hitam Gold">Hitam Gold</option>
+                        <option value="Merah Gold">Merah Gold</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BLOK 3: RSVP & STATUS */}
+                <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+                  <h4 className="font-serif font-black text-sm text-[#422F21]">3. RSVP &amp; Catatan</h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Status Konfirmasi RSVP:</label>
+                      <select
+                        value={editingItem.statusKonfirmasi}
+                        onChange={(e) => setEditingItem({ ...editingItem, statusKonfirmasi: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold"
+                      >
+                        <option value="BELUM">BELUM</option>
+                        <option value="SUDAH">SUDAH</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Perkiraan Laki-laki:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingItem.perkiraanL}
+                        onChange={(e) => setEditingItem({ ...editingItem, perkiraanL: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Perkiraan Perempuan:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingItem.perkiraanP}
+                        onChange={(e) => setEditingItem({ ...editingItem, perkiraanP: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-[#422F21] mb-1">Catatan Khusus Rekonsiliasi:</label>
+                    <input
+                      type="text"
+                      value={editingItem.catatanKonfirmasi}
+                      onChange={(e) => setEditingItem({ ...editingItem, catatanKonfirmasi: e.target.value })}
+                      placeholder="Contoh: Koreksi kuota walk-in di gerbang selatan..."
+                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* FOOTER ACTION BUTTONS */}
+                <div className="pt-3 flex items-center justify-end space-x-2 border-t border-stone-200">
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem(null)}
+                    className="px-5 py-2.5 rounded-2xl border border-stone-300 font-bold text-stone-700 hover:bg-stone-100 cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingEdit}
+                    className="px-6 py-2.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
+                  >
+                    <Save className="w-4 h-4 text-emerald-200" />
+                    <span>{savingEdit ? 'Menyimpan &amp; Menyinkron...' : 'Simpan Perubahan'}</span>
+                  </button>
+                </div>
+              </form>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* ========================================================================= */}
-          {/* TAB 2: FORM EDIT & KOREKSI DATA (AUDIT REKONSILIASI)                      */}
-          {/* ========================================================================= */}
-          {modeTab === 'EDIT' && (
-            <div className="space-y-5 pt-1">
-              {/* 1. Koreksi Status Kehadiran (Sudah Hadir <-> Belum Hadir) */}
-              <div className="p-4 rounded-2xl bg-white border-2 border-[#D5C4B4] space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-[#422F21] uppercase tracking-wide flex items-center space-x-1.5">
-                    <Clock className="w-4 h-4 text-[#8C6A47]" />
-                    <span>1. Koreksi Status Kehadiran</span>
-                  </span>
-                  <span className="text-[10px] text-[#7A624E]">
-                    Mengubah status kehadiran dan mereset log presensi
-                  </span>
+        {/* MODAL WALK-IN GUEST BARU */}
+        {showWalkinModal && (
+          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-[#E8DFD5] max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                <div>
+                  <h3 className="font-serif font-black text-lg text-[#422F21]">
+                    Daftarkan Tamu Walk-in Baru
+                  </h3>
+                  <p className="text-xs text-[#7A624E]">
+                    Tamu hadir tanpa bawa barcode / undangan rusak (Auto Kode UND-xxxx)
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowWalkinModal(false)}
+                  className="p-1 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-stone-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveWalkin} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-[#422F21] mb-1">Golongan Tamu Walk-in:</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['ISTIMEWA', 'KEHORMATAN', 'UMUM'] as GolonganUndangan[]).map((gol) => (
+                      <button
+                        key={gol}
+                        type="button"
+                        onClick={() =>
+                          setWalkinForm({
+                            ...walkinForm,
+                            golongan: gol,
+                            kategori: gol === 'ISTIMEWA' ? 'VVIP' : gol === 'KEHORMATAN' ? 'Tamu Kehormatan' : 'Asatidz Mhmtq Sekalian',
+                            jalurMasuk: getDefaultJalurMasuk(gol),
+                          })
+                        }
+                        className={`py-2 px-1 rounded-xl font-bold border transition-all text-center text-[11px] ${
+                          walkinForm.golongan === gol
+                            ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
+                            : 'bg-[#FAF7F3] text-[#422F21] border-[#D5C4B4] hover:bg-[#EFE8E1]'
+                        }`}
+                      >
+                        {gol}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setEditStatusHadir('HADIR')}
-                    className={`p-3 rounded-xl border-2 text-xs font-black transition-all flex items-center justify-center space-x-2 ${
-                      editStatusHadir === 'HADIR'
-                        ? 'bg-emerald-50 border-emerald-600 text-emerald-900 shadow-xs'
-                        : 'bg-[#FAF7F3] border-[#D5C4B4] text-[#7A624E] hover:border-[#8C6A47]'
-                    }`}
-                  >
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                    <span>Sudah Hadir di Lokasi</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setEditStatusHadir('BELUM_HADIR')}
-                    className={`p-3 rounded-xl border-2 text-xs font-black transition-all flex items-center justify-center space-x-2 ${
-                      editStatusHadir === 'BELUM_HADIR'
-                        ? 'bg-amber-50 border-amber-600 text-amber-900 shadow-xs'
-                        : 'bg-[#FAF7F3] border-[#D5C4B4] text-[#7A624E] hover:border-[#8C6A47]'
-                    }`}
-                  >
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
-                    <span>Belum Hadir (Reset ke 0)</span>
-                  </button>
-                </div>
-
-                {editStatusHadir === 'BELUM_HADIR' ? (
-                  <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-300 text-amber-900 text-[11px] flex items-center space-x-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
-                    <span>
-                      <strong>Perhatian:</strong> Mengubah ke <em>Belum Hadir</em> akan mereset kuota terpakai menjadi <strong>0</strong>, menarik tiket panggung emas, dan membatalkan catatan scan pintu masuk.
-                    </span>
+                {walkinForm.golongan === 'ISTIMEWA' ? (
+                  <div className="space-y-3 bg-[#FAF7F3] p-3.5 rounded-2xl border border-[#D5C4B4]">
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putra:</label>
+                      <input
+                        type="text"
+                        value={walkinForm.namaPutra}
+                        onChange={(e) => setWalkinForm({ ...walkinForm, namaPutra: e.target.value })}
+                        placeholder="Contoh: KH. ABDULLOH FAQIHI"
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putri:</label>
+                      <input
+                        type="text"
+                        value={walkinForm.namaPutri}
+                        onChange={(e) => setWalkinForm({ ...walkinForm, namaPutri: e.target.value })}
+                        placeholder="Contoh: NYAI HJ. HINDAH"
+                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      />
+                    </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                    <div>
-                      <label className="block text-[11px] font-bold text-[#5C3E28] mb-1">
-                        Jumlah Hadir Laki-laki
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editJumlahL}
-                        onChange={(e) => setEditJumlahL(Math.max(0, parseInt(e.target.value) || 0))}
-                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] text-xs font-bold text-[#422F21] bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-[#5C3E28] mb-1">
-                        Jumlah Hadir Perempuan
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editJumlahP}
-                        onChange={(e) => setEditJumlahP(Math.max(0, parseInt(e.target.value) || 0))}
-                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] text-xs font-bold text-[#422F21] bg-white"
-                      />
-                    </div>
+                  <div>
+                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Walk-in:</label>
+                    <input
+                      type="text"
+                      value={walkinForm.nama}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, nama: e.target.value })}
+                      placeholder="Contoh: KH. ANWAR MASHADI"
+                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
+                      required
+                    />
                   </div>
                 )}
-              </div>
 
-              {/* 2. Koreksi Kategori Santri (Hanya untuk Santri / KELUARGA) */}
-              {selectedItem.tipe === 'KELUARGA' && (
-                <div className="p-4 rounded-2xl bg-white border-2 border-[#D5C4B4] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[#422F21] uppercase tracking-wide flex items-center space-x-1.5">
-                      <Ticket className="w-4 h-4 text-[#8C6A47]" />
-                      <span>2. Koreksi Kategori Santri</span>
-                    </span>
-                    <span className="text-[10px] text-[#7A624E]">
-                      Otomatis sesuaikan kuota dasar & tiket panggung
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditKategoriUtama('BIL_GHOIB')}
-                      className={`p-3 rounded-xl border-2 text-xs font-bold text-left transition-all ${
-                        editKategoriUtama === 'BIL_GHOIB'
-                          ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-xs'
-                          : 'border-[#D5C4B4] bg-[#FAF7F3] text-[#7A624E] hover:border-[#8C6A47]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>Bil Ghoib</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                      </div>
-                      <div className="text-[10px] text-emerald-800 mt-1 font-normal">
-                        4 Kursi · Hitam Gold
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setEditKategoriUtama('BIN_NADZOR')}
-                      className={`p-3 rounded-xl border-2 text-xs font-bold text-left transition-all ${
-                        editKategoriUtama === 'BIN_NADZOR'
-                          ? 'border-blue-600 bg-blue-50 text-blue-950 font-black shadow-xs'
-                          : 'border-[#D5C4B4] bg-[#FAF7F3] text-[#7A624E] hover:border-[#8C6A47]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>Bin Nadzori</span>
-                        <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                      </div>
-                      <div className="text-[10px] text-blue-800 mt-1 font-normal">
-                        2 Kursi · Merah Gold
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setEditKategoriUtama('TAMATAN')}
-                      className={`p-3 rounded-xl border-2 text-xs font-bold text-left transition-all ${
-                        editKategoriUtama === 'TAMATAN'
-                          ? 'border-amber-600 bg-amber-50 text-amber-950 font-black shadow-xs'
-                          : 'border-[#D5C4B4] bg-[#FAF7F3] text-[#7A624E] hover:border-[#8C6A47]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>Tamatan</span>
-                        <span className="w-2 h-2 rounded-full bg-amber-600"></span>
-                      </div>
-                      <div className="text-[10px] text-amber-900 mt-1 font-normal">
-                        2 Kursi · Merah Gold
-                      </div>
-                    </button>
-                  </div>
-
-                  {/* Sub-Pilihan Dinamis */}
-                  {editKategoriUtama === 'TAMATAN' && (
-                    <div className="pt-2">
-                      <label className="block text-[11px] font-bold text-[#5C3E28] mb-1">
-                        Pilih Sub-Bagian Tamatan:
-                      </label>
-                      <select
-                        value={editBagianTamatan}
-                        onChange={(e) => setEditBagianTamatan(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border-2 border-[#D5C4B4] text-xs font-bold text-[#422F21] bg-white focus:outline-none focus:border-[#8C6A47]"
-                      >
-                        {BAGIAN_TAMATAN_LIST.map((bg) => (
-                          <option key={bg} value={bg}>
-                            Bagian {bg}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {editKategoriUtama === 'BIN_NADZOR' && (
-                    <div className="pt-2">
-                      <label className="block text-[11px] font-bold text-[#5C3E28] mb-1">
-                        Pilih Jenjang Kelas Bin Nadzori:
-                      </label>
-                      <select
-                        value={editKelas}
-                        onChange={(e) => setEditKelas(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border-2 border-[#D5C4B4] text-xs font-bold text-[#422F21] bg-white focus:outline-none focus:border-[#8C6A47]"
-                      >
-                        <option value="2 Tsanawiyah">2 Tsanawiyah</option>
-                        <option value="3 Tsanawiyah">3 Tsanawiyah</option>
-                        <option value="1 Aliyah">1 Aliyah</option>
-                        <option value="2 Aliyah">2 Aliyah</option>
-                        <option value="3 Aliyah">3 Aliyah</option>
-                        <option value="Mutakhorijat">Mutakhorijat</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 3. Koreksi Kuota Tambahan (Tambah / Kurang) */}
-              <div className="p-4 rounded-2xl bg-white border-2 border-[#D5C4B4] space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-[#422F21] uppercase tracking-wide flex items-center space-x-1.5">
-                    <Sparkles className="w-4 h-4 text-[#8C6A47]" />
-                    <span>3. Koreksi Kuota Tambahan</span>
-                  </span>
-                  <span className="text-[10px] text-[#7A624E]">
-                    Pagu Kursi Global Rp 80.000 / Kursi
-                  </span>
+                <div>
+                  <label className="block font-bold text-[#422F21] mb-1">Instansi / Alamat Asal:</label>
+                  <input
+                    type="text"
+                    value={walkinForm.instansi}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, instansi: e.target.value, alamat: e.target.value })}
+                    placeholder="Contoh: PP. Lirboyo Kediri"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
+                  />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F3] border border-[#D5C4B4]">
-                  <div>
-                    <div className="text-xs font-bold text-[#422F21]">
-                      Jumlah Kuota Tambahan:
-                    </div>
-                    <div className="text-[11px] text-[#7A624E]">
-                      Total Hak Kursi ={' '}
-                      <strong>
-                        {(selectedItem.tipe === 'KELUARGA' && editKategoriUtama === 'BIL_GHOIB' ? 4 : 2) +
-                          editKuotaTambahan}{' '}
-                        Kursi
-                      </strong>
-                    </div>
-                  </div>
-
-                  {/* Stepper +/- */}
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditKuotaTambahan((prev) => Math.max(0, prev - 1))}
-                      className="w-8 h-8 rounded-xl bg-white border-2 border-[#D5C4B4] text-[#422F21] hover:bg-[#EFE8E1] flex items-center justify-center font-black active:scale-95 transition-all"
-                      title="Kurangi 1 Kuota"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="w-10 text-center text-base font-serif font-black text-[#8C6A47]">
-                      {editKuotaTambahan}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setEditKuotaTambahan((prev) => prev + 1)}
-                      className="w-8 h-8 rounded-xl bg-white border-2 border-[#D5C4B4] text-[#422F21] hover:bg-[#EFE8E1] flex items-center justify-center font-black active:scale-95 transition-all"
-                      title="Tambah 1 Kuota"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
+                <div>
+                  <label className="block font-bold text-[#422F21] mb-1">Masuk Melalui (Jalur):</label>
+                  <input
+                    type="text"
+                    value={walkinForm.jalurMasuk}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, jalurMasuk: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
+                  />
                 </div>
-              </div>
 
-              {/* 4. Berita Acara & Catatan Alasan Rekonsiliasi */}
-              <div>
-                <label className="block text-xs font-bold text-[#422F21] mb-1">
-                  Catatan Alasan Koreksi (Berita Acara Audit):
-                </label>
-                <textarea
-                  value={editCatatanRekon}
-                  onChange={(e) => setEditCatatanRekon(e.target.value)}
-                  placeholder="Misal: Wali membatalkan 1 kuota tambahan / Barcode ter-scan dua kali oleh petugas pintu barat..."
-                  rows={2}
-                  className="w-full px-3 py-2 rounded-xl border-2 border-[#D5C4B4] text-xs focus:outline-none focus:border-[#8C6A47] bg-white text-[#422F21]"
-                />
-              </div>
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center space-x-2.5">
+                  <input
+                    type="checkbox"
+                    id="langsungCheckin"
+                    checked={walkinForm.langsungCheckin}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, langsungCheckin: e.target.checked })}
+                    className="w-4 h-4 text-emerald-700 rounded border-stone-300 focus:ring-emerald-700 cursor-pointer"
+                  />
+                  <label htmlFor="langsungCheckin" className="text-xs font-bold text-emerald-950 cursor-pointer">
+                    Langsung Tandai HADIR Seketika (Insert Presensi Log)
+                  </label>
+                </div>
 
-              {/* Tombol Aksi Simpan Perubahan */}
-              <div className="flex items-center justify-end space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedItem(null)}
-                  className="px-4 py-2.5 rounded-xl border-2 border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-white transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSimpanKoreksi}
-                  className="px-6 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md transition-colors flex items-center space-x-2"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Simpan & Terapkan Perubahan Rekon</span>
-                </button>
-              </div>
+                <div className="pt-2 flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowWalkinModal(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-stone-300 text-stone-700 font-bold hover:bg-stone-100 cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingWalkin}
+                    className="flex-1 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    {savingWalkin ? 'Menyimpan...' : 'Daftarkan Walk-in'}
+                  </button>
+                </div>
+              </form>
             </div>
-          )}
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </AuthGuard>
   );
 }

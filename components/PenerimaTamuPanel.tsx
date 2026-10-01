@@ -22,6 +22,7 @@ import {
   Phone,
   Trash2,
   Info,
+  RotateCcw,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
@@ -165,13 +166,39 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
     const kuotaDasar = u.kuota?.kuotaDasar || 2;
     const kuotaTambahan = u.kuota?.kuotaTambahan || 0;
     const totalKuotaItem = kuotaDasar + kuotaTambahan;
-    const sisa = totalKuotaItem - terpakaiSekarang;
-    if (sisa <= 0) {
+    if (terpakaiSekarang >= totalKuotaItem) {
       alert(`Kuota untuk ${u.nama} sudah terpakai seluruhnya.`);
       return;
     }
-    const masuk = 1;
-    const newTerpakai = terpakaiSekarang + masuk;
+
+    const newTerpakai = totalKuotaItem;
+
+    let jumlahL = 1;
+    let jumlahP = 0;
+
+    const p = (u.namaPutra || '').trim();
+    const w = (u.namaPutri || '').trim();
+
+    if (p && w) {
+      jumlahL = Math.ceil(totalKuotaItem / 2);
+      jumlahP = Math.floor(totalKuotaItem / 2);
+    } else if (p) {
+      jumlahL = totalKuotaItem;
+      jumlahP = 0;
+    } else if (w) {
+      jumlahL = 0;
+      jumlahP = totalKuotaItem;
+    } else {
+      const lower = (u.nama || '').toLowerCase();
+      const isFemale = ['nyai', 'hj.', 'ning', 'ibu', 'ustadzah', 'hajah', 'biyung'].some((h) => lower.includes(h));
+      if (isFemale) {
+        jumlahL = 0;
+        jumlahP = totalKuotaItem;
+      } else {
+        jumlahL = totalKuotaItem;
+        jumlahP = 0;
+      }
+    }
 
     try {
       const { error: errUpdate } = await supabase
@@ -189,8 +216,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           hasil: 'SUKSES',
           jalur: 'MEJA_TRANSIT',
           panitia_id: 'penerima-tamu',
-          jumlah_l: 1,
-          jumlah_p: 0,
+          jumlah_l: jumlahL,
+          jumlah_p: jumlahP,
           jumlah_balita: 0,
           tiket_panggung: 0,
           server_time: new Date().toISOString(),
@@ -200,7 +227,34 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       console.warn('Supabase presensi_log error:', e);
     }
 
-    store.checkin(u.kode, masuk, 0, 'BARAT', 0, 'penerima-tamu');
+    store.checkin(u.kode, totalKuotaItem, 0, 'BARAT', 0, 'penerima-tamu');
+    await fetchTamuData();
+  };
+
+  const handleBatalkanHadir = async (u: any) => {
+    if (!confirm(`Batalkan kehadiran untuk ${u.nama} (${u.kode})? Status akan kembali menjadi BELUM HADIR.`)) {
+      return;
+    }
+
+    try {
+      const { error: errUpdate } = await supabase
+        .from('tamu_undangan')
+        .update({ kuota_terpakai: 0 })
+        .eq('kode', u.kode);
+
+      if (errUpdate) {
+        console.warn('Supabase undo error:', errUpdate);
+      }
+
+      await supabase
+        .from('presensi_log')
+        .delete()
+        .eq('kuota_id', String(u.id || u.kode));
+    } catch (e) {
+      console.warn('Supabase delete presensi_log error:', e);
+    }
+
+    (store as any).batalCheckin(u.kode);
     await fetchTamuData();
   };
 
@@ -597,9 +651,20 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                               Tandai Hadir
                             </button>
                           ) : (
-                            <div className="text-[10px] text-emerald-700 font-semibold flex items-center justify-end gap-1">
-                              <Gift className="w-3 h-3 text-emerald-600" />
-                              <span>Suvenir Siap</span>
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                                <Gift className="w-3 h-3 text-emerald-600" />
+                                <span>Suvenir Siap</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleBatalkanHadir(u)}
+                                className="px-2 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-bold shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
+                                title="Batalkan Kehadiran (Undo)"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                <span>Batalkan Hadir</span>
+                              </button>
                             </div>
                           )}
 

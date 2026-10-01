@@ -217,28 +217,65 @@ export default function ManajemenPesertaPage() {
 
   const [fastTrackLoading, setFastTrackLoading] = useState<string | null>(null);
 
-  const handleFastTrackVip = (item: any) => {
+  const handleFastTrackVip = async (item: any) => {
     setFastTrackLoading(item.kode);
     try {
-      const res = (store as any).fastTrackVipCheckin(item.kode, 2);
-      if (res.ok) {
-        setKeluargaList(store.getKeluargaList());
-        setUndanganList(store.getUndanganList());
-        alert(res.pesan);
+      const kuotaDasar = item.kuotaDasar || 2;
+      const kuotaTambahan = item.kuotaTambahan || 0;
+      const totalKuotaItem = kuotaDasar + kuotaTambahan;
+
+      let jumlahL = 1;
+      let jumlahP = 0;
+      if (item.namaPutra && item.namaPutri) {
+        jumlahL = Math.ceil(totalKuotaItem / 2);
+        jumlahP = Math.floor(totalKuotaItem / 2);
+      } else if (item.namaPutra) {
+        jumlahL = totalKuotaItem;
+        jumlahP = 0;
+      } else if (item.namaPutri) {
+        jumlahL = 0;
+        jumlahP = totalKuotaItem;
       } else {
-        alert(res.pesan);
+        const lower = (item.nama || '').toLowerCase();
+        const isFemale = ['nyai', 'hj.', 'ning', 'ibu', 'ustadzah', 'hajah', 'biyung'].some((h) => lower.includes(h));
+        if (isFemale) {
+          jumlahL = 0;
+          jumlahP = totalKuotaItem;
+        } else {
+          jumlahL = totalKuotaItem;
+          jumlahP = 0;
+        }
       }
+
+      const { error: errUpdate } = await supabase
+        .from('tamu_undangan')
+        .update({ kuota_terpakai: totalKuotaItem })
+        .eq('kode', item.kode);
+
+      if (errUpdate) console.warn('Fast track update error:', errUpdate);
+
+      await supabase.from('presensi_log').insert([
+        {
+          kuota_id: String(item.id || item.kode),
+          hasil: 'SUKSES',
+          jalur: 'MEJA_TRANSIT',
+          panitia_id: 'fast-track-vip',
+          jumlah_l: jumlahL,
+          jumlah_p: jumlahP,
+          jumlah_balita: 0,
+          tiket_panggung: 0,
+          server_time: new Date().toISOString(),
+        },
+      ]);
+
+      store.checkin(item.kode, totalKuotaItem, 0, 'BARAT', 0, 'fast-track-vip');
+      await refreshData();
+      showToast(`✓ Tamu VIP ${item.nama} (${item.kode}) berhasil dihadirkan!`);
+    } catch (e: any) {
+      console.warn('FastTrack error:', e);
     } finally {
       setFastTrackLoading(null);
     }
-  };
-
-  const handleBatalCheckinVip = (item: any) => {
-    if (!confirm(`Batalkan status hadir untuk ${item.nama}? Kursi akan kembali kosong.`)) return;
-    (store as any).batalCheckin(item.kode);
-    setKeluargaList(store.getKeluargaList());
-    setUndanganList(store.getUndanganList());
-    alert(`Status hadir ${item.nama} berhasil dibatalkan.`);
   };
 
   const [showClearModal, setShowClearModal] = useState(false);
@@ -1837,14 +1874,10 @@ export default function ManajemenPesertaPage() {
                                 <span>Hadirkan VIP</span>
                               </button>
                             ) : (
-                              <button
-                                onClick={() => handleBatalCheckinVip(item)}
-                                title="Batalkan status hadir (Reset kembali ke belum hadir)"
-                                className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 font-bold text-[10px] flex items-center space-x-1 transition-all"
-                              >
-                                <RotateCcw className="w-3 h-3" />
-                                <span>Reset</span>
-                              </button>
+                              <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-[10px] flex items-center space-x-1">
+                                <Check className="w-3 h-3 text-emerald-600" />
+                                <span>Hadir</span>
+                              </span>
                             )
                           )}
 

@@ -195,6 +195,18 @@ INSERT INTO konfigurasi_sistem (key, value)
 VALUES ('kuota_tambahan_status', '{"aktif": false}'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
+-- 11. TABEL AUDIT LOG PERUBAHAN
+CREATE TABLE IF NOT EXISTS audit_log (
+  id BIGSERIAL PRIMARY KEY,
+  tabel VARCHAR(50),
+  kode VARCHAR(20),
+  field VARCHAR(50),
+  nilai_lama TEXT,
+  nilai_baru TEXT,
+  panitia_id VARCHAR(50),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 COMMIT;
 
 -- VERIFIKASI SKEMA
