@@ -1181,8 +1181,8 @@ class DataStore {
       kategoriStats: {
         bilGhoib: {
           nama: 'Bil Ghoib (64 Khadimatul Qur-an)',
-          subLabel: `${bgSantriTotal} Santri · ${bgKuota} Kuota Dasar (Tiket Hijau + Emas Panggung)`,
-          warnaTiket: 'Hijau (+Emas Panggung)',
+          subLabel: `${bgSantriTotal} Santri · ${bgKuota} Kuota Dasar (Tiket Hitam Gold + Wali Maju Panggung)`,
+          warnaTiket: 'Hitam Gold',
           badgeWarna: 'bg-emerald-100 text-emerald-900 border-emerald-300',
           totalPeserta: bgSantriTotal,
           hadirPeserta: bgSantriHadir,
@@ -1192,8 +1192,8 @@ class DataStore {
         },
         binNadzor: {
           nama: 'Bin Nadzori (6 Jenjang Kelas)',
-          subLabel: `${bnSantriTotal} Santri · ${bnKuota} Kuota Dasar (Tiket Biru)`,
-          warnaTiket: 'Biru',
+          subLabel: `${bnSantriTotal} Santri · ${bnKuota} Kuota Dasar (Tiket Merah Gold)`,
+          warnaTiket: 'Merah Gold',
           badgeWarna: 'bg-blue-100 text-blue-900 border-blue-300',
           totalPeserta: bnSantriTotal,
           hadirPeserta: bnSantriHadir,
@@ -1203,8 +1203,8 @@ class DataStore {
         },
         tamatan: {
           nama: 'Tamatan III Aliyah (7 Bagian)',
-          subLabel: `${tmSantriTotal} Santri · ${tmKuota} Kuota Dasar (Tiket Kuning)`,
-          warnaTiket: 'Kuning',
+          subLabel: `${tmSantriTotal} Santri · ${tmKuota} Kuota Dasar (Tiket Merah Gold)`,
+          warnaTiket: 'Merah Gold',
           badgeWarna: 'bg-amber-100 text-amber-900 border-amber-300',
           totalPeserta: tmSantriTotal,
           hadirPeserta: tmSantriHadir,

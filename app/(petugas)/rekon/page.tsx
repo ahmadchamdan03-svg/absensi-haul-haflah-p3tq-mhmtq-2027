@@ -128,7 +128,7 @@ export default function RekonPage() {
       tipe: 'success',
       text: `✓ Berhasil check-in rekonsiliasi untuk ${res.namaSantri || selectedItem.data.kode}. Serahkan ${
         res.tiketReguler || 0
-      } tiket ${res.warnaTiket} ${res.tiketPanggung ? '+ 1 Tiket Emas Panggung' : ''}.`,
+      } tiket ${res.warnaTiket} ${res.tiketPanggung ? '+ 1 Tiket Maju Panggung' : ''}.`,
     });
 
     setSelectedItem(null);
@@ -601,7 +601,7 @@ export default function RekonPage() {
                         <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                       </div>
                       <div className="text-[10px] text-emerald-800 mt-1 font-normal">
-                        4 Kursi · Tiket Emas Panggung ★
+                        4 Kursi · Hitam Gold
                       </div>
                     </button>
 
@@ -619,7 +619,7 @@ export default function RekonPage() {
                         <span className="w-2 h-2 rounded-full bg-blue-600"></span>
                       </div>
                       <div className="text-[10px] text-blue-800 mt-1 font-normal">
-                        2 Kursi · Tiket Biru
+                        2 Kursi · Merah Gold
                       </div>
                     </button>
 
@@ -637,7 +637,7 @@ export default function RekonPage() {
                         <span className="w-2 h-2 rounded-full bg-amber-600"></span>
                       </div>
                       <div className="text-[10px] text-amber-900 mt-1 font-normal">
-                        2 Kursi · Tiket Kuning
+                        2 Kursi · Merah Gold
                       </div>
                     </button>
                   </div>

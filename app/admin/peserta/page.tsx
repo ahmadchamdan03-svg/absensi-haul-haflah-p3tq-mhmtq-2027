@@ -1345,7 +1345,7 @@ export default function ManajemenPesertaPage() {
               {stats.bilGhoibCount}
             </div>
             <div className="text-[10px] text-emerald-700 mt-0.5 truncate">
-              4 Kursi · Tiket Emas ★
+              4 Kursi · Hitam Gold
             </div>
           </div>
 
@@ -1368,7 +1368,7 @@ export default function ManajemenPesertaPage() {
             <div className="text-xl font-serif font-black text-blue-950 mt-1">
               {stats.binNadzorCount}
             </div>
-            <div className="text-[10px] text-blue-700 mt-0.5 truncate">2 Kursi · Tiket Biru</div>
+            <div className="text-[10px] text-blue-700 mt-0.5 truncate">2 Kursi · Merah Gold</div>
           </div>
 
           <div
@@ -1390,7 +1390,7 @@ export default function ManajemenPesertaPage() {
             <div className="text-xl font-serif font-black text-amber-950 mt-1">
               {stats.tamatanCount}
             </div>
-            <div className="text-[10px] text-amber-800 mt-0.5 truncate">A.01–B.03 · 2 Kursi</div>
+            <div className="text-[10px] text-amber-800 mt-0.5 truncate">2 Kursi · Merah Gold</div>
           </div>
 
           <div
@@ -1737,31 +1737,34 @@ export default function ManajemenPesertaPage() {
                         <div className="font-bold text-slate-800">
                           {item.kuotaDasar + item.kuotaTambahan} Kursi
                         </div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5">
                           {isBilGhoib && (
-                            <span className="text-emerald-700 font-semibold">1 Tiket Emas ★</span>
+                            <>
+                              <span className="inline-block font-bold text-slate-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded text-[10px]">
+                                Hitam Gold
+                              </span>
+                              <span className="text-[9px] text-amber-800 font-bold block">
+                                Wali Maju Panggung
+                              </span>
+                            </>
                           )}
-                          {isBinNadzor && <span className="text-blue-700">Tiket Biru</span>}
-                          {isTamatan && <span className="text-amber-700">Tiket Kuning</span>}
+                          {isBinNadzor && (
+                            <span className="inline-block font-bold text-rose-900 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded text-[10px]">
+                              Merah Gold
+                            </span>
+                          )}
+                          {isTamatan && (
+                            <span className="inline-block font-bold text-rose-900 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded text-[10px]">
+                              Merah Gold
+                            </span>
+                          )}
                           {isUndangan && (
-                            <span
-                              className={
-                                item.golonganUndangan === 'ISTIMEWA'
-                                  ? 'text-amber-700 font-semibold'
-                                  : item.golonganUndangan === 'KEHORMATAN'
-                                  ? 'text-purple-700 font-semibold'
-                                  : 'text-cyan-700 font-semibold'
-                              }
-                            >
-                              {item.golonganUndangan === 'ISTIMEWA'
-                                ? 'VIP Emas'
-                                : item.golonganUndangan === 'KEHORMATAN'
-                                ? 'VIP Ungu'
-                                : 'VIP Biru'}
+                            <span className="inline-block font-bold text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded text-[10px]">
+                              {item.warnaTiket || getWarnaTiketUndangan(item.golonganUndangan, item.kategori) || (item.golonganUndangan === 'ISTIMEWA' ? 'Hitam Gold' : 'Merah Gold')}
                             </span>
                           )}
                           {item.kuotaTambahan > 0 && (
-                            <span className="text-rose-600 block">+{item.kuotaTambahan} Tambahan</span>
+                            <span className="text-rose-600 block font-semibold">+ {item.kuotaTambahan} Tambahan</span>
                           )}
                         </div>
                       </td>
@@ -1940,7 +1943,7 @@ export default function ManajemenPesertaPage() {
                   >
                     Bil Ghoib
                     <span className="block text-[10px] font-normal opacity-80">
-                      4 Tiket + Emas ★
+                      4 Kursi · Hitam Gold
                     </span>
                   </button>
 
@@ -1960,7 +1963,7 @@ export default function ManajemenPesertaPage() {
                   >
                     Bin Nadzori
                     <span className="block text-[10px] font-normal opacity-80">
-                      2 Tiket Biru
+                      2 Kursi · Merah Gold
                     </span>
                   </button>
 
@@ -1980,7 +1983,7 @@ export default function ManajemenPesertaPage() {
                   >
                     Tamatan
                     <span className="block text-[10px] font-normal opacity-80">
-                      2 Tiket Kuning
+                      2 Kursi · Merah Gold
                     </span>
                   </button>
                 </div>
@@ -3162,16 +3165,8 @@ export default function ManajemenPesertaPage() {
                   <div className="text-slate-500 text-[10px]">STATUS TIKET</div>
                   <div className="font-serif font-black text-opera-800 text-base">
                     {qrDetailItem.tipe === 'UNDANGAN'
-                      ? qrDetailItem.golonganUndangan === 'ISTIMEWA'
-                        ? 'VIP Emas'
-                        : qrDetailItem.golonganUndangan === 'KEHORMATAN'
-                        ? 'VIP Ungu'
-                        : 'VIP Biru'
-                      : qrDetailItem.kategoriUtama === 'BIL_GHOIB'
-                      ? 'Emas ★'
-                      : qrDetailItem.kategoriUtama === 'BIN_NADZOR'
-                      ? 'Biru'
-                      : 'Kuning'}
+                      ? qrDetailItem.warnaTiket || getWarnaTiketUndangan(qrDetailItem.golonganUndangan, qrDetailItem.kategori) || (qrDetailItem.golonganUndangan === 'ISTIMEWA' ? 'Hitam Gold' : 'Merah Gold')
+                      : getWarnaTiketSantri(qrDetailItem.kategoriUtama, qrDetailItem.subKategori)}
                   </div>
                 </div>
               </div>
