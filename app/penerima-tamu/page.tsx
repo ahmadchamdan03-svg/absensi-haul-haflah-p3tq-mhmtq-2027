@@ -26,7 +26,7 @@ import {
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
-import { getWarnaTiketUndangan } from '@/lib/types';
+import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import AuthGuard from '@/components/AuthGuard';
 
@@ -78,6 +78,7 @@ export default function PenerimaTamuPage() {
     alamat: '',
     noHp: '',
     kuotaDasar: 2,
+    jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
   });
   const [undanganKategoriDropdown, setUndanganKategoriDropdown] = useState<string>(OPSI_UNDANGAN_ISTIMEWA[0]);
   const [customKategoriInput, setCustomKategoriInput] = useState<string>('');
@@ -97,6 +98,7 @@ export default function PenerimaTamuPage() {
       alamat: '',
       noHp: '',
       kuotaDasar: gol === 'ISTIMEWA' ? 2 : gol === 'KEHORMATAN' ? 4 : 2,
+      jalurMasuk: getDefaultJalurMasuk(gol),
     });
     setCustomKategoriInput('');
     setShowAddModal(true);
@@ -288,6 +290,7 @@ export default function PenerimaTamuPage() {
     }
 
     const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;
+    const finalJalur = (undanganForm.jalurMasuk || getDefaultJalurMasuk(selectedGolonganUndangan)).trim();
 
     try {
       const { error } = await supabase.from('tamu_undangan').insert([
@@ -305,6 +308,7 @@ export default function PenerimaTamuPage() {
           kuota_tambahan: 0,
           kuota_terpakai: 0,
           warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
+          jalur_masuk: finalJalur,
         },
       ]);
       if (error) {
@@ -328,6 +332,7 @@ export default function PenerimaTamuPage() {
       alamat: finalAlamat,
       kuotaDasar: kuotaBase,
       golongan: selectedGolonganUndangan,
+      jalurMasuk: finalJalur,
     });
 
     await fetchTamuData();
@@ -343,6 +348,7 @@ export default function PenerimaTamuPage() {
       alamat: '',
       noHp: '',
       kuotaDasar: 1,
+      jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
     });
     setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
     setCustomKategoriInput('');
@@ -849,6 +855,7 @@ export default function PenerimaTamuPage() {
                           instansi: '',
                           alamat: '',
                           kuotaDasar: 2,
+                          jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
                         });
                         setCustomKategoriInput('');
                       }}
@@ -872,6 +879,7 @@ export default function PenerimaTamuPage() {
                           instansi: '',
                           alamat: '',
                           kuotaDasar: 4,
+                          jalurMasuk: getDefaultJalurMasuk('KEHORMATAN'),
                         });
                         setCustomKategoriInput('');
                       }}
@@ -896,6 +904,7 @@ export default function PenerimaTamuPage() {
                           instansi: '',
                           alamat: '',
                           kuotaDasar: 1,
+                          jalurMasuk: getDefaultJalurMasuk('UMUM'),
                         });
                         setCustomKategoriInput('');
                       }}
@@ -1147,6 +1156,24 @@ export default function PenerimaTamuPage() {
                     placeholder="08xxxxxxxxxx"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-mono"
                   />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Masuk Melalui (Jalur Masuk) *
+                  </label>
+                  <input
+                    type="text"
+                    value={undanganForm.jalurMasuk}
+                    onChange={(e) =>
+                      setUndanganForm({ ...undanganForm, jalurMasuk: e.target.value })
+                    }
+                    placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 font-medium text-slate-800"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Otomatis terisi berdasarkan golongan (Istimewa/Kehormatan: "Jalur VIP", Umum: "Gerbang Selatan (Bola Dunia)"), tetap dapat di-edit manual.
+                  </p>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">

@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { normalkanNomorHp, buatPesanPengingatKonfirmasi } from '@/lib/hmac';
-import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
+import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getGolonganUndangan, getDefaultJalurMasuk } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 
 export default function WhatsAppPage() {
@@ -706,27 +706,35 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
     await updateTamuWaInSupabase(tamuId, currentStatus, newJalur);
   };
 
-  const handleApplyMassJalurMasuk = async (newJalur: string) => {
-    if (!newJalur || !newJalur.trim()) {
-      alert('Masukkan teks jalur masuk terlebih dahulu!');
-      return;
-    }
-    const targetVal = newJalur.trim();
+  const handleApplyMassJalurMasuk = async (customInput: string) => {
     const emptyList = tamuList.filter((t) => !t.jalurMasuk || !t.jalurMasuk.trim());
     if (emptyList.length === 0) {
       alert('Seluruh tamu sudah memiliki Jalur Masuk!');
       return;
     }
 
+    const customVal = (customInput || '').trim();
+
     setTamuList((prev) =>
-      prev.map((t) => (!t.jalurMasuk || !t.jalurMasuk.trim() ? { ...t, jalurMasuk: targetVal } : t))
+      prev.map((t) => {
+        if (!t.jalurMasuk || !t.jalurMasuk.trim()) {
+          const targetVal = customVal || getDefaultJalurMasuk(t.golongan);
+          return { ...t, jalurMasuk: targetVal };
+        }
+        return t;
+      })
     );
 
     for (const t of emptyList) {
+      const targetVal = customVal || getDefaultJalurMasuk(t.golongan);
       await updateTamuWaInSupabase(t.id, t.statusWa, targetVal);
     }
 
-    alert(`✓ Berhasil menerapkan Jalur Masuk "${targetVal}" ke ${emptyList.length} tamu!`);
+    if (customVal) {
+      alert(`✓ Berhasil menerapkan Jalur Masuk "${customVal}" ke ${emptyList.length} tamu!`);
+    } else {
+      alert(`✓ Berhasil menerapkan Jalur Masuk default per golongan (Istimewa/Kehormatan: "Jalur VIP", Umum: "Gerbang Selatan") ke ${emptyList.length} tamu yang kosong!`);
+    }
   };
 
   const handleSaveEditNoHpTamu = async () => {

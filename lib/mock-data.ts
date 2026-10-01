@@ -368,6 +368,7 @@ class DataStore {
       kategori?: string;
       instansi?: string;
       golongan?: 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
+      jalurMasuk?: string;
     }
   ) {
     const cleanKode = kode.trim().toUpperCase();
@@ -558,6 +559,7 @@ class DataStore {
     kuotaDasar: number;
     subKategori?: 'PENGUJI' | 'ASATIDZ_MASYAIKH';
     golongan?: 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
+    jalurMasuk?: string;
   }) {
     let maxNum = 100;
     for (const u of this.undanganList) {
@@ -592,6 +594,7 @@ class DataStore {
       kategori: input.kategori || 'VIP / Tokoh Masyarakat',
       subKategori: subKat,
       golongan: input.golongan,
+      jalurMasuk: input.jalurMasuk || '',
       nama: finalNama,
       namaPutra: p,
       namaPutri: w,
