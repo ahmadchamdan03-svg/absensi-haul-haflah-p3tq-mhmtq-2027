@@ -31,6 +31,13 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
     tamuKuota: 0,
   });
 
+  const [genderStats, setGenderStats] = useState({
+    wsL: 0,
+    wsP: 0,
+    tamuL: 0,
+    tamuP: 0,
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'SEMUA' | 'SUDAH' | 'BELUM'>('SEMUA');
   const [tabCategory, setTabCategory] = useState<'SEMUA' | 'SANTRI' | 'UNDANGAN'>('SEMUA');
@@ -58,15 +65,76 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
         supabase.from('presensi_log').select('*').order('server_time', { ascending: false }),
       ]);
 
+      const santriIdSet = new Set<string>();
+      if (resSantri.data) {
+        for (const s of resSantri.data) {
+          if (s.id) santriIdSet.add(String(s.id));
+          if (s.kode) santriIdSet.add(String(s.kode));
+        }
+      }
+
+      const undanganIdSet = new Set<string>();
+      if (resUndangan.data) {
+        for (const u of resUndangan.data) {
+          if (u.id) undanganIdSet.add(String(u.id));
+          if (u.kode) undanganIdSet.add(String(u.kode));
+        }
+      }
+
+      const loggedKeys = new Set<string>();
+      let wsL = 0;
+      let wsP = 0;
+      let tamuL = 0;
+      let tamuP = 0;
+
       const latestCheckinMap: Record<string, string> = {};
       if (resLogs.data) {
         for (const log of resLogs.data) {
-          const key = log.kuota_id || log.kode_qr;
+          const key = String(log.kuota_id || log.kode_qr || '');
           if (key && !latestCheckinMap[key] && log.server_time) {
             latestCheckinMap[key] = log.server_time;
           }
+          if (key) loggedKeys.add(key);
+
+          const numL = Number(log.jumlah_l || log.jumlahL || 0);
+          const numP = Number(log.jumlah_p || log.jumlahP || 0);
+
+          if (log.tipe_peserta === 'UNDANGAN' || undanganIdSet.has(key) || key.toUpperCase().startsWith('UND')) {
+            tamuL += numL;
+            tamuP += numP;
+          } else {
+            wsL += numL;
+            wsP += numP;
+          }
         }
       }
+
+      // Fallback for participants with kuota_terpakai > 0 not present in presensi_log
+      if (resSantri.data) {
+        for (const s of resSantri.data) {
+          const keyId = String(s.id || '');
+          const keyKode = String(s.kode || '');
+          if (!loggedKeys.has(keyId) && !loggedKeys.has(keyKode) && (s.kuota_terpakai || 0) > 0) {
+            const terpakai = Number(s.kuota_terpakai);
+            wsL += Math.ceil(terpakai / 2);
+            wsP += Math.floor(terpakai / 2);
+          }
+        }
+      }
+
+      if (resUndangan.data) {
+        for (const u of resUndangan.data) {
+          const keyId = String(u.id || '');
+          const keyKode = String(u.kode || '');
+          if (!loggedKeys.has(keyId) && !loggedKeys.has(keyKode) && (u.kuota_terpakai || 0) > 0) {
+            const terpakai = Number(u.kuota_terpakai);
+            tamuL += Math.ceil(terpakai / 2);
+            tamuP += Math.floor(terpakai / 2);
+          }
+        }
+      }
+
+      setGenderStats({ wsL, wsP, tamuL, tamuP });
 
       if (resSantri.data) {
         setKeluargaList(
@@ -289,6 +357,17 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
             {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri}</span>
           </div>
+          <div className="flex items-center gap-3 text-xs text-stone-600 font-medium pt-0.5">
+            <span className="flex items-center gap-1.5">
+              <span>👨</span>
+              <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.wsL}</strong></span>
+            </span>
+            <span className="text-stone-300">·</span>
+            <span className="flex items-center gap-1.5">
+              <span>👩</span>
+              <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.wsP}</strong></span>
+            </span>
+          </div>
           <p className="text-xs text-stone-500">
             Total wali santri hadir / total kuota wali santri keseluruhan
           </p>
@@ -307,6 +386,17 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           </div>
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
             {totalHadirTamu} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaTamu}</span>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-stone-600 font-medium pt-0.5">
+            <span className="flex items-center gap-1.5">
+              <span>👨</span>
+              <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.tamuL}</strong></span>
+            </span>
+            <span className="text-stone-300">·</span>
+            <span className="flex items-center gap-1.5">
+              <span>👩</span>
+              <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.tamuP}</strong></span>
+            </span>
           </div>
           <p className="text-xs text-stone-500">
             Total tamu undangan hadir / total tamu undangan keseluruhan
