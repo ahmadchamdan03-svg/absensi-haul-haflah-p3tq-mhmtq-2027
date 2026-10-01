@@ -186,14 +186,14 @@ export default function PenerimaTamuPage() {
       // Direct Supabase insert presensi_log
       await supabase.from('presensi_log').insert([
         {
-          kuota_id: u.kode,
+          kuota_id: String(u.id || u.kode),
           hasil: 'SUKSES',
+          jalur: 'MEJA_TRANSIT',
+          panitia_id: 'penerima-tamu',
           jumlah_l: 1,
           jumlah_p: 0,
           jumlah_balita: 0,
-          jalur: 'MEJA_TRANSIT',
-          panitia_id: 'penerima-tamu',
-          catatan: `Check-in Meja Transit: ${u.nama}`,
+          tiket_panggung: 0,
           server_time: new Date().toISOString(),
         },
       ]);

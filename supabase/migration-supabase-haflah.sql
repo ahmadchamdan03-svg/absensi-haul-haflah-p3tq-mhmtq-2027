@@ -89,22 +89,29 @@ CREATE INDEX IF NOT EXISTS idx_tamu_undangan_sub ON tamu_undangan (sub_kategori)
 -- 5. TABEL LOG PRESENSI REALTIME
 CREATE TABLE IF NOT EXISTS presensi_log (
   id BIGSERIAL PRIMARY KEY,
-  kode_qr VARCHAR(50) NOT NULL,
+  kuota_id VARCHAR(100),
+  kode_qr VARCHAR(50),
   nama_peserta VARCHAR(255),
-  tipe_peserta VARCHAR(50) DEFAULT 'KELUARGA', -- KELUARGA / UNDANGAN
+  tipe_peserta VARCHAR(50) DEFAULT 'KELUARGA',
+  hasil VARCHAR(50) DEFAULT 'SUKSES',
   jumlah_l SMALLINT NOT NULL DEFAULT 0,
   jumlah_p SMALLINT NOT NULL DEFAULT 0,
   jumlah_balita SMALLINT NOT NULL DEFAULT 0,
-  tiket_panggung BOOLEAN NOT NULL DEFAULT FALSE,
-  jalur VARCHAR(20) DEFAULT 'BARAT', -- BARAT, TIMUR, REKONSILIASI
+  tiket_panggung INT NOT NULL DEFAULT 0,
+  jalur VARCHAR(50) DEFAULT 'BARAT',
   panitia_id VARCHAR(100) DEFAULT 'panitia-gate',
-  nonce VARCHAR(100) UNIQUE,
   server_time VARCHAR(50),
   catatan TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_presensi_log_kode ON presensi_log (kode_qr);
+ALTER TABLE presensi_log
+  ADD COLUMN IF NOT EXISTS kuota_id VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS hasil VARCHAR(50) DEFAULT 'SUKSES',
+  ADD COLUMN IF NOT EXISTS tiket_panggung INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS server_time VARCHAR(50);
+
+CREATE INDEX IF NOT EXISTS idx_presensi_log_kuota ON presensi_log (kuota_id);
 CREATE INDEX IF NOT EXISTS idx_presensi_log_time ON presensi_log (created_at);
 
 -- 6. TABEL PEMESANAN KUOTA TAMBAHAN (PAGU 300 KURSI @ Rp 80.000)

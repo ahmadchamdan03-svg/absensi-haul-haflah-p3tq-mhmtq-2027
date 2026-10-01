@@ -436,36 +436,17 @@ export default function ScanPage() {
     try {
       // 1. Update kuota_terpakai di Supabase DB (peserta_santri atau tamu_undangan)
       if (activeItem.tipe === 'KELUARGA') {
-        const updatePayload: any = {
-          kuota_terpakai: nextTerpakai,
-          tiket_panggung_diberi: nextTiketPanggung,
-          kartu_hitam_gold_diberi: activeItem.isBilGhoib ? kartuHitamGoldDiberi : Boolean(activeItem.kartuHitamGoldDiberi),
-        };
-
         const { error: updateErr } = await supabase
           .from('peserta_santri')
-          .update(updatePayload)
+          .update({
+            kuota_terpakai: nextTerpakai,
+            tiket_panggung_diberi: nextTiketPanggung,
+          })
           .eq('id', activeItem.id);
 
         if (updateErr) {
-          if (updateErr.message?.includes('kartu_hitam_gold_diberi')) {
-            // Fallback if column not yet added/reloaded in DB
-            const { error: fallbackErr } = await supabase
-              .from('peserta_santri')
-              .update({
-                kuota_terpakai: nextTerpakai,
-                tiket_panggung_diberi: nextTiketPanggung,
-              })
-              .eq('id', activeItem.id);
-
-            if (fallbackErr) {
-              setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${fallbackErr.message}`);
-              return;
-            }
-          } else {
-            setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${updateErr.message}`);
-            return;
-          }
+          setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${updateErr.message}`);
+          return;
         }
       } else {
         const { error: updateErr } = await supabase
@@ -488,12 +469,12 @@ export default function ScanPage() {
           {
             kuota_id: activeItem.id,
             hasil: 'SUKSES',
+            jalur: jalur,
+            panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
             jumlah_l: jumlahL,
             jumlah_p: jumlahP,
             jumlah_balita: jumlahBalita,
-            jalur: jalur,
-            panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
-            catatan: `${activeItem.nama} (${activeItem.kode}) - ${jalur}`,
+            tiket_panggung: serahkanTiketEmas ? 1 : 0,
             server_time: new Date().toISOString(),
           },
         ]);
