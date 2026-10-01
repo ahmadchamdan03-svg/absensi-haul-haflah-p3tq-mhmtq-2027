@@ -1329,12 +1329,34 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                               </div>
                             </td>
                             <td className="py-3 px-3 text-center whitespace-nowrap">
-                              <span className="font-bold text-slate-700">
+                              <div className="font-bold text-slate-800">
                                 {(kel.kuota?.kuotaDasar || 2) + (kel.kuota?.kuotaTambahan || 0)} Kursi
-                              </span>
-                              {isBilGhoib && (
-                                <div className="text-[10px] text-emerald-700 font-bold">+1 Emas ★</div>
-                              )}
+                              </div>
+                              <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5">
+                                {isBilGhoib && (
+                                  <>
+                                    <span className="inline-block font-bold text-slate-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded text-[10px]">
+                                      Hitam Gold
+                                    </span>
+                                    <span className="text-[9px] text-amber-800 font-bold block">
+                                      Wali Maju Panggung
+                                    </span>
+                                  </>
+                                )}
+                                {isBinNadzor && (
+                                  <span className="inline-block font-bold text-rose-900 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded text-[10px]">
+                                    Merah Gold
+                                  </span>
+                                )}
+                                {isTamatan && (
+                                  <span className="inline-block font-bold text-rose-900 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded text-[10px]">
+                                    Merah Gold
+                                  </span>
+                                )}
+                                {(kel.kuota?.kuotaTambahan || 0) > 0 && (
+                                  <span className="text-rose-600 block font-semibold">+ {kel.kuota.kuotaTambahan} Tambahan</span>
+                                )}
+                              </div>
                             </td>
                             <td className="py-3 px-3 text-center whitespace-nowrap">
                               {isConfirmed ? (

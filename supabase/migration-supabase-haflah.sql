@@ -169,6 +169,10 @@ SELECT
   COUNT(*) AS total_peserta
 FROM peserta_santri;
 
+-- 9. UPDATE WARNA TIKET KHUSUS (MIGRASI WARNA TIKET RESMI)
+UPDATE peserta_santri SET warna_tiket = 'Hitam Gold' WHERE kategori_utama = 'BIL_GHOIB';
+UPDATE peserta_santri SET warna_tiket = 'Merah Gold' WHERE kategori_utama IN ('BIN_NADZOR', 'BIN_NADZORI', 'TAMATAN');
+
 COMMIT;
 
 -- VERIFIKASI SKEMA

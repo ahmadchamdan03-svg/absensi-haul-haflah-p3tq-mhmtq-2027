@@ -1222,7 +1222,7 @@ export default function ManajemenPesertaPage() {
       'Total Kuota': item.kuotaDasar + item.kuotaTambahan,
       'Sudah Masuk': item.terpakai,
       'Sisa Kursi': item.sisa,
-      'Tiket Panggung': item.tiketPanggungJatah > 0 ? 'Ya (Emas ★)' : 'Tidak',
+      'Tiket Panggung': item.tiketPanggungJatah > 0 ? 'Ya (Hitam Gold)' : 'Tidak',
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);

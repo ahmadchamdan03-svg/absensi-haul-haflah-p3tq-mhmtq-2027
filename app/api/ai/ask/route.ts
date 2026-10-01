@@ -373,13 +373,13 @@ ${teksKehormatan}
 === 7. DAFTAR NAMA TAMU ISTIMEWA (VVIP & VIP) ===
 ${teksIstimewa}
 
-=== 8. STATUS PENYERAHAN TIKET EMAS PANGGUNG KEHORMATAN BIL GHOIB (TOTAL 64 KHADIMATUL QUR-AN) ===
-- Total Santriwati Bil Ghoib 30 Juz: 64 Khadimatul Qur-an (Hak istimewa 1 Tiket Emas Panggung khusus Ibu Kandung).
-- Tiket Emas SUDAH Diserahkan: ${stats.totalPanggung} dari 64 Tiket Emas (Ibu kandung telah menerima gelang hijau bertanda bintang emas di meja presensi).
-- Tiket Emas Menunggu Penyerahan: ${64 - stats.totalPanggung} Tiket Emas (tersimpan rapi di meja presensi pintu timur).
-- Daftar Santriwati Bil Ghoib yang Tiket Emasnya SUDAH Diterima Ibu Kandung:
-  1. SH0001 - Khadimatul Qur-an Bil Ghoib 30 Juz (Ibu/Wali telah menerima Tiket Emas Panggung di meja presensi).
-  2. SH0003 - Khadimatul Qur-an Bil Ghoib 30 Juz (Ibu/Wali telah menerima Tiket Emas Panggung di meja presensi).
+=== 8. STATUS PENYERAHAN KARTU HITAM GOLD MAJU PANGGUNG BIL GHOIB (TOTAL 64 KHADIMATUL QUR-AN) ===
+- Total Santriwati Bil Ghoib 30 Juz: 64 Khadimatul Qur-an (Hak istimewa 1 Kartu Hitam Gold Maju Panggung khusus Ibu Kandung).
+- Kartu Hitam Gold SUDAH Diserahkan: ${stats.totalPanggung} dari 64 Kartu Hitam Gold (Ibu kandung telah menerima gelang Hitam Gold di meja presensi).
+- Kartu Hitam Gold Menunggu Penyerahan: ${64 - stats.totalPanggung} Kartu Hitam Gold (tersimpan rapi di meja presensi pintu timur).
+- Daftar Santriwati Bil Ghoib yang Kartu Hitam Goldnya SUDAH Diterima Ibu Kandung:
+  1. SH0001 - Khadimatul Qur-an Bil Ghoib 30 Juz (Ibu/Wali telah menerima Kartu Hitam Gold Maju Panggung di meja presensi).
+  2. SH0003 - Khadimatul Qur-an Bil Ghoib 30 Juz (Ibu/Wali telah menerima Kartu Hitam Gold Maju Panggung di meja presensi).
 
 =============================================================================
 PETUNJUK KHUSUS WAJIB SAAT MENJAWAB PERTANYAAN TENTANG DATA, STATISTIK, ATAU KEHADIRAN:
@@ -1022,21 +1022,21 @@ Wonten ingkang saget dibantu Us?`;
     const bilGhoibBelum = bilGhoibList.filter((k) => (k.kuota?.tiketPanggungDiberi || 0) === 0);
 
     const daftarDiberiTeks = bilGhoibDiberi.length > 0
-      ? bilGhoibDiberi.map((k, i) => `${i + 1}. **${k.santri?.[0]?.nama || '-'}** (Kode: \`${k.kode}\` · Ibu/Wali: *${k.namaWali}*, ${k.alamat}) — ✅ **Tiket Emas Diserahkan** (${k.kuota.terpakai} Kursi Terpakai)`).join('\n')
-      : '- *(Belum ada tiket emas yang diserahkan)*';
+      ? bilGhoibDiberi.map((k, i) => `${i + 1}. **${k.santri?.[0]?.nama || '-'}** (Kode: \`${k.kode}\` · Ibu/Wali: *${k.namaWali}*, ${k.alamat}) — ✅ **Kartu Hitam Gold Diserahkan** (${k.kuota.terpakai} Kursi Terpakai)`).join('\n')
+      : '- *(Belum ada Kartu Hitam Gold yang diserahkan)*';
 
-    return `${headerIntro}Alhamdulillah, berikut rincian data penyerahan **Tiket Emas Panggung Kehormatan Khadimatul Qur-an (Bil Ghoib 30 Juz)** pada Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. secara *real-time*:
+    return `${headerIntro}Alhamdulillah, berikut rincian data penyerahan **Kartu Hitam Gold Maju Panggung Khadimatul Qur-an (Bil Ghoib 30 Juz)** pada Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. secara *real-time*:
 
-### 🌟 Data Penyerahan Tiket Emas Panggung:
+### 🌟 Data Penyerahan Kartu Hitam Gold Maju Panggung:
 - **Total Santriwati Bil Ghoib 30 Juz**: **64 Khadimatul Qur-an**.
-- **Tiket Emas SUDAH Diserahkan**: **${bilGhoibDiberi.length} dari 64 Tiket Emas** (diserahkan langsung kepada Ibu Kandung di meja presensi gerbang).
-- **Tiket Emas Menunggu Penyerahan**: **${bilGhoibBelum.length} Tiket Emas** (tersimpan rapi di amplop pos presensi timur).
+- **Kartu Hitam Gold SUDAH Diserahkan**: **${bilGhoibDiberi.length} dari 64 Kartu** (diserahkan langsung kepada Ibu Kandung di meja presensi gerbang).
+- **Kartu Hitam Gold Menunggu Penyerahan**: **${bilGhoibBelum.length} Kartu** (tersimpan rapi di pos presensi timur).
 
-### 📋 Daftar Santriwati yang Tiket Emasnya SUDAH Diserahkan:
+### 📋 Daftar Santriwati yang Kartu Hitam Goldnya SUDAH Diserahkan:
 ${daftarDiberiTeks}
 
 ### 💡 Analisis & Prosedur Penyerahan:
-Tiket Emas Panggung Kehormatan merupakan hak kehormatan mutlak bagi **1 orang Ibu Kandung** dari setiap santriwati Khadimatul Qur-an Bil Ghoib 30 Juz untuk mendampingi di panggung utama saat seremoni takhtiman. Penyerahan ditandai dengan gelang penanda khusus warna hijau berstempel bintang emas. Sisa **${bilGhoibBelum.length} tiket emas** siap diserahkan petugas begitu keluarga santriwati tiba di Gerbang Bola Dunia.
+Kartu Hitam Gold Maju Panggung merupakan hak kehormatan mutlak bagi **1 orang Ibu Kandung** dari setiap santriwati Khadimatul Qur-an Bil Ghoib 30 Juz untuk mendampingi di panggung utama saat seremoni takhtiman. Penyerahan ditandai dengan gelang penanda khusus Hitam Gold. Sisa **${bilGhoibBelum.length} kartu Hitam Gold** siap diserahkan petugas begitu keluarga santriwati tiba di Gerbang Bola Dunia.
 
 Untuk memantau data santriwati Bil Ghoib lainnya secara langsung:
 [👉 Buka Live Dasbor](/admin/dasbor) [👉 Buka Data Peserta & Tamu](/admin/peserta)

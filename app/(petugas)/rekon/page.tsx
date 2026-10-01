@@ -423,10 +423,10 @@ export default function RekonPage() {
                   <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4]">
                     Tiket{' '}
                     {selectedItem.data.kuota.tiketPanggungJatah > 0
-                      ? 'Hijau (+ Emas Panggung)'
+                      ? 'Hitam Gold'
                       : selectedItem.tipe === 'UNDANGAN'
                       ? 'Putih VIP'
-                      : 'Reguler'}
+                      : 'Merah Gold'}
                   </span>
                 </div>
               </div>

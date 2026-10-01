@@ -1339,9 +1339,9 @@ class DataStore {
           jumlahP = 1;
         }
 
-        let warna = 'Biru';
-        if (katUtama === 'BIL_GHOIB') warna = 'Hijau (+Emas ★)';
-        else if (katUtama === 'TAMATAN') warna = 'Kuning';
+        let warna = 'Merah Gold';
+        if (katUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
+        else if (katUtama === 'TAMATAN') warna = 'Merah Gold';
 
         const totalK = kel.kuota.kuotaDasar + kel.kuota.kuotaTambahan;
         const statusHadir = kel.kuota.terpakai >= totalK ? 'HADIR' : 'SEBAGIAN';
@@ -1383,7 +1383,7 @@ class DataStore {
       let kategori = '-';
       let kategoriUtama: 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN' | 'UNDANGAN' = 'BIN_NADZOR';
       let kode = '-';
-      let warna = 'Biru';
+      let warna = 'Merah Gold';
 
       const kel = this.keluargaList.find((k) => k.kuota.id === log.kuotaId || `q_${k.kode}` === log.kuotaId);
       if (kel) {
@@ -1394,9 +1394,9 @@ class DataStore {
         kategori = santri?.subKategori || santri?.kelas || 'SANTRI';
         kategoriUtama = (santri?.kategoriUtama || 'BIN_NADZOR') as any;
         kode = kel.kode;
-        if (kategoriUtama === 'BIL_GHOIB') warna = 'Hijau (+Emas ★)';
-        else if (kategoriUtama === 'TAMATAN') warna = 'Kuning';
-        else warna = 'Biru';
+        if (kategoriUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
+        else if (kategoriUtama === 'TAMATAN') warna = 'Merah Gold';
+        else warna = 'Merah Gold';
       } else {
         const und = this.undanganList.find(
           (u) => u.kuota.id === log.kuotaId || `qu_${u.kode}` === log.kuotaId || u.id === log.kuotaId
@@ -1553,9 +1553,9 @@ class DataStore {
           katLabel = `Bin Nadzori ${santri.kelas}`;
         }
 
-        let warna = 'Biru';
-        if (katUtama === 'BIL_GHOIB') warna = 'Hijau (+Emas ★)';
-        else if (katUtama === 'TAMATAN') warna = 'Kuning';
+        let warna = 'Merah Gold';
+        if (katUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
+        else if (katUtama === 'TAMATAN') warna = 'Merah Gold';
 
         const isConfirmed = kel.estimasi?.statusKonfirmasi === 'SUDAH';
         const estL = isConfirmed ? kel.estimasi?.perkiraanL || 0 : 0;
@@ -1652,9 +1652,9 @@ class DataStore {
           katLabel = `Bin Nadzori ${santri.kelas}`;
         }
 
-        let warna = 'Biru';
-        if (santri?.kategoriUtama === 'TAMATAN') warna = 'Kuning';
-        else if (santri?.kategoriUtama === 'BIL_GHOIB') warna = 'Hijau (+Emas ★)';
+        let warna = 'Merah Gold';
+        if (santri?.kategoriUtama === 'TAMATAN') warna = 'Merah Gold';
+        else if (santri?.kategoriUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
 
         list.push({
           id: kel.id,
