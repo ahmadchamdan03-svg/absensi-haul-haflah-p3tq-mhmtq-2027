@@ -357,16 +357,10 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
             {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-stone-600 font-medium pt-0.5">
-            <span className="flex items-center gap-1.5">
-              <span>👨</span>
-              <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.wsL}</strong></span>
-            </span>
+          <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
+            <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.wsL}</strong></span>
             <span className="text-stone-300">·</span>
-            <span className="flex items-center gap-1.5">
-              <span>👩</span>
-              <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.wsP}</strong></span>
-            </span>
+            <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.wsP}</strong></span>
           </div>
           <p className="text-xs text-stone-500">
             Total wali santri hadir / total kuota wali santri keseluruhan
@@ -387,16 +381,10 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
             {totalHadirTamu} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaTamu}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-stone-600 font-medium pt-0.5">
-            <span className="flex items-center gap-1.5">
-              <span>👨</span>
-              <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.tamuL}</strong></span>
-            </span>
+          <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
+            <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.tamuL}</strong></span>
             <span className="text-stone-300">·</span>
-            <span className="flex items-center gap-1.5">
-              <span>👩</span>
-              <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.tamuP}</strong></span>
-            </span>
+            <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.tamuP}</strong></span>
           </div>
           <p className="text-xs text-stone-500">
             Total tamu undangan hadir / total tamu undangan keseluruhan
