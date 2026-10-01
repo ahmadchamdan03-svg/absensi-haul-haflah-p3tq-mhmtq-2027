@@ -209,8 +209,8 @@ export default function ScanPage() {
         (entity.kategori_utama || '').toUpperCase().includes('GHOIB') ||
         (entity.sub_kategori || '').toUpperCase().includes('GHOIB')
       );
-      const initialGold = Boolean(entity.kartu_hitam_gold_diberi);
-      setKartuHitamGoldDiberi(initialGold);
+      const isAlreadyGiven = Number(entity.tiket_panggung_diberi || 0) > 0;
+      setKartuHitamGoldDiberi(true);
 
       const itemObj = {
         id: entity.id,
@@ -225,7 +225,7 @@ export default function ScanPage() {
         alamat: entity.alamat || 'Kediri',
         noHp: entity.no_hp || '-',
         isBilGhoib,
-        kartuHitamGoldDiberi: initialGold,
+        kartuHitamGoldDiberi: isAlreadyGiven,
         santri: isSantri
           ? [
               {
@@ -248,7 +248,7 @@ export default function ScanPage() {
           kuotaDasar,
           kuotaTambahan,
           terpakai,
-          tiketPanggungJatah: Number(entity.tiket_panggung_jatah || 0),
+          tiketPanggungJatah: isBilGhoib ? 1 : 0,
           tiketPanggungDiberi: Number(entity.tiket_panggung_diberi || 0),
         },
       };
@@ -277,9 +277,8 @@ export default function ScanPage() {
       }
       setJumlahBalita(0);
 
-      if (itemObj.kuota.tiketPanggungJatah > 0) {
-        const belumDiberi = itemObj.kuota.tiketPanggungDiberi < itemObj.kuota.tiketPanggungJatah;
-        setSerahkanTiketEmas(belumDiberi);
+      if (isBilGhoib) {
+        setSerahkanTiketEmas(!isAlreadyGiven);
       } else {
         setSerahkanTiketEmas(false);
       }
@@ -419,8 +418,14 @@ export default function ScanPage() {
     const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
     const sisa = Math.max(0, totalKuota - activeItem.kuota.terpakai);
 
-    if (inputTotal <= 0 && !serahkanTiketEmas) {
-      setErrorMsg('Masukkan jumlah orang yang hadir (L/P) atau serahkan tiket panggung.');
+    const isAlreadyGiven = activeItem.isBilGhoib && (Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || Boolean(activeItem.kartuHitamGoldDiberi));
+    const isNewlyGivingGold = activeItem.isBilGhoib && !isAlreadyGiven && (kartuHitamGoldDiberi || serahkanTiketEmas);
+    const nextTiketPanggung = activeItem.isBilGhoib
+      ? (isAlreadyGiven ? Number(activeItem.kuota?.tiketPanggungDiberi || 1) : (isNewlyGivingGold ? 1 : 0))
+      : 0;
+
+    if (inputTotal <= 0 && !isNewlyGivingGold) {
+      setErrorMsg('Masukkan jumlah orang yang hadir (L/P) atau centang Kartu Hitam Gold.');
       return;
     }
 
@@ -431,7 +436,6 @@ export default function ScanPage() {
     }
 
     const nextTerpakai = activeItem.kuota.terpakai + inputTotal;
-    const nextTiketPanggung = activeItem.kuota.tiketPanggungDiberi + (serahkanTiketEmas ? 1 : 0);
 
     try {
       // 1. Update kuota_terpakai di Supabase DB (peserta_santri atau tamu_undangan)
@@ -474,7 +478,7 @@ export default function ScanPage() {
             jumlah_l: jumlahL,
             jumlah_p: jumlahP,
             jumlah_balita: jumlahBalita,
-            tiket_panggung: serahkanTiketEmas ? 1 : 0,
+            tiket_panggung: isNewlyGivingGold ? 1 : 0,
             server_time: new Date().toISOString(),
           },
         ]);
@@ -824,43 +828,85 @@ export default function ScanPage() {
               );
             })()}
 
-            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB */}
-            {activeItem.isBilGhoib && (
-              <div
-                onClick={() => setKartuHitamGoldDiberi(!kartuHitamGoldDiberi)}
-                className={`p-2.5 rounded-xl border-2 transition-all cursor-pointer select-none ${
-                  kartuHitamGoldDiberi
-                    ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs'
-                    : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21]'
-                }`}
-              >
-                <div className="flex items-center space-x-2.5">
-                  <input
-                    type="checkbox"
-                    id="checkbox-hitam-gold"
-                    checked={kartuHitamGoldDiberi}
-                    onChange={(e) => setKartuHitamGoldDiberi(e.target.checked)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 cursor-pointer accent-amber-600"
-                  />
-                  <label
-                    htmlFor="checkbox-hitam-gold"
-                    className="text-[11px] font-bold leading-tight cursor-pointer flex-1 flex items-center justify-between"
-                  >
-                    <span>Kartu Hitam Gold</span>
-                    {kartuHitamGoldDiberi ? (
-                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0">
-                        ✓ DIBERIKAN
-                      </span>
-                    ) : (
-                      <span className="text-[9px] font-semibold text-stone-500 px-2 py-0.5 rounded-full bg-stone-100 ml-1 shrink-0">
-                        BELUM
-                      </span>
-                    )}
-                  </label>
+            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB (One-Time Disabled jika sudah diberikan) */}
+            {activeItem.isBilGhoib && (() => {
+              const isAlreadyGiven = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || Boolean(activeItem.kartuHitamGoldDiberi);
+              const isChecked = isAlreadyGiven || kartuHitamGoldDiberi || serahkanTiketEmas;
+
+              return (
+                <div
+                  onClick={() => {
+                    if (!isAlreadyGiven) {
+                      const nextVal = !kartuHitamGoldDiberi;
+                      setKartuHitamGoldDiberi(nextVal);
+                      setSerahkanTiketEmas(nextVal);
+                    }
+                  }}
+                  className={`p-3 rounded-2xl border-2 transition-all select-none ${
+                    isAlreadyGiven
+                      ? 'bg-[#1C1712] border-amber-500/80 text-amber-200 opacity-90 cursor-not-allowed'
+                      : isChecked
+                      ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs cursor-pointer'
+                      : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21] cursor-pointer'
+                  }`}
+                  title={isAlreadyGiven ? 'Kartu Hitam Gold sudah diberikan — hanya 1 kuota maju panggung.' : undefined}
+                >
+                  <div className="flex items-start space-x-2.5">
+                    <input
+                      type="checkbox"
+                      id="checkbox-hitam-gold"
+                      checked={isChecked}
+                      disabled={isAlreadyGiven}
+                      onChange={(e) => {
+                        if (!isAlreadyGiven) {
+                          setKartuHitamGoldDiberi(e.target.checked);
+                          setSerahkanTiketEmas(e.target.checked);
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className={`w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 accent-amber-600 mt-0.5 ${
+                        isAlreadyGiven ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
+                      }`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <label
+                          htmlFor="checkbox-hitam-gold"
+                          className={`text-xs font-bold leading-tight flex items-center gap-1.5 ${
+                            isAlreadyGiven ? 'cursor-not-allowed' : 'cursor-pointer'
+                          }`}
+                        >
+                          <span>Kartu Hitam Gold</span>
+                          <span className="text-[10px] text-amber-300 font-normal">(Maju Panggung)</span>
+                        </label>
+
+                        {isAlreadyGiven ? (
+                          <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-xs shrink-0 flex items-center gap-1">
+                            <Check className="w-3 h-3 text-white" />
+                            SUDAH
+                          </span>
+                        ) : isChecked ? (
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0">
+                            ✓ DIBERIKAN
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-semibold text-stone-500 px-2 py-0.5 rounded-full bg-stone-100 ml-1 shrink-0">
+                            BELUM
+                          </span>
+                        )}
+                      </div>
+
+                      {isAlreadyGiven && (
+                        <p className="text-[10px] text-amber-300/90 font-medium mt-1 leading-tight flex items-center gap-1">
+                          <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0"></span>
+                          Kartu Hitam Gold sudah diberikan — hanya 1 kuota maju panggung.
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Input Form Jumlah Kehadiran (L / P) */}
             <div className="space-y-3 pt-2 border-t border-slate-100">
