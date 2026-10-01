@@ -63,6 +63,11 @@ export default function UndanganWaliPage() {
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
+  // State Global Switch Beli Kuota & Hitungan Pagu Diverifikasi
+  const [kuotaSwitchAktif, setKuotaSwitchAktif] = useState<boolean>(false);
+  const [totalDiverifikasi, setTotalDiverifikasi] = useState<number>(0);
+  const [loadingKuotaControl, setLoadingKuotaControl] = useState<boolean>(true);
+
   // Countdown Timer ke Sabtu, 02 Januari 2027 06:30:00 WIB
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 0,
@@ -202,6 +207,69 @@ export default function UndanganWaliPage() {
 
     fetchSantriFromSupabase();
   }, [kodeSH]);
+
+  // Fetch Status Kontrol Beli Kuota (Global Switch & Pagu Diverifikasi) + Realtime
+  useEffect(() => {
+    const fetchKuotaControlStatus = async () => {
+      try {
+        setLoadingKuotaControl(true);
+        // 1. Fetch switch status from konfigurasi_sistem
+        const { data: configData } = await supabase
+          .from('konfigurasi_sistem')
+          .select('*')
+          .eq('key', 'kuota_tambahan_status')
+          .maybeSingle();
+
+        if (configData && configData.value) {
+          setKuotaSwitchAktif(Boolean(configData.value.aktif));
+        } else {
+          setKuotaSwitchAktif(false);
+        }
+
+        // 2. Fetch sum of diverifikasi from pembelian_kuota
+        const { data: pembelianData } = await supabase
+          .from('pembelian_kuota')
+          .select('*')
+          .in('status', ['DIVERIFIKASI', 'DITERIMA']);
+
+        if (pembelianData) {
+          const sumDiverifikasi = pembelianData.reduce((acc: number, p: any) => {
+            return acc + Number(p.jumlah_kursi || p.jumlah || 0);
+          }, 0);
+          setTotalDiverifikasi(sumDiverifikasi);
+        }
+      } catch (err) {
+        console.warn('Error fetching kuota control status:', err);
+      } finally {
+        setLoadingKuotaControl(false);
+      }
+    };
+
+    fetchKuotaControlStatus();
+
+    // Supabase Realtime Subscription untuk tombol langsung update jika panitia me-toggle switch
+    const channel = supabase
+      .channel('kuota_control_realtime_u')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'konfigurasi_sistem' },
+        () => {
+          fetchKuotaControlStatus();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pembelian_kuota' },
+        () => {
+          fetchKuotaControlStatus();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Handler Buka Undangan & Putar Musik
   const handleOpenInvitation = () => {
@@ -478,6 +546,56 @@ export default function UndanganWaliPage() {
                 <p className="font-serif font-black text-lg text-stone-700">{kuota?.terpakai || 0}</p>
               </div>
             </div>
+          </div>
+
+          {/* SECTION KONTROL BELI KUOTA TAMBAHAN (SINKRON REALTIME DENGAN PANITIA & PAGU) */}
+          <div className="bg-white rounded-3xl p-5 sm:p-7 border-2 border-[#E8DFD5] shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-4 h-4 text-amber-700" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-black text-sm sm:text-base text-[#422F21]">
+                    Pembelian Kuota Tambahan Kursi
+                  </h3>
+                  <p className="text-[11px] text-stone-500">
+                    Sisa Kuota Pagu: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong> ({totalDiverifikasi}/300 terisi)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {loadingKuotaControl ? (
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2">
+                <Loader2 className="w-4 h-4 animate-spin text-[#8C6A47]" />
+                <span>Memeriksa status kuota tambahan...</span>
+              </div>
+            ) : kuotaSwitchAktif && totalDiverifikasi < 300 ? (
+              <div className="space-y-2.5">
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
+                </p>
+                <Link
+                  href={`/beli/${kuota?.kodeQr || item?.kode || kodeSH}`}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                >
+                  <ShoppingBag className="w-4.5 h-4.5 text-emerald-200" />
+                  <span>Beli Kuota Tambahan</span>
+                  <ArrowRight className="w-4.5 h-4.5 text-emerald-200" />
+                </Link>
+              </div>
+            ) : !kuotaSwitchAktif ? (
+              <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 text-xs flex items-center space-x-2.5 font-medium">
+                <Info className="w-4.5 h-4.5 text-slate-500 shrink-0" />
+                <span>Pembelian kuota tambahan sedang ditutup.</span>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center space-x-2.5 font-medium">
+                <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
+                <span>Kuota tambahan sudah habis (300/300 terisi).</span>
+              </div>
+            )}
           </div>
 
           {/* WAKTU, LOKASI & COUNTDOWN TIMER */}

@@ -22,6 +22,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
+import { supabase } from '@/lib/supabase';
 
 export default function BeliKuotaPage() {
   const params = useParams();
@@ -33,6 +34,10 @@ export default function BeliKuotaPage() {
   const [jumlahBeli, setJumlahBeli] = useState(1);
   const [orderAktif, setOrderAktif] = useState<any>(null);
 
+  const [kuotaSwitchAktif, setKuotaSwitchAktif] = useState<boolean>(true);
+  const [totalDiverifikasi, setTotalDiverifikasi] = useState<number>(0);
+  const [loadingControl, setLoadingControl] = useState<boolean>(true);
+
   // State Unggah Foto Bukti Transfer (Langsung Foto/Gambar, Bukan URL)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -42,6 +47,37 @@ export default function BeliKuotaPage() {
   const [statusMsg, setStatusMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
+    const fetchControl = async () => {
+      try {
+        const { data: configData } = await supabase
+          .from('konfigurasi_sistem')
+          .select('*')
+          .eq('key', 'kuota_tambahan_status')
+          .maybeSingle();
+
+        if (configData && configData.value) {
+          setKuotaSwitchAktif(Boolean(configData.value.aktif));
+        }
+
+        const { data: pembelianData } = await supabase
+          .from('pembelian_kuota')
+          .select('*')
+          .in('status', ['DIVERIFIKASI', 'DITERIMA']);
+
+        if (pembelianData) {
+          const sumDiverifikasi = pembelianData.reduce((acc: number, p: any) => {
+            return acc + Number(p.jumlah_kursi || p.jumlah || 0);
+          }, 0);
+          setTotalDiverifikasi(sumDiverifikasi);
+        }
+      } catch (e) {
+        console.warn('Error checking control in BeliKuotaPage:', e);
+      } finally {
+        setLoadingControl(false);
+      }
+    };
+    fetchControl();
+
     const syncData = () => {
       store.evaluasiBatasWaktu();
       const found = store.findByKode(kodeSH) || store.findByKode('SH0042');
@@ -234,6 +270,35 @@ export default function BeliKuotaPage() {
         <div className="bg-[#FAF7F3] p-6 rounded-2xl shadow text-center max-w-sm border-2 border-[#D5C4B4]">
           <Info className="w-8 h-8 text-[#8C6A47] mx-auto mb-2" />
           <h2 className="font-bold text-[#422F21]">Data Tidak Ditemukan</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (!loadingControl && (!kuotaSwitchAktif || totalDiverifikasi >= 300) && !orderAktif) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#EFE8E1]">
+        <div className="bg-[#FAF7F3] p-6 sm:p-8 rounded-3xl shadow-xl text-center max-w-md border-2 border-[#D5C4B4] space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-6 h-6 text-amber-700" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="font-serif font-black text-lg text-[#422F21]">
+              {!kuotaSwitchAktif ? 'Pembelian Kuota Ditutup' : 'Kuota Tambahan Habis'}
+            </h2>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {!kuotaSwitchAktif
+                ? 'Pembelian kuota tambahan sedang ditutup oleh panitia.'
+                : `Kuota tambahan sudah habis (${totalDiverifikasi}/300 terisi).`}
+            </p>
+          </div>
+          <Link
+            href={`/u/${token}`}
+            className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-2xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow transition-all cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Undangan Digital</span>
+          </Link>
         </div>
       </div>
     );

@@ -180,6 +180,17 @@ FROM peserta_santri;
 UPDATE peserta_santri SET warna_tiket = 'Hitam Gold' WHERE kategori_utama = 'BIL_GHOIB';
 UPDATE peserta_santri SET warna_tiket = 'Merah Gold' WHERE kategori_utama IN ('BIN_NADZOR', 'BIN_NADZORI', 'TAMATAN');
 
+-- 10. KONFIGURASI SISTEM
+CREATE TABLE IF NOT EXISTS konfigurasi_sistem (
+  key VARCHAR(50) PRIMARY KEY,
+  value JSONB,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO konfigurasi_sistem (key, value)
+VALUES ('kuota_tambahan_status', '{"aktif": false}'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
 COMMIT;
 
 -- VERIFIKASI SKEMA

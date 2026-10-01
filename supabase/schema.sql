@@ -494,3 +494,14 @@ left join presensi_log pl
   on pl.kuota_id = k.id
 group by kk.urutan, kk.sub_kategori
 order by kk.urutan;
+
+-- ============ 12. KONFIGURASI SISTEM ============
+create table if not exists konfigurasi_sistem (
+  key varchar(50) primary key,
+  value jsonb,
+  updated_at timestamptz default now()
+);
+
+insert into konfigurasi_sistem (key, value)
+values ('kuota_tambahan_status', '{"aktif": false}'::jsonb)
+on conflict (key) do nothing;

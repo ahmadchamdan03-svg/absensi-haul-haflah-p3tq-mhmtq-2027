@@ -210,9 +210,63 @@ export default function WhatsAppPage() {
     }
   };
 
+  const fetchKuotaConfigStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('konfigurasi_sistem')
+        .select('*')
+        .eq('key', 'kuota_tambahan_status')
+        .maybeSingle();
+
+      if (data && data.value) {
+        setKuotaTambahanBuka(Boolean(data.value.aktif));
+      }
+    } catch (err) {
+      console.warn('Error fetching kuota_tambahan_status from Supabase:', err);
+    }
+  };
+
+  const handleToggleKuotaSwitch = async () => {
+    const nextVal = !kuotaTambahanBuka;
+    setKuotaTambahanBuka(nextVal);
+    try {
+      const { error } = await supabase
+        .from('konfigurasi_sistem')
+        .upsert(
+          {
+            key: 'kuota_tambahan_status',
+            value: { aktif: nextVal },
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'key' }
+        );
+      if (error) {
+        console.error('Error updating konfigurasi_sistem:', error);
+      }
+    } catch (e) {
+      console.error('Exception toggling kuota_tambahan_status:', e);
+    }
+  };
+
   useEffect(() => {
     fetchSantriWaData();
     fetchTamuWaData();
+    fetchKuotaConfigStatus();
+
+    const channel = supabase
+      .channel('konfigurasi_sistem_wa_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'konfigurasi_sistem' },
+        () => {
+          fetchKuotaConfigStatus();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Handle URL Query Params
@@ -990,7 +1044,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                   <div className="flex items-center space-x-2">
                     <button
                       type="button"
-                      onClick={() => setKuotaTambahanBuka(!kuotaTambahanBuka)}
+                      onClick={handleToggleKuotaSwitch}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                         kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-slate-300'
                       }`}
@@ -1010,7 +1064,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                           : 'bg-slate-100 text-slate-500 border border-slate-200'
                       }`}
                     >
-                      {kuotaTambahanBuka ? 'ON' : 'OFF'}
+                      {kuotaTambahanBuka ? 'ON' : 'OFF (TUTUP)'}
                     </span>
                   </div>
                 </div>
