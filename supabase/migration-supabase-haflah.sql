@@ -82,6 +82,10 @@ CREATE TABLE IF NOT EXISTS tamu_undangan (
 
 ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS status_wa VARCHAR(20) DEFAULT 'BELUM';
 ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS jalur_masuk VARCHAR(100) DEFAULT 'Gerbang Selatan (Bola Dunia)';
+ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS status_konfirmasi VARCHAR(20) DEFAULT 'BELUM';
+ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS perkiraan_l SMALLINT DEFAULT 0;
+ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS perkiraan_p SMALLINT DEFAULT 0;
+ALTER TABLE tamu_undangan ADD COLUMN IF NOT EXISTS catatan_konfirmasi TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_tamu_undangan_kode ON tamu_undangan (kode);
 CREATE INDEX IF NOT EXISTS idx_tamu_undangan_sub ON tamu_undangan (sub_kategori);
