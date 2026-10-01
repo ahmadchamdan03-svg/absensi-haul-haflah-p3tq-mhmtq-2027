@@ -364,7 +364,7 @@ export default function ManajemenPesertaPage() {
           kuota: {
             id: u.id,
             kodeQr: u.kode,
-            kuotaDasar: u.kuota_dasar || 2,
+            kuotaDasar: u.kuota_dasar !== undefined && u.kuota_dasar !== null ? u.kuota_dasar : (u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1),
             kuotaTambahan: u.kuota_tambahan || 0,
             terpakai: u.kuota_terpakai || 0,
             warnaTiket: u.warna_tiket !== undefined && u.warna_tiket !== null && u.warna_tiket !== ''
@@ -898,6 +898,23 @@ export default function ManajemenPesertaPage() {
   const handleTambahUndangan = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let finalKategori = '';
+    if (selectedGolonganUndangan === 'KEHORMATAN') {
+      finalKategori = 'Tamu Kehormatan';
+    } else {
+      finalKategori =
+        undanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)'
+          ? customKategoriInput.trim()
+          : undanganKategoriDropdown.trim();
+
+      if (!finalKategori) {
+        alert('Kategori undangan wajib diisi atau diketik!');
+        return;
+      }
+    }
+
+    const isAsatidzSekalian = selectedGolonganUndangan === 'UMUM' && finalKategori === 'Asatidz Mhmtq Sekalian';
+
     let finalNama = '';
     const p = (undanganForm.namaPutra || '').trim().toUpperCase();
     const w = (undanganForm.namaPutri || '').trim().toUpperCase();
@@ -915,6 +932,17 @@ export default function ManajemenPesertaPage() {
         finalNama = p || w;
         kuotaBase = 1;
       }
+    } else if (isAsatidzSekalian) {
+      if (!p && !w) {
+        alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
+        return;
+      }
+      if (p && w) {
+        finalNama = `${p} & ${w}`;
+      } else {
+        finalNama = p || w;
+      }
+      kuotaBase = 2; // Khusus Asatidz Mhmtq Sekalian OTOMATIS = 2 (1 Putra + 1 Putri)
     } else {
       if (!undanganForm.nama.trim()) {
         alert('Nama tamu undangan wajib diisi!');
@@ -922,21 +950,6 @@ export default function ManajemenPesertaPage() {
       }
       finalNama = undanganForm.nama.trim().toUpperCase();
       kuotaBase = 1;
-    }
-
-    let finalKategori = '';
-    if (selectedGolonganUndangan === 'KEHORMATAN') {
-      finalKategori = 'Tamu Kehormatan';
-    } else {
-      finalKategori =
-        undanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)'
-          ? customKategoriInput.trim()
-          : undanganKategoriDropdown.trim();
-
-      if (!finalKategori) {
-        alert('Kategori undangan wajib diisi atau diketik!');
-        return;
-      }
     }
 
     let finalAlamat = '';
@@ -1033,6 +1046,8 @@ export default function ManajemenPesertaPage() {
         }
       }
 
+      const isAsatidzSekalian = editGolonganUndangan === 'UMUM' && finalKat === 'Asatidz Mhmtq Sekalian';
+
       let finalNama = (editingItem.nama || '').trim().toUpperCase();
       let p = (editingItem.namaPutra || '').trim().toUpperCase();
       let w = (editingItem.namaPutri || '').trim().toUpperCase();
@@ -1049,6 +1064,17 @@ export default function ManajemenPesertaPage() {
         } else {
           kuotaBase = 1;
         }
+      } else if (isAsatidzSekalian) {
+        if (!p && !w && !finalNama) {
+          alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
+          return;
+        }
+        if (p && w) {
+          finalNama = `${p} & ${w}`;
+        } else if (p || w) {
+          finalNama = p || w;
+        }
+        kuotaBase = 2; // Khusus Asatidz Mhmtq Sekalian OTOMATIS = 2 (1 Putra + 1 Putri)
       } else {
         if (!finalNama) {
           alert('Nama tamu undangan wajib diisi!');
@@ -2222,7 +2248,7 @@ export default function ManajemenPesertaPage() {
                     <span className="font-bold block text-amber-950 mb-0.5">Penetapan Kuota Kursi Otomatis:</span>
                     {selectedGolonganUndangan === 'ISTIMEWA' && (
                       <p>
-                        Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra & Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
+                        Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra &amp; Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
                       </p>
                     )}
                     {selectedGolonganUndangan === 'KEHORMATAN' && (
@@ -2232,20 +2258,24 @@ export default function ManajemenPesertaPage() {
                     )}
                     {selectedGolonganUndangan === 'UMUM' && (
                       <p>
-                        Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.
+                        {undanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' ? (
+                          <>Tamu <strong>"Asatidz Mhmtq Sekalian"</strong> otomatis mendapatkan <strong>2 kursi</strong> (1 Putra + 1 Putri).</>
+                        ) : (
+                          <>Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.</>
+                        )}
                       </p>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* NAMA TAMU UNDANGAN: JIKA ISTIMEWA BISA INPUT PUTRA & PUTRI, JIKA LAINNYA 1 FIELD NAMA */}
-              {selectedGolonganUndangan === 'ISTIMEWA' ? (
+              {/* NAMA TAMU UNDANGAN: JIKA ISTIMEWA ATAU ASATIDZ MHMTQ SEKALIAN BISA INPUT PUTRA & PUTRI, JIKA LAINNYA 1 FIELD NAMA */}
+              {(selectedGolonganUndangan === 'ISTIMEWA' || (selectedGolonganUndangan === 'UMUM' && undanganKategoriDropdown === 'Asatidz Mhmtq Sekalian')) ? (
                 <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Nama Tamu Undangan Istimewa *</span>
+                      <span>Nama Tamu Undangan {selectedGolonganUndangan === 'ISTIMEWA' ? 'Istimewa' : 'Asatidz MHMTQ Sekalian'} *</span>
                     </label>
                     <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-semibold">
                       Bisa diisi salah satu atau keduanya
@@ -2255,7 +2285,7 @@ export default function ManajemenPesertaPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                        🤵 Nama Tamu Putra (Gus / Kyai)
+                        🤵 Nama Tamu Putra (Gus / Kyai / Ustadz)
                       </label>
                       <input
                         type="text"
@@ -2268,7 +2298,7 @@ export default function ManajemenPesertaPage() {
 
                     <div>
                       <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                        🧕 Nama Tamu Putri (Ning / Nyai)
+                        🧕 Nama Tamu Putri (Ning / Nyai / Ustadzah)
                       </label>
                       <input
                         type="text"
@@ -2279,20 +2309,32 @@ export default function ManajemenPesertaPage() {
                       />
                     </div>
                   </div>
-                  <div className="text-[10px] text-amber-800/80">
-                    * Gabungan nama yang tercetak di kartu undangan:{' '}
-                    <strong className="text-amber-950">
-                      {undanganForm.namaPutra.trim() && undanganForm.namaPutri.trim()
-                        ? `${undanganForm.namaPutra.trim().toUpperCase()} & ${undanganForm.namaPutri.trim().toUpperCase()}`
-                        : (undanganForm.namaPutra.trim().toUpperCase() || undanganForm.namaPutri.trim().toUpperCase() || '(Belum diisi)')}
-                    </strong>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-amber-800/80">
+                    <div>
+                      * Gabungan nama yang tercetak di kartu undangan:{' '}
+                      <strong className="text-amber-950">
+                        {undanganForm.namaPutra.trim() && undanganForm.namaPutri.trim()
+                          ? `${undanganForm.namaPutra.trim().toUpperCase()} & ${undanganForm.namaPutri.trim().toUpperCase()}`
+                          : (undanganForm.namaPutra.trim().toUpperCase() || undanganForm.namaPutri.trim().toUpperCase() || '(Belum diisi)')}
+                      </strong>
+                    </div>
+                    {selectedGolonganUndangan === 'UMUM' && undanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' && (
+                      <div className="font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300 shrink-0">
+                        Kuota otomatis: 2 kursi (1 Putra + 1 Putri)
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Nama Tamu / Tokoh / Kyai *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-bold text-slate-700">
+                      Nama Tamu / Tokoh / Kyai *
+                    </label>
+                    <span className="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full font-semibold">
+                      Kuota otomatis: 1 kursi
+                    </span>
+                  </div>
                   <input
                     type="text"
                     required
@@ -2315,10 +2357,11 @@ export default function ManajemenPesertaPage() {
                     onChange={(e) => {
                       const val = e.target.value;
                       setUndanganKategoriDropdown(val);
+                      const newKuota = (selectedGolonganUndangan === 'UMUM' && val === 'Asatidz Mhmtq Sekalian') ? 2 : 1;
                       if (val !== 'Lainnya (Ketik Sendiri...)') {
-                        setUndanganForm({ ...undanganForm, kategori: val });
+                        setUndanganForm({ ...undanganForm, kategori: val, kuotaDasar: newKuota });
                       } else {
-                        setUndanganForm({ ...undanganForm, kategori: customKategoriInput });
+                        setUndanganForm({ ...undanganForm, kategori: customKategoriInput, kuotaDasar: newKuota });
                       }
                     }}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 bg-white font-medium text-slate-800"
@@ -2564,7 +2607,7 @@ export default function ManajemenPesertaPage() {
                         <span className="font-bold block text-amber-950 mb-0.5">Penetapan Kuota Kursi Otomatis:</span>
                         {editGolonganUndangan === 'ISTIMEWA' && (
                           <p>
-                            Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra & Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
+                            Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra &amp; Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
                           </p>
                         )}
                         {editGolonganUndangan === 'KEHORMATAN' && (
@@ -2574,20 +2617,24 @@ export default function ManajemenPesertaPage() {
                         )}
                         {editGolonganUndangan === 'UMUM' && (
                           <p>
-                            Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.
+                            {editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' ? (
+                              <>Tamu <strong>"Asatidz Mhmtq Sekalian"</strong> otomatis mendapatkan <strong>2 kursi</strong> (1 Putra + 1 Putri).</>
+                            ) : (
+                              <>Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.</>
+                            )}
                           </p>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  {/* NAMA TAMU ISTIMEWA (PUTRA & PUTRI) ATAU NAMA BIASA */}
-                  {editGolonganUndangan === 'ISTIMEWA' ? (
+                  {/* NAMA TAMU ISTIMEWA ATAU ASATIDZ MHMTQ SEKALIAN (PUTRA & PUTRI) ATAU NAMA BIASA */}
+                  {(editGolonganUndangan === 'ISTIMEWA' || (editGolonganUndangan === 'UMUM' && editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian')) ? (
                     <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
                       <div className="flex items-center justify-between">
                         <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
                           <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Nama Tamu Undangan Istimewa *</span>
+                          <span>Nama Tamu Undangan {editGolonganUndangan === 'ISTIMEWA' ? 'Istimewa' : 'Asatidz MHMTQ Sekalian'} *</span>
                         </label>
                         <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-semibold">
                           Bisa diisi salah satu atau keduanya
@@ -2597,7 +2644,7 @@ export default function ManajemenPesertaPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                            🤵 Nama Tamu Putra (Gus / Kyai)
+                            🤵 Nama Tamu Putra (Gus / Kyai / Ustadz)
                           </label>
                           <input
                             type="text"
@@ -2615,7 +2662,7 @@ export default function ManajemenPesertaPage() {
 
                         <div>
                           <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                            🧕 Nama Tamu Putri (Ning / Nyai)
+                            🧕 Nama Tamu Putri (Ning / Nyai / Ustadzah)
                           </label>
                           <input
                             type="text"
@@ -2631,20 +2678,32 @@ export default function ManajemenPesertaPage() {
                           />
                         </div>
                       </div>
-                      <div className="text-[10px] text-amber-800/80">
-                        * Gabungan nama yang tercetak di kartu undangan:{' '}
-                        <strong className="text-amber-950">
-                          {editingItem.namaPutra && editingItem.namaPutri
-                            ? `${editingItem.namaPutra.trim().toUpperCase()} & ${editingItem.namaPutri.trim().toUpperCase()}`
-                            : (editingItem.namaPutra?.trim().toUpperCase() || editingItem.namaPutri?.trim().toUpperCase() || editingItem.nama || '(Belum diisi)')}
-                        </strong>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-amber-800/80">
+                        <div>
+                          * Gabungan nama yang tercetak di kartu undangan:{' '}
+                          <strong className="text-amber-950">
+                            {editingItem.namaPutra && editingItem.namaPutri
+                              ? `${editingItem.namaPutra.trim().toUpperCase()} & ${editingItem.namaPutri.trim().toUpperCase()}`
+                              : (editingItem.namaPutra?.trim().toUpperCase() || editingItem.namaPutri?.trim().toUpperCase() || editingItem.nama || '(Belum diisi)')}
+                          </strong>
+                        </div>
+                        {editGolonganUndangan === 'UMUM' && editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' && (
+                          <div className="font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300 shrink-0">
+                            Kuota otomatis: 2 kursi (1 Putra + 1 Putri)
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1">
-                        Nama Tamu / Tokoh / Kyai *
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block font-bold text-slate-700">
+                          Nama Tamu / Tokoh / Kyai *
+                        </label>
+                        <span className="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full font-semibold">
+                          Kuota otomatis: 1 kursi
+                        </span>
+                      </div>
                       <input
                         type="text"
                         required
@@ -2667,6 +2726,13 @@ export default function ManajemenPesertaPage() {
                         onChange={(e) => {
                           const val = e.target.value;
                           setEditUndanganKategoriDropdown(val);
+                          if (editingItem.tipe === 'UNDANGAN' && editGolonganUndangan === 'UMUM') {
+                            setEditingItem({
+                              ...editingItem,
+                              kategori: val,
+                              kuotaDasar: val === 'Asatidz Mhmtq Sekalian' ? 2 : 1,
+                            });
+                          }
                         }}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 bg-white font-medium text-slate-800"
                       >
@@ -2844,11 +2910,24 @@ export default function ManajemenPesertaPage() {
                         type="number"
                         min={1}
                         max={10}
-                        value={editingItem.kuotaDasar}
+                        readOnly={
+                          editingItem.tipe === 'UNDANGAN' &&
+                          ((editGolonganUndangan === 'UMUM' && (editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' || editingItem.kategori === 'Asatidz Mhmtq Sekalian')) ||
+                           editGolonganUndangan === 'ISTIMEWA')
+                        }
+                        value={
+                          editingItem.tipe === 'UNDANGAN' && editGolonganUndangan === 'UMUM' && (editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' || editingItem.kategori === 'Asatidz Mhmtq Sekalian')
+                            ? 2
+                            : editingItem.kuotaDasar
+                        }
                         onChange={(e) =>
                           setEditingItem({ ...editingItem, kuotaDasar: Number(e.target.value) })
                         }
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono font-bold"
+                        className={`w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono font-bold ${
+                          editingItem.tipe === 'UNDANGAN' && editGolonganUndangan === 'UMUM' && (editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' || editingItem.kategori === 'Asatidz Mhmtq Sekalian')
+                            ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
+                            : ''
+                        }`}
                       />
                     </div>
                   </div>

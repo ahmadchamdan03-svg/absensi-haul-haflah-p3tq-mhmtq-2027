@@ -179,7 +179,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               kamar: '-',
               noHp: u.no_hp || '-',
               alamat: u.alamat || u.instansi || 'Kediri',
-              kuotaDasar: u.kuota_dasar || 2,
+              kuotaDasar: u.kuota_dasar !== undefined && u.kuota_dasar !== null ? u.kuota_dasar : (u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1),
               terpakai: u.kuota_terpakai || 0,
               isHadir: (u.kuota_terpakai || 0) > 0 || !!latestCheckinMap[u.kode] || !!latestCheckinMap[u.id],
               lastCheckinTime: checkinTime,
