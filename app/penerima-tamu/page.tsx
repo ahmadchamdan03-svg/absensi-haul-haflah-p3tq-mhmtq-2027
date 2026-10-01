@@ -359,6 +359,24 @@ export default function PenerimaTamuPage() {
     router.push('/');
   };
 
+  const totalKuotaTamu = useMemo(() => {
+    return undanganList.reduce((acc, u) => {
+      const kBase = Number(u.kuota?.kuotaDasar !== undefined && u.kuota?.kuotaDasar !== null ? u.kuota.kuotaDasar : 2);
+      const kExtra = Number(u.kuota?.kuotaTambahan || 0);
+      return acc + kBase + kExtra;
+    }, 0);
+  }, [undanganList]);
+
+  const totalHadirTamu = useMemo(() => {
+    return undanganList.reduce((acc, u) => {
+      return acc + Number(u.kuota?.terpakai || 0);
+    }, 0);
+  }, [undanganList]);
+
+  const totalBelumHadirTamu = useMemo(() => {
+    return Math.max(0, totalKuotaTamu - totalHadirTamu);
+  }, [totalKuotaTamu, totalHadirTamu]);
+
   return (
     <AuthGuard allowedRoles={['PENERIMA_TAMU', 'ADMIN']}>
       <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] pb-24">
@@ -419,9 +437,9 @@ export default function PenerimaTamuPage() {
                 Total Tamu Terdata
               </span>
               <div className="text-2xl font-serif font-black text-[#422F21]">
-                {undanganList.length} Tamu
+                {totalKuotaTamu} Kursi
               </div>
-              <p className="text-[11px] text-stone-600">VIP IDS, Penguji &amp; Asatidz</p>
+              <p className="text-[11px] text-stone-600">Total Kuota ({undanganList.length} Undangan)</p>
             </div>
 
             <div className="p-4 rounded-3xl bg-emerald-50/70 border border-emerald-200 shadow-xs space-y-1">
@@ -429,9 +447,9 @@ export default function PenerimaTamuPage() {
                 Tamu Sudah Rawuh
               </span>
               <div className="text-2xl font-serif font-black text-emerald-900">
-                {undanganList.filter((u) => (u.kuota?.terpakai || 0) > 0).length} Hadir
+                {totalHadirTamu} Hadir
               </div>
-              <p className="text-[11px] text-emerald-700">Telah hadir di meja transit / aula</p>
+              <p className="text-[11px] text-emerald-700">Terpakai ({totalHadirTamu}/{totalKuotaTamu} Kursi)</p>
             </div>
 
             <div className="p-4 rounded-3xl bg-amber-50/70 border border-amber-200 shadow-xs space-y-1">
@@ -439,9 +457,9 @@ export default function PenerimaTamuPage() {
                 Belum Hadir
               </span>
               <div className="text-2xl font-serif font-black text-amber-900">
-                {undanganList.filter((u) => !u.kuota || u.kuota.terpakai === 0).length} Belum
+                {totalBelumHadirTamu} Belum
               </div>
-              <p className="text-[11px] text-amber-700">Dalam perjalanan / konfirmasi</p>
+              <p className="text-[11px] text-amber-700">Sisa Kuota Belum Terpakai</p>
             </div>
 
             <div className="p-4 rounded-3xl bg-blue-50/70 border border-blue-200 shadow-xs space-y-1">
@@ -530,7 +548,9 @@ export default function PenerimaTamuPage() {
                   {filteredUndangan.map((u) => {
                     const terpakai = u.kuota?.terpakai || 0;
                     const kuotaDasar = u.kuota?.kuotaDasar || 2;
-                    const sisa = Math.max(0, kuotaDasar - terpakai);
+                    const kuotaTambahan = u.kuota?.kuotaTambahan || 0;
+                    const totalKuotaItem = kuotaDasar + kuotaTambahan;
+                    const sisa = Math.max(0, totalKuotaItem - terpakai);
                     const isHadir = terpakai > 0;
 
                     return (
@@ -569,12 +589,12 @@ export default function PenerimaTamuPage() {
                         <div className="text-right shrink-0 space-y-1.5">
                           <div className="text-[11px] font-medium text-stone-500">
                             {isHadir ? (
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-black text-[10px]">
-                                ✓ HADIR ({terpakai} Kursi)
+                              <span className="px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-black text-[10px]">
+                                ✓ HADIR ({terpakai}/{totalKuotaItem} Kursi)
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 font-semibold text-[10px]">
-                                Sisa {sisa} Kursi
+                              <span className="px-2.5 py-1 rounded-full bg-stone-200 text-stone-700 font-semibold text-[10px]">
+                                BELUM ({terpakai}/{totalKuotaItem} Kursi)
                               </span>
                             )}
                           </div>
