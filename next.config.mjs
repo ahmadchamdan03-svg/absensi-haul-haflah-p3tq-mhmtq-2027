@@ -22,6 +22,10 @@ const cspHeader = `
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  images: {
+    contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;",
+    dangerouslyAllowSVG: true,
+  },
   async headers() {
     return [
       {
