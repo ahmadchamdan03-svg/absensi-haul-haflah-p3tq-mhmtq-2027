@@ -40,6 +40,24 @@ async function sha256HmacHex8(key: string, message: string): Promise<string> {
   return hex.substring(0, 8);
 }
 
+// Format muatan QR lengkap (sinkron untuk render cepat)
+export function formatQrPayloadSync(
+  kodeSohibulHajat: string,
+  eventSlug: string = DEFAULT_EVENT_SLUG,
+  kunciEvent: string = DEFAULT_HMAC_KEY
+): string {
+  const prefix = `${eventSlug}.${kodeSohibulHajat}`;
+  let hash = 0;
+  const combined = kunciEvent + ':' + prefix;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  const hex = Math.abs(hash).toString(16).padStart(8, '0').substring(0, 8);
+  return `${prefix}.${hex}`;
+}
+
 // Format muatan QR lengkap
 export async function formatQrPayload(
   kodeSohibulHajat: string,

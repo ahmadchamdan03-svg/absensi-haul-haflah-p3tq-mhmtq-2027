@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import QRCode from 'qrcode';
+import QRCode from 'react-qr-code';
 import {
   Calendar,
   Clock,
@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
-import { formatQrPayload } from '@/lib/hmac';
+import { formatQrPayload, formatQrPayloadSync } from '@/lib/hmac';
 import { calculateKuotaDasarSantri } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';
 import NamaLembaga from '@/components/NamaLembaga';
@@ -311,14 +311,6 @@ export default function UndanganWaliPage() {
 
             formatQrPayload(t.kode).then((payload) => {
               setFullQrPayload(payload);
-              QRCode.toDataURL(payload, {
-                width: 360,
-                margin: 1.5,
-                color: {
-                  dark: '#422F21',
-                  light: '#FAF7F3',
-                },
-              }).then(setQrDataUrl);
             });
           }
         } else {
@@ -383,14 +375,6 @@ export default function UndanganWaliPage() {
 
             formatQrPayload(s.kode).then((payload) => {
               setFullQrPayload(payload);
-              QRCode.toDataURL(payload, {
-                width: 360,
-                margin: 1.5,
-                color: {
-                  dark: '#422F21',
-                  light: '#FAF7F3',
-                },
-              }).then(setQrDataUrl);
             });
           }
         }
@@ -872,15 +856,18 @@ export default function UndanganWaliPage() {
                 </div>
 
                 <div className="flex flex-col items-center justify-center">
-                  <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
-                    {qrDataUrl ? (
-                      <img
-                        src={qrDataUrl}
-                        alt="QR Code Tiket Masuk"
-                        className="w-full h-full object-contain rounded-xl"
+                  <div className="p-4 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+                    {item?.kode || kodeSH ? (
+                      <QRCode
+                        value={fullQrPayload || formatQrPayloadSync(item?.kode || kodeSH)}
+                        size={220}
+                        bgColor="#FAF7F3"
+                        fgColor="#422F21"
+                        level="M"
+                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                       />
                     ) : (
-                      <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
+                      <div className="text-xs font-serif font-bold text-stone-500">Kode tidak tersedia</div>
                     )}
                   </div>
                 </div>
@@ -1281,15 +1268,18 @@ export default function UndanganWaliPage() {
                 </div>
 
                 <div className="flex flex-col items-center justify-center">
-                  <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
-                    {qrDataUrl ? (
-                      <img
-                        src={qrDataUrl}
-                        alt="QR Code Tiket Masuk Wali"
-                        className="w-full h-full object-contain rounded-xl"
+                  <div className="p-4 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+                    {item?.kode || kodeSH ? (
+                      <QRCode
+                        value={fullQrPayload || formatQrPayloadSync(item?.kode || kodeSH)}
+                        size={220}
+                        bgColor="#FAF7F3"
+                        fgColor="#422F21"
+                        level="M"
+                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                       />
                     ) : (
-                      <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
+                      <div className="text-xs font-serif font-bold text-stone-500">Kode tidak tersedia</div>
                     )}
                   </div>
                 </div>

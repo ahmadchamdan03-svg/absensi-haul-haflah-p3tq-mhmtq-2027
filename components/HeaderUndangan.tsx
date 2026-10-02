@@ -37,9 +37,10 @@ export function HeaderUndangan({
         {titleType}
       </p>
 
-      {/* 3. BARIS 2 — JUDUL UTAMA (1 BARIS RAPI, TIDAK WRAP) */}
-      <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-[#422F21] leading-snug text-center whitespace-nowrap mt-2 sm:mt-3">
-        Haul &amp; Haflah Akhirussanah
+      {/* 3. BARIS 2 — JUDUL UTAMA (Bebas Overflow & Wrap Rapi pada Mobile) */}
+      <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-[#422F21] leading-tight text-center break-words max-w-full mx-auto mt-2 sm:mt-3 px-1">
+        <span className="inline-block">Haul &amp; Haflah</span>{' '}
+        <span className="inline-block">Akhirussanah</span>
       </h1>
 
       {/* 4. BARIS 3 — TAHUN (BARIS TERPISAH) */}
