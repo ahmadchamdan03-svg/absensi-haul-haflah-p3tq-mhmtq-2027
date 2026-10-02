@@ -22,32 +22,40 @@ import {
   Clock,
   Banknote,
   Eye,
+  Loader2,
+  ExternalLink,
 } from 'lucide-react';
-import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
+import AuthGuard from '@/components/AuthGuard';
 
 const getLiveBaseUrl = () => {
-  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+  if (
+    typeof window !== 'undefined' &&
+    !window.location.hostname.includes('localhost') &&
+    !window.location.hostname.includes('127.0.0.1')
+  ) {
     return window.location.origin;
   }
-  return process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
 };
 
 export default function VerifikasiPage() {
-  const [pembelianList, setPembelianList] = useState(() => store.getPembelianList());
-  const [paguInfo, setPaguInfo] = useState(() => store.getPaguInfo());
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [catatan, setCatatan] = useState('');
+  // State Data dari Supabase
+  const [pembelianList, setPembelianList] = useState<any[]>([]);
+  const [dbSantriList, setDbSantriList] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const [statusMsg, setStatusMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
   const [previewBuktiModal, setPreviewBuktiModal] = useState<{ url: string; title: string } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Filter & Search Pesanan
-  const [filterStatus, setFilterStatus] = useState<'SEMUA' | 'MENUNGGU' | 'DIVERIFIKASI' | 'BATAL'>('SEMUA');
+  // Filter & Search State
+  const [filterStatus, setFilterStatus] = useState<'SEMUA' | 'MENUNGGU' | 'DIVERIFIKASI' | 'BATAL'>('MENUNGGU');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modal Tambah Manual & Verifikasi Langsung (Live Supabase DB)
+  // Modal Tambah Manual State
   const [showAddManualModal, setShowAddManualModal] = useState(false);
-  const [dbSantriList, setDbSantriList] = useState<any[]>([]);
   const [searchSantriText, setSearchSantriText] = useState('');
   const [selectedSantriKode, setSelectedSantriKode] = useState('');
   const [manualJumlah, setManualJumlah] = useState(1);
@@ -56,69 +64,138 @@ export default function VerifikasiPage() {
   const [manualCatatan, setManualCatatan] = useState('');
   const [manualKirimWa, setManualKirimWa] = useState(true);
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
-  const [sendingWaId, setSendingWaId] = useState<string | null>(null);
 
-  // Form 4-Mata untuk Refund Tunai Hari-H (§6.5 & §15)
-  const [showModalRefundTunai, setShowModalRefundTunai] = useState(false);
-  const [panitia1, setPanitia1] = useState('Ahmad Yuwafin (Bendahara)');
-  const [panitia2, setPanitia2] = useState('');
-  const [fotoTandaTangan, setFotoTandaTangan] = useState('');
-
-  const keluargaList = useMemo(() => store.getKeluargaList(), []);
-
-  // Fetch data peserta_santri riil langsung dari Supabase
-  const fetchSantriData = async () => {
+  // 1. Fetch Data dari Supabase ('pembelian_kuota' & 'peserta_santri')
+  const fetchData = async () => {
     try {
-      const { data, error } = await supabase
+      setLoadingData(true);
+      setErrorMessage(null);
+
+      // Fetch data pembelian_kuota
+      const { data: pData, error: pErr } = await supabase
+        .from('pembelian_kuota')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (pErr) {
+        console.error('Error fetching data from pembelian_kuota:', pErr);
+        setErrorMessage(`Gagal memuat data transaksi: ${pErr.message}`);
+        setPembelianList([]);
+      } else {
+        setPembelianList(pData || []);
+      }
+
+      // Fetch data peserta_santri untuk mapping profil
+      const { data: sData, error: sErr } = await supabase
         .from('peserta_santri')
         .select('*')
         .order('nama', { ascending: true });
-      if (!error && data) {
-        setDbSantriList(data);
+
+      if (sErr) {
+        console.error('Error fetching data from peserta_santri:', sErr);
+      } else if (sData) {
+        setDbSantriList(sData);
       }
-    } catch (err) {
-      console.error('Gagal mengambil data peserta_santri dari Supabase:', err);
+    } catch (err: any) {
+      console.error('Exception in fetchData verifikasi:', err);
+      setErrorMessage(`Terjadi kesalahan sistem: ${err.message || err}`);
+    } finally {
+      setLoadingData(false);
     }
   };
 
   useEffect(() => {
-    fetchSantriData();
+    fetchData();
+
+    // Subscribe Realtime ke tabel 'pembelian_kuota'
+    const channel = supabase
+      .channel('admin_verifikasi_realtime_channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pembelian_kuota' },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  useEffect(() => {
-    if (showAddManualModal) {
-      fetchSantriData();
-    }
-  }, [showAddManualModal]);
+  // Map Santri by Kode
+  const santriMap = useMemo(() => {
+    const map = new Map<string, any>();
+    dbSantriList.forEach((s) => {
+      if (s.kode) map.set(s.kode.toUpperCase(), s);
+    });
+    return map;
+  }, [dbSantriList]);
 
-  const refresh = () => {
-    store.evaluasiBatasWaktu();
-    setPembelianList([...store.getPembelianList()]);
-    setPaguInfo(store.getPaguInfo());
-  };
+  // Hitung Statistik Pagu Terjual & Sisa
+  const paguTerjual = useMemo(() => {
+    return pembelianList
+      .filter((p) => p.status === 'DIVERIFIKASI' || p.status === 'DITERIMA')
+      .reduce((acc, p) => acc + Number(p.jumlah_kursi || p.jumlah || 0), 0);
+  }, [pembelianList]);
 
-  // Auto-sync evaluator setiap 15 detik untuk memproses pesanan 6 jam dan 12 jam
-  useEffect(() => {
-    refresh();
-    const interval = setInterval(refresh, 15000);
-    return () => clearInterval(interval);
-  }, []);
+  const sisaPagu = Math.max(0, 300 - paguTerjual);
 
-  const getSisaWaktuLabel = (targetIso?: string) => {
-    if (!targetIso) return '-';
-    const diff = new Date(targetIso).getTime() - Date.now();
-    if (diff <= 0) return '0 menit (Habis)';
-    const hours = Math.floor(diff / (3600 * 1000));
-    const minutes = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
-    if (hours > 0) return `${hours}j ${minutes}m lagi`;
-    return `${minutes} menit lagi`;
-  };
+  const countMenungguVerifikasi = useMemo(() => {
+    return pembelianList.filter((p) => p.status === 'MENUNGGU_VERIFIKASI').length;
+  }, [pembelianList]);
 
-  // Filter santri real-time dari Supabase DB
+  const countMenungguPembayaran = useMemo(() => {
+    return pembelianList.filter((p) => p.status === 'MENUNGGU_PEMBAYARAN').length;
+  }, [pembelianList]);
+
+  const countDiverifikasi = useMemo(() => {
+    return pembelianList.filter((p) => p.status === 'DIVERIFIKASI' || p.status === 'DITERIMA').length;
+  }, [pembelianList]);
+
+  const countBatal = useMemo(() => {
+    return pembelianList.filter((p) => ['REFUND', 'BATAL', 'DITOLAK'].includes(p.status)).length;
+  }, [pembelianList]);
+
+  // Filter & Search List Transaksi
+  const filteredOrders = useMemo(() => {
+    return pembelianList.filter((order) => {
+      const status = order.status || '';
+
+      // Filter status tab
+      if (filterStatus === 'MENUNGGU') {
+        if (status !== 'MENUNGGU_VERIFIKASI' && status !== 'MENUNGGU_PEMBAYARAN' && status !== 'DIPESAN') return false;
+      } else if (filterStatus === 'DIVERIFIKASI') {
+        if (status !== 'DIVERIFIKASI' && status !== 'DITERIMA') return false;
+      } else if (filterStatus === 'BATAL') {
+        if (status !== 'BATAL' && status !== 'DITOLAK' && status !== 'REFUND') return false;
+      }
+
+      // Search query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const santri = santriMap.get((order.kode_santri || '').toUpperCase());
+        const idPesanan = (order.id_pesanan || order.id || '').toLowerCase();
+        const namaWali = (order.nama_wali || '').toLowerCase();
+        const kodeSantri = (order.kode_santri || '').toLowerCase();
+        const namaSantri = (santri?.nama || '').toLowerCase();
+
+        return (
+          idPesanan.includes(q) ||
+          namaWali.includes(q) ||
+          kodeSantri.includes(q) ||
+          namaSantri.includes(q)
+        );
+      }
+
+      return true;
+    });
+  }, [pembelianList, filterStatus, searchQuery, santriMap]);
+
+  // Filter santri untuk modal tambah manual
   const filteredSantriList = useMemo(() => {
-    if (!searchSantriText.trim()) {
-      return [];
-    }
+    if (!searchSantriText.trim()) return [];
     const q = searchSantriText.toLowerCase().trim();
     return dbSantriList
       .filter((s) => {
@@ -126,103 +203,132 @@ export default function VerifikasiPage() {
         const wali = (s.nama_wali || '').toLowerCase();
         const kelas = (s.kelas || '').toLowerCase();
         const kode = (s.kode || '').toLowerCase();
-        return (
-          nama.includes(q) ||
-          wali.includes(q) ||
-          kelas.includes(q) ||
-          kode.includes(q)
-        );
+        return nama.includes(q) || wali.includes(q) || kelas.includes(q) || kode.includes(q);
       })
       .slice(0, 30);
   }, [dbSantriList, searchSantriText]);
 
-  // Santri yang sedang dipilih di form manual (dari Supabase DB)
   const selectedSantri = useMemo(() => {
     if (!selectedSantriKode) return null;
     return dbSantriList.find((s) => s.kode === selectedSantriKode) || null;
   }, [dbSantriList, selectedSantriKode]);
 
-  // Filter pesanan di tabel
-  const filteredOrders = useMemo(() => {
-    return pembelianList.filter((order) => {
-      const kel = keluargaList.find((k) => k.id === order.keluargaId);
-      const santri = kel?.santri?.[0];
-
-      // Filter status
-      if (filterStatus === 'MENUNGGU') {
-        if (order.status !== 'MENUNGGU_VERIFIKASI' && order.status !== 'DIPESAN') return false;
-      } else if (filterStatus === 'DIVERIFIKASI') {
-        if (order.status !== 'DIVERIFIKASI') return false;
-      } else if (filterStatus === 'BATAL') {
-        if (order.status !== 'DIBATALKAN_REFUND' && order.status !== 'DITOLAK' && order.status !== 'KEDALUWARSA') return false;
-      }
-
-      // Search query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchId = order.id.toLowerCase().includes(q);
-        const matchWali = kel?.namaWali.toLowerCase().includes(q);
-        const matchSantri = santri?.nama.toLowerCase().includes(q);
-        const matchKode = kel?.kode.toLowerCase().includes(q);
-        return matchId || matchWali || matchSantri || matchKode;
-      }
-
-      return true;
-    });
-  }, [pembelianList, keluargaList, filterStatus, searchQuery]);
-
-  // Handler Verifikasi Langsung / Tolak
-  const handleVerifikasi = async (orderId: string, setuju: boolean) => {
+  // 2. Handler Verifikasi Transaksi (Setujui)
+  const handleVerifikasiOrder = async (item: any) => {
+    setIsProcessing(true);
     setStatusMsg(null);
-    const res = store.verifikasiPembelian(orderId, setuju, catatan);
-    if (res.ok) {
-      const order = pembelianList.find((p) => p.id === orderId);
-      const kel = keluargaList.find((k) => k.id === order?.keluargaId);
-      const santri = kel?.santri?.[0];
+
+    try {
+      const nowIso = new Date().toISOString();
+      const targetId = item.id_pesanan || item.id;
+
+      // 1. Update status pembelian_kuota ke 'DIVERIFIKASI'
+      const { error: updateOrderErr } = await supabase
+        .from('pembelian_kuota')
+        .update({
+          status: 'DIVERIFIKASI',
+          verified_at: nowIso,
+          updated_at: nowIso,
+        })
+        .eq('id_pesanan', targetId);
+
+      if (updateOrderErr) {
+        console.error('Error updating status pembelian_kuota:', updateOrderErr);
+        setStatusMsg({ tipe: 'error', text: `Gagal memverifikasi pesanan: ${updateOrderErr.message}` });
+        return;
+      }
+
+      // 2. Update kuota_tambahan di peserta_santri
+      const targetKode = item.kode_santri || item.kode;
+      const { data: currentSantri } = await supabase
+        .from('peserta_santri')
+        .select('kuota_tambahan, no_hp, nama_wali, nama')
+        .eq('kode', targetKode)
+        .maybeSingle();
+
+      const currentTambah = Number(currentSantri?.kuota_tambahan || 0);
+      const numKursi = Number(item.jumlah_kursi || item.jumlah || 1);
+      const newTambah = currentTambah + numKursi;
+
+      await supabase
+        .from('peserta_santri')
+        .update({
+          kuota_tambahan: newTambah,
+          updated_at: nowIso,
+        })
+        .eq('kode', targetKode);
+
+      // 3. Kirim Otomatis Pesan WA ke Wali Santri
+      const targetHp = currentSantri?.no_hp || item.no_hp || '';
+      if (targetHp && targetHp.length >= 9) {
+        const origin = getLiveBaseUrl();
+        const pesanWa = `*VERIFIKASI PEMBELIAN KUOTA TAMBAHAN BERHASIL*\n\n` +
+          `Assalamu'alaikum Bpk/Ibu *${item.nama_wali || currentSantri?.nama_wali || 'Wali Santri'}*,\n` +
+          `Pembayaran pesanan kuota tambahan kursi Anda (ID Pesanan: *${targetId}*) sebanyak *${numKursi} Kursi* telah *BERHASIL DIVERIFIKASI RESMI* oleh panitia.\n\n` +
+          `📋 *Detail Terkini*:\n` +
+          `• ID Pesanan: ${targetId}\n` +
+          `• Tambahan: +${numKursi} Kursi (Rp ${Number(item.total_bayar || item.totalBayar || numKursi * 80000).toLocaleString('id-ID')})\n` +
+          `• Status: *Aktif pada QR Code Santri*\n\n` +
+          `Akses Kartu Presensi Digital & QR Code:\n` +
+          `🔗 ${origin}/u/${targetKode}\n\n` +
+          `_Panitia Haul & Haflah P3TQ - MHMTQ 2027_`;
+
+        fetch('/api/whatsapp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target: targetHp,
+            message: pesanWa,
+          }),
+        }).catch((e) => console.warn('WA send error:', e));
+      }
 
       setStatusMsg({
         tipe: 'success',
-        text: setuju
-          ? `Pembayaran ${orderId} (${santri?.nama || 'Santri'}) berhasil disetujui! Kuota tambahan otomatis aktif pada QR santri.`
-          : `Pembayaran ${orderId} ditolak. Kuota telah dikembalikan ke pagu global.`,
+        text: `✓ Pesanan ${targetId} (${item.nama_wali}) BERHASIL DIVERIFIKASI! Kuota santri bertambah +${numKursi} kursi.`,
       });
-      refresh();
-      setSelectedOrder(null);
-      setCatatan('');
 
-      // Kirim konfirmasi WA ke wali santri jika disetujui
-      if (setuju && kel?.noHp && kel.noHp !== '-' && kel.noHp.length >= 9) {
-        try {
-          const totalKuota = (kel.kuota?.kuotaDasar || 2) + (kel.kuota?.kuotaTambahan || 0);
-          const pesanWali = `Assalamu'alaikum Wr. Wb.\n\n` +
-            `Yth. Bapak/Ibu *${kel.namaWali}*,\n` +
-            `Alhamdulillah, pembayaran pesanan kuota tambahan Anda untuk santri *${santri?.nama}* telah *DIVERIFIKASI RESMI* oleh Panitia.\n\n` +
-            `📋 *Rincian Status Kuota*:\n` +
-            `• ID Pesanan: ${orderId}\n` +
-            `• Tambahan: +${order?.jumlah} Kursi (Rp ${order?.totalBayar.toLocaleString('id-ID')})\n` +
-            `• Total Kuota Keluarga: *${totalKuota} Kursi*\n` +
-            `• Status: *Aktif pada QR Code Santri*\n\n` +
-            `Tautan E-Undangan & Barcode Presensi Resmi:\n` +
-            `🔗 ${getLiveBaseUrl()}/u/${kel.kode}-resmi\n\n` +
-            `Terima kasih atas partisipasi Anda.\n` +
-            `_Panitia Haul & Haflah P3TQ - MHMTQ_`;
-
-          await fetch('/api/whatsapp/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              target: kel.noHp,
-              message: pesanWali,
-            }),
-          });
-        } catch (err) {
-          console.error('Error auto-sending WA to wali:', err);
-        }
-      }
+      fetchData();
+    } catch (err: any) {
+      console.error('Exception during verification:', err);
+      setStatusMsg({ tipe: 'error', text: `Terjadi kesalahan: ${err.message || err}` });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // Handler Tambah Manual & Verifikasi Langsung
+  // 3. Handler Tolak Transaksi
+  const handleTolakOrder = async (item: any) => {
+    const targetId = item.id_pesanan || item.id;
+    if (!confirm(`Apakah Anda yakin ingin MENOLAK pesanan ${targetId} dari ${item.nama_wali}?`)) return;
+
+    setIsProcessing(true);
+    setStatusMsg(null);
+
+    try {
+      const nowIso = new Date().toISOString();
+      const { error: updateErr } = await supabase
+        .from('pembelian_kuota')
+        .update({
+          status: 'DITOLAK',
+          updated_at: nowIso,
+        })
+        .eq('id_pesanan', targetId);
+
+      if (updateErr) {
+        setStatusMsg({ tipe: 'error', text: `Gagal menolak pesanan: ${updateErr.message}` });
+      } else {
+        setStatusMsg({ tipe: 'success', text: `✓ Pesanan ${targetId} telah DITOLAK.` });
+        fetchData();
+      }
+    } catch (err: any) {
+      setStatusMsg({ tipe: 'error', text: `Terjadi kesalahan: ${err.message || err}` });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // 4. Handler Tambah Manual Panitia
   const handleSubmitTambahManual = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSantriKode || !selectedSantri) {
@@ -233,91 +339,85 @@ export default function VerifikasiPage() {
       alert('Jumlah kuota minimal 1 kursi!');
       return;
     }
-    if (manualJumlah > paguInfo.sisa) {
-      alert(`Sisa kuota global saat ini hanya ${paguInfo.sisa} unit!`);
+    if (manualJumlah > sisaPagu) {
+      alert(`Sisa kuota pagu saat ini hanya ${sisaPagu} unit!`);
       return;
     }
 
     setIsSubmittingManual(true);
+    setStatusMsg(null);
+
     try {
-      const currentTambah = Number(selectedSantri.kuota_tambahan) || 0;
-      const newTambah = currentTambah + manualJumlah;
+      const now = new Date();
+      const orderId = `KT-M${Math.floor(10000 + Math.random() * 90000)}`;
+      const statusAwal = manualLangsungVerifikasi ? 'DIVERIFIKASI' : 'MENUNGGU_VERIFIKASI';
+      const totalBayar = manualJumlah * 80000;
+      const namaWali = selectedSantri.nama_wali || selectedSantri.nama;
 
-      // 1. Direct update Supabase DB tabel 'peserta_santri'
-      const { error: updateErr } = await supabase
-        .from('peserta_santri')
-        .update({ kuota_tambahan: newTambah })
-        .eq('kode', selectedSantri.kode);
+      const newOrder = {
+        id: orderId,
+        id_pesanan: orderId,
+        kode_santri: selectedSantri.kode,
+        nama_wali: namaWali,
+        jumlah_kursi: manualJumlah,
+        total_bayar: totalBayar,
+        status: statusAwal,
+        metode: manualMetode,
+        verified_at: manualLangsungVerifikasi ? now.toISOString() : null,
+        created_at: now.toISOString(),
+        updated_at: now.toISOString(),
+      };
 
-      if (updateErr) {
-        console.error('Supabase update kuota_tambahan error:', updateErr);
-        alert(`Gagal menyimpan kuota tambahan ke Supabase: ${updateErr.message}`);
+      const { error: insertErr } = await supabase
+        .from('pembelian_kuota')
+        .insert(newOrder);
+
+      if (insertErr) {
+        console.error('Error inserting manual order:', insertErr);
+        setStatusMsg({ tipe: 'error', text: `Gagal membuat transaksi manual: ${insertErr.message}` });
         setIsSubmittingManual(false);
         return;
       }
 
-      // 2. Direct insert ke 'pembelian_kuota' jika tersedia
-      const orderId = `INV-${Math.floor(100000 + Math.random() * 900000)}`;
-      try {
-        await supabase.from('pembelian_kuota').insert([
-          {
-            id: orderId,
-            kode: selectedSantri.kode,
-            jumlah: manualJumlah,
-            metode_bayar: manualMetode,
-            total_bayar: manualJumlah * 80000,
-            status: manualLangsungVerifikasi ? 'DIVERIFIKASI' : 'MENUNGGU_VERIFIKASI',
-            catatan: manualCatatan || 'Tambah Manual Panitia',
-            created_at: new Date().toISOString(),
-          },
-        ]);
-      } catch (errP) {
-        console.warn('pembelian_kuota insert warning:', errP);
+      if (manualLangsungVerifikasi) {
+        const currentTambah = Number(selectedSantri.kuota_tambahan || 0);
+        const newTambah = currentTambah + manualJumlah;
+        await supabase
+          .from('peserta_santri')
+          .update({ kuota_tambahan: newTambah, updated_at: now.toISOString() })
+          .eq('kode', selectedSantri.kode);
       }
 
-      // 3. Sync ke DataStore lokal
-      store.rekonsiliasiKoreksiPeserta({
-        kode: selectedSantri.kode,
-        kuotaTambahan: newTambah,
-        catatanRekon: manualCatatan || 'Tambah Manual Panitia',
-      });
-
-      // 4. Kirim WhatsApp ke Wali Santri jika dicentang
+      // Kirim WA Notifikasi ke Wali jika dicentang
       if (manualKirimWa && selectedSantri.no_hp && selectedSantri.no_hp !== '-' && selectedSantri.no_hp.length >= 9) {
-        const totalBiaya = manualJumlah * 80000;
-        const totalKuota = (selectedSantri.kuota_dasar || 2) + newTambah;
-
+        const origin = getLiveBaseUrl();
         const pesanWa = manualLangsungVerifikasi
           ? `Assalamu'alaikum Wr. Wb.\n\n` +
             `Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
-            `Panitia Haul & Haflah P3TQ - MHMTQ telah menambahkan *${manualJumlah} Kuota Tambahan* secara langsung untuk santri *${selectedSantri.nama}* (${selectedSantri.kelas}).\n\n` +
+            `Panitia Haul & Haflah P3TQ - MHMTQ telah menambahkan *${manualJumlah} Kuota Tambahan* secara langsung untuk santri *${selectedSantri.nama}* (${selectedSantri.kelas || '-'}).\n\n` +
             `📋 *Rincian Status*:\n` +
+            `• ID Pesanan: ${orderId}\n` +
             `• Metode: ${manualMetode === 'TUNAI' ? 'Kas Tunai di Sekretariat' : 'Transfer Rekening BRI'}\n` +
-            `• Jumlah: +${manualJumlah} Kursi (Rp ${totalBiaya.toLocaleString('id-ID')})\n` +
-            `• Total Jatah Masuk: *${totalKuota} Kursi*\n` +
+            `• Jumlah: +${manualJumlah} Kursi (Rp ${totalBayar.toLocaleString('id-ID')})\n` +
             `• Status: *DIVERIFIKASI LANGSUNG (Aktif)*\n\n` +
-            `Silakan akses E-Undangan Anda:\n` +
-            `🔗 ${getLiveBaseUrl()}/u/${selectedSantri.kode}-resmi\n\n` +
+            `Akses E-Undangan & QR Presensi:\n` +
+            `🔗 ${origin}/u/${selectedSantri.kode}\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`
           : `Assalamu'alaikum Wr. Wb.\n\n` +
             `Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
-            `Pesanan *${manualJumlah} Kuota Tambahan* untuk santri *${selectedSantri.nama}* telah dicatat oleh Panitia.\n` +
-            `Total: Rp ${totalBiaya.toLocaleString('id-ID')}.\n` +
+            `Pesanan *${manualJumlah} Kuota Tambahan* (ID: ${orderId}) untuk santri *${selectedSantri.nama}* telah dicatat oleh Panitia.\n` +
+            `Total Tagihan: Rp ${totalBayar.toLocaleString('id-ID')}.\n` +
             `Mohon lakukan pelunasan agar kuota segera diaktifkan pada QR Code.\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`;
 
-        try {
-          await fetch('/api/whatsapp/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              target: selectedSantri.no_hp,
-              message: pesanWa,
-            }),
-          });
-        } catch (errW) {
-          console.error('Gagal kirim WA ke wali:', errW);
-        }
+        fetch('/api/whatsapp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target: selectedSantri.no_hp,
+            message: pesanWa,
+          }),
+        }).catch((errW) => console.error('Gagal kirim WA ke wali:', errW));
       }
 
       setStatusMsg({
@@ -325,13 +425,12 @@ export default function VerifikasiPage() {
         text: `✓ Berhasil menambahkan +${manualJumlah} kuota tambahan untuk ${selectedSantri.nama} (${selectedSantri.kode})!`,
       });
 
-      await fetchSantriData();
-      refresh();
       setShowAddManualModal(false);
       setSelectedSantriKode('');
       setSearchSantriText('');
       setManualJumlah(1);
       setManualCatatan('');
+      fetchData();
     } catch (err: any) {
       setStatusMsg({ tipe: 'error', text: err.message || 'Terjadi kesalahan sistem' });
     } finally {
@@ -339,976 +438,647 @@ export default function VerifikasiPage() {
     }
   };
 
-  // Handler Kirim Notif WhatsApp Manual (Tombol di Baris Tabel)
-  const handleKirimWaOrder = async (order: any, tipe: 'PANITIA' | 'WALI') => {
-    const kel = keluargaList.find((k) => k.id === order.keluargaId);
-    const santri = kel?.santri?.[0];
-    setSendingWaId(order.id);
-
-    try {
-      if (tipe === 'PANITIA') {
-        const pesan = `🔔 *PENGINGAT VERIFIKASI KUOTA TAMBAHAN*\n*Haul & Haflah P3TQ - MHMTQ*\n\n` +
-          `Yth. Panitia / Bendahara,\n` +
-          `Mohon segera ditanggapi pesanan kuota tambahan berikut:\n\n` +
-          `👤 *Wali*: ${kel?.namaWali}\n` +
-          `🧕 *Santri*: ${santri?.nama} (${santri?.kategoriUtama} - ${santri?.kelas})\n` +
-          `🎫 *Jumlah*: ${order.jumlah} Kursi\n` +
-          `💰 *Total*: Rp ${order.totalBayar.toLocaleString('id-ID')}\n` +
-          `🆔 *ID*: ${order.id}\n` +
-          `📌 *Status*: ${order.status}\n\n` +
-          `Akses Panel Verifikasi:\n` +
-          `🔗 ${getLiveBaseUrl()}/admin/verifikasi\n\n` +
-          `_Pesan Otomatis Gateway Panitia_`;
-
-        const res = await fetch('/api/whatsapp/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            target: '085181805377',
-            message: pesan,
-          }),
-        });
-        const json = await res.json();
-        if (json.ok) {
-          alert('Pesan notifikasi WhatsApp berhasil dikirim ke nomor Panitia (085181805377).');
-        } else {
-          alert(`Gateway WA respon: ${json.message || 'Gagal'}`);
-        }
-      } else {
-        if (!kel?.noHp || kel.noHp === '-' || kel.noHp.length < 9) {
-          alert(`Nomor HP wali ${kel?.namaWali} tidak tersedia.`);
-          return;
-        }
-
-        const pesan = `Assalamu'alaikum Wr. Wb.\n\n` +
-          `Yth. Bapak/Ibu *${kel?.namaWali}*,\n` +
-          `Pemberitahuan status pesanan kuota tambahan santri *${santri?.nama}*:\n` +
-          `• ID: ${order.id}\n` +
-          `• Jumlah: ${order.jumlah} Kursi (Rp ${order.totalBayar.toLocaleString('id-ID')})\n` +
-          `• Status Saat Ini: *${order.status}*\n\n` +
-          `Tautan Undangan & Pembelian:\n` +
-          `🔗 ${getLiveBaseUrl()}/beli/${kel?.kode}-resmi\n\n` +
-          `_Panitia Haul & Haflah P3TQ - MHMTQ_`;
-
-        const res = await fetch('/api/whatsapp/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            target: kel.noHp,
-            message: pesan,
-          }),
-        });
-        const json = await res.json();
-        if (json.ok) {
-          alert(`Pesan notifikasi WhatsApp berhasil dikirim ke Wali Santri (${kel.noHp}).`);
-        } else {
-          alert(`Gateway WA respon: ${json.message || 'Gagal'}`);
-        }
-      }
-    } catch (err: any) {
-      alert(`Gagal mengirim WhatsApp: ${err.message}`);
-    } finally {
-      setSendingWaId(null);
-    }
-  };
-
-  // Handler Protokol 4-Mata Refund Tunai Hari-H
-  const handleProsesRefundTunai = () => {
-    if (!panitia2.trim()) {
-      alert('Prinsip Empat Mata: Nama Panitia Inti Kedua wajib diisi sebelum mengeluarkan uang kas tunai!');
-      return;
-    }
-    if (!selectedOrder) return;
-
-    selectedOrder.catatanPanitia = `Refund tunai Rp ${selectedOrder.totalBayar.toLocaleString('id-ID')} disaksikan oleh ${panitia1} dan ${panitia2}. Bukti tanda tangan terlampir.`;
-    store.batalkanPembelian(selectedOrder.id, 'TUNAI_HARI_H');
-    refresh();
-    setShowModalRefundTunai(false);
-    setSelectedOrder(null);
-    setStatusMsg({
-      tipe: 'success',
-      text: 'Refund kas tunai berhasil diproses sesuai protokol kendali ganda empat mata.',
-    });
-  };
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4 md:space-y-6">
-      {/* Header Panel Verifikasi: Warm Latte & Cinnamon Mocha Aesthetic */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
-        {/* Baris 1: Judul, Icon, Badge & Rekening */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-          <div className="flex items-start space-x-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] border-2 border-[#8C6A47]/40 flex items-center justify-center font-bold shrink-0 mt-0.5">
-              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+    <AuthGuard allowedRoles={['ADMIN']}>
+      <div className="space-[#FAF7F3] space-y-6 selection:bg-[#8C6A47]/20 pb-20">
+        {/* HEADER LOGO & JUDUL HALAMAN */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white rounded-3xl p-6 border-2 border-[#D5C4B4] shadow-sm">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2 text-xs font-bold text-[#8C6A47] uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4 text-[#8C6A47]" />
+              <span>Panel Verifikasi Panitia</span>
             </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-2xl font-bold text-[#422F21] leading-tight">
-                  Verifikasi Mutasi &amp; Kuota Tambahan
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#EFE8E1] text-[#422F21] border border-[#D5C4B4] uppercase shrink-0">
-                  Panel Panitia
-                </span>
-              </div>
-              <p className="text-xs text-[#7A624E] mt-1 leading-relaxed">
-                Rekening Resmi: <strong>BRI 320701010266508</strong> a.n. Ahmad Chamdan Yuwafin · Pagu 300 Kursi
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Baris 2: Ringkasan Metrik (2 Kolom di Mobile, Horizontal di Desktop) & Tombol Aksi */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-1 border-t border-[#E8DFD5]">
-          {/* Metrik Pagu */}
-          <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
-            <div className="bg-[#EFE8E1] border border-[#D5C4B4] px-3.5 py-2 rounded-2xl">
-              <span className="text-[#8C6A47] block text-[10px] font-bold uppercase tracking-wide">PAGU TERJUAL</span>
-              <span className="font-black text-[#422F21] text-sm sm:text-base">
-                {paguInfo.terjual} / {paguInfo.paguTotal}
-              </span>
-            </div>
-            <div className="bg-[#EFE8E1] border border-[#D5C4B4] px-3.5 py-2 rounded-2xl">
-              <span className="text-[#8C6A47] block text-[10px] font-bold uppercase tracking-wide">SISA TERSEDIA</span>
-              <span className="font-black text-emerald-800 text-sm sm:text-base">{paguInfo.sisa} unit</span>
-            </div>
+            <h1 className="font-serif font-black text-2xl text-[#322116]">
+              Verifikasi Mutasi &amp; Kuota Tambahan
+            </h1>
+            <p className="text-xs text-stone-600">
+              Kelola verifikasi pembayaran bukti transfer, entri manual kasir, dan alokasi pagu kuota tambahan kursi.
+            </p>
           </div>
 
-          {/* Tombol Aksi (Stacked di Mobile, Inline di Desktop) */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
-            {/* Tombol Evaluasi Batas Waktu */}
-            <button
-              type="button"
-              onClick={refresh}
-              className="btn-transition px-3.5 py-2.5 rounded-2xl bg-[#EFE8E1] hover:bg-[#E5DACF] text-[#422F21] text-xs font-bold border border-[#D5C4B4] flex items-center justify-center space-x-1.5 shadow-2xs"
-              title="Periksa dan proses pesanan yang telah melewati batas 6 jam (kedaluwarsa) atau 12 jam (auto-approve)"
-            >
-              <Clock className="w-3.5 h-3.5 text-[#8C6A47]" />
-              <span>Cek Batas Waktu</span>
-            </button>
-
-            {/* Tombol Utama: Tambah Manual & Verifikasi Langsung */}
-            <button
-              type="button"
-              onClick={() => setShowAddManualModal(true)}
-              className="btn-transition px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-black text-xs shadow-md border-2 border-white flex items-center justify-center space-x-2"
-            >
-              <div className="w-5 h-5 rounded-lg bg-white/30 flex items-center justify-center text-white shrink-0">
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              </div>
-              <span className="truncate">+ Tambah Manual &amp; Verifikasi Langsung</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Alert Status Pesan */}
-      {statusMsg && (
-        <div
-          className={`p-4 rounded-2xl text-xs flex items-center justify-between space-x-3 ${
-            statusMsg.tipe === 'success'
-              ? 'bg-emerald-50 text-emerald-900 border border-emerald-300'
-              : 'bg-rose-50 text-rose-900 border border-rose-300'
-          }`}
-        >
-          <div className="flex items-center space-x-2">
-            <CheckCircle2
-              className={`w-5 h-5 shrink-0 ${
-                statusMsg.tipe === 'success' ? 'text-emerald-600' : 'text-rose-600'
-              }`}
-            />
-            <span className="font-medium leading-relaxed">{statusMsg.text}</span>
-          </div>
           <button
-            onClick={() => setStatusMsg(null)}
-            className="text-slate-400 hover:text-slate-600 font-bold px-2 py-1"
+            type="button"
+            onClick={() => setShowAddManualModal(true)}
+            className="py-3 px-5 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-2 cursor-pointer active:scale-95 shrink-0"
           >
-            ✕
+            <Plus className="w-4 h-4 text-amber-200" />
+            <span>Tambah Transaksi Manual (Kasir)</span>
           </button>
         </div>
-      )}
 
-      {/* Kontrol Filter & Pencarian Pesanan */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-[#D5C4B4] space-y-4">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Filter Status Pills dengan Horizontal Scroll di Mobile */}
-          <div className="flex items-center gap-1.5 text-xs font-semibold overflow-x-auto pb-2 md:pb-0 -mx-1 px-1 whitespace-nowrap no-scrollbar">
-            <button
-              onClick={() => setFilterStatus('SEMUA')}
-              className={`px-3.5 py-2 rounded-xl transition-all shrink-0 ${
-                filterStatus === 'SEMUA'
-                  ? 'bg-[#8C6A47] text-white shadow-sm font-bold border border-[#735334]'
-                  : 'bg-[#EFE8E1] text-[#422F21] hover:bg-[#E5DCD2]'
-              }`}
-            >
-              Semua Transaksi ({pembelianList.length})
-            </button>
-            <button
-              onClick={() => setFilterStatus('MENUNGGU')}
-              className={`px-3 py-2 rounded-xl flex items-center space-x-1.5 transition-colors shrink-0 ${
-                filterStatus === 'MENUNGGU'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>
-                Menunggu Verifikasi (
-                {
-                  pembelianList.filter((p) => p.status === 'MENUNGGU_VERIFIKASI' || p.status === 'DIPESAN').length
-                }
-                )
-              </span>
-            </button>
-            <button
-              onClick={() => setFilterStatus('DIVERIFIKASI')}
-              className={`px-3 py-2 rounded-xl flex items-center space-x-1.5 transition-colors shrink-0 ${
-                filterStatus === 'DIVERIFIKASI'
-                  ? 'bg-emerald-700 text-white shadow-sm'
-                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
-              }`}
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>
-                Diverifikasi ({pembelianList.filter((p) => p.status === 'DIVERIFIKASI').length})
-              </span>
-            </button>
-            <button
-              onClick={() => setFilterStatus('BATAL')}
-              className={`px-3 py-2 rounded-xl transition-colors shrink-0 ${
-                filterStatus === 'BATAL'
-                  ? 'bg-rose-700 text-white shadow-sm'
-                  : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'
-              }`}
-            >
-              Refund / Batal (
-              {
-                pembelianList.filter((p) => p.status === 'DIBATALKAN_REFUND' || p.status === 'DITOLAK').length
-              }
-              )
-            </button>
+        {/* RINGKASAN STATISTIK PAGU KUOTA */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] shadow-xs space-y-2">
+            <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+              PAGU TERJUAL (DIVERIFIKASI)
+            </span>
+            <div className="flex items-baseline space-x-2">
+              <span className="font-serif font-black text-3xl text-emerald-700">{paguTerjual}</span>
+              <span className="text-xs text-stone-500 font-bold">/ 300 unit</span>
+            </div>
+            <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden border border-stone-200">
+              <div
+                className="bg-emerald-600 h-full rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, (paguTerjual / 300) * 100)}%` }}
+              />
+            </div>
           </div>
 
-          {/* Search Box */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari ID, santri, atau wali..."
-              className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-700 bg-slate-50"
-            />
-            {searchQuery && (
+          <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] shadow-xs space-y-2">
+            <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+              SISA TERSEDIA
+            </span>
+            <div className="flex items-baseline space-x-2">
+              <span className="font-serif font-black text-3xl text-[#422F21]">{sisaPagu}</span>
+              <span className="text-xs text-stone-500 font-bold">unit pagu</span>
+            </div>
+            <p className="text-[11px] text-stone-500 font-medium">Kapasitas maksimal 300 kursi</p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] shadow-xs space-y-2">
+            <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+              MENUNGGU VERIFIKASI
+            </span>
+            <div className="flex items-baseline space-x-2">
+              <span className="font-serif font-black text-3xl text-sky-700">
+                {countMenungguVerifikasi}
+              </span>
+              <span className="text-xs text-stone-500 font-bold">pesanan</span>
+            </div>
+            <p className="text-[11px] text-stone-500 font-medium">Bukti transfer sudah diunggah</p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-5 border-2 border-[#E8DFD5] shadow-xs space-y-2">
+            <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+              MENUNGGU PEMBAYARAN
+            </span>
+            <div className="flex items-baseline space-x-2">
+              <span className="font-serif font-black text-3xl text-amber-700">
+                {countMenungguPembayaran}
+              </span>
+              <span className="text-xs text-stone-500 font-bold">pesanan</span>
+            </div>
+            <p className="text-[11px] text-stone-500 font-medium">Terkunci (Batas waktu 6 jam)</p>
+          </div>
+        </div>
+
+        {/* ERROR MESSAGE NOTIFICATION BANNER */}
+        {errorMessage && (
+          <div className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900 text-xs font-bold flex items-center justify-between shadow-xs">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+            <button
+              onClick={fetchData}
+              className="px-3 py-1 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        )}
+
+        {/* ALERT STATUS HASIL OPERASI */}
+        {statusMsg && (
+          <div
+            className={`p-4 rounded-2xl text-xs font-bold border flex items-center justify-between shadow-xs animate-in fade-in ${
+              statusMsg.tipe === 'success'
+                ? 'bg-emerald-50 text-emerald-950 border-emerald-300'
+                : 'bg-rose-50 text-rose-950 border-rose-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <CheckCircle2
+                className={`w-5 h-5 shrink-0 ${
+                  statusMsg.tipe === 'success' ? 'text-emerald-600' : 'text-rose-600'
+                }`}
+              />
+              <span>{statusMsg.text}</span>
+            </div>
+            <button
+              onClick={() => setStatusMsg(null)}
+              className="text-stone-400 hover:text-stone-600 font-bold px-2 py-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* KONTROL TAB FILTER & SEARCH */}
+        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-[#D5C4B4] space-y-4">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {/* Tab Filter Pills */}
+            <div className="flex items-center gap-2 text-xs font-bold overflow-x-auto pb-2 md:pb-0 whitespace-nowrap no-scrollbar">
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                onClick={() => setFilterStatus('SEMUA')}
+                className={`px-4 py-2.5 rounded-2xl transition-all shrink-0 cursor-pointer ${
+                  filterStatus === 'SEMUA'
+                    ? 'bg-[#8C6A47] text-white shadow-md'
+                    : 'bg-[#FAF7F3] text-[#422F21] hover:bg-[#EFE8E1] border border-[#D5C4B4]'
+                }`}
               >
-                ✕
+                Semua Transaksi ({pembelianList.length})
               </button>
-            )}
-          </div>
-        </div>
-
-        {/* Tabel Transaksi Kuota dengan Wrapper Scroll Horizontal */}
-        <div className="overflow-x-auto -mx-4 sm:mx-0 rounded-2xl border border-slate-200 bg-white">
-          <table className="w-full min-w-[900px] text-xs text-left">
-            <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
-              <tr>
-                <th className="py-3 px-3.5 whitespace-nowrap">ID PESANAN</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">WALI &amp; SANTRI</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">KATEGORI</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">JUMLAH</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">TOTAL</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">BUKTI / METODE</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">STATUS</th>
-                <th className="py-3 px-3.5 text-right whitespace-nowrap">AKSI VERIFIKASI &amp; WA</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
-                    Tidak ada transaksi kuota tambahan yang cocok dengan filter.
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((order) => {
-                  const kel = keluargaList.find((k) => k.id === order.keluargaId);
-                  const santri = kel?.santri?.[0];
-
-                  const isMenunggu = order.status === 'MENUNGGU_VERIFIKASI' || order.status === 'DIPESAN';
-                  const isDiverifikasi = order.status === 'DIVERIFIKASI';
-
-                  return (
-                    <tr key={order.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-3">
-                        <span className="font-mono text-slate-700 font-bold block">{order.id}</span>
-                        <span className="text-[10px] text-slate-400">
-                          {new Date(order.createdAt).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </td>
-
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-slate-900">{kel?.namaWali || 'Wali Santri'}</div>
-                        <div className="text-[11px] text-slate-600 flex items-center space-x-1">
-                          <span className="font-medium text-pesantren-900">{santri?.nama || '-'}</span>
-                          <span className="text-slate-400">({santri?.kelas || '-'})</span>
-                        </div>
-                        {kel?.noHp && kel.noHp !== '-' && (
-                          <div className="text-[10px] text-slate-400 font-mono flex items-center space-x-1 mt-0.5">
-                            <Phone className="w-2.5 h-2.5 text-emerald-600" />
-                            <span>{kel.noHp}</span>
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-3">
-                        {santri?.kategoriUtama === 'BIL_GHOIB' && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            Bil Ghoib
-                          </span>
-                        )}
-                        {santri?.kategoriUtama === 'BIN_NADZOR' && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
-                            Bin Nadzori
-                          </span>
-                        )}
-                        {santri?.kategoriUtama === 'TAMATAN' && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                            Tamatan
-                          </span>
-                        )}
-                        {!santri?.kategoriUtama && <span className="text-slate-400">-</span>}
-                      </td>
-
-                      <td className="py-3 px-3 font-bold text-slate-800">
-                        <span className="text-sm font-black text-slate-900">{order.jumlah}</span> Kursi
-                      </td>
-
-                      <td className="py-3 px-3">
-                        <div className="font-black text-slate-900">
-                          Rp {order.totalBayar.toLocaleString('id-ID')}
-                        </div>
-                        <div className="text-[10px] text-slate-400">@ Rp 80.000</div>
-                      </td>
-
-                      <td className="py-3 px-3">
-                        {order.buktiUrl ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPreviewBuktiModal({
-                                url: order.buktiUrl!,
-                                title: `Foto Bukti Transfer - ${order.id} (${kel?.namaWali || 'Wali Santri'})`,
-                              })
-                            }
-                            className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold border border-blue-200 transition-colors shadow-xs"
-                            title="Klik untuk melihat foto struk transfer langsung"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>Lihat Foto Bukti</span>
-                          </button>
-                        ) : order.catatanPanitia?.includes('TUNAI') ? (
-                          <span className="inline-flex items-center space-x-1 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                            <Banknote className="w-3 h-3" />
-                            <span>Kas Tunai</span>
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 italic text-[11px]">Belum diunggah</span>
-                        )}
-                        {order.catatanPanitia && (
-                          <div className="text-[10px] text-slate-500 truncate max-w-[150px] mt-0.5" title={order.catatanPanitia}>
-                            {order.catatanPanitia}
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-3">
-                        {order.status === 'DIVERIFIKASI' && (
-                          <div className="space-y-1">
-                            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center space-x-1 w-fit">
-                              <Check className="w-3 h-3" />
-                              <span>Diverifikasi</span>
-                            </span>
-                            {order.autoApprovedBySystem ? (
-                              <span className="inline-block text-[10px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                                Otomatis Berhasil (12 Jam)
-                              </span>
-                            ) : (
-                              <span className="inline-block text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                                Manual Panitia
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        {order.status === 'MENUNGGU_VERIFIKASI' && (
-                          <div className="space-y-1">
-                            <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center space-x-1 w-fit">
-                              <Clock className="w-3 h-3" />
-                              <span>Menunggu Mutasi</span>
-                            </span>
-                            <div className="text-[10px] text-amber-900 font-medium">
-                              Target SLA: <strong>{getSisaWaktuLabel(order.batasVerifikasiAt)}</strong>
-                            </div>
-                            <div className="text-[10px] text-slate-500">
-                              Auto-Approve: <strong>{getSisaWaktuLabel(order.autoApproveAt)}</strong>
-                            </div>
-                          </div>
-                        )}
-                        {order.status === 'DIPESAN' && (
-                          <div className="space-y-1">
-                            <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-xs flex items-center space-x-1 w-fit">
-                              <Clock className="w-3 h-3" />
-                              <span>Terkunci 6 Jam</span>
-                            </span>
-                            <div className="text-[10px] text-blue-900 font-medium">
-                              Sisa waktu: <strong>{getSisaWaktuLabel(order.kedaluwarsaAt)}</strong>
-                            </div>
-                          </div>
-                        )}
-                        {order.status === 'KEDALUWARSA' && (
-                          <div className="space-y-1">
-                            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center space-x-1 w-fit">
-                              <X className="w-3 h-3" />
-                              <span>Kedaluwarsa (6 Jam)</span>
-                            </span>
-                          </div>
-                        )}
-                        {order.status === 'DIBATALKAN_REFUND' && (
-                          <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-xs flex items-center space-x-1 w-fit">
-                            <RotateCcw className="w-3 h-3" />
-                            <span>Refund</span>
-                          </span>
-                        )}
-                        {order.status === 'DITOLAK' && (
-                          <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center space-x-1 w-fit">
-                            <X className="w-3 h-3" />
-                            <span>Ditolak</span>
-                          </span>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Aksi 1-Klik Verifikasi Langsung untuk status menunggu atau dipesan */}
-                          {isMenunggu && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => handleVerifikasi(order.id, true)}
-                                className="px-2.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold flex items-center space-x-1 shadow-sm transition-all hover:scale-105"
-                                title="Setujui dan aktifkan kuota tambahan langsung ke santri"
-                              >
-                                <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                <span>Verifikasi Langsung</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => handleVerifikasi(order.id, false)}
-                                className="p-1.5 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 border border-slate-200 transition-colors"
-                                title="Tolak Pesanan"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          )}
-
-                          {/* Tombol Notifikasi WhatsApp */}
-                          <button
-                            type="button"
-                            disabled={sendingWaId === order.id}
-                            onClick={() => handleKirimWaOrder(order, 'PANITIA')}
-                            className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition-colors"
-                            title="Kirim Notifikasi WhatsApp ke Panitia (085181805377) agar segera ditanggapi"
-                          >
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-
-                          {kel?.noHp && kel.noHp !== '-' && (
-                            <button
-                              type="button"
-                              disabled={sendingWaId === order.id}
-                              onClick={() => handleKirimWaOrder(order, 'WALI')}
-                              className="p-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 transition-colors"
-                              title={`Hubungi / Kirim WhatsApp ke Wali Santri (${kel.noHp})`}
-                            >
-                              <MessageSquare className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-
-                          {/* Tombol Refund Tunai untuk yang sudah Diverifikasi */}
-                          {isDiverifikasi && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setShowModalRefundTunai(true);
-                              }}
-                              className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-rose-700 font-bold border border-slate-200 flex items-center space-x-1 text-[11px] transition-colors"
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                              <span>Refund Tunai Hari-H</span>
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* MODAL: TAMBAH MANUAL & VERIFIKASI LANGSUNG OLEH PANITIA                   */}
-      {/* ========================================================================= */}
-      {showAddManualModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-xl w-full space-y-5 shadow-2xl border-2 border-gold-400/50 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center font-bold">
-                  <Sparkles className="w-5 h-5 text-amber-700" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-slate-900">
-                    Tambah Kuota Manual & Verifikasi Langsung
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Panitia dapat menginput kuota tambahan bagi santri & memverifikasi seketika.
-                  </p>
-                </div>
-              </div>
               <button
-                type="button"
-                onClick={() => setShowAddManualModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold"
+                onClick={() => setFilterStatus('MENUNGGU')}
+                className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
+                  filterStatus === 'MENUNGGU'
+                    ? 'bg-sky-700 text-white shadow-md'
+                    : 'bg-sky-50 text-sky-900 hover:bg-sky-100 border border-sky-300'
+                }`}
               >
-                ✕
+                <Clock className="w-3.5 h-3.5" />
+                <span>Menunggu ({countMenungguVerifikasi + countMenungguPembayaran})</span>
+              </button>
+              <button
+                onClick={() => setFilterStatus('DIVERIFIKASI')}
+                className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
+                  filterStatus === 'DIVERIFIKASI'
+                    ? 'bg-emerald-700 text-white shadow-md'
+                    : 'bg-emerald-50 text-emerald-900 hover:bg-emerald-100 border border-emerald-300'
+                }`}
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Diverifikasi ({countDiverifikasi})</span>
+              </button>
+              <button
+                onClick={() => setFilterStatus('BATAL')}
+                className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
+                  filterStatus === 'BATAL'
+                    ? 'bg-rose-700 text-white shadow-md'
+                    : 'bg-rose-50 text-rose-900 hover:bg-rose-100 border border-rose-300'
+                }`}
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Refund / Batal ({countBatal})</span>
               </button>
             </div>
 
-            <form onSubmit={handleSubmitTambahManual} className="space-y-4 text-xs">
-              {/* 1. Pilih Santri dari 549 Data Supabase */}
-              <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  1. Pilih Santri ({dbSantriList.length || 549} Data Santri Terdaftar):
-                </label>
-                <div className="relative mb-2">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchSantriText}
-                    onChange={(e) => setSearchSantriText(e.target.value)}
-                    placeholder="Ketik nama santri, nama wali, atau kelas..."
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-pesantren-700 text-xs"
-                  />
-                </div>
+            {/* Search Input */}
+            <div className="relative w-full md:w-72">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari ID pesanan, santri, wali..."
+                className="w-full pl-9 pr-8 py-2.5 text-xs rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
-                {/* Dropdown / Scroll list santri */}
-                {searchSantriText.trim() === '' ? (
-                  <div className="p-4 text-center text-slate-500 text-xs italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    🔍 Ketik nama santri, nama wali, atau kelas untuk mencari data.
-                  </div>
-                ) : filteredSantriList.length === 0 ? (
-                  <div className="p-4 text-center text-slate-500 text-xs italic bg-slate-50 rounded-xl border border-slate-200">
-                    Tidak ada data santri yang cocok dengan "{searchSantriText}".
-                  </div>
+          {/* TABEL TRANSAKSI KUOTA TAMBAHAN */}
+          <div className="overflow-x-auto rounded-2xl border border-[#E8DFD5] bg-white">
+            <table className="w-full min-w-[920px] text-xs text-left">
+              <thead className="bg-[#FAF7F3] text-[#422F21] font-serif font-black border-b border-[#D5C4B4] uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3.5 px-4 whitespace-nowrap">ID PESANAN</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">WALI &amp; SANTRI</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">KATEGORI</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">JUMLAH</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">TOTAL</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">BUKTI / METODE</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">STATUS</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">AKSI VERIFIKASI &amp; WA</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {loadingData ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-stone-500">
+                      <Loader2 className="w-7 h-7 animate-spin text-[#8C6A47] mx-auto mb-2" />
+                      <p className="font-semibold text-xs">Memuat Data Transaksi dari Supabase...</p>
+                    </td>
+                  </tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-stone-400">
+                      Tidak ada transaksi kuota tambahan yang cocok dengan filter.
+                    </td>
+                  </tr>
                 ) : (
-                  <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 divide-y divide-slate-100">
-                    {filteredSantriList.map((s) => {
-                      const isSelected = selectedSantriKode === s.kode;
-                      const kuotaAktif = (s.kuota_dasar || 2) + (s.kuota_tambahan || 0);
+                  filteredOrders.map((order) => {
+                    const santri = santriMap.get((order.kode_santri || '').toUpperCase());
+                    const orderId = order.id_pesanan || order.id || 'KT-0000';
+                    const numKursi = Number(order.jumlah_kursi || order.jumlah || 1);
+                    const totalBayar = Number(order.total_bayar || order.totalBayar || numKursi * 80000);
+                    const isMenunggu = order.status === 'MENUNGGU_VERIFIKASI' || order.status === 'MENUNGGU_PEMBAYARAN';
+                    const isDiverifikasi = order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA';
 
-                      return (
-                        <div
-                          key={s.kode}
-                          onClick={() => setSelectedSantriKode(s.kode)}
-                          className={`p-2.5 cursor-pointer flex items-center justify-between transition-colors ${
-                            isSelected ? 'bg-amber-100/90 font-bold border-l-4 border-amber-600' : 'hover:bg-slate-100'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-slate-900 font-bold">{s.nama}</span>
-                              <span className="text-[10px] text-slate-500">({s.kelas})</span>
-                              {s.kategori_utama === 'BIL_GHOIB' && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-200 text-emerald-900 font-bold">
-                                  Bil Ghoib
-                                </span>
-                              )}
-                              {s.kategori_utama === 'BIN_NADZOR' && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-blue-200 text-blue-900 font-bold">
-                                  Bin Nadzori
-                                </span>
-                              )}
-                              {s.kategori_utama === 'TAMATAN' && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-200 text-amber-900 font-bold">
-                                  Tamatan
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-[11px] text-slate-500">
-                              Wali: {s.nama_wali} · Kode: <span className="font-mono">{s.kode}</span>
-                              {s.no_hp && s.no_hp !== '-' && ` · HP: ${s.no_hp}`}
-                            </div>
+                    return (
+                      <tr key={orderId} className="hover:bg-[#FAF7F3]/70 transition-colors">
+                        {/* ID PESANAN */}
+                        <td className="py-3.5 px-4 font-mono">
+                          <span className="font-bold text-[#322116] block text-xs">{orderId}</span>
+                          <span className="text-[10px] text-stone-400 block pt-0.5">
+                            {order.created_at
+                              ? new Date(order.created_at).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })
+                              : '-'}
+                          </span>
+                        </td>
+
+                        {/* WALI & SANTRI */}
+                        <td className="py-3.5 px-4">
+                          <div className="font-bold text-[#422F21]">
+                            {order.nama_wali || santri?.nama_wali || 'Wali Santri'}
                           </div>
-
-                          <div className="text-right text-[11px] shrink-0 ml-2">
-                            <span className="text-slate-400">Kuota Saat Ini:</span>{' '}
-                            <span className="font-bold text-slate-800">{kuotaAktif} Kursi</span>
+                          <div className="text-[11px] text-stone-600 flex items-center space-x-1 pt-0.5">
+                            <span className="font-semibold text-[#8C6A47]">
+                              {santri?.nama || order.kode_santri}
+                            </span>
+                            <span className="text-stone-400">
+                              ({santri?.kelas ? `Kelas ${santri.kelas}` : order.kode_santri})
+                            </span>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                          {(santri?.no_hp || order.no_hp) && (
+                            <div className="text-[10px] text-stone-400 font-mono flex items-center space-x-1 mt-0.5">
+                              <Phone className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>{santri?.no_hp || order.no_hp}</span>
+                            </div>
+                          )}
+                        </td>
 
-                {/* Info Santri Terpilih */}
-                {selectedSantri && (
-                  <div className="mt-2.5 p-3 rounded-2xl bg-amber-50 border border-amber-300 flex items-center justify-between">
-                    <div>
-                      <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
-                        SANTRI DIPILIH:
-                      </div>
-                      <div className="text-sm font-black text-slate-900 flex items-center space-x-2">
-                        <span>{selectedSantri.nama}</span>
-                        {selectedSantri.kategori_utama === 'BIL_GHOIB' && (
-                          <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-200 text-emerald-900 font-bold">
-                            Bil Ghoib
+                        {/* KATEGORI */}
+                        <td className="py-3.5 px-4">
+                          <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF0E6] text-[#8C6A47] border border-[#D5C4B4]">
+                            {santri?.sub_kategori || santri?.kategori_utama || 'Santri'}
                           </span>
-                        )}
-                        {selectedSantri.kategori_utama === 'BIN_NADZOR' && (
-                          <span className="px-1.5 py-0.2 rounded text-[9px] bg-blue-200 text-blue-900 font-bold">
-                            Bin Nadzori
-                          </span>
-                        )}
-                        {selectedSantri.kategori_utama === 'TAMATAN' && (
-                          <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-200 text-amber-900 font-bold">
-                            Tamatan
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-slate-600">
-                        Wali: <strong>{selectedSantri.nama_wali}</strong> · Kelas: {selectedSantri.kelas}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900 block mb-1">
-                        Kode: {selectedSantri.kode}
-                      </span>
-                      <div className="text-[11px] text-slate-700">
-                        Kuota Saat Ini:{' '}
-                        <strong className="text-slate-900 font-bold">
-                          {(selectedSantri.kuota_dasar || 2) + (selectedSantri.kuota_tambahan || 0)} Kursi
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
+                        </td>
+
+                        {/* JUMLAH KURSI */}
+                        <td className="py-3.5 px-4 font-bold text-stone-800">
+                          <span className="text-sm font-serif font-black text-[#422F21]">
+                            {numKursi}
+                          </span>{' '}
+                          Kursi
+                        </td>
+
+                        {/* TOTAL BAYAR */}
+                        <td className="py-3.5 px-4">
+                          <div className="font-serif font-black text-[#322116]">
+                            Rp {totalBayar.toLocaleString('id-ID')}
+                          </div>
+                          <div className="text-[10px] text-stone-400">@ Rp 80.000</div>
+                        </td>
+
+                        {/* BUKTI / METODE */}
+                        <td className="py-3.5 px-4">
+                          {order.bukti_url || order.buktiUrl ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPreviewBuktiModal({
+                                  url: order.bukti_url || order.buktiUrl,
+                                  title: `Bukti Transfer - ${orderId} (${order.nama_wali || 'Wali'})`,
+                                })
+                              }
+                              className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-800 hover:bg-sky-100 font-bold border border-sky-300 transition-colors shadow-xs cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-sky-600" />
+                              <span>Lihat Bukti</span>
+                            </button>
+                          ) : order.metode === 'TUNAI' ? (
+                            <span className="inline-flex items-center space-x-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-300">
+                              <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Kas Tunai</span>
+                            </span>
+                          ) : (
+                            <span className="text-stone-400 italic text-[11px]">Belum diunggah</span>
+                          )}
+                        </td>
+
+                        {/* STATUS BADGE */}
+                        <td className="py-3.5 px-4">
+                          {order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA' ? (
+                            <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold text-[11px]">
+                              <Check className="w-3 h-3 text-emerald-700" />
+                              <span>Diverifikasi</span>
+                            </span>
+                          ) : order.status === 'MENUNGGU_VERIFIKASI' ? (
+                            <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-sky-100 text-sky-900 border border-sky-300 font-bold text-[11px]">
+                              <Clock className="w-3 h-3 text-sky-700 animate-pulse" />
+                              <span>Menunggu Verifikasi</span>
+                            </span>
+                          ) : order.status === 'MENUNGGU_PEMBAYARAN' ? (
+                            <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[11px]">
+                              <Clock className="w-3 h-3 text-amber-700" />
+                              <span>Menunggu Bayar</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-bold text-[11px]">
+                              <X className="w-3 h-3 text-rose-700" />
+                              <span>{order.status || 'Batal'}</span>
+                            </span>
+                          )}
+                        </td>
+
+                        {/* AKSI VERIFIKASI & WA */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Tombol Verifikasi Langsung */}
+                            {isMenunggu && (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={isProcessing}
+                                  onClick={() => handleVerifikasiOrder(order)}
+                                  className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition-all active:scale-95 cursor-pointer"
+                                  title="Verifikasi dan tambahkan kuota ke QR santri"
+                                >
+                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                  <span>Verifikasi</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={isProcessing}
+                                  onClick={() => handleTolakOrder(order)}
+                                  className="p-1.5 rounded-xl bg-stone-100 hover:bg-rose-100 text-stone-500 hover:text-rose-700 border border-stone-200 transition-colors cursor-pointer"
+                                  title="Tolak Pesanan"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+
+                            {/* Tombol WA Wali */}
+                            {(santri?.no_hp || order.no_hp) && (
+                              <a
+                                href={`https://wa.me/${(santri?.no_hp || order.no_hp).replace(/[^0-9]/g, '')}?text=Assalamu%27alaikum%20Bpk%2FIbu%20Wali%20Santri%2C%20mengenai%20pesanan%20kuota%20tambahan%20${orderId}...`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition-colors cursor-pointer"
+                                title="Hubungi Wali via WhatsApp"
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* MODAL PREVIEW BUKTI TRANSFER */}
+        {previewBuktiModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
+            onClick={() => setPreviewBuktiModal(null)}
+          >
+            <div
+              className="relative max-w-2xl w-full bg-stone-900 rounded-3xl p-4 border border-stone-700 shadow-2xl space-y-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between text-white border-b border-stone-800 pb-3 px-1">
+                <h3 className="font-serif font-bold text-sm truncate">{previewBuktiModal.title}</h3>
+                <button
+                  type="button"
+                  onClick={() => setPreviewBuktiModal(null)}
+                  className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-white flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* 2. Stepper Jumlah Kuota & Total Biaya */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
-                  <label className="block font-bold text-slate-800">
-                    2. Jumlah Kursi Tambahan:
-                  </label>
-                  <div className="flex items-center space-x-3">
+              <div className="overflow-hidden rounded-2xl bg-black flex items-center justify-center max-h-[75vh]">
+                <img
+                  src={previewBuktiModal.url}
+                  alt="Bukti Transfer"
+                  className="max-h-[75vh] w-auto object-contain mx-auto"
+                />
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <a
+                  href={previewBuktiModal.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold inline-flex items-center space-x-1.5 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Buka Gambar Ukuran Penuh</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL TAMBAH MANUAL PANITIA (KASIR) */}
+        {showAddManualModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-[#D5C4B4] space-y-5 animate-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-amber-800" />
+                  </div>
+                  <div>
+                    <h4 className="font-serif font-black text-base text-[#422F21]">
+                      Tambah Kuota Manual (Kasir)
+                    </h4>
+                    <p className="text-xs text-stone-500">Entri kuota kas tunai atau transfer panitia</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddManualModal(false)}
+                  className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmitTambahManual} className="space-y-4 text-xs">
+                {/* Cari Santri */}
+                <div className="space-y-1.5">
+                  <label className="font-bold text-[#422F21] block">Cari &amp; Pilih Santri:</label>
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={searchSantriText}
+                      onChange={(e) => {
+                        setSearchSantriText(e.target.value);
+                        setSelectedSantriKode('');
+                      }}
+                      placeholder="Ketik nama santri, wali, atau kode SHxxxx..."
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
+                    />
+                  </div>
+
+                  {/* Dropdown hasil cari santri */}
+                  {filteredSantriList.length > 0 && !selectedSantriKode && (
+                    <div className="max-h-44 overflow-y-auto border border-[#D5C4B4] rounded-xl bg-white shadow-lg divide-y divide-stone-100">
+                      {filteredSantriList.map((s) => (
+                        <button
+                          key={s.id || s.kode}
+                          type="button"
+                          onClick={() => {
+                            setSelectedSantriKode(s.kode);
+                            setSearchSantriText(`${s.nama} (${s.kode})`);
+                          }}
+                          className="w-full text-left p-2.5 hover:bg-[#FAF0E6] transition-colors flex items-center justify-between cursor-pointer"
+                        >
+                          <div>
+                            <div className="font-bold text-[#422F21]">{s.nama}</div>
+                            <div className="text-[10px] text-stone-500">
+                              Wali: {s.nama_wali || s.nama} · Kelas {s.kelas || '-'}
+                            </div>
+                          </div>
+                          <span className="font-mono text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+                            {s.kode}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedSantri && (
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-medium flex items-center justify-between">
+                      <div>
+                        <span className="font-bold block">{selectedSantri.nama}</span>
+                        <span className="text-[10px] text-emerald-800">
+                          Wali: {selectedSantri.nama_wali} · Sisa Tambahan Aktif: +{selectedSantri.kuota_tambahan || 0}
+                        </span>
+                      </div>
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Stepper Jumlah Kursi */}
+                <div className="space-y-1.5">
+                  <label className="font-bold text-[#422F21] block">Jumlah Kuota Tambahan:</label>
+                  <div className="flex items-center space-x-3 p-3 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4]">
                     <button
                       type="button"
                       onClick={() => setManualJumlah(Math.max(1, manualJumlah - 1))}
-                      className="w-9 h-9 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100"
+                      className="w-9 h-9 rounded-lg bg-white border border-stone-300 font-black text-sm cursor-pointer hover:bg-stone-100 active:scale-95"
                     >
                       −
                     </button>
-                    <span className="w-8 text-center font-black text-xl text-slate-900">
+                    <span className="font-serif font-black text-lg text-[#422F21] w-8 text-center">
                       {manualJumlah}
                     </span>
                     <button
                       type="button"
-                      onClick={() => setManualJumlah(Math.min(paguInfo.sisa, manualJumlah + 1))}
-                      className="w-9 h-9 rounded-xl bg-amber-500 text-slate-900 font-bold text-lg hover:bg-amber-600"
+                      onClick={() => setManualJumlah(manualJumlah + 1)}
+                      className="w-9 h-9 rounded-lg bg-[#8C6A47] text-white font-black text-sm cursor-pointer hover:bg-[#735334] active:scale-95"
                     >
                       +
                     </button>
-                    <span className="text-slate-500 text-[11px]">
-                      (Sisa pagu: {paguInfo.sisa})
-                    </span>
+                    <div className="flex-1 text-right text-xs">
+                      <span className="text-stone-500">Total:</span>{' '}
+                      <strong className="text-emerald-700 font-serif font-black text-sm">
+                        Rp {(manualJumlah * 80000).toLocaleString('id-ID')}
+                      </strong>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-900 text-white flex flex-col justify-center">
-                  <span className="text-[10px] text-slate-400 font-medium">TOTAL NOMINAL PEMBAYARAN:</span>
-                  <span className="text-xl font-black text-gold-400 mt-0.5">
-                    Rp {(manualJumlah * 80000).toLocaleString('id-ID')}
-                  </span>
-                  <span className="text-[10px] text-slate-400">
-                    {manualJumlah} Kursi @ Rp 80.000 / orang
-                  </span>
+                {/* Metode Pembayaran */}
+                <div className="space-y-1.5">
+                  <label className="font-bold text-[#422F21] block">Metode Pembayaran:</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setManualMetode('TUNAI')}
+                      className={`py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-center space-x-1.5 cursor-pointer ${
+                        manualMetode === 'TUNAI'
+                          ? 'bg-emerald-700 text-white border-emerald-800 shadow-sm'
+                          : 'bg-[#FAF7F3] text-stone-700 border-[#D5C4B4]'
+                      }`}
+                    >
+                      <Banknote className="w-4 h-4" />
+                      <span>Kas Tunai</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setManualMetode('TRANSFER')}
+                      className={`py-2.5 px-3 rounded-xl border font-bold text-xs flex items-center justify-center space-x-1.5 cursor-pointer ${
+                        manualMetode === 'TRANSFER'
+                          ? 'bg-emerald-700 text-white border-emerald-800 shadow-sm'
+                          : 'bg-[#FAF7F3] text-stone-700 border-[#D5C4B4]'
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      <span>Transfer BRI</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* 3. Metode Pembayaran */}
-              <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  3. Metode Pembayaran:
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <label
-                    className={`p-3 rounded-2xl border cursor-pointer flex items-center space-x-2.5 transition-all ${
-                      manualMetode === 'TUNAI'
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-950 font-bold shadow-sm'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
+                {/* Checkboxes Options */}
+                <div className="space-y-2 pt-1">
+                  <label className="flex items-center space-x-2 cursor-pointer text-xs font-semibold text-[#422F21]">
                     <input
-                      type="radio"
-                      name="metodeBayar"
-                      value="TUNAI"
-                      checked={manualMetode === 'TUNAI'}
-                      onChange={() => setManualMetode('TUNAI')}
-                      className="text-emerald-600 focus:ring-emerald-500"
+                      type="checkbox"
+                      checked={manualLangsungVerifikasi}
+                      onChange={(e) => setManualLangsungVerifikasi(e.target.checked)}
+                      className="rounded border-[#D5C4B4] text-[#8C6A47] focus:ring-[#8C6A47] w-4 h-4"
                     />
-                    <div>
-                      <div className="text-xs">💵 Uang Tunai (Kasir)</div>
-                      <div className="text-[10px] text-slate-500 font-normal">Diterima langsung di sekretariat</div>
-                    </div>
+                    <span>Langsung Verifikasi &amp; Aktifkan Kuota Santri</span>
                   </label>
 
-                  <label
-                    className={`p-3 rounded-2xl border cursor-pointer flex items-center space-x-2.5 transition-all ${
-                      manualMetode === 'TRANSFER'
-                        ? 'border-blue-500 bg-blue-50 text-blue-950 font-bold shadow-sm'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
+                  <label className="flex items-center space-x-2 cursor-pointer text-xs font-semibold text-[#422F21]">
                     <input
-                      type="radio"
-                      name="metodeBayar"
-                      value="TRANSFER"
-                      checked={manualMetode === 'TRANSFER'}
-                      onChange={() => setManualMetode('TRANSFER')}
-                      className="text-blue-600 focus:ring-blue-500"
+                      type="checkbox"
+                      checked={manualKirimWa}
+                      onChange={(e) => setManualKirimWa(e.target.checked)}
+                      className="rounded border-[#D5C4B4] text-[#8C6A47] focus:ring-[#8C6A47] w-4 h-4"
                     />
-                    <div>
-                      <div className="text-xs">💳 Transfer Bank BRI</div>
-                      <div className="text-[10px] text-slate-500 font-normal">320701010266508 a.n. Yuwafin</div>
-                    </div>
+                    <span>Kirim Notifikasi WhatsApp Konfirmasi ke Wali Santri</span>
                   </label>
                 </div>
-              </div>
 
-              {/* 4. Sakelar Verifikasi Langsung */}
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 flex items-start space-x-2.5">
-                <input
-                  type="checkbox"
-                  id="directVerifyCheck"
-                  checked={manualLangsungVerifikasi}
-                  onChange={(e) => setManualLangsungVerifikasi(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 text-emerald-700 rounded border-emerald-400 focus:ring-emerald-600"
-                />
-                <label htmlFor="directVerifyCheck" className="cursor-pointer">
-                  <div className="font-bold text-emerald-950">
-                    ✓ Langsung Verifikasi & Aktifkan Kuota Santri Seketika
-                  </div>
-                  <div className="text-[11px] text-emerald-800 leading-relaxed">
-                    Kuota santri otomatis bertambah sekarang juga pada barcode scanner dan e-undangan wali santri tanpa perlu konfirmasi ulang.
-                  </div>
-                </label>
-              </div>
-
-              {/* 5. Catatan Panitia */}
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Catatan Panitia (Opsional):
-                </label>
-                <input
-                  type="text"
-                  value={manualCatatan}
-                  onChange={(e) => setManualCatatan(e.target.value)}
-                  placeholder="Contoh: Diterima tunai oleh Ust. Yuwafin di posko pendaftaran..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium"
-                />
-              </div>
-
-              {/* 6. Kirim WhatsApp ke Wali */}
-              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center space-x-2.5">
-                <input
-                  type="checkbox"
-                  id="sendWaCheck"
-                  checked={manualKirimWa}
-                  onChange={(e) => setManualKirimWa(e.target.checked)}
-                  className="w-4 h-4 text-pesantren-700 rounded border-slate-300 focus:ring-pesantren-600"
-                />
-                <label htmlFor="sendWaCheck" className="cursor-pointer flex-1">
-                  <span className="font-bold text-slate-800">
-                    Kirim Pesan WhatsApp Otomatis ke Wali Santri
-                  </span>
-                  <span className="block text-[10px] text-slate-500">
-                    Notifikasi penambahan kuota akan dikirim ke nomor HP wali via gateway Fonnte.
-                  </span>
-                </label>
-              </div>
-
-              {/* Tombol Aksi Modal */}
-              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddManualModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-700 hover:bg-slate-100"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmittingManual || !selectedSantriKode}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pesantren-900 to-pesantren-800 hover:from-pesantren-800 hover:to-pesantren-700 text-white font-bold shadow flex items-center space-x-2 disabled:opacity-50"
-                >
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  <span>
-                    {isSubmittingManual
-                      ? 'Menyimpan...'
-                      : manualLangsungVerifikasi
-                      ? 'Simpan & Verifikasi Langsung'
-                      : 'Simpan Pesanan'}
-                  </span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL KENDALI GANDA EMPAT MATA REFUND TUNAI HARI-H (§6.5 & §15)           */}
-      {/* ========================================================================= */}
-      {showModalRefundTunai && selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl border-2 border-rose-300 animate-in zoom-in-95">
-            <div className="flex items-center space-x-2 text-rose-700">
-              <AlertTriangle className="w-5 h-5" />
-              <h3 className="font-bold text-base text-slate-900">
-                Protokol Empat Mata (Kendali Ganda Kas Tunai)
-              </h3>
-            </div>
-
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Sesuai ketetapan panitia §6.5 & §15: Pengembalian uang kas tunai di hari-H senilai{' '}
-              <strong>Rp {selectedOrder.totalBayar.toLocaleString('id-ID')}</strong> wajib dilakukan oleh minimal 2
-              orang Panitia Inti bersama-sama.
-            </p>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Panitia Inti 1:</label>
-                <input
-                  type="text"
-                  value={panitia1}
-                  disabled
-                  className="w-full px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Panitia Inti 2 (Wajib Saksi Kedua):
-                </label>
-                <input
-                  type="text"
-                  value={panitia2}
-                  onChange={(e) => setPanitia2(e.target.value)}
-                  placeholder="Ketik nama panitia inti kedua yang menyaksikan..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-rose-500"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Foto Lembar Tanda Tangan Penerima (§15):
-                </label>
-                <div className="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-center text-slate-500">
-                  <Camera className="w-5 h-5 mx-auto mb-1 text-slate-400" />
-                  <span>Foto kwitansi/tanda tangan telah dilampirkan via kamera</span>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddManualModal(false)}
+                    className="flex-1 py-3 rounded-2xl border border-[#D5C4B4] text-stone-600 hover:bg-[#FAF7F3] font-bold cursor-pointer transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingManual || !selectedSantriKode}
+                    className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 disabled:opacity-50 text-white font-bold transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+                  >
+                    {isSubmittingManual ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-amber-200" />
+                        <span>Menyimpan...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 text-amber-200" />
+                        <span>Simpan Transaksi</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowModalRefundTunai(false)}
-                className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleProsesRefundTunai}
-                className="px-5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold shadow flex items-center space-x-1"
-              >
-                <Check className="w-4 h-4" />
-                <span>Konfirmasi Pengeluaran Kas</span>
-              </button>
+              </form>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Modal Pratinjau Foto Bukti Transfer Panitia */}
-      {previewBuktiModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
-          onClick={() => setPreviewBuktiModal(null)}
-        >
-          <div
-            className="relative max-w-2xl w-full bg-white rounded-3xl p-5 space-y-4 shadow-2xl border-2 border-slate-300"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div className="font-bold text-sm text-slate-900 flex items-center space-x-2">
-                <Camera className="w-4 h-4 text-blue-600" />
-                <span>{previewBuktiModal.title}</span>
-              </div>
-              <button
-                onClick={() => setPreviewBuktiModal(null)}
-                className="p-1 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-800"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="max-h-[70vh] overflow-auto flex items-center justify-center bg-slate-50 rounded-2xl p-2 border border-slate-200">
-              <img
-                src={previewBuktiModal.url}
-                alt="Foto Bukti Transfer"
-                className="max-h-[65vh] w-auto object-contain rounded-xl shadow-sm"
-              />
-            </div>
-
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-[11px] text-slate-500 italic">
-                Panitia: Cocokkan nominal dan nama pengirim dengan rekening koran/mutasi BRI.
-              </span>
-              <button
-                onClick={() => setPreviewBuktiModal(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </AuthGuard>
   );
 }
