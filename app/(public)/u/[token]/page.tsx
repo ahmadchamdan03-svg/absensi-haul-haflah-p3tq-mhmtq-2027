@@ -37,6 +37,7 @@ import { calculateKuotaDasarSantri } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
+import HeaderUndangan from '@/components/HeaderUndangan';
 import PortalBackground from '@/components/PortalBackground';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -645,20 +646,7 @@ export default function UndanganWaliPage() {
           <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
             <ScrollReveal>
               <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 relative overflow-hidden">
-                <HeaderLogos />
-
-                <div className="space-y-1">
-                  <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
-                    UNDANGAN RESMI
-                  </div>
-                  <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
-                    Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
-                  </h1>
-                  <div className="pt-1.5">
-                    <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
-                    <p className="text-xs font-bold text-[#8C6A47] mt-1">Lirboyo Kediri</p>
-                  </div>
-                </div>
+                <HeaderUndangan titleType="UNDANGAN RESMI" />
 
                 <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
                   <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
@@ -706,18 +694,8 @@ export default function UndanganWaliPage() {
           /* KONTEN LENGKAP TAMU UNDANGAN */
           <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28">
             <ScrollReveal delay={50}>
-              <HeaderLogos />
-            </ScrollReveal>
-
-            <ScrollReveal delay={100}>
-              <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-2">
-                <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight uppercase tracking-wide">
-                  UNDANGAN RESMI
-                </h1>
-                <div className="pt-1">
-                  <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
-                  <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
-                </div>
+              <GlassCard className="p-4 sm:p-6 border-2 border-[#D5C4B4]/80 shadow-md">
+                <HeaderUndangan titleType="UNDANGAN RESMI" />
               </GlassCard>
             </ScrollReveal>
 
