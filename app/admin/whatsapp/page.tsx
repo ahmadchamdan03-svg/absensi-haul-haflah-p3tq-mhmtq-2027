@@ -41,6 +41,7 @@ export default function WhatsAppPage() {
   // =========================================================================
   const [gelombang, setGelombang] = useState<1 | 2 | 3>(1);
   const [kuotaTambahanBuka, setKuotaTambahanBuka] = useState(false);
+  const [savingKuotaConfig, setSavingKuotaConfig] = useState(false);
   const [linkGrupWa, setLinkGrupWa] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('SEMUA');
   const [filterKonfirmasi, setFilterKonfirmasi] = useState<'SEMUA' | 'BELUM' | 'SUDAH'>('SEMUA');
@@ -214,37 +215,64 @@ export default function WhatsAppPage() {
     try {
       const { data, error } = await supabase
         .from('konfigurasi_sistem')
-        .select('*')
+        .select('value')
         .eq('key', 'kuota_tambahan_status')
         .maybeSingle();
 
+      if (error) {
+        console.error('Error reading kuota_tambahan_status from Supabase:', error);
+        setKuotaTambahanBuka(false);
+        return;
+      }
+
       if (data && data.value) {
-        setKuotaTambahanBuka(Boolean(data.value.aktif));
+        let isAktif = false;
+        if (typeof data.value === 'object' && data.value !== null) {
+          isAktif = Boolean(data.value.aktif);
+        } else if (typeof data.value === 'string') {
+          isAktif = data.value === 'true' || data.value === 'TRUE';
+        } else if (typeof data.value === 'boolean') {
+          isAktif = data.value;
+        }
+        setKuotaTambahanBuka(isAktif);
+      } else {
+        setKuotaTambahanBuka(false);
       }
     } catch (err) {
       console.warn('Error fetching kuota_tambahan_status from Supabase:', err);
+      setKuotaTambahanBuka(false);
     }
   };
 
   const handleToggleKuotaSwitch = async () => {
-    const nextVal = !kuotaTambahanBuka;
-    setKuotaTambahanBuka(nextVal);
+    if (savingKuotaConfig) return;
+    const targetVal = !kuotaTambahanBuka;
+    setSavingKuotaConfig(true);
+
     try {
+      const nowIso = new Date().toISOString();
       const { error } = await supabase
         .from('konfigurasi_sistem')
         .upsert(
           {
             key: 'kuota_tambahan_status',
-            value: { aktif: nextVal },
-            updated_at: new Date().toISOString(),
+            value: { aktif: targetVal },
+            updated_at: nowIso,
           },
           { onConflict: 'key' }
         );
+
       if (error) {
-        console.error('Error updating konfigurasi_sistem:', error);
+        console.error('Error updating kuota_tambahan_status:', error);
+        alert(`⚠️ Gagal mengubah status Beli Kuota di Supabase: ${error.message || error}`);
+      } else {
+        setKuotaTambahanBuka(targetVal);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Exception toggling kuota_tambahan_status:', e);
+      alert(`⚠️ Terjadi kesalahan sistem: ${e.message || e}`);
+    } finally {
+      setSavingKuotaConfig(false);
     }
   };
 
@@ -1053,8 +1081,9 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                     <button
                       type="button"
                       onClick={handleToggleKuotaSwitch}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-slate-300'
+                      disabled={savingKuotaConfig}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${
+                        kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-[#C5B5A5]'
                       }`}
                     >
                       <span className="sr-only">Toggle Kuota Tambahan</span>
@@ -1067,12 +1096,14 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                     </button>
                     <span
                       className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                        kuotaTambahanBuka
+                        savingKuotaConfig
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                          : kuotaTambahanBuka
                           ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : 'bg-slate-100 text-slate-500 border border-slate-200'
+                          : 'bg-stone-100 text-stone-500 border border-stone-300'
                       }`}
                     >
-                      {kuotaTambahanBuka ? 'ON' : 'OFF (TUTUP)'}
+                      {savingKuotaConfig ? 'MEMPROSES...' : kuotaTambahanBuka ? 'ON' : 'OFF (TUTUP)'}
                     </span>
                   </div>
                 </div>

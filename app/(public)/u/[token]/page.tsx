@@ -383,11 +383,21 @@ export default function UndanganWaliPage() {
         const { data: configData } = await supabase
           .from('konfigurasi_sistem')
           .select('value')
-          .eq('key', 'kuota_tambahan_buka')
+          .eq('key', 'kuota_tambahan_status')
           .maybeSingle();
 
-        if (configData) {
-          setKuotaSwitchAktif(configData.value === 'true' || configData.value === true);
+        if (configData && configData.value) {
+          let isAktif = false;
+          if (typeof configData.value === 'object' && configData.value !== null) {
+            isAktif = Boolean(configData.value.aktif);
+          } else if (typeof configData.value === 'string') {
+            isAktif = configData.value === 'true' || configData.value === 'TRUE';
+          } else if (typeof configData.value === 'boolean') {
+            isAktif = configData.value;
+          }
+          setKuotaSwitchAktif(isAktif);
+        } else {
+          setKuotaSwitchAktif(false);
         }
 
         const { data: pembelianData } = await supabase
