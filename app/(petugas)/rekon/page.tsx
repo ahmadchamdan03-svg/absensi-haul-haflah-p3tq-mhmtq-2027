@@ -187,18 +187,17 @@ export default function RekonPage() {
         // Insert presensi_log
         await supabase.from('presensi_log').insert([
           {
-            kuota_id: String(d.id || d.kode),
             kode_qr: d.kode,
             nama_peserta: d.nama,
             tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
-            hasil: 'SUKSES',
             jalur: d.jalur_masuk || 'MEJA_REKONSILIASI',
             panitia_id: 'panitia-rekonsiliasi',
             jumlah_l: 1,
             jumlah_p: 0,
             jumlah_balita: 0,
             tiket_panggung: d.tiket_panggung_jatah || 0,
-            server_time: new Date().toISOString(),
+            catatan: 'Hadir via Meja Rekonsiliasi',
+            created_at: new Date().toISOString(),
           },
         ]);
 
@@ -411,16 +410,16 @@ export default function RekonPage() {
       if (walkinForm.langsungCheckin) {
         await supabase.from('presensi_log').insert([
           {
-            kuota_id: newKode,
             kode_qr: newKode,
             nama_peserta: finalNama,
             tipe_peserta: 'UNDANGAN',
-            hasil: 'SUKSES',
             jalur: walkinForm.jalurMasuk,
             panitia_id: 'panitia-rekonsiliasi',
             jumlah_l: 1,
             jumlah_p: 0,
-            server_time: new Date().toISOString(),
+            jumlah_balita: 0,
+            catatan: 'Walk-in Langsung Hadir',
+            created_at: new Date().toISOString(),
           },
         ]);
       }

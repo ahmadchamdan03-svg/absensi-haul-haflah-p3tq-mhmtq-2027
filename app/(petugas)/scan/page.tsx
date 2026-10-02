@@ -471,15 +471,17 @@ export default function ScanPage() {
         .from('presensi_log')
         .insert([
           {
-            kuota_id: activeItem.id,
-            hasil: 'SUKSES',
+            kode_qr: activeItem.kode || String(activeItem.id),
+            nama_peserta: activeItem.nama || activeItem.namaSantri || 'Peserta',
+            tipe_peserta: activeItem.tipe === 'KELUARGA' ? 'KELUARGA' : 'UNDANGAN',
             jalur: jalur,
             panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
             jumlah_l: jumlahL,
             jumlah_p: jumlahP,
             jumlah_balita: jumlahBalita,
-            tiket_panggung: isNewlyGivingGold ? 1 : 0,
-            server_time: new Date().toISOString(),
+            tiket_panggung: isNewlyGivingGold ? '1' : '0',
+            catatan: `Scan Pintu ${jalur}`,
+            created_at: new Date().toISOString(),
           },
         ]);
 

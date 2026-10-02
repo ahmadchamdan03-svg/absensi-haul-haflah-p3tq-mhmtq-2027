@@ -256,15 +256,17 @@ export default function ManajemenPesertaPage() {
 
       await supabase.from('presensi_log').insert([
         {
-          kuota_id: String(item.id || item.kode),
-          hasil: 'SUKSES',
+          kode_qr: item.kode,
+          nama_peserta: item.nama,
+          tipe_peserta: 'UNDANGAN',
           jalur: 'MEJA_TRANSIT',
           panitia_id: 'fast-track-vip',
           jumlah_l: jumlahL,
           jumlah_p: jumlahP,
           jumlah_balita: 0,
-          tiket_panggung: 0,
-          server_time: new Date().toISOString(),
+          tiket_panggung: '0',
+          catatan: 'Fast-Track VIP Checkin',
+          created_at: new Date().toISOString(),
         },
       ]);
 

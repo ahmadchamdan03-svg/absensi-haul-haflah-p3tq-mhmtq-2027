@@ -62,7 +62,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       const [resSantri, resUndangan, resLogs] = await Promise.all([
         supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
         supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
-        supabase.from('presensi_log').select('*').order('server_time', { ascending: false }),
+        supabase.from('presensi_log').select('*').order('created_at', { ascending: false }),
       ]);
 
       const santriIdSet = new Set<string>();
@@ -90,9 +90,10 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       const latestCheckinMap: Record<string, string> = {};
       if (resLogs.data) {
         for (const log of resLogs.data) {
-          const key = String(log.kuota_id || log.kode_qr || '');
-          if (key && !latestCheckinMap[key] && log.server_time) {
-            latestCheckinMap[key] = log.server_time;
+          const key = String(log.kode_qr || log.kuota_id || '');
+          const logTime = log.created_at || log.server_time || '';
+          if (key && !latestCheckinMap[key] && logTime) {
+            latestCheckinMap[key] = logTime;
           }
           if (key) loggedKeys.add(key);
 

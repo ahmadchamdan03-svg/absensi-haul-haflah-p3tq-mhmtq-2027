@@ -68,7 +68,7 @@ export default function LaporanPage() {
       const [resSantri, resTamu, resLogs] = await Promise.all([
         supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
         supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
-        supabase.from('presensi_log').select('*'),
+        supabase.from('presensi_log').select('*').order('created_at', { ascending: false }),
       ]);
 
       const rawSantri = resSantri.data || [];

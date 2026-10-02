@@ -212,15 +212,17 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
       await supabase.from('presensi_log').insert([
         {
-          kuota_id: String(u.id || u.kode),
-          hasil: 'SUKSES',
+          kode_qr: u.kode,
+          nama_peserta: u.nama,
+          tipe_peserta: 'UNDANGAN',
           jalur: 'MEJA_TRANSIT',
           panitia_id: 'penerima-tamu',
           jumlah_l: jumlahL,
           jumlah_p: jumlahP,
           jumlah_balita: 0,
-          tiket_panggung: 0,
-          server_time: new Date().toISOString(),
+          tiket_panggung: '0',
+          catatan: 'Checkin via Penerima Tamu',
+          created_at: new Date().toISOString(),
         },
       ]);
     } catch (e) {
@@ -249,7 +251,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       await supabase
         .from('presensi_log')
         .delete()
-        .eq('kuota_id', String(u.id || u.kode));
+        .eq('kode_qr', u.kode);
     } catch (e) {
       console.warn('Supabase delete presensi_log error:', e);
     }
