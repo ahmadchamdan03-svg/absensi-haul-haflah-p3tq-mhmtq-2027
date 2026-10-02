@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
+import NamaLembaga from '@/components/NamaLembaga';
 
 // Konfigurasi visual 4 tombol role
 const ROLE_BUTTONS: {
@@ -175,13 +176,12 @@ export default function LandingPortalPage() {
             <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="w-14 h-10 sm:w-16 sm:h-12 object-contain drop-shadow-sm" />
             <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
           </div>
-          <div>
+          <div className="space-y-2">
             <div className="text-[10px] sm:text-xs font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase">
               HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
             </div>
-            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight mt-1">
-              P3TQ &amp; MHMTQ Lirboyo Kediri
-            </h1>
+            <NamaLembaga align="center" size="lg" weight="black" color="text-[#322116]" />
+            <p className="text-xs font-bold text-[#8C6A47]">Lirboyo Kediri</p>
           </div>
           <p className="text-xs text-[#7A624E] max-w-md mx-auto leading-relaxed font-medium">
             Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.

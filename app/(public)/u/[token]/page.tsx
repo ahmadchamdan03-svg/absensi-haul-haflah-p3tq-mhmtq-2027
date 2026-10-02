@@ -34,6 +34,7 @@ import { formatQrPayload } from '@/lib/hmac';
 import { calculateKuotaDasarSantri } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
+import NamaLembaga from '@/components/NamaLembaga';
 
 // Helper Kategori Tamu Undangan
 function getTamuCategoryLabel(item: any): string {
@@ -563,9 +564,10 @@ export default function UndanganWaliPage() {
                 <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
                   Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
                 </h1>
-                <p className="text-xs text-[#7A624E] font-medium pt-0.5">
-                  Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) &amp; MHMTQ Lirboyo Kediri
-                </p>
+                <div className="pt-1.5">
+                  <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
+                  <p className="text-xs font-bold text-[#8C6A47] mt-1">Lirboyo Kediri</p>
+                </div>
               </div>
 
               <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
@@ -615,9 +617,10 @@ export default function UndanganWaliPage() {
               <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
                 Undangan Kehormatan
               </h1>
-              <p className="text-xs text-[#7A624E]">
-                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo Kediri
-              </p>
+              <div className="pt-1">
+                <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
+                <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
+              </div>
             </div>
 
             {/* KARTU IDENTITAS TAMU UNDANGAN */}
@@ -884,9 +887,10 @@ export default function UndanganWaliPage() {
                 Wassalamu'alaikum warahmatullahi wabarakatuh."
               </div>
 
-              <p className="text-[10px] text-stone-400">
-                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo Kediri
-              </p>
+              <div className="pt-1">
+                <NamaLembaga align="center" size="xs" weight="medium" color="text-stone-500" />
+                <p className="text-[10px] text-stone-400 mt-0.5 font-semibold">Lirboyo Kediri</p>
+              </div>
             </div>
           </div>
         )
@@ -907,9 +911,10 @@ export default function UndanganWaliPage() {
                 <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
                   Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
                 </h1>
-                <p className="text-xs text-[#7A624E] font-medium pt-0.5">
-                  P3TQ &amp; MHMTQ Lirboyo Kota Kediri
-                </p>
+                <div className="pt-1.5">
+                  <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
+                  <p className="text-xs font-bold text-[#8C6A47] mt-1">Lirboyo Kota Kediri</p>
+                </div>
               </div>
 
               <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
@@ -948,9 +953,10 @@ export default function UndanganWaliPage() {
               <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
                 Undangan Resmi Tasyakuran &amp; Dzikrul Haul
               </h1>
-              <p className="text-xs text-[#7A624E]">
-                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo Kediri
-              </p>
+              <div className="pt-1">
+                <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
+                <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
+              </div>
             </div>
 
             {/* PROFIL SANTRIWATI & WALI SANTRI */}
@@ -993,9 +999,17 @@ export default function UndanganWaliPage() {
                 Salam silaturahim kami sampaikan, semoga Bapak/Ibu/Saudara/i senantiasa berada dalam lindungan Allah SWT.
               </p>
 
-              <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-justify sm:text-center">
-                Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan Pondok Pesantren Putri Tahfizhil Qur-an &amp; Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at</strong> serta <strong>Dzikrul Haul Al-Maghfur Lahum</strong>:
-              </p>
+              <div className="space-y-2 font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-center">
+                <p>
+                  Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan</strong>:
+                </p>
+                <div className="py-1">
+                  <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
+                </div>
+                <p>
+                  serta <strong>Dzikrul Haul Al-Maghfur Lahum</strong>:
+                </p>
+              </div>
 
               <div className="p-4 rounded-2xl bg-white border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
                 <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
@@ -1364,9 +1378,10 @@ export default function UndanganWaliPage() {
 
             {/* FOOTER WALI SANTRI */}
             <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
-              <p className="font-serif font-bold text-[#422F21]">
-                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo
-              </p>
+              <div className="pt-1">
+                <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
+                <p className="text-[10px] text-stone-500 font-semibold mt-0.5">Lirboyo Kediri</p>
+              </div>
               <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
             </div>
           </div>
