@@ -537,7 +537,11 @@ export default function UndanganWaliPage() {
   const isWaliRsvpExceeded = totalInputWali > totalKuotaSantri || estL < 0 || estP < 0;
 
   const handleSimpanEstimasiWali = async () => {
-    if (!item || isWaliRsvpExceeded) return;
+    if (!item) return;
+    if (isWaliRsvpExceeded) {
+      setRsvpError(`Total konfirmasi (${totalInputWali}) melebihi kuota Anda (${totalKuotaSantri} kursi). Mohon kurangi jumlahnya.`);
+      return;
+    }
     setSavingRsvp(true);
     setRsvpError(null);
 
@@ -1245,10 +1249,10 @@ export default function UndanganWaliPage() {
               </div>
             </ScrollReveal>
 
-            {/* 5. KARTU RSVP (KONFIRMASI KEHADIRAN WALI SANTRI - PERBAIKAN 5 RAPIKAN LAYOUT) */}
+            {/* 5. KARTU RSVP (KONFIRMASI KEHADIRAN WALI SANTRI - STACK VERTIKAL & VALIDASI KETAT) */}
             <ScrollReveal delay={300}>
-              <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
+              <GlassCard className="p-4 sm:p-6 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4 bg-white/80 backdrop-blur-sm">
+                <div className="flex items-center justify-between gap-2">
                   <div className="space-y-1">
                     <h3 className="font-serif font-black text-base text-[#422F21]">
                       Konfirmasi Kehadiran (RSVP)
@@ -1264,60 +1268,91 @@ export default function UndanganWaliPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
-                    <div>
-                      <div className="text-xs md:text-sm font-bold text-[#422F21] leading-normal">Wali Laki-Laki</div>
-                      <div className="text-[10px] text-stone-500 font-medium">Zona Putra</div>
-                    </div>
-                    <div className="flex items-center space-x-1.5 sm:space-x-2">
+                {/* STACK VERTIKAL (PUTRA & PUTRI) */}
+                <div className="space-y-4 md:space-y-5 pt-1">
+                  {/* WALI SANTRI PUTRA */}
+                  <div>
+                    <p className="text-sm md:text-base font-semibold text-[#422F21] mb-2 text-left">
+                      WALI SANTRI PUTRA
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 w-full">
                       <button
                         type="button"
-                        onClick={() => setEstL(Math.max(0, estL - 1))}
-                        className="min-w-[32px] min-h-[32px] w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-stone-300 font-black text-sm text-[#422F21] cursor-pointer hover:bg-stone-100 active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                        onClick={() => setEstL((p) => Math.max(0, p - 1))}
+                        disabled={estL === 0}
+                        className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                        title="Kurangi Wali Santri Putra"
                       >
                         −
                       </button>
-                      <span className="font-serif font-black text-sm md:text-base w-6 sm:w-8 text-center text-[#422F21]">{estL}</span>
+                      <div className="h-10 rounded-lg bg-white border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
+                        {estL}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setEstL(estL + 1)}
-                        className="min-w-[32px] min-h-[32px] w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#8C6A47] text-white font-black text-sm cursor-pointer hover:bg-[#735334] active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                        onClick={() => setEstL((p) => (totalInputWali < totalKuotaSantri ? p + 1 : p))}
+                        disabled={totalInputWali >= totalKuotaSantri}
+                        className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                        title="Tambah Wali Santri Putra"
                       >
                         +
                       </button>
                     </div>
+                    <p className="text-[10px] md:text-xs italic text-stone-500 mt-1">
+                      Zona Putra
+                    </p>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
-                    <div>
-                      <div className="text-xs md:text-sm font-bold text-[#422F21] leading-normal">Wali Perempuan</div>
-                      <div className="text-[10px] text-stone-500 font-medium">Zona Putri</div>
-                    </div>
-                    <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  {/* WALI SANTRI PUTRI */}
+                  <div>
+                    <p className="text-sm md:text-base font-semibold text-[#422F21] mb-2 text-left">
+                      WALI SANTRI PUTRI
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 w-full">
                       <button
                         type="button"
-                        onClick={() => setEstP(Math.max(0, estP - 1))}
-                        className="min-w-[32px] min-h-[32px] w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-stone-300 font-black text-sm text-[#422F21] cursor-pointer hover:bg-stone-100 active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                        onClick={() => setEstP((p) => Math.max(0, p - 1))}
+                        disabled={estP === 0}
+                        className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                        title="Kurangi Wali Santri Putri"
                       >
                         −
                       </button>
-                      <span className="font-serif font-black text-sm md:text-base w-6 sm:w-8 text-center text-[#422F21]">{estP}</span>
+                      <div className="h-10 rounded-lg bg-white border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
+                        {estP}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setEstP(estP + 1)}
-                        className="min-w-[32px] min-h-[32px] w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#8C6A47] text-white font-black text-sm cursor-pointer hover:bg-[#735334] active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                        onClick={() => setEstP((p) => (totalInputWali < totalKuotaSantri ? p + 1 : p))}
+                        disabled={totalInputWali >= totalKuotaSantri}
+                        className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                        title="Tambah Wali Santri Putri"
                       >
                         +
                       </button>
                     </div>
+                    <p className="text-[10px] md:text-xs italic text-stone-500 mt-1">
+                      Zona Putri
+                    </p>
+                  </div>
+
+                  {/* INDIKATOR SISA KUOTA */}
+                  <div className="pt-1 space-y-1 border-t border-stone-100">
+                    <p className={`text-xs font-bold ${totalKuotaSantri - totalInputWali > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+                      Sisa kuota yang bisa dikonfirmasi: {totalKuotaSantri - totalInputWali} kursi
+                    </p>
+                    {totalKuotaSantri - totalInputWali === 0 && (
+                      <p className="text-xs text-rose-600 italic">
+                        Kuota konfirmasi sudah penuh.
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* ERROR INLINE SAAT JUMLAH MELEBIHI KUOTA */}
                 {isWaliRsvpExceeded && (
                   <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold text-center">
-                    ⚠️ Jumlah konfirmasi ({totalInputWali} orang) melebihi kuota Anda ({totalKuotaSantri} kursi).
+                    ⚠️ Jumlah konfirmasi ({totalInputWali} orang) melebihi kuota Anda ({totalKuotaSantri} kursi). Mohon kurangi jumlahnya.
                   </div>
                 )}
 
