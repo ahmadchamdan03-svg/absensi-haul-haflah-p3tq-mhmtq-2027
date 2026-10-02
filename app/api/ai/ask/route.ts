@@ -174,29 +174,26 @@ DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
 
 10. DENAH RESMI, TATA RUANG & POS OPERASIONAL LAPANGAN (HAFLAH 2027):
     - Orientasi: Arah Utara (U) menghadap ke KANAN denah (<- U).
-    - Akses Pintu Gerbang:
+    - Akses Pintu Gerbang & Jalur Masuk:
       * Gerbang Bola Dunia: Pintu masuk utama undangan umum & keluarga shohibul hajat (Pos Kesekretariatan Tenda Satir U Putra di barat dan Putri di timur).
       * Gerbang Selatan: Jalur masuk khusus mobil dan iringan Dzurriyyah VIP & Masyayikh.
-      * Gerbang Timur: Jalur keluar khusus mobil Dzurriyyah VIP & akses Ruang Lab.
+      * Gerbang Timur: Jalur keluar khusus mobil Dzurriyyah VIP & akses Ruang Lab / Parkir VVIP.
       * Gerbang Utara: Jalur keluar umum rombongan undangan.
-    - Tata Ruang Aula Muktamar (Gedung Utama):
-      * Panggung Utama: Menghadap ke barat aula, di belakang panggung terdapat Basecamp Akomodasi PI & Tirai Hitam. Di pojok timur terdapat Foto Syahadah.
-      * Barisan Depan VIP & VVIP:
-        - VVIP Putra (Sofa) di sisi barat & VVIP Putri (Sofa) di sisi timur, disekat Satir Rangka.
-        - VIP Putra (Kursi Elephant) di belakang Sofa VVIP Putra & VIP Putri (Kursi Elephant) di belakang Sofa VVIP Putri.
-      * Area Shohibul Hajat (Tengah Aula):
-        - Takhtiman Bil-Ghoibi (Wali Santri Bil Ghoib) di baris paling depan (Merah & Gold).
-        - Takhtiman Bin-Nazhri di belakang Bil Ghoibi (Biru & Gold).
-        - Tamatan Aliyah di area belakang tengah hingga tiang 7-8-12.
-        - Koridor Tengah: Shooting Center (jalur kamera siaran langsung).
-      * Sayap Barat & Timur Aula:
-        - Sayap Barat: Tamu Undangan Umum PA & Wali Santri SH (Putra), dilengkapi layar LED & Satir Satu.
-        - Sayap Timur: Tamu Undangan Umum PI & Wali Santri SH (Putri) samping luar, dilengkapi layar LED & Satir Double.
-        - Belakang Aula: Meja Operator (Sound, Lighting, Siaran) & Wali Santri SH (Putri).
-    - 3 Titik Lokasi Prasmanan:
-      * Prasmanan Lobi (Gedung Timur): Khusus Dzurriyyah & VVIP/VIP (disekat Satir Kayu antara Lobi PA dan PI, ada Kamar VVIP dan MCK).
-      * Prasmanan Wali Santri SH PI: Di samping timur aula dekat Gerbang Selatan.
-      * Prasmanan SH PA: Di barat daya luar aula dekat Gerbang Utara, Markas PLP, Korah-Korah, Masak Air.
+    - Panduan Jawaban Lokasi & Tempat Duduk Spesifik:
+      * Panggung Utama: Terletak di sisi Tengah Depan Aula Utama (menghadap barat aula). Di belakang panggung terdapat Basecamp Akomodasi PI & Tirai Hitam.
+      * Tamu Undangan Umum: Terletak di Sayap Utara Panggung (Putra: Sayap Kiri / Barat Panggung, Putri: Sayap Kanan / Timur Panggung).
+      * Tamu VVIP / VIP: Kursi VIP (Sofa VVIP & Kursi Elephant VIP) di Barisan Depan Kehormatan Panggung Utama.
+      * Takhtiman Bil-Ghoibi: Area Tengah Depan Panggung Utama (Nomor 4 & 5).
+      * Takhtiman Bin-Nazhri: Area Tengah Panggung / Aula Utama (Nomor 5).
+      * Tamatan Aliyah: Area Tengah-Belakang Aula (Nomor 6 & 8 Syaoqul Ahibba').
+      * Wali Santri SH Putra: Sisi Kanan Aula / Sayap Barat (Nomor 6 & 7).
+      * Wali Santri SH Putri: Sisi Kiri Aula / Sayap Timur (Nomor 10 & 11).
+      * Prasmanan Lobi (PA & PI): Area Luar Aula Sisi Utara (Gedung Lobi Utama dipisah satir PA/PI).
+      * Prasmanan Wali Santri SH PA: Sisi Barat Daya luar aula dekat Gerbang Utara & Markas PLP.
+      * Prasmanan Wali Santri SH PI: Sisi Timur luar aula dekat Gerbang Selatan & Basecamp Konsumsi.
+      * Parkir Mobil VVIP: Sisi Barat-Utara Lobi Utama (dekat Ruang LAB & Kamar VVIP).
+      * Parkiran VIP: Sisi Timur (dekat Gerbang Selatan & Pos Keamanan 4).
+      * MCK Tamu & Santri: Sisi Barat Aula (dekat Kantor Pesma & Ruang LAB) serta MCK VVIP di Gedung Lobi Utama.
     - Area Santri:
       * Terletak memanjang di sisi selatan aula, dipagari penuh dengan Satir Double yang memisahkannya secara syar'i dari Jalur Tamu Undangan PA.
     - Pos Keamanan Lapangan:
@@ -1249,26 +1246,101 @@ Wonten ingkang saget dibantu Us?`;
 
   if (
     q.includes('denah') ||
+    q.includes('peta') ||
     q.includes('tata letak') ||
-    q.includes('sofa') ||
-    q.includes('elephant') ||
-    q.includes('shooting center') ||
-    q.includes('satir double') ||
-    q.includes('pos keamanan') ||
-    q.includes('gerbang timur') ||
-    q.includes('gerbang utara') ||
-    q.includes('gerbang bola dunia')
+    q.includes('lokasi') ||
+    q.includes('posisi') ||
+    q.includes('dimana') ||
+    q.includes('di mana') ||
+    q.includes('parkir') ||
+    q.includes('mck') ||
+    q.includes('wc') ||
+    q.includes('toilet') ||
+    q.includes('prasmanan') ||
+    q.includes('panggung') ||
+    q.includes('vvip') ||
+    q.includes('vip') ||
+    q.includes('duduk')
   ) {
-    return `${headerIntro}Berdasarkan **Denah Resmi Haul & Haflah P3TQ dan MHMTQ (2026-2027)**, berikut tata ruang dan zonasi operasional lapangan:
+    if (q.includes('panggung')) {
+      return `${headerIntro}Berdasarkan **Denah Resmi Haul & Haflah 2027**:
+📍 **Panggung Utama** terletak di **Tengah Depan Aula Utama** (menghadap ke sisi barat aula).
+- Di belakang panggung terdapat **Basecamp Akomodasi PI & Tirai Hitam**.
+- Di depan panggung utama diposisikan barisan kehormatan **VVIP (Sofa)** & **VIP (Kursi Elephant)** serta area **Takhtiman Bil-Ghoibi**.
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+
+Wonten ingkang saget dibantu malih Us?`;
+    }
+
+    if (q.includes('duduk') || q.includes('posisi saya') || q.includes('saya duduk')) {
+      return `${headerIntro}Berikut panduan **Penempatan Tempat Duduk** berdasarkan Denah Resmi 2027:
+- 👑 **VVIP & VIP**: Barisan Depan Kehormatan Panggung Utama (Sofa VVIP & Kursi Elephant VIP).
+- 🌟 **Takhtiman Bil-Ghoibi**: Area Tengah Depan Panggung Utama (Merah Gold).
+- 📖 **Takhtiman Bin-Nazhri**: Area Tengah Aula Utama (Biru Gold).
+- 🎓 **Tamatan Aliyah**: Area Tengah-Belakang Aula Utama.
+- 👨 **Wali Santri SH Putra**: Sayap Barat / Kiri Aula Utama.
+- 👩 **Wali Santri SH Putri**: Sayap Timur / Kanan Aula Utama.
+- 👥 **Tamu Undangan Umum**: Sisi Utara Panggung (Putra di Sayap Barat, Putri di Sayap Timur).
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+
+Wonten ingkang saget dibantu malih Us?`;
+    }
+
+    if (q.includes('prasmanan') || q.includes('makan')) {
+      return `${headerIntro}Berdasarkan Denah Resmi 2027, terdapat **3 Titik Lokasi Prasmanan**:
+1. 👑 **Prasmanan Lobi (PA & PI)**: Gedung Lobi Utama Sisi Utara (Khusus Dzurriyyah & Tamu VVIP/VIP, dipisah satir PA/PI).
+2. 👨 **Prasmanan Wali Santri SH PA**: Sudut Barat Daya luar aula dekat Gerbang Utara & Markas PLP.
+3. 👩 **Prasmanan Wali Santri SH PI**: Sisi Timur luar aula dekat Gerbang Selatan & Basecamp Konsumsi.
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+
+Wonten ingkang saget dibantu malih Us?`;
+    }
+
+    if (q.includes('parkir')) {
+      return `${headerIntro}Berikut **Area Parkir Resmi Haflah 2027**:
+- 🚗 **Parkir Mobil VVIP**: Sisi Barat-Utara Lobi Utama (dekat Ruang LAB & Kamar VVIP).
+- 🚘 **Parkiran VIP**: Sisi Timur Lapangan (dekat Gerbang Selatan & Pos Keamanan 4).
+- 🚌 **Parkir Umum & Wali Santri**: Lapangan sebelah barat Aula Al-Muktamar Lirboyo.
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+
+Wonten ingkang saget dibantu malih Us?`;
+    }
+
+    if (q.includes('mck') || q.includes('wc') || q.includes('toilet') || q.includes('kamar mandi')) {
+      return `${headerIntro}Berikut lokasi **MCK & Kamar Mandi** terdekat:
+- 🚻 **MCK Tamu & Santri**: Sisi Barat Aula (dekat Kantor Pesma & Ruang LAB).
+- 🚾 **MCK VVIP**: Di dalam Gedung Lobi Utama (Sisi Utara Aula).
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+
+Wonten ingkang saget dibantu malih Us?`;
+    }
+
+    if (q.includes('vvip') || q.includes('jalur vvip')) {
+      return `${headerIntro}Berikut **Jalur Akses Tamu VVIP & VIP**:
+- 🚗 **Alur Masuk**: Lewat **Gerbang Timur** → Drop Point Dzurriyyah → Parkir Mobil VVIP / Gedung Lobi Utama.
+- 🪑 **Tempat Duduk**: Barisan Depan Kehormatan (Sofa VVIP & Kursi Elephant VIP).
+- 🍽️ **Prasmanan VVIP**: Lobi Utama Sisi Utara.
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+
+Wonten ingkang saget dibantu malih Us?`;
+    }
+
+    return `${headerIntro}Berdasarkan **Denah Resmi Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.**, berikut tata ruang dan zonasi operasional lapangan:
 
 ### 🗺️ Panduan Akses Gerbang & Alur:
 1. **Gerbang Bola Dunia (Selatan)**: Pintu masuk utama undangan umum & keluarga shohibul hajat. Di luar gerbang terdapat **Tenda Satir U Kesekretariatan** (Putra di barat, Putri di timur).
 2. **Gerbang Selatan**: Akses khusus masuk mobil dan iringan Dzurriyyah VIP / Masyayikh.
-3. **Gerbang Timur**: Akses keluar mobil Dzurriyyah VIP serta akses menuju Ruang LAB / Basecamp SA.
+3. **Gerbang Timur**: Akses keluar mobil Dzurriyyah VIP serta akses menuju Ruang LAB & Parkir VVIP.
 4. **Gerbang Utara**: Akses keluar umum rombongan undangan setelah acara.
 
 ### 🏛️ Zonasi Aula Muktamar (Gedung Utama):
-- **Panggung Utama**: Berada di sisi utara menghadap barat aula. Di belakang panggung terdapat Basecamp Akomodasi PI & Tirai Hitam.
+- **Panggung Utama**: Berada di sisi Tengah Depan Aula Utama (menghadap ke barat). Di belakang panggung terdapat Basecamp Akomodasi PI & Tirai Hitam.
 - **Barisan VIP Depan Panggung**:
   * **VVIP Putra (Sofa)** & **VIP Putra (Kursi Elephant)** di sayap barat.
   * **VVIP Putri (Sofa)** & **VIP Putri (Kursi Elephant)** di sayap timur. Disekat dengan **Satir Rangka**.
@@ -1289,6 +1361,8 @@ Wonten ingkang saget dibantu Us?`;
 
 ### 🧕 Area Khusus Santri:
 Terletak memanjang di sisi selatan aula, dipagari penuh dengan **Satir Double** yang memisahkannya secara syar'i dari jalur tamu undangan putra.
+
+[🗺️ Buka Denah Interaktif Haflah 2027](/denah)
 
 Wonten ingkang saget dibantu Us?`;
   }
