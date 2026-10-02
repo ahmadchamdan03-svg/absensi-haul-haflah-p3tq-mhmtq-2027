@@ -35,6 +35,7 @@ import { calculateKuotaDasarSantri } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import NamaLembaga from '@/components/NamaLembaga';
+import HeaderUndanganWali from '@/components/HeaderUndanganWali';
 
 // Helper Kategori Tamu Undangan
 function getTamuCategoryLabel(item: any): string {
@@ -902,20 +903,11 @@ export default function UndanganWaliPage() {
         !isOpened ? (
           <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 bg-[#FAF7F3]">
             <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-              <HeaderLogos />
-
-              <div className="space-y-1">
-                <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
-                  UNDANGAN RESMI WALI SANTRI
-                </div>
-                <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
-                  Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
-                </h1>
-                <div className="pt-1.5">
-                  <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
-                  <p className="text-xs font-bold text-[#8C6A47] mt-1">Lirboyo Kota Kediri</p>
-                </div>
+              <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center">
+                UNDANGAN RESMI WALI SANTRI
               </div>
+
+              <HeaderUndanganWali />
 
               <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
 
@@ -946,17 +938,12 @@ export default function UndanganWaliPage() {
         ) : (
           /* KONTEN LENGKAP UNDANGAN WALI SANTRI (TEKS FORMAT ISLAMI FORMAL TAHUN LALU) */
           <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
-            <HeaderLogos />
-
-            {/* HEADER KARTU UNDANGAN WALI */}
-            <div className="text-center space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
-                Undangan Resmi Tasyakuran &amp; Dzikrul Haul
-              </h1>
-              <div className="pt-1">
-                <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
-                <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
+            {/* HEADER KARTU UNDANGAN WALI (FORMAT HAFLAH + AKHIRUSSANAH) */}
+            <div className="bg-white rounded-3xl p-4 sm:p-6 border-2 border-[#D5C4B4] shadow-md">
+              <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
+                UNDANGAN RESMI WALI SANTRI
               </div>
+              <HeaderUndanganWali />
             </div>
 
             {/* PROFIL SANTRIWATI & WALI SANTRI */}
@@ -1353,25 +1340,33 @@ export default function UndanganWaliPage() {
               )}
             </div>
 
-            {/* TANDA TANGAN PANITIA & PENUTUP */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm text-center space-y-4 text-xs font-serif text-[#422F21]">
-              <p className="italic text-stone-600">
+            {/* TANDA TANGAN PANITIA & PENUTUP (DEWAN HARIAN PUTRI) */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
+              <p className="italic text-stone-600 leading-relaxed">
                 Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
                 Jazakumullahu khairan katsiran.
               </p>
 
-              <div className="pt-4 border-t border-stone-100 grid grid-cols-2 gap-4 max-w-md mx-auto font-bold">
-                <div>
-                  <p className="text-[10px] text-stone-500 uppercase font-sans">Ketua Panitia</p>
-                  <p className="pt-8 text-sm text-[#8C6A47]">( Bpk. Asep Darajat )</p>
+              <div className="pt-4 border-t border-[#E8DFD5] grid grid-cols-2 gap-4 max-w-md mx-auto">
+                <div className="text-center space-y-1">
+                  <p className="text-[11px] font-serif uppercase tracking-wider text-[#8C6A47] font-semibold">
+                    KETUA UMUM
+                  </p>
+                  <p className="pt-4 font-serif font-bold text-base sm:text-lg text-[#422F21]">
+                    ( Sinta Maelani )
+                  </p>
                 </div>
-                <div>
-                  <p className="text-[10px] text-stone-500 uppercase font-sans">Sekretaris Panitia</p>
-                  <p className="pt-8 text-sm text-[#8C6A47]">( Bpk. Chamdan Yuwafi )</p>
+                <div className="text-center space-y-1">
+                  <p className="text-[11px] font-serif uppercase tracking-wider text-[#8C6A47] font-semibold">
+                    SEKRETARIS UMUM
+                  </p>
+                  <p className="pt-4 font-serif font-bold text-base sm:text-lg text-[#422F21] leading-tight">
+                    ( Refi Al Izzatul Kholifah )
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-3 text-[#8C6A47] font-bold text-sm">
+              <div className="pt-3 text-[#8C6A47] font-serif italic text-xs sm:text-sm font-bold">
                 Wassalamu'alaikum Warahmatullahi Wabarakatuh
               </div>
             </div>
