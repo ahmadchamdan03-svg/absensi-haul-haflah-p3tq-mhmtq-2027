@@ -374,9 +374,10 @@ export default function UndanganWaliPage() {
     fetchInvitationData();
   }, [kodeSH, isTamuUndangan]);
 
-  // Fetch Beli Kuota Control Status
+  // Fetch Beli Kuota Control Status + Realtime Subscription
   useEffect(() => {
     if (isTamuUndangan) return;
+
     const fetchKuotaControlStatus = async () => {
       try {
         setLoadingKuotaControl(true);
@@ -419,7 +420,30 @@ export default function UndanganWaliPage() {
     };
 
     fetchKuotaControlStatus();
-  }, [isTamuUndangan]);
+
+    // Subscribe Realtime ke perubahan konfigurasi_sistem & pembelian_kuota
+    const channel = supabase
+      .channel(`kuota_control_realtime_${kodeSH}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'konfigurasi_sistem' },
+        () => {
+          fetchKuotaControlStatus();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pembelian_kuota' },
+        () => {
+          fetchKuotaControlStatus();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isTamuUndangan, kodeSH]);
 
   const handleOpenInvitation = () => {
     setIsOpened(true);
@@ -1087,26 +1111,29 @@ export default function UndanganWaliPage() {
               </div>
 
               {loadingKuotaControl ? (
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2">
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2 font-medium">
                   <Loader2 className="w-4 h-4 animate-spin text-[#8C6A47]" />
-                  <span>Memeriksa status kuota tambahan...</span>
+                  <span>Sedang memuat status kuota tambahan...</span>
                 </div>
               ) : kuotaSwitchAktif && totalDiverifikasi < 300 ? (
-                <div className="space-y-2.5">
-                  <p className="text-xs text-stone-600 leading-relaxed">
+                <div className="space-y-2.5 text-center">
+                  <p className="text-xs text-stone-600 leading-relaxed font-medium">
                     Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
                   </p>
                   <Link
                     href={`/beli/${kodeSH}`}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer border border-amber-200/40"
                   >
-                    <ShoppingBag className="w-4.5 h-4.5 text-emerald-200" />
+                    <ShoppingBag className="w-4.5 h-4.5 text-amber-200" />
                     <span>Beli Kuota Tambahan</span>
-                    <ArrowRight className="w-4.5 h-4.5 text-emerald-200" />
+                    <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
                   </Link>
+                  <p className="text-[11px] text-stone-500 font-semibold">
+                    Harga Rp 80.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
+                  </p>
                 </div>
               ) : !kuotaSwitchAktif ? (
-                <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 text-xs flex items-center space-x-2.5 font-medium">
+                <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 text-xs flex items-center space-x-2.5 font-medium">
                   <Info className="w-4.5 h-4.5 text-slate-500 shrink-0" />
                   <span>Pembelian kuota tambahan sedang ditutup.</span>
                 </div>
