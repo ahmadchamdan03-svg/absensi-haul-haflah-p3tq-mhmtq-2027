@@ -25,9 +25,11 @@ import {
   User,
   Plus,
   Minus,
+  History,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import NamaLembaga from '@/components/NamaLembaga';
+import { calculateKuotaDasarSantri } from '@/lib/types';
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -36,6 +38,28 @@ function fileToBase64(file: File): Promise<string> {
     reader.onerror = (err) => reject(err);
     reader.readAsDataURL(file);
   });
+}
+
+function formatTanggalIndo(isoString?: string) {
+  if (!isoString) return '-';
+  try {
+    const d = new Date(isoString);
+    return (
+      d.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }) +
+      ', ' +
+      d.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }) +
+      ' WIB'
+    );
+  } catch (e) {
+    return isoString;
+  }
 }
 
 export default function BeliKuotaPage() {
@@ -48,28 +72,30 @@ export default function BeliKuotaPage() {
   const [loadingSantri, setLoadingSantri] = useState(true);
 
   const [kuotaSwitchAktif, setKuotaSwitchAktif] = useState<boolean>(true);
-  const [totalDiverifikasi, setTotalDiverifikasi] = useState<number>(0);
+  const [totalDiverifikasiGlobal, setTotalDiverifikasiGlobal] = useState<number>(0);
   const [loadingControl, setLoadingControl] = useState<boolean>(true);
 
-  const [activeOrder, setActiveOrder] = useState<any | null>(null);
-  const [loadingOrder, setLoadingOrder] = useState<boolean>(true);
+  // Fitur A: Transaksi list per santri
+  const [allOrders, setAllOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState<boolean>(true);
 
   // Form State
   const [jumlahBeli, setJumlahBeli] = useState(1);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
-  // Upload State
+  // Upload State (Fitur B: Ganti Bukti)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
   const [isUploadingProof, setIsUploadingProof] = useState(false);
   const [showFullImageModal, setShowFullImageModal] = useState(false);
+  const [isChangingProof, setIsChangingProof] = useState(false);
 
   const [statusMsg, setStatusMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
   const [copiedRekening, setCopiedRekening] = useState(false);
 
-  // Countdown State
+  // Countdown State 6 Jam untuk Order MENUNGGU_PEMBAYARAN
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number; isExpired: boolean }>({
     hours: 0,
     minutes: 0,
@@ -77,7 +103,7 @@ export default function BeliKuotaPage() {
     isExpired: false,
   });
 
-  // 1. Fetch Data Santri dari Supabasepeserta_santri
+  // 1. Fetch Data Santri dari Supabase peserta_santri
   useEffect(() => {
     async function fetchSantri() {
       try {
@@ -104,7 +130,7 @@ export default function BeliKuotaPage() {
     fetchSantri();
   }, [kodeSantri]);
 
-  // 2. Fetch Control Status (Switch & Sisa Pagu)
+  // 2. Fetch Control Status (Switch & Sisa Pagu Global)
   useEffect(() => {
     async function fetchControl() {
       try {
@@ -138,7 +164,7 @@ export default function BeliKuotaPage() {
           const sumDiverifikasi = pembelianData.reduce((acc: number, p: any) => {
             return acc + Number(p.jumlah_kursi || p.jumlah || 0);
           }, 0);
-          setTotalDiverifikasi(sumDiverifikasi);
+          setTotalDiverifikasiGlobal(sumDiverifikasi);
         }
       } catch (e) {
         console.warn('Error fetching control status:', e);
@@ -149,7 +175,6 @@ export default function BeliKuotaPage() {
 
     fetchControl();
 
-    // Subscribe Realtime ke konfigurasi_sistem & pembelian_kuota
     const channel = supabase
       .channel(`beli_kuota_control_${kodeSantri}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
@@ -165,40 +190,38 @@ export default function BeliKuotaPage() {
     };
   }, [kodeSantri]);
 
-  // 3. Fetch Active Order untuk Santri Ini
-  useEffect(() => {
-    async function fetchActiveOrder() {
-      try {
-        setLoadingOrder(true);
-        const { data, error } = await supabase
-          .from('pembelian_kuota')
-          .select('*')
-          .eq('kode_santri', kodeSantri)
-          .not('status', 'in', '("BATAL","DITOLAK")')
-          .order('created_at', { ascending: false })
-          .maybeSingle();
+  // 3. Fetch All Orders untuk Santri Ini (Fitur A)
+  const fetchAllOrders = async () => {
+    try {
+      setLoadingOrders(true);
+      const { data, error } = await supabase
+        .from('pembelian_kuota')
+        .select('*')
+        .eq('kode_santri', kodeSantri)
+        .order('created_at', { ascending: false });
 
-        if (data && !error) {
-          setActiveOrder(data);
-        } else {
-          setActiveOrder(null);
-        }
-      } catch (e) {
-        console.warn('Error fetching active order:', e);
-      } finally {
-        setLoadingOrder(false);
+      if (data && !error) {
+        setAllOrders(data);
+      } else {
+        setAllOrders([]);
       }
+    } catch (e) {
+      console.warn('Error fetching all orders for santri:', e);
+    } finally {
+      setLoadingOrders(false);
     }
+  };
 
-    fetchActiveOrder();
+  useEffect(() => {
+    fetchAllOrders();
 
     const channel = supabase
-      .channel(`active_order_realtime_${kodeSantri}`)
+      .channel(`all_orders_realtime_${kodeSantri}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'pembelian_kuota', filter: `kode_santri=eq.${kodeSantri}` },
         () => {
-          fetchActiveOrder();
+          fetchAllOrders();
         }
       )
       .subscribe();
@@ -208,28 +231,40 @@ export default function BeliKuotaPage() {
     };
   }, [kodeSantri]);
 
-  // 4. Timer Countdown 6 Jam untuk Active Order
+  // Perhitungan Fitur A: Total Kuota & Deteksi Order Aktif Pending
+  const verifiedOrders = allOrders.filter((o) => o.status === 'DIVERIFIKASI' || o.status === 'DITERIMA');
+  const totalVerifiedExtraSeats = verifiedOrders.reduce((sum, o) => sum + Number(o.jumlah_kursi || 0), 0);
+  const totalVerifiedTxCount = verifiedOrders.length;
+
+  const kuotaDasar = santri ? calculateKuotaDasarSantri(santri.kategori_utama, santri.sub_kategori) : 2;
+  const totalKuotaAkhir = kuotaDasar + totalVerifiedExtraSeats;
+
+  // Active Pending Order yang memblokir pembuatan order baru
+  const activePendingOrder = allOrders.find(
+    (o) => o.status === 'MENUNGGU_PEMBAYARAN' || o.status === 'MENUNGGU_VERIFIKASI'
+  );
+
+  // 4. Timer Countdown 6 Jam untuk Active Order (MENUNGGU_PEMBAYARAN)
   useEffect(() => {
-    if (!activeOrder || !activeOrder.locked_until) return;
+    if (!activePendingOrder || activePendingOrder.status !== 'MENUNGGU_PEMBAYARAN' || !activePendingOrder.locked_until)
+      return;
 
     const updateTimer = () => {
-      const lockedTime = new Date(activeOrder.locked_until).getTime();
+      const lockedTime = new Date(activePendingOrder.locked_until).getTime();
       const nowTime = Date.now();
       const diff = lockedTime - nowTime;
 
       if (diff <= 0) {
         setTimeLeft({ hours: 0, minutes: 0, seconds: 0, isExpired: true });
 
-        // Update status ke BATAL di Supabase jika sudah lewat 6 jam & belum bayar
-        if (activeOrder.status === 'MENUNGGU_PEMBAYARAN') {
-          supabase
-            .from('pembelian_kuota')
-            .update({ status: 'BATAL', updated_at: new Date().toISOString() })
-            .eq('id_pesanan', activeOrder.id_pesanan)
-            .then(() => {
-              setActiveOrder((prev: any) => (prev ? { ...prev, status: 'BATAL' } : null));
-            });
-        }
+        // Update status ke BATAL jika lewat 6 jam & belum bayar
+        supabase
+          .from('pembelian_kuota')
+          .update({ status: 'BATAL', updated_at: new Date().toISOString() })
+          .eq('id_pesanan', activePendingOrder.id_pesanan)
+          .then(() => {
+            fetchAllOrders();
+          });
       } else {
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
@@ -241,7 +276,7 @@ export default function BeliKuotaPage() {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [activeOrder]);
+  }, [activePendingOrder]);
 
   // Handler Salin Nomor Rekening
   const handleCopyRekening = () => {
@@ -252,7 +287,7 @@ export default function BeliKuotaPage() {
     }
   };
 
-  // Handler Pilih Gambar Bukti Transfer
+  // Handler Pilih Gambar Bukti Transfer (Fitur B)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -278,9 +313,17 @@ export default function BeliKuotaPage() {
     }
   };
 
-  // Handler Kunci Pesanan Kuota Baru
+  // Handler Kunci Pesanan Kuota Baru (Fitur A: Pembelian Berulang)
   const handleKunciPesanan = async () => {
     if (!santri) return;
+    if (activePendingOrder) {
+      setStatusMsg({
+        tipe: 'error',
+        text: `Anda masih memiliki pesanan (${activePendingOrder.id_pesanan}) yang sedang diproses. Selesaikan dulu atau tunggu verifikasi panitia.`,
+      });
+      return;
+    }
+
     setIsSubmittingOrder(true);
     setStatusMsg(null);
 
@@ -316,18 +359,20 @@ export default function BeliKuotaPage() {
         return;
       }
 
-      setActiveOrder(newOrder);
       setStatusMsg({
         tipe: 'success',
         text: '✓ Pesanan berhasil dikunci selama 6 jam! Silakan lakukan transfer BRI dan unggah bukti pembayaran.',
       });
+
+      fetchAllOrders();
 
       // Kirim WA Notifikasi ke Wali Santri jika ada nomor HP
       const noHpWali = santri.no_hp || santri.no_hp_wali || '';
       if (noHpWali) {
         try {
           const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haflahp3tq.site';
-          const pesanWali = `*PESANAN KUOTA TAMBAHAN HAFLAH P3TQ - MHMTQ 1448 H.*\n\n` +
+          const pesanWali =
+            `*PESANAN KUOTA TAMBAHAN HAFLAH P3TQ - MHMTQ 1448 H.*\n\n` +
             `Assalamu'alaikum Bpk/Ibu ${namaWali},\n` +
             `Pesanan kuota tambahan kursi Anda telah berhasil dikunci:\n\n` +
             `• ID Pesanan: *${orderId}*\n` +
@@ -362,13 +407,13 @@ export default function BeliKuotaPage() {
     }
   };
 
-  // Handler Upload Bukti Pembayaran
+  // Handler Upload / Ganti Bukti Transfer (Fitur B)
   const handleUploadProof = async () => {
     if (!selectedFile && !selectedImage) {
       setStatusMsg({ tipe: 'error', text: 'Silakan pilih foto atau file bukti transfer terlebih dahulu.' });
       return;
     }
-    if (!activeOrder) return;
+    if (!activePendingOrder) return;
 
     setIsUploadingProof(true);
     setStatusMsg(null);
@@ -378,7 +423,7 @@ export default function BeliKuotaPage() {
 
       if (selectedFile) {
         const fileExt = selectedFile.name.split('.').pop() || 'jpg';
-        const fileName = `bukti_${activeOrder.id_pesanan}_${Date.now()}.${fileExt}`;
+        const fileName = `bukti_${activePendingOrder.id_pesanan}_${Date.now()}.${fileExt}`;
 
         const { data: uploadData, error: uploadErr } = await supabase.storage
           .from('bukti-pembayaran')
@@ -405,22 +450,21 @@ export default function BeliKuotaPage() {
           uploaded_at: nowIso,
           updated_at: nowIso,
         })
-        .eq('id_pesanan', activeOrder.id_pesanan);
+        .eq('id_pesanan', activePendingOrder.id_pesanan);
 
       if (updateErr) {
         console.error('Error updating status in Supabase:', updateErr);
         setStatusMsg({ tipe: 'error', text: `Gagal memperbarui database: ${updateErr.message}` });
       } else {
-        setActiveOrder((prev: any) => ({
-          ...prev,
-          status: 'MENUNGGU_VERIFIKASI',
-          bukti_url: publicUrl,
-          uploaded_at: nowIso,
-        }));
+        setSelectedFile(null);
+        setSelectedImage(null);
+        setSelectedFileName('');
+        setIsChangingProof(false);
         setStatusMsg({
           tipe: 'success',
-          text: '✓ Bukti transfer berhasil diunggah! Pesanan Anda kini menunggu verifikasi panitia.',
+          text: '✓ Bukti transfer berhasil diunggah/diperbarui! Pesanan Anda kini menunggu verifikasi panitia.',
         });
+        fetchAllOrders();
       }
     } catch (e: any) {
       console.error('Exception uploading proof:', e);
@@ -430,12 +474,12 @@ export default function BeliKuotaPage() {
     }
   };
 
-  const sisaPagu = Math.max(0, 300 - totalDiverifikasi);
+  const sisaPaguGlobal = Math.max(0, 300 - totalDiverifikasiGlobal);
 
   // ---------------------------------------------------------------------------
   // STATE LOADING / ERROR VIEW
   // ---------------------------------------------------------------------------
-  if (loadingSantri || loadingControl || loadingOrder) {
+  if (loadingSantri || loadingControl || loadingOrders) {
     return (
       <div className="min-h-screen bg-[#FAF7F3] text-[#422F21] flex flex-col items-center justify-center p-6">
         <div className="bg-white rounded-3xl p-8 border-2 border-[#D5C4B4] shadow-xl text-center space-y-4 max-w-sm w-full">
@@ -522,12 +566,35 @@ export default function BeliKuotaPage() {
             </div>
             <div className="p-2.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5]">
               <span className="text-stone-500 text-[10px] uppercase font-bold block">Kelas / Kamar:</span>
-              <p className="font-bold text-[#422F21] truncate">{santri.kelas || '-'} / Kamar {santri.kamar || '-'}</p>
+              <p className="font-bold text-[#422F21] truncate">
+                {santri.kelas || '-'} / Kamar {santri.kamar || '-'}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* NOTIFIKASI STATUS PADA HALAMAN */}
+        {/* FITUR A: BANNER RINGKASAN KUOTA TAMBAHAN SANTRI */}
+        <div className="bg-emerald-50 rounded-3xl p-5 border-2 border-emerald-200 shadow-xs space-y-2 text-xs">
+          <div className="flex items-center space-x-2 text-emerald-900 font-bold">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span>Informasi Kuota Santri Saat Ini</span>
+          </div>
+          <p className="text-emerald-950 font-medium leading-relaxed">
+            Anda telah memiliki{' '}
+            <strong className="font-serif font-black text-sm text-emerald-800">
+              {totalVerifiedExtraSeats} kursi tambahan
+            </strong>{' '}
+            (dari {totalVerifiedTxCount} transaksi terverifikasi).
+          </p>
+          <div className="p-3 bg-white/80 rounded-2xl border border-emerald-200 flex items-center justify-between text-xs">
+            <span className="text-stone-600 font-semibold">Total Kuota Akhir Anda:</span>
+            <span className="font-serif font-black text-base text-emerald-800">
+              {totalKuotaAkhir} Kursi ({kuotaDasar} dasar + {totalVerifiedExtraSeats} tambahan)
+            </span>
+          </div>
+        </div>
+
+        {/* NOTIFIKASI STATUS OPERASI */}
         {statusMsg && (
           <div
             className={`p-4 rounded-2xl text-xs font-bold border flex items-center space-x-2.5 animate-in fade-in ${
@@ -545,10 +612,25 @@ export default function BeliKuotaPage() {
           </div>
         )}
 
+        {/* FITUR A BLOKIR: Peringatan Jika Masih Ada Pesanan Pending */}
+        {activePendingOrder && (
+          <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-xs font-bold flex items-start space-x-2.5">
+            <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <span>Pesanan Anda Masih Dalam Proses</span>
+              <p className="text-[11px] font-normal text-amber-900 leading-relaxed">
+                Anda masih memiliki pesanan yang sedang diproses (ID Pesanan:{' '}
+                <strong>{activePendingOrder.id_pesanan}</strong>). Selesaikan dulu atau tunggu hasil verifikasi panitia
+                sebelum melakukan pembelian baru.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ===================================================================== */}
         {/* SKENARIO A: FITUR DITUTUP PANITIA / KUOTA HABIS                       */}
         {/* ===================================================================== */}
-        {!kuotaSwitchAktif && (!activeOrder || activeOrder.status === 'BATAL') ? (
+        {!kuotaSwitchAktif && !activePendingOrder ? (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-stone-300 shadow-md text-center space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-stone-100 text-stone-600 border border-stone-300 flex items-center justify-center mx-auto">
               <Info className="w-6 h-6" />
@@ -558,62 +640,54 @@ export default function BeliKuotaPage() {
                 Pembelian Kuota Tambahan Sedang Ditutup
               </h3>
               <p className="text-xs text-stone-600 leading-relaxed">
-                Panitia belum memuka atau sedang menutup akses pembelian kuota tambahan kursi saat ini. Silakan berkonsultasi dengan panitia atau menunggu info resmi berikutnya.
+                Panitia belum membuka atau sedang menutup akses pembelian kuota tambahan kursi saat ini. Silakan berkonsultasi dengan panitia atau menunggu info resmi berikutnya.
               </p>
             </div>
           </div>
-        ) : sisaPagu <= 0 && (!activeOrder || activeOrder.status === 'BATAL') ? (
+        ) : sisaPaguGlobal <= 0 && !activePendingOrder ? (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-amber-300 shadow-md text-center space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6" />
             </div>
             <div className="space-y-1">
               <h3 className="font-serif font-black text-base text-amber-950">
-                Kuota Tambahan Sudah Habis
+                Kuota Tambahan Pagu Nasional Sudah Habis
               </h3>
               <p className="text-xs text-amber-900 leading-relaxed">
                 Total pagu kuota tambahan kursi sebanyak <strong>300 kursi</strong> telah terisi penuh (300/300 unit).
               </p>
             </div>
           </div>
-        ) : activeOrder && activeOrder.status !== 'BATAL' ? (
+        ) : activePendingOrder ? (
           /* ===================================================================== */
-          /* SKENARIO B: PESANAN AKTIF (KONFIRMASI BAYAR & UPLOAD BUKTI)           */
+          /* SKENARIO B: PESANAN AKTIF PENDING (TRANSFER & BUKTI / GANTI BUKTI)    */
           /* ===================================================================== */
           <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-xl space-y-6">
             {/* Header Status Pesanan Aktif */}
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div>
-                <span className="text-[10px] text-stone-500 font-bold uppercase block">ID PESANAN KUOTA:</span>
-                <h3 className="font-serif font-black text-xl text-[#322116]">{activeOrder.id_pesanan}</h3>
+                <span className="text-[10px] text-stone-500 font-bold uppercase block">ID PESANAN AKTIF:</span>
+                <h3 className="font-serif font-black text-xl text-[#322116]">{activePendingOrder.id_pesanan}</h3>
               </div>
 
               <div className="text-right">
                 <span className="text-[10px] text-stone-500 font-bold uppercase block">STATUS PESANAN:</span>
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase border ${
-                    activeOrder.status === 'DIVERIFIKASI' || activeOrder.status === 'DITERIMA'
-                      ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                      : activeOrder.status === 'MENUNGGU_VERIFIKASI'
+                    activePendingOrder.status === 'MENUNGGU_VERIFIKASI'
                       ? 'bg-sky-100 text-sky-900 border-sky-300'
-                      : activeOrder.status === 'DITOLAK'
-                      ? 'bg-rose-100 text-rose-900 border-rose-300'
                       : 'bg-amber-100 text-amber-900 border-amber-300'
                   }`}
                 >
-                  {activeOrder.status === 'DIVERIFIKASI' || activeOrder.status === 'DITERIMA'
-                    ? '✓ Terverifikasi'
-                    : activeOrder.status === 'MENUNGGU_VERIFIKASI'
+                  {activePendingOrder.status === 'MENUNGGU_VERIFIKASI'
                     ? '⏳ Menunggu Verifikasi'
-                    : activeOrder.status === 'DITOLAK'
-                    ? '✕ Ditolak'
                     : '💳 Menunggu Pembayaran'}
                 </span>
               </div>
             </div>
 
             {/* TIMER COUNTDOWN 6 JAM */}
-            {activeOrder.status === 'MENUNGGU_PEMBAYARAN' && (
+            {activePendingOrder.status === 'MENUNGGU_PEMBAYARAN' && (
               <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-center space-y-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
                   SISA WAKTU MENGUNCI PESANAN (6 JAM)
@@ -631,11 +705,11 @@ export default function BeliKuotaPage() {
               </div>
             )}
 
-            {/* DETAIL ALOKASI & TOTAL HARGAS */}
+            {/* DETAIL ALOKASI & TOTAL HARGA */}
             <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-stone-600">Jumlah Kursi Tambahan:</span>
-                <strong className="text-[#422F21]">{activeOrder.jumlah_kursi} Kursi</strong>
+                <strong className="text-[#422F21]">{activePendingOrder.jumlah_kursi} Kursi</strong>
               </div>
               <div className="flex justify-between">
                 <span className="text-stone-600">Harga per Kursi:</span>
@@ -644,7 +718,7 @@ export default function BeliKuotaPage() {
               <div className="flex justify-between pt-2 border-t border-[#D5C4B4] text-sm font-bold text-[#422F21]">
                 <span>Total Wajib Transfer:</span>
                 <span className="text-emerald-700 font-black text-base">
-                  Rp {Number(activeOrder.total_bayar).toLocaleString('id-ID')}
+                  Rp {Number(activePendingOrder.total_bayar).toLocaleString('id-ID')}
                 </span>
               </div>
             </div>
@@ -691,11 +765,27 @@ export default function BeliKuotaPage() {
               </div>
             </div>
 
-            {/* FORM UPLOAD BUKTI TRANSFER */}
+            {/* FORM UPLOAD / GANTI BUKTI TRANSFER (FITUR B) */}
             <div className="space-y-3 pt-2">
-              <label className="block text-xs font-bold text-[#422F21]">
-                Unggah Foto Bukti Transfer:
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#422F21]">
+                  Foto Bukti Transfer Pembayaran:
+                </label>
+                {activePendingOrder.status === 'MENUNGGU_VERIFIKASI' && !isChangingProof && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsChangingProof(true);
+                      setSelectedFile(null);
+                      setSelectedImage(null);
+                    }}
+                    className="text-[11px] font-bold text-[#8C6A47] hover:underline inline-flex items-center space-x-1"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Ganti Bukti Transfer</span>
+                  </button>
+                )}
+              </div>
 
               {/* INPUT FILE HIDDEN */}
               <input
@@ -707,32 +797,43 @@ export default function BeliKuotaPage() {
               />
 
               {/* AREA PREVIEW / DROPZONE */}
-              {selectedImage || activeOrder.bukti_url ? (
-                <div className="relative rounded-2xl overflow-hidden border-2 border-[#8C6A47] bg-stone-900 group">
-                  <img
-                    src={selectedImage || activeOrder.bukti_url}
-                    alt="Bukti Transfer"
-                    className="w-full max-h-64 object-contain mx-auto"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowFullImageModal(true)}
-                      className="px-3 py-2 rounded-xl bg-white/90 text-stone-900 text-xs font-bold flex items-center space-x-1 cursor-pointer"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>Lihat Foto</span>
-                    </button>
-                    {activeOrder.status === 'MENUNGGU_PEMBAYARAN' && (
+              {(selectedImage || (activePendingOrder.bukti_url && !isChangingProof)) ? (
+                <div className="space-y-2">
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-[#8C6A47] bg-stone-900 group">
+                    <img
+                      src={selectedImage || activePendingOrder.bukti_url}
+                      alt="Bukti Transfer"
+                      className="w-full max-h-64 object-contain mx-auto"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-3">
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => setShowFullImageModal(true)}
+                        className="px-3 py-2 rounded-xl bg-white/90 text-stone-900 text-xs font-bold flex items-center space-x-1 cursor-pointer"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>Lihat Foto</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsChangingProof(true);
+                          fileInputRef.current?.click();
+                        }}
                         className="px-3 py-2 rounded-xl bg-[#8C6A47] text-white text-xs font-bold flex items-center space-x-1 cursor-pointer"
                       >
                         <Camera className="w-4 h-4" />
                         <span>Ganti Foto</span>
                       </button>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* SUBTEKS WAKTU UPLOAD TERBARU (FITUR B) */}
+                  <div className="text-[11px] text-stone-500 text-center font-medium">
+                    Bukti terakhir diperbarui:{' '}
+                    <strong className="text-[#422F21]">
+                      {formatTanggalIndo(activePendingOrder.uploaded_at || activePendingOrder.created_at)}
+                    </strong>
                   </div>
                 </div>
               ) : (
@@ -747,9 +848,7 @@ export default function BeliKuotaPage() {
                   <div className="text-xs font-bold text-[#422F21]">
                     Klik untuk Ambil Foto / Pilih Gambar Bukti Transfer
                   </div>
-                  <p className="text-[10px] text-stone-500">
-                    Format JPG, PNG, WebP (Maksimal 10MB)
-                  </p>
+                  <p className="text-[10px] text-stone-500">Format JPG, PNG, WebP (Maksimal 10MB)</p>
                 </button>
               )}
 
@@ -760,8 +859,8 @@ export default function BeliKuotaPage() {
                 </div>
               )}
 
-              {/* TOMBOL UNGGAH BUKTI */}
-              {activeOrder.status === 'MENUNGGU_PEMBAYARAN' && (
+              {/* TOMBOL UNGGAH / PERBARUI BUKTI */}
+              {(activePendingOrder.status === 'MENUNGGU_PEMBAYARAN' || isChangingProof || selectedFile) && (
                 <button
                   type="button"
                   onClick={handleUploadProof}
@@ -776,17 +875,25 @@ export default function BeliKuotaPage() {
                   ) : (
                     <>
                       <Upload className="w-4.5 h-4.5 text-emerald-200" />
-                      <span>Unggah Bukti Pembayaran</span>
+                      <span>
+                        {activePendingOrder.status === 'MENUNGGU_VERIFIKASI'
+                          ? 'Perbarui Foto Bukti Transfer'
+                          : 'Unggah Bukti Pembayaran'}
+                      </span>
                     </>
                   )}
                 </button>
               )}
 
               {/* TOMBOL HUBUNGI PANITIA (WHATSAPP) */}
-              {activeOrder.status === 'MENUNGGU_VERIFIKASI' && (
+              {activePendingOrder.status === 'MENUNGGU_VERIFIKASI' && (
                 <div className="pt-2 space-y-2">
                   <a
-                    href={`https://wa.me/6285790633812?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20wali%20dari%20${encodeURIComponent(santri.nama)}%20(ID%20Pesanan%3A%20${activeOrder.id_pesanan})%20sudah%20mengunggah%20bukti%20transfer%20sebesar%20Rp%20${(activeOrder.total_bayar).toLocaleString('id-ID')}%2C%20mohon%20segera%20dikonfirmasi.%20Terima%20kasih.`}
+                    href={`https://wa.me/6285790633812?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20wali%20dari%20${encodeURIComponent(
+                      santri.nama
+                    )}%20(ID%20Pesanan%3A%20${activePendingOrder.id_pesanan})%20sudah%20mengunggah%20bukti%20transfer%20sebesar%20Rp%20${activePendingOrder.total_bayar.toLocaleString(
+                      'id-ID'
+                    )}%2C%20mohon%20segera%20dikonfirmasi.%20Terima%20kasih.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
@@ -800,15 +907,15 @@ export default function BeliKuotaPage() {
           </div>
         ) : (
           /* ===================================================================== */
-          /* SKENARIO C: FORM INPUT PEMBELIAN KUOTA BARU                           */
+          /* SKENARIO C: FORM INPUT PEMBELIAN KUOTA BARU (FITUR A)                 */
           /* ===================================================================== */
           <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-6">
             <div className="space-y-1">
               <h3 className="font-serif font-black text-lg text-[#422F21]">
-                Formulir Pemesanan Kuota Kursi
+                Formulir Pemesanan Kuota Kursi Tambahan
               </h3>
               <p className="text-xs text-stone-600">
-                Sisa kuota pagu nasional: <strong>{sisaPagu} kursi</strong> ({totalDiverifikasi}/300 terisi).
+                Sisa kuota pagu nasional: <strong>{sisaPaguGlobal} kursi</strong> ({totalDiverifikasiGlobal}/300 terisi).
               </p>
             </div>
 
@@ -833,8 +940,8 @@ export default function BeliKuotaPage() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => setJumlahBeli(Math.min(sisaPagu, jumlahBeli + 1))}
-                    disabled={jumlahBeli >= sisaPagu}
+                    onClick={() => setJumlahBeli(Math.min(sisaPaguGlobal, jumlahBeli + 1))}
+                    disabled={jumlahBeli >= sisaPaguGlobal}
                     className="w-10 h-10 rounded-xl bg-[#8C6A47] text-white font-black text-base flex items-center justify-center hover:bg-[#735334] disabled:opacity-40 cursor-pointer active:scale-95 shadow-xs"
                   >
                     <Plus className="w-4 h-4" />
@@ -855,7 +962,7 @@ export default function BeliKuotaPage() {
             <button
               type="button"
               onClick={handleKunciPesanan}
-              disabled={isSubmittingOrder || sisaPagu <= 0}
+              disabled={isSubmittingOrder || sisaPaguGlobal <= 0}
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 disabled:opacity-50 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center space-x-2 border border-amber-200/40"
             >
               {isSubmittingOrder ? (
@@ -873,6 +980,67 @@ export default function BeliKuotaPage() {
           </div>
         )}
 
+        {/* FITUR A: RIWAYAT SEMUA PEMBELIAN KUOTA SANTRI */}
+        {allOrders.length > 0 && (
+          <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-4">
+            <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
+              <History className="w-4 h-4 text-[#8C6A47]" />
+              <h3 className="font-serif font-bold text-sm text-[#422F21]">
+                Riwayat Transaksi Kuota Tambahan ({allOrders.length})
+              </h3>
+            </div>
+
+            <div className="space-y-2.5">
+              {allOrders.map((order) => {
+                const isVerified = order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA';
+                const isPending = order.status === 'MENUNGGU_VERIFIKASI' || order.status === 'MENUNGGU_PEMBAYARAN';
+                return (
+                  <div
+                    key={order.id_pesanan || order.id}
+                    className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between text-xs"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-mono font-bold text-[#322116]">
+                          {order.id_pesanan || order.id}
+                        </span>
+                        <span className="text-stone-400">•</span>
+                        <span className="font-semibold text-stone-700">
+                          {order.jumlah_kursi} Kursi
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-stone-500">
+                        {formatTanggalIndo(order.created_at)}
+                      </div>
+                    </div>
+
+                    <div className="text-right space-y-1">
+                      <div className="font-bold text-[#422F21]">
+                        Rp {Number(order.total_bayar || 0).toLocaleString('id-ID')}
+                      </div>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          isVerified
+                            ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                            : isPending
+                            ? 'bg-sky-100 text-sky-900 border border-sky-300'
+                            : 'bg-rose-100 text-rose-900 border border-rose-300'
+                        }`}
+                      >
+                        {isVerified
+                          ? 'Terverifikasi'
+                          : isPending
+                          ? 'Proses'
+                          : order.status || 'Batal'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* FOOTER INFORMASI BANTUAN */}
         <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
           <p className="font-serif font-bold text-[#422F21]">
@@ -883,7 +1051,7 @@ export default function BeliKuotaPage() {
       </div>
 
       {/* MODAL FULL PREVIEW IMAGE */}
-      {showFullImageModal && (selectedImage || activeOrder?.bukti_url) && (
+      {showFullImageModal && (selectedImage || activePendingOrder?.bukti_url) && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
           onClick={() => setShowFullImageModal(false)}
@@ -897,7 +1065,7 @@ export default function BeliKuotaPage() {
               <X className="w-5 h-5" />
             </button>
             <img
-              src={selectedImage || activeOrder?.bukti_url}
+              src={selectedImage || activePendingOrder?.bukti_url}
               alt="Bukti Transfer Full"
               className="w-full max-h-[85vh] object-contain rounded-2xl mx-auto"
             />

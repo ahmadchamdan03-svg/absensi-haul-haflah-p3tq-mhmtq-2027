@@ -238,17 +238,23 @@ export default function VerifikasiPage() {
         return;
       }
 
-      // 2. Update kuota_tambahan di peserta_santri
+      // 2. Recalculate total kuota_tambahan di peserta_santri
       const targetKode = item.kode_santri || item.kode;
+      const { data: verifiedRows } = await supabase
+        .from('pembelian_kuota')
+        .select('jumlah_kursi')
+        .eq('kode_santri', targetKode)
+        .in('status', ['DIVERIFIKASI', 'DITERIMA']);
+
+      const newTambah = (verifiedRows || []).reduce((sum, r) => sum + Number(r.jumlah_kursi || 0), 0);
+
       const { data: currentSantri } = await supabase
         .from('peserta_santri')
         .select('kuota_tambahan, no_hp, nama_wali, nama')
         .eq('kode', targetKode)
         .maybeSingle();
 
-      const currentTambah = Number(currentSantri?.kuota_tambahan || 0);
       const numKursi = Number(item.jumlah_kursi || item.jumlah || 1);
-      const newTambah = currentTambah + numKursi;
 
       await supabase
         .from('peserta_santri')
@@ -737,19 +743,29 @@ export default function VerifikasiPage() {
                         {/* BUKTI / METODE */}
                         <td className="py-3.5 px-4">
                           {order.bukti_url || order.buktiUrl ? (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setPreviewBuktiModal({
-                                  url: order.bukti_url || order.buktiUrl,
-                                  title: `Bukti Transfer - ${orderId} (${order.nama_wali || 'Wali'})`,
-                                })
-                              }
-                              className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-800 hover:bg-sky-100 font-bold border border-sky-300 transition-colors shadow-xs cursor-pointer"
-                            >
-                              <Eye className="w-3.5 h-3.5 text-sky-600" />
-                              <span>Lihat Bukti</span>
-                            </button>
+                            <div className="space-y-1">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPreviewBuktiModal({
+                                    url: order.bukti_url || order.buktiUrl,
+                                    title: `Bukti Transfer - ${orderId} (${order.nama_wali || 'Wali'})`,
+                                  })
+                                }
+                                className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-800 hover:bg-sky-100 font-bold border border-sky-300 transition-colors shadow-xs cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-sky-600" />
+                                <span>Lihat Bukti</span>
+                              </button>
+                              <div className="text-[10px] text-stone-500 font-medium">
+                                {order.uploaded_at
+                                  ? `Diperbarui: ${new Date(order.uploaded_at).toLocaleTimeString('id-ID', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })} WIB`
+                                  : 'Diunggah awal'}
+                              </div>
+                            </div>
                           ) : order.metode === 'TUNAI' ? (
                             <span className="inline-flex items-center space-x-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-300">
                               <Banknote className="w-3.5 h-3.5 text-emerald-600" />
