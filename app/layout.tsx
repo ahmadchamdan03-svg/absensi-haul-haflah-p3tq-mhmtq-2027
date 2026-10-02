@@ -4,12 +4,10 @@ import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'Haflah P3TQ',
-  description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ Lirboyo Kediri',
   metadataBase: new URL('https://haflahp3tq.site'),
   manifest: '/manifest.json',
   openGraph: {
     title: 'Haflah P3TQ',
-    description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ Lirboyo Kediri',
     url: 'https://haflahp3tq.site',
     siteName: 'Haflah P3TQ',
     images: [
@@ -26,7 +24,6 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Haflah P3TQ',
-    description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ Lirboyo Kediri',
     images: ['/logo-haul-haflah-transparent.png'],
   },
   icons: {
