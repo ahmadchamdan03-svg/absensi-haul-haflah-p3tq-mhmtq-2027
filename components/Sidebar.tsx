@@ -273,7 +273,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       </div>
 
 
-      {/* Footer Sidebar: Karakter Ustadzah AI (Tanpa Pop Up Chat Bubble) */}
+      {/* Footer Sidebar: Karakter Us. Halwaa (Tanpa Pop Up Chat Bubble) */}
       <div className="pt-2 pb-3 px-2 border-t border-[#E8DFD5] bg-gradient-to-b from-[#FAF7F3] to-[#EFE8E1] select-none flex flex-col items-center justify-center">
         <button
           type="button"
@@ -281,21 +281,21 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
           onMouseEnter={() => setIsUsHovered(true)}
           onMouseLeave={() => setIsUsHovered(false)}
           className="group relative flex flex-col items-center cursor-pointer focus:outline-none"
-          title="Klik untuk bertanya ke Ustadzah AI (Us AI)"
+          title="Klik untuk bertanya ke Us. Halwaa"
         >
           {/* Area Gambar Karakter Ustadzah (Satu elemen gambar bersih tanpa ghosting/tumpuk) */}
           <div className="relative w-20 h-20 sm:w-22 sm:h-20 flex items-end justify-center transition-transform duration-200 group-hover:scale-105">
             <img
               src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-half-standby.png'}
-              alt="Ustadzah AI"
+              alt="Us. Halwaa"
               className="w-full h-full object-contain object-bottom filter drop-shadow-sm"
             />
           </div>
 
-          {/* Label Tanya Us AI! (Menempel langsung tanpa jarak) */}
+          {/* Label Tanya Us. Halwaa! (Menempel langsung tanpa jarak) */}
           <div className="-mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#9B7752] to-[#8C6A47] group-hover:brightness-110 text-white text-[11px] font-bold shadow-xs border border-[#735334] flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 z-10">
             <Sparkles className="w-3 h-3 text-amber-200 animate-pulse" />
-            <span>Tanya Us AI!</span>
+            <span>Tanya Us. Halwaa!</span>
           </div>
         </button>
       </div>

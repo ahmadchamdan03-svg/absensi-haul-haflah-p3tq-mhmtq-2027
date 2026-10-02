@@ -44,7 +44,7 @@ export default function PimpinanPage() {
                 className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-700 to-amber-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-amber-200" />
-                <span>Tanya Us AI</span>
+                <span>Tanya Us. Halwaa</span>
               </button>
               <button
                 type="button"

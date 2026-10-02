@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
@@ -14,7 +14,7 @@ import {
   EyeOff,
   AlertCircle,
 } from 'lucide-react';
-import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole } from '@/lib/auth-roles';
+import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
 
 // Konfigurasi visual 4 tombol role
@@ -122,6 +122,13 @@ export default function LandingPortalPage() {
   const [inputPassword, setInputPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+
+  useEffect(() => {
+    const role = getActiveRole();
+    if (role && ROLES_CONFIG[role]) {
+      router.replace(ROLES_CONFIG[role].route);
+    }
+  }, [router]);
 
   const handleOpenRoleModal = (roleKey: AppRole) => {
     setSelectedRole(roleKey);

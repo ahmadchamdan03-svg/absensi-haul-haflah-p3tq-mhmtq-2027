@@ -26,10 +26,12 @@ import {
   AlertCircle,
   HelpCircle,
   Loader2,
+  XCircle,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
+import { calculateKuotaDasarSantri } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
 
@@ -60,13 +62,12 @@ function getTamuCategoryLabel(item: any): string {
   return 'TAMU UNDANGAN UMUM';
 }
 
-// Helper Render Nama Tamu Undangan (Persis dari DB, tanpa penambahan gelar frontend)
+// Helper Render Nama Tamu Undangan
 function renderTamuName(item: any) {
   const namaDirect = (item?.nama || item?.entitas?.nama || '').trim();
   const namaPutra = (item?.namaPutra || item?.nama_putra || item?.entitas?.namaPutra || '').trim();
   const namaPutri = (item?.namaPutri || item?.nama_putri || item?.entitas?.namaPutri || '').trim();
 
-  // 1. Jika kolom 'nama' terisi dan bukan '-'
   if (namaDirect && namaDirect !== '-') {
     return (
       <h2 className="text-xl sm:text-2xl font-serif font-black text-[#322116] tracking-wide text-center leading-snug">
@@ -75,7 +76,6 @@ function renderTamuName(item: any) {
     );
   }
 
-  // 2. Jika kolom 'nama' kosong/'-' tapi namaPutra & namaPutri terisi
   if (namaPutra || namaPutri) {
     return (
       <div className="space-y-1 text-center">
@@ -93,11 +93,33 @@ function renderTamuName(item: any) {
     );
   }
 
-  // Fallback
   return (
     <h2 className="text-xl sm:text-2xl font-serif font-black text-[#322116] tracking-wide text-center">
       Tamu Undangan
     </h2>
+  );
+}
+
+// Komponen 3 Logo Resmi (P3TQ, Haul & Haflah, MHMTQ)
+function HeaderLogos() {
+  return (
+    <div className="flex items-center justify-center gap-3 sm:gap-6 my-3">
+      <img
+        src="/images/logo-p3tq.png"
+        alt="Logo P3TQ"
+        className="h-14 sm:h-18 object-contain drop-shadow-sm"
+      />
+      <img
+        src="/logo-haul-haflah-transparent.png"
+        alt="Logo Haul & Haflah"
+        className="h-16 sm:h-20 object-contain drop-shadow-sm"
+      />
+      <img
+        src="/images/logo-mhmtq.png"
+        alt="Logo MHMTQ"
+        className="h-14 sm:h-18 object-contain drop-shadow-sm"
+      />
+    </div>
   );
 }
 
@@ -158,7 +180,7 @@ export default function UndanganWaliPage() {
   const [fullQrPayload, setFullQrPayload] = useState<string>('');
   const [loadingSantri, setLoadingSantri] = useState(true);
 
-  // State Interaktif Undangan Pernikahan Style
+  // State Interaktif Undangan
   const [isOpened, setIsOpened] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -172,17 +194,19 @@ export default function UndanganWaliPage() {
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
 
-  // State Modal Denah & Ustadzah AI
+  // State RSVP Khusus Tamu Undangan (2 Tombol: HADIR / BERHALANGAN)
+  const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
+
+  // State Modal Denah & Us. Halwaa
   const [isDenahOpen, setIsDenahOpen] = useState(false);
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
 
-  // State Global Switch Beli Kuota & Hitungan Pagu Diverifikasi
+  // State Global Switch Beli Kuota
   const [kuotaSwitchAktif, setKuotaSwitchAktif] = useState<boolean>(false);
   const [totalDiverifikasi, setTotalDiverifikasi] = useState<number>(0);
   const [loadingKuotaControl, setLoadingKuotaControl] = useState<boolean>(true);
 
-  // Countdown Timer ke Sabtu, 02 Januari 2027 06:30:00 WIB
+  // Countdown Timer
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 0,
     hours: 0,
@@ -207,14 +231,13 @@ export default function UndanganWaliPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch Live Data dari Supabase (Deteksi SH vs UND)
+  // Fetch Live Data dari Supabase
   useEffect(() => {
     async function fetchInvitationData() {
       try {
         setLoadingSantri(true);
 
         if (isTamuUndangan) {
-          // Query ke tabel 'tamu_undangan'
           const { data: t, error } = await supabase
             .from('tamu_undangan')
             .select('*')
@@ -253,16 +276,6 @@ export default function UndanganWaliPage() {
 
             setItem(mappedItem);
 
-            if (t.status_konfirmasi === 'SUDAH') {
-              setEstL(Number(t.perkiraan_l || 0));
-              setEstP(Number(t.perkiraan_p || 0));
-              setCatatanRsvp(t.catatan_konfirmasi || '');
-              setLastSavedTime(t.updated_at ? new Date(t.updated_at).toLocaleTimeString('id-ID') : '');
-            } else {
-              setEstL(Math.min(1, kDasar));
-              setEstP(Math.max(0, Math.min(1, kDasar - 1)));
-            }
-
             formatQrPayload(t.kode).then((payload) => {
               setFullQrPayload(payload);
               QRCode.toDataURL(payload, {
@@ -274,47 +287,6 @@ export default function UndanganWaliPage() {
                 },
               }).then(setQrDataUrl);
             });
-          } else {
-            // Fallback to store if not found in DB
-            const found = store.getUndanganList().find((u) => u.kode === kodeSH);
-            if (found) {
-              const kDasar = found.kuota?.kuotaDasar || 2;
-              const mappedItem = {
-                id: found.id,
-                kode: found.kode,
-                tipe: 'UNDANGAN',
-                nama: found.nama || '',
-                namaPutra: found.namaPutra || '',
-                namaPutri: found.namaPutri || '',
-                kategori: found.kategori || 'Tamu Kehormatan',
-                subKategori: found.golongan || 'KEHORMATAN',
-                instansi: found.instansi || '',
-                alamat: found.alamat || '',
-                noHp: found.noHp || '',
-                kuota: {
-                  id: found.id,
-                  kodeQr: found.kode,
-                  kuotaDasar: kDasar,
-                  kuotaTambahan: 0,
-                  terpakai: found.kuota?.terpakai || 0,
-                },
-                estimasi: {
-                  statusKonfirmasi: 'BELUM',
-                  perkiraanL: 1,
-                  perkiraanP: 1,
-                  catatan: '',
-                },
-              };
-              setItem(mappedItem);
-              formatQrPayload(found.kode).then((payload) => {
-                setFullQrPayload(payload);
-                QRCode.toDataURL(payload, {
-                  width: 360,
-                  margin: 1.5,
-                  color: { dark: '#422F21', light: '#FAF7F3' },
-                }).then(setQrDataUrl);
-              });
-            }
           }
         } else {
           // Query ke tabel 'peserta_santri' (Wali Santri)
@@ -322,10 +294,11 @@ export default function UndanganWaliPage() {
             .from('peserta_santri')
             .select('*')
             .eq('kode', kodeSH)
-            .single();
+            .maybeSingle();
 
           if (s && !error) {
-            const kDasar = Number(s.kuota_dasar || 2);
+            const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
+            const kDasar = Number(s.kuota_dasar && s.kuota_dasar >= calculatedKDasar ? s.kuota_dasar : calculatedKDasar);
             const kTambahan = Number(s.kuota_tambahan || 0);
             const totKuota = kDasar + kTambahan;
 
@@ -387,41 +360,10 @@ export default function UndanganWaliPage() {
                 },
               }).then(setQrDataUrl);
             });
-          } else {
-            // Fallback to store if not found in DB
-            const found = store.findByKode(kodeSH) || store.findByKode('SH0001');
-            if (found) {
-              setItem(found);
-              const totalK = found.kuota.kuotaDasar + found.kuota.kuotaTambahan;
-              if (found.estimasi && found.estimasi.statusKonfirmasi === 'SUDAH') {
-                const initL = Math.min(totalK, found.estimasi.perkiraanL);
-                const initP = Math.min(totalK - initL, found.estimasi.perkiraanP);
-                setEstL(initL);
-                setEstP(initP);
-                if (found.estimasi.diisiAt) {
-                  setLastSavedTime(found.estimasi.diisiAt);
-                }
-              } else {
-                setEstL(Math.min(1, totalK));
-                setEstP(Math.max(0, Math.min(1, totalK - 1)));
-              }
-
-              formatQrPayload(found.kuota.kodeQr).then((payload) => {
-                setFullQrPayload(payload);
-                QRCode.toDataURL(payload, {
-                  width: 360,
-                  margin: 1.5,
-                  color: {
-                    dark: '#422F21',
-                    light: '#FAF7F3',
-                  },
-                }).then(setQrDataUrl);
-              });
-            }
           }
         }
       } catch (e) {
-        console.warn('Error loading invitation data from Supabase:', e);
+        console.warn('Error fetching invitation data:', e);
       } finally {
         setLoadingSantri(false);
       }
@@ -430,23 +372,20 @@ export default function UndanganWaliPage() {
     fetchInvitationData();
   }, [kodeSH, isTamuUndangan]);
 
-  // Fetch Status Kontrol Beli Kuota (Khusus Wali Santri)
+  // Fetch Beli Kuota Control Status
   useEffect(() => {
-    if (isTamuUndangan) return; // Skip untuk tamu undangan
-
+    if (isTamuUndangan) return;
     const fetchKuotaControlStatus = async () => {
       try {
         setLoadingKuotaControl(true);
         const { data: configData } = await supabase
           .from('konfigurasi_sistem')
-          .select('*')
-          .eq('key', 'kuota_tambahan_status')
+          .select('value')
+          .eq('key', 'kuota_tambahan_buka')
           .maybeSingle();
 
-        if (configData && configData.value) {
-          setKuotaSwitchAktif(Boolean(configData.value.aktif));
-        } else {
-          setKuotaSwitchAktif(false);
+        if (configData) {
+          setKuotaSwitchAktif(configData.value === 'true' || configData.value === true);
         }
 
         const { data: pembelianData } = await supabase
@@ -468,40 +407,15 @@ export default function UndanganWaliPage() {
     };
 
     fetchKuotaControlStatus();
-
-    const channel = supabase
-      .channel('kuota_control_realtime_u')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'konfigurasi_sistem' },
-        () => {
-          fetchKuotaControlStatus();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'pembelian_kuota' },
-        () => {
-          fetchKuotaControlStatus();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [isTamuUndangan]);
 
-  // Handler Buka Undangan & Putar Musik
   const handleOpenInvitation = () => {
     setIsOpened(true);
     try {
       if (audioRef.current) {
         audioRef.current
           .play()
-          .then(() => {
-            setIsPlayingMusic(true);
-          })
+          .then(() => setIsPlayingMusic(true))
           .catch(() => {});
       }
     } catch (e) {}
@@ -515,16 +429,53 @@ export default function UndanganWaliPage() {
     } else {
       audioRef.current
         .play()
-        .then(() => {
-          setIsPlayingMusic(true);
-        })
+        .then(() => setIsPlayingMusic(true))
         .catch(() => {});
     }
   };
 
-  // Simpan RSVP Konfirmasi Kehadiran ke Supabase
-  const handleSimpanEstimasi = async () => {
-    if (!item) return;
+  // Handler RSVP Tamu Undangan (Hanya 2 Tombol: HADIR / BERHALANGAN)
+  const handleKonfirmasiTamu = async (status: 'HADIR' | 'BERHALANGAN') => {
+    setSavingRsvp(true);
+    setRsvpError(null);
+    try {
+      const targetKode = item.kuota?.kodeQr || item.kode || kodeSH;
+      const nowIso = new Date().toISOString();
+
+      await supabase
+        .from('tamu_undangan')
+        .update({
+          status_konfirmasi: status,
+          updated_at: nowIso,
+        })
+        .eq('kode', targetKode);
+
+      setItem((prev: any) => ({
+        ...prev,
+        estimasi: {
+          ...prev?.estimasi,
+          statusKonfirmasi: status,
+          diisiAt: nowIso,
+        },
+      }));
+
+      setTamuRsvpSaved(true);
+      setLastSavedTime(new Date().toLocaleTimeString('id-ID') + ' WIB');
+      setTimeout(() => setTamuRsvpSaved(false), 5000);
+    } catch (err: any) {
+      setRsvpError(`Gagal menyimpan konfirmasi: ${err.message || err}`);
+    } finally {
+      setSavingRsvp(false);
+    }
+  };
+
+  // Handler RSVP Wali Santri (Dengan Batas Maksimal Kuota Total & Non-Negatif)
+  const totalKuotaSantri = (item?.kuota?.kuotaDasar || 2) + (item?.kuota?.kuotaTambahan || 0);
+  const totalInputWali = Number(estL) + Number(estP);
+  const isWaliRsvpExceeded = totalInputWali > totalKuotaSantri || estL < 0 || estP < 0;
+
+  const handleSimpanEstimasiWali = async () => {
+    if (!item || isWaliRsvpExceeded) return;
     setSavingRsvp(true);
     setRsvpError(null);
 
@@ -540,17 +491,11 @@ export default function UndanganWaliPage() {
     };
 
     try {
-      const table = isTamuUndangan ? 'tamu_undangan' : 'peserta_santri';
-      const { error } = await supabase
-        .from(table)
+      await supabase
+        .from('peserta_santri')
         .update(payload)
         .eq('kode', targetKode);
 
-      if (error) {
-        console.warn(`Note updating RSVP in Supabase (${table}):`, error.message);
-      }
-
-      // Sync local store fallback
       if (item.kuota?.id) {
         store.simpanEstimasi(item.kuota.id, estL, estP, 'WALI_MANDIRI');
       }
@@ -571,30 +516,21 @@ export default function UndanganWaliPage() {
       setLastSavedTime(new Date().toLocaleTimeString('id-ID') + ' WIB');
       setTimeout(() => setEstimasiSaved(false), 5000);
     } catch (err: any) {
-      console.error('Exception updating RSVP:', err);
       setRsvpError(`Terjadi kesalahan sistem: ${err.message || err}`);
     } finally {
       setSavingRsvp(false);
     }
   };
 
-  const handleCopyKode = () => {
-    if (!item) return;
-    navigator.clipboard.writeText(item.kuota?.kodeQr || item.kode || kodeSH);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2500);
-  };
-
   const santri = item?.santri;
   const kuota = item?.kuota;
-  const isBilGhoib = santri?.kategoriUtama === 'BIL_GHOIB';
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
       {/* Audio Elemen Tersembunyi */}
       <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="auto" />
 
-      {/* Floating Music Button (Tampil Setelah Undangan Dibuka) */}
+      {/* Floating Music Button */}
       {isOpened && (
         <button
           onClick={toggleMusic}
@@ -611,38 +547,33 @@ export default function UndanganWaliPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* SKENARIO A: UNDANGAN KHUSUS TAMU UNDANGAN (UNDxxxx)                       */}
-      {/* Layout Formal, Hormat, dan Elegan                                          */}
+      {/* SKENARIO A: UNDANGAN TAMU UNDANGAN (UNDxxxx)                              */}
       {/* ========================================================================= */}
       {isTamuUndangan ? (
         !isOpened ? (
-          /* LAYAR 1: COVER AMPLOP PEMBUKA (TAMU UNDANGAN) */
+          /* COVER TAMU UNDANGAN */
           <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 bg-[#FAF7F3]">
             <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-              <div className="w-16 h-16 rounded-full bg-[#FAF0E6] text-[#8C6A47] mx-auto flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm">
-                <Sparkles className="w-8 h-8 text-[#8C6A47]" />
-              </div>
+              <HeaderLogos />
 
               <div className="space-y-1">
                 <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
                   UNDANGAN KEHORMATAN
                 </div>
                 <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
-                  Haul & Haflah Akhirussanah 1448 H. / 2027 M.
+                  Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
                 </h1>
                 <p className="text-xs text-[#7A624E] font-medium pt-0.5">
-                  Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) & MHMTQ Lirboyo Kediri
+                  Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) &amp; MHMTQ Lirboyo Kediri
                 </p>
               </div>
 
-              {/* Ornamen Pemisah Geometris Tipis */}
               <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
                 <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
                 <span className="text-xs">❖</span>
                 <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
               </div>
 
-              {/* Penerima Undangan */}
               <div className="space-y-2 py-1">
                 <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
                   Kepada Yth. Bapak/Ibu/Saudara:
@@ -673,37 +604,28 @@ export default function UndanganWaliPage() {
                   <span>Buka Undangan ✉️</span>
                 </button>
               </div>
-
-              <p className="text-[10px] text-stone-400">
-                Platform Berbasis Web Murni · Dibuka langsung di browser HP
-              </p>
             </div>
           </div>
         ) : (
-          /* LAYAR 2: KONTEN LENGKAP UNDANGAN TAMU UNDANGAN */
+          /* KONTEN LENGKAP TAMU UNDANGAN */
           <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
-            {/* HEADER KARTU UNDANGAN KEHORMATAN */}
+            <HeaderLogos />
+
             <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF0E6] border border-[#D5C4B4] text-[#8C6A47] text-xs font-bold shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-[#8C6A47]" />
-                <span>Haul & Haflah P3TQ - MHMTQ 2027</span>
-              </div>
               <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
                 Undangan Kehormatan
               </h1>
               <p className="text-xs text-[#7A624E]">
-                Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo Kediri
+                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo Kediri
               </p>
             </div>
 
-            {/* KARTU IDENTITAS TAMU UNDANGAN (FORMAL & ELEGAN) */}
+            {/* KARTU IDENTITAS TAMU UNDANGAN */}
             <div className="bg-[#FAF7F3] rounded-3xl p-6 sm:p-8 border-2 border-[#D5C4B4] shadow-md space-y-4 relative overflow-hidden">
-              {/* Kaligrafi Arab Basmalah Header */}
               <div className="text-center text-sm font-serif text-[#8C6A47] tracking-widest pb-1 font-arabic">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </div>
 
-              {/* Divider Ornamen Geometris */}
               <div className="flex items-center justify-center gap-3 my-1 text-[#8C6A47]/60">
                 <div className="h-px bg-gradient-to-r from-transparent via-[#8C6A47]/40 to-transparent flex-1" />
                 <span className="text-xs">❖</span>
@@ -714,7 +636,6 @@ export default function UndanganWaliPage() {
                 <span className="text-[11px] font-bold uppercase tracking-widest text-[#8C6A47]">
                   {getTamuCategoryLabel(item)}
                 </span>
-
                 {renderTamuName(item)}
               </div>
 
@@ -741,7 +662,7 @@ export default function UndanganWaliPage() {
             {/* KALIMAT SAMBUTAN HORMATH & KHIDMAT */}
             <div className="bg-[#FAF0E6] p-5 sm:p-6 rounded-3xl border-2 border-[#D5C4B4] text-center space-y-2 shadow-xs">
               <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed italic">
-                "Dengan penuh hormat dan khidmat, kami mengundang Bapak/Ibu/Saudara untuk menghadiri Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H./2027 M."
+                "Dengan penuh hormat dan khidmat, kami mengundang Bapak/Ibu/Saudara untuk menghadiri Haul &amp; Haflah Akhirussanah P3TQ &amp; MHMTQ 1448 H./2027 M."
               </p>
             </div>
 
@@ -764,26 +685,12 @@ export default function UndanganWaliPage() {
                   {qrDataUrl ? (
                     <img
                       src={qrDataUrl}
-                      alt={`QR Code ${kuota?.kodeQr}`}
+                      alt="QR Code Tiket Masuk"
                       className="w-full h-full object-contain rounded-xl"
                     />
                   ) : (
                     <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
                   )}
-                </div>
-
-                <div className="mt-3 flex items-center space-x-2">
-                  <span className="text-xl font-mono font-black text-[#422F21] tracking-widest bg-[#FAF0E6] px-4 py-1.5 rounded-xl border border-[#D5C4B4]">
-                    {kuota?.kodeQr || item?.kode}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyKode}
-                    className="p-2 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs shadow-xs transition-colors cursor-pointer"
-                    title="Salin Kode"
-                  >
-                    {copiedCode ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                  </button>
                 </div>
               </div>
 
@@ -801,7 +708,7 @@ export default function UndanganWaliPage() {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
               <div className="space-y-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-                  Waktu & Tempat Pelaksanaan
+                  Waktu &amp; Tempat Pelaksanaan
                 </span>
                 <h3 className="font-serif font-black text-xl text-[#422F21]">
                   Aula Al-Muktamar Pondok Pesantren Lirboyo
@@ -845,7 +752,7 @@ export default function UndanganWaliPage() {
                   className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <Compass className="w-4 h-4 text-[#8C6A47]" />
-                  <span>Buka Denah Lokasi & Parkir VIP</span>
+                  <span>Buka Denah Lokasi &amp; Parkir VIP</span>
                 </button>
               </div>
             </div>
@@ -861,7 +768,7 @@ export default function UndanganWaliPage() {
                     06.30 WIs
                   </span>
                   <p className="text-stone-700">
-                    <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) & Tartilan Khotmil Qur'an.
+                    <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) &amp; Tartilan Khotmil Qur'an.
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -874,126 +781,75 @@ export default function UndanganWaliPage() {
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
                     08.52 WIs
                   </span>
-                  <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi & Bin Nadzori.</p>
+                  <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi &amp; Bin Nadzori.</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
                     10.12 WIs
                   </span>
-                  <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, & Pembagian Ijazah Tamatan.</p>
+                  <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
                 </div>
               </div>
             </div>
 
-            {/* SECTION KONFIRMASI KEHADIRAN (RSVP) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-serif font-black text-base text-[#422F21]">
-                    Konfirmasi Kehadiran (RSVP)
-                  </h3>
-                  <p className="text-xs text-[#7A624E]">
-                    Mohon mengonfirmasi estimasi kehadiran rombongan untuk kelancaran tempat & konsumsi.
+            {/* SECTION KONFIRMASI KEHADIRAN (RSVP TAMU - 2 TOMBOL SIMPEL) */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
+              <div className="space-y-1">
+                <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+                  Konfirmasi Kehadiran (RSVP)
+                </h3>
+                <p className="text-xs text-[#7A624E]">
+                  Mohon mengonfirmasi kehadiran Anda untuk kelancaran tempat &amp; konsumsi.
+                </p>
+              </div>
+
+              {item?.estimasi?.statusKonfirmasi === 'HADIR' || item?.estimasi?.statusKonfirmasi === 'SUDAH' ? (
+                <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 space-y-2">
+                  <div className="font-serif font-black text-sm text-emerald-900 flex items-center justify-center space-x-1.5">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+                    <span>Terima Kasih, Konfirmasi Kehadiran Berhasil</span>
+                  </div>
+                  <p className="text-xs text-emerald-800">
+                    Anda telah mengonfirmasi untuk <strong>HADIR</strong> pada Haul &amp; Haflah P3TQ - MHMTQ 2027.
                   </p>
                 </div>
-                {item?.estimasi?.statusKonfirmasi === 'SUDAH' && (
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
-                    ✓ Terkonfirmasi
-                  </span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[#422F21]">Tamu Laki-Laki</div>
-                    <div className="text-[10px] text-stone-500">Zona Putra</div>
+              ) : item?.estimasi?.statusKonfirmasi === 'BERHALANGAN' ? (
+                <div className="p-4 rounded-2xl bg-stone-100 border-2 border-stone-300 text-stone-800 space-y-2">
+                  <div className="font-serif font-black text-sm text-stone-900 flex items-center justify-center space-x-1.5">
+                    <XCircle className="w-5 h-5 text-stone-600" />
+                    <span>Konfirmasi Berhalangan Hadir Tersimpan</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setEstL(Math.max(0, estL - 1))}
-                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100"
-                    >
-                      −
-                    </button>
-                    <span className="font-black text-sm w-4 text-center">{estL}</span>
-                    <button
-                      type="button"
-                      onClick={() => setEstL(estL + 1)}
-                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334]"
-                    >
-                      +
-                    </button>
-                  </div>
+                  <p className="text-xs text-stone-700">
+                    Terima kasih atas konfirmasi Anda. Doa restu Bapak/Ibu/Saudara sangat bermakna bagi kami.
+                  </p>
                 </div>
+              ) : null}
 
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[#422F21]">Tamu Perempuan</div>
-                    <div className="text-[10px] text-stone-500">Zona Putri</div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setEstP(Math.max(0, estP - 1))}
-                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100"
-                    >
-                      −
-                    </button>
-                    <span className="font-black text-sm w-4 text-center">{estP}</span>
-                    <button
-                      type="button"
-                      onClick={() => setEstP(estP + 1)}
-                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334]"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleKonfirmasiTamu('HADIR')}
+                  disabled={savingRsvp}
+                  className="py-3.5 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                  <span>✅ Saya Hadir</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleKonfirmasiTamu('BERHALANGAN')}
+                  disabled={savingRsvp}
+                  className="py-3.5 px-4 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold text-xs sm:text-sm border border-stone-300 shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95"
+                >
+                  <XCircle className="w-4 h-4 text-stone-600" />
+                  <span>❌ Berhalangan</span>
+                </button>
               </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#422F21] mb-1">
-                  Catatan Rombongan / Permohonan Khusus (Opsional):
-                </label>
-                <input
-                  type="text"
-                  value={catatanRsvp}
-                  onChange={(e) => setCatatanRsvp(e.target.value)}
-                  placeholder="Contoh: Bawa pendamping, mohon tempat duduk baris depan..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-[#D5C4B4] text-xs bg-[#FAF7F3] focus:bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleSimpanEstimasi}
-                disabled={savingRsvp}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
-              >
-                {savingRsvp ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-amber-200" />
-                    <span>Menyimpan Konfirmasi...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-amber-200" />
-                    <span>Simpan Konfirmasi Kehadiran</span>
-                  </>
-                )}
-              </button>
 
               {rsvpError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-center font-bold">
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
                   ⚠️ {rsvpError}
-                </div>
-              )}
-
-              {estimasiSaved && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs text-center font-bold animate-in fade-in">
-                  ✓ Konfirmasi kehadiran Anda berhasil disimpan{lastSavedTime ? ` pada ${lastSavedTime}` : ''}.
                 </div>
               )}
             </div>
@@ -1001,7 +857,7 @@ export default function UndanganWaliPage() {
             {/* TOMBOL HUBUNGI PANITIA */}
             <div className="pt-2 space-y-3">
               <a
-                href={`https://wa.me/6281234567890?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20tamu%20undangan%20kehormatan%20dengan%20kode%20${item?.kode}`}
+                href={`https://wa.me/6281234567890?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20tamu%20undangan%20kehormatan`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
@@ -1029,7 +885,7 @@ export default function UndanganWaliPage() {
               </div>
 
               <p className="text-[10px] text-stone-400">
-                Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo Kediri
+                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo Kediri
               </p>
             </div>
           </div>
@@ -1037,24 +893,22 @@ export default function UndanganWaliPage() {
       ) : (
         /* ========================================================================= */
         /* SKENARIO B: UNDANGAN WALI SANTRI (SHxxxx)                                 */
-        /* Layout Wali Santri yang Sudah Ada (Tidak Diubah)                          */
+        /* Format Resmi Sesuai Undangan Tahun Lalu dengan Tema Krem-Coklat-Emas      */
         /* ========================================================================= */
         !isOpened ? (
-          <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
+          <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 bg-[#FAF7F3]">
             <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-              <div className="w-16 h-16 rounded-full bg-[#FAF0E6] text-[#8C6A47] mx-auto flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm">
-                <Sparkles className="w-8 h-8 text-[#8C6A47]" />
-              </div>
+              <HeaderLogos />
 
               <div className="space-y-1">
                 <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
-                  UNDANGAN RESMI KHIDMAT
+                  UNDANGAN RESMI WALI SANTRI
                 </div>
                 <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
-                  Haul & Haflah Akhirussanah 1448 H. / 2027 M.
+                  Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
                 </h1>
                 <p className="text-xs text-[#7A624E] font-medium pt-0.5">
-                  P3TQ & MHMTQ Lirboyo Kota Kediri
+                  P3TQ &amp; MHMTQ Lirboyo Kota Kediri
                 </p>
               </div>
 
@@ -1068,7 +922,7 @@ export default function UndanganWaliPage() {
                   {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
                 </h2>
                 <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
-                  {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : (item?.entitas?.kategori || 'Tamu Undangan')}
+                  {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : 'Wali Santri'}
                 </div>
               </div>
 
@@ -1082,25 +936,20 @@ export default function UndanganWaliPage() {
                   <span>Buka Undangan ✉️</span>
                 </button>
               </div>
-
-              <p className="text-[10px] text-stone-400">
-                Platform Berbasis Web Murni · Dibuka langsung di browser HP
-              </p>
             </div>
           </div>
         ) : (
+          /* KONTEN LENGKAP UNDANGAN WALI SANTRI (TEKS FORMAT ISLAMI FORMAL TAHUN LALU) */
           <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
+            <HeaderLogos />
+
             {/* HEADER KARTU UNDANGAN WALI */}
             <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FAF0E6] border border-[#D5C4B4] text-[#8C6A47] text-xs font-bold shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-[#8C6A47]" />
-                <span>Haul & Haflah P3TQ - MHMTQ 2027</span>
-              </div>
               <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
-                Undangan Resmi Khidmat
+                Undangan Resmi Tasyakuran &amp; Dzikrul Haul
               </h1>
               <p className="text-xs text-[#7A624E]">
-                Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo Kediri
+                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo Kediri
               </p>
             </div>
 
@@ -1130,7 +979,41 @@ export default function UndanganWaliPage() {
               </div>
             </div>
 
-            {/* QR CODE & KODE MASUK WALI SANTRI */}
+            {/* KALIMAT SAMBUTAN FORMAL ISLAMI SEPERTI TAHUN LALU */}
+            <div className="bg-[#FAF7F3] rounded-3xl p-6 sm:p-8 border-2 border-[#D5C4B4] shadow-sm space-y-4 text-[#422F21]">
+              <div className="text-center text-base font-serif text-[#8C6A47] font-bold tracking-widest font-arabic">
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              </div>
+
+              <h3 className="font-serif font-bold text-center text-sm sm:text-base text-[#422F21]">
+                Assalamu'alaikum Warahmatullahi Wabarakatuh
+              </h3>
+
+              <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-justify sm:text-center">
+                Salam silaturahim kami sampaikan, semoga Bapak/Ibu/Saudara/i senantiasa berada dalam lindungan Allah SWT.
+              </p>
+
+              <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-justify sm:text-center">
+                Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan Pondok Pesantren Putri Tahfizhil Qur-an &amp; Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at</strong> serta <strong>Dzikrul Haul Al-Maghfur Lahum</strong>:
+              </p>
+
+              <div className="p-4 rounded-2xl bg-white border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
+                <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
+                <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
+                <p className="text-sm text-[#8C6A47] font-black">• KH. AHMAD IDRIS MARZUQI •</p>
+                <p className="text-sm text-[#8C6A47] font-black">• IBU NYAI HJ. ADDINIYAH KHODIJAH •</p>
+                <p className="text-[11px] text-stone-500 font-normal pt-1">dan segenap Masyayikh Pon. Pes. Lirboyo Kediri</p>
+              </div>
+
+              <div className="pt-2 text-xs font-serif text-center space-y-1 bg-[#FAF0E6] p-4 rounded-2xl border border-[#D5C4B4]">
+                <p className="font-bold text-[#422F21]">Pelaksanaan Acara:</p>
+                <p>Hari / Tanggal: <strong>Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.</strong></p>
+                <p>Waktu: <strong>Pukul 06.30 WIB / 07.00 WIs - Selesai</strong></p>
+                <p>Tempat: <strong>Aula Al-Muktamar Pondok Pesantren Lirboyo Kediri</strong></p>
+              </div>
+            </div>
+
+            {/* QR CODE GERBANG MASUK WALI SANTRI */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
               <div className="space-y-1">
                 <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
@@ -1149,26 +1032,12 @@ export default function UndanganWaliPage() {
                   {qrDataUrl ? (
                     <img
                       src={qrDataUrl}
-                      alt={`QR Code ${kuota?.kodeQr}`}
+                      alt="QR Code Tiket Masuk Wali"
                       className="w-full h-full object-contain rounded-xl"
                     />
                   ) : (
                     <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
                   )}
-                </div>
-
-                <div className="mt-3 flex items-center space-x-2">
-                  <span className="text-xl font-mono font-black text-[#422F21] tracking-widest bg-[#FAF0E6] px-4 py-1.5 rounded-xl border border-[#D5C4B4]">
-                    {kuota?.kodeQr || item?.kode}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyKode}
-                    className="p-2 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs shadow-xs transition-colors cursor-pointer"
-                    title="Salin Kode"
-                  >
-                    {copiedCode ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                  </button>
                 </div>
               </div>
 
@@ -1182,8 +1051,8 @@ export default function UndanganWaliPage() {
                   <p className="font-serif font-black text-lg text-emerald-700">+{kuota?.kuotaTambahan || 0}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-stone-500 uppercase font-bold">TERPAKAI</span>
-                  <p className="font-serif font-black text-lg text-stone-700">{kuota?.terpakai || 0}</p>
+                  <span className="text-[10px] text-stone-500 uppercase font-bold">TOTAL KUOTA</span>
+                  <p className="font-serif font-black text-lg text-stone-700">{totalKuotaSantri} Kursi</p>
                 </div>
               </div>
             </div>
@@ -1217,7 +1086,7 @@ export default function UndanganWaliPage() {
                     Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
                   </p>
                   <Link
-                    href={`/beli/${kuota?.kodeQr || item?.kode || kodeSH}`}
+                    href={`/beli/${kodeSH}`}
                     className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                   >
                     <ShoppingBag className="w-4.5 h-4.5 text-emerald-200" />
@@ -1242,7 +1111,7 @@ export default function UndanganWaliPage() {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
               <div className="space-y-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-                  Waktu & Tempat Pelaksanaan
+                  Waktu &amp; Tempat Pelaksanaan
                 </span>
                 <h3 className="font-serif font-black text-xl text-[#422F21]">
                   Aula Al-Muktamar Pondok Pesantren Lirboyo
@@ -1278,7 +1147,7 @@ export default function UndanganWaliPage() {
                   className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <Compass className="w-4 h-4 text-[#8C6A47]" />
-                  <span>Buka Denah Lokasi & Parkir</span>
+                  <span>Buka Denah Lokasi &amp; Parkir</span>
                 </button>
               </div>
             </div>
@@ -1295,12 +1164,12 @@ export default function UndanganWaliPage() {
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.00 WIs</span>
-                  <p className="text-stone-700">Lalaran Tamatan Aliyah & Senandung Sholawat Syauqul Ahibba'.</p>
+                  <p className="text-stone-700">Lalaran Tamatan Aliyah &amp; Senandung Sholawat Syauqul Ahibba'.</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.30 WIs</span>
                   <p className="text-stone-700">
-                    <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) & Tartilan Khotmil Qur'an.
+                    <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) &amp; Tartilan Khotmil Qur'an.
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -1309,11 +1178,11 @@ export default function UndanganWaliPage() {
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">08.52 WIs</span>
-                  <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi & Bin Nadzori.</p>
+                  <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi &amp; Bin Nadzori.</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">10.12 WIs</span>
-                  <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, & Pembagian Ijazah Tamatan.</p>
+                  <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">13.01 WIs</span>
@@ -1325,24 +1194,24 @@ export default function UndanganWaliPage() {
             {/* TATA TERTIB & KETENTUAN SAMBANGAN WALI SANTRI */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
               <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
-                Tata Tertib & Ketentuan Sambangan
+                Tata Tertib &amp; Ketentuan Sambangan
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1">
                   <span className="font-bold text-amber-900 block">🚫 Larangan Selama Acara:</span>
                   <p className="text-amber-800 leading-relaxed text-[11px]">
                     • Dilarang membawa <strong>buket</strong> ke aula.<br />
-                    • Dilarang memakai kutek, hena, & nail art.<br />
+                    • Dilarang memakai kutek, hena, &amp; nail art.<br />
                     • Dilarang membawa fotografer dari luar.<br />
                     • Wali dilarang memasuki area steril santriwati saat acara.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
-                  <span className="font-bold text-emerald-900 block">📍 Jadwal & Lokasi Sambangan:</span>
+                  <span className="font-bold text-emerald-900 block">📍 Jadwal &amp; Lokasi Sambangan:</span>
                   <p className="text-emerald-800 leading-relaxed text-[11px]">
                     • Dibuka <strong>setelah acara s.d. 18.00 WIs</strong>.<br />
-                    • <strong>Halaman Al-Khodijah:</strong> Bil Ghoibi & Bin Nadzori.<br />
+                    • <strong>Halaman Al-Khodijah:</strong> Bil Ghoibi &amp; Bin Nadzori.<br />
                     • <strong>Gedung Rusunawa Baru:</strong> Tamatan Aliyah.<br />
                     • Wajib mahrom sah (bawa KKS/KTP).
                   </p>
@@ -1350,7 +1219,7 @@ export default function UndanganWaliPage() {
               </div>
             </div>
 
-            {/* SECTION KONFIRMASI KEHADIRAN WALI SANTRI (RSVP) */}
+            {/* SECTION KONFIRMASI KEHADIRAN WALI SANTRI (RSVP DENGAN BATAS KUOTA TOTAL & NON-NEGATIF) */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -1358,7 +1227,7 @@ export default function UndanganWaliPage() {
                     Konfirmasi Kehadiran (RSVP)
                   </h3>
                   <p className="text-xs text-[#7A624E]">
-                    Bantu panitia menyiapkan tempat duduk dan konsumsi dengan mengisi perkiraan jumlah yang hadir.
+                    Jumlah total konfirmasi maksimal <strong>{totalKuotaSantri} kursi</strong> (Kuota Dasar: {item?.kuota?.kuotaDasar || 2} + Tambahan: {item?.kuota?.kuotaTambahan || 0}).
                   </p>
                 </div>
                 {item?.estimasi?.statusKonfirmasi === 'SUDAH' && (
@@ -1378,7 +1247,7 @@ export default function UndanganWaliPage() {
                     <button
                       type="button"
                       onClick={() => setEstL(Math.max(0, estL - 1))}
-                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100 active:scale-95"
                     >
                       −
                     </button>
@@ -1386,7 +1255,7 @@ export default function UndanganWaliPage() {
                     <button
                       type="button"
                       onClick={() => setEstL(estL + 1)}
-                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334]"
+                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334] active:scale-95"
                     >
                       +
                     </button>
@@ -1402,7 +1271,7 @@ export default function UndanganWaliPage() {
                     <button
                       type="button"
                       onClick={() => setEstP(Math.max(0, estP - 1))}
-                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100"
+                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100 active:scale-95"
                     >
                       −
                     </button>
@@ -1410,13 +1279,20 @@ export default function UndanganWaliPage() {
                     <button
                       type="button"
                       onClick={() => setEstP(estP + 1)}
-                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334]"
+                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334] active:scale-95"
                     >
                       +
                     </button>
                   </div>
                 </div>
               </div>
+
+              {/* ERROR INLINE SAAT JUMLAH MELEBIHI KUOTA */}
+              {isWaliRsvpExceeded && (
+                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold text-center">
+                  ⚠️ Jumlah konfirmasi ({totalInputWali} orang) melebihi kuota Anda ({totalKuotaSantri} kursi).
+                </div>
+              )}
 
               <div>
                 <label className="block text-[11px] font-bold text-[#422F21] mb-1">
@@ -1433,8 +1309,8 @@ export default function UndanganWaliPage() {
 
               <button
                 type="button"
-                onClick={handleSimpanEstimasi}
-                disabled={savingRsvp}
+                onClick={handleSimpanEstimasiWali}
+                disabled={savingRsvp || isWaliRsvpExceeded}
                 className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
               >
                 {savingRsvp ? (
@@ -1463,10 +1339,33 @@ export default function UndanganWaliPage() {
               )}
             </div>
 
+            {/* TANDA TANGAN PANITIA & PENUTUP */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm text-center space-y-4 text-xs font-serif text-[#422F21]">
+              <p className="italic text-stone-600">
+                Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
+                Jazakumullahu khairan katsiran.
+              </p>
+
+              <div className="pt-4 border-t border-stone-100 grid grid-cols-2 gap-4 max-w-md mx-auto font-bold">
+                <div>
+                  <p className="text-[10px] text-stone-500 uppercase font-sans">Ketua Panitia</p>
+                  <p className="pt-8 text-sm text-[#8C6A47]">( Bpk. Asep Darajat )</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-stone-500 uppercase font-sans">Sekretaris Panitia</p>
+                  <p className="pt-8 text-sm text-[#8C6A47]">( Bpk. Chamdan Yuwafi )</p>
+                </div>
+              </div>
+
+              <div className="pt-3 text-[#8C6A47] font-bold text-sm">
+                Wassalamu'alaikum Warahmatullahi Wabarakatuh
+              </div>
+            </div>
+
             {/* FOOTER WALI SANTRI */}
             <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
               <p className="font-serif font-bold text-[#422F21]">
-                Pondok Pesantren Putri Tahfizhil Qur-an & MHMTQ Lirboyo
+                Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo
               </p>
               <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
             </div>
@@ -1474,18 +1373,18 @@ export default function UndanganWaliPage() {
         )
       )}
 
-      {/* FLOATING USTADZAH AI BUTTON */}
+      {/* FLOATING US. HALWAA BUTTON */}
       <button
         type="button"
         onClick={() => setIsUsModalOpen(true)}
         className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#D49B5B] hover:brightness-110 text-white font-serif font-bold text-xs shadow-2xl flex items-center space-x-2 border-2 border-amber-200/60 transition-all hover:scale-105 active:scale-95 cursor-pointer"
       >
         <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-        <span>Tanya Ustadzah AI</span>
+        <span>Tanya Us. Halwaa</span>
         <Sparkles className="w-4 h-4 text-amber-200" />
       </button>
 
-      {/* MODAL USTADZAH AI */}
+      {/* MODAL US. HALWAA */}
       {isUsModalOpen && (
         <TanyaUsModal
           isOpen={isUsModalOpen}

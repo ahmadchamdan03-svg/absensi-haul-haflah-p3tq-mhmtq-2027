@@ -17,10 +17,25 @@ export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 
 export function getWarnaTiketSantri(kategoriUtama?: string, subKategori?: string): string {
   const kat = (kategoriUtama || '').toUpperCase();
   const sub = (subKategori || '').toLowerCase();
-  if (kat === 'BIL_GHOIB' || sub.includes('bil ghoib')) {
+  if (kat === 'BIL_GHOIB' || sub.includes('bil ghoib') || sub.includes('ghoib')) {
     return 'Hitam Gold';
   }
   return 'Merah Gold';
+}
+
+/**
+ * Aturan Kuota Dasar Santri Multi-Kategori:
+ * 1. Bil Ghoib (jika santri terdaftar Bil Ghoib, termasuk bersama kategori lain) -> kuota_dasar = 4 kursi.
+ * 2. Bin Nadzori -> 2 kursi.
+ * 3. Tamatan -> 2 kursi.
+ */
+export function calculateKuotaDasarSantri(kategoriUtama?: string, subKategori?: string): number {
+  const kat = (kategoriUtama || '').toUpperCase();
+  const sub = (subKategori || '').toUpperCase();
+  if (kat.includes('BIL_GHOIB') || kat.includes('GHOIB') || sub.includes('BIL GHOIB') || sub.includes('GHOIB')) {
+    return 4;
+  }
+  return 2;
 }
 
 export function getWarnaTiketUndangan(golongan?: string, kategori?: string): string {
