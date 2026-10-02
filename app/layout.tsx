@@ -3,9 +3,32 @@ import './globals.css';
 import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Sistem Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ',
-  description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah Pondok Pesantren Putri Tahfizhil Qur-an Lirboyo Kediri Versi 4.2',
+  title: 'Haflah P3TQ',
+  description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ Lirboyo Kediri',
+  metadataBase: new URL('https://haflahp3tq.site'),
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'Haflah P3TQ',
+    description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ Lirboyo Kediri',
+    url: 'https://haflahp3tq.site',
+    siteName: 'Haflah P3TQ',
+    images: [
+      {
+        url: '/logo-haul-haflah-transparent.png',
+        width: 800,
+        height: 800,
+        alt: 'Haflah P3TQ Logo',
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Haflah P3TQ',
+    description: 'Aplikasi Absensi & Manajemen Kuota Haul-Haflah P3TQ - MHMTQ Lirboyo Kediri',
+    images: ['/logo-haul-haflah-transparent.png'],
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
