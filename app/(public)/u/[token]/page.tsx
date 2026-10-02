@@ -36,6 +36,8 @@ import DenahModal from '@/components/DenahModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
+import PortalBackground from '@/components/PortalBackground';
+import GlassCard from '@/components/GlassCard';
 
 // Helper Kategori Tamu Undangan
 function getTamuCategoryLabel(item: any): string {
@@ -248,15 +250,15 @@ export default function UndanganWaliPage() {
 
           if (t && !error) {
             const kDasar = Number(t.kuota_dasar !== undefined && t.kuota_dasar !== null ? t.kuota_dasar : (t.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1));
-            const mappedItem = {
+            const mappedTamu = {
               id: t.id,
               kode: t.kode,
               tipe: 'UNDANGAN',
               nama: t.nama || '',
               namaPutra: t.nama_putra || '',
               namaPutri: t.nama_putri || '',
-              kategori: t.kategori || 'Tamu Kehormatan',
-              subKategori: t.sub_kategori || 'KEHORMATAN',
+              kategori: t.kategori || 'Tamu Undangan',
+              subKategori: t.golongan || 'ISTIMEWA',
               instansi: t.instansi || '',
               alamat: t.alamat || '',
               noHp: t.no_hp || '',
@@ -269,14 +271,13 @@ export default function UndanganWaliPage() {
               },
               estimasi: {
                 statusKonfirmasi: t.status_konfirmasi || 'BELUM',
-                perkiraanL: Number(t.perkiraan_l || 0),
-                perkiraanP: Number(t.perkiraan_p || 0),
+                perkiraanL: Number(t.perkiraan_l || 1),
+                perkiraanP: Number(t.perkiraan_p || 1),
                 catatan: t.catatan_konfirmasi || '',
                 diisiAt: t.updated_at || t.created_at,
               },
             };
-
-            setItem(mappedItem);
+            setItem(mappedTamu);
 
             formatQrPayload(t.kode).then((payload) => {
               setFullQrPayload(payload);
@@ -291,7 +292,6 @@ export default function UndanganWaliPage() {
             });
           }
         } else {
-          // Query ke tabel 'peserta_santri' (Wali Santri)
           const { data: s, error } = await supabase
             .from('peserta_santri')
             .select('*')
@@ -378,7 +378,7 @@ export default function UndanganWaliPage() {
   useEffect(() => {
     if (isTamuUndangan) return;
 
-    const fetchKuotaControlStatus = async () => {
+    async function fetchKuotaControl() {
       try {
         setLoadingKuotaControl(true);
         const { data: configData } = await supabase
@@ -403,7 +403,7 @@ export default function UndanganWaliPage() {
 
         const { data: pembelianData } = await supabase
           .from('pembelian_kuota')
-          .select('*')
+          .select('jumlah_kursi, status')
           .in('status', ['DIVERIFIKASI', 'DITERIMA']);
 
         if (pembelianData) {
@@ -412,49 +412,41 @@ export default function UndanganWaliPage() {
           }, 0);
           setTotalDiverifikasi(sumDiverifikasi);
         }
-      } catch (err) {
-        console.warn('Error fetching kuota control status:', err);
+      } catch (e) {
+        console.warn('Error fetching kuota tambahan control:', e);
       } finally {
         setLoadingKuotaControl(false);
       }
-    };
+    }
 
-    fetchKuotaControlStatus();
+    fetchKuotaControl();
 
-    // Subscribe Realtime ke perubahan konfigurasi_sistem & pembelian_kuota
     const channel = supabase
-      .channel(`kuota_control_realtime_${kodeSH}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'konfigurasi_sistem' },
-        () => {
-          fetchKuotaControlStatus();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'pembelian_kuota' },
-        () => {
-          fetchKuotaControlStatus();
-        }
-      )
+      .channel(`u_page_kuota_control_${kodeSH}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
+        fetchKuotaControl();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, () => {
+        fetchKuotaControl();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isTamuUndangan, kodeSH]);
+  }, [kodeSH, isTamuUndangan]);
 
+  // Handler Buka Undangan & Putar Backsound
   const handleOpenInvitation = () => {
     setIsOpened(true);
-    try {
-      if (audioRef.current) {
-        audioRef.current
-          .play()
-          .then(() => setIsPlayingMusic(true))
-          .catch(() => {});
-      }
-    } catch (e) {}
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        setIsPlayingMusic(true);
+      }).catch((e) => {
+        console.warn('Autoplay blocked by browser policy:', e);
+        setIsPlayingMusic(false);
+      });
+    }
   };
 
   const toggleMusic = () => {
@@ -463,27 +455,30 @@ export default function UndanganWaliPage() {
       audioRef.current.pause();
       setIsPlayingMusic(false);
     } else {
-      audioRef.current
-        .play()
-        .then(() => setIsPlayingMusic(true))
-        .catch(() => {});
+      audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(console.warn);
     }
   };
 
-  // Handler RSVP Tamu Undangan (Hanya 2 Tombol: HADIR / BERHALANGAN)
+  // Handler RSVP Tamu Undangan (2 Tombol: HADIR / BERHALANGAN)
   const handleKonfirmasiTamu = async (status: 'HADIR' | 'BERHALANGAN') => {
+    if (!item) return;
     setSavingRsvp(true);
     setRsvpError(null);
-    try {
-      const targetKode = item.kuota?.kodeQr || item.kode || kodeSH;
-      const nowIso = new Date().toISOString();
 
+    const targetKode = item.kodeQr || item.kode || kodeSH;
+    const nowIso = new Date().toISOString();
+
+    const payload = {
+      status_konfirmasi: status,
+      perkiraan_l: status === 'HADIR' ? 1 : 0,
+      perkiraan_p: status === 'HADIR' ? 1 : 0,
+      updated_at: nowIso,
+    };
+
+    try {
       await supabase
         .from('tamu_undangan')
-        .update({
-          status_konfirmasi: status,
-          updated_at: nowIso,
-        })
+        .update(payload)
         .eq('kode', targetKode);
 
       setItem((prev: any) => ({
@@ -491,12 +486,13 @@ export default function UndanganWaliPage() {
         estimasi: {
           ...prev?.estimasi,
           statusKonfirmasi: status,
+          perkiraanL: status === 'HADIR' ? 1 : 0,
+          perkiraanP: status === 'HADIR' ? 1 : 0,
           diisiAt: nowIso,
         },
       }));
 
       setTamuRsvpSaved(true);
-      setLastSavedTime(new Date().toLocaleTimeString('id-ID') + ' WIB');
       setTimeout(() => setTamuRsvpSaved(false), 5000);
     } catch (err: any) {
       setRsvpError(`Gagal menyimpan konfirmasi: ${err.message || err}`);
@@ -562,7 +558,10 @@ export default function UndanganWaliPage() {
   const kuota = item?.kuota;
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
+    <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
+      {/* BACKGROUND PANGGUNG RESMI & EFEK VISUAL SAMA SEPERTI LANDING PAGE */}
+      <PortalBackground />
+
       {/* Audio Elemen Tersembunyi */}
       <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="auto" />
 
@@ -588,8 +587,8 @@ export default function UndanganWaliPage() {
       {isTamuUndangan ? (
         !isOpened ? (
           /* COVER TAMU UNDANGAN */
-          <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 bg-[#FAF7F3]">
-            <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
+          <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
+            <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
               <HeaderLogos />
 
               <div className="space-y-1">
@@ -617,7 +616,7 @@ export default function UndanganWaliPage() {
                 </span>
                 {renderTamuName(item)}
 
-                <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] uppercase tracking-wider">
+                <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] uppercase tracking-wider">
                   {getTamuCategoryLabel(item)}
                 </div>
 
@@ -641,14 +640,14 @@ export default function UndanganWaliPage() {
                   <span>Buka Undangan ✉️</span>
                 </button>
               </div>
-            </div>
+            </GlassCard>
           </div>
         ) : (
           /* KONTEN LENGKAP TAMU UNDANGAN */
-          <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
+          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
             <HeaderLogos />
 
-            <div className="text-center space-y-2">
+            <GlassCard className="p-6 text-center space-y-2">
               <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
                 Undangan Kehormatan
               </h1>
@@ -656,10 +655,10 @@ export default function UndanganWaliPage() {
                 <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
                 <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
               </div>
-            </div>
+            </GlassCard>
 
             {/* KARTU IDENTITAS TAMU UNDANGAN */}
-            <div className="bg-[#FAF7F3] rounded-3xl p-6 sm:p-8 border-2 border-[#D5C4B4] shadow-md space-y-4 relative overflow-hidden">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#D5C4B4]/80 shadow-md space-y-4 relative overflow-hidden">
               <div className="text-center text-sm font-serif text-[#8C6A47] tracking-widest pb-1 font-arabic">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </div>
@@ -679,7 +678,7 @@ export default function UndanganWaliPage() {
 
               <div className="pt-3 border-t border-[#D5C4B4]/60 text-xs space-y-1.5 text-center">
                 {item?.instansi && item.instansi !== '-' && (
-                  <div className="p-2.5 rounded-2xl bg-white border border-[#E8DFD5]">
+                  <div className="p-2.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5]">
                     <span className="text-stone-500 text-[10px] uppercase font-bold block">
                       Instansi / Asal:
                     </span>
@@ -687,7 +686,7 @@ export default function UndanganWaliPage() {
                   </div>
                 )}
                 {item?.alamat && item.alamat !== '-' && (
-                  <div className="p-2.5 rounded-2xl bg-white border border-[#E8DFD5]">
+                  <div className="p-2.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5]">
                     <span className="text-stone-500 text-[10px] uppercase font-bold block">
                       Alamat:
                     </span>
@@ -695,16 +694,16 @@ export default function UndanganWaliPage() {
                   </div>
                 )}
               </div>
-            </div>
+            </GlassCard>
 
             {/* KALIMAT SAMBUTAN HORMATH & KHIDMAT */}
-            <div className="bg-[#FAF0E6] p-5 sm:p-6 rounded-3xl border-2 border-[#D5C4B4] text-center space-y-2 shadow-xs">
+            <GlassCard className="p-5 sm:p-6 border-2 border-[#D5C4B4]/80 text-center space-y-2 shadow-xs bg-[#FAF0E6]/80">
               <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed italic">
                 "Dengan penuh hormat dan khidmat, kami mengundang Bapak/Ibu/Saudara untuk menghadiri Haul &amp; Haflah Akhirussanah P3TQ &amp; MHMTQ 1448 H./2027 M."
               </p>
-            </div>
+            </GlassCard>
 
-            {/* KARTU QR CODE GERBANG MASUK */}
+            {/* KARTU QR CODE GERBANG MASUK (SOLID WHITE DEPOSIT FOR QR SCANNABILITY) */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
               <div className="space-y-1">
                 <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
@@ -743,7 +742,7 @@ export default function UndanganWaliPage() {
             </div>
 
             {/* WAKTU, LOKASI & COUNTDOWN TIMER */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
               <div className="space-y-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
                   Waktu &amp; Tempat Pelaksanaan
@@ -757,25 +756,25 @@ export default function UndanganWaliPage() {
               </div>
 
               <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
                     {timeLeft.days}
                   </div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
                     {timeLeft.hours}
                   </div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
                     {timeLeft.minutes}
                   </div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
                     {timeLeft.seconds}
                   </div>
@@ -793,10 +792,10 @@ export default function UndanganWaliPage() {
                   <span>Buka Denah Lokasi &amp; Parkir VIP</span>
                 </button>
               </div>
-            </div>
+            </GlassCard>
 
             {/* RANGKAIAN ADICARA UTAMA */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
               <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
                 Rangkaian Acara Hari H (02 Januari 2027)
               </h3>
@@ -828,10 +827,10 @@ export default function UndanganWaliPage() {
                   <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
             {/* SECTION KONFIRMASI KEHADIRAN (RSVP TAMU - 2 TOMBOL SIMPEL) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
               <div className="space-y-1">
                 <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
                   Konfirmasi Kehadiran (RSVP)
@@ -890,7 +889,7 @@ export default function UndanganWaliPage() {
                   ⚠️ {rsvpError}
                 </div>
               )}
-            </div>
+            </GlassCard>
 
             {/* TOMBOL HUBUNGI PANITIA */}
             <div className="pt-2 space-y-3">
@@ -906,7 +905,7 @@ export default function UndanganWaliPage() {
             </div>
 
             {/* FOOTER INFORMASI TAMU UNDANGAN */}
-            <div className="text-center text-xs text-stone-600 space-y-3 pt-6 border-t border-[#D5C4B4]/60">
+            <GlassCard className="p-6 text-center text-xs text-stone-600 space-y-3">
               <div className="space-y-1">
                 <p className="font-serif font-bold text-[#422F21]">
                   Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
@@ -926,7 +925,7 @@ export default function UndanganWaliPage() {
                 <NamaLembaga align="center" size="xs" weight="medium" color="text-stone-500" />
                 <p className="text-[10px] text-stone-400 mt-0.5 font-semibold">Lirboyo Kediri</p>
               </div>
-            </div>
+            </GlassCard>
           </div>
         )
       ) : (
@@ -935,8 +934,8 @@ export default function UndanganWaliPage() {
         /* Format Resmi Sesuai Undangan Tahun Lalu dengan Tema Krem-Coklat-Emas      */
         /* ========================================================================= */
         !isOpened ? (
-          <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 bg-[#FAF7F3]">
-            <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border-2 border-[#D5C4B4] shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
+          <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
+            <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
               <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center">
                 UNDANGAN RESMI WALI SANTRI
               </div>
@@ -952,7 +951,7 @@ export default function UndanganWaliPage() {
                 <h2 className="text-lg sm:text-xl font-serif font-black text-[#422F21]">
                   {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
                 </h2>
-                <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
+                <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
                   {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : 'Wali Santri'}
                 </div>
               </div>
@@ -967,21 +966,21 @@ export default function UndanganWaliPage() {
                   <span>Buka Undangan ✉️</span>
                 </button>
               </div>
-            </div>
+            </GlassCard>
           </div>
         ) : (
           /* KONTEN LENGKAP UNDANGAN WALI SANTRI (TEKS FORMAT ISLAMI FORMAL TAHUN LALU) */
-          <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
+          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
             {/* HEADER KARTU UNDANGAN WALI (FORMAT HAFLAH + AKHIRUSSANAH) */}
-            <div className="bg-white rounded-3xl p-4 sm:p-6 border-2 border-[#D5C4B4] shadow-md">
+            <GlassCard className="p-4 sm:p-6 border-2 border-[#D5C4B4]/80 shadow-md">
               <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
                 UNDANGAN RESMI WALI SANTRI
               </div>
               <HeaderUndanganWali />
-            </div>
+            </GlassCard>
 
             {/* PROFIL SANTRIWATI & WALI SANTRI */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
               <div className="text-center space-y-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
                   Shohibul Hajat
@@ -995,19 +994,19 @@ export default function UndanganWaliPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-100 text-xs">
-                <div className="p-3 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] space-y-0.5">
+                <div className="p-3 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
                   <span className="text-stone-500 text-[10px] uppercase font-bold">Nama Wali:</span>
                   <p className="font-bold text-[#422F21] truncate">{item?.entitas?.namaWali || item?.entitas?.nama}</p>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] space-y-0.5">
+                <div className="p-3 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
                   <span className="text-stone-500 text-[10px] uppercase font-bold">Asal / Alamat:</span>
                   <p className="font-bold text-[#422F21] truncate">{item?.entitas?.alamat || 'Kediri'}</p>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
             {/* KALIMAT SAMBUTAN FORMAL ISLAMI SEPERTI TAHUN LALU */}
-            <div className="bg-[#FAF7F3] rounded-3xl p-6 sm:p-8 border-2 border-[#D5C4B4] shadow-sm space-y-4 text-[#422F21]">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#D5C4B4]/80 shadow-sm space-y-4 text-[#422F21]">
               <div className="text-center text-base font-serif text-[#8C6A47] font-bold tracking-widest font-arabic">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </div>
@@ -1032,7 +1031,7 @@ export default function UndanganWaliPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
+              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
                 <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
                 <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
                 <p className="text-sm text-[#8C6A47] font-black">• KH. AHMAD IDRIS MARZUQI •</p>
@@ -1040,15 +1039,15 @@ export default function UndanganWaliPage() {
                 <p className="text-[11px] text-stone-500 font-normal pt-1">dan segenap Masyayikh Pon. Pes. Lirboyo Kediri</p>
               </div>
 
-              <div className="pt-2 text-xs font-serif text-center space-y-1 bg-[#FAF0E6] p-4 rounded-2xl border border-[#D5C4B4]">
+              <div className="pt-2 text-xs font-serif text-center space-y-1 bg-[#FAF0E6]/90 p-4 rounded-2xl border border-[#D5C4B4]">
                 <p className="font-bold text-[#422F21]">Pelaksanaan Acara:</p>
                 <p>Hari / Tanggal: <strong>Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.</strong></p>
                 <p>Waktu: <strong>Pukul 06.30 WIB / 07.00 WIs - Selesai</strong></p>
                 <p>Tempat: <strong>Aula Al-Muktamar Pondok Pesantren Lirboyo Kediri</strong></p>
               </div>
-            </div>
+            </GlassCard>
 
-            {/* QR CODE GERBANG MASUK WALI SANTRI */}
+            {/* QR CODE GERBANG MASUK WALI SANTRI (SOLID WHITE DEPOSIT FOR QR SCANNABILITY) */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
               <div className="space-y-1">
                 <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
@@ -1093,7 +1092,7 @@ export default function UndanganWaliPage() {
             </div>
 
             {/* SECTION KONTROL BELI KUOTA TAMBAHAN (WALI SANTRI ONLY) */}
-            <div className="bg-white rounded-3xl p-5 sm:p-7 border-2 border-[#E8DFD5] shadow-sm space-y-3.5">
+            <GlassCard className="p-5 sm:p-7 border-2 border-[#E8DFD5]/80 shadow-sm space-y-3.5">
               <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
@@ -1111,7 +1110,7 @@ export default function UndanganWaliPage() {
               </div>
 
               {loadingKuotaControl ? (
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2 font-medium">
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2 font-medium">
                   <Loader2 className="w-4 h-4 animate-spin text-[#8C6A47]" />
                   <span>Sedang memuat status kuota tambahan...</span>
                 </div>
@@ -1133,20 +1132,20 @@ export default function UndanganWaliPage() {
                   </p>
                 </div>
               ) : !kuotaSwitchAktif ? (
-                <div className="p-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 text-xs flex items-center space-x-2.5 font-medium">
+                <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200 text-slate-700 text-xs flex items-center space-x-2.5 font-medium">
                   <Info className="w-4.5 h-4.5 text-slate-500 shrink-0" />
                   <span>Pembelian kuota tambahan sedang ditutup.</span>
                 </div>
               ) : (
-                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center space-x-2.5 font-medium">
+                <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-900 text-xs flex items-center space-x-2.5 font-medium">
                   <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
                   <span>Kuota tambahan sudah habis (300/300 terisi).</span>
                 </div>
               )}
-            </div>
+            </GlassCard>
 
             {/* WAKTU, LOKASI & COUNTDOWN TIMER WALI */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-5 text-center">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
               <div className="space-y-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
                   Waktu &amp; Tempat Pelaksanaan
@@ -1160,19 +1159,19 @@ export default function UndanganWaliPage() {
               </div>
 
               <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.days}</div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.hours}</div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.minutes}</div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6] border border-[#D5C4B4]">
+                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
                   <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.seconds}</div>
                   <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
                 </div>
@@ -1188,10 +1187,10 @@ export default function UndanganWaliPage() {
                   <span>Buka Denah Lokasi &amp; Parkir</span>
                 </button>
               </div>
-            </div>
+            </GlassCard>
 
             {/* RANGKAIAN ADICARA UTAMA */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
               <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
                 Rangkaian Acara Hari H (02 Januari 2027)
               </h3>
@@ -1227,10 +1226,10 @@ export default function UndanganWaliPage() {
                   <p className="text-stone-700">Penayangan Video Closing "Sajak Akhirussanah" dan Sesi Foto.</p>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
             {/* TATA TERTIB & KETENTUAN SAMBANGAN WALI SANTRI */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
               <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
                 Tata Tertib &amp; Ketentuan Sambangan
               </h3>
@@ -1255,10 +1254,10 @@ export default function UndanganWaliPage() {
                   </p>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
             {/* SECTION KONFIRMASI KEHADIRAN WALI SANTRI (RSVP DENGAN BATAS KUOTA TOTAL & NON-NEGATIF) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-4">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h3 className="font-serif font-black text-base text-[#422F21]">
@@ -1276,7 +1275,7 @@ export default function UndanganWaliPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between">
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
                   <div>
                     <div className="text-xs font-bold text-[#422F21]">Wali Laki-Laki</div>
                     <div className="text-[10px] text-stone-500">Zona Putra</div>
@@ -1300,7 +1299,7 @@ export default function UndanganWaliPage() {
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between">
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
                   <div>
                     <div className="text-xs font-bold text-[#422F21]">Wali Perempuan</div>
                     <div className="text-[10px] text-stone-500">Zona Putri</div>
@@ -1341,7 +1340,7 @@ export default function UndanganWaliPage() {
                   value={catatanRsvp}
                   onChange={(e) => setCatatanRsvp(e.target.value)}
                   placeholder="Contoh: Datang bersama 1 balita, atau mohon jalur lansia..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-[#D5C4B4] text-xs bg-[#FAF7F3] focus:bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#D5C4B4] text-xs bg-[#FAF7F3]/90 focus:bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
                 />
               </div>
 
@@ -1375,10 +1374,10 @@ export default function UndanganWaliPage() {
                   ✓ Konfirmasi kehadiran Anda berhasil disimpan ke sistem panitia Supabase{lastSavedTime ? ` pada ${lastSavedTime}` : ''}.
                 </div>
               )}
-            </div>
+            </GlassCard>
 
             {/* TANDA TANGAN PANITIA & PENUTUP (DEWAN HARIAN PUTRI) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
+            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
               <p className="italic text-stone-600 leading-relaxed">
                 Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
                 Jazakumullahu khairan katsiran.
@@ -1406,16 +1405,16 @@ export default function UndanganWaliPage() {
               <div className="pt-3 text-[#8C6A47] font-serif italic text-xs sm:text-sm font-bold">
                 Wassalamu'alaikum Warahmatullahi Wabarakatuh
               </div>
-            </div>
+            </GlassCard>
 
             {/* FOOTER WALI SANTRI */}
-            <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
+            <GlassCard className="p-5 text-center text-[11px] text-stone-500 space-y-1">
               <div className="pt-1">
                 <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
                 <p className="text-[10px] text-stone-500 font-semibold mt-0.5">Lirboyo Kediri</p>
               </div>
               <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
-            </div>
+            </GlassCard>
           </div>
         )
       )}

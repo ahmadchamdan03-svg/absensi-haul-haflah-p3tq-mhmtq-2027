@@ -30,6 +30,8 @@ import {
 import { supabase } from '@/lib/supabase';
 import NamaLembaga from '@/components/NamaLembaga';
 import { calculateKuotaDasarSantri } from '@/lib/types';
+import PortalBackground from '@/components/PortalBackground';
+import GlassCard from '@/components/GlassCard';
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -518,8 +520,9 @@ export default function BeliKuotaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F3] text-[#422F21] selection:bg-[#8C6A47]/20 py-8 px-4 sm:px-6">
-      <div className="max-w-xl mx-auto space-y-6">
+    <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 py-8 px-4 sm:px-6 relative overflow-x-hidden">
+      <PortalBackground />
+      <div className="max-w-xl mx-auto space-y-6 relative z-10">
         {/* TOMBOL KEMBALI KE UNDANGAN */}
         <div className="flex items-center justify-between">
           <Link
