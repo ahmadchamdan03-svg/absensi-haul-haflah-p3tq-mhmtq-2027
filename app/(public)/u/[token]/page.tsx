@@ -605,6 +605,13 @@ export default function UndanganWaliPage() {
   const finalWaNo = rawWaNo.startsWith('0') ? '62' + rawWaNo.slice(1) : rawWaNo || '6285181805377';
   const waUsTanyaLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textUsTanya)}`;
 
+  const textHalKhusus =
+    `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
+    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
+    `Saya ingin menyampaikan hal khusus:\n\n` +
+    `(silakan tulis di sini)`;
+  const waHalKhususLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textHalKhusus)}`;
+
   return (
     <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
       {/* BACKGROUND PANGGUNG RESMI & EFEK VISUAL (PARALLAX + LIGHT RAYS + DEBU EMAS) */}
@@ -1256,8 +1263,8 @@ export default function UndanganWaliPage() {
                     <h3 className="font-serif font-black text-base text-[#422F21]">
                       Konfirmasi Kehadiran (RSVP)
                     </h3>
-                    <p className="text-xs text-[#7A624E]">
-                      Jumlah total konfirmasi maksimal <strong>{totalKuotaSantri} kursi</strong> (Kuota Dasar: {item?.kuota?.kuotaDasar || 2} + Tambahan: {item?.kuota?.kuotaTambahan || 0}).
+                    <p className="text-xs md:text-sm text-[#7A624E] text-left">
+                      Bantu panitia menyiapkan kursi Anda dengan mengisi perkiraan jumlah kehadiran di bawah ini.
                     </p>
                   </div>
                   {item?.estimasi?.statusKonfirmasi === 'SUDAH' && (
@@ -1335,17 +1342,7 @@ export default function UndanganWaliPage() {
                     </p>
                   </div>
 
-                  {/* INDIKATOR SISA KUOTA */}
-                  <div className="pt-1 space-y-1 border-t border-stone-100">
-                    <p className={`text-xs font-bold ${totalKuotaSantri - totalInputWali > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
-                      Sisa kuota yang bisa dikonfirmasi: {totalKuotaSantri - totalInputWali} kursi
-                    </p>
-                    {totalKuotaSantri - totalInputWali === 0 && (
-                      <p className="text-xs text-rose-600 italic">
-                        Kuota konfirmasi sudah penuh.
-                      </p>
-                    )}
-                  </div>
+
                 </div>
 
                 {/* ERROR INLINE SAAT JUMLAH MELEBIHI KUOTA */}
@@ -1354,19 +1351,6 @@ export default function UndanganWaliPage() {
                     ⚠️ Jumlah konfirmasi ({totalInputWali} orang) melebihi kuota Anda ({totalKuotaSantri} kursi). Mohon kurangi jumlahnya.
                   </div>
                 )}
-
-                <div>
-                  <label className="block text-[11px] font-bold text-[#422F21] mb-1">
-                    Catatan Rombongan / Permohonan Khusus (Opsional):
-                  </label>
-                  <input
-                    type="text"
-                    value={catatanRsvp}
-                    onChange={(e) => setCatatanRsvp(e.target.value)}
-                    placeholder="Contoh: Datang bersama 1 balita, atau mohon jalur lansia..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#D5C4B4] text-xs bg-[#FAF7F3]/90 focus:bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
-                  />
-                </div>
 
                 <button
                   type="button"
@@ -1386,6 +1370,17 @@ export default function UndanganWaliPage() {
                     </>
                   )}
                 </button>
+
+                <a
+                  href={waHalKhususLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 rounded-2xl bg-white border-2 border-[#8C6A47] text-[#422F21] hover:bg-[#FAF7F3] font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
+                  title="Hubungi Panitia via WhatsApp untuk Menyampaikan Hal Khusus"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Ada Hal Khusus? Hubungi Panitia</span>
+                </a>
 
                 {rsvpError && (
                   <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-center font-bold">
