@@ -35,7 +35,6 @@ import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
 import { calculateKuotaDasarSantri } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';
-import TanyaUsModal from '@/components/TanyaUsModal';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
 import PortalBackground from '@/components/PortalBackground';
@@ -1563,15 +1562,6 @@ export default function UndanganWaliPage() {
         <MessageCircle className="w-4.5 h-4.5 text-[#D49B5B] group-hover:scale-110 transition-transform" />
         <span>Us Tanya</span>
       </a>
-
-      {/* MODAL US. HALWAA */}
-      {isUsModalOpen && (
-        <TanyaUsModal
-          isOpen={isUsModalOpen}
-          onClose={() => setIsUsModalOpen(false)}
-          role="WALI"
-        />
-      )}
 
       {/* MODAL DENAH LOKASI */}
       <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />

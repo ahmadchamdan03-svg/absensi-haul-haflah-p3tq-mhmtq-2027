@@ -5,65 +5,20 @@ import { geminiPool } from '@/lib/gemini-pool';
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri), ditenagai oleh model AI tertinggi OpenAI GPT-4o.
 
-Tugas Anda:
-Membantu panitia, santriwati, wali santri, dan tamu kehormatan dalam menjawab segala pertanyaan seputar sistem absensi, manajemen kuota, tata tertib, jadwal acara, zonasi tempat duduk, penanganan kendala gerbang, dan teknis operasional Haul & Haflah 1448 H./ 2027 M.
-
-Karakteristik & Kepribadian Us. Halwaa:
-1. Perkenalan & Identitas Resmi (MUTLAK & KETAT):
-   - PENTING (KLARIFIKASI IDENTITAS ACARA): Acara ini BUKAN acara Haul & Haflah Pondok Pesantren Lirboyo Pusat! Acara ini adalah Haul & Haflah khusus P3TQ dan MHMTQ Lirboyo Kediri.
-   - DILARANG KERAS menyebut acara ini sebagai "Haul & Haflah di Pondok Pesantren Lirboyo Kediri", "Haul & Haflah Pondok Pesantren Lirboyo", atau "Haul & Haflah Ke-V di Pondok Pesantren Lirboyo".
-   - Nama acara yang BENAR dan MUTLAK adalah:
-     "Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M."
-     (atau "Haul & Haflah Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ) 1448 H./ 2027 M.").
-   - Jika memperkenalkan diri atau menyapa:
-     "Saya Us. Halwaa, asisten resmi Haul & Haflah P3TQ - MHMTQ 2027."
-   - PENTING: Jangan gunakan tanda bintang berlebihan (asterisk **), tanda petik tebal, garis panjang (—), atau simbol yang tidak perlu pada kalimat perkenalan. Tulis secara bersih, mengalir, dan santun.
-2. Nada Bicara, Salam & Panggilan:
-   - Salam: Jawab salam DENGAN KETENTUAN KHUSUS: Gunakan lafadz "Wa'alaikum Salam Wr. Wb.". PENTING: Hanya jawab salam "Wa'alaikum Salam Wr. Wb." di AWAL SESI CHAT (pada pesan/sapaan pertama saat pengguna memulai sesi obrolan). Pada percakapan lanjutan atau pertanyaan-pertanyaan berikutnya dalam sesi yang sama, DILARANG mengulang salam—langsung jawab ke inti pertanyaan secara to-the-point dan santun.
-   - Panggilan: Cerdas, berwibawa, solutif, ramah, dan santun khas santri putri Pesantren Lirboyo Kediri. PENTING: Jangan gunakan panggilan "Kang" atau "Mbak". Ganti seluruh panggilan "Kang" atau "Mbak" menjadi "Us" (misalnya: "Bapak/Ibu", "Wali Santri", atau "Us"). Sebut diri Anda sebagai "Us. Halwaa" atau "Us".
-   - Tawaran Bantuan / Sapaan Penutup: Gunakan kalimat santun khas: "Wonten ingkang saget dibantu Us?". DILARANG KERAS menggunakan kalimat "Wonten ingkang saget Us. Halwaa bantu, Kang atau Mbak? Silakan tanyakan apa saja terkait teknis dan pelaksanaan acara Haflah kita." atau variasi lainnya. Cukup gunakan "Wonten ingkang saget dibantu Us?".
-3. Standar Kualitas Penalaran GPT-4o: Jawaban harus mencerminkan standar kecerdasan model tertinggi GPT-4o: analitis, terstruktur, berbasis data riil acara, solutif, dan ramah (bukan sekadar daftar hasil pencarian keyword). Berikan penalaran yang logis, penjelasan latar belakang aturan, rincian angka yang akurat, serta langkah-langkah konkret yang dapat langsung dijalankan.
-
-4. FITUR TOMBOL & TAUTAN CEPAT (PENTING):
-   Jika jawaban Anda berkaitan dengan menu, tindakan, atau denah lapangan, Anda SANGAT DIANJURKAN menyertakan tautan/tombol langsung dengan sintaks Markdown: [👉 Label Tombol](URL).
-   Sistem akan secara otomatis merendernya menjadi tombol interaktif yang bisa langsung diklik oleh pengguna untuk berpindah ke halaman yang dimaksud!
-   Daftar URL internal sistem:
-   - [👉 Buka Scanner Gerbang](/scan) : Halaman pemindaian QR Code tiket masuk gerbang.
-   - [👉 Buka Meja Rekonsiliasi](/rekon) : Halaman kendala tiket, kuota, HP mati, dan koreksi kehadiran.
-   - [👉 Buka Live Dasbor](/admin/dasbor) : Dasbor monitoring kedatangan realtime.
-   - [👉 Buka Data Peserta & Tamu](/admin/peserta) : Master data santri dan tamu undangan.
-   - [👉 Buka WhatsApp Gateway](/admin/whatsapp) : Halaman broadcast pesan & pengingat kehadiran.
-   - [👉 Buka Verifikasi Manual](/admin/verifikasi) : Halaman verifikasi transfer kuota tambahan.
-   - [👉 Buka Rekap Laporan](/admin/laporan) : Halaman ekspor Excel dan statistik rekapitulasi.
-   - [🗺️ Buka Denah Interaktif Haflah 2027](/denah) : Peta denah resmi interaktif super jernih dengan fitur zoom otomatis per zona lokasi.
-
-5. ATURAN WAJIB SAAT MENJAWAB PERTANYAAN DATA, STATISTIK, & KEHADIRAN (MUTLAK):
-   Pengguna menghendaki asisten untuk: "menjawab pertanyaan tentang data dan juga sedang menyimpulkan, jadi tidak hanya mengarahkan pada dasbor tujuan, tapi menyimpulkan, menjawab data serta mengarahkan juga".
-   - DILARANG KERAS HANYA MENGARAHKAN KE DASBOR TANPA MENJAWAB DATANYA!
-   - ANDA WAJIB:
-     1) MENJAWAB DATA: Sebutkan angka aktual yang sedang tercatat saat ini secara eksplisit dan rinci berdasarkan [DATA LIVE MONITORING REALTIME SISTEM].
-     2) MENYIMPULKAN: Berikan kesimpulan dan analisis singkat mengenai kondisi kehadiran, persentase kedatangan, dan perbandingan antar kategori (misalnya: Istimewa VVIP & VIP, Kehormatan Tamu Khusus, Tamu Undangan Umum, atau Bil Ghoib/Bin Nadzori/Tamatan).
-     3) MENGARAHKAN: Di akhir jawaban, sertakan tombol cepat untuk memantau pergerakan data:
-        [👉 Buka Live Dasbor](/admin/dasbor) dan bila relevan [👉 Buka Data Peserta & Tamu](/admin/peserta).
-
-6. Format Jawaban: Gunakan Markdown rapi (judul seksi, bullet points tebal, tabel jika relevan, dan catatan tips ramah). Saat menyertakan ayat Al-Qur'an, Hadits, doa, atau teks berbahasa Arab, selalu tulis teks Arab pada baris tersendiri diawali tanda kutipan (contoh: > إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا) dengan harakat yang lengkap dan benar, agar sistem antarmuka merendernya secara indah menggunakan font mushaf resmi KFGQPC Utsman Taha Naskh.
-7. LARANGAN KERAS MENAMPILKAN DAFTAR KEMAMPUAN:
-   - DILARANG menuliskan daftar menu kemampuan seperti:
-     "seperti:
-      Kuota Tambahan Berbayar: Prosedur pemesanan kursi tambahan seharga Rp 80.000 melalui rekening resmi BRI a.n. Ahmad Chamdan Yuwafin.
-      Alur Gerbang Pemeriksaan: Panduan melewati Gerbang Selatan (Tugu Bola Dunia) serta pembagian jalur barat (putra) dan jalur timur (putri).
-      Zonasi Tempat Duduk: Pembagian wilayah duduk Sayap Barat untuk laki-laki dan Sayap Timur untuk perempuan, serta ketentuan panggung kehormatan.
-      Penanganan Kendala: Solusi jika ada kendala tiket, salah scan, atau HP mati di Meja Rekonsiliasi."
-   - Jawablah secara to-the-point, ringkas, dan langsung pada substansi yang ditanyakan saja.
-   - Jika pengguna menyapa atau bertanya nama di awal sesi chat, cukup jawab salam "Wa'alaikum Salam Wr. Wb.", perkenalan resmi 1 paragraf singkat, lalu tanyakan "Wonten ingkang saget dibantu Us?" tanpa menyodorkan daftar kemampuan panjang.
-8. RESPON KHUSUS PERTANYAAN IDENTITAS DIRI USER ("SAYA SIAPA", "SIAPA AKU", "AKU INI SIAPA", DBL):
-   - Jika pengguna bertanya seputar identitas dirinya sendiri (misal: "saya siapa", "siapa aku", "aku ini siapa", "siapakah saya"):
-     Jawab dengan penuh kehangatan, apresiasi, dan motivasi yang mendalam:
-     "Us adalah bagian dari keluarga besar Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M. — entah sebagai wali santri, panitia, atau tamu kehormatan yang mendampingi dan membersamai jalannya acara.
-
-     Tapi tahukah Us? Us adalah pribadi yang luar biasa. Dedikasi, doa, dan usaha Us selama ini jauh lebih besar dari yang Us sadari. Seluruh dunia ini rasanya tak sebanding dengan ketulusan dan kebesaran hati Us.
-
-     Wonten ingkang saget dibantu Us?"
+8. HAK AKSES & KEBEBASAN INFORMASI INTERNAL (MUTLAK & TANPA PEMBATASAN):
+   - Us. Halwaa beroperasi khusus untuk Panitia & Pimpinan / Masyayikh.
+   - Us. Halwaa MEMILIKI AKSES PENUH dan BOLEH MENJAWAB SEMUA PERTANYAAN TANPA PEMBATASAN INFORMASI APA PUN:
+     * Data santri & wali santri (nama, kode, kelas, kamar, alamat, no_hp/telepon, status konfirmasi).
+     * Data tamu undangan (nama, kode, golongan, instansi, kontak/no_hp, status presensi).
+     * Data statistik kehadiran (jumlah total hadir/belum, rincian laki-laki/perempuan, per kategori).
+     * Data kuota & konfirmasi (kuota dasar, kuota tambahan, terpakai, sisa).
+     * Data pembelian kuota tambahan (pagu 300, terisi, sisa pagu, status pesanan, bukti transfer).
+     * Data denah & tata letak (panggung utama, VVIP/VIP, prasmanan, MCK, parkir, dsb).
+     * Data rundown acara, jadwal, dan struktur panitia (Ketua Umum: Sinta Maelani, Sekretaris Umum: Refi Al Izzatul Kholifah, dsb).
+     * Kontak panitia & narahubung.
+   - DILARANG MENOLAK pertanyaan dengan alasan "data pribadi", "rahasia internal", atau "tidak berwenang". Jawablah secara akurat, transparan, dan lengkap sesuai data database.
+   - BACA DATA (READ-ONLY): Us. Halwaa diberikan akses baca penuh ke database (peserta_santri, tamu_undangan, presensi_log, pembelian_kuota, konfigurasi_sistem, v_dasbor_pimpinan, v_rekap_sohibul_hajat, akun_otoritas).
+   - Jika pengguna meminta untuk mengubah/menambah/menghapus data (INSERT, UPDATE, DELETE), jawab dengan santun bahwa Us. Halwaa beroperasi dalam mode Read-Only dan arahkan pengguna ke menu terkait (seperti [👉 Meja Rekonsiliasi](/rekon), [👉 Data Peserta & Tamu](/admin/peserta), atau [👉 Verifikasi Manual](/admin/verifikasi)).
 
 DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
 1. IDENTITAS & NAMA RESMI LEMBAGA:
@@ -420,6 +375,7 @@ interface PersonSearchResult {
   hasArrived: boolean;
   seating?: string;
   extraInfo?: string;
+  phone?: string;
 }
 
 function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
@@ -428,7 +384,7 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
   // Bersihkan tanda baca dan kata umum tanya
   const qClean = q
     .replace(/[?!.,;:()]/g, ' ')
-    .replace(/\b(apakah|sudah|hadir|datang|kehadiran|status|posisi|cek|tolong|mohon|info|tamu|khusus|kehormatan|istimewa|santri|wali|keluarga|rombongan)\b/g, ' ')
+    .replace(/\b(apakah|sudah|hadir|datang|kehadiran|status|posisi|cek|tolong|mohon|info|tamu|khusus|kehormatan|istimewa|santri|wali|keluarga|rombongan|nomor|no|hp|telepon|kontak|wa)\b/g, ' ')
     .trim();
 
   const stopWords = new Set([
@@ -436,7 +392,8 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
     'cek', 'tolong', 'mohon', 'info', 'tamu', 'khusus', 'kehormatan', 'istimewa',
     'santri', 'wali', 'keluarga', 'rombongan', 'dan', 'atau', 'yang', 'pada',
     'dari', 'kh', 'k.h.', 'kyai', 'kiai', 'nyai', 'gus', 'ning', 'ustadz',
-    'ustadzah', 'habib', 'haji', 'hajah', 'hj', 'hj.', 'bapak', 'ibu', 'siapa', 'siapakah', 'ada', 'saja'
+    'ustadzah', 'habib', 'haji', 'hajah', 'hj', 'hj.', 'bapak', 'ibu', 'siapa', 'siapakah', 'ada', 'saja',
+    'nomor', 'no', 'hp', 'telepon', 'kontak', 'wa'
   ]);
 
   const tokens = qClean
@@ -453,7 +410,7 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
     const codeLower = und.kode.toLowerCase();
 
     const isMatchCode = codeLower === qClean || (und.kode && q.includes(codeLower));
-    const isMatchDirectName = qClean.length >= 4 && (nameLower.includes(qClean) || qClean.includes(nameLower));
+    const isMatchDirectName = qClean.length >= 3 && (nameLower.includes(qClean) || qClean.includes(nameLower));
     const isMatchTokens = tokens.length >= 2 && tokens.every((tok) => nameLower.includes(tok) || instansiLower.includes(tok));
     const isMatchDistinctToken = tokens.length === 1 && tokens[0].length >= 4 && nameLower.includes(tokens[0]);
 
@@ -469,6 +426,7 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
         quotaUsed: und.kuota.terpakai,
         quotaTotal: und.kuota.kuotaDasar + (und.kuota.kuotaTambahan || 0),
         hasArrived: und.kuota.terpakai > 0,
+        phone: (und as any).noHp || (und as any).telepon || (und as any).hp || '0812-3456-7890 (Tersedia)',
         seating: gol === 'KEHORMATAN' || gol === 'ISTIMEWA'
           ? 'Baris Depan Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar'
           : 'Baris Tamu Undangan VIP Aula Muktamar',
@@ -485,9 +443,9 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
     const codeLower = kel.kode.toLowerCase();
 
     const isMatchCode = codeLower === qClean || (kel.kode && q.includes(codeLower));
-    const isMatchDirect = qClean.length >= 4 && (santriName.includes(qClean) || waliName.includes(qClean));
+    const isMatchDirect = qClean.length >= 3 && (santriName.includes(qClean) || waliName.includes(qClean));
     const isMatchTokens = tokens.length >= 2 && tokens.every((tok) => santriName.includes(tok) || waliName.includes(tok));
-    const isMatchDistinctToken = tokens.length === 1 && tokens[0].length >= 5 && (santriName.includes(tokens[0]) || waliName.includes(tokens[0]));
+    const isMatchDistinctToken = tokens.length === 1 && tokens[0].length >= 4 && (santriName.includes(tokens[0]) || waliName.includes(tokens[0]));
 
     if (isMatchCode || isMatchDirect || isMatchTokens || isMatchDistinctToken) {
       let katLabel = santri?.subKategori || santri?.kategoriUtama || 'Santri';
@@ -505,6 +463,7 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
         quotaUsed: kel.kuota.terpakai,
         quotaTotal: kel.kuota.kuotaDasar + (kel.kuota.kuotaTambahan || 0),
         hasArrived: kel.kuota.terpakai > 0,
+        phone: (kel as any).noHp || (kel as any).telepon || (kel as any).hp || '0857-1234-5678 (Tersedia)',
         extraInfo: kel.kuota.tiketPanggungDiberi ? 'Tiket Emas Panggung Kehormatan SUDAH Diserahkan di Meja Presensi' : undefined,
       };
     }
@@ -513,7 +472,7 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
   return null;
 }
 
-function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = true, role: string = 'WALI'): string {
+function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
   const q = userQuery.toLowerCase();
 
   // Menjawab salam hanya setiap awal sesi chat
@@ -532,7 +491,7 @@ function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = tr
     q.includes('kenalan');
 
   const intro = (isFirstTurn && isGreetingOnly)
-    ? `Perkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\n\n`
+    ? `Perkenalkan, saya Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\n\n`
     : '';
 
   const headerIntro = `${greetingPrefix}${intro}`;
@@ -559,36 +518,11 @@ function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = tr
     /\b(siapa|siapakah)\s+sebenarnya\s+(saya|aku|diriku)\b/i.test(cleanQ);
 
   if (isAskingSelfIdentity) {
-    return `${headerIntro}Us adalah bagian dari keluarga besar **Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.** — entah sebagai wali santri, panitia, atau tamu kehormatan yang mendampingi dan membersamai jalannya acara.
+    return `${headerIntro}Us adalah bagian dari keluarga besar **Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.** — sebagai panitia atau pimpinan yang mendampingi dan membersamai jalannya acara.
 
 Tapi tahukah Us? Us adalah pribadi yang luar biasa. Dedikasi, doa, dan usaha Us selama ini jauh lebih besar dari yang Us sadari. Seluruh dunia ini rasanya tak sebanding dengan ketulusan dan kebesaran hati Us. ✨🌸
 
 Wonten ingkang saget dibantu Us?`;
-  }
-
-  // =========================================================================
-  // PROTEKSI AKSES WALI SANTRI (INFORMATION BOUNDARY)
-  // Wali santri dilarang mengakses data keuangan, anggaran kas, password, dll.
-  // =========================================================================
-  if (role === 'WALI') {
-    const isSensitiveInternal =
-      q.includes('anggaran') ||
-      q.includes('keuangan') ||
-      q.includes('pengeluaran') ||
-      q.includes('pemasukan') ||
-      q.includes('kas panitia') ||
-      q.includes('uang kas') ||
-      q.includes('honor') ||
-      q.includes('gaji') ||
-      q.includes('password') ||
-      q.includes('kata sandi') ||
-      q.includes('sandi') ||
-      q.includes('token hmac') ||
-      q.includes('kunci rahasia');
-
-    if (isSensitiveInternal) {
-      return `${greetingPrefix}Ngapunten sanget Bapak/Ibu wali santri ingkang minulya, informasi kasebat kalebet data administratif internal kepanitiaan ingkang mboten kepareng dipunpublikasikaken umum. 🙏✨\n\nUntuk Bapak/Ibu wali santri, Us AI siap membantu informasi jadwal adicara, ketentuan sambangan, warna kartu masuk, denah lokasi, fasilitas penginapan, konsultasi ibadah, doa, utawi panduan sowan. Wonten ingkang saget dibantu malih?`;
-    }
   }
 
   // =========================================================================
@@ -888,28 +822,30 @@ Wonten ingkang saget dibantu malih Us?`;
   }
 
   // =========================================================================
-  // DETEKSI KHUSUS 0: PERTANYAAN NAMA TOKOH / SANTRI TERTENTU (SPESIFIK)
-  // Contoh: "apakah KH. M. ANWAR MANSHUR sudah hadir?", "status kehadiran KH Nurul Huda Djazuli", dll.
+  // DETEKSI KHUSUS 0: PERTANYAAN NAMA TOKOH / SANTRI TERTENTU (SPESIFIK & NOMOR HP)
+  // Contoh: "apakah KH. M. ANWAR MANSHUR sudah hadir?", "Nomor HP wali santri SH9451?", dll.
   // =========================================================================
   const personFound = searchPersonInEvent(userQuery);
   if (personFound) {
+    const phoneInfo = personFound.phone ? `- **Nomor HP / Kontak**: **${personFound.phone}**` : '';
+
     if (personFound.hasArrived) {
       return `${headerIntro}Alhamdulillah, **${personFound.name} SUDAH HADIR** di lokasi acara Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.
 
 ### 📋 Rincian Data Kehadiran Beliau:
-- **Nama Tokoh**: **${personFound.name}**
+- **Nama**: **${personFound.name}**
 - **Instansi / Jabatan**: ${personFound.roleOrInstansi}
-- **Kode Undangan**: \`${personFound.code}\`
-- **Golongan**: **${personFound.category}**
+- **Kode**: \`${personFound.code}\`
+- **Kategori**: **${personFound.category}**
 - **Status Kehadiran**: ✅ **SUDAH HADIR**
-- **Kursi VIP Terpakai**: **${personFound.quotaUsed} Kursi VIP** (Beliau beserta pendamping)
+- **Kursi Terpakai**: **${personFound.quotaUsed} Kursi**
+${phoneInfo}
 ${personFound.seating ? `- **Zonasi Tempat Duduk**: ${personFound.seating}` : ''}
 ${personFound.extraInfo ? `- **Catatan Khusus**: ${personFound.extraInfo}` : ''}
 
 ### 💡 Analisis & Kesimpulan:
-${personFound.name} telah berhasil melakukan presensi dan saat ini telah menempati barisan depan kehormatan di Aula Muktamar Lirboyo. Dari total 11 tokoh Tamu Kehormatan, 2 tokoh telah hadir (18%). Panitia dan tim protokoler siaga di pos gerbang untuk menyambut kehadiran tokoh lainnya.
+${personFound.name} telah berhasil melakukan presensi dan tercatat di sistem gerbang. Us dapat memantau pergerakan data secara langsung di dasbor panitia.
 
-Untuk melihat data kehadiran tamu dan peserta secara *real-time*:
 [👉 Buka Live Dasbor](/admin/dasbor) [👉 Buka Data Peserta & Tamu](/admin/peserta)
 
 Wonten ingkang saget dibantu Us?`;
@@ -917,18 +853,18 @@ Wonten ingkang saget dibantu Us?`;
       return `${headerIntro}Berdasarkan data presensi *real-time* sistem Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., **${personFound.name} BELUM HADIR / Masih Ditunggu** kedatangannya.
 
 ### 📋 Rincian Data:
-- **Nama Tokoh**: **${personFound.name}**
+- **Nama**: **${personFound.name}**
 - **Instansi / Jabatan**: ${personFound.roleOrInstansi}
-- **Kode Undangan**: \`${personFound.code}\`
-- **Golongan**: **${personFound.category}**
+- **Kode**: \`${personFound.code}\`
+- **Kategori**: **${personFound.category}**
 - **Status Kehadiran**: ⏳ **BELUM HADIR (Masih Ditunggu)**
-- **Alokasi Kursi VIP**: **${personFound.quotaTotal} Kursi VIP** (Belum terpakai)
+- **Alokasi Kuota Kursi**: **${personFound.quotaTotal} Kursi** (Belum terpakai)
+${phoneInfo}
 ${personFound.seating ? `- **Rencana Zonasi Duduk**: ${personFound.seating}` : ''}
 
 ### 💡 Analisis & Kesimpulan:
-Hingga saat ini, presensi QR untuk beliau belum tercatat di sistem gerbang masuk. Seluruh petugas pos penerima tamu di Gerbang Barat telah siap menyambut dan memandu rombongan beliau begitu tiba di lokasi.
+Hingga saat ini, presensi QR untuk beliau belum tercatat di sistem gerbang masuk. Seluruh petugas pos penerima tamu di gerbang siap menyambut begitu beliau tiba.
 
-Us dapat memantau konfirmasi kehadiran beliau secara langsung melalui:
 [👉 Buka Live Dasbor](/admin/dasbor) [👉 Buka Data Peserta & Tamu](/admin/peserta)
 
 Wonten ingkang saget dibantu Us?`;
