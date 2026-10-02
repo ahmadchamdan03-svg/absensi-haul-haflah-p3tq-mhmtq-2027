@@ -53,10 +53,30 @@ export function Particles({ count }: { count?: number }) {
 }
 
 export function PortalBackground() {
+  const [offsetY, setOffsetY] = useState(0);
+
+  useEffect(() => {
+    // Parallax halus (maksimal -25px agar tidak mencolok & performa tetap 60fps)
+    const handleScroll = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const scrollY = window.scrollY || 0;
+      const offset = Math.min(25, scrollY * 0.08);
+      setOffsetY(-offset);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
-      {/* 1. FOTO PANGGUNG MEGAH FULL-SCREEN */}
-      <div className="absolute inset-0 bg-[url('/images/panggung-haul-haflah.jpg')] bg-cover bg-center bg-no-repeat bg-fixed filter brightness-[1.02] contrast-[1.02] transform scale-[1.01]" />
+      {/* 1. FOTO PANGGUNG MEGAH FULL-SCREEN DENGAN PARALLAX HALUS */}
+      <div
+        className="absolute inset-0 bg-[url('/images/panggung-haul-haflah.jpg')] bg-cover bg-center bg-no-repeat filter brightness-[1.02] contrast-[1.02] transition-transform duration-75 ease-out will-change-transform"
+        style={{
+          transform: `translate3d(0, ${offsetY}px, 0) scale(1.02)`,
+        }}
+      />
 
       {/* 2. OVERLAY KREM TRANSPARAN */}
       <div className="absolute inset-0 bg-[#F5EFE6]/60" />

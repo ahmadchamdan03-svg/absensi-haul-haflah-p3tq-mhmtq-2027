@@ -373,21 +373,27 @@ export default function BeliKuotaPage() {
       if (noHpWali) {
         try {
           const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haflahp3tq.site';
+          const linkUpload = `${origin}/beli/${santri.kode}`;
+
           const pesanWali =
-            `*PESANAN KUOTA TAMBAHAN HAFLAH P3TQ - MHMTQ 1448 H.*\n\n` +
-            `Assalamu'alaikum Bpk/Ibu ${namaWali},\n` +
-            `Pesanan kuota tambahan kursi Anda telah berhasil dikunci:\n\n` +
-            `• ID Pesanan: *${orderId}*\n` +
-            `• Santri: *${santri.nama}* (${santri.sub_kategori || 'Santri'})\n` +
-            `• Jumlah Kursi: *${jumlahBeli} Kursi*\n` +
-            `• Total Bayar: *Rp ${totalBayar.toLocaleString('id-ID')}*\n` +
-            `• Batas Waktu: *6 Jam* (s.d. ${lockedUntil.toLocaleTimeString('id-ID')} WIB)\n\n` +
-            `💳 *Rekening Pembayaran BRI*:\n` +
-            `Bank BRI: *320701010266508*\n` +
-            `a.n.: *Ahmad Chamdan Yuwafin*\n\n` +
-            `Silakan unggah bukti transfer melalui link berikut:\n` +
-            `🔗 ${origin}/beli/${santri.kode}\n\n` +
-            `_Panitia Haul & Haflah P3TQ - MHMTQ 2027_`;
+            `*PEMESANAN KUOTA TAMBAHAN*\n` +
+            `*HAUL & HAFLAH P3TQ - MHMTQ 2027*\n\n` +
+            `Yth. Bapak/Ibu ${namaWali},\n\n` +
+            `Pesanan kuota tambahan Anda telah DIKUNCI dengan detail:\n` +
+            `  • ID Pesanan : ${orderId}\n` +
+            `  • Santri     : ${santri.nama} (${santri.kode})\n` +
+            `  • Jumlah     : ${jumlahBeli} kursi\n` +
+            `  • Total      : Rp ${totalBayar.toLocaleString('id-ID')}\n\n` +
+            `Mohon segera lakukan transfer ke:\n` +
+            `  Bank BRI\n` +
+            `  No. Rek: 320701010266508\n` +
+            `  a.n. Ahmad Chamdan Yuwafin\n\n` +
+            `*Batas waktu: 6 JAM dari sekarang.*\n\n` +
+            `⚠️ *PENTING:* Apabila dalam 6 jam Bapak/Ibu belum mengunggah bukti transfer, maka pesanan ini akan DIBATALKAN secara OTOMATIS oleh sistem dan kuota akan dilepas kembali. Silakan lakukan pemesanan ulang jika diperlukan.\n\n` +
+            `Upload bukti transfer di link berikut:\n` +
+            `${linkUpload}\n\n` +
+            `Jazakumullahu khairan katsiran.\n` +
+            `_Panitia Haul & Haflah P3TQ dan MHMTQ 2027_`;
 
           await fetch('/api/whatsapp/send', {
             method: 'POST',

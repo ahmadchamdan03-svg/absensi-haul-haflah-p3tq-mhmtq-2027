@@ -27,6 +27,8 @@ import {
   HelpCircle,
   Loader2,
   XCircle,
+  ChevronDown,
+  Send,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
@@ -38,6 +40,7 @@ import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
 import PortalBackground from '@/components/PortalBackground';
 import GlassCard from '@/components/GlassCard';
+import ScrollReveal from '@/components/ScrollReveal';
 
 // Helper Kategori Tamu Undangan
 function getTamuCategoryLabel(item: any): string {
@@ -205,10 +208,11 @@ export default function UndanganWaliPage() {
   const [isDenahOpen, setIsDenahOpen] = useState(false);
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
 
-  // State Global Switch Beli Kuota
+  // State Global Switch Beli Kuota & Nomor WA Panitia (PERBAIKAN 2)
   const [kuotaSwitchAktif, setKuotaSwitchAktif] = useState<boolean>(false);
   const [totalDiverifikasi, setTotalDiverifikasi] = useState<number>(0);
   const [loadingKuotaControl, setLoadingKuotaControl] = useState<boolean>(true);
+  const [waPanitiaConfig, setWaPanitiaConfig] = useState<string>('6285181805377');
 
   // Countdown Timer
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
@@ -233,6 +237,32 @@ export default function UndanganWaliPage() {
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Fetch WA Panitia Config (PERBAIKAN 2)
+  useEffect(() => {
+    async function fetchWaPanitia() {
+      try {
+        const { data } = await supabase
+          .from('konfigurasi_sistem')
+          .select('value')
+          .eq('key', 'wa_panitia')
+          .maybeSingle();
+
+        if (data && data.value) {
+          let val = '';
+          if (typeof data.value === 'object' && data.value !== null) {
+            val = data.value.nomor || data.value.wa || data.value.no_hp || '';
+          } else if (typeof data.value === 'string') {
+            val = data.value;
+          }
+          if (val) setWaPanitiaConfig(val);
+        }
+      } catch (e) {
+        console.warn('Error fetching wa_panitia config:', e);
+      }
+    }
+    fetchWaPanitia();
   }, []);
 
   // Fetch Live Data dari Supabase
@@ -557,9 +587,24 @@ export default function UndanganWaliPage() {
   const santri = item?.santri;
   const kuota = item?.kuota;
 
+  // PERBAIKAN 2: Custom WA Pre-filled Message untuk Tombol "Us Tanya"
+  const namaSantriTxt = santri?.nama || item?.entitas?.nama || item?.nama || 'Santri';
+  const kodeSantriTxt = santri?.kode || item?.kode || kodeSH;
+  const kategoriTxt = santri?.subKategori || santri?.kategoriUtama || item?.subKategori || item?.kategori || 'Santri';
+  const kamarTxt = santri?.kamar || '-';
+
+  const textUsTanya =
+    `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
+    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
+    `Saya mau bertanya 🙏🙏`;
+
+  const rawWaNo = (waPanitiaConfig || '6285181805377').replace(/[^0-9]/g, '');
+  const finalWaNo = rawWaNo.startsWith('0') ? '62' + rawWaNo.slice(1) : rawWaNo || '6285181805377';
+  const waUsTanyaLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textUsTanya)}`;
+
   return (
     <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
-      {/* BACKGROUND PANGGUNG RESMI & EFEK VISUAL SAMA SEPERTI LANDING PAGE */}
+      {/* BACKGROUND PANGGUNG RESMI & EFEK VISUAL (PARALLAX + LIGHT RAYS + DEBU EMAS) */}
       <PortalBackground />
 
       {/* Audio Elemen Tersembunyi */}
@@ -588,344 +633,373 @@ export default function UndanganWaliPage() {
         !isOpened ? (
           /* COVER TAMU UNDANGAN */
           <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
-            <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-              <HeaderLogos />
+            <ScrollReveal>
+              <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 relative overflow-hidden">
+                <HeaderLogos />
 
-              <div className="space-y-1">
-                <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
-                  UNDANGAN KEHORMATAN
-                </div>
-                <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
-                  Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
-                </h1>
-                <div className="pt-1.5">
-                  <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
-                  <p className="text-xs font-bold text-[#8C6A47] mt-1">Lirboyo Kediri</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
-                <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
-                <span className="text-xs">❖</span>
-                <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
-              </div>
-
-              <div className="space-y-2 py-1">
-                <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
-                  Kepada Yth. Bapak/Ibu/Saudara:
-                </span>
-                {renderTamuName(item)}
-
-                <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] uppercase tracking-wider">
-                  {getTamuCategoryLabel(item)}
+                <div className="space-y-1">
+                  <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
+                    UNDANGAN KEHORMATAN
+                  </div>
+                  <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
+                    Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
+                  </h1>
+                  <div className="pt-1.5">
+                    <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
+                    <p className="text-xs font-bold text-[#8C6A47] mt-1">Lirboyo Kediri</p>
+                  </div>
                 </div>
 
-                {item?.instansi && item.instansi !== '-' && (
-                  <p className="text-xs text-[#7A624E] font-medium pt-1">
-                    Instansi / Asal: <strong className="text-[#422F21]">{item.instansi}</strong>
-                  </p>
-                )}
-                {item?.alamat && item.alamat !== '-' && (!item?.instansi || item.instansi === '-') && (
-                  <p className="text-xs text-[#7A624E] font-medium pt-1">{item.alamat}</p>
-                )}
-              </div>
+                <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+                  <span className="text-xs">❖</span>
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+                </div>
 
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={handleOpenInvitation}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
-                >
-                  <MailOpen className="w-4 h-4 text-amber-200" />
-                  <span>Buka Undangan ✉️</span>
-                </button>
-              </div>
-            </GlassCard>
+                <div className="space-y-2 py-1">
+                  <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
+                    Kepada Yth. Bapak/Ibu/Saudara:
+                  </span>
+                  {renderTamuName(item)}
+
+                  <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] uppercase tracking-wider">
+                    {getTamuCategoryLabel(item)}
+                  </div>
+
+                  {item?.instansi && item.instansi !== '-' && (
+                    <p className="text-xs text-[#7A624E] font-medium pt-1">
+                      Instansi / Asal: <strong className="text-[#422F21]">{item.instansi}</strong>
+                    </p>
+                  )}
+                  {item?.alamat && item.alamat !== '-' && (!item?.instansi || item.instansi === '-') && (
+                    <p className="text-xs text-[#7A624E] font-medium pt-1">{item.alamat}</p>
+                  )}
+                </div>
+
+                <div className="pt-2 space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleOpenInvitation}
+                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
+                  >
+                    <MailOpen className="w-4 h-4 text-amber-200" />
+                    <span>Buka Undangan ✉️</span>
+                  </button>
+
+                  <div className="pt-1 flex flex-col items-center space-y-1 text-stone-500 animate-bounce">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6A47]">
+                      Scroll ke Bawah ✦
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-[#8C6A47]" />
+                  </div>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         ) : (
           /* KONTEN LENGKAP TAMU UNDANGAN */
-          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
-            <HeaderLogos />
+          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-6 sm:space-y-7 animate-in fade-in duration-500 pb-28">
+            <ScrollReveal delay={50}>
+              <HeaderLogos />
+            </ScrollReveal>
 
-            <GlassCard className="p-6 text-center space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
-                Undangan Kehormatan
-              </h1>
-              <div className="pt-1">
-                <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
-                <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
-              </div>
-            </GlassCard>
+            <ScrollReveal delay={100}>
+              <GlassCard className="p-6 text-center space-y-2">
+                <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
+                  Undangan Kehormatan
+                </h1>
+                <div className="pt-1">
+                  <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
+                  <p className="text-xs font-bold text-[#8C6A47] mt-0.5">Lirboyo Kediri</p>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* KARTU IDENTITAS TAMU UNDANGAN */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#D5C4B4]/80 shadow-md space-y-4 relative overflow-hidden">
-              <div className="text-center text-sm font-serif text-[#8C6A47] tracking-widest pb-1 font-arabic">
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-              </div>
+            <ScrollReveal delay={150}>
+              <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#D5C4B4]/80 shadow-md space-y-4 relative overflow-hidden">
+                <div className="text-center text-sm font-serif text-[#8C6A47] tracking-widest pb-1 font-arabic">
+                  بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                </div>
 
-              <div className="flex items-center justify-center gap-3 my-1 text-[#8C6A47]/60">
-                <div className="h-px bg-gradient-to-r from-transparent via-[#8C6A47]/40 to-transparent flex-1" />
-                <span className="text-xs">❖</span>
-                <div className="h-px bg-gradient-to-r from-transparent via-[#8C6A47]/40 to-transparent flex-1" />
-              </div>
+                <div className="flex items-center justify-center gap-3 my-1 text-[#8C6A47]/60">
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#8C6A47]/40 to-transparent flex-1" />
+                  <span className="text-xs">❖</span>
+                  <div className="h-px bg-gradient-to-r from-transparent via-[#8C6A47]/40 to-transparent flex-1" />
+                </div>
 
-              <div className="text-center space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[#8C6A47]">
-                  {getTamuCategoryLabel(item)}
-                </span>
-                {renderTamuName(item)}
-              </div>
+                <div className="text-center space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#8C6A47]">
+                    {getTamuCategoryLabel(item)}
+                  </span>
+                  {renderTamuName(item)}
+                </div>
 
-              <div className="pt-3 border-t border-[#D5C4B4]/60 text-xs space-y-1.5 text-center">
-                {item?.instansi && item.instansi !== '-' && (
-                  <div className="p-2.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5]">
-                    <span className="text-stone-500 text-[10px] uppercase font-bold block">
-                      Instansi / Asal:
-                    </span>
-                    <p className="font-bold text-[#422F21]">{item.instansi}</p>
-                  </div>
-                )}
-                {item?.alamat && item.alamat !== '-' && (
-                  <div className="p-2.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5]">
-                    <span className="text-stone-500 text-[10px] uppercase font-bold block">
-                      Alamat:
-                    </span>
-                    <p className="font-bold text-[#422F21]">{item.alamat}</p>
-                  </div>
-                )}
-              </div>
-            </GlassCard>
-
-            {/* KALIMAT SAMBUTAN HORMATH & KHIDMAT */}
-            <GlassCard className="p-5 sm:p-6 border-2 border-[#D5C4B4]/80 text-center space-y-2 shadow-xs bg-[#FAF0E6]/80">
-              <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed italic">
-                "Dengan penuh hormat dan khidmat, kami mengundang Bapak/Ibu/Saudara untuk menghadiri Haul &amp; Haflah Akhirussanah P3TQ &amp; MHMTQ 1448 H./2027 M."
-              </p>
-            </GlassCard>
-
-            {/* KARTU QR CODE GERBANG MASUK (SOLID WHITE DEPOSIT FOR QR SCANNABILITY) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
-              <div className="space-y-1">
-                <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
-                  KODE AKSES RESMI GERBANG MASUK
-                </span>
-                <h3 className="font-serif font-black text-lg text-[#322116]">
-                  Tunjukkan QR Code Ini Kepada Petugas Gerbang
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center justify-center">
-                <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
-                  {qrDataUrl ? (
-                    <img
-                      src={qrDataUrl}
-                      alt="QR Code Tiket Masuk"
-                      className="w-full h-full object-contain rounded-xl"
-                    />
-                  ) : (
-                    <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
+                <div className="pt-3 border-t border-[#D5C4B4]/60 text-xs space-y-2 text-center">
+                  {item?.instansi && item.instansi !== '-' && (
+                    <div className="p-3 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5]">
+                      <span className="text-stone-500 text-[10px] uppercase font-bold block">
+                        Instansi / Asal:
+                      </span>
+                      <p className="font-bold text-[#422F21]">{item.instansi}</p>
+                    </div>
+                  )}
+                  {item?.alamat && item.alamat !== '-' && (
+                    <div className="p-3 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5]">
+                      <span className="text-stone-500 text-[10px] uppercase font-bold block">
+                        Alamat:
+                      </span>
+                      <p className="font-bold text-[#422F21]">{item.alamat}</p>
+                    </div>
                   )}
                 </div>
-              </div>
+              </GlassCard>
+            </ScrollReveal>
 
-              <div className="p-3 bg-[#FAF7F3] rounded-2xl border border-[#D5C4B4] text-xs text-center">
-                <span className="text-[10px] text-stone-500 uppercase font-bold block">
-                  HAK KUOTA KURSI
-                </span>
-                <p className="font-serif font-black text-xl text-[#422F21]">
-                  {kuota?.kuotaDasar || 2} Kursi Undangan
+            {/* KALIMAT SAMBUTAN HORMATH & KHIDMAT */}
+            <ScrollReveal delay={200}>
+              <GlassCard className="p-5 sm:p-6 border-2 border-[#D5C4B4]/80 text-center space-y-2 shadow-xs bg-[#FAF0E6]/80">
+                <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed italic">
+                  "Dengan penuh hormat dan khidmat, kami mengundang Bapak/Ibu/Saudara untuk menghadiri Haul &amp; Haflah Akhirussanah P3TQ &amp; MHMTQ 1448 H./2027 M."
                 </p>
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* KARTU QR CODE GERBANG MASUK (SOLID WHITE DEPOSIT FOR QR SCANNABILITY) */}
+            <ScrollReveal delay={250}>
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
+                    KODE AKSES RESMI GERBANG MASUK
+                  </span>
+                  <h3 className="font-serif font-black text-lg text-[#322116]">
+                    Tunjukkan QR Code Ini Kepada Petugas Gerbang
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center justify-center">
+                  <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+                    {qrDataUrl ? (
+                      <img
+                        src={qrDataUrl}
+                        alt="QR Code Tiket Masuk"
+                        className="w-full h-full object-contain rounded-xl"
+                      />
+                    ) : (
+                      <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-3 bg-[#FAF7F3] rounded-2xl border border-[#D5C4B4] text-xs text-center">
+                  <span className="text-[10px] text-stone-500 uppercase font-bold block">
+                    HAK KUOTA KURSI
+                  </span>
+                  <p className="font-serif font-black text-xl text-[#422F21]">
+                    {kuota?.kuotaDasar || 2} Kursi Undangan
+                  </p>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* WAKTU, LOKASI & COUNTDOWN TIMER */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-                  Waktu &amp; Tempat Pelaksanaan
-                </span>
-                <h3 className="font-serif font-black text-xl text-[#422F21]">
-                  Aula Al-Muktamar Pondok Pesantren Lirboyo
-                </h3>
-                <p className="text-xs text-stone-600">
-                  Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-                </p>
-              </div>
+            <ScrollReveal delay={300}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                    Waktu &amp; Tempat Pelaksanaan
+                  </span>
+                  <h3 className="font-serif font-black text-xl text-[#422F21]">
+                    Aula Al-Muktamar Pondok Pesantren Lirboyo
+                  </h3>
+                  <p className="text-xs text-stone-600">
+                    Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                    {timeLeft.days}
+                <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.days}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
                   </div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                    {timeLeft.hours}
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.hours}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
                   </div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                    {timeLeft.minutes}
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.minutes}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
                   </div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                    {timeLeft.seconds}
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.seconds}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
                   </div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
                 </div>
-              </div>
 
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsDenahOpen(true)}
-                  className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-colors cursor-pointer"
-                >
-                  <Compass className="w-4 h-4 text-[#8C6A47]" />
-                  <span>Buka Denah Lokasi &amp; Parkir VIP</span>
-                </button>
-              </div>
-            </GlassCard>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsDenahOpen(true)}
+                    className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  >
+                    <Compass className="w-4 h-4 text-[#8C6A47]" />
+                    <span>Buka Denah Lokasi &amp; Parkir VIP</span>
+                  </button>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* RANGKAIAN ADICARA UTAMA */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
-              <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
-                Rangkaian Acara Hari H (02 Januari 2027)
-              </h3>
-              <div className="space-y-3 text-xs">
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
-                    06.30 WIs
-                  </span>
-                  <p className="text-stone-700">
-                    <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) &amp; Tartilan Khotmil Qur'an.
-                  </p>
+            <ScrollReveal delay={350}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+                <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
+                  Rangkaian Acara Hari H (02 Januari 2027)
+                </h3>
+                <div className="space-y-3 text-xs leading-relaxed">
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
+                      06.30 WIs
+                    </span>
+                    <p className="text-stone-700">
+                      <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) &amp; Tartilan Khotmil Qur'an.
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
+                      07.30 WIs
+                    </span>
+                    <p className="text-stone-700">Pembukaan, Qiro'at, Tahlil, dan Sambutan-Sambutan Masyayikh.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
+                      08.52 WIs
+                    </span>
+                    <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi &amp; Bin Nadzori.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
+                      10.12 WIs
+                    </span>
+                    <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
-                    07.30 WIs
-                  </span>
-                  <p className="text-stone-700">Pembukaan, Qiro'at, Tahlil, dan Sambutan-Sambutan Masyayikh.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
-                    08.52 WIs
-                  </span>
-                  <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi &amp; Bin Nadzori.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">
-                    10.12 WIs
-                  </span>
-                  <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
-                </div>
-              </div>
-            </GlassCard>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* SECTION KONFIRMASI KEHADIRAN (RSVP TAMU - 2 TOMBOL SIMPEL) */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
-              <div className="space-y-1">
-                <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
-                  Konfirmasi Kehadiran (RSVP)
-                </h3>
-                <p className="text-xs text-[#7A624E]">
-                  Mohon mengonfirmasi kehadiran Anda untuk kelancaran tempat &amp; konsumsi.
-                </p>
-              </div>
-
-              {item?.estimasi?.statusKonfirmasi === 'HADIR' || item?.estimasi?.statusKonfirmasi === 'SUDAH' ? (
-                <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 space-y-2">
-                  <div className="font-serif font-black text-sm text-emerald-900 flex items-center justify-center space-x-1.5">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-700" />
-                    <span>Terima Kasih, Konfirmasi Kehadiran Berhasil</span>
-                  </div>
-                  <p className="text-xs text-emerald-800">
-                    Anda telah mengonfirmasi untuk <strong>HADIR</strong> pada Haul &amp; Haflah P3TQ - MHMTQ 2027.
+            <ScrollReveal delay={400}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
+                <div className="space-y-1">
+                  <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+                    Konfirmasi Kehadiran (RSVP)
+                  </h3>
+                  <p className="text-xs text-[#7A624E]">
+                    Mohon mengonfirmasi kehadiran Anda untuk kelancaran tempat &amp; konsumsi.
                   </p>
                 </div>
-              ) : item?.estimasi?.statusKonfirmasi === 'BERHALANGAN' ? (
-                <div className="p-4 rounded-2xl bg-stone-100 border-2 border-stone-300 text-stone-800 space-y-2">
-                  <div className="font-serif font-black text-sm text-stone-900 flex items-center justify-center space-x-1.5">
-                    <XCircle className="w-5 h-5 text-stone-600" />
-                    <span>Konfirmasi Berhalangan Hadir Tersimpan</span>
+
+                {item?.estimasi?.statusKonfirmasi === 'HADIR' || item?.estimasi?.statusKonfirmasi === 'SUDAH' ? (
+                  <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 space-y-2">
+                    <div className="font-serif font-black text-sm text-emerald-900 flex items-center justify-center space-x-1.5">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+                      <span>Terima Kasih, Konfirmasi Kehadiran Berhasil</span>
+                    </div>
+                    <p className="text-xs text-emerald-800">
+                      Anda telah mengonfirmasi untuk <strong>HADIR</strong> pada Haul &amp; Haflah P3TQ - MHMTQ 2027.
+                    </p>
                   </div>
-                  <p className="text-xs text-stone-700">
-                    Terima kasih atas konfirmasi Anda. Doa restu Bapak/Ibu/Saudara sangat bermakna bagi kami.
-                  </p>
+                ) : item?.estimasi?.statusKonfirmasi === 'BERHALANGAN' ? (
+                  <div className="p-4 rounded-2xl bg-stone-100 border-2 border-stone-300 text-stone-800 space-y-2">
+                    <div className="font-serif font-black text-sm text-stone-900 flex items-center justify-center space-x-1.5">
+                      <XCircle className="w-5 h-5 text-stone-600" />
+                      <span>Konfirmasi Berhalangan Hadir Tersimpan</span>
+                    </div>
+                    <p className="text-xs text-stone-700">
+                      Terima kasih atas konfirmasi Anda. Doa restu Bapak/Ibu/Saudara sangat bermakna bagi kami.
+                    </p>
+                  </div>
+                ) : null}
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleKonfirmasiTamu('HADIR')}
+                    disabled={savingRsvp}
+                    className="py-3.5 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                    <span>✅ Saya Hadir</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleKonfirmasiTamu('BERHALANGAN')}
+                    disabled={savingRsvp}
+                    className="py-3.5 px-4 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold text-xs sm:text-sm border border-stone-300 shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95"
+                  >
+                    <XCircle className="w-4 h-4 text-stone-600" />
+                    <span>❌ Berhalangan</span>
+                  </button>
                 </div>
-              ) : null}
 
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => handleKonfirmasiTamu('HADIR')}
-                  disabled={savingRsvp}
-                  className="py-3.5 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-                  <span>✅ Saya Hadir</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleKonfirmasiTamu('BERHALANGAN')}
-                  disabled={savingRsvp}
-                  className="py-3.5 px-4 rounded-2xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold text-xs sm:text-sm border border-stone-300 shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95"
-                >
-                  <XCircle className="w-4 h-4 text-stone-600" />
-                  <span>❌ Berhalangan</span>
-                </button>
-              </div>
-
-              {rsvpError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
-                  ⚠️ {rsvpError}
-                </div>
-              )}
-            </GlassCard>
+                {rsvpError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold">
+                    ⚠️ {rsvpError}
+                  </div>
+                )}
+              </GlassCard>
+            </ScrollReveal>
 
             {/* TOMBOL HUBUNGI PANITIA */}
-            <div className="pt-2 space-y-3">
-              <a
-                href={`https://wa.me/6281234567890?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20tamu%20undangan%20kehormatan`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-              >
-                <MessageCircle className="w-4.5 h-4.5 text-emerald-200" />
-                <span>Hubungi Panitia (WhatsApp)</span>
-              </a>
-            </div>
+            <ScrollReveal delay={450}>
+              <div className="pt-2 space-y-3">
+                <a
+                  href={`https://wa.me/6281234567890?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20tamu%20undangan%20kehormatan`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                >
+                  <MessageCircle className="w-4.5 h-4.5 text-emerald-200" />
+                  <span>Hubungi Panitia (WhatsApp)</span>
+                </a>
+              </div>
+            </ScrollReveal>
 
             {/* FOOTER INFORMASI TAMU UNDANGAN */}
-            <GlassCard className="p-6 text-center text-xs text-stone-600 space-y-3">
-              <div className="space-y-1">
-                <p className="font-serif font-bold text-[#422F21]">
-                  Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-                </p>
-                <p className="font-serif text-[#7A624E]">
-                  Aula Al-Muktamar, Pondok Pesantren Lirboyo Kediri
-                </p>
-              </div>
+            <ScrollReveal delay={500}>
+              <GlassCard className="p-6 text-center text-xs text-stone-600 space-y-3">
+                <div className="space-y-1">
+                  <p className="font-serif font-bold text-[#422F21]">
+                    Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+                  </p>
+                  <p className="font-serif text-[#7A624E]">
+                    Aula Al-Muktamar, Pondok Pesantren Lirboyo Kediri
+                  </p>
+                </div>
 
-              <div className="py-2 text-[11px] font-serif text-[#422F21] leading-relaxed italic max-w-md mx-auto">
-                "Atas kehadiran dan doa restu Bapak/Ibu/Saudara, kami sampaikan terima kasih.<br />
-                Jazakumullahu khairan katsiran.<br />
-                Wassalamu'alaikum warahmatullahi wabarakatuh."
-              </div>
+                <div className="py-2 text-[11px] font-serif text-[#422F21] leading-relaxed italic max-w-md mx-auto">
+                  "Atas kehadiran dan doa restu Bapak/Ibu/Saudara, kami sampaikan terima kasih.<br />
+                  Jazakumullahu khairan katsiran.<br />
+                  Wassalamu'alaikum warahmatullahi wabarakatuh."
+                </div>
 
-              <div className="pt-1">
-                <NamaLembaga align="center" size="xs" weight="medium" color="text-stone-500" />
-                <p className="text-[10px] text-stone-400 mt-0.5 font-semibold">Lirboyo Kediri</p>
-              </div>
-            </GlassCard>
+                <div className="pt-1">
+                  <NamaLembaga align="center" size="xs" weight="medium" color="text-stone-500" />
+                  <p className="text-[10px] text-stone-400 mt-0.5 font-semibold">Lirboyo Kediri</p>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         )
       ) : (
@@ -935,500 +1009,533 @@ export default function UndanganWaliPage() {
         /* ========================================================================= */
         !isOpened ? (
           <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
-            <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-              <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center">
-                UNDANGAN RESMI WALI SANTRI
-              </div>
-
-              <HeaderUndanganWali />
-
-              <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
-
-              <div className="space-y-2 py-1">
-                <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
-                  Kepada Yth. Bapak/Ibu Wali Santri dari:
-                </span>
-                <h2 className="text-lg sm:text-xl font-serif font-black text-[#422F21]">
-                  {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
-                </h2>
-                <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
-                  {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : 'Wali Santri'}
+            <ScrollReveal>
+              <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 relative overflow-hidden">
+                <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center">
+                  UNDANGAN RESMI WALI SANTRI
                 </div>
-              </div>
 
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={handleOpenInvitation}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
-                >
-                  <MailOpen className="w-4 h-4 text-amber-200" />
-                  <span>Buka Undangan ✉️</span>
-                </button>
-              </div>
-            </GlassCard>
+                <HeaderUndanganWali />
+
+                <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
+
+                <div className="space-y-2 py-1">
+                  <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
+                    Kepada Yth. Bapak/Ibu Wali Santri dari:
+                  </span>
+                  <h2 className="text-lg sm:text-xl font-serif font-black text-[#422F21]">
+                    {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
+                  </h2>
+                  <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
+                    {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : 'Wali Santri'}
+                  </div>
+                </div>
+
+                <div className="pt-2 space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleOpenInvitation}
+                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
+                  >
+                    <MailOpen className="w-4 h-4 text-amber-200" />
+                    <span>Buka Undangan ✉️</span>
+                  </button>
+
+                  <div className="pt-1 flex flex-col items-center space-y-1 text-stone-500 animate-bounce">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6A47]">
+                      Scroll ke Bawah ✦
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-[#8C6A47]" />
+                  </div>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         ) : (
           /* KONTEN LENGKAP UNDANGAN WALI SANTRI (TEKS FORMAT ISLAMI FORMAL TAHUN LALU) */
-          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in duration-500 pb-28">
+          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-6 sm:space-y-7 animate-in fade-in duration-500 pb-28">
             {/* HEADER KARTU UNDANGAN WALI (FORMAT HAFLAH + AKHIRUSSANAH) */}
-            <GlassCard className="p-4 sm:p-6 border-2 border-[#D5C4B4]/80 shadow-md">
-              <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
-                UNDANGAN RESMI WALI SANTRI
-              </div>
-              <HeaderUndanganWali />
-            </GlassCard>
-
-            {/* PROFIL SANTRIWATI & WALI SANTRI */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
-              <div className="text-center space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-                  Shohibul Hajat
-                </span>
-                <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
-                  {santri?.nama || item?.entitas?.nama}
-                </h2>
-                <p className="text-xs text-stone-600 font-medium">
-                  {santri?.subKategori} · Kamar: <strong>{santri?.kamar || '-'}</strong>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-100 text-xs">
-                <div className="p-3 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
-                  <span className="text-stone-500 text-[10px] uppercase font-bold">Nama Wali:</span>
-                  <p className="font-bold text-[#422F21] truncate">{item?.entitas?.namaWali || item?.entitas?.nama}</p>
+            <ScrollReveal delay={50}>
+              <GlassCard className="p-4 sm:p-6 border-2 border-[#D5C4B4]/80 shadow-md">
+                <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
+                  UNDANGAN RESMI WALI SANTRI
                 </div>
-                <div className="p-3 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
-                  <span className="text-stone-500 text-[10px] uppercase font-bold">Asal / Alamat:</span>
-                  <p className="font-bold text-[#422F21] truncate">{item?.entitas?.alamat || 'Kediri'}</p>
+                <HeaderUndanganWali />
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* PROFIL SANTRIWATI & WALI SANTRI (PERBAIKAN 3: RAPIKAN GRID MOBILE) */}
+            <ScrollReveal delay={100}>
+              <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+                <div className="text-center space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                    Shohibul Hajat
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
+                    {santri?.nama || item?.entitas?.nama}
+                  </h2>
+                  <p className="text-xs text-stone-600 font-medium">
+                    {santri?.subKategori} · Kamar: <strong>{santri?.kamar || '-'}</strong>
+                  </p>
                 </div>
-              </div>
-            </GlassCard>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-3 border-t border-stone-100 text-xs">
+                  <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
+                    <span className="text-stone-500 text-[10px] uppercase font-bold block">Nama Wali:</span>
+                    <p className="font-bold text-[#422F21] leading-snug">{item?.entitas?.namaWali || item?.entitas?.nama}</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
+                    <span className="text-stone-500 text-[10px] uppercase font-bold block">Asal / Alamat:</span>
+                    <p className="font-bold text-[#422F21] leading-snug">{item?.entitas?.alamat || 'Kediri'}</p>
+                  </div>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* KALIMAT SAMBUTAN FORMAL ISLAMI SEPERTI TAHUN LALU */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#D5C4B4]/80 shadow-sm space-y-4 text-[#422F21]">
-              <div className="text-center text-base font-serif text-[#8C6A47] font-bold tracking-widest font-arabic">
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-              </div>
-
-              <h3 className="font-serif font-bold text-center text-sm sm:text-base text-[#422F21]">
-                Assalamu'alaikum Warahmatullahi Wabarakatuh
-              </h3>
-
-              <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-justify sm:text-center">
-                Salam silaturahim kami sampaikan, semoga Bapak/Ibu/Saudara/i senantiasa berada dalam lindungan Allah SWT.
-              </p>
-
-              <div className="space-y-2 font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-center">
-                <p>
-                  Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan</strong>:
-                </p>
-                <div className="py-1">
-                  <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
+            <ScrollReveal delay={150}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#D5C4B4]/80 shadow-sm space-y-4 text-[#422F21]">
+                <div className="text-center text-base font-serif text-[#8C6A47] font-bold tracking-widest font-arabic">
+                  بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                 </div>
-                <p>
-                  serta <strong>Dzikrul Haul Al-Maghfur Lahum</strong>:
+
+                <h3 className="font-serif font-bold text-center text-sm sm:text-base text-[#422F21]">
+                  Assalamu'alaikum Warahmatullahi Wabarakatuh
+                </h3>
+
+                <p className="font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-justify sm:text-center">
+                  Salam silaturahim kami sampaikan, semoga Bapak/Ibu/Saudara/i senantiasa berada dalam lindungan Allah SWT.
                 </p>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
-                <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
-                <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
-                <p className="text-sm text-[#8C6A47] font-black">• KH. AHMAD IDRIS MARZUQI •</p>
-                <p className="text-sm text-[#8C6A47] font-black">• IBU NYAI HJ. ADDINIYAH KHODIJAH •</p>
-                <p className="text-[11px] text-stone-500 font-normal pt-1">dan segenap Masyayikh Pon. Pes. Lirboyo Kediri</p>
-              </div>
+                <div className="space-y-2 font-serif text-xs sm:text-sm text-[#422F21] leading-relaxed text-center">
+                  <p>
+                    Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan</strong>:
+                  </p>
+                  <div className="py-1">
+                    <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
+                  </div>
+                  <p>
+                    serta <strong>Dzikrul Haul Al-Maghfur Lahum</strong>:
+                  </p>
+                </div>
 
-              <div className="pt-2 text-xs font-serif text-center space-y-1 bg-[#FAF0E6]/90 p-4 rounded-2xl border border-[#D5C4B4]">
-                <p className="font-bold text-[#422F21]">Pelaksanaan Acara:</p>
-                <p>Hari / Tanggal: <strong>Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.</strong></p>
-                <p>Waktu: <strong>Pukul 06.30 WIB / 07.00 WIs - Selesai</strong></p>
-                <p>Tempat: <strong>Aula Al-Muktamar Pondok Pesantren Lirboyo Kediri</strong></p>
-              </div>
-            </GlassCard>
+                <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
+                  <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
+                  <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
+                  <p className="text-sm text-[#8C6A47] font-black">• KH. AHMAD IDRIS MARZUQI •</p>
+                  <p className="text-sm text-[#8C6A47] font-black">• IBU NYAI HJ. ADDINIYAH KHODIJAH •</p>
+                  <p className="text-[11px] text-stone-500 font-normal pt-1">dan segenap Masyayikh Pon. Pes. Lirboyo Kediri</p>
+                </div>
+
+                <div className="pt-2 text-xs font-serif text-center space-y-1 bg-[#FAF0E6]/90 p-4 rounded-2xl border border-[#D5C4B4]">
+                  <p className="font-bold text-[#422F21]">Pelaksanaan Acara:</p>
+                  <p>Hari / Tanggal: <strong>Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.</strong></p>
+                  <p>Waktu: <strong>Pukul 06.30 WIB / 07.00 WIs - Selesai</strong></p>
+                  <p>Tempat: <strong>Aula Al-Muktamar Pondok Pesantren Lirboyo Kediri</strong></p>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* QR CODE GERBANG MASUK WALI SANTRI (SOLID WHITE DEPOSIT FOR QR SCANNABILITY) */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
-              <div className="space-y-1">
-                <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
-                  KODE AKSES RESMI GERBANG MASUK
-                </span>
-                <h3 className="font-serif font-black text-lg text-[#322116]">
-                  Tunjukkan QR Code Ini Kepada Petugas Gerbang
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
-                </p>
-              </div>
+            <ScrollReveal delay={200}>
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
+                    KODE AKSES RESMI GERBANG MASUK
+                  </span>
+                  <h3 className="font-serif font-black text-lg text-[#322116]">
+                    Tunjukkan QR Code Ini Kepada Petugas Gerbang
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
+                  </p>
+                </div>
 
-              <div className="flex flex-col items-center justify-center">
-                <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
-                  {qrDataUrl ? (
-                    <img
-                      src={qrDataUrl}
-                      alt="QR Code Tiket Masuk Wali"
-                      className="w-full h-full object-contain rounded-xl"
-                    />
-                  ) : (
-                    <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
-                  )}
+                <div className="flex flex-col items-center justify-center">
+                  <div className="p-3 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+                    {qrDataUrl ? (
+                      <img
+                        src={qrDataUrl}
+                        alt="QR Code Tiket Masuk Wali"
+                        className="w-full h-full object-contain rounded-xl"
+                      />
+                    ) : (
+                      <div className="text-xs font-mono text-stone-400">Menyiapkan QR...</div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-2 bg-[#FAF7F3] p-3 rounded-2xl border border-[#D5C4B4] text-xs">
-                <div>
-                  <span className="text-[10px] text-stone-500 uppercase font-bold">KUOTA DASAR</span>
-                  <p className="font-serif font-black text-lg text-[#422F21]">{kuota?.kuotaDasar || 2}</p>
-                </div>
-                <div className="border-x border-stone-200">
-                  <span className="text-[10px] text-stone-500 uppercase font-bold">TAMBAHAN</span>
-                  <p className="font-serif font-black text-lg text-emerald-700">+{kuota?.kuotaTambahan || 0}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] text-stone-500 uppercase font-bold">TOTAL KUOTA</span>
-                  <p className="font-serif font-black text-lg text-stone-700">{totalKuotaSantri} Kursi</p>
-                </div>
-              </div>
-            </div>
-
-            {/* SECTION KONTROL BELI KUOTA TAMBAHAN (WALI SANTRI ONLY) */}
-            <GlassCard className="p-5 sm:p-7 border-2 border-[#E8DFD5]/80 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
-                    <ShoppingBag className="w-4 h-4 text-amber-700" />
+                <div className="grid grid-cols-3 gap-2 bg-[#FAF7F3] p-3 rounded-2xl border border-[#D5C4B4] text-xs">
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase font-bold">KUOTA DASAR</span>
+                    <p className="font-serif font-black text-lg text-[#422F21]">{kuota?.kuotaDasar || 2}</p>
+                  </div>
+                  <div className="border-x border-stone-200">
+                    <span className="text-[10px] text-stone-500 uppercase font-bold">TAMBAHAN</span>
+                    <p className="font-serif font-black text-lg text-emerald-700">+{kuota?.kuotaTambahan || 0}</p>
                   </div>
                   <div>
-                    <h3 className="font-serif font-black text-sm sm:text-base text-[#422F21]">
-                      Pembelian Kuota Tambahan Kursi
-                    </h3>
-                    <p className="text-[11px] text-stone-500">
-                      Sisa Kuota Pagu: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong> ({totalDiverifikasi}/300 terisi)
+                    <span className="text-[10px] text-stone-500 uppercase font-bold">TOTAL KUOTA</span>
+                    <p className="font-serif font-black text-lg text-stone-700">{totalKuotaSantri} Kursi</p>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* SECTION KONTROL BELI KUOTA TAMBAHAN (WALI SANTRI ONLY) */}
+            <ScrollReveal delay={250}>
+              <GlassCard className="p-5 sm:p-7 border-2 border-[#E8DFD5]/80 shadow-sm space-y-3.5">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">
+                      <ShoppingBag className="w-4 h-4 text-amber-700" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif font-black text-sm sm:text-base text-[#422F21]">
+                        Pembelian Kuota Tambahan Kursi
+                      </h3>
+                      <p className="text-[11px] text-stone-500">
+                        Sisa Kuota Pagu: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong> ({totalDiverifikasi}/300 terisi)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {loadingKuotaControl ? (
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2 font-medium">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#8C6A47]" />
+                    <span>Sedang memuat status kuota tambahan...</span>
+                  </div>
+                ) : kuotaSwitchAktif && totalDiverifikasi < 300 ? (
+                  <div className="space-y-2.5 text-center">
+                    <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                      Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
+                    </p>
+                    <Link
+                      href={`/beli/${kodeSH}`}
+                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer border border-amber-200/40"
+                    >
+                      <ShoppingBag className="w-4.5 h-4.5 text-amber-200" />
+                      <span>Beli Kuota Tambahan</span>
+                      <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
+                    </Link>
+                    <p className="text-[11px] text-stone-500 font-semibold">
+                      Harga Rp 80.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
+                    </p>
+                  </div>
+                ) : !kuotaSwitchAktif ? (
+                  <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200 text-slate-700 text-xs flex items-center space-x-2.5 font-medium">
+                    <Info className="w-4.5 h-4.5 text-slate-500 shrink-0" />
+                    <span>Pembelian kuota tambahan sedang ditutup.</span>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-900 text-xs flex items-center space-x-2.5 font-medium">
+                    <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
+                    <span>Kuota tambahan sudah habis (300/300 terisi).</span>
+                  </div>
+                )}
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* WAKTU, LOKASI & COUNTDOWN TIMER WALI */}
+            <ScrollReveal delay={300}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                    Waktu &amp; Tempat Pelaksanaan
+                  </span>
+                  <h3 className="font-serif font-black text-xl text-[#422F21]">
+                    Aula Al-Muktamar Pondok Pesantren Lirboyo
+                  </h3>
+                  <p className="text-xs text-stone-600">
+                    Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.days}</div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.hours}</div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.minutes}</div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.seconds}</div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsDenahOpen(true)}
+                    className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  >
+                    <Compass className="w-4 h-4 text-[#8C6A47]" />
+                    <span>Buka Denah Lokasi &amp; Parkir</span>
+                  </button>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* RANGKAIAN ADICARA UTAMA */}
+            <ScrollReveal delay={350}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+                <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
+                  Rangkaian Acara Hari H (02 Januari 2027)
+                </h3>
+                <div className="space-y-3 text-xs leading-relaxed">
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">05.30 WIs</span>
+                    <p className="text-stone-700">Persiapan Shohibul Hajat diberangkatkan ke Aula Al-Muktamar.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.00 WIs</span>
+                    <p className="text-stone-700">Lalaran Tamatan Aliyah &amp; Senandung Sholawat Syauqul Ahibba'.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.30 WIs</span>
+                    <p className="text-stone-700">
+                      <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) &amp; Tartilan Khotmil Qur'an.
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">07.30 WIs</span>
+                    <p className="text-stone-700">Pembukaan, Qiro'at, Tahlil, dan Sambutan-Sambutan Masyayikh.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">08.52 WIs</span>
+                    <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi &amp; Bin Nadzori.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">10.12 WIs</span>
+                    <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">13.01 WIs</span>
+                    <p className="text-stone-700">Penayangan Video Closing "Sajak Akhirussanah" dan Sesi Foto.</p>
+                  </div>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* TATA TERTIB & KETENTUAN SAMBANGAN WALI SANTRI */}
+            <ScrollReveal delay={400}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+                <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
+                  Tata Tertib &amp; Ketentuan Sambangan
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1">
+                    <span className="font-bold text-amber-900 block">🚫 Larangan Selama Acara:</span>
+                    <p className="text-amber-800 leading-relaxed text-[11px]">
+                      • Dilarang membawa <strong>buket</strong> ke aula.<br />
+                      • Dilarang memakai kutek, hena, &amp; nail art.<br />
+                      • Dilarang membawa fotografer dari luar.<br />
+                      • Wali dilarang memasuki area steril santriwati saat acara.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
+                    <span className="font-bold text-emerald-900 block">📍 Jadwal &amp; Lokasi Sambangan:</span>
+                    <p className="text-emerald-800 leading-relaxed text-[11px]">
+                      • Dibuka <strong>setelah acara s.d. 18.00 WIs</strong>.<br />
+                      • <strong>Halaman Al-Khodijah:</strong> Bil Ghoibi &amp; Bin Nadzori.<br />
+                      • <strong>Gedung Rusunawa Baru:</strong> Tamatan Aliyah.<br />
+                      • Wajib mahrom sah (bawa KKS/KTP).
                     </p>
                   </div>
                 </div>
-              </div>
-
-              {loadingKuotaControl ? (
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2 font-medium">
-                  <Loader2 className="w-4 h-4 animate-spin text-[#8C6A47]" />
-                  <span>Sedang memuat status kuota tambahan...</span>
-                </div>
-              ) : kuotaSwitchAktif && totalDiverifikasi < 300 ? (
-                <div className="space-y-2.5 text-center">
-                  <p className="text-xs text-stone-600 leading-relaxed font-medium">
-                    Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
-                  </p>
-                  <Link
-                    href={`/beli/${kodeSH}`}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer border border-amber-200/40"
-                  >
-                    <ShoppingBag className="w-4.5 h-4.5 text-amber-200" />
-                    <span>Beli Kuota Tambahan</span>
-                    <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
-                  </Link>
-                  <p className="text-[11px] text-stone-500 font-semibold">
-                    Harga Rp 80.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
-                  </p>
-                </div>
-              ) : !kuotaSwitchAktif ? (
-                <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200 text-slate-700 text-xs flex items-center space-x-2.5 font-medium">
-                  <Info className="w-4.5 h-4.5 text-slate-500 shrink-0" />
-                  <span>Pembelian kuota tambahan sedang ditutup.</span>
-                </div>
-              ) : (
-                <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-900 text-xs flex items-center space-x-2.5 font-medium">
-                  <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
-                  <span>Kuota tambahan sudah habis (300/300 terisi).</span>
-                </div>
-              )}
-            </GlassCard>
-
-            {/* WAKTU, LOKASI & COUNTDOWN TIMER WALI */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-                  Waktu &amp; Tempat Pelaksanaan
-                </span>
-                <h3 className="font-serif font-black text-xl text-[#422F21]">
-                  Aula Al-Muktamar Pondok Pesantren Lirboyo
-                </h3>
-                <p className="text-xs text-stone-600">
-                  Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.days}</div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.hours}</div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.minutes}</div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                  <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.seconds}</div>
-                  <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsDenahOpen(true)}
-                  className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-colors cursor-pointer"
-                >
-                  <Compass className="w-4 h-4 text-[#8C6A47]" />
-                  <span>Buka Denah Lokasi &amp; Parkir</span>
-                </button>
-              </div>
-            </GlassCard>
-
-            {/* RANGKAIAN ADICARA UTAMA */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
-              <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
-                Rangkaian Acara Hari H (02 Januari 2027)
-              </h3>
-              <div className="space-y-3 text-xs">
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">05.30 WIs</span>
-                  <p className="text-stone-700">Persiapan Shohibul Hajat diberangkatkan ke Aula Al-Muktamar.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.00 WIs</span>
-                  <p className="text-stone-700">Lalaran Tamatan Aliyah &amp; Senandung Sholawat Syauqul Ahibba'.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">06.30 WIs</span>
-                  <p className="text-stone-700">
-                    <strong>Registrasi Gerbang Masuk Dibuka</strong> (06.30 WIB / 07.00 WIs) &amp; Tartilan Khotmil Qur'an.
-                  </p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">07.30 WIs</span>
-                  <p className="text-stone-700">Pembukaan, Qiro'at, Tahlil, dan Sambutan-Sambutan Masyayikh.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">08.52 WIs</span>
-                  <p className="text-stone-700">Pembagian Syahadah Takhtiman Bil Ghoibi &amp; Bin Nadzori.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">10.12 WIs</span>
-                  <p className="text-stone-700">Mau'idzoh Hasanah, Do'a Masyayikh, &amp; Pembagian Ijazah Tamatan.</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="font-mono font-bold text-[#8C6A47] shrink-0 min-w-[70px]">13.01 WIs</span>
-                  <p className="text-stone-700">Penayangan Video Closing "Sajak Akhirussanah" dan Sesi Foto.</p>
-                </div>
-              </div>
-            </GlassCard>
-
-            {/* TATA TERTIB & KETENTUAN SAMBANGAN WALI SANTRI */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
-              <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
-                Tata Tertib &amp; Ketentuan Sambangan
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1">
-                  <span className="font-bold text-amber-900 block">🚫 Larangan Selama Acara:</span>
-                  <p className="text-amber-800 leading-relaxed text-[11px]">
-                    • Dilarang membawa <strong>buket</strong> ke aula.<br />
-                    • Dilarang memakai kutek, hena, &amp; nail art.<br />
-                    • Dilarang membawa fotografer dari luar.<br />
-                    • Wali dilarang memasuki area steril santriwati saat acara.
-                  </p>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
-                  <span className="font-bold text-emerald-900 block">📍 Jadwal &amp; Lokasi Sambangan:</span>
-                  <p className="text-emerald-800 leading-relaxed text-[11px]">
-                    • Dibuka <strong>setelah acara s.d. 18.00 WIs</strong>.<br />
-                    • <strong>Halaman Al-Khodijah:</strong> Bil Ghoibi &amp; Bin Nadzori.<br />
-                    • <strong>Gedung Rusunawa Baru:</strong> Tamatan Aliyah.<br />
-                    • Wajib mahrom sah (bawa KKS/KTP).
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* SECTION KONFIRMASI KEHADIRAN WALI SANTRI (RSVP DENGAN BATAS KUOTA TOTAL & NON-NEGATIF) */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-serif font-black text-base text-[#422F21]">
-                    Konfirmasi Kehadiran (RSVP)
-                  </h3>
-                  <p className="text-xs text-[#7A624E]">
-                    Jumlah total konfirmasi maksimal <strong>{totalKuotaSantri} kursi</strong> (Kuota Dasar: {item?.kuota?.kuotaDasar || 2} + Tambahan: {item?.kuota?.kuotaTambahan || 0}).
-                  </p>
+            <ScrollReveal delay={450}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="font-serif font-black text-base text-[#422F21]">
+                      Konfirmasi Kehadiran (RSVP)
+                    </h3>
+                    <p className="text-xs text-[#7A624E]">
+                      Jumlah total konfirmasi maksimal <strong>{totalKuotaSantri} kursi</strong> (Kuota Dasar: {item?.kuota?.kuotaDasar || 2} + Tambahan: {item?.kuota?.kuotaTambahan || 0}).
+                    </p>
+                  </div>
+                  {item?.estimasi?.statusKonfirmasi === 'SUDAH' && (
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
+                      ✓ Terkonfirmasi
+                    </span>
+                  )}
                 </div>
-                {item?.estimasi?.statusKonfirmasi === 'SUDAH' && (
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
-                    ✓ Terkonfirmasi
-                  </span>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold text-[#422F21]">Wali Laki-Laki</div>
+                      <div className="text-[10px] text-stone-500">Zona Putra</div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setEstL(Math.max(0, estL - 1))}
+                        className="w-10 h-10 rounded-xl bg-white border border-stone-300 font-black text-sm text-[#422F21] cursor-pointer hover:bg-stone-100 active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                      >
+                        −
+                      </button>
+                      <span className="font-serif font-black text-base w-8 text-center text-[#422F21]">{estL}</span>
+                      <button
+                        type="button"
+                        onClick={() => setEstL(estL + 1)}
+                        className="w-10 h-10 rounded-xl bg-[#8C6A47] text-white font-black text-sm cursor-pointer hover:bg-[#735334] active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold text-[#422F21]">Wali Perempuan</div>
+                      <div className="text-[10px] text-stone-500">Zona Putri</div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setEstP(Math.max(0, estP - 1))}
+                        className="w-10 h-10 rounded-xl bg-white border border-stone-300 font-black text-sm text-[#422F21] cursor-pointer hover:bg-stone-100 active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                      >
+                        −
+                      </button>
+                      <span className="font-serif font-black text-base w-8 text-center text-[#422F21]">{estP}</span>
+                      <button
+                        type="button"
+                        onClick={() => setEstP(estP + 1)}
+                        className="w-10 h-10 rounded-xl bg-[#8C6A47] text-white font-black text-sm cursor-pointer hover:bg-[#735334] active:scale-90 transition-transform shadow-xs flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ERROR INLINE SAAT JUMLAH MELEBIHI KUOTA */}
+                {isWaliRsvpExceeded && (
+                  <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold text-center">
+                    ⚠️ Jumlah konfirmasi ({totalInputWali} orang) melebihi kuota Anda ({totalKuotaSantri} kursi).
+                  </div>
                 )}
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[#422F21]">Wali Laki-Laki</div>
-                    <div className="text-[10px] text-stone-500">Zona Putra</div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setEstL(Math.max(0, estL - 1))}
-                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100 active:scale-95"
-                    >
-                      −
-                    </button>
-                    <span className="font-black text-sm w-4 text-center">{estL}</span>
-                    <button
-                      type="button"
-                      onClick={() => setEstL(estL + 1)}
-                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334] active:scale-95"
-                    >
-                      +
-                    </button>
-                  </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-[#422F21] mb-1">
+                    Catatan Rombongan / Permohonan Khusus (Opsional):
+                  </label>
+                  <input
+                    type="text"
+                    value={catatanRsvp}
+                    onChange={(e) => setCatatanRsvp(e.target.value)}
+                    placeholder="Contoh: Datang bersama 1 balita, atau mohon jalur lansia..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#D5C4B4] text-xs bg-[#FAF7F3]/90 focus:bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
+                  />
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3]/90 border border-[#E8DFD5] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[#422F21]">Wali Perempuan</div>
-                    <div className="text-[10px] text-stone-500">Zona Putri</div>
+                <button
+                  type="button"
+                  onClick={handleSimpanEstimasiWali}
+                  disabled={savingRsvp || isWaliRsvpExceeded}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
+                >
+                  {savingRsvp ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-200" />
+                      <span>Menyimpan ke Sistem Panitia...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-amber-200" />
+                      <span>Simpan Konfirmasi Kehadiran</span>
+                    </>
+                  )}
+                </button>
+
+                {rsvpError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-center font-bold">
+                    ⚠️ {rsvpError}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setEstP(Math.max(0, estP - 1))}
-                      className="w-8 h-8 rounded-lg bg-white border border-stone-300 font-bold text-xs cursor-pointer hover:bg-stone-100 active:scale-95"
-                    >
-                      −
-                    </button>
-                    <span className="font-black text-sm w-4 text-center">{estP}</span>
-                    <button
-                      type="button"
-                      onClick={() => setEstP(estP + 1)}
-                      className="w-8 h-8 rounded-lg bg-[#8C6A47] text-white font-bold text-xs cursor-pointer hover:bg-[#735334] active:scale-95"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* ERROR INLINE SAAT JUMLAH MELEBIHI KUOTA */}
-              {isWaliRsvpExceeded && (
-                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold text-center">
-                  ⚠️ Jumlah konfirmasi ({totalInputWali} orang) melebihi kuota Anda ({totalKuotaSantri} kursi).
-                </div>
-              )}
-
-              <div>
-                <label className="block text-[11px] font-bold text-[#422F21] mb-1">
-                  Catatan Rombongan / Permohonan Khusus (Opsional):
-                </label>
-                <input
-                  type="text"
-                  value={catatanRsvp}
-                  onChange={(e) => setCatatanRsvp(e.target.value)}
-                  placeholder="Contoh: Datang bersama 1 balita, atau mohon jalur lansia..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-[#D5C4B4] text-xs bg-[#FAF7F3]/90 focus:bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleSimpanEstimasiWali}
-                disabled={savingRsvp || isWaliRsvpExceeded}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
-              >
-                {savingRsvp ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-amber-200" />
-                    <span>Menyimpan ke Sistem Panitia...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-amber-200" />
-                    <span>Simpan Konfirmasi Kehadiran</span>
-                  </>
                 )}
-              </button>
 
-              {rsvpError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-center font-bold">
-                  ⚠️ {rsvpError}
-                </div>
-              )}
-
-              {estimasiSaved && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs text-center font-bold animate-in fade-in">
-                  ✓ Konfirmasi kehadiran Anda berhasil disimpan ke sistem panitia Supabase{lastSavedTime ? ` pada ${lastSavedTime}` : ''}.
-                </div>
-              )}
-            </GlassCard>
+                {estimasiSaved && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs text-center font-bold animate-in fade-in">
+                    ✓ Konfirmasi kehadiran Anda berhasil disimpan ke sistem panitia Supabase{lastSavedTime ? ` pada ${lastSavedTime}` : ''}.
+                  </div>
+                )}
+              </GlassCard>
+            </ScrollReveal>
 
             {/* TANDA TANGAN PANITIA & PENUTUP (DEWAN HARIAN PUTRI) */}
-            <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
-              <p className="italic text-stone-600 leading-relaxed">
-                Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
-                Jazakumullahu khairan katsiran.
-              </p>
+            <ScrollReveal delay={500}>
+              <GlassCard className="p-6 sm:p-8 border-2 border-[#E8DFD5]/80 shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
+                <p className="italic text-stone-600 leading-relaxed">
+                  Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
+                  Jazakumullahu khairan katsiran.
+                </p>
 
-              <div className="pt-4 border-t border-[#E8DFD5] grid grid-cols-2 gap-4 max-w-md mx-auto">
-                <div className="text-center space-y-1">
-                  <p className="text-[11px] font-serif uppercase tracking-wider text-[#8C6A47] font-semibold">
-                    KETUA UMUM
-                  </p>
-                  <p className="pt-4 font-serif font-bold text-base sm:text-lg text-[#422F21]">
-                    ( Sinta Maelani )
-                  </p>
+                <div className="pt-4 border-t border-[#E8DFD5] grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-md mx-auto">
+                  <div className="text-center space-y-1">
+                    <p className="text-[11px] font-serif uppercase tracking-wider text-[#8C6A47] font-semibold">
+                      KETUA UMUM
+                    </p>
+                    <p className="pt-3 font-serif font-bold text-base sm:text-lg text-[#422F21]">
+                      ( Sinta Maelani )
+                    </p>
+                  </div>
+                  <div className="text-center space-y-1">
+                    <p className="text-[11px] font-serif uppercase tracking-wider text-[#8C6A47] font-semibold">
+                      SEKRETARIS UMUM
+                    </p>
+                    <p className="pt-3 font-serif font-bold text-base sm:text-lg text-[#422F21] leading-tight">
+                      ( Refi Al Izzatul Kholifah )
+                    </p>
+                  </div>
                 </div>
-                <div className="text-center space-y-1">
-                  <p className="text-[11px] font-serif uppercase tracking-wider text-[#8C6A47] font-semibold">
-                    SEKRETARIS UMUM
-                  </p>
-                  <p className="pt-4 font-serif font-bold text-base sm:text-lg text-[#422F21] leading-tight">
-                    ( Refi Al Izzatul Kholifah )
-                  </p>
-                </div>
-              </div>
 
-              <div className="pt-3 text-[#8C6A47] font-serif italic text-xs sm:text-sm font-bold">
-                Wassalamu'alaikum Warahmatullahi Wabarakatuh
-              </div>
-            </GlassCard>
+                <div className="pt-3 text-[#8C6A47] font-serif italic text-xs sm:text-sm font-bold">
+                  Wassalamu'alaikum Warahmatullahi Wabarakatuh
+                </div>
+              </GlassCard>
+            </ScrollReveal>
 
             {/* FOOTER WALI SANTRI */}
-            <GlassCard className="p-5 text-center text-[11px] text-stone-500 space-y-1">
-              <div className="pt-1">
-                <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
-                <p className="text-[10px] text-stone-500 font-semibold mt-0.5">Lirboyo Kediri</p>
-              </div>
-              <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
-            </GlassCard>
+            <ScrollReveal delay={550}>
+              <GlassCard className="p-5 text-center text-[11px] text-stone-500 space-y-1">
+                <div className="pt-1">
+                  <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
+                  <p className="text-[10px] text-stone-500 font-semibold mt-0.5">Lirboyo Kediri</p>
+                </div>
+                <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
+              </GlassCard>
+            </ScrollReveal>
           </div>
         )
       )}
 
-      {/* FLOATING US. HALWAA BUTTON */}
-      <button
-        type="button"
-        onClick={() => setIsUsModalOpen(true)}
-        className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#D49B5B] hover:brightness-110 text-white font-serif font-bold text-xs shadow-2xl flex items-center space-x-2 border-2 border-amber-200/60 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+      {/* FLOATING "US TANYA" BUTTON (PERBAIKAN 2) */}
+      <a
+        href={waUsTanyaLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-full bg-[#422F21] hover:bg-[#322116] text-white font-serif font-bold text-xs shadow-2xl flex items-center space-x-2 border-2 border-[#D49B5B] transition-all hover:scale-105 active:scale-95 cursor-pointer group"
+        title="Hubungi Panitia via WhatsApp"
       >
         <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-        <span>Tanya Us. Halwaa</span>
-        <Sparkles className="w-4 h-4 text-amber-200" />
-      </button>
+        <MessageCircle className="w-4.5 h-4.5 text-[#D49B5B] group-hover:scale-110 transition-transform" />
+        <span>Us Tanya</span>
+      </a>
 
       {/* MODAL US. HALWAA */}
       {isUsModalOpen && (
