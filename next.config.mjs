@@ -1,7 +1,12 @@
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;
+  script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob:;
+  script-src-attr 'self' 'unsafe-inline';
+  worker-src 'self' blob:;
+  child-src 'self' blob:;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' data: https://fonts.gstatic.com;
   img-src 'self' data: blob: https:;
   connect-src 'self' 
