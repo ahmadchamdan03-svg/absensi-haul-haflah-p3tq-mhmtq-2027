@@ -649,7 +649,7 @@ export default function UndanganWaliPage() {
 
                 <div className="space-y-1">
                   <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase">
-                    UNDANGAN KEHORMATAN
+                    UNDANGAN RESMI
                   </div>
                   <h1 className="font-serif font-black text-xl sm:text-2xl text-[#322116] leading-tight">
                     Haul &amp; Haflah Akhirussanah 1448 H. / 2027 M.
@@ -671,10 +671,6 @@ export default function UndanganWaliPage() {
                     Kepada Yth. Bapak/Ibu/Saudara:
                   </span>
                   {renderTamuName(item)}
-
-                  <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] uppercase tracking-wider">
-                    {getTamuCategoryLabel(item)}
-                  </div>
 
                   {item?.instansi && item.instansi !== '-' && (
                     <p className="text-xs text-[#7A624E] font-medium pt-1">
@@ -715,8 +711,8 @@ export default function UndanganWaliPage() {
 
             <ScrollReveal delay={100}>
               <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-2">
-                <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight">
-                  Undangan Kehormatan
+                <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#322116] leading-tight uppercase tracking-wide">
+                  UNDANGAN RESMI
                 </h1>
                 <div className="pt-1">
                   <NamaLembaga align="center" size="xs" weight="semibold" color="text-[#7A624E]" />
@@ -739,9 +735,6 @@ export default function UndanganWaliPage() {
                 </div>
 
                 <div className="text-center space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#8C6A47]">
-                    {getTamuCategoryLabel(item)}
-                  </span>
                   {renderTamuName(item)}
                 </div>
 
