@@ -19,6 +19,137 @@ interface LiveDasborProps {
   isPimpinanView?: boolean;
 }
 
+interface DasborDonutCardProps {
+  title: string;
+  icon: any;
+  hadir: number;
+  kuota: number;
+  colorHadir: string;
+  labelHadir: string;
+}
+
+function DasborDonutCard({
+  title,
+  icon: Icon,
+  hadir,
+  kuota,
+  colorHadir,
+  labelHadir,
+}: DasborDonutCardProps) {
+  const percent = kuota > 0 ? Math.round((hadir / kuota) * 100) : 0;
+  const belum = Math.max(0, kuota - hadir);
+  const percentBelum = Math.max(0, 100 - percent);
+
+  const size = 160;
+  const cx = size / 2;
+  const cy = size / 2;
+  const strokeWidth = 22;
+  const r = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * r;
+
+  const clampPercent = Math.min(100, Math.max(0, percent));
+  const strokeDashHadir = (clampPercent / 100) * circumference;
+  const strokeDashBelum = circumference - strokeDashHadir;
+
+  return (
+    <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#E8DFD5] shadow-xs space-y-4 card-transition flex flex-col justify-between">
+      <div>
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+          <span className="text-xs font-bold text-stone-700 uppercase tracking-wide flex items-center gap-2">
+            <Icon className="w-4 h-4" style={{ color: colorHadir }} />
+            {title}
+          </span>
+          <span
+            className="text-xs font-bold px-2.5 py-0.5 rounded-full border"
+            style={{
+              backgroundColor: `${colorHadir}15`,
+              color: colorHadir,
+              borderColor: `${colorHadir}40`,
+            }}
+          >
+            {percent}% Hadir
+          </span>
+        </div>
+
+        {/* Donut Chart SVG */}
+        <div className="relative w-40 h-40 mx-auto my-3 flex items-center justify-center">
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            className="transform -rotate-90 drop-shadow-xs"
+          >
+            {/* Background Circle (Belum Hadir) */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="transparent"
+              stroke="#E5E0D8"
+              strokeWidth={strokeWidth}
+            />
+            {/* Foreground Circle (Hadir) */}
+            {hadir > 0 && (
+              <circle
+                cx={cx}
+                cy={cy}
+                r={r}
+                fill="transparent"
+                stroke={colorHadir}
+                strokeWidth={strokeWidth}
+                strokeDasharray={`${strokeDashHadir} ${strokeDashBelum}`}
+                strokeDashoffset={0}
+                strokeLinecap="round"
+                className="transition-all duration-500 ease-out"
+              />
+            )}
+          </svg>
+
+          {/* Donut Center Text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+            <span className="text-3xl font-serif font-black text-[#422F21] leading-none">
+              {hadir.toLocaleString('id-ID')}
+            </span>
+            <span className="text-[11px] font-bold text-stone-500 mt-1">
+              Hadir ({percent}%)
+            </span>
+          </div>
+        </div>
+
+        {/* Legends */}
+        <div className="space-y-2 text-xs pt-1">
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF7F3] border border-[#E8DFD5]">
+            <span className="flex items-center gap-2 font-semibold text-[#422F21]">
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colorHadir }} />
+              {labelHadir}
+            </span>
+            <span className="font-bold text-[#422F21]">
+              {hadir.toLocaleString('id-ID')} kursi ({percent}%)
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF7F3] border border-[#E8DFD5]">
+            <span className="flex items-center gap-2 font-semibold text-stone-500">
+              <span className="w-3 h-3 rounded-full shrink-0 bg-[#E5E0D8]" />
+              Belum Hadir
+            </span>
+            <span className="font-bold text-stone-600">
+              {belum.toLocaleString('id-ID')} kursi ({percentBelum}%)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Footer */}
+      <div className="pt-3 border-t border-[#E8DFD5] text-xs font-semibold text-stone-500 flex items-center justify-between">
+        <span>Total Kuota: <strong className="text-[#422F21]">{kuota.toLocaleString('id-ID')} kursi</strong></span>
+        <span>Total Hadir: <strong style={{ color: colorHadir }}>{hadir.toLocaleString('id-ID')} ({percent}%)</strong></span>
+      </div>
+    </div>
+  );
+}
+
 export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) {
   const [loading, setLoading] = useState(true);
   const [keluargaList, setKeluargaList] = useState<any[]>([]);
@@ -268,6 +399,26 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
             Total tamu undangan hadir / total tamu undangan keseluruhan
           </p>
         </div>
+      </div>
+
+      {/* 2 CHART STATISTIK KEHADIRAN (DUAL PIE CHART) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <DasborDonutCard
+          title="Kehadiran Wali Santri"
+          icon={Users}
+          hadir={totalHadirWaliSantri}
+          kuota={totalKuotaWaliSantri}
+          colorHadir="#8C6A47"
+          labelHadir="Wali Santri Hadir"
+        />
+        <DasborDonutCard
+          title="Kehadiran Tamu Undangan"
+          icon={Award}
+          hadir={totalHadirTamu}
+          kuota={totalKuotaTamu}
+          colorHadir="#D49B5B"
+          labelHadir="Tamu Undangan Hadir"
+        />
       </div>
 
       {/* FILTER & PENCARIAN REAL-TIME */}
