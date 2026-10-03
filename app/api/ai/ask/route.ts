@@ -697,6 +697,10 @@ async function getLiveAttendanceStatsChart() {
   let totalTamuKuota = 0;
   let totalWaliHadir = 0;
   let totalTamuHadir = 0;
+  let waliL = 0;
+  let waliP = 0;
+  let tamuL = 0;
+  let tamuP = 0;
   let percentWaliRatio = 0;
   let percentTamuRatio = 0;
 
@@ -706,10 +710,14 @@ async function getLiveAttendanceStatsChart() {
 
     totalWaliHadir = wsMetrics.totalHadir;
     totalWaliKuota = wsMetrics.totalKuota;
+    waliL = wsMetrics.totalL;
+    waliP = wsMetrics.totalP;
     percentWaliRatio = wsMetrics.persenHadir;
 
     totalTamuHadir = tamuMetrics.totalHadir;
     totalTamuKuota = tamuMetrics.totalKuota;
+    tamuL = tamuMetrics.totalL;
+    tamuP = tamuMetrics.totalP;
     percentTamuRatio = tamuMetrics.persenHadir;
   } catch (e) {
     console.warn('Error fetching live stats from Supabase:', e);
@@ -720,41 +728,48 @@ async function getLiveAttendanceStatsChart() {
     totalTamuKuota = stats.tamuUndanganStat?.totalKuota || 462;
     percentWaliRatio = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
     percentTamuRatio = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
+    waliL = Math.round(totalWaliHadir * 0.5);
+    waliP = totalWaliHadir - waliL;
+    tamuL = totalTamuHadir;
+    tamuP = 0;
   }
 
   const totalKuota = totalWaliKuota + totalTamuKuota;
   const totalHadir = totalWaliHadir + totalTamuHadir;
   const totalBelumHadir = Math.max(0, totalKuota - totalHadir);
-
-  const waliPercent = totalKuota > 0 ? Math.round((totalWaliHadir / totalKuota) * 100) : 0;
-  const tamuPercent = totalKuota > 0 ? Math.round((totalTamuHadir / totalKuota) * 100) : 0;
-  const belumPercent = Math.max(0, 100 - waliPercent - tamuPercent);
-
   const percentHadirTotal = totalKuota > 0 ? Math.round((totalHadir / totalKuota) * 100) : 0;
+
+  const waliBelum = Math.max(0, totalWaliKuota - totalWaliHadir);
+  const tamuBelum = Math.max(0, totalTamuKuota - totalTamuHadir);
 
   return {
     chart: {
-      type: 'pie',
-      title: 'Kehadiran Haflah 2027',
+      type: 'dual_pie',
+      title: 'KEHADIRAN HAFLAH 2027',
+      wali: {
+        title: 'WALI SANTRI',
+        totalHadir: totalWaliHadir,
+        totalKuota: totalWaliKuota,
+        persenHadir: percentWaliRatio,
+        totalL: waliL,
+        totalP: waliP,
+        belumHadir: waliBelum,
+        color: '#8C6A47',
+      },
+      tamu: {
+        title: 'TAMU UNDANGAN',
+        totalHadir: totalTamuHadir,
+        totalKuota: totalTamuKuota,
+        persenHadir: percentTamuRatio,
+        totalL: tamuL,
+        totalP: tamuP,
+        belumHadir: tamuBelum,
+        color: '#D49B5B',
+      },
       data: [
-        {
-          label: `Wali Santri (${totalWaliHadir})`,
-          value: totalWaliHadir,
-          percent: waliPercent,
-          color: '#8C6A47',
-        },
-        {
-          label: `Tamu Undangan (${totalTamuHadir})`,
-          value: totalTamuHadir,
-          percent: tamuPercent,
-          color: '#D49B5B',
-        },
-        {
-          label: `Belum Hadir (${totalBelumHadir})`,
-          value: totalBelumHadir,
-          percent: belumPercent,
-          color: '#E5E0D8',
-        },
+        { label: `Wali Santri (${totalWaliHadir})`, value: totalWaliHadir, percent: percentWaliRatio, color: '#8C6A47' },
+        { label: `Tamu Undangan (${totalTamuHadir})`, value: totalTamuHadir, percent: percentTamuRatio, color: '#D49B5B' },
+        { label: `Belum Hadir (${totalBelumHadir})`, value: totalBelumHadir, percent: Math.max(0, 100 - percentHadirTotal), color: '#E5E0D8' },
       ],
       summary: {
         totalWaliHadir,
@@ -769,9 +784,15 @@ async function getLiveAttendanceStatsChart() {
       totalWaliHadir,
       totalWaliKuota,
       percentWaliRatio,
+      waliL,
+      waliP,
+      waliBelum,
       totalTamuHadir,
       totalTamuKuota,
       percentTamuRatio,
+      tamuL,
+      tamuP,
+      tamuBelum,
       totalHadir,
       totalKuota,
       percentHadirTotal,
@@ -2132,7 +2153,22 @@ export async function POST(req: NextRequest) {
       const now = new Date();
       const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
       const nowStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
-      const replyText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, statistik kehadiran Haul & Haflah P3TQ & MHMTQ 1448 H./2027 M.:\n\n• **Wali Santri**: ${stats.textSummary.totalWaliHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalWaliKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentWaliRatio}%)\n• **Tamu Undangan**: ${stats.textSummary.totalTamuHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalTamuKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentTamuRatio}%)\n\nTotal yang sudah hadir: **${stats.textSummary.totalHadir.toLocaleString('id-ID')} orang** dari **${stats.textSummary.totalKuota.toLocaleString('id-ID')} kuota** (${stats.textSummary.percentHadirTotal}%). Semoga acara berjalan lancar hingga selesai.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+      const { textSummary: ts } = stats;
+      const replyText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, statistik kehadiran Haul & Haflah 2027:
+
+*WALI SANTRI*
+• Hadir: ${ts.totalWaliHadir.toLocaleString('id-ID')} dari ${ts.totalWaliKuota.toLocaleString('id-ID')} kuota (${ts.percentWaliRatio}%)
+• Laki-laki: ${ts.waliL.toLocaleString('id-ID')} | Perempuan: ${ts.waliP.toLocaleString('id-ID')}
+• Belum hadir: ${ts.waliBelum.toLocaleString('id-ID')} kursi
+
+*TAMU UNDANGAN*
+• Hadir: ${ts.totalTamuHadir.toLocaleString('id-ID')} dari ${ts.totalTamuKuota.toLocaleString('id-ID')} kuota (${ts.percentTamuRatio}%)
+• Laki-laki: ${ts.tamuL.toLocaleString('id-ID')} | Perempuan: ${ts.tamuP.toLocaleString('id-ID')}
+• Belum hadir: ${ts.tamuBelum.toLocaleString('id-ID')} kursi
+
+Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari **${ts.totalKuota.toLocaleString('id-ID')} kuota** (${ts.percentHadirTotal}%). Semoga acara berjalan lancar hingga selesai.
+
+[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
 
       return NextResponse.json({
         reply: cleanReplyForSession(replyText, isFirstTurn, prompt),
