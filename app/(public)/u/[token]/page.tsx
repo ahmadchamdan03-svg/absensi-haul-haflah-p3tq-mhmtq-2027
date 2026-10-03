@@ -69,40 +69,42 @@ function getTamuCategoryLabel(item: any): string {
   return 'TAMU UNDANGAN UMUM';
 }
 
-// Helper Render Nama Tamu Undangan
-function renderTamuName(item: any) {
+// Helper Ambil Nama Penerima Tamu Undangan
+function getNamaPenerima(item: any): string {
   const namaDirect = (item?.nama || item?.entitas?.nama || '').trim();
   const namaPutra = (item?.namaPutra || item?.nama_putra || item?.entitas?.namaPutra || '').trim();
   const namaPutri = (item?.namaPutri || item?.nama_putri || item?.entitas?.namaPutri || '').trim();
 
+  if (namaDirect && namaDirect !== '-' && namaDirect !== 'Tamu Undangan') {
+    return namaDirect;
+  }
+
+  const hasPutra = namaPutra && namaPutra !== '-';
+  const hasPutri = namaPutri && namaPutri !== '-';
+
+  if (hasPutra && hasPutri) {
+    return `${namaPutra} & ${namaPutri}`;
+  }
+  if (hasPutra) {
+    return namaPutra;
+  }
+  if (hasPutri) {
+    return namaPutri;
+  }
+
   if (namaDirect && namaDirect !== '-') {
-    return (
-      <h2 className="text-xl sm:text-2xl font-serif font-black text-[#322116] tracking-wide text-center leading-snug">
-        {namaDirect}
-      </h2>
-    );
+    return namaDirect;
   }
 
-  if (namaPutra || namaPutri) {
-    return (
-      <div className="space-y-1 text-center">
-        {namaPutra && (
-          <h2 className="text-lg sm:text-xl font-serif font-black text-[#322116] tracking-wide">
-            {namaPutra}
-          </h2>
-        )}
-        {namaPutri && (
-          <h2 className="text-lg sm:text-xl font-serif font-black text-[#322116] tracking-wide">
-            {namaPutri}
-          </h2>
-        )}
-      </div>
-    );
-  }
+  return 'Tamu Undangan';
+}
 
+// Helper Render Nama Tamu Undangan
+function renderTamuName(item: any) {
+  const namaPenerima = getNamaPenerima(item);
   return (
-    <h2 className="text-xl sm:text-2xl font-serif font-black text-[#322116] tracking-wide text-center">
-      Tamu Undangan
+    <h2 className="text-xl sm:text-2xl font-serif font-black text-[#322116] tracking-wide text-center leading-snug">
+      {namaPenerima}
     </h2>
   );
 }
@@ -575,15 +577,13 @@ export default function UndanganWaliPage() {
   const santri = item?.santri;
   const kuota = item?.kuota;
 
-  // Custom WA Pre-filled Message untuk Wali Santri
+  // Custom WA Pre-filled Message untuk Wali Santri & Tamu Undangan (Singkat & Hanya Nama)
   const namaSantriTxt = santri?.nama || item?.entitas?.nama || item?.nama || 'Santri';
-  const kodeSantriTxt = santri?.kode || item?.kode || kodeSH;
-  const kategoriTxt = santri?.subKategori || santri?.kategoriUtama || item?.subKategori || item?.kategori || 'Santri';
-  const kamarTxt = santri?.kamar || '-';
+  const namaPenerimaTamu = getNamaPenerima(item);
 
   const textUsTanyaWali =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
+    `Us, Saya Wali Santri dari ${namaSantriTxt}.\n\n` +
     `Saya mau bertanya.`;
 
   const rawWaNo = (waPanitiaConfig || '6285181805377').replace(/[^0-9]/g, '');
@@ -591,21 +591,16 @@ export default function UndanganWaliPage() {
   const waUsTanyaLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textUsTanyaWali)}`;
 
   // Custom WA Pre-filled Message untuk Tamu Undangan
-  const namaTamuTxt = (item?.nama || item?.entitas?.nama || 'Tamu Undangan').trim();
-  const kodeTamuTxt = item?.kode || kodeSH;
-  const golonganTamuTxt = (item?.subKategori || item?.golongan || 'ISTIMEWA').toUpperCase();
-  const instansiTamuTxt = item?.instansi && item.instansi !== '-' ? ` dari ${item.instansi}` : '';
-
   const textUsTanyaTamu =
-    `Assalamu'alaikum Wr. Wb.\n\n` +
-    `Us, Saya Tamu Undangan ${namaTamuTxt} (${kodeTamuTxt}) - ${golonganTamuTxt}${instansiTamuTxt}.\n\n` +
+    `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
+    `Us, Saya ${namaPenerimaTamu}.\n\n` +
     `Saya mau bertanya.`;
 
   const waUsTanyaLinkTamu = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textUsTanyaTamu)}`;
 
   const textHalKhusus =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
+    `Us, Saya Wali Santri dari ${namaSantriTxt}.\n\n` +
     `Saya ingin menyampaikan hal khusus:\n\n` +
     `(silakan tulis di sini)`;
   const waHalKhususLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textHalKhusus)}`;
@@ -658,12 +653,10 @@ export default function UndanganWaliPage() {
                   {renderTamuName(item)}
 
                   {item?.instansi && item.instansi !== '-' && (
-                    <p className="text-xs text-[#7A624E] font-medium pt-1">
-                      Instansi / Asal: <strong className="text-[#422F21]">{item.instansi}</strong>
-                    </p>
+                    <p className="text-xs text-[#7A624E] font-medium pt-0.5">{item.instansi}</p>
                   )}
-                  {item?.alamat && item.alamat !== '-' && (!item?.instansi || item.instansi === '-') && (
-                    <p className="text-xs text-[#7A624E] font-medium pt-1">{item.alamat}</p>
+                  {item?.alamat && item.alamat !== '-' && (
+                    <p className="text-xs text-stone-500 font-medium pt-0.5">{item.alamat}</p>
                   )}
                 </div>
 
@@ -716,16 +709,9 @@ export default function UndanganWaliPage() {
                   </span>
                   {renderTamuName(item)}
 
-                  <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-[11px] font-bold border border-[#D5C4B4]">
-                      {getTamuCategoryLabel(item)}
-                    </span>
-                    {item?.instansi && item.instansi !== '-' && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-white text-[#422F21] text-[11px] font-semibold border border-stone-200">
-                        {item.instansi}
-                      </span>
-                    )}
-                  </div>
+                  {item?.instansi && item.instansi !== '-' && (
+                    <p className="text-xs text-[#7A624E] font-medium pt-0.5">{item.instansi}</p>
+                  )}
                   {item?.alamat && item.alamat !== '-' && (
                     <p className="text-xs text-stone-500 font-medium pt-0.5">{item.alamat}</p>
                   )}
