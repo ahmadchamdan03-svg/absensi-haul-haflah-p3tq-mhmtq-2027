@@ -210,18 +210,28 @@ export default function LandingPortalPage() {
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA (HALF-BODY KEPALA-PINGGANG SEMUA ROLE) */}
+        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA (NEW IMAGE SET 2027) */}
         <div className="grid grid-cols-2 gap-2.5 md:gap-3">
           {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
             const config = ROLES_CONFIG[key];
+            const isAdmin = key === 'ADMIN';
+
             return (
-              <div key={key} className="relative group hover:z-30 z-10">
+              <div key={key} className="role-card-wrapper relative group hover:z-30 z-10">
                 {/* FOTO US. HALWAA — MUNCUL (POP-OUT HALF-BODY) DARI BELAKANG KARTU SAAT HOVER */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-[78%] opacity-0 group-hover:opacity-100 group-hover:bottom-[86%] transition-all duration-300 ease-out pointer-events-none z-0">
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-[72%] md:bottom-[76%] mb-1 opacity-0 translate-y-6 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none z-0 overflow-hidden h-32 md:h-44">
                   <img
                     src={image}
                     alt={`Us. Halwaa - ${config.title}`}
-                    className="h-28 sm:h-36 md:h-40 w-auto drop-shadow-xl max-w-none filter brightness-105"
+                    className={`h-full w-auto drop-shadow-2xl select-none max-w-none ${
+                      isAdmin ? 'object-cover object-top' : 'object-contain object-top'
+                    }`}
+                    style={
+                      isAdmin
+                        ? { objectPosition: 'center top', clipPath: 'inset(0 0 28% 0)' }
+                        : undefined
+                    }
+                    draggable={false}
                   />
                 </div>
 
