@@ -577,20 +577,24 @@ export default function UndanganWaliPage() {
   const santri = item?.santri;
   const kuota = item?.kuota;
 
-  // Custom WA Pre-filled Message untuk Wali Santri & Tamu Undangan (Singkat & Hanya Nama)
+  // Custom WA Pre-filled Message untuk Wali Santri (Lengkap dengan Detail Santri)
   const namaSantriTxt = santri?.nama || item?.entitas?.nama || item?.nama || 'Santri';
-  const namaPenerimaTamu = getNamaPenerima(item);
+  const kodeSantriTxt = santri?.kode || item?.kode || kodeSH;
+  const kategoriTxt = santri?.subKategori || santri?.kategoriUtama || item?.subKategori || item?.kategori || 'Santri';
+  const kamarTxt = santri?.kamar || '-';
 
   const textUsTanyaWali =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya Wali Santri dari ${namaSantriTxt}.\n\n` +
+    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
     `Saya mau bertanya.`;
 
   const rawWaNo = (waPanitiaConfig || '6285181805377').replace(/[^0-9]/g, '');
   const finalWaNo = rawWaNo.startsWith('0') ? '62' + rawWaNo.slice(1) : rawWaNo || '6285181805377';
   const waUsTanyaLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textUsTanyaWali)}`;
 
-  // Custom WA Pre-filled Message untuk Tamu Undangan
+  // Custom WA Pre-filled Message untuk Tamu Undangan (Ringkas Hanya Nama)
+  const namaPenerimaTamu = getNamaPenerima(item);
+
   const textUsTanyaTamu =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
     `Us, Saya ${namaPenerimaTamu}.\n\n` +
@@ -600,7 +604,7 @@ export default function UndanganWaliPage() {
 
   const textHalKhusus =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya Wali Santri dari ${namaSantriTxt}.\n\n` +
+    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
     `Saya ingin menyampaikan hal khusus:\n\n` +
     `(silakan tulis di sini)`;
   const waHalKhususLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textHalKhusus)}`;
