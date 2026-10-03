@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
@@ -12,6 +12,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
@@ -86,6 +87,9 @@ export default function LandingPortalPage() {
   const [inputPassword, setInputPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const role = getActiveRole();
@@ -94,34 +98,74 @@ export default function LandingPortalPage() {
     }
   }, [router]);
 
+  const doLoginSubmit = useCallback((role: AppRole, pass: string) => {
+    if (!role || isSubmitting || pass.length < 4) return;
+    setIsSubmitting(true);
+    setPasswordError(false);
+
+    // Jeda kecil untuk indikator visual loading ("Memproses...")
+    setTimeout(() => {
+      const isValid = verifyRolePassword(role, pass);
+      if (isValid) {
+        setActiveRole(role);
+        const targetRoute = ROLES_CONFIG[role].route;
+        setSelectedRole(null);
+        setInputPassword('');
+        setIsSubmitting(false);
+        router.push(targetRoute);
+      } else {
+        setPasswordError(true);
+        setInputPassword('');
+        setIsSubmitting(false);
+        if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+          navigator.vibrate([100, 50, 100]);
+        }
+      }
+    }, 400);
+  }, [isSubmitting, router]);
+
+  // Auto-submit setelah user berhenti mengetik (1000ms debounce)
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    if (selectedRole && inputPassword.length >= 4 && !isSubmitting && !passwordError) {
+      debounceRef.current = setTimeout(() => {
+        doLoginSubmit(selectedRole, inputPassword);
+      }, 1000);
+    }
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [inputPassword, selectedRole, isSubmitting, passwordError, doLoginSubmit]);
+
   const handleOpenRoleModal = (roleKey: AppRole) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setSelectedRole(roleKey);
     setInputPassword('');
     setShowPassword(false);
     setPasswordError(false);
+    setIsSubmitting(false);
   };
 
   const handleCloseModal = () => {
+    if (isSubmitting) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setSelectedRole(null);
     setInputPassword('');
     setPasswordError(false);
+    setIsSubmitting(false);
   };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRole) return;
-
-    const isValid = verifyRolePassword(selectedRole, inputPassword);
-    if (isValid) {
-      setActiveRole(selectedRole);
-      const targetRoute = ROLES_CONFIG[selectedRole].route;
-      handleCloseModal();
-      router.push(targetRoute);
-    } else {
-      setPasswordError(true);
-      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-        navigator.vibrate([100, 50, 100]);
-      }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (selectedRole && inputPassword.length >= 4 && !isSubmitting) {
+      doLoginSubmit(selectedRole, inputPassword);
     }
   };
 
@@ -219,7 +263,8 @@ export default function LandingPortalPage() {
               <button
                 type="button"
                 onClick={handleCloseModal}
-                className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors cursor-pointer"
+                disabled={isSubmitting}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-500 hover:text-stone-800 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 ✕
               </button>
@@ -239,9 +284,19 @@ export default function LandingPortalPage() {
                       setInputPassword(e.target.value);
                       setPasswordError(false);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (debounceRef.current) clearTimeout(debounceRef.current);
+                        if (selectedRole && inputPassword.length >= 4 && !isSubmitting) {
+                          doLoginSubmit(selectedRole, inputPassword);
+                        }
+                      }
+                    }}
                     placeholder={`Masukkan sandi ${ROLES_CONFIG[selectedRole].title}...`}
                     autoFocus
-                    className={`w-full px-4 py-3 rounded-2xl border-2 text-sm text-[#422F21] pr-12 focus:outline-none transition-colors ${
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-sm text-[#422F21] pr-12 focus:outline-none transition-all disabled:opacity-70 disabled:bg-stone-100 disabled:cursor-not-allowed ${
                       passwordError
                         ? 'border-rose-500 bg-rose-50/50'
                         : 'border-[#D5C4B4] focus:border-[#8C6A47]'
@@ -250,7 +305,8 @@ export default function LandingPortalPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-800 p-1"
+                    disabled={isSubmitting}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-800 p-1 disabled:opacity-30"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -269,15 +325,24 @@ export default function LandingPortalPage() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 py-3 rounded-2xl border border-stone-300 text-stone-600 hover:bg-stone-100 text-xs font-bold transition-colors cursor-pointer"
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 rounded-2xl border border-stone-300 text-stone-600 hover:bg-stone-100 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-2xl bg-[#8C6A47] hover:bg-[#745638] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95"
+                  disabled={isSubmitting || inputPassword.length < 4}
+                  className="flex-1 py-3 rounded-2xl bg-[#8C6A47] hover:bg-[#745638] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Masuk Sekarang
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
+                      <span>Memproses...</span>
+                    </>
+                  ) : (
+                    'Masuk Sekarang'
+                  )}
                 </button>
               </div>
             </form>
