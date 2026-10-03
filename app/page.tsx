@@ -198,6 +198,14 @@ export default function LandingPortalPage() {
     if (role && ROLES_CONFIG[role]) {
       router.replace(ROLES_CONFIG[role].route);
     }
+
+    // Preload seluruh foto Tos saat landing page dimuat agar respon klik 100% instan
+    TOS_POSES.forEach((pose) => {
+      if (typeof window !== 'undefined') {
+        const img = new Image();
+        img.src = pose.img;
+      }
+    });
   }, [router]);
 
   const doLoginSubmit = useCallback((role: AppRole, pass: string) => {
