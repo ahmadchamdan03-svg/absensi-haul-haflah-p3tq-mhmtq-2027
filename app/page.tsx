@@ -187,13 +187,13 @@ export default function LandingPortalPage() {
         </div>
 
         {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA */}
-        <div className="grid grid-cols-2 gap-2.5 md:gap-3">
+        <div className="grid grid-cols-2 gap-2.5 md:gap-3 items-stretch">
           {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
             const config = ROLES_CONFIG[key];
             const isAdmin = key === 'ADMIN';
 
             return (
-              <div key={key} className="role-card-wrapper relative group hover:z-30 z-10">
+              <div key={key} className="role-card-wrapper relative group hover:z-30 z-10 h-full flex flex-col">
                 {/* FOTO US. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER (3/4 BADAN DILUAR, 1/4 TERTUTUP KARTU) */}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none overflow-hidden z-0 flex items-end justify-center ${
@@ -214,7 +214,7 @@ export default function LandingPortalPage() {
                 <button
                   type="button"
                   onClick={() => handleOpenRoleModal(key)}
-                  className={`relative z-10 flex items-center gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-lg transition-all text-left w-full cursor-pointer active:scale-[0.98] min-w-0`}
+                  className={`relative z-10 flex items-center h-full gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-lg transition-all text-left w-full cursor-pointer active:scale-[0.98] min-w-0`}
                 >
                   <div className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
                     <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
