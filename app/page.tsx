@@ -17,21 +17,14 @@ import {
 import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
 
-// 6 POSE TOS INTERAKTIF US. HALWAA
+// 6 POSE TOS INTERAKTIF US. HALWAA (DENGAN TIKET PERSIS DI TITIK KLIK KUROR)
 const TOS_POSES = [
-  { img: '/images/halwaa/tos/tos-1.png', text: 'Yuk Tos! ✋' },
-  { img: '/images/halwaa/tos/tos-2.png', text: 'Siap Tos! 👋' },
-  { img: '/images/halwaa/tos/tos-3.png', text: 'Ayo Tos! ✨' },
-  { img: '/images/halwaa/tos/tos-4.png', text: 'Tos High-Five! 🙌' },
-  { img: '/images/halwaa/tos/tos-5.png', text: 'Semangat Haflah! 🥰' },
-  { img: '/images/halwaa/tos/tos-6.png', text: 'Tos Dulu! 👊' },
-];
-
-const TOS_CORNERS = [
-  { id: 'bottom-left', posClass: 'bottom-4 left-4 md:bottom-8 md:left-8' },
-  { id: 'bottom-right', posClass: 'bottom-4 right-4 md:bottom-8 md:right-8' },
-  { id: 'top-left', posClass: 'top-4 left-4 md:top-8 md:left-8' },
-  { id: 'top-right', posClass: 'top-4 right-4 md:top-8 md:right-8' },
+  { img: '/images/halwaa/tos/tos-1.png', text: 'Yuk Tos! ✋', handRelX: 0.28, handRelY: 0.38 },
+  { img: '/images/halwaa/tos/tos-2.png', text: 'Siap Tos! 👋', handRelX: 0.28, handRelY: 0.35 },
+  { img: '/images/halwaa/tos/tos-3.png', text: 'Ayo Tos! ✨', handRelX: 0.28, handRelY: 0.36 },
+  { img: '/images/halwaa/tos/tos-4.png', text: 'Tos High-Five! 🙌', handRelX: 0.26, handRelY: 0.32 },
+  { img: '/images/halwaa/tos/tos-5.png', text: 'Semangat Haflah! 🥰', handRelX: 0.26, handRelY: 0.28 },
+  { img: '/images/halwaa/tos/tos-6.png', text: 'Tos Dulu! 👊', handRelX: 0.72, handRelY: 0.26 },
 ];
 
 const playTosSound = () => {
@@ -163,23 +156,47 @@ export default function LandingPortalPage() {
     active: boolean;
     imgUrl: string;
     bubbleText: string;
-    posClass: string;
+    left: number;
+    top: number;
+    clickX: number;
+    clickY: number;
   } | null>(null);
 
   const tosCooldownRef = useRef(false);
 
-  const triggerTos = useCallback(() => {
+  const triggerTos = useCallback((clientX: number, clientY: number) => {
     if (tosCooldownRef.current) return;
     tosCooldownRef.current = true;
 
     const randomPose = TOS_POSES[Math.floor(Math.random() * TOS_POSES.length)];
-    const randomCorner = TOS_CORNERS[Math.floor(Math.random() * TOS_CORNERS.length)];
+
+    // Dimensi gambar yang dirender (176px pada mobile, 224px pada desktop)
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+    const imgSize = isDesktop ? 224 : 176;
+
+    const handXRel = randomPose.handRelX * imgSize;
+    const handYRel = randomPose.handRelY * imgSize;
+
+    // Hitung posisi absolut kontainer gambar agar posisi tangan pas di kursor klik (clientX, clientY)
+    let posX = clientX - handXRel;
+    let posY = clientY - handYRel;
+
+    // Jaga agar kontainer tidak terpotong keluar layar
+    if (typeof window !== 'undefined') {
+      const maxX = window.innerWidth - imgSize - 10;
+      const maxY = window.innerHeight - imgSize - 10;
+      posX = Math.max(10, Math.min(maxX, posX));
+      posY = Math.max(10, Math.min(maxY, posY));
+    }
 
     setTosState({
       active: true,
       imgUrl: randomPose.img,
       bubbleText: randomPose.text,
-      posClass: randomCorner.posClass,
+      left: posX,
+      top: posY,
+      clickX: clientX,
+      clickY: clientY,
     });
 
     playTosSound();
@@ -264,7 +281,7 @@ export default function LandingPortalPage() {
         if (selectedRole) return;
         const cardEl = document.getElementById('login-card');
         if (cardEl && !cardEl.contains(e.target as Node)) {
-          triggerTos();
+          triggerTos(e.clientX, e.clientY);
         }
       }}
     >
@@ -458,21 +475,29 @@ export default function LandingPortalPage() {
         </div>
       )}
 
-      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY */}
+      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY (PERSIS DI TITIK SENTUH KLIK KURSOR) */}
       {tosState?.active && (
         <div
-          className={`fixed z-50 ${tosState.posClass} pointer-events-none animate-tos-pop flex flex-col items-center justify-center`}
+          style={{ left: `${tosState.left}px`, top: `${tosState.top}px` }}
+          className="fixed z-50 pointer-events-none animate-tos-pop flex flex-col items-center justify-center w-44 md:w-56 h-44 md:h-56"
         >
-          {/* Sparkle Emas */}
-          <div className="absolute inset-0 pointer-events-none overflow-visible">
-            <span className="absolute -top-2 -left-2 text-amber-400 text-lg md:text-xl animate-tos-sparkle">✨</span>
-            <span className="absolute -top-4 right-4 text-amber-300 text-base md:text-lg animate-tos-sparkle">⭐</span>
-            <span className="absolute bottom-2 -left-4 text-amber-400 text-sm md:text-base animate-tos-sparkle">✨</span>
-            <span className="absolute bottom-4 -right-2 text-amber-300 text-lg md:text-xl animate-tos-sparkle">🌟</span>
+          {/* Sparkle Emas di Titik Temu Tangan & Kursor (clickX, clickY) */}
+          <div
+            style={{
+              left: `${tosState.clickX - tosState.left}px`,
+              top: `${tosState.clickY - tosState.top}px`,
+            }}
+            className="absolute pointer-events-none overflow-visible -translate-x-1/2 -translate-y-1/2 z-20"
+          >
+            <span className="absolute -top-3 -left-3 text-amber-400 text-xl md:text-2xl animate-tos-sparkle">✨</span>
+            <span className="absolute -top-5 right-1 text-amber-300 text-lg md:text-xl animate-tos-sparkle">⭐</span>
+            <span className="absolute bottom-1 -left-5 text-amber-400 text-base md:text-lg animate-tos-sparkle">✨</span>
+            <span className="absolute bottom-3 -right-3 text-amber-300 text-xl md:text-2xl animate-tos-sparkle">🌟</span>
+            <div className="w-8 h-8 rounded-full bg-amber-300/40 blur-md animate-ping" />
           </div>
 
           {/* Bubble Chat "Tos!" */}
-          <div className="absolute -top-3 md:-top-5 bg-white border-2 border-[#D5C4B4] rounded-full px-3 py-1 md:px-4 md:py-1.5 shadow-xl text-xs md:text-sm font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-1 z-10 whitespace-nowrap">
+          <div className="absolute -top-4 md:-top-6 bg-white border-2 border-[#D5C4B4] rounded-full px-3 py-1 md:px-4 md:py-1.5 shadow-xl text-xs md:text-sm font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-1 z-30 whitespace-nowrap">
             <span>{tosState.bubbleText}</span>
           </div>
 
@@ -480,7 +505,7 @@ export default function LandingPortalPage() {
           <img
             src={tosState.imgUrl}
             alt="Us. Halwaa - Tos!"
-            className="w-36 md:w-56 h-auto drop-shadow-2xl select-none object-contain"
+            className="w-full h-full drop-shadow-2xl select-none object-contain"
             draggable={false}
           />
         </div>
