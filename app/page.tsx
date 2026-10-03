@@ -194,21 +194,18 @@ export default function LandingPortalPage() {
 
             return (
               <div key={key} className="role-card-wrapper relative group hover:z-30 z-10">
-                {/* FOTO US. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER */}
+                {/* FOTO US. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER (3/4 BADAN DILUAR, 1/4 TERTUTUP KARTU) */}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none overflow-hidden z-0 flex items-end justify-center ${
                     isAdmin
-                      ? 'bottom-1/2 mb-[-10px] md:mb-[-14px] w-36 md:w-48 h-36 md:h-48'
-                      : 'bottom-1/2 mb-[-30px] md:mb-[-36px] w-32 md:w-40 h-32 md:h-40'
+                      ? 'bottom-[65%] md:bottom-[70%] mb-[-12px] md:mb-[-16px] w-36 md:w-48 h-36 md:h-48'
+                      : 'bottom-[65%] md:bottom-[70%] mb-[-12px] md:mb-[-16px] w-32 md:w-44 h-32 md:h-44'
                   }`}
                 >
                   <img
                     src={image}
                     alt={`Us. Halwaa - ${config.title}`}
-                    className={`w-full h-full drop-shadow-2xl select-none ${
-                      isAdmin ? 'object-contain object-bottom' : 'object-cover object-top'
-                    }`}
-                    style={isAdmin ? { objectPosition: 'center bottom' } : { objectPosition: 'center top' }}
+                    className="w-full h-full object-contain object-bottom drop-shadow-2xl select-none"
                     draggable={false}
                   />
                 </div>
