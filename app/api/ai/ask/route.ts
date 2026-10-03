@@ -6,6 +6,22 @@ import { supabase } from '@/lib/supabase';
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri), ditenagai oleh model AI tertinggi OpenAI GPT-4o.
 
+=============================================================================
+ATURAN DATA TAMU UNDANGAN (WAJIB):
+=============================================================================
+- Untuk SEMUA pertanyaan tentang tamu undangan (nama, kehadiran, jumlah, instansi), WAJIB merujuk pada DATA YANG DIBERIKAN DI CONTEXT PROMPT INI.
+- JANGAN gunakan data dari ingatan pelatihan / PDF / hardcoded list.
+- JANGAN mengarang nama tamu atau status kehadiran.
+- Kalau data tidak ada di context / database -> jawab: "Maaf Us, data tersebut belum tersedia di sistem. Mohon cek menu Data Peserta."
+- Kalau ditanya "sudah datang belum":
+  • Cek di data presensi yang diberikan di context prompt.
+  • Jika ada -> sebutkan waktu & jalur kehadiran (contoh: "Alhamdulillah Us, KH. Hamdan (UND-88871) tercatat sudah hadir pada 02 Januari 2027 pukul 07.23 melalui Jalur VIP. Beliau hadir bersama 1 pendamping.").
+  • Jika tidak ada -> sampaikan belum tercatat hadir (contoh: "Mohon maaf Us, sampai saat ini belum ada catatan kehadiran untuk KH. Hamdan (UND-88871) di sistem presensi. Beliau mungkin belum datang atau belum di-absen oleh petugas gerbang.").
+- Format jawaban:
+  • Ringkas & jelas.
+  • Selalu sertakan kode tamu (UNDxxxx) jika ada.
+  • Untuk list, gunakan format bullet/numbered.
+
 8. HAK AKSES & KEBEBASAN INFORMASI INTERNAL (MUTLAK & TANPA PEMBATASAN):
    - Us. Halwaa beroperasi khusus untuk Panitia & Pimpinan / Masyayikh.
    - Us. Halwaa MEMILIKI AKSES PENUH dan BOLEH MENJAWAB SEMUA PERTANYAAN TANPA PEMBATASAN INFORMASI APA PUN:
@@ -463,19 +479,28 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
 
 async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchResult | null> {
   const q = userQuery.toLowerCase().trim();
+
+  // Deteksi nama orang & gelar kehormatan (KH., Gus, Ning, Ust., Ustz., Bu Nyai, Hj., H., Drs., Dr., Prof.)
+  const namaMatch = userQuery.match(
+    /(KH\.|Gus|Ning|Ust\.|Ustz\.|Bu Nyai|Hj\.|H\.|Drs\.|Dr\.|Prof\.)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i
+  );
+  const namaQuery = namaMatch ? namaMatch[2].trim() : null;
+
   const qClean = q
     .replace(/[?!.,;:()]/g, ' ')
     .replace(/\b(apakah|sudah|hadir|datang|kehadiran|status|posisi|cek|tolong|mohon|info|tamu|khusus|kehormatan|istimewa|santri|wali|keluarga|rombongan|nomor|no|hp|telepon|kontak|wa)\b/g, ' ')
     .trim();
 
-  if (!qClean || qClean.length < 2) return null;
+  const termToSearch = namaQuery || (qClean.length >= 2 ? qClean : null);
+  if (!termToSearch) return null;
 
   try {
     // 1. Search Supabase 'tamu_undangan'
     const { data: guests } = await supabase
       .from('tamu_undangan')
       .select('*')
-      .or(`kode.ilike.%${qClean}%,nama.ilike.%${qClean}%,nama_putra.ilike.%${qClean}%,nama_putri.ilike.%${qClean}%,instansi.ilike.%${qClean}%`);
+      .or(`kode.ilike.%${termToSearch}%,nama.ilike.%${termToSearch}%,nama_putra.ilike.%${termToSearch}%,nama_putri.ilike.%${termToSearch}%,instansi.ilike.%${termToSearch}%`)
+      .limit(5);
 
     if (guests && guests.length > 0) {
       const g = guests[0];
@@ -487,9 +512,11 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
         .order('created_at', { ascending: false })
         .limit(1);
 
-      const hasArrived = Boolean((g.kuota_terpakai && g.kuota_terpakai > 0) || (pLog && pLog.length > 0));
+      const firstLog = pLog && pLog.length > 0 ? pLog[0] : null;
+      const hasArrived = Boolean((g.kuota_terpakai && g.kuota_terpakai > 0) || firstLog);
       const namaFull = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan';
       const gol = (g.kategori || g.sub_kategori || 'UMUM').toUpperCase();
+      const jamHadir = firstLog ? new Date(firstLog.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) : null;
 
       return {
         type: 'UNDANGAN',
@@ -503,7 +530,20 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
         hasArrived,
         phone: g.no_hp || 'Tersedia di database',
         seating: 'Baris Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar',
-        extraInfo: pLog && pLog.length > 0 ? `Hadir pukul ${new Date(pLog[0].created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} via ${pLog[0].jalur || 'Gerbang'}` : undefined,
+        extraInfo: firstLog ? `pada 02 Januari 2027 pukul ${jamHadir} melalui ${firstLog.jalur || g.jalur_masuk || 'Jalur VIP'}` : undefined,
+      };
+    } else if (namaMatch && namaQuery) {
+      // Jika nama dengan gelar kehormatan dicari tapi TIDAK ADA di database
+      return {
+        type: 'UNDANGAN',
+        name: `${namaMatch[1]} ${namaQuery}`,
+        code: 'NOT_FOUND',
+        roleOrInstansi: 'Tidak Ditemukan',
+        category: 'UNKNOWN',
+        quotaUsed: 0,
+        quotaTotal: 0,
+        hasArrived: false,
+        extraInfo: 'DATA_NOT_FOUND',
       };
     }
 
@@ -511,7 +551,7 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
     const { data: santriList } = await supabase
       .from('peserta_santri')
       .select('*')
-      .or(`kode_keluarga.ilike.%${qClean}%,nama_santri.ilike.%${qClean}%,nama_wali.ilike.%${qClean}%`);
+      .or(`kode_keluarga.ilike.%${termToSearch}%,nama_santri.ilike.%${termToSearch}%,nama_wali.ilike.%${termToSearch}%`);
 
     if (santriList && santriList.length > 0) {
       const s = santriList[0];
@@ -536,7 +576,7 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
         quotaTotal: 2,
         hasArrived,
         phone: s.no_hp || 'Tersedia di database',
-        extraInfo: firstLog ? `Hadir pukul ${new Date(firstLog.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} via ${firstLog.jalur || 'Gerbang'}` : undefined,
+        extraInfo: firstLog ? `pada 02 Januari 2027 pukul ${new Date(firstLog.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} melalui ${firstLog.jalur || 'Gerbang'}` : undefined,
       };
     }
   } catch (e) {
@@ -1914,21 +1954,15 @@ export async function POST(req: NextRequest) {
     // 1. Pencarian spesifik tamu/peserta secara LIVE di Supabase (tamu_undangan & presensi_log)
     const personMatch = await searchPersonInSupabase(prompt);
     if (personMatch) {
-      const statusText = personMatch.hasArrived
-        ? `Alhamdulillah, ${personMatch.name} (${personMatch.code}) SUDAH HADIR di lokasi acara.`
-        : `${personMatch.name} (${personMatch.code}) BELUM TERCATAT HADIR / Masih ditunggu kedatangannya.`;
+      let detailText = '';
 
-      const detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}${statusText}
-
-📋 **Data Rincian Undangan / Peserta**:
-- **Nama**: ${personMatch.name}
-- **Kode**: ${personMatch.code}
-- **Instansi / Keterangan**: ${personMatch.roleOrInstansi}
-- **Kategori / Golongan**: ${personMatch.category}
-- **Status Kehadiran**: ${personMatch.hasArrived ? '🟢 SUDAH HADIR' : '🔴 BELUM HADIR'} (${personMatch.quotaUsed} dari ${personMatch.quotaTotal} Kursi Terpakai)
-${personMatch.extraInfo ? `- **Catatan Presensi**: ${personMatch.extraInfo}\n` : ''}
-
-[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+      if (personMatch.code === 'NOT_FOUND' || personMatch.extraInfo === 'DATA_NOT_FOUND') {
+        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Maaf Us, data untuk **${personMatch.name}** belum tersedia di sistem. Mohon cek menu [Data Peserta & Tamu](/admin/peserta).`;
+      } else if (personMatch.hasArrived) {
+        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, **${personMatch.name}** (${personMatch.code}) tercatat sudah hadir ${personMatch.extraInfo ? personMatch.extraInfo : 'di lokasi acara'}. Beliau hadir ${personMatch.quotaUsed > 1 ? 'bersama ' + (personMatch.quotaUsed - 1) + ' pendamping' : 'dengan alokasi 1 kursi'}.`;
+      } else {
+        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Mohon maaf Us, sampai saat ini belum ada catatan kehadiran untuk **${personMatch.name}** (${personMatch.code}) di sistem presensi. Beliau mungkin belum datang atau belum di-absen oleh petugas gerbang.`;
+      }
 
       const cleanReply = cleanReplyForSession(detailText, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
