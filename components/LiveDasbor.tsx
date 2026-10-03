@@ -426,17 +426,20 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 </div>
 
                 <div className="text-right shrink-0">
-                  {item.isHadir ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-black text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>HADIR ({item.terpakai}/{item.kuotaDasar} Kursi)</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-200 text-stone-700 font-semibold text-[11px]">
-                      <Clock className="w-3.5 h-3.5 text-stone-500" />
-                      <span>BELUM HADIR</span>
-                    </span>
-                  )}
+                  {(() => {
+                    const totalK = item.kuotaTotal !== undefined ? item.kuotaTotal : (Number(item.kuotaDasar || 0) + Number(item.kuotaTambahan || 0));
+                    return item.isHadir ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-black text-[11px]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                        <span>HADIR ({item.terpakai}/{totalK} Kursi)</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-200 text-stone-700 font-semibold text-[11px]">
+                        <Clock className="w-3.5 h-3.5 text-stone-500" />
+                        <span>BELUM HADIR (0/{totalK} Kursi)</span>
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

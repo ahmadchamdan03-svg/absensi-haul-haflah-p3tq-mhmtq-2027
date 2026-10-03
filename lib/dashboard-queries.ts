@@ -133,6 +133,14 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     const keyKode = String(s.kode || '');
     const checkinTime = latestCheckinMap[keyKode] || latestCheckinMap[keyId] || s.updated_at || s.created_at;
     const isHadir = (s.kuota_terpakai || 0) > 0 || loggedKeys.has(keyKode) || loggedKeys.has(keyId);
+    const logInfo = latestLogMap[keyKode] || latestLogMap[keyId];
+
+    const kDasar = s.kuota_dasar !== undefined && s.kuota_dasar !== null ? Number(s.kuota_dasar) : 2;
+    const kTambahan = Number(s.kuota_tambahan || 0);
+    const kuotaTotal = kDasar + kTambahan;
+    const terpakai = isHadir
+      ? (logInfo ? logInfo.jumlah_l + logInfo.jumlah_p : Number(s.kuota_terpakai || kuotaTotal))
+      : 0;
 
     return {
       id: s.id,
@@ -147,9 +155,10 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
       kamar: s.kamar || '-',
       noHp: s.no_hp || '-',
       alamat: s.alamat || 'Kediri',
-      kuotaDasar: s.kuota_dasar || 2,
-      kuotaTambahan: s.kuota_tambahan || 0,
-      terpakai: s.kuota_terpakai || 0,
+      kuotaDasar: kDasar,
+      kuotaTambahan: kTambahan,
+      kuotaTotal,
+      terpakai,
       isHadir,
       lastCheckinTime: checkinTime,
     };
@@ -161,6 +170,15 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     const keyKode = String(u.kode || '');
     const checkinTime = latestCheckinMap[keyKode] || latestCheckinMap[keyId] || u.updated_at || u.created_at;
     const isHadir = (u.kuota_terpakai || 0) > 0 || loggedKeys.has(keyKode) || loggedKeys.has(keyId);
+    const logInfo = latestLogMap[keyKode] || latestLogMap[keyId];
+
+    const defaultDasar = u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
+    const kDasar = u.kuota_dasar !== undefined && u.kuota_dasar !== null ? Number(u.kuota_dasar) : defaultDasar;
+    const kTambahan = Number(u.kuota_tambahan || 0);
+    const kuotaTotal = kDasar + kTambahan;
+    const terpakai = isHadir
+      ? (logInfo ? logInfo.jumlah_l + logInfo.jumlah_p : Number(u.kuota_terpakai || kuotaTotal))
+      : 0;
 
     return {
       id: u.id,
@@ -175,9 +193,10 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
       kamar: '-',
       noHp: u.no_hp || '-',
       alamat: u.alamat || u.instansi || 'Kediri',
-      kuotaDasar: u.kuota_dasar !== undefined && u.kuota_dasar !== null ? u.kuota_dasar : (u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1),
-      kuotaTambahan: u.kuota_tambahan || 0,
-      terpakai: u.kuota_terpakai || 0,
+      kuotaDasar: kDasar,
+      kuotaTambahan: kTambahan,
+      kuotaTotal,
+      terpakai,
       isHadir,
       lastCheckinTime: checkinTime,
     };
