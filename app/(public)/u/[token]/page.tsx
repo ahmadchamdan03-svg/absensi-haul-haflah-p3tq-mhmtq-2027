@@ -917,14 +917,6 @@ export default function UndanganWaliPage() {
                   </div>
                 </div>
 
-                <div className="p-3 bg-[#FAF7F3] rounded-2xl border border-[#D5C4B4] text-xs text-center space-y-0.5">
-                  <span className="text-[10px] text-stone-500 uppercase font-bold block">
-                    KODE AKSES: {item?.kode || kodeSH}
-                  </span>
-                  <p className="font-serif font-black text-lg text-[#422F21]">
-                    {kuota?.kuotaDasar || 2} Kursi Undangan
-                  </p>
-                </div>
               </div>
             </ScrollReveal>
 
