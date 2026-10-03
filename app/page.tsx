@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   QrCode,
   Lock,
-  ArrowRight,
   KeyRound,
   Eye,
   EyeOff,
@@ -16,9 +15,8 @@ import {
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
-import NamaLembaga from '@/components/NamaLembaga';
 
-// Konfigurasi visual 4 tombol role
+// Konfigurasi visual 4 tombol role (URUTAN BARU: ADMIN -> PIMPINAN -> PENERIMA_TAMU -> PENJAGA_GERBANG)
 const ROLE_BUTTONS: {
   key: AppRole;
   icon: React.ComponentType<{ className?: string }>;
@@ -28,13 +26,6 @@ const ROLE_BUTTONS: {
     hoverBorder: string;
     iconBg: string;
     iconText: string;
-    badgeBg: string;
-    badgeText: string;
-    btnBg: string;
-    btnHoverBg: string;
-    btnText: string;
-    btnHoverText: string;
-    btnBorder: string;
     hoverAccent: string;
   };
 }[] = [
@@ -44,36 +35,10 @@ const ROLE_BUTTONS: {
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
-      hoverBorder: 'hover:border-[#8C6A47]',
+      hoverBorder: 'hover:border-rose-400',
       iconBg: 'bg-rose-50',
       iconText: 'text-rose-700',
-      badgeBg: 'bg-rose-100',
-      badgeText: 'text-rose-800',
-      btnBg: 'bg-[#FAF7F3]',
-      btnHoverBg: 'hover:bg-[#8C6A47]',
-      btnText: 'text-[#5C3E28]',
-      btnHoverText: 'hover:text-white',
-      btnBorder: 'border-[#D5C4B4]',
-      hoverAccent: 'group-hover:text-[#8C6A47]',
-    },
-  },
-  {
-    key: 'PENERIMA_TAMU',
-    icon: Users,
-    color: {
-      bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
-      border: 'border-[#E8DFD5]',
-      hoverBorder: 'hover:border-emerald-500',
-      iconBg: 'bg-emerald-50',
-      iconText: 'text-emerald-700',
-      badgeBg: 'bg-emerald-100',
-      badgeText: 'text-emerald-800',
-      btnBg: 'bg-emerald-50/70',
-      btnHoverBg: 'hover:bg-emerald-700',
-      btnText: 'text-emerald-900',
-      btnHoverText: 'hover:text-white',
-      btnBorder: 'border-emerald-200',
-      hoverAccent: 'group-hover:text-emerald-700',
+      hoverAccent: 'group-hover:text-rose-700',
     },
   },
   {
@@ -85,14 +50,19 @@ const ROLE_BUTTONS: {
       hoverBorder: 'hover:border-amber-500',
       iconBg: 'bg-amber-50',
       iconText: 'text-amber-700',
-      badgeBg: 'bg-amber-100',
-      badgeText: 'text-amber-800',
-      btnBg: 'bg-amber-50/70',
-      btnHoverBg: 'hover:bg-amber-700',
-      btnText: 'text-amber-900',
-      btnHoverText: 'hover:text-white',
-      btnBorder: 'border-amber-200',
       hoverAccent: 'group-hover:text-amber-700',
+    },
+  },
+  {
+    key: 'PENERIMA_TAMU',
+    icon: Users,
+    color: {
+      bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
+      border: 'border-[#E8DFD5]',
+      hoverBorder: 'hover:border-emerald-500',
+      iconBg: 'bg-emerald-50',
+      iconText: 'text-emerald-700',
+      hoverAccent: 'group-hover:text-emerald-700',
     },
   },
   {
@@ -104,13 +74,6 @@ const ROLE_BUTTONS: {
       hoverBorder: 'hover:border-blue-500',
       iconBg: 'bg-blue-50',
       iconText: 'text-blue-700',
-      badgeBg: 'bg-blue-100',
-      badgeText: 'text-blue-800',
-      btnBg: 'bg-blue-50/70',
-      btnHoverBg: 'hover:bg-blue-700',
-      btnText: 'text-blue-900',
-      btnHoverText: 'hover:text-white',
-      btnBorder: 'border-blue-200',
       hoverAccent: 'group-hover:text-blue-700',
     },
   },
@@ -163,33 +126,43 @@ export default function LandingPortalPage() {
   };
 
   return (
-    <div className="min-h-screen text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-hidden py-10 px-4 sm:px-6">
+    <div className="min-h-screen text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-hidden py-8 px-4 sm:px-6">
       {/* BACKGROUND PANGGUNG RESMI & ANIMASI DEBU EMAS */}
       <StageBackground />
 
-      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH TRANSPARAN ELEGUS DI ATAS BACKDROP PANGGUNG) */}
-      <div className="relative z-10 w-full max-w-2xl px-5 py-8 sm:py-12 sm:px-10 space-y-8 sm:space-y-10 bg-[#F5EFE6]/40 backdrop-blur-md border border-[#D5C4B4]/60 shadow-xl shadow-stone-900/5 rounded-3xl my-auto animate-in fade-in zoom-in-95 duration-300">
-        {/* HEADER IDENTITAS */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 sm:gap-4">
-            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
-            <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="w-14 h-10 sm:w-16 sm:h-12 object-contain drop-shadow-sm" />
-            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm" />
-          </div>
-          <div className="space-y-2">
-            <div className="text-[10px] sm:text-xs font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase">
-              HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
-            </div>
-            <NamaLembaga align="center" size="lg" weight="black" color="text-[#322116]" />
-            <p className="text-xs font-bold text-[#8C6A47]">Lirboyo Kediri</p>
-          </div>
-          <p className="text-xs text-[#7A624E] max-w-md mx-auto leading-relaxed font-medium">
+      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH TRANSPARAN DENGAN MAX-WIDTH TERKONTROL) */}
+      <div className="relative z-10 w-full max-w-md md:max-w-xl px-6 py-6 md:p-8 space-y-6 bg-white/30 backdrop-blur-md border border-[#D5C4B4]/70 shadow-xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
+        {/* LOGO BERJAJAR */}
+        <div className="flex justify-center items-center gap-3 md:gap-4 mb-2">
+          <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-10 md:h-14 w-auto object-contain drop-shadow-xs" />
+          <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="h-10 md:h-14 w-auto object-contain drop-shadow-xs" />
+          <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-10 md:h-14 w-auto object-contain drop-shadow-xs" />
+        </div>
+
+        {/* JUDUL & DESKRIPSI IDENTITAS */}
+        <div>
+          <p className="text-xs md:text-sm font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase mb-2">
+            HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
+          </p>
+
+          <h1 className="text-base md:text-lg font-bold text-[#422F21] leading-relaxed">
+            Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
+          </h1>
+          <h1 className="text-base md:text-lg font-bold text-[#422F21] leading-relaxed">
+            Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
+          </h1>
+
+          <p className="text-xs md:text-sm italic text-[#8C6A47] mt-2 font-medium">
+            Lirboyo Kediri
+          </p>
+
+          <p className="text-xs md:text-sm text-stone-600 mt-3 mb-2 font-medium leading-relaxed max-w-md mx-auto">
             Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* 4 TOMBOL AKSES ROLE - URUTAN BARU */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           {ROLE_BUTTONS.map(({ key, icon: Icon, color }) => {
             const config = ROLES_CONFIG[key];
             return (
@@ -197,17 +170,17 @@ export default function LandingPortalPage() {
                 key={key}
                 type="button"
                 onClick={() => handleOpenRoleModal(key)}
-                className={`${color.bg} rounded-2xl p-5 border ${color.border} ${color.hoverBorder} shadow-sm hover:shadow-md transition-all text-left group cursor-pointer active:scale-[0.98]`}
+                className={`${color.bg} rounded-2xl p-4 md:p-5 border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-md transition-all text-left group cursor-pointer active:scale-[0.98]`}
               >
-                <div className="flex items-start gap-3.5">
-                  <div className={`w-11 h-11 rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 flex items-center justify-center shrink-0`}>
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 flex items-center justify-center shrink-0`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-serif font-black text-sm text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
+                    <h3 className={`font-serif font-black text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
                       {config.title}
                     </h3>
-                    <p className="text-[11px] text-[#7A624E] mt-0.5 leading-snug font-medium">
+                    <p className="text-xs md:text-sm text-[#7A624E] mt-0.5 leading-snug font-medium">
                       {config.subtitle}
                     </p>
                   </div>
@@ -301,21 +274,19 @@ export default function LandingPortalPage() {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 py-3 rounded-2xl border border-[#D5C4B4] text-[#7A624E] hover:bg-[#FAF7F3] text-xs font-bold transition-colors cursor-pointer"
+                  className="flex-1 py-3 rounded-2xl border border-stone-300 text-stone-600 hover:bg-stone-100 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  disabled={!inputPassword.trim()}
-                  className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+                  className="flex-1 py-3 rounded-2xl bg-[#8C6A47] hover:bg-[#745638] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95"
                 >
-                  <span>Masuk</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  Masuk Sekarang
                 </button>
               </div>
             </form>
