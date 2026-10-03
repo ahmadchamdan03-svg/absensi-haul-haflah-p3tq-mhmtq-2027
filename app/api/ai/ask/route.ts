@@ -42,6 +42,20 @@ ATURAN DATA & SUMBER INFORMASI (WAJIB):
    - Info rekening resmi (BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
 
 =============================================================================
+ATURAN KONSEP WALI SANTRI & SANTRIWATI (WAJIB & MUTLAK):
+=============================================================================
+1. "WALI SANTRI" / "WALI" / "ORANG TUA" = orang tua atau pendamping santri yang HADIR di acara.
+   Data kehadiran Wali Santri diambil dari tabel presensi_log (kode_qr LIKE 'SH%').
+2. "SANTRIWATI" / "SANTRI" / "SHOHIBUL HAJAT" = anak yang mondok di pesantren.
+   Kehadiran santriwati TIDAK dihitung terpisah di gerbang masuk (karena mereka sudah pasti berada di lokasi acara).
+3. Jika user bertanya tentang "wali santri yang hadir" atau "siapa yang sudah hadir? wali santri":
+   - JANGAN PERNAH jawab "data santri kosong", "0 santri", atau "data telah dibersihkan".
+   - Ambil data dari presensi_log (kode_qr LIKE 'SH%') untuk daftar wali yang sudah di-absen.
+   - Sebutkan nama santri, nama wali, jumlah pendamping (L/P), jalur, dan waktu kehadiran.
+4. Jika presensi_log kosong (belum ada yang hadir): jawab "belum ada wali santri yang tercatat hadir", JANGAN bilang "data diclean/kosong".
+5. Jika user bertanya tentang santriwati mondok/hadir tanpa wali: jelaskan bahwa santriwati sudah pasti hadir di lokasi dan yang dihitung kehadirannya di pintu masuk adalah Wali Santri.
+
+=============================================================================
 HAK AKSES & KEBEBASAN INFORMASI INTERNAL (MUTLAK & TANPA PEMBATASAN):
 =============================================================================
 - Us. Halwaa beroperasi khusus untuk Panitia & Pimpinan / Masyayikh.
@@ -418,7 +432,18 @@ Message: Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan co
     return `${idx + 1}. ${s.kode || s.kode_keluarga || 'SH'} - Santri: ${namaSantri} | Wali: ${namaWali}\n   Kategori: ${s.sub_kategori || s.kategori_utama || 'Santri'}\n   Kuota Total: ${totalK} kursi (${s.kuota_dasar || 2} dasar + ${s.kuota_tambahan || 0} tambahan)\n   Status: ${isHadir ? `${s.kuota_terpakai || 1} kursi terpakai (SUDAH HADIR)` : 'BELUM HADIR'}`;
   }).join('\n\n');
 
-  const totalWaliHadir = wsMetrics?.totalHadir ?? santriList.filter((s: any) => (s.kuota_terpakai || 0) > 0 || presensiSet.has((s.kode || s.kode_keluarga || '').toUpperCase())).reduce((acc: number, s: any) => acc + (s.kuota_terpakai || 1), 0);
+  const arrivedWaliLogs = presensiLogs.filter((p: any) => (p.kode_qr || '').toUpperCase().startsWith('SH'));
+  const arrivedWaliDetails = arrivedWaliLogs.map((p: any, idx: number) => {
+    const kUpper = (p.kode_qr || '').toUpperCase();
+    const s = santriList.find((x: any) => (x.kode || x.kode_keluarga || '').toUpperCase() === kUpper);
+    const namaSantri = s?.nama_santri || (s as any)?.nama || 'Santriwati';
+    const namaWali = s?.nama_wali || p.nama_peserta || 'Wali Santri';
+    const totalOrang = (p.jumlah_l || 0) + (p.jumlah_p || 0);
+    const jam = new Date(p.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+    return `- ${idx + 1}. Kode: ${p.kode_qr} | Wali dari Santri: ${namaSantri} | Nama Wali: ${namaWali} | Hadir: ${totalOrang} orang (L: ${p.jumlah_l || 0}, P: ${p.jumlah_p || 0}) via ${p.jalur || 'Gerbang'} (pukul ${jam} WIB)`;
+  }).join('\n');
+
+  const totalWaliHadir = wsMetrics?.totalHadir ?? (arrivedWaliLogs.length > 0 ? arrivedWaliLogs.reduce((acc: number, p: any) => acc + ((p.jumlah_l || 0) + (p.jumlah_p || 0)), 0) : santriList.filter((s: any) => (s.kuota_terpakai || 0) > 0 || presensiSet.has((s.kode || s.kode_keluarga || '').toUpperCase())).reduce((acc: number, s: any) => acc + (s.kuota_terpakai || 1), 0));
   const totalWaliKuota = wsMetrics?.totalKuota ?? santriList.reduce((acc: number, s: any) => acc + ((s.kuota_dasar || 2) + (s.kuota_tambahan || 0)), 0);
   const percentWali = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
 
@@ -435,6 +460,9 @@ Message: Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan co
 Timestamp: ${dateStr}, pukul ${timeStr} WIB
 Source: ${isCache ? 'CACHE (Snapshot Cadangan Supabase)' : 'LIVE (Database Supabase)'}
 ${isCache ? 'CATATAN CACHE: Sistem live database sedang tidak dapat diakses. Data di bawah ini adalah snapshot terakhir per tanggal & jam di atas. Berikan disclaimer kepada pengguna bahwa ini adalah data snapshot cadangan.' : ''}
+
+--- DAFTAR WALI SANTRI SUDAH HADIR (REKAP PRESENSI LOG SH%) ---
+${arrivedWaliDetails || '(Belum ada wali santri yang presensi di presensi_log)'}
 
 --- TAMU UNDANGAN ---
 Total terdaftar: ${tamuList.length} tokoh/instansi (${totalTamuHadir} sudah hadir, ${tamuList.length - totalTamuHadir} belum hadir)
@@ -855,6 +883,101 @@ async function getLiveArrivedGuestsResponse(prompt: string, isFirstTurn: boolean
   } catch (err: any) {
     console.error('[Halwaa AI] Error querying live arrived guests:', err);
     return `${intro}Maaf Us, terjadi kendala saat query data tamu realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
+  }
+}
+
+async function getWaliSantriHadir() {
+  try {
+    const { data: presensi, error: err1 } = await supabase
+      .from('presensi_log')
+      .select('kode_qr, nama_peserta, jumlah_l, jumlah_p, jalur, created_at')
+      .like('kode_qr', 'SH%')
+      .order('created_at', { ascending: false });
+
+    if (err1) throw err1;
+
+    if (!presensi || presensi.length === 0) {
+      return {
+        source: 'live' as const,
+        totalWaliHadir: 0,
+        list: [],
+        message: 'Belum ada wali santri yang tercatat hadir.',
+      };
+    }
+
+    const kodes = Array.from(new Set(presensi.map((p) => p.kode_qr).filter(Boolean)));
+    const { data: santriList, error: err2 } = await supabase
+      .from('peserta_santri')
+      .select('kode, kode_keluarga, nama_santri, nama_wali, kategori_utama, sub_kategori')
+      .or(`kode.in.(${kodes.join(',')}),kode_keluarga.in.(${kodes.join(',')})`);
+
+    if (err2) {
+      console.warn('[Halwaa] Santri match error in getWaliSantriHadir:', err2);
+    }
+
+    const combined = presensi.map((p) => {
+      const kUpper = (p.kode_qr || '').toUpperCase();
+      const s = santriList?.find(
+        (x: any) =>
+          (x.kode || '').toUpperCase() === kUpper ||
+          (x.kode_keluarga || '').toUpperCase() === kUpper
+      );
+      return {
+        kode: p.kode_qr,
+        namaSantri: s?.nama_santri || (s as any)?.nama || 'Santriwati',
+        namaWali: s?.nama_wali || p.nama_peserta || 'Wali Santri',
+        kategori: s?.sub_kategori || s?.kategori_utama || 'Reguler',
+        jumlahL: p.jumlah_l || 0,
+        jumlahP: p.jumlah_p || 0,
+        jalur: p.jalur || 'REGULER',
+        waktu: p.created_at,
+      };
+    });
+
+    return {
+      source: 'live' as const,
+      totalWaliHadir: combined.length,
+      list: combined,
+    };
+  } catch (err) {
+    console.error('[Halwaa] Query wali santri hadir error:', err);
+    return {
+      source: 'unavailable' as const,
+      totalWaliHadir: 0,
+      list: [],
+      message: 'Sistem sedang tidak dapat mengakses data presensi log.',
+    };
+  }
+}
+
+async function getLiveArrivedWaliResponse(prompt: string, isFirstTurn: boolean = false): Promise<string> {
+  const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+  const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+  const intro = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+
+  try {
+    const res = await getWaliSantriHadir();
+    const wsMetrics = await getWaliSantriMetrics().catch(() => null);
+
+    const totalKuota = wsMetrics?.totalKuota || 6;
+    const totalHadirCount = wsMetrics?.totalHadir || res.totalWaliHadir;
+
+    if (res.list.length === 0 && totalHadirCount === 0) {
+      return `${intro}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, belum ada Wali Santri yang tercatat presensi di gerbang masuk.\n\nTotal Kuota Wali Santri: **${totalKuota} kursi**.\nSisa **${totalKuota} kursi** belum di-absen.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+    }
+
+    const waliLines = res.list.map((w, idx) => {
+      const jam = new Date(w.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+      const totalOrang = w.jumlahL + w.jumlahP;
+      return `${idx + 1}. **Wali dari ${w.namaSantri}** (\`${w.kode}\`) - ${w.kategori}\n   - **Nama Wali**: ${w.namaWali}\n   - **Hadir dengan**: ${totalOrang} orang (Laki-laki: ${w.jumlahL}, Perempuan: ${w.jumlahP})\n   - **Jalur**: via ${w.jalur || 'Gerbang'}\n   - **Waktu**: pukul ${jam} WIB`;
+    });
+
+    const percentRatio = totalKuota > 0 ? Math.round((totalHadirCount / totalKuota) * 100) : 0;
+
+    return `${intro}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, tercatat **${res.list.length} wali santri** yang sudah hadir:\n\n${waliLines.join('\n\n')}\n\nTotal yang sudah hadir: **${totalHadirCount} wali santri**.\nTotal kuota wali santri: **${totalKuota} kursi**.\nPersentase: **${percentRatio}%** dari kuota.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  } catch (err: any) {
+    console.error('[Halwaa AI] Error querying live arrived wali:', err);
+    return `${intro}Maaf Us, terjadi kendala saat query data wali santri realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
   }
 }
 
@@ -1397,11 +1520,12 @@ Wonten ingkang saget dibantu Us?`;
     const sisaSantri = Math.max(0, totalSantriDaftar - totalSantriHadir);
     const pctSantri = totalSantriDaftar > 0 ? Math.round((totalSantriHadir / totalSantriDaftar) * 100) : 0;
 
-    if (totalSantriDaftar === 0) {
-      return `${headerIntro}Berdasarkan data sistem saat ini, **daftar santriwati shohibul hajat masih kosong (0 santri)** karena seluruh data telah dibersihkan oleh panitia.
+    if (q.includes('santriwati') && !q.includes('wali')) {
+      return `${headerIntro}Data santriwati shohibul hajat berada di lokasi acara. Kehadiran santriwati tidak dihitung terpisah di pintu masuk karena mereka sudah pasti berada di lokasi acara (shohibul hajat).
 
-Us dapat menambahkan santri baru atau memulihkan data bawaan melalui:
-[👉 Buka Manajemen Peserta](/admin/peserta) [👉 Buka Live Dasbor](/admin/dasbor)
+Yang dihitung dan dicatat kehadirannya di pintu masuk via scanner QR code adalah **Wali Santri** (orang tua / pendamping).
+
+[👉 Buka Live Dasbor](/admin/dasbor) [👉 Buka Data Peserta & Tamu](/admin/peserta)
 
 Wonten ingkang saget dibantu Us?`;
     }
@@ -2183,11 +2307,31 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     // 1.5. Deteksi pertanyaan DAFTAR TAMU UNDANGAN YANG HADIR ("tamu undangan siapa yang hadir?")
     const isAskingWhoArrived =
       (qLower.includes('tamu') || qLower.includes('undangan') || qLower.includes('masyayikh') || qLower.includes('penguji') || qLower.includes('vip')) &&
+      !qLower.includes('wali') &&
       (qLower.includes('siapa') || qLower.includes('siapakah') || qLower.includes('daftar') || qLower.includes('sebutkan') || qLower.includes('mana') || qLower.includes('siapa saja')) &&
       (qLower.includes('hadir') || qLower.includes('datang') || qLower.includes('tiba') || qLower.includes('masuk') || qLower.includes('presensi'));
 
     if (isAskingWhoArrived) {
       const replyText = await getLiveArrivedGuestsResponse(prompt, isFirstTurn);
+      const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_query',
+        model: 'Us AI Live Database Engine',
+      });
+    }
+
+    // 1.6. Deteksi pertanyaan DAFTAR WALI SANTRI YANG HADIR ("siapa yang sudah hadir? wali santri", "wali santri yang hadir")
+    const isAskingWaliArrived =
+      (qLower.includes('wali') || qLower.includes('orang tua') || qLower.includes('pendamping')) &&
+      (qLower.includes('siapa') || qLower.includes('siapakah') || qLower.includes('daftar') || qLower.includes('sebutkan') || qLower.includes('mana') || qLower.includes('siapa saja') || qLower.includes('yang sudah hadir')) &&
+      (qLower.includes('hadir') || qLower.includes('datang') || qLower.includes('tiba') || qLower.includes('masuk') || qLower.includes('presensi'));
+
+    if (isAskingWaliArrived) {
+      const replyText = await getLiveArrivedWaliResponse(prompt, isFirstTurn);
       const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
       return NextResponse.json({
