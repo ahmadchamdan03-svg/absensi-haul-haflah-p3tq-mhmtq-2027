@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
@@ -99,8 +99,6 @@ export default function LandingPortalPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
     const role = getActiveRole();
     if (role && ROLES_CONFIG[role]) {
@@ -134,27 +132,7 @@ export default function LandingPortalPage() {
     }, 400);
   }, [isSubmitting, router]);
 
-  // Auto-submit setelah user berhenti mengetik (1000ms debounce)
-  useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    if (selectedRole && inputPassword.length >= 4 && !isSubmitting && !passwordError) {
-      debounceRef.current = setTimeout(() => {
-        doLoginSubmit(selectedRole, inputPassword);
-      }, 1000);
-    }
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [inputPassword, selectedRole, isSubmitting, passwordError, doLoginSubmit]);
-
   const handleOpenRoleModal = (roleKey: AppRole) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
     setSelectedRole(roleKey);
     setInputPassword('');
     setShowPassword(false);
@@ -164,7 +142,6 @@ export default function LandingPortalPage() {
 
   const handleCloseModal = () => {
     if (isSubmitting) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
     setSelectedRole(null);
     setInputPassword('');
     setPasswordError(false);
@@ -173,7 +150,6 @@ export default function LandingPortalPage() {
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (debounceRef.current) clearTimeout(debounceRef.current);
     if (selectedRole && inputPassword.length >= 4 && !isSubmitting) {
       doLoginSubmit(selectedRole, inputPassword);
     }
@@ -307,15 +283,6 @@ export default function LandingPortalPage() {
                     onChange={(e) => {
                       setInputPassword(e.target.value);
                       setPasswordError(false);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (debounceRef.current) clearTimeout(debounceRef.current);
-                        if (selectedRole && inputPassword.length >= 4 && !isSubmitting) {
-                          doLoginSubmit(selectedRole, inputPassword);
-                        }
-                      }
                     }}
                     placeholder={`Masukkan sandi ${ROLES_CONFIG[selectedRole].title}...`}
                     autoFocus
