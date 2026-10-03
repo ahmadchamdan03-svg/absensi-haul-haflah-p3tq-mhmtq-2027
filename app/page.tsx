@@ -21,6 +21,7 @@ import StageBackground from '@/components/StageBackground';
 const ROLE_BUTTONS: {
   key: AppRole;
   icon: React.ComponentType<{ className?: string }>;
+  image: string;
   color: {
     bg: string;
     border: string;
@@ -33,6 +34,7 @@ const ROLE_BUTTONS: {
   {
     key: 'ADMIN',
     icon: ShieldCheck,
+    image: '/images/halwaa/admin.png',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -45,6 +47,7 @@ const ROLE_BUTTONS: {
   {
     key: 'PIMPINAN',
     icon: LayoutDashboard,
+    image: '/images/halwaa/pimpinan.png',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -57,6 +60,7 @@ const ROLE_BUTTONS: {
   {
     key: 'PENERIMA_TAMU',
     icon: Users,
+    image: '/images/halwaa/penerima-tamu.png',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -69,6 +73,7 @@ const ROLE_BUTTONS: {
   {
     key: 'PENJAGA_GERBANG',
     icon: QrCode,
+    image: '/images/halwaa/penjaga-gerbang.png',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -205,25 +210,36 @@ export default function LandingPortalPage() {
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES ROLE - BARIS 1: ADMIN | PIMPINAN, BARIS 2: PENERIMA TAMU | PENJAGA GERBANG */}
+        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA (BARIS 1: ADMIN | PIMPINAN, BARIS 2: PENERIMA TAMU | PENJAGA GERBANG) */}
         <div className="grid grid-cols-2 gap-2.5 md:gap-3">
-          {ROLE_BUTTONS.map(({ key, icon: Icon, color }) => {
+          {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
             const config = ROLES_CONFIG[key];
             return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handleOpenRoleModal(key)}
-                className={`relative flex items-center gap-2.5 p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-md transition-all text-left w-full group cursor-pointer active:scale-[0.98]`}
-              >
-                <div className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
-                  <Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
+              <div key={key} className="relative group hover:z-30 z-10">
+                {/* FOTO US. HALWAA — MUNCUL (POP-OUT) DARI BELAKANG KARTU SAAT HOVER */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-[75%] opacity-0 group-hover:opacity-100 group-hover:bottom-[85%] transition-all duration-300 ease-out pointer-events-none z-0">
+                  <img
+                    src={image}
+                    alt={`Us. Halwaa - ${config.title}`}
+                    className="h-28 sm:h-36 md:h-40 w-auto drop-shadow-xl max-w-none filter brightness-105"
+                  />
                 </div>
-                <span className={`font-serif font-black text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
-                  {config.title}
-                </span>
-                <Lock className="absolute top-2.5 right-2.5 w-3.5 h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
-              </button>
+
+                {/* KARTU ROLE UTAMA */}
+                <button
+                  type="button"
+                  onClick={() => handleOpenRoleModal(key)}
+                  className={`relative z-10 flex items-center gap-2.5 p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-lg transition-all text-left w-full cursor-pointer active:scale-[0.98]`}
+                >
+                  <div className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
+                    <Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
+                  </div>
+                  <span className={`font-serif font-black text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
+                    {config.title}
+                  </span>
+                  <Lock className="absolute top-2.5 right-2.5 w-3.5 h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
+                </button>
+              </div>
             );
           })}
         </div>
