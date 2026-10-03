@@ -142,7 +142,7 @@ export function buatPesanPengingatKonfirmasi(
   kodeSantri: string,
   baseUrl?: string
 ): string {
-  const liveDomain = process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+  const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
   const origin =
     baseUrl ||
     (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')

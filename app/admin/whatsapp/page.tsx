@@ -354,7 +354,7 @@ export default function WhatsAppPage() {
   const getTeksPesan = (kel: any, gel: 1 | 2 | 3) => {
     const santri = kel.santri?.[0];
     const totalKuota = kel.kuota?.kuotaDasar + kel.kuota?.kuotaTambahan;
-    const liveDomain = process.env.NEXT_PUBLIC_APP_URL || 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+    const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
     const origin =
       typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
         ? window.location.origin
@@ -665,7 +665,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
 
   // Format pesan WA persis sesuai permintaan resmi
   const getTeksPesanTamu = (tamu: any) => {
-    const baseUrl = 'https://absensi-haul-haflah-p3tq-mhmtq-2027.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1') ? window.location.origin : 'https://haflahp3tq.site');
     const linkPortal = `${baseUrl}/u/${tamu.kode || 'UNDxxxx'}`;
     const jalur = (tamu.jalurMasuk || '').trim();
 

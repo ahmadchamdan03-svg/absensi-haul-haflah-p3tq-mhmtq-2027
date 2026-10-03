@@ -3403,8 +3403,10 @@ export default function ManajemenPesertaPage() {
                 </a>
                 <button
                   onClick={() => {
+                    const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
+                    const origin = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1') ? window.location.origin : liveDomain;
                     navigator.clipboard.writeText(
-                      `${window.location.origin}/u/${qrDetailItem.kode}`
+                      `${origin}/u/${qrDetailItem.kode}`
                     );
                     showToast(
                       `✓ Link portal ${qrDetailItem.tipe === 'UNDANGAN' ? 'undangan' : 'wali'} berhasil disalin!`
@@ -3419,7 +3421,9 @@ export default function ManajemenPesertaPage() {
               {qrDetailItem.tipe === 'UNDANGAN' && (
                 <button
                   onClick={() => {
-                    const link = `${window.location.origin}/u/${qrDetailItem.kode}`;
+                    const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
+                    const origin = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1') ? window.location.origin : liveDomain;
+                    const link = `${origin}/u/${qrDetailItem.kode}`;
                     const waText = `Assalamu'alaikum Wr. Wb.
 
 Yth. *${qrDetailItem.nama}* (${qrDetailItem.instansi || qrDetailItem.kategori || 'Tamu Undangan'})

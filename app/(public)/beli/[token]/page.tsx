@@ -372,7 +372,8 @@ export default function BeliKuotaPage() {
       const noHpWali = santri.no_hp || santri.no_hp_wali || '';
       if (noHpWali) {
         try {
-          const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haflahp3tq.site';
+          const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
+          const origin = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1') ? window.location.origin : liveDomain;
           const linkUpload = `${origin}/beli/${santri.kode}`;
 
           const pesanWali =
