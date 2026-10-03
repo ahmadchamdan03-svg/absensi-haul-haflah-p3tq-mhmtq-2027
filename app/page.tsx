@@ -170,9 +170,9 @@ export default function LandingPortalPage() {
 
     const randomPose = TOS_POSES[Math.floor(Math.random() * TOS_POSES.length)];
 
-    // Dimensi gambar yang dirender (176px pada mobile, 224px pada desktop)
+    // Dimensi gambar yang dirender setara 2x2 cm (~76px pada mobile, ~84px pada desktop)
     const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
-    const imgSize = isDesktop ? 224 : 176;
+    const imgSize = isDesktop ? 84 : 76;
 
     const handXRel = randomPose.handRelX * imgSize;
     const handYRel = randomPose.handRelY * imgSize;
@@ -475,11 +475,11 @@ export default function LandingPortalPage() {
         </div>
       )}
 
-      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY (PERSIS DI TITIK SENTUH KLIK KURSOR) */}
+      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY (PERSIS DI TITIK SENTUH KLIK KURSOR, UKURAN COMPACT ~2x2 CM) */}
       {tosState?.active && (
         <div
           style={{ left: `${tosState.left}px`, top: `${tosState.top}px` }}
-          className="fixed z-50 pointer-events-none animate-tos-pop flex flex-col items-center justify-center w-44 md:w-56 h-44 md:h-56"
+          className="fixed z-50 pointer-events-none animate-tos-pop flex flex-col items-center justify-center w-[76px] md:w-[84px] h-[76px] md:h-[84px]"
         >
           {/* Sparkle Emas di Titik Temu Tangan & Kursor (clickX, clickY) */}
           <div
@@ -489,15 +489,15 @@ export default function LandingPortalPage() {
             }}
             className="absolute pointer-events-none overflow-visible -translate-x-1/2 -translate-y-1/2 z-20"
           >
-            <span className="absolute -top-3 -left-3 text-amber-400 text-xl md:text-2xl animate-tos-sparkle">✨</span>
-            <span className="absolute -top-5 right-1 text-amber-300 text-lg md:text-xl animate-tos-sparkle">⭐</span>
-            <span className="absolute bottom-1 -left-5 text-amber-400 text-base md:text-lg animate-tos-sparkle">✨</span>
-            <span className="absolute bottom-3 -right-3 text-amber-300 text-xl md:text-2xl animate-tos-sparkle">🌟</span>
-            <div className="w-8 h-8 rounded-full bg-amber-300/40 blur-md animate-ping" />
+            <span className="absolute -top-2 -left-2 text-amber-400 text-sm md:text-base animate-tos-sparkle">✨</span>
+            <span className="absolute -top-3 right-0 text-amber-300 text-xs md:text-sm animate-tos-sparkle">⭐</span>
+            <span className="absolute bottom-0 -left-3 text-amber-400 text-xs md:text-sm animate-tos-sparkle">✨</span>
+            <span className="absolute bottom-2 -right-2 text-amber-300 text-sm md:text-base animate-tos-sparkle">🌟</span>
+            <div className="w-5 h-5 rounded-full bg-amber-300/40 blur-sm animate-ping" />
           </div>
 
           {/* Bubble Chat "Tos!" */}
-          <div className="absolute -top-4 md:-top-6 bg-white border-2 border-[#D5C4B4] rounded-full px-3 py-1 md:px-4 md:py-1.5 shadow-xl text-xs md:text-sm font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-1 z-30 whitespace-nowrap">
+          <div className="absolute -top-5 md:-top-6 bg-white border-2 border-[#D5C4B4] rounded-full px-2 py-0.5 md:px-2.5 md:py-1 shadow-md text-[10px] md:text-xs font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-0.5 z-30 whitespace-nowrap">
             <span>{tosState.bubbleText}</span>
           </div>
 
@@ -505,7 +505,7 @@ export default function LandingPortalPage() {
           <img
             src={tosState.imgUrl}
             alt="Us. Halwaa - Tos!"
-            className="w-full h-full drop-shadow-2xl select-none object-contain"
+            className="w-full h-full drop-shadow-md select-none object-contain"
             draggable={false}
           />
         </div>
