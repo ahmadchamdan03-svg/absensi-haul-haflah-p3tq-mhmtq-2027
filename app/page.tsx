@@ -170,24 +170,15 @@ export default function LandingPortalPage() {
                 key={key}
                 type="button"
                 onClick={() => handleOpenRoleModal(key)}
-                className={`${color.bg} rounded-2xl p-4 md:p-5 border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-md transition-all text-left group cursor-pointer active:scale-[0.98]`}
+                className={`relative flex items-center gap-3 p-4 md:p-5 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-md transition-all text-left w-full group cursor-pointer active:scale-[0.98]`}
               >
-                <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 flex items-center justify-center shrink-0`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className={`font-serif font-black text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
-                      {config.title}
-                    </h3>
-                    <p className="text-xs md:text-sm text-[#7A624E] mt-0.5 leading-snug font-medium">
-                      {config.subtitle}
-                    </p>
-                  </div>
-                  <div className="shrink-0 mt-0.5">
-                    <Lock className="w-4 h-4 text-[#B5A28F] group-hover:text-[#8C6A47] transition-colors" />
-                  </div>
+                <div className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
+                  <Icon className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
+                <span className={`font-serif font-black text-base md:text-lg text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
+                  {config.title}
+                </span>
+                <Lock className="absolute top-3 right-3 w-4 h-4 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
               </button>
             );
           })}

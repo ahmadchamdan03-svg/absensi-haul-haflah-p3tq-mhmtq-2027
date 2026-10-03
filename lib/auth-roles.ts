@@ -48,7 +48,7 @@ export const ROLES_CONFIG: Record<AppRole, RoleConfig> = {
   },
   PIMPINAN: {
     key: 'PIMPINAN',
-    title: 'Pimpinan & Masyayikh',
+    title: 'Pimpinan',
     subtitle: 'Dewan Pengasuh & Penasehat',
     description: 'Live dasbor eksekutif: Memantau tingkat okupansi kursi Aula Al-Muktamar, persentase kedatangan, dan rasio jamaah secara langsung.',
     badge: 'Executive View',
