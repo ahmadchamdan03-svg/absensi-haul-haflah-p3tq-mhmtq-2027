@@ -109,6 +109,31 @@ function renderTamuName(item: any) {
   );
 }
 
+// Helper Render Instansi & Alamat Tanpa Duplikasi
+function renderInstansiDanAlamat(item: any) {
+  const instansi = item?.instansi && item.instansi !== '-' ? item.instansi.trim() : '';
+  const alamat = item?.alamat && item.alamat !== '-' ? item.alamat.trim() : '';
+
+  if (instansi && alamat) {
+    if (instansi.toLowerCase() === alamat.toLowerCase()) {
+      return <p className="text-xs text-[#7A624E] font-medium pt-0.5">{instansi}</p>;
+    }
+    return (
+      <>
+        <p className="text-xs text-[#7A624E] font-medium pt-0.5">{instansi}</p>
+        <p className="text-xs text-stone-500 font-medium pt-0.5">{alamat}</p>
+      </>
+    );
+  }
+
+  const single = instansi || alamat;
+  if (single) {
+    return <p className="text-xs text-[#7A624E] font-medium pt-0.5">{single}</p>;
+  }
+
+  return null;
+}
+
 // Komponen 3 Logo Resmi (P3TQ, Haul & Haflah, MHMTQ)
 function HeaderLogos() {
   return (
@@ -656,12 +681,7 @@ export default function UndanganWaliPage() {
                   </span>
                   {renderTamuName(item)}
 
-                  {item?.instansi && item.instansi !== '-' && (
-                    <p className="text-xs text-[#7A624E] font-medium pt-0.5">{item.instansi}</p>
-                  )}
-                  {item?.alamat && item.alamat !== '-' && (
-                    <p className="text-xs text-stone-500 font-medium pt-0.5">{item.alamat}</p>
-                  )}
+                  {renderInstansiDanAlamat(item)}
                 </div>
 
                 <div className="pt-2 space-y-3">
@@ -713,12 +733,7 @@ export default function UndanganWaliPage() {
                   </span>
                   {renderTamuName(item)}
 
-                  {item?.instansi && item.instansi !== '-' && (
-                    <p className="text-xs text-[#7A624E] font-medium pt-0.5">{item.instansi}</p>
-                  )}
-                  {item?.alamat && item.alamat !== '-' && (
-                    <p className="text-xs text-stone-500 font-medium pt-0.5">{item.alamat}</p>
-                  )}
+                  {renderInstansiDanAlamat(item)}
                 </div>
 
                 <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />

@@ -476,6 +476,22 @@ export default function ManajemenPesertaPage() {
     }
   }, [qrDetailItem]);
 
+  // Handle keyboard ESC key to close open modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (qrDetailItem) setQrDetailItem(null);
+        if (showAddModal) setShowAddModal(false);
+        if (showAddUndanganModal) setShowAddUndanganModal(false);
+        if (editingItem) setEditingItem(null);
+        if (deletingItem) setDeletingItem(null);
+        if (showClearModal) setShowClearModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [qrDetailItem, showAddModal, showAddUndanganModal, editingItem, deletingItem, showClearModal]);
+
   // Statistik per kategori
   const stats = useMemo(() => {
     let bilGhoibCount = 0;
@@ -3273,27 +3289,34 @@ export default function ManajemenPesertaPage() {
       {/* MODAL 5: DETAIL QR CODE & KARTU SANTRI */}
       {/* ========================================================================= */}
       {qrDetailItem && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-sm w-full shadow-2xl border-2 border-opera-800 overflow-hidden">
-            <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white p-5 text-center border-b border-gold-500/40 relative">
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in"
+          onClick={() => setQrDetailItem(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-md sm:max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white p-4 sm:p-5 text-center border-b border-gold-500/40 relative shrink-0 pr-12">
               <button
                 onClick={() => setQrDetailItem(null)}
-                className="absolute right-3.5 top-3.5 text-opera-200 hover:text-white"
+                className="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer active:scale-95"
+                title="Tutup Modal"
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="text-[11px] font-serif text-gold-400 tracking-widest uppercase">
+              <div className="text-[10px] sm:text-[11px] font-serif text-gold-400 tracking-widest uppercase">
                 HAUL & HAFLAH 1448 H / 2027 M
               </div>
-              <h3 className="font-serif font-black text-base text-white mt-1">
+              <h3 className="font-serif font-black text-sm sm:text-base text-white mt-0.5">
                 KARTU PESERTA RESMI
               </h3>
-              <div className="text-[11px] text-opera-200">
+              <div className="text-[10px] sm:text-[11px] text-opera-200">
                 P3TQ — MHMTQ PP. Lirboyo Kediri
               </div>
             </div>
 
-            <div className="p-6 text-center space-y-4">
+            <div className="p-4 sm:p-6 text-center space-y-4 overflow-y-auto flex-1">
               {/* QR Image */}
               <div className="p-3 bg-white border-2 border-dashed border-opera-300 rounded-2xl inline-block shadow-sm">
                 {qrDataUrl ? (
