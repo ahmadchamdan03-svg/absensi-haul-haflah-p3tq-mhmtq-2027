@@ -33,22 +33,18 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
 
   const loggedKeys = new Set<string>();
   const latestCheckinMap: Record<string, string> = {};
-  const latestLogMap: Record<string, { jumlah_l: number; jumlah_p: number; tipe: string }> = {};
+  const sumLogMap: Record<string, number> = {};
 
   for (const log of logsData) {
-    const key = String(log.kode_qr || log.kuota_id || '');
+    const key = String(log.kode_qr || log.kuota_id || '').toUpperCase();
     const logTime = log.created_at || log.server_time || '';
     if (key) {
       if (!latestCheckinMap[key] && logTime) {
         latestCheckinMap[key] = logTime;
       }
-      if (!latestLogMap[key]) {
-        latestLogMap[key] = {
-          jumlah_l: Number(log.jumlah_l || log.jumlahL || 0),
-          jumlah_p: Number(log.jumlah_p || log.jumlahP || 0),
-          tipe: log.tipe_peserta || '',
-        };
-      }
+      const l = Number(log.jumlah_l || log.jumlahL || 0);
+      const p = Number(log.jumlah_p || log.jumlahP || 0);
+      sumLogMap[key] = (sumLogMap[key] || 0) + l + p;
       loggedKeys.add(key);
     }
   }
@@ -129,17 +125,17 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
 
   // Process Santri List for bottom table
   const santriList = santriData.map((s) => {
-    const keyId = String(s.id || '');
-    const keyKode = String(s.kode || '');
+    const keyId = String(s.id || '').toUpperCase();
+    const keyKode = String(s.kode || '').toUpperCase();
     const checkinTime = latestCheckinMap[keyKode] || latestCheckinMap[keyId] || s.updated_at || s.created_at;
-    const isHadir = (s.kuota_terpakai || 0) > 0 || loggedKeys.has(keyKode) || loggedKeys.has(keyId);
-    const logInfo = latestLogMap[keyKode] || latestLogMap[keyId];
+    const sumTerpakai = sumLogMap[keyKode] ?? sumLogMap[keyId];
+    const isHadir = (sumTerpakai !== undefined && sumTerpakai > 0) || loggedKeys.has(keyKode) || loggedKeys.has(keyId) || (s.kuota_terpakai || 0) > 0;
 
     const kDasar = s.kuota_dasar !== undefined && s.kuota_dasar !== null ? Number(s.kuota_dasar) : 2;
     const kTambahan = Number(s.kuota_tambahan || 0);
     const kuotaTotal = kDasar + kTambahan;
     const terpakai = isHadir
-      ? (logInfo ? logInfo.jumlah_l + logInfo.jumlah_p : Number(s.kuota_terpakai || kuotaTotal))
+      ? (sumTerpakai !== undefined ? sumTerpakai : Number(s.kuota_terpakai || 0))
       : 0;
 
     return {
@@ -166,18 +162,18 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
 
   // Process Tamu Undangan List for bottom table
   const undanganList = undanganData.map((u) => {
-    const keyId = String(u.id || '');
-    const keyKode = String(u.kode || '');
+    const keyId = String(u.id || '').toUpperCase();
+    const keyKode = String(u.kode || '').toUpperCase();
     const checkinTime = latestCheckinMap[keyKode] || latestCheckinMap[keyId] || u.updated_at || u.created_at;
-    const isHadir = (u.kuota_terpakai || 0) > 0 || loggedKeys.has(keyKode) || loggedKeys.has(keyId);
-    const logInfo = latestLogMap[keyKode] || latestLogMap[keyId];
+    const sumTerpakai = sumLogMap[keyKode] ?? sumLogMap[keyId];
+    const isHadir = (sumTerpakai !== undefined && sumTerpakai > 0) || loggedKeys.has(keyKode) || loggedKeys.has(keyId) || (u.kuota_terpakai || 0) > 0;
 
     const defaultDasar = u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
     const kDasar = u.kuota_dasar !== undefined && u.kuota_dasar !== null ? Number(u.kuota_dasar) : defaultDasar;
     const kTambahan = Number(u.kuota_tambahan || 0);
     const kuotaTotal = kDasar + kTambahan;
     const terpakai = isHadir
-      ? (logInfo ? logInfo.jumlah_l + logInfo.jumlah_p : Number(u.kuota_terpakai || kuotaTotal))
+      ? (sumTerpakai !== undefined ? sumTerpakai : Number(u.kuota_terpakai || 0))
       : 0;
 
     return {

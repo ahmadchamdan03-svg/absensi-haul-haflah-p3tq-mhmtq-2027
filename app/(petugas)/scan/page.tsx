@@ -198,9 +198,21 @@ export default function ScanPage() {
 
       const isSantri = !!santri;
       const entity = santri || tamu;
+      const targetKode = entity.kode || entity.nis || cleanCode;
+
+      // Single Source of Truth: Fetch live terpakai from presensi_log
+      const { data: presensiLogs } = await supabase
+        .from('presensi_log')
+        .select('jumlah_l, jumlah_p')
+        .eq('kode_qr', targetKode);
+
+      const terpakai = (presensiLogs || []).reduce(
+        (sum, r) => sum + Number(r.jumlah_l || 0) + Number(r.jumlah_p || 0),
+        0
+      );
+
       const kuotaDasar = Number(entity.kuota_dasar || 2);
       const kuotaTambahan = Number(entity.kuota_tambahan || 0);
-      const terpakai = Number(entity.kuota_terpakai || 0);
       const totalKuota = kuotaDasar + kuotaTambahan;
       const sisa = Math.max(0, totalKuota - terpakai);
 
@@ -214,7 +226,7 @@ export default function ScanPage() {
 
       const itemObj = {
         id: entity.id,
-        kode: entity.kode || entity.nis || cleanCode,
+        kode: targetKode,
         tipe: isSantri ? 'KELUARGA' : 'UNDANGAN',
         nama: entity.nama,
         namaWali: isSantri ? (entity.nama_wali || '-') : (entity.instansi || entity.alamat || '-'),
@@ -244,7 +256,7 @@ export default function ScanPage() {
         },
         kuota: {
           id: entity.id,
-          kodeQr: entity.kode || cleanCode,
+          kodeQr: targetKode,
           kuotaDasar,
           kuotaTambahan,
           terpakai,
@@ -253,7 +265,7 @@ export default function ScanPage() {
         },
       };
 
-      if (sisa <= 0) {
+      if (terpakai >= totalKuota) {
         playBuzzerError();
         setErrorMsg(
           `PERINGATAN KUOTA HABIS: Seluruh tiket untuk "${itemObj.nama}" sudah terpakai (${terpakai}/${totalKuota})!`
@@ -415,8 +427,6 @@ export default function ScanPage() {
     setErrorMsg(null);
 
     const inputTotal = jumlahL + jumlahP;
-    const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
-    const sisa = Math.max(0, totalKuota - activeItem.kuota.terpakai);
 
     const isAlreadyGiven = activeItem.isBilGhoib && (Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || Boolean(activeItem.kartuHitamGoldDiberi));
     const isNewlyGivingGold = activeItem.isBilGhoib && !isAlreadyGiven && (kartuHitamGoldDiberi || serahkanTiketEmas);
@@ -429,41 +439,25 @@ export default function ScanPage() {
       return;
     }
 
-    if (inputTotal > sisa) {
-      setErrorMsg(`Jumlah kehadiran (${inputTotal}) melebihi sisa kuota yang tersedia (${sisa})!`);
-      playBuzzerError();
-      return;
-    }
-
-    const nextTerpakai = activeItem.kuota.terpakai + inputTotal;
-
     try {
-      // 1. Update kuota_terpakai di Supabase DB (peserta_santri atau tamu_undangan)
-      if (activeItem.tipe === 'KELUARGA') {
-        const { error: updateErr } = await supabase
-          .from('peserta_santri')
-          .update({
-            kuota_terpakai: nextTerpakai,
-            tiket_panggung_diberi: nextTiketPanggung,
-          })
-          .eq('id', activeItem.id);
+      // 1. Fetch live existing terpakai from presensi_log BEFORE input
+      const { data: existingLogs } = await supabase
+        .from('presensi_log')
+        .select('jumlah_l, jumlah_p')
+        .eq('kode_qr', activeItem.kode);
 
-        if (updateErr) {
-          setErrorMsg(`Gagal memperbarui kuota santri di Supabase DB: ${updateErr.message}`);
-          return;
-        }
-      } else {
-        const { error: updateErr } = await supabase
-          .from('tamu_undangan')
-          .update({
-            kuota_terpakai: nextTerpakai,
-          })
-          .eq('id', activeItem.id);
+      const totalExisting = (existingLogs || []).reduce(
+        (sum, r) => sum + Number(r.jumlah_l || 0) + Number(r.jumlah_p || 0),
+        0
+      );
 
-        if (updateErr) {
-          setErrorMsg(`Gagal memperbarui kuota tamu di Supabase DB: ${updateErr.message}`);
-          return;
-        }
+      const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
+      const sisa = Math.max(0, totalKuota - totalExisting);
+
+      if (inputTotal > sisa) {
+        setErrorMsg(`Kuota tidak cukup. Kuota Total: ${totalKuota}, Terpakai: ${totalExisting}, Sisa: ${sisa}. Input kehadiran (${inputTotal}) melebihi sisa!`);
+        playBuzzerError();
+        return;
       }
 
       // 2. Insert riwayat presensi ke tabel 'presensi_log' di Supabase
@@ -486,7 +480,37 @@ export default function ScanPage() {
         ]);
 
       if (logErr) {
-        console.warn('Presensi log insert note:', logErr.message);
+        setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message}`);
+        playBuzzerError();
+        return;
+      }
+
+      // 3. Sync kuota_terpakai cache in database
+      const { data: presensiAll } = await supabase
+        .from('presensi_log')
+        .select('jumlah_l, jumlah_p')
+        .eq('kode_qr', activeItem.kode);
+
+      const totalTerpakai = (presensiAll || []).reduce(
+        (sum, r) => sum + Number(r.jumlah_l || 0) + Number(r.jumlah_p || 0),
+        0
+      );
+
+      if (activeItem.tipe === 'KELUARGA') {
+        await supabase
+          .from('peserta_santri')
+          .update({
+            kuota_terpakai: totalTerpakai,
+            tiket_panggung_diberi: nextTiketPanggung,
+          })
+          .eq('id', activeItem.id);
+      } else {
+        await supabase
+          .from('tamu_undangan')
+          .update({
+            kuota_terpakai: totalTerpakai,
+          })
+          .eq('id', activeItem.id);
       }
 
       playSuccessChime();
@@ -502,7 +526,7 @@ export default function ScanPage() {
         ...activeItem,
         kuota: {
           ...activeItem.kuota,
-          terpakai: nextTerpakai,
+          terpakai: totalTerpakai,
           tiketPanggungDiberi: nextTiketPanggung,
         },
       };
@@ -510,7 +534,7 @@ export default function ScanPage() {
       setCheckinResult({
         ok: true,
         pesan: `Presensi berhasil dicatat! Total masuk: ${inputTotal} orang (L:${jumlahL}, P:${jumlahP}).`,
-        sisa: Math.max(0, totalKuota - nextTerpakai),
+        sisa: Math.max(0, totalKuota - totalTerpakai),
         detail: updatedItem,
       });
 
