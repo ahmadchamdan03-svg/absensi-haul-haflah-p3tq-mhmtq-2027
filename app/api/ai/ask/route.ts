@@ -586,6 +586,117 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
   return searchPersonInEvent(userQuery);
 }
 
+function isStatsQuery(prompt: string): boolean {
+  const q = prompt.toLowerCase();
+  
+  const hasCountWord = q.includes('berapa') || q.includes('jumlah') || q.includes('prosentase') || q.includes('persentase') || q.includes('%') || q.includes('statistik') || q.includes('progress');
+  const hasSubjectWord = q.includes('hadir') || q.includes('datang') || q.includes('kehadiran') || q.includes('presensi') || q.includes('walisantri') || q.includes('wali santri') || q.includes('tamu');
+
+  if (hasCountWord && hasSubjectWord) return true;
+  if (q.includes('statistik') || q.includes('progress kehadiran') || q.includes('persentase kehadiran') || q.includes('prosentase kehadiran') || q.includes('berapa yang hadir')) return true;
+
+  return false;
+}
+
+async function getLiveAttendanceStatsChart() {
+  let totalWaliKuota = 1072; // 536 santri x 2
+  let totalTamuKuota = 462;  // total tamu
+  let totalWaliHadir = 0;
+  let totalTamuHadir = 0;
+
+  try {
+    const { data: pLogs } = await supabase.from('presensi_log').select('*');
+    if (pLogs && pLogs.length > 0) {
+      for (const p of pLogs) {
+        const count = (p.jumlah_l || 0) + (p.jumlah_p || 0) || 1;
+        if (p.tipe_peserta === 'SANTRI' || (p.kode_qr || '').startsWith('SH')) {
+          totalWaliHadir += count;
+        } else if (p.tipe_peserta === 'TAMU' || (p.kode_qr || '').startsWith('UND')) {
+          totalTamuHadir += count;
+        }
+      }
+    }
+
+    const { data: santriData } = await supabase.from('peserta_santri').select('kuota_dasar, kuota_tambahan');
+    if (santriData && santriData.length > 0) {
+      totalWaliKuota = santriData.reduce((acc, s) => acc + (s.kuota_dasar || 2) + (s.kuota_tambahan || 0), 0);
+    }
+
+    const { data: tamuData } = await supabase.from('tamu_undangan').select('kuota_dasar, kuota_tambahan, kuota_terpakai');
+    if (tamuData && tamuData.length > 0) {
+      totalTamuKuota = tamuData.reduce((acc, t) => acc + (t.kuota_dasar || 1) + (t.kuota_tambahan || 0), 0);
+      if (totalTamuHadir === 0) {
+        totalTamuHadir = tamuData.reduce((acc, t) => acc + (t.kuota_terpakai || 0), 0);
+      }
+    }
+  } catch (e) {
+    console.warn('Error fetching live stats from Supabase:', e);
+    const stats = store.getStatistikLive();
+    totalWaliHadir = (stats.kategoriStats?.bilGhoib?.totalHadir || 0) + (stats.kategoriStats?.binNadzor?.totalHadir || 0) + (stats.kategoriStats?.tamatan?.totalHadir || 0);
+    totalTamuHadir = stats.tamuUndanganStat?.totalHadir || 0;
+    totalWaliKuota = stats.totalKuota - (stats.tamuUndanganStat?.totalKuota || 0);
+    totalTamuKuota = stats.tamuUndanganStat?.totalKuota || 462;
+  }
+
+  const totalKuota = totalWaliKuota + totalTamuKuota;
+  const totalHadir = totalWaliHadir + totalTamuHadir;
+  const totalBelumHadir = Math.max(0, totalKuota - totalHadir);
+
+  const waliPercent = totalKuota > 0 ? Math.round((totalWaliHadir / totalKuota) * 100) : 0;
+  const tamuPercent = totalKuota > 0 ? Math.round((totalTamuHadir / totalKuota) * 100) : 0;
+  const belumPercent = Math.max(0, 100 - waliPercent - tamuPercent);
+
+  const percentWaliRatio = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
+  const percentTamuRatio = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
+  const percentHadirTotal = totalKuota > 0 ? Math.round((totalHadir / totalKuota) * 100) : 0;
+
+  return {
+    chart: {
+      type: 'pie',
+      title: 'Kehadiran Haflah 2027',
+      data: [
+        {
+          label: 'Wali Santri',
+          value: totalWaliHadir,
+          percent: waliPercent,
+          color: '#8C6A47',
+        },
+        {
+          label: 'Tamu Undangan',
+          value: totalTamuHadir,
+          percent: tamuPercent,
+          color: '#D49B5B',
+        },
+        {
+          label: 'Belum Hadir',
+          value: totalBelumHadir,
+          percent: belumPercent,
+          color: '#E5E0D8',
+        },
+      ],
+      summary: {
+        totalWaliHadir,
+        totalWaliKuota,
+        totalTamuHadir,
+        totalTamuKuota,
+        totalHadir,
+        totalKuota,
+      },
+    },
+    textSummary: {
+      totalWaliHadir,
+      totalWaliKuota,
+      percentWaliRatio,
+      totalTamuHadir,
+      totalTamuKuota,
+      percentTamuRatio,
+      totalHadir,
+      totalKuota,
+      percentHadirTotal,
+    },
+  };
+}
+
 function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
   const q = userQuery.toLowerCase();
 
@@ -1951,7 +2062,23 @@ export async function POST(req: NextRequest) {
       qLower === 'p' ||
       qLower === 'tes';
 
-    // 1. Pencarian spesifik tamu/peserta secara LIVE di Supabase (tamu_undangan & presensi_log)
+    // 1. Deteksi pertanyaan STATISTIK KEHADIRAN -> Kembalikan Pie Chart + Rincian Teks
+    if (isStatsQuery(prompt)) {
+      const stats = await getLiveAttendanceStatsChart();
+      const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+      const replyText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, per 02 Januari 2027 pukul ${nowStr} WIB, statistik kehadiran Haul & Haflah P3TQ & MHMTQ 1448 H./2027 M. sudah mencapai:\n\n• **Wali Santri**: ${stats.textSummary.totalWaliHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalWaliKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentWaliRatio}%)\n• **Tamu Undangan**: ${stats.textSummary.totalTamuHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalTamuKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentTamuRatio}%)\n\nTotal yang sudah hadir: **${stats.textSummary.totalHadir.toLocaleString('id-ID')} orang** dari **${stats.textSummary.totalKuota.toLocaleString('id-ID')} kuota** (${stats.textSummary.percentHadirTotal}%). Semoga acara berjalan lancar hingga selesai.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+
+      return NextResponse.json({
+        reply: cleanReplyForSession(replyText, isFirstTurn, prompt),
+        expression: 'happy',
+        avatar: '/images/avatar/ustadzah-avatar-happy.png',
+        source: 'supabase_live_stats',
+        model: 'Us AI Live Stats Engine',
+        chart: stats.chart,
+      });
+    }
+
+    // 2. Pencarian spesifik tamu/peserta secara LIVE di Supabase (tamu_undangan & presensi_log)
     const personMatch = await searchPersonInSupabase(prompt);
     if (personMatch) {
       let detailText = '';
