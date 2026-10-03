@@ -787,8 +787,63 @@ export default function UndanganWaliPage() {
               </GlassCard>
             </ScrollReveal>
 
-            {/* 4. KARTU RUNDOWN ACARA (PRA ACARA & ACARA INTI) */}
+            {/* 4. ⬅️ KARTU HITUNG MUNDUR (COUNTDOWN TIMER) — DIPINDAH KE SINI */}
             <ScrollReveal delay={250}>
+              <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                    Waktu &amp; Tempat Pelaksanaan
+                  </span>
+                  <h3 className="font-serif font-black text-xl text-[#422F21]">
+                    Aula Al-Muktamar Pondok Pesantren Lirboyo
+                  </h3>
+                  <p className="text-xs text-stone-600">
+                    Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.days}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.hours}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.minutes}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+                      {timeLeft.seconds}
+                    </div>
+                    <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsDenahOpen(true)}
+                    className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  >
+                    <Compass className="w-4 h-4 text-[#8C6A47]" />
+                    <span>Buka Denah Lokasi &amp; Parkir</span>
+                  </button>
+                </div>
+              </GlassCard>
+            </ScrollReveal>
+
+            {/* 5. KARTU RUNDOWN ACARA (PRA ACARA & ACARA INTI) */}
+            <ScrollReveal delay={300}>
               <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
                 <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2 text-center uppercase tracking-wider text-[#8C6A47]">
                   Rundown Acara
@@ -826,8 +881,8 @@ export default function UndanganWaliPage() {
               </GlassCard>
             </ScrollReveal>
 
-            {/* 5. KARTU QR CODE GERBANG MASUK */}
-            <ScrollReveal delay={300}>
+            {/* 6a. ⬅️ KARTU QR CODE GERBANG MASUK — DIPINDAH KE SINI */}
+            <ScrollReveal delay={350}>
               <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
@@ -869,8 +924,8 @@ export default function UndanganWaliPage() {
               </div>
             </ScrollReveal>
 
-            {/* 6. SECTION KONFIRMASI KEHADIRAN (RSVP TAMU UNDANGAN - 2 TOMBOL SIMPLE) */}
-            <ScrollReveal delay={350}>
+            {/* 6b. ⬅️ KARTU KONFIRMASI KEHADIRAN (RSVP TAMU UNDANGAN) — DIPINDAH KE SINI */}
+            <ScrollReveal delay={400}>
               <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
                 <div className="space-y-1">
                   <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
@@ -944,61 +999,6 @@ export default function UndanganWaliPage() {
                     ✓ Konfirmasi berhasil disimpan ke sistem panitia.
                   </div>
                 )}
-              </GlassCard>
-            </ScrollReveal>
-
-            {/* 7. WAKTU, LOKASI & COUNTDOWN TIMER TAMU */}
-            <ScrollReveal delay={400}>
-              <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-                    Waktu &amp; Tempat Pelaksanaan
-                  </span>
-                  <h3 className="font-serif font-black text-xl text-[#422F21]">
-                    Aula Al-Muktamar Pondok Pesantren Lirboyo
-                  </h3>
-                  <p className="text-xs text-stone-600">
-                    Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.days}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.hours}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.minutes}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.seconds}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsDenahOpen(true)}
-                    className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
-                  >
-                    <Compass className="w-4 h-4 text-[#8C6A47]" />
-                    <span>Buka Denah Lokasi &amp; Parkir</span>
-                  </button>
-                </div>
               </GlassCard>
             </ScrollReveal>
 
