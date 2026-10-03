@@ -151,23 +151,20 @@ export default function LandingPortalPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // State Tos Interaktif Us. Halwaa
-  const [tosState, setTosState] = useState<{
-    active: boolean;
-    imgUrl: string;
-    bubbleText: string;
-    left: number;
-    top: number;
-    clickX: number;
-    clickY: number;
-  } | null>(null);
-
-  const tosCooldownRef = useRef(false);
+  // State Multi-Tos Interaktif Us. Halwaa (Bisa Di-spam Instan)
+  const [tosList, setTosList] = useState<
+    Array<{
+      id: string;
+      imgUrl: string;
+      bubbleText: string;
+      left: number;
+      top: number;
+      clickX: number;
+      clickY: number;
+    }>
+  >([]);
 
   const triggerTos = useCallback((clientX: number, clientY: number) => {
-    if (tosCooldownRef.current) return;
-    tosCooldownRef.current = true;
-
     const randomPose = TOS_POSES[Math.floor(Math.random() * TOS_POSES.length)];
 
     // Dimensi gambar yang dirender setara 2x2 cm (~76px pada mobile, ~84px pada desktop)
@@ -189,25 +186,26 @@ export default function LandingPortalPage() {
       posY = Math.max(10, Math.min(maxY, posY));
     }
 
-    setTosState({
-      active: true,
+    const id = Math.random().toString(36).substring(2, 9);
+    const newItem = {
+      id,
       imgUrl: randomPose.img,
       bubbleText: randomPose.text,
       left: posX,
       top: posY,
       clickX: clientX,
       clickY: clientY,
-    });
+    };
+
+    // Tambahkan item baru ke tosList (simpan maks 15 item aktif sekaligus untuk performa)
+    setTosList((prev) => [...prev.slice(-14), newItem]);
 
     playTosSound();
 
+    // Hapus item ini secara individual setelah 2 detik
     setTimeout(() => {
-      setTosState(null);
-    }, 2500);
-
-    setTimeout(() => {
-      tosCooldownRef.current = false;
-    }, 3000);
+      setTosList((prev) => prev.filter((item) => item.id !== id));
+    }, 2000);
   }, []);
 
   useEffect(() => {
@@ -475,17 +473,18 @@ export default function LandingPortalPage() {
         </div>
       )}
 
-      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY (PERSIS DI TITIK SENTUH KLIK KURSOR, UKURAN COMPACT ~2x2 CM) */}
-      {tosState?.active && (
+      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY (BISA DI-SPAM INSTAN DARI SETIAP KLIK KURSOR) */}
+      {tosList.map((item) => (
         <div
-          style={{ left: `${tosState.left}px`, top: `${tosState.top}px` }}
+          key={item.id}
+          style={{ left: `${item.left}px`, top: `${item.top}px` }}
           className="fixed z-50 pointer-events-none animate-tos-pop flex flex-col items-center justify-center w-[76px] md:w-[84px] h-[76px] md:h-[84px]"
         >
           {/* Sparkle Emas di Titik Temu Tangan & Kursor (clickX, clickY) */}
           <div
             style={{
-              left: `${tosState.clickX - tosState.left}px`,
-              top: `${tosState.clickY - tosState.top}px`,
+              left: `${item.clickX - item.left}px`,
+              top: `${item.clickY - item.top}px`,
             }}
             className="absolute pointer-events-none overflow-visible -translate-x-1/2 -translate-y-1/2 z-20"
           >
@@ -498,18 +497,18 @@ export default function LandingPortalPage() {
 
           {/* Bubble Chat "Tos!" */}
           <div className="absolute -top-5 md:-top-6 bg-white border-2 border-[#D5C4B4] rounded-full px-2 py-0.5 md:px-2.5 md:py-1 shadow-md text-[10px] md:text-xs font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-0.5 z-30 whitespace-nowrap">
-            <span>{tosState.bubbleText}</span>
+            <span>{item.bubbleText}</span>
           </div>
 
           {/* Foto Us. Halwaa */}
           <img
-            src={tosState.imgUrl}
+            src={item.imgUrl}
             alt="Us. Halwaa - Tos!"
             className="w-full h-full drop-shadow-md select-none object-contain"
             draggable={false}
           />
         </div>
-      )}
+      ))}
     </div>
   );
 }
