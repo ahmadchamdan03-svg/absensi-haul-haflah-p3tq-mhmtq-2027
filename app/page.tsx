@@ -174,39 +174,39 @@ export default function LandingPortalPage() {
       {/* BACKGROUND PANGGUNG RESMI & ANIMASI DEBU EMAS */}
       <StageBackground />
 
-      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH TRANSPARAN DENGAN MAX-WIDTH TERKONTROL) */}
-      <div className="relative z-10 w-full max-w-md md:max-w-xl px-6 py-6 md:p-8 space-y-6 bg-white/30 backdrop-blur-md border border-[#D5C4B4]/70 shadow-xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
+      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH TRANSPARAN DENGAN MAX-WIDTH TERKONTROL COMPACT) */}
+      <div className="relative z-10 w-full max-w-sm md:max-w-md p-5 md:p-6 space-y-4 bg-white/30 backdrop-blur-md border border-[#D5C4B4]/70 shadow-xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
         {/* LOGO BERJAJAR */}
-        <div className="flex justify-center items-center gap-3 md:gap-4 mb-2">
-          <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-10 md:h-14 w-auto object-contain drop-shadow-xs" />
-          <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="h-10 md:h-14 w-auto object-contain drop-shadow-xs" />
-          <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-10 md:h-14 w-auto object-contain drop-shadow-xs" />
+        <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
+          <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
+          <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
+          <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
         </div>
 
         {/* JUDUL & DESKRIPSI IDENTITAS */}
         <div>
-          <p className="text-xs md:text-sm font-serif font-black tracking-[0.2em] text-[#8C6A47] uppercase mb-2">
+          <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.15em] text-[#8C6A47] uppercase mb-2">
             HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
           </p>
 
-          <h1 className="text-base md:text-lg font-bold text-[#422F21] leading-relaxed">
+          <h1 className="text-sm md:text-base font-bold text-[#422F21] leading-relaxed">
             Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
           </h1>
-          <h1 className="text-base md:text-lg font-bold text-[#422F21] leading-relaxed">
+          <h1 className="text-sm md:text-base font-bold text-[#422F21] leading-relaxed">
             Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
           </h1>
 
-          <p className="text-xs md:text-sm italic text-[#8C6A47] mt-2 font-medium">
+          <p className="text-[10px] md:text-xs italic text-[#8C6A47] mt-1.5 font-medium">
             Lirboyo Kediri
           </p>
 
-          <p className="text-xs md:text-sm text-stone-600 mt-3 mb-2 font-medium leading-relaxed max-w-md mx-auto">
+          <p className="text-[11px] md:text-xs text-stone-600 mt-2 mb-4 font-medium leading-relaxed max-w-md mx-auto">
             Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES ROLE - URUTAN BARU */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+        {/* 4 TOMBOL AKSES ROLE - BARIS 1: ADMIN | PIMPINAN, BARIS 2: PENERIMA TAMU | PENJAGA GERBANG */}
+        <div className="grid grid-cols-2 gap-2.5 md:gap-3">
           {ROLE_BUTTONS.map(({ key, icon: Icon, color }) => {
             const config = ROLES_CONFIG[key];
             return (
@@ -214,26 +214,26 @@ export default function LandingPortalPage() {
                 key={key}
                 type="button"
                 onClick={() => handleOpenRoleModal(key)}
-                className={`relative flex items-center gap-3 p-4 md:p-5 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-md transition-all text-left w-full group cursor-pointer active:scale-[0.98]`}
+                className={`relative flex items-center gap-2.5 p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-md transition-all text-left w-full group cursor-pointer active:scale-[0.98]`}
               >
-                <div className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
-                  <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                <div className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
+                  <Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
                 </div>
-                <span className={`font-serif font-black text-base md:text-lg text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
+                <span className={`font-serif font-black text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
                   {config.title}
                 </span>
-                <Lock className="absolute top-3 right-3 w-4 h-4 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
+                <Lock className="absolute top-2.5 right-2.5 w-3.5 h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
               </button>
             );
           })}
         </div>
 
         {/* FOOTER KECIL */}
-        <div className="text-center space-y-1 pt-3 border-t border-[#D5C4B4]/60">
-          <p className="text-[11px] text-[#8C6A47] font-semibold">
+        <div className="text-center space-y-1 pt-3 border-t border-[#D5C4B4]/60 mt-4">
+          <p className="text-[10px] md:text-[11px] text-[#8C6A47] font-semibold">
             Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
           </p>
-          <p className="text-[10px] text-stone-500 font-medium">
+          <p className="text-[10px] md:text-[11px] text-stone-500 font-medium">
             Sistem Web Murni · Dibuka langsung melalui browser
           </p>
         </div>
