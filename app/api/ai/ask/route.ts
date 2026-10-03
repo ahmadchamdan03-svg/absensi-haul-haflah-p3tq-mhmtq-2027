@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { store } from '@/lib/mock-data';
 import { geminiPool } from '@/lib/gemini-pool';
 import { supabase } from '@/lib/supabase';
+import { getWaliSantriMetrics, getTamuUndanganMetrics } from '@/lib/dashboard-metrics';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri), ditenagai oleh model AI tertinggi OpenAI GPT-4o.
@@ -599,36 +600,24 @@ function isStatsQuery(prompt: string): boolean {
 }
 
 async function getLiveAttendanceStatsChart() {
-  let totalWaliKuota = 1072; // 536 santri x 2
-  let totalTamuKuota = 462;  // total tamu
+  let totalWaliKuota = 0;
+  let totalTamuKuota = 0;
   let totalWaliHadir = 0;
   let totalTamuHadir = 0;
+  let percentWaliRatio = 0;
+  let percentTamuRatio = 0;
 
   try {
-    const { data: pLogs } = await supabase.from('presensi_log').select('*');
-    if (pLogs && pLogs.length > 0) {
-      for (const p of pLogs) {
-        const count = (p.jumlah_l || 0) + (p.jumlah_p || 0) || 1;
-        if (p.tipe_peserta === 'SANTRI' || (p.kode_qr || '').startsWith('SH')) {
-          totalWaliHadir += count;
-        } else if (p.tipe_peserta === 'TAMU' || (p.kode_qr || '').startsWith('UND')) {
-          totalTamuHadir += count;
-        }
-      }
-    }
+    const wsMetrics = await getWaliSantriMetrics();
+    const tamuMetrics = await getTamuUndanganMetrics();
 
-    const { data: santriData } = await supabase.from('peserta_santri').select('kuota_dasar, kuota_tambahan');
-    if (santriData && santriData.length > 0) {
-      totalWaliKuota = santriData.reduce((acc, s) => acc + (s.kuota_dasar || 2) + (s.kuota_tambahan || 0), 0);
-    }
+    totalWaliHadir = wsMetrics.totalHadir;
+    totalWaliKuota = wsMetrics.totalKuota;
+    percentWaliRatio = wsMetrics.persenHadir;
 
-    const { data: tamuData } = await supabase.from('tamu_undangan').select('kuota_dasar, kuota_tambahan, kuota_terpakai');
-    if (tamuData && tamuData.length > 0) {
-      totalTamuKuota = tamuData.reduce((acc, t) => acc + (t.kuota_dasar || 1) + (t.kuota_tambahan || 0), 0);
-      if (totalTamuHadir === 0) {
-        totalTamuHadir = tamuData.reduce((acc, t) => acc + (t.kuota_terpakai || 0), 0);
-      }
-    }
+    totalTamuHadir = tamuMetrics.totalHadir;
+    totalTamuKuota = tamuMetrics.totalKuota;
+    percentTamuRatio = tamuMetrics.persenHadir;
   } catch (e) {
     console.warn('Error fetching live stats from Supabase:', e);
     const stats = store.getStatistikLive();
@@ -636,6 +625,8 @@ async function getLiveAttendanceStatsChart() {
     totalTamuHadir = stats.tamuUndanganStat?.totalHadir || 0;
     totalWaliKuota = stats.totalKuota - (stats.tamuUndanganStat?.totalKuota || 0);
     totalTamuKuota = stats.tamuUndanganStat?.totalKuota || 462;
+    percentWaliRatio = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
+    percentTamuRatio = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
   }
 
   const totalKuota = totalWaliKuota + totalTamuKuota;
@@ -646,8 +637,6 @@ async function getLiveAttendanceStatsChart() {
   const tamuPercent = totalKuota > 0 ? Math.round((totalTamuHadir / totalKuota) * 100) : 0;
   const belumPercent = Math.max(0, 100 - waliPercent - tamuPercent);
 
-  const percentWaliRatio = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
-  const percentTamuRatio = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
   const percentHadirTotal = totalKuota > 0 ? Math.round((totalHadir / totalKuota) * 100) : 0;
 
   return {
@@ -656,19 +645,19 @@ async function getLiveAttendanceStatsChart() {
       title: 'Kehadiran Haflah 2027',
       data: [
         {
-          label: 'Wali Santri',
+          label: `Wali Santri (${totalWaliHadir})`,
           value: totalWaliHadir,
           percent: waliPercent,
           color: '#8C6A47',
         },
         {
-          label: 'Tamu Undangan',
+          label: `Tamu Undangan (${totalTamuHadir})`,
           value: totalTamuHadir,
           percent: tamuPercent,
           color: '#D49B5B',
         },
         {
-          label: 'Belum Hadir',
+          label: `Belum Hadir (${totalBelumHadir})`,
           value: totalBelumHadir,
           percent: belumPercent,
           color: '#E5E0D8',
