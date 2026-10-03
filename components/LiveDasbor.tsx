@@ -12,6 +12,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { fetchDashboardMetrics } from '@/lib/dashboard-queries';
 import DenahModal from '@/components/DenahModal';
 
 interface LiveDasborProps {
@@ -45,149 +46,25 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
 
   const fetchLiveDasborData = async () => {
     try {
-      // 1. Fetch live metrics from Supabase view 'v_dasbor_pimpinan'
-      const { data: vData } = await supabase.from('v_dasbor_pimpinan').select('*').single();
-      if (vData) {
-        setSupaMetrics({
-          totalSantri: vData.total_santri_terdaftar || 0,
-          wsHadir: vData.total_ws_hadir || 0,
-          wsKuota: vData.total_kuota_ws || 0,
-          totalTamu: vData.total_tamu_terdaftar || 0,
-          tamuHadir: vData.total_tamu_hadir || 0,
-          tamuKuota: vData.total_kuota_tamu || 0,
-        });
-      }
+      const res = await fetchDashboardMetrics();
+      setSupaMetrics({
+        totalSantri: res.totalSantri,
+        wsHadir: res.wsHadir,
+        wsKuota: res.wsKuota,
+        totalTamu: res.totalTamu,
+        tamuHadir: res.tamuHadir,
+        tamuKuota: res.tamuKuota,
+      });
 
-      // 2. Fetch live tables 'peserta_santri', 'tamu_undangan', and 'presensi_log'
-      const [resSantri, resUndangan, resLogs] = await Promise.all([
-        supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
-        supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
-        supabase.from('presensi_log').select('*').order('created_at', { ascending: false }),
-      ]);
+      setGenderStats({
+        wsL: res.wsL,
+        wsP: res.wsP,
+        tamuL: res.tamuL,
+        tamuP: res.tamuP,
+      });
 
-      const santriIdSet = new Set<string>();
-      if (resSantri.data) {
-        for (const s of resSantri.data) {
-          if (s.id) santriIdSet.add(String(s.id));
-          if (s.kode) santriIdSet.add(String(s.kode));
-        }
-      }
-
-      const undanganIdSet = new Set<string>();
-      if (resUndangan.data) {
-        for (const u of resUndangan.data) {
-          if (u.id) undanganIdSet.add(String(u.id));
-          if (u.kode) undanganIdSet.add(String(u.kode));
-        }
-      }
-
-      const loggedKeys = new Set<string>();
-      let wsL = 0;
-      let wsP = 0;
-      let tamuL = 0;
-      let tamuP = 0;
-
-      const latestCheckinMap: Record<string, string> = {};
-      if (resLogs.data) {
-        for (const log of resLogs.data) {
-          const key = String(log.kode_qr || log.kuota_id || '');
-          const logTime = log.created_at || log.server_time || '';
-          if (key && !latestCheckinMap[key] && logTime) {
-            latestCheckinMap[key] = logTime;
-          }
-          if (key) loggedKeys.add(key);
-
-          const numL = Number(log.jumlah_l || log.jumlahL || 0);
-          const numP = Number(log.jumlah_p || log.jumlahP || 0);
-
-          if (log.tipe_peserta === 'UNDANGAN' || undanganIdSet.has(key) || key.toUpperCase().startsWith('UND')) {
-            tamuL += numL;
-            tamuP += numP;
-          } else {
-            wsL += numL;
-            wsP += numP;
-          }
-        }
-      }
-
-      // Fallback for participants with kuota_terpakai > 0 not present in presensi_log
-      if (resSantri.data) {
-        for (const s of resSantri.data) {
-          const keyId = String(s.id || '');
-          const keyKode = String(s.kode || '');
-          if (!loggedKeys.has(keyId) && !loggedKeys.has(keyKode) && (s.kuota_terpakai || 0) > 0) {
-            const terpakai = Number(s.kuota_terpakai);
-            wsL += Math.ceil(terpakai / 2);
-            wsP += Math.floor(terpakai / 2);
-          }
-        }
-      }
-
-      if (resUndangan.data) {
-        for (const u of resUndangan.data) {
-          const keyId = String(u.id || '');
-          const keyKode = String(u.kode || '');
-          if (!loggedKeys.has(keyId) && !loggedKeys.has(keyKode) && (u.kuota_terpakai || 0) > 0) {
-            const terpakai = Number(u.kuota_terpakai);
-            tamuL += Math.ceil(terpakai / 2);
-            tamuP += Math.floor(terpakai / 2);
-          }
-        }
-      }
-
-      setGenderStats({ wsL, wsP, tamuL, tamuP });
-
-      if (resSantri.data) {
-        setKeluargaList(
-          resSantri.data.map((s) => {
-            const checkinTime = latestCheckinMap[s.kode] || latestCheckinMap[s.id] || s.updated_at || s.created_at;
-            return {
-              id: s.id,
-              kode: s.kode,
-              tipe: 'SANTRI',
-              nama: s.nama,
-              namaWali: s.nama_wali || '-',
-              subInfo: `Wali: ${s.nama_wali || '-'} (${s.kategori_utama || 'Bil Ghoib'})`,
-              kategori: s.kategori_utama || 'BIL_GHOIB',
-              subKategori: s.sub_kategori || 'Bil Ghoib',
-              kelas: s.kelas || '-',
-              kamar: s.kamar || '-',
-              noHp: s.no_hp || '-',
-              alamat: s.alamat || 'Kediri',
-              kuotaDasar: s.kuota_dasar || 2,
-              terpakai: s.kuota_terpakai || 0,
-              isHadir: (s.kuota_terpakai || 0) > 0 || !!latestCheckinMap[s.kode] || !!latestCheckinMap[s.id],
-              lastCheckinTime: checkinTime,
-            };
-          })
-        );
-      }
-
-      if (resUndangan.data) {
-        setUndanganList(
-          resUndangan.data.map((u) => {
-            const checkinTime = latestCheckinMap[u.kode] || latestCheckinMap[u.id] || u.updated_at || u.created_at;
-            return {
-              id: u.id,
-              kode: u.kode,
-              tipe: 'UNDANGAN',
-              nama: u.nama,
-              namaWali: u.instansi || u.alamat || 'Tamu Undangan',
-              subInfo: `Instansi: ${u.instansi || u.alamat || '-'} (${u.kategori || 'Tamu'})`,
-              kategori: u.kategori || 'Tamu Undangan',
-              subKategori: u.sub_kategori || 'ISTIMEWA',
-              kelas: u.sub_kategori || 'VIP IDS',
-              kamar: '-',
-              noHp: u.no_hp || '-',
-              alamat: u.alamat || u.instansi || 'Kediri',
-              kuotaDasar: u.kuota_dasar !== undefined && u.kuota_dasar !== null ? u.kuota_dasar : (u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1),
-              terpakai: u.kuota_terpakai || 0,
-              isHadir: (u.kuota_terpakai || 0) > 0 || !!latestCheckinMap[u.kode] || !!latestCheckinMap[u.id],
-              lastCheckinTime: checkinTime,
-            };
-          })
-        );
-      }
+      setKeluargaList(res.santriList);
+      setUndanganList(res.undanganList);
     } catch (e) {
       console.warn('Live dasbor fetch error:', e);
     } finally {
@@ -231,13 +108,13 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
     };
   }, []);
 
-  // Total Wali Santri metric calculation
-  const totalKuotaWaliSantri = supaMetrics.wsKuota || keluargaList.reduce((acc, k) => acc + (k.kuotaDasar || 0), 0);
-  const totalHadirWaliSantri = supaMetrics.wsHadir || keluargaList.reduce((acc, k) => acc + (k.terpakai || 0), 0);
+  // Total Wali Santri metric calculation (Unified with dataset)
+  const totalKuotaWaliSantri = supaMetrics.wsKuota;
+  const totalHadirWaliSantri = supaMetrics.wsHadir;
 
-  // Total Tamu Undangan metric calculation
-  const totalKuotaTamu = supaMetrics.tamuKuota || undanganList.reduce((acc, u) => acc + (u.kuotaDasar || 0), 0);
-  const totalHadirTamu = supaMetrics.tamuHadir || undanganList.reduce((acc, u) => acc + (u.terpakai || 0), 0);
+  // Total Tamu Undangan metric calculation (Unified with dataset)
+  const totalKuotaTamu = supaMetrics.tamuKuota;
+  const totalHadirTamu = supaMetrics.tamuHadir;
 
   // Unified participant list (Santri + Tamu)
   const allUnifiedList = useMemo(() => {
