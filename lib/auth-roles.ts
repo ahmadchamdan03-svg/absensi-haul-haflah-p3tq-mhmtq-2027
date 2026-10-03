@@ -22,7 +22,7 @@ export interface RoleConfig {
 export const ROLES_CONFIG: Record<AppRole, RoleConfig> = {
   ADMIN: {
     key: 'ADMIN',
-    title: 'Administrator',
+    title: 'Admin Haflah',
     subtitle: 'Seksi Kesekretariatan & Sistem',
     description: 'Semua akses kelola: Master data 549 santri & 70 tamu, rekonsiliasi kuota, audit log, buka/tutup kuota, dan ekspor data.',
     badge: 'Semua Akses',
