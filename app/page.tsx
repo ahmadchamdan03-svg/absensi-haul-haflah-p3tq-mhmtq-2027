@@ -210,14 +210,14 @@ export default function LandingPortalPage() {
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA (BARIS 1: ADMIN | PIMPINAN, BARIS 2: PENERIMA TAMU | PENJAGA GERBANG) */}
+        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA (HALF-BODY KEPALA-PINGGANG SEMUA ROLE) */}
         <div className="grid grid-cols-2 gap-2.5 md:gap-3">
           {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
             const config = ROLES_CONFIG[key];
             return (
               <div key={key} className="relative group hover:z-30 z-10">
-                {/* FOTO US. HALWAA — MUNCUL (POP-OUT) DARI BELAKANG KARTU SAAT HOVER */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-[75%] opacity-0 group-hover:opacity-100 group-hover:bottom-[85%] transition-all duration-300 ease-out pointer-events-none z-0">
+                {/* FOTO US. HALWAA — MUNCUL (POP-OUT HALF-BODY) DARI BELAKANG KARTU SAAT HOVER */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-[78%] opacity-0 group-hover:opacity-100 group-hover:bottom-[86%] transition-all duration-300 ease-out pointer-events-none z-0">
                   <img
                     src={image}
                     alt={`Us. Halwaa - ${config.title}`}
@@ -229,15 +229,15 @@ export default function LandingPortalPage() {
                 <button
                   type="button"
                   onClick={() => handleOpenRoleModal(key)}
-                  className={`relative z-10 flex items-center gap-2.5 p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-lg transition-all text-left w-full cursor-pointer active:scale-[0.98]`}
+                  className={`relative z-10 flex items-center gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-lg transition-all text-left w-full cursor-pointer active:scale-[0.98] min-w-0`}
                 >
-                  <div className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
-                    <Icon className="w-[18px] h-[18px] md:w-5 md:h-5" />
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
+                    <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
                   </div>
-                  <span className={`font-serif font-black text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight`}>
+                  <span className={`font-serif font-black text-xs sm:text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight break-words min-w-0 flex-1 pr-2.5`}>
                     {config.title}
                   </span>
-                  <Lock className="absolute top-2.5 right-2.5 w-3.5 h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
+                  <Lock className="absolute top-2 sm:top-2.5 right-2 sm:right-2.5 w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
                 </button>
               </div>
             );
