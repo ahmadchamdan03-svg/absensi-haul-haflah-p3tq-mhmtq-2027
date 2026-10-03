@@ -8,35 +8,55 @@ const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri), ditenagai oleh model AI tertinggi OpenAI GPT-4o.
 
 =============================================================================
-ATURAN DATA TAMU UNDANGAN (WAJIB):
+ATURAN DATA & SUMBER INFORMASI (WAJIB):
 =============================================================================
-- Untuk SEMUA pertanyaan tentang tamu undangan (nama, kehadiran, jumlah, instansi), WAJIB merujuk pada DATA YANG DIBERIKAN DI CONTEXT PROMPT INI.
-- JANGAN gunakan data dari ingatan pelatihan / PDF / hardcoded list.
-- JANGAN mengarang nama tamu atau status kehadiran.
-- Kalau data tidak ada di context / database -> jawab: "Maaf Us, data tersebut belum tersedia di sistem. Mohon cek menu Data Peserta."
-- Kalau ditanya "sudah datang belum":
-  • Cek di data presensi yang diberikan di context prompt.
-  • Jika ada -> sebutkan waktu & jalur kehadiran (contoh: "Alhamdulillah Us, KH. Hamdan (UND-88871) tercatat sudah hadir pada 02 Januari 2027 pukul 07.23 melalui Jalur VIP. Beliau hadir bersama 1 pendamping.").
-  • Jika tidak ada -> sampaikan belum tercatat hadir (contoh: "Mohon maaf Us, sampai saat ini belum ada catatan kehadiran untuk KH. Hamdan (UND-88871) di sistem presensi. Beliau mungkin belum datang atau belum di-absen oleh petugas gerbang.").
-- Format jawaban:
-  • Ringkas & jelas.
-  • Selalu sertakan kode tamu (UNDxxxx) jika ada.
-  • Untuk list, gunakan format bullet/numbered.
+1. SUMBER DATA UTAMA = DATABASE LIVE (SUPABASE)
+   Semua pertanyaan tentang peserta santri, tamu undangan, statistik kehadiran, kuota, konfirmasi RSVP, dan status WA WAJIB dijawab dari DATA LIVE yang disisipkan di context prompt.
 
-8. HAK AKSES & KEBEBASAN INFORMASI INTERNAL (MUTLAK & TANPA PEMBATASAN):
-   - Us. Halwaa beroperasi khusus untuk Panitia & Pimpinan / Masyayikh.
-   - Us. Halwaa MEMILIKI AKSES PENUH dan BOLEH MENJAWAB SEMUA PERTANYAAN TANPA PEMBATASAN INFORMASI APA PUN:
-     * Data santri & wali santri (nama, kode, kelas, kamar, alamat, no_hp/telepon, status konfirmasi).
-     * Data tamu undangan (nama, kode, golongan, instansi, kontak/no_hp, status presensi).
-     * Data statistik kehadiran (jumlah total hadir/belum, rincian laki-laki/perempuan, per kategori).
-     * Data kuota & konfirmasi (kuota dasar, kuota tambahan, terpakai, sisa).
-     * Data pembelian kuota tambahan (pagu 300, terisi, sisa pagu, status pesanan, bukti transfer).
-     * Data denah & tata letak (panggung utama, VVIP/VIP, prasmanan, MCK, parkir, dsb).
-     * Data rundown acara, jadwal, dan struktur panitia (Ketua Umum: Sinta Maelani, Sekretaris Umum: Refi Al Izzatul Kholifah, dsb).
-     * Kontak panitia & narahubung.
-   - DILARANG MENOLAK pertanyaan dengan alasan "data pribadi", "rahasia internal", atau "tidak berwenang". Jawablah secara akurat, transparan, dan lengkap sesuai data database.
-   - BACA DATA (READ-ONLY): Us. Halwaa diberikan akses baca penuh ke database (peserta_santri, tamu_undangan, presensi_log, pembelian_kuota, konfigurasi_sistem, v_dasbor_pimpinan, v_rekap_sohibul_hajat, akun_otoritas).
-   - Jika pengguna meminta untuk mengubah/menambah/menghapus data (INSERT, UPDATE, DELETE), jawab dengan santun bahwa Us. Halwaa beroperasi dalam mode Read-Only dan arahkan pengguna ke menu terkait (seperti [👉 Meja Rekonsiliasi](/rekon), [👉 Data Peserta & Tamu](/admin/peserta), atau [👉 Verifikasi Manual](/admin/verifikasi)).
+2. DILARANG KERAS:
+   - Menyebut nama tamu dari ingatan / pelatihan / PDF lama
+   - Menyebut angka statistik dari asumsi / hardcoded list
+   - Merujuk dokumen PDF atau data lama
+   - Mengarang nama atau status kehadiran
+
+3. JIKA DATA TIDAK ADA DI CONTEXT / DATABASE:
+   Jawab jujur: "Mohon maaf Us, data tersebut belum tersedia di sistem. Silakan cek menu Data Peserta."
+
+4. TIMESTAMP WAJIB DI JAWABAN STATISTIK:
+   Setiap jawaban statistik harus memuat "per [Hari, Tanggal] pukul [jam:menit] WIB".
+
+5. JIKA SUMBER DATA = CACHE:
+   Selalu tambahkan disclaimer bahwa data berasal dari snapshot terakhir, mungkin tidak akurat, dan arahkan pengguna ke menu Data Peserta.
+
+6. DATA STATIS YANG BOLEH DARI KNOWLEDGE BASE:
+   Hanya info yang tidak berubah:
+   - Aturan keamanan & larangan (larangan buket, kutek, hena, nail art)
+   - Denah lokasi & pos duduk Aula Al-Muktamar
+   - 8 Pos Penerima Tamu Putri & 8 Pos Putra
+   - Rundown acara (Pra Acara & Acara Inti)
+   - Info sambangan (lokasi, waktu, syarat mahrom)
+   - Menu konsumsi & berkat
+   - Alur pembelian kuota tambahan (pagu 300, Rp 80.000/kursi)
+   - Warna tiket (Hitam Gold vs Merah Gold)
+   - Struktur kepanitiaan (Ketua Umum: Sinta Maelani, Sekretaris Umum: Refi Al Izzatul Kholifah)
+   - Info rekening resmi (BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
+
+=============================================================================
+HAK AKSES & KEBEBASAN INFORMASI INTERNAL (MUTLAK & TANPA PEMBATASAN):
+=============================================================================
+- Us. Halwaa beroperasi khusus untuk Panitia & Pimpinan / Masyayikh.
+- Us. Halwaa MEMILIKI AKSES PENUH dan BOLEH MENJAWAB SEMUA PERTANYAAN TANPA PEMBATASAN INFORMASI APA PUN:
+  * Data santri & wali santri (nama, kode, kelas, kamar, alamat, no_hp/telepon, status konfirmasi).
+  * Data tamu undangan (nama, kode, golongan, instansi, kontak/no_hp, status presensi).
+  * Data statistik kehadiran (jumlah total hadir/belum, rincian laki-laki/perempuan, per kategori).
+  * Data kuota & konfirmasi (kuota dasar, kuota tambahan, terpakai, sisa).
+  * Data pembelian kuota tambahan (pagu 300, terisi, sisa pagu, status pesanan, bukti transfer).
+  * Data denah & tata letak (panggung utama, VVIP/VIP, prasmanan, MCK, parkir, dsb).
+  * Data rundown acara, jadwal, dan struktur panitia (Ketua Umum: Sinta Maelani, Sekretaris Umum: Refi Al Izzatul Kholifah, dsb).
+  * Kontak panitia & narahubung.
+- DILARANG MENOLAK pertanyaan dengan alasan "data pribadi", "rahasia internal", atau "tidak berwenang". Jawablah secara akurat, transparan, dan lengkap sesuai data database.
+- BACA DATA (READ-ONLY): Us. Halwaa diberikan akses baca penuh ke database (peserta_santri, tamu_undangan, presensi_log, pembelian_kuota, konfigurasi_sistem, v_dasbor_pimpinan, v_rekap_sohibul_hajat, akun_otoritas).
+- Jika pengguna meminta untuk mengubah/menambah/menghapus data (INSERT, UPDATE, DELETE), jawab dengan santun bahwa Us. Halwaa beroperasi dalam mode Read-Only dan arahkan pengguna ke menu terkait (seperti [👉 Meja Rekonsiliasi](/rekon), [👉 Data Peserta & Tamu](/admin/peserta), atau [👉 Verifikasi Manual](/admin/verifikasi)).
 
 DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
 1. IDENTITAS & NAMA RESMI LEMBAGA:
@@ -44,58 +64,24 @@ DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
    - Penegasan Lembaga: BUKAN acara Ponpes Lirboyo Pusat, melainkan Haul & Haflah khusus P3TQ dan MHMTQ Lirboyo Kediri.
    - Waktu Pelaksanaan: Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
    - Lokasi Utama: Aula Muktamar Pondok Pesantren Lirboyo, Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kota Kediri, Jawa Timur 64117.
-   - FOKUS MANDAT KESEKRETARIATAN: Sistem web ini difokuskan secara presisi untuk mandat KESEKRETARIATAN (Manajemen Shohibul Hajat, Master Undangan, Kuota Masuk & Tambahan, Presensi Scanner QR Gerbang, dan Meja Rekonsiliasi).
 
 2. STRUKTUR PERSONALIA KEPANITIAAN RESMI 1448 H. / 2027 M.:
-   - Dewan Pengasuh / Pelindung:
-     * Agus H. Muhammad Hasyim
-     * Agus H. Muhammad Kafabihi
-     * Ning Hj. Tu'ti Amanah Nafisah
-     * Ning Hj. Jihan Zainab
+   - Dewan Pengasuh / Pelindung: Agus H. Muhammad Hasyim, Agus H. Muhammad Kafabihi, Ning Hj. Tu'ti Amanah Nafisah, Ning Hj. Jihan Zainab.
    - Dewan Penasehat: Segenap Pimpinan P3TQ dan MHMTQ.
    - Dewan Harian (DH):
-     * Ketua Umum: Sinta Maelani (Koordinator Seksi Protokoler, Peladen, Konsumsi, TDM, dan Seksi Data)
-     * Ketua I: Arju Naylal Husna (Koordinator Seksi Keamanan, Penerima Tamu, Humasy dan Kostum)
-     * Ketua II: Zakia (Koordinator Seksi Akomodasi, Desain Grafis, PULP, dan Berkatan)
-     * Sekretaris Umum: Refi Al Izzatul Kholifah (Penanggung jawab administrasi, undangan, souvenir, kartu masuk, stiker tonjokan)
-     * Sekretaris 1: Najma Syarifa Faza (Penanggung jawab data Pondok Timur)
-     * Sekretaris II: Inarotud Duja (Penanggung jawab data Pondok Barat & Unit, ID Card)
-     * Bendahara Umum: Aida Nur Laila (Keuangan umum & pembayaran shohibul hajat unit)
-     * Bendahara 1: Umi Fadilah (Anggaran belanja & pembayaran santri Pondok Timur)
-   - Dewan Pembimbing Putra (12 Bagan):
-     * 1. KESEKRETARIATAN: Bapak Asep Darajat*, Bapak Ahmad Chamdan Yuwafi**, Bapak Muhammad Ali Wafa Fuady, Bapak Jana Prabu, Bapak Zida Hikmana Ahmad, Bapak Muhammad Yusri Sa'dulloh.
-     * 2. PROTOKOLER: Bapak Abu Yazid Al Bustomi*, Bapak Abhaa Muhammad Kafaa Bihi**, Bapak Sufyan Tsauri, Bapak Taufiq Hidayah, Bapak Lukman Ainul Yakin.
-     * 3. AKOMODASI: Bapak Agus Ismanto*, Bapak Gama Maulana Ilham**, Bapak Muhammad Harizal Fauzi, Bapak Faja Fikrona Al Fattah, Bapak Azwan, Bapak Fikri Fadhilah, Bapak Muhammad Mujib, Bapak Teguh Prasetia, Bapak Ahgus Ma'sum, Bapak Muhammad Dasir.
-     * 4. KONSUMSI: Bapak Ahmad Rizal 'Abidin*, Bapak Muhammad Taufiqurrohman**, Bapak Muhammad Bahrul Ulum'25, Bapak Muhammad Dikri Umam.
-     * 5. BERKATAN: Bapak Muhammad Fikri Al Munawwar*, Bapak Muhammad Abdurrohman Maulana**, Bapak Musa Fadlika Hadi Cahya, Bapak Muhammad Khoirul Anam.
-     * 6. PRASMANAN DZURIYYAH: Bapak Saiful Nur Kholis*, Bapak Burhanuddin Isri**, Bapak Lukman Syaher, Bapak Noril Mulana, Saudara Aji Fathur, Saudara Muhammad Rizqi.
-     * 7. PELADEN: Bapak Muhammad Syaikhul 'Arifin*, Bapak Ahmad Fathoni Fikri**, Bapak Abdullah Nadhif, Bapak Khoirul Azmi.
-     * 8. PENERIMA TAMU: Bapak Muhammad Badru Ro'in Amin*, Bapak Imam Ghozali**, Bapak Muhammad Najih, Bapak Muhammad Izzuddin Assakhi, Bapak Alex Alqomah, Bapak Afif Cholilul Umam, Bapak Affan Istikhori, Bapak Subadar, Bapak Misbahul Huda, Bapak Muhammad Sabiqul Anam, Bapak Muhammad Yazid Mahbubillah.
-     * 9. DESAIN GRAFIS: Bapak Muhammad In'amul Muttaqin*, Bapak Agung Shobirin**, Bapak Sholekhuddin, Bapak Ahmad Khoirul Rohman, Bapak Muhammad Fathul Hidayat, Bapak Muhammad Ilham Ma'shum Lirbiyani.
-     * 10. HUMASY & KOSTUM: Bapak Akfi Romiyan Kafabih*, Bapak Achmad Abdulloh Faqih**.
-     * 11. KEAMANAN: Bapak Adi Susilo*, Bapak Reza Fadhilul 'Ulum**, Bapak Muhammad Taufiq, Bapak Yahya Ngafifulloh, Bapak Sa'dun Musthofa.
-     * 12. PULP & TDM: Bapak Muhammad Maghfur Fatoni*, Saudara Amin Nur Waluyo**, Saudara Ahmad Nashoruddin, Saudara Ahmad Arif Anjani, Saudara Muhammad Haqqin Nazilli.
-   - Kasi Dewan Pleno Putri: Protokoler (Evi Inarotus Soimah*), Akomodasi (Azza Nur Laila Mlg*), Konsumsi (Elvi Aniqotus Zakiyah*), Berkatan (Dewi Nazilatur Rohmah*), Peladen (Indri Angraeni Rahmawati*), Penerima Tamu (Hanifatun Nasihah*), Desain Grafis (Adiva Maulana*), Humasy & Kostum (Fifi Sunhaida*), Keamanan (Qoribatul Maqbulah*), PULP (Roina Nadhirotul Lathifah*), TDM (Salma Aesy Bik Hamidah*), Seksi Data (Uswatun Khasanah*).
+     * Ketua Umum: Sinta Maelani
+     * Ketua I: Arju Naylal Husna
+     * Ketua II: Zakia
+     * Sekretaris Umum: Refi Al Izzatul Kholifah
+     * Sekretaris 1: Najma Syarifa Faza
+     * Sekretaris II: Inarotud Duja
+     * Bendahara Umum: Aida Nur Laila (No. Rekening BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
+     * Bendahara 1: Umi Fadilah
 
-3. DATA STATISTIK RESMI KOORDINASI TERBARU:
-   - Komposisi Shohibul Hajat (Total 536 Santriwati):
-     * Takhtiman Bil Ghoibi: 57 santriwati
-     * Takhtiman Bin Nadzori: 153 santriwati
-     * Tamatan 'Aliyah: 307 santriwati
-     * Tamatan 'Aliyah + Takhtiman Bil Ghoibi: 6 santriwati (Total Bil Ghoibi = 63)
-     * Tamatan 'Aliyah + Takhtiman Bin Nadzori: 13 santriwati (Total Bin Nadzori = 166)
-   - Komposisi Santriwati di Aula Al Muktamar (Total 503 santri):
-     * Siswi 2 Aliyah: 294 santriwati (mondok & nduduk)
-     * Siswi MHMA/Pondok Timur: 209 santriwati
-     * Santriwati lainnya di dalam pondok (Halaman Al Khodijah, Aula Al Barokah, Aula Al Hafidzoh): 2.609 santriwati.
-   - Pagu Tamu Undangan & Kuota Masuk (Total 1.534 kursi):
-     * VVIP: 10 undangan (20 kursi)
-     * VIP: 80 undangan (159 kursi)
-     * Takhtiman Bil Ghoibi: 63 undangan x 4 kuota = 252 kursi
-     * Takhtiman Bin Nadzori: 166 undangan x 2 kuota = 332 kursi
-     * Tamatan Aliyah: 307 undangan x 2 kuota = 614 kursi
-     * Kuota Tambahan Walisantri: 300 kuota (Rp 80.000 / kursi)
-     * Tamu Undangan Umum: Penguji Al-Qur'an 19, Mustahiq Tamatan 7 (9 kursi), Mustahiq Non Purna 5, Purna Mustahiqoh Ibtidaiyyah 7, Asatidz Purna Bakti 16 (32 kursi), Asatidz MHMTQ 18 (36 kursi), Asatidzah Nduduk 6, Pengajar Ekstrakurikuler 11, Perwakilan 16 Pondok (32 kursi).
+3. PERATURAN DATA STATISTIK RESMI:
+   - Data statistik peserta santri, tamu undangan, dan jumlah kuota WAJIB mengacu 100% pada DATA LIVE DARI DATABASE SUPABASE yang disisipkan secara dinamis dalam konteks percakapan.
+   - DILARANG MERUJUK ATAU MENYEBUTKAN ANGKA HARDCODED / LAMA DARI DOKUMEN LAIN.
+
 
 4. KODE WARNA KARTU MASUK / STIKER FISIK:
    - Warna Merah Gold: Tamu Undangan Umum dan Walisantri Shohibul Hajat (Reguler).
@@ -215,158 +201,265 @@ function getGolonganUndangan(u: any): 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM' {
   return 'UMUM';
 }
 
-async function getLiveSupabaseGuestPrompt(userQuery: string = ''): Promise<string> {
+// ============================================
+// CACHE IN-MEMORY (hilang saat server restart, max 30 menit)
+// ============================================
+const CACHE_TTL = 30 * 60 * 1000; // 30 menit
+
+const cacheTamu: { data: any[] | null; timestamp: number | null } = { data: null, timestamp: null };
+const cacheSantri: { data: any[] | null; timestamp: number | null } = { data: null, timestamp: null };
+const cachePresensi: { data: any[] | null; timestamp: number | null } = { data: null, timestamp: null };
+
+// ============================================
+// QUERY LIVE - TAMU UNDANGAN
+// ============================================
+async function getTamuUndanganLive() {
+  try {
+    const { data, error } = await supabase
+      .from('tamu_undangan')
+      .select(`
+        kode, nama, nama_putra, nama_putri,
+        kategori, sub_kategori, instansi, alamat,
+        no_hp, kuota_dasar, kuota_tambahan,
+        kuota_terpakai, warna_tiket, jalur_masuk,
+        status_konfirmasi, status_wa
+      `)
+      .like('kode', 'UND%')
+      .not('kode', 'is', null);
+
+    if (error) throw error;
+
+    cacheTamu.data = data;
+    cacheTamu.timestamp = Date.now();
+
+    return {
+      source: 'live' as const,
+      data: data || [],
+      timestamp: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error('[Halwaa] Live query tamu failed:', err);
+
+    if (cacheTamu.data && cacheTamu.timestamp && Date.now() - cacheTamu.timestamp < CACHE_TTL) {
+      return {
+        source: 'cache' as const,
+        data: cacheTamu.data,
+        timestamp: new Date(cacheTamu.timestamp).toISOString(),
+        disclaimer: true,
+      };
+    }
+
+    return {
+      source: 'unavailable' as const,
+      data: null,
+      message: 'Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.',
+    };
+  }
+}
+
+// ============================================
+// QUERY LIVE - PESERTA SANTRI
+// ============================================
+async function getPesertaSantriLive() {
+  try {
+    const { data, error } = await supabase
+      .from('peserta_santri')
+      .select(`
+        kode, nama_santri, nama_wali, kategori_utama, sub_kategori,
+        kelas, kamar, alamat, no_hp,
+        kuota_dasar, kuota_tambahan, kuota_terpakai,
+        tiket_panggung_jatah, tiket_panggung_diberi,
+        perkiraan_l, perkiraan_p,
+        status_konfirmasi, warna_tiket, status_wa
+      `);
+
+    if (error) throw error;
+
+    cacheSantri.data = data;
+    cacheSantri.timestamp = Date.now();
+
+    return {
+      source: 'live' as const,
+      data: data || [],
+      timestamp: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error('[Halwaa] Live query santri failed:', err);
+
+    if (cacheSantri.data && cacheSantri.timestamp && Date.now() - cacheSantri.timestamp < CACHE_TTL) {
+      return {
+        source: 'cache' as const,
+        data: cacheSantri.data,
+        timestamp: new Date(cacheSantri.timestamp).toISOString(),
+        disclaimer: true,
+      };
+    }
+
+    return {
+      source: 'unavailable' as const,
+      data: null,
+      message: 'Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.',
+    };
+  }
+}
+
+// ============================================
+// QUERY LIVE - PRESENSI / KEHADIRAN
+// ============================================
+async function getPresensiLive() {
+  try {
+    const { data, error } = await supabase
+      .from('presensi_log')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1000);
+
+    if (error) throw error;
+
+    cachePresensi.data = data;
+    cachePresensi.timestamp = Date.now();
+
+    return {
+      source: 'live' as const,
+      data: data || [],
+      timestamp: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error('[Halwaa] Live query presensi failed:', err);
+
+    if (cachePresensi.data && cachePresensi.timestamp && Date.now() - cachePresensi.timestamp < CACHE_TTL) {
+      return {
+        source: 'cache' as const,
+        data: cachePresensi.data,
+        timestamp: new Date(cachePresensi.timestamp).toISOString(),
+        disclaimer: true,
+      };
+    }
+
+    return {
+      source: 'unavailable' as const,
+      data: null,
+      message: 'Mohon maaf Us, sistem presensi sedang tidak dapat diakses.',
+    };
+  }
+}
+
+// ============================================
+// DETEKSI INTENT PERTANYAAN
+// ============================================
+function detectIntent(pertanyaan: string) {
+  const q = pertanyaan.toLowerCase();
+
+  const intents = {
+    tamu: /tamu|undangan|und\d|vvip|vip|kehormatan|umum|pengajar|asatidz/i.test(q),
+    santri: /santri|wali|sh\d|bil.ghoib|bin.nadzori|tamatan/i.test(q),
+    statistik: /berapa|jumlah|total|persen|%|statistik|kehadiran|hadir/i.test(q),
+    kehadiran: /hadir|datang|dateng|absen|presensi/i.test(q),
+    pembelian: /beli|kuota.tambahan|pembelian|transfer|bukti/i.test(q),
+    nama: /(KH\.|Gus|Ning|Nyai|Ust\.|Hj\.|Bu Nyai)/i.test(q),
+    denah: /denah|lokasi|posisi|prasmanan|panggung|parkir|sambangan/i.test(q),
+    aturan: /aturan|larangan|boleh|tidak boleh|dilarang/i.test(q),
+  };
+
+  return intents;
+}
+
+async function getLiveDatabaseContextPrompt(userQuery: string = ''): Promise<string> {
+  const [resTamu, resSantri, resPresensi, wsMetrics, tamuMetrics] = await Promise.all([
+    getTamuUndanganLive(),
+    getPesertaSantriLive(),
+    getPresensiLive(),
+    getWaliSantriMetrics().catch(() => null),
+    getTamuUndanganMetrics().catch(() => null),
+  ]);
+
   const now = new Date();
-  const timeStr = now.toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZone: 'Asia/Jakarta',
-  });
+  const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+  const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
 
-  let tamuList: any[] = [];
-  let presensiLogs: any[] = [];
-
-  try {
-    const { data: tData } = await supabase.from('tamu_undangan').select('*');
-    if (tData) tamuList = tData;
-  } catch (e) {
-    console.warn('Error fetching tamu_undangan:', e);
+  if (resTamu.source === 'unavailable' && resSantri.source === 'unavailable') {
+    return `
+=== DATA DARI DATABASE SUPABASE ===
+Timestamp: ${dateStr}, pukul ${timeStr} WIB
+Source: UNAVAILABLE
+Message: Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.
+=== END DATA LIVE ===
+`;
   }
 
-  try {
-    const { data: pData } = await supabase.from('presensi_log').select('*').order('created_at', { ascending: false });
-    if (pData) presensiLogs = pData;
-  } catch (e) {
-    console.warn('Error fetching presensi_log:', e);
-  }
+  const isCache = resTamu.source === 'cache' || resSantri.source === 'cache' || resPresensi.source === 'cache';
+  const tamuList = resTamu.data || [];
+  const santriList = resSantri.data || [];
+  const presensiLogs = resPresensi.data || [];
+  const presensiSet = new Set(presensiLogs.map((p: any) => (p.kode_qr || '').toUpperCase()));
 
-  // Fallback ke data mock jika tabel Supabase kosong/offline
-  if (!tamuList || tamuList.length === 0) {
-    const mockList = store.getUndanganList();
-    tamuList = mockList.map((u) => ({
-      kode: u.kode,
-      nama: u.nama,
-      kategori: u.kategori,
-      instansi: u.instansi,
-      kuota_dasar: u.kuota.kuotaDasar,
-      kuota_terpakai: u.kuota.terpakai,
-      warna_tiket: u.warnaTiket,
-    }));
-  }
-
-  const presensiSet = new Set(presensiLogs.map((p) => (p.kode_qr || '').toUpperCase()));
-
-  const totalTamu = tamuList.length;
-  let totalHadir = 0;
-  let totalKuota = 0;
-  let totalKuotaTerpakai = 0;
-
-  let vvipTotal = 0, vvipHadir = 0;
-  let kehormatanTotal = 0, kehormatanHadir = 0;
-  let umumTotal = 0, umumHadir = 0;
-
-  const tamuSudahHadirList: string[] = [];
-  const tamuBelumHadirList: string[] = [];
-
-  const qLower = userQuery.toLowerCase().trim();
-  const searchHits: string[] = [];
-
+  const arrivedTamu: string[] = [];
+  const pendingTamu: string[] = [];
   for (const t of tamuList) {
-    const kodeUpper = (t.kode || '').toUpperCase();
+    const kUpper = (t.kode || '').toUpperCase();
+    const isHadir = (t.kuota_terpakai || 0) > 0 || presensiSet.has(kUpper);
     const namaFull = t.nama || [t.nama_putra, t.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan';
+    const totalK = (t.kuota_dasar || 1) + (t.kuota_tambahan || 0);
     const instansi = t.instansi || '-';
-    const kat = (t.kategori || t.sub_kategori || 'UMUM').toUpperCase();
-
-    const isHadir = (t.kuota_terpakai > 0) || presensiSet.has(kodeUpper);
-    const kTerpakai = t.kuota_terpakai > 0 ? t.kuota_terpakai : (isHadir ? 1 : 0);
-    const kDasar = t.kuota_dasar || 1;
-    const kTotal = kDasar + (t.kuota_tambahan || 0);
-
-    totalKuota += kTotal;
-
+    const kat = t.kategori || t.sub_kategori || 'Tamu Kehormatan';
     if (isHadir) {
-      totalHadir++;
-      totalKuotaTerpakai += kTerpakai;
-      const log = presensiLogs.find((p) => (p.kode_qr || '').toUpperCase() === kodeUpper);
-      const jamHadir = log ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) : 'Hari-H';
-      const jalur = log?.jalur || t.jalur_masuk || 'Gerbang Presensi';
-
-      tamuSudahHadirList.push(`${tamuSudahHadirList.length + 1}. ${namaFull} (Kode: ${t.kode}) - ${instansi} | Kat: ${kat} | STATUS: SUDAH HADIR pukul ${jamHadir} via ${jalur} (${kTerpakai} Kursi Terpakai)`);
+      arrivedTamu.push(`- ${t.kode} - ${namaFull} (${instansi}) | Kat: ${kat} | STATUS: SUDAH HADIR (${t.kuota_terpakai || 1}/${totalK} Kursi Terpakai)`);
     } else {
-      tamuBelumHadirList.push(`${tamuBelumHadirList.length + 1}. ${namaFull} (Kode: ${t.kode}) - ${instansi} | Kat: ${kat} | STATUS: BELUM HADIR / Masih Ditunggu (${kDasar} Kursi Dialokasikan)`);
-    }
-
-    if (kat.includes('VVIP') || kat.includes('ISTIMEWA')) {
-      vvipTotal++;
-      if (isHadir) vvipHadir++;
-    } else if (kat.includes('KEHORMATAN') || kat.includes('VIP')) {
-      kehormatanTotal++;
-      if (isHadir) kehormatanHadir++;
-    } else {
-      umumTotal++;
-      if (isHadir) umumHadir++;
-    }
-
-    // Pencarian kata spesifik nama / kode / instansi
-    if (qLower.length >= 3) {
-      const isCodeMatch = kodeUpper && qLower.includes(kodeUpper.toLowerCase());
-      const isNameMatch = qLower.split(/\s+/).some((term) => term.length >= 3 && namaFull.toLowerCase().includes(term));
-      const isInstansiMatch = instansi !== '-' && qLower.includes(instansi.toLowerCase());
-
-      if (isCodeMatch || isNameMatch || isInstansiMatch) {
-        const log = presensiLogs.find((p) => (p.kode_qr || '').toUpperCase() === kodeUpper);
-        if (isHadir) {
-          const jamHadir = log ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) : 'Hari-H';
-          searchHits.push(`- 🟢 DATALIVE MATCH SUPABASE: ${namaFull} (Kode: ${t.kode}, Instansi: ${instansi}, Kategori: ${kat}) -> SUDAH HADIR pukul ${jamHadir} via ${log?.jalur || 'Gerbang'} (${kTerpakai} Kursi Terpakai).`);
-        } else {
-          searchHits.push(`- 🔴 DATALIVE MATCH SUPABASE: ${namaFull} (Kode: ${t.kode}, Instansi: ${instansi}, Kategori: ${kat}) -> BELUM TERCATAT HADIR / Masih Ditunggu (Alokasi ${kDasar} Kursi).`);
-        }
-      }
+      pendingTamu.push(`- ${t.kode} - ${namaFull} (${instansi}) | Kat: ${kat} | STATUS: BELUM HADIR (${totalK} Kursi Dialokasikan)`);
     }
   }
 
-  // Log presensi 1 jam terakhir
-  let recentLogsText = '';
-  if (qLower.includes('baru datang') || qLower.includes('1 jam') || qLower.includes('terakhir')) {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recent = presensiLogs.filter((p) => new Date(p.created_at) >= oneHourAgo && (p.tipe_peserta === 'TAMU' || (p.kode_qr || '').startsWith('UND')));
-    if (recent.length > 0) {
-      recentLogsText = `\n=== TAMU UNDANGAN YANG BARU HADIR DALAM 1 JAM TERAKHIR ===\n` +
-        recent.map((r, i) => `${i + 1}. ${r.nama_peserta || r.kode_qr} (Kode: ${r.kode_qr}) - Hadir pukul ${new Date(r.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} via ${r.jalur || 'Gerbang'}`).join('\n');
-    } else {
-      recentLogsText = `\n=== TAMU UNDANGAN YANG BARU HADIR DALAM 1 JAM TERAKHIR ===\nBelum ada tamu undangan baru yang presensi dalam 1 jam terakhir.`;
-    }
-  }
+  const santriDetails = santriList.map((s: any, idx: number) => {
+    const kUpper = (s.kode || s.kode_keluarga || '').toUpperCase();
+    const isHadir = (s.kuota_terpakai || 0) > 0 || presensiSet.has(kUpper);
+    const totalK = (s.kuota_dasar || 2) + (s.kuota_tambahan || 0);
+    const namaWali = s.nama_wali || '-';
+    const namaSantri = s.nama_santri || s.nama || '-';
+    return `${idx + 1}. ${s.kode || s.kode_keluarga || 'SH'} - Santri: ${namaSantri} | Wali: ${namaWali}\n   Kategori: ${s.sub_kategori || s.kategori_utama || 'Santri'}\n   Kuota Total: ${totalK} kursi (${s.kuota_dasar || 2} dasar + ${s.kuota_tambahan || 0} tambahan)\n   Status: ${isHadir ? `${s.kuota_terpakai || 1} kursi terpakai (SUDAH HADIR)` : 'BELUM HADIR'}`;
+  }).join('\n\n');
+
+  const totalWaliHadir = wsMetrics?.totalHadir ?? santriList.filter((s: any) => (s.kuota_terpakai || 0) > 0 || presensiSet.has((s.kode || s.kode_keluarga || '').toUpperCase())).reduce((acc: number, s: any) => acc + (s.kuota_terpakai || 1), 0);
+  const totalWaliKuota = wsMetrics?.totalKuota ?? santriList.reduce((acc: number, s: any) => acc + ((s.kuota_dasar || 2) + (s.kuota_tambahan || 0)), 0);
+  const percentWali = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
+
+  const totalTamuHadir = tamuMetrics?.totalHadir ?? arrivedTamu.length;
+  const totalTamuKuota = tamuMetrics?.totalKuota ?? tamuList.reduce((acc: number, t: any) => acc + ((t.kuota_dasar || 1) + (t.kuota_tambahan || 0)), 0);
+  const percentTamu = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
+
+  const totalGlobalHadir = totalWaliHadir + totalTamuHadir;
+  const totalGlobalKuota = totalWaliKuota + totalTamuKuota;
+  const percentGlobal = totalGlobalKuota > 0 ? Math.round((totalGlobalHadir / totalGlobalKuota) * 100) : 0;
 
   return `
-[DATA REKAPITULASI LIVE DATABASE SUPABASE (DIPERBARUI DETIK INI - PUKUL ${timeStr} WIB)]:
-Sumber Data: Tabel 'tamu_undangan' & 'presensi_log' (Supabase Realtime).
-Total Tamu Undangan Terdaftar: ${totalTamu} Tokoh/Instansi.
-Total Tamu Undangan Sudah Hadir: ${totalHadir} dari ${totalTamu} tokoh (${totalTamu > 0 ? Math.round((totalHadir / totalTamu) * 100) : 0}%).
-Total Kursi Terpakai: ${totalKuotaTerpakai} dari ${totalKuota} Kursi.
-Tamu Belum Hadir / Masih Ditunggu: ${totalTamu - totalHadir} tokoh (${totalKuota - totalKuotaTerpakai} kursi).
+=== DATA LIVE DARI DATABASE SUPABASE ===
+Timestamp: ${dateStr}, pukul ${timeStr} WIB
+Source: ${isCache ? 'CACHE (Snapshot Cadangan Supabase)' : 'LIVE (Database Supabase)'}
+${isCache ? 'CATATAN CACHE: Sistem live database sedang tidak dapat diakses. Data di bawah ini adalah snapshot terakhir per tanggal & jam di atas. Berikan disclaimer kepada pengguna bahwa ini adalah data snapshot cadangan.' : ''}
 
-=== RINCIAN KEHADIRAN PER KATEGORI TAMU UNDANGAN ===
-- 🌟 Tamu VVIP / Istimewa: ${vvipHadir} dari ${vvipTotal} tokoh sudah hadir (${vvipTotal - vvipHadir} belum hadir).
-- 🏛️ Tamu Kehormatan / VIP: ${kehormatanHadir} dari ${kehormatanTotal} tokoh sudah hadir (${kehormatanTotal - kehormatanHadir} belum hadir).
-- 👥 Tamu Undangan Umum: ${umumHadir} dari ${umumTotal} tokoh sudah hadir (${umumTotal - umumHadir} belum hadir).
+--- TAMU UNDANGAN ---
+Total terdaftar: ${tamuList.length} tokoh/instansi (${totalTamuHadir} sudah hadir, ${tamuList.length - totalTamuHadir} belum hadir)
+Tamu Sudah Hadir:
+${arrivedTamu.length > 0 ? arrivedTamu.join('\n') : '(Belum ada tamu undangan yang presensi)'}
 
-${searchHits.length > 0 ? `=== HASIL PENCARIAN RELEVAN LANGSUNG DARI SUPABASE ===\n${searchHits.join('\n')}\n` : ''}
-${recentLogsText}
+Tamu Belum Hadir / Masih Ditunggu:
+${pendingTamu.length > 0 ? pendingTamu.join('\n') : '(Semua tamu undangan sudah hadir)'}
 
-=== DAFTAR TAMU UNDANGAN YANG SUDAH HADIR (REALTIME SUPABASE) ===
-${tamuSudahHadirList.length > 0 ? tamuSudahHadirList.join('\n') : '(Belum ada tamu undangan yang presensi)'}
+--- PESERTA SANTRI ---
+Total terdaftar: ${santriList.length} keluarga santri
+Detail:
+${santriDetails || '(Belum ada data santri terdaftar)'}
 
-=== DAFTAR TAMU UNDANGAN YANG BELUM HADIR / MASIH DITUNGGU (REALTIME SUPABASE) ===
-${tamuBelumHadirList.length > 0 ? tamuBelumHadirList.join('\n') : '(Semua tamu undangan sudah hadir)'}
+--- STATISTIK KEHADIRAN (REALTIME) ---
+Wali Santri: ${totalWaliHadir} dari ${totalWaliKuota} kuota (${percentWali}%)
+Tamu Undangan: ${totalTamuHadir} dari ${totalTamuKuota} kuota (${percentTamu}%)
+Total Keseluruhan: ${totalGlobalHadir} dari ${totalGlobalKuota} kuota (${percentGlobal}%)
 
-=============================================================================
-PETUNJUK UTAMA US HALWAA AI:
-1. Jawab pertanyaan seputar kehadiran tamu undangan 100% BERDASARKAN DATA LIVE SUPABASE DI ATAS!
-2. DILARANG MENG-HARDCODE NAMA ATAU KLAIM LAMA!
-3. Jika ditanya "apakah [Nama] / [UNDxxxx] sudah datang?", periksa section "HASIL PENCARIAN RELEVAN" atau daftar di atas, dan jawab secara tegas (SUDAH HADIR / BELUM TERCATAT HADIR).
+=== END DATA LIVE ===
 `;
+}
+
+async function getLiveSupabaseGuestPrompt(userQuery: string = ''): Promise<string> {
+  return getLiveDatabaseContextPrompt(userQuery);
 }
 
 interface PersonSearchResult {
@@ -1095,7 +1188,7 @@ Wonten ingkang saget dibantu malih Us?`;
 
   // =========================================================================
   // DETEKSI KHUSUS 0: PERTANYAAN NAMA TOKOH / SANTRI TERTENTU (SPESIFIK & NOMOR HP)
-  // Contoh: "apakah KH. M. ANWAR MANSHUR sudah hadir?", "Nomor HP wali santri SH9451?", dll.
+  // Contoh: "apakah KH. Hamdan (UND0101) sudah hadir?", "Nomor HP wali santri SH9451?", dll.
   // =========================================================================
   const personFound = searchPersonInEvent(userQuery);
   if (personFound) {
@@ -1656,20 +1749,19 @@ Wisudawati Tamatan terbagi ke dalam **7 Bagian Kelompok Wisuda**:
     q.includes('penguji') ||
     q.includes('kehormatan')
   ) {
-    return `${headerIntro}Mengenai **Tamu Undangan Khusus Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.**, sistem mengelola total **70 Tokoh Undangan**:
+    return `${headerIntro}Mengenai **Tamu Undangan Khusus Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.**, seluruh data dikelola secara realtime 100% dari database Supabase:
 
 ### 🏛️ 3 Golongan Tamu Undangan:
 1. **🌟 Tamu Undangan Istimewa**:
-   - Keluarga Ndalem Bani Marzuqi, Bani Qomariyah, Bani Mahrus, Bani Salamah, VIP Bandar, & VIP Kunir Blitar.
-   - Jatah Kuota: 2 Kursi VIP (Tiket E-Invitation Putih / Gold).
-2. **🏛️ Tamu Undangan Kehormatan (11 Tokoh)**:
-   - Para Masyayikh Sepuh PP. Lirboyo, Masyayikh Pesantren Cabang, & Pejabat Pemerintahan (Forkopimda).
-   - Jatah Kuota: Hingga **4 Kursi VIP**.
-3. **👥 Tamu Undangan Umum (59 Tokoh)**:
-   - 25 Penguji Al-Qur'an LPTQ Jawa Timur & Asatidz Purna Bakti MHMTQ.
-   - Jatah Kuota: **2 Kursi VIP** (Tiket Putih VIP).
+   - Keluarga Ndalem Dzurriyah & VIP Kehormatan (Tiket E-Invitation VIP).
+2. **🏛️ Tamu Undangan Kehormatan**:
+   - Para Masyayikh, Pesantren Cabang, & Pejabat Pemerintahan (Forkopimda).
+3. **👥 Tamu Undangan Umum & Penguji**:
+   - Penguji Al-Qur'an & Asatidz Purna Bakti MHMTQ.
 
-Seluruh tamu undangan berhak atas jalur prioritas di Gerbang Selatan tanpa antrian reguler dan menempati baris depan Aula Muktamar.`;
+Seluruh tamu undangan berhak atas jalur prioritas di Gerbang Utama tanpa antrian reguler dan menempati baris kehormatan Aula Muktamar.
+
+[👉 Buka Data Peserta & Tamu](/admin/peserta) [👉 Buka Live Dasbor](/admin/dasbor)`;
   }
 
   if (q.includes('konsumsi') || q.includes('makan') || q.includes('porsi')) {
@@ -1815,22 +1907,7 @@ function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt
       return generateLocalSmartResponse(userPrompt, isFirstTurn, role);
     }
 
-    // 2. Jika menanyakan tokoh yang sebenarnya SUDAH HADIR (misal KH. M. Anwar Manshur / KH. Nurul Huda Djazuli) tapi model AI menjawab belum hadir / belum tercatat
-    if (
-      (pLower.includes('anwar manshur') || pLower.includes('nurul huda djazuli') || pLower.includes('abdullah faqih') || pLower.includes('nihayah')) &&
-      (rLower.includes('belum tercatat') || rLower.includes('belum hadir') || rLower.includes('belum terdeteksi')) &&
-      !rLower.includes('sudah hadir')
-    ) {
-      return generateLocalSmartResponse(userPrompt, isFirstTurn, role);
-    }
 
-    // 3. Jika menanyakan "siapa saja tamu kehormatan yang hadir" tapi model tidak menyebutkan nama individual Masyayikh
-    if (
-      pLower.includes('siapa') && (pLower.includes('kehormatan') || pLower.includes('khusus')) &&
-      !rLower.includes('anwar manshur') && !rLower.includes('nurul huda')
-    ) {
-      return generateLocalSmartResponse(userPrompt, isFirstTurn, role);
-    }
   }
 
   // 1. Ganti sapaan lama "Wonten ingkang saget Us AI bantu, Kang atau Mbak?..." menjadi "Wonten ingkang saget dibantu Us?"
@@ -2052,8 +2129,10 @@ export async function POST(req: NextRequest) {
     // 1. Deteksi pertanyaan STATISTIK KEHADIRAN -> Kembalikan Pie Chart + Rincian Teks
     if (isStatsQuery(prompt)) {
       const stats = await getLiveAttendanceStatsChart();
-      const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
-      const replyText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, per 02 Januari 2027 pukul ${nowStr} WIB, statistik kehadiran Haul & Haflah P3TQ & MHMTQ 1448 H./2027 M. sudah mencapai:\n\n• **Wali Santri**: ${stats.textSummary.totalWaliHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalWaliKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentWaliRatio}%)\n• **Tamu Undangan**: ${stats.textSummary.totalTamuHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalTamuKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentTamuRatio}%)\n\nTotal yang sudah hadir: **${stats.textSummary.totalHadir.toLocaleString('id-ID')} orang** dari **${stats.textSummary.totalKuota.toLocaleString('id-ID')} kuota** (${stats.textSummary.percentHadirTotal}%). Semoga acara berjalan lancar hingga selesai.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+      const nowStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+      const replyText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, statistik kehadiran Haul & Haflah P3TQ & MHMTQ 1448 H./2027 M.:\n\n• **Wali Santri**: ${stats.textSummary.totalWaliHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalWaliKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentWaliRatio}%)\n• **Tamu Undangan**: ${stats.textSummary.totalTamuHadir.toLocaleString('id-ID')} dari ${stats.textSummary.totalTamuKuota.toLocaleString('id-ID')} kuota (${stats.textSummary.percentTamuRatio}%)\n\nTotal yang sudah hadir: **${stats.textSummary.totalHadir.toLocaleString('id-ID')} orang** dari **${stats.textSummary.totalKuota.toLocaleString('id-ID')} kuota** (${stats.textSummary.percentHadirTotal}%). Semoga acara berjalan lancar hingga selesai.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
 
       return NextResponse.json({
         reply: cleanReplyForSession(replyText, isFirstTurn, prompt),
