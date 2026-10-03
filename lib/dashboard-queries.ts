@@ -53,29 +53,86 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     }
   }
 
-  // Process Santri
-  let wsHadir = 0;
+  // Calculate Total Kuota (Denominators)
+  const wsKuota = santriData.reduce(
+    (sum, s) => sum + Number(s.kuota_dasar || 0) + Number(s.kuota_tambahan || 0),
+    0
+  );
+
+  const tamuKuota = undanganData.reduce((sum, u) => {
+    const defaultDasar = u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
+    const dasar = u.kuota_dasar !== undefined && u.kuota_dasar !== null ? Number(u.kuota_dasar) : defaultDasar;
+    const tambahan = Number(u.kuota_tambahan || 0);
+    return sum + dasar + tambahan;
+  }, 0);
+
+  // Calculate Total Hadir & Gender Breakdown (Numerators)
   let wsL = 0;
   let wsP = 0;
+  let tamuL = 0;
+  let tamuP = 0;
 
+  for (const log of logsData) {
+    const tipe = (log.tipe_peserta || '').toUpperCase();
+    const qr = (log.kode_qr || '').toUpperCase();
+    const l = Number(log.jumlah_l || log.jumlahL || 0);
+    const p = Number(log.jumlah_p || log.jumlahP || 0);
+
+    if (tipe === 'SANTRI' || tipe === 'WALI' || qr.startsWith('SH')) {
+      wsL += l;
+      wsP += p;
+    } else if (tipe === 'TAMU' || tipe === 'UNDANGAN' || qr.startsWith('UND')) {
+      tamuL += l;
+      tamuP += p;
+    }
+  }
+
+  // Fallback if logsData is empty but kuota_terpakai > 0
+  if (wsL === 0 && wsP === 0) {
+    for (const s of santriData) {
+      if ((s.kuota_terpakai || 0) > 0) {
+        const terpakai = Number(s.kuota_terpakai);
+        wsL += Math.ceil(terpakai / 2);
+        wsP += Math.floor(terpakai / 2);
+      }
+    }
+  }
+
+  if (tamuL === 0 && tamuP === 0) {
+    for (const u of undanganData) {
+      if ((u.kuota_terpakai || 0) > 0) {
+        const terpakai = Number(u.kuota_terpakai);
+        const pStr = (u.nama_putra || u.namaPutra || '').trim();
+        const wStr = (u.nama_putri || u.namaPutri || '').trim();
+        if (pStr && wStr) {
+          tamuL += Math.ceil(terpakai / 2);
+          tamuP += Math.floor(terpakai / 2);
+        } else if (wStr) {
+          tamuP += terpakai;
+        } else {
+          tamuL += terpakai;
+        }
+      }
+    }
+  }
+
+  const wsHadir = wsL + wsP;
+  const tamuHadir = tamuL + tamuP;
+
+  // Invariant validations
+  if (wsHadir !== wsL + wsP) {
+    console.error('INVARIANT ANOMALY in Wali Santri metrics:', { wsHadir, wsL, wsP });
+  }
+  if (tamuHadir !== tamuL + tamuP) {
+    console.error('INVARIANT ANOMALY in Tamu Undangan metrics:', { tamuHadir, tamuL, tamuP });
+  }
+
+  // Process Santri List for bottom table
   const santriList = santriData.map((s) => {
     const keyId = String(s.id || '');
     const keyKode = String(s.kode || '');
     const checkinTime = latestCheckinMap[keyKode] || latestCheckinMap[keyId] || s.updated_at || s.created_at;
     const isHadir = (s.kuota_terpakai || 0) > 0 || loggedKeys.has(keyKode) || loggedKeys.has(keyId);
-
-    if (isHadir) {
-      wsHadir++;
-      const logInfo = latestLogMap[keyKode] || latestLogMap[keyId];
-      if (logInfo) {
-        wsL += logInfo.jumlah_l;
-        wsP += logInfo.jumlah_p;
-      } else {
-        const terpakai = Number(s.kuota_terpakai || 1);
-        wsL += Math.ceil(terpakai / 2);
-        wsP += Math.floor(terpakai / 2);
-      }
-    }
 
     return {
       id: s.id,
@@ -98,53 +155,12 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     };
   });
 
-  // Process Tamu Undangan
-  let tamuHadir = 0;
-  let tamuL = 0;
-  let tamuP = 0;
-
+  // Process Tamu Undangan List for bottom table
   const undanganList = undanganData.map((u) => {
     const keyId = String(u.id || '');
     const keyKode = String(u.kode || '');
     const checkinTime = latestCheckinMap[keyKode] || latestCheckinMap[keyId] || u.updated_at || u.created_at;
     const isHadir = (u.kuota_terpakai || 0) > 0 || loggedKeys.has(keyKode) || loggedKeys.has(keyId);
-
-    if (isHadir) {
-      tamuHadir++;
-      const logInfo = latestLogMap[keyKode] || latestLogMap[keyId];
-      if (logInfo) {
-        tamuL += logInfo.jumlah_l;
-        tamuP += logInfo.jumlah_p;
-      } else {
-        const terpakai = Number(u.kuota_terpakai || 1);
-        const p = (u.nama_putra || u.namaPutra || '').trim();
-        const w = (u.nama_putri || u.namaPutri || '').trim();
-        let lCount = 1;
-        let pCount = 0;
-        if (p && w) {
-          lCount = Math.ceil(terpakai / 2);
-          pCount = Math.floor(terpakai / 2);
-        } else if (p) {
-          lCount = terpakai;
-          pCount = 0;
-        } else if (w) {
-          lCount = 0;
-          pCount = terpakai;
-        } else {
-          const lower = (u.nama || '').toLowerCase();
-          const isFemale = ['nyai', 'hj.', 'ning', 'ibu', 'ustadzah', 'hajah', 'biyung'].some((h) => lower.includes(h));
-          if (isFemale) {
-            lCount = 0;
-            pCount = terpakai;
-          } else {
-            lCount = terpakai;
-            pCount = 0;
-          }
-        }
-        tamuL += lCount;
-        tamuP += pCount;
-      }
-    }
 
     return {
       id: u.id,
@@ -170,12 +186,12 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
   return {
     totalSantri: santriData.length,
     wsHadir,
-    wsKuota: santriData.length,
+    wsKuota,
     wsL,
     wsP,
     totalTamu: undanganData.length,
     tamuHadir,
-    tamuKuota: undanganData.length,
+    tamuKuota,
     tamuL,
     tamuP,
     santriList,
