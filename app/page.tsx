@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
@@ -16,6 +16,70 @@ import {
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
+
+// 6 POSE TOS INTERAKTIF US. HALWAA
+const TOS_POSES = [
+  { img: '/images/halwaa/tos/tos-1.png', text: 'Yuk Tos! ✋' },
+  { img: '/images/halwaa/tos/tos-2.png', text: 'Siap Tos! 👋' },
+  { img: '/images/halwaa/tos/tos-3.png', text: 'Ayo Tos! ✨' },
+  { img: '/images/halwaa/tos/tos-4.png', text: 'Tos High-Five! 🙌' },
+  { img: '/images/halwaa/tos/tos-5.png', text: 'Semangat Haflah! 🥰' },
+  { img: '/images/halwaa/tos/tos-6.png', text: 'Tos Dulu! 👊' },
+];
+
+const TOS_CORNERS = [
+  { id: 'bottom-left', posClass: 'bottom-4 left-4 md:bottom-8 md:left-8' },
+  { id: 'bottom-right', posClass: 'bottom-4 right-4 md:bottom-8 md:right-8' },
+  { id: 'top-left', posClass: 'top-4 left-4 md:top-8 md:left-8' },
+  { id: 'top-right', posClass: 'top-4 right-4 md:top-8 md:right-8' },
+];
+
+const playTosSound = () => {
+  try {
+    if (typeof window === 'undefined') return;
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const audioContext = new AudioContextClass();
+
+    // Tap 1
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, audioContext.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(1760, audioContext.currentTime + 0.08);
+
+    gain1.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+
+    osc1.start(audioContext.currentTime);
+    osc1.stop(audioContext.currentTime + 0.15);
+
+    // Chime 2
+    setTimeout(() => {
+      try {
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1320, audioContext.currentTime);
+        osc2.frequency.exponentialRampToValueAtTime(2200, audioContext.currentTime + 0.1);
+
+        gain2.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+        osc2.start(audioContext.currentTime);
+        osc2.stop(audioContext.currentTime + 0.2);
+      } catch (e) {}
+    }, 80);
+  } catch (err) {
+    console.warn('Audio error:', err);
+  }
+};
 
 // Konfigurasi visual 4 tombol role (URUTAN BARU: ADMIN -> PIMPINAN -> PENERIMA_TAMU -> PENJAGA_GERBANG)
 const ROLE_BUTTONS: {
@@ -94,6 +158,41 @@ export default function LandingPortalPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // State Tos Interaktif Us. Halwaa
+  const [tosState, setTosState] = useState<{
+    active: boolean;
+    imgUrl: string;
+    bubbleText: string;
+    posClass: string;
+  } | null>(null);
+
+  const tosCooldownRef = useRef(false);
+
+  const triggerTos = useCallback(() => {
+    if (tosCooldownRef.current) return;
+    tosCooldownRef.current = true;
+
+    const randomPose = TOS_POSES[Math.floor(Math.random() * TOS_POSES.length)];
+    const randomCorner = TOS_CORNERS[Math.floor(Math.random() * TOS_CORNERS.length)];
+
+    setTosState({
+      active: true,
+      imgUrl: randomPose.img,
+      bubbleText: randomPose.text,
+      posClass: randomCorner.posClass,
+    });
+
+    playTosSound();
+
+    setTimeout(() => {
+      setTosState(null);
+    }, 2500);
+
+    setTimeout(() => {
+      tosCooldownRef.current = false;
+    }, 3000);
+  }, []);
+
   useEffect(() => {
     const role = getActiveRole();
     if (role && ROLES_CONFIG[role]) {
@@ -151,12 +250,21 @@ export default function LandingPortalPage() {
   };
 
   return (
-    <div className="min-h-screen text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-hidden py-8 px-4 sm:px-6">
+    <div
+      className="min-h-screen text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-hidden py-8 px-4 sm:px-6 cursor-pointer"
+      onClick={(e) => {
+        if (selectedRole) return;
+        const cardEl = document.getElementById('login-card');
+        if (cardEl && !cardEl.contains(e.target as Node)) {
+          triggerTos();
+        }
+      }}
+    >
       {/* BACKGROUND PANGGUNG RESMI & ANIMASI DEBU EMAS */}
       <StageBackground />
 
       {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH TRANSPARAN DENGAN MAX-WIDTH TERKONTROL COMPACT) */}
-      <div className="relative z-10 w-full max-w-sm md:max-w-md p-5 md:p-6 space-y-4 bg-white/30 backdrop-blur-md border border-[#D5C4B4]/70 shadow-xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
+      <div id="login-card" className="relative z-10 w-full max-w-sm md:max-w-md p-5 md:p-6 space-y-4 bg-white/30 backdrop-blur-md border border-[#D5C4B4]/70 shadow-xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
         {/* LOGO BERJAJAR */}
         <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
           <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
@@ -339,6 +447,34 @@ export default function LandingPortalPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY */}
+      {tosState?.active && (
+        <div
+          className={`fixed z-50 ${tosState.posClass} pointer-events-none animate-tos-pop flex flex-col items-center justify-center`}
+        >
+          {/* Sparkle Emas */}
+          <div className="absolute inset-0 pointer-events-none overflow-visible">
+            <span className="absolute -top-2 -left-2 text-amber-400 text-lg md:text-xl animate-tos-sparkle">✨</span>
+            <span className="absolute -top-4 right-4 text-amber-300 text-base md:text-lg animate-tos-sparkle">⭐</span>
+            <span className="absolute bottom-2 -left-4 text-amber-400 text-sm md:text-base animate-tos-sparkle">✨</span>
+            <span className="absolute bottom-4 -right-2 text-amber-300 text-lg md:text-xl animate-tos-sparkle">🌟</span>
+          </div>
+
+          {/* Bubble Chat "Tos!" */}
+          <div className="absolute -top-3 md:-top-5 bg-white border-2 border-[#D5C4B4] rounded-full px-3 py-1 md:px-4 md:py-1.5 shadow-xl text-xs md:text-sm font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-1 z-10 whitespace-nowrap">
+            <span>{tosState.bubbleText}</span>
+          </div>
+
+          {/* Foto Us. Halwaa */}
+          <img
+            src={tosState.imgUrl}
+            alt="Us. Halwaa - Tos!"
+            className="w-36 md:w-56 h-auto drop-shadow-2xl select-none object-contain"
+            draggable={false}
+          />
         </div>
       )}
     </div>

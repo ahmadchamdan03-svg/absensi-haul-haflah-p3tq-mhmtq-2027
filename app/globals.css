@@ -165,10 +165,71 @@ body {
   animation: particleRise linear infinite;
 }
 
+/* Us. Halwaa Tos Interactive Animations */
+@keyframes tos-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(30px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) translateY(-5px);
+  }
+  70% {
+    transform: scale(0.95) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-tos-pop {
+  animation: tos-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes tos-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(5deg);
+  }
+}
+
+.animate-tos-bounce {
+  animation: tos-bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes tos-sparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(360deg);
+  }
+}
+
+.animate-tos-sparkle {
+  animation: tos-sparkle 1s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-lightShimmer,
   .animate-cloudFloat,
-  .animate-particleRise {
+  .animate-particleRise,
+  .animate-tos-pop,
+  .animate-tos-bounce,
+  .animate-tos-sparkle {
     animation: none !important;
   }
 }
