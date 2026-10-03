@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { store } from '@/lib/mock-data';
 import { geminiPool } from '@/lib/gemini-pool';
+import { supabase } from '@/lib/supabase';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri), ditenagai oleh model AI tertinggi OpenAI GPT-4o.
@@ -197,55 +198,7 @@ function getGolonganUndangan(u: any): 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM' {
   return 'UMUM';
 }
 
-function getLiveEventDataPrompt(): string {
-  const stats = store.getStatistikLive();
-  const pagu = store.getPaguInfo();
-  const allUndangan = store.getUndanganList();
-
-  let istimewaTotal = 0, istimewaHadir = 0, istimewaKursi = 0;
-  let kehormatanTotal = 0, kehormatanHadir = 0, kehormatanKursi = 0;
-  let umumTotal = 0, umumHadir = 0, umumKursi = 0;
-
-  const tamuSudahHadirList: typeof allUndangan = [];
-  const kehormatanList: typeof allUndangan = [];
-  const istimewaList: typeof allUndangan = [];
-
-  for (const und of allUndangan) {
-    const gol = getGolonganUndangan(und);
-    const hadir = und.kuota.terpakai > 0;
-    const kursi = und.kuota.terpakai;
-
-    if (hadir) tamuSudahHadirList.push(und);
-
-    if (gol === 'ISTIMEWA') {
-      istimewaTotal++;
-      if (hadir) istimewaHadir++;
-      istimewaKursi += kursi;
-      istimewaList.push(und);
-    } else if (gol === 'KEHORMATAN') {
-      kehormatanTotal++;
-      if (hadir) kehormatanHadir++;
-      kehormatanKursi += kursi;
-      kehormatanList.push(und);
-    } else {
-      umumTotal++;
-      if (hadir) umumHadir++;
-      umumKursi += kursi;
-    }
-  }
-
-  const bg = stats.kategoriStats?.bilGhoib || { hadirPeserta: 0, totalPeserta: 0, totalKuota: 0, totalHadir: 0, persentase: 0 };
-  const bn = stats.kategoriStats?.binNadzor || { hadirPeserta: 0, totalPeserta: 0, totalKuota: 0, totalHadir: 0, persentase: 0 };
-  const tm = stats.kategoriStats?.tamatan || { hadirPeserta: 0, totalPeserta: 0, totalKuota: 0, totalHadir: 0, persentase: 0 };
-  const undStat = stats.tamuUndanganStat || { hadirUndangan: 0, totalUndangan: 0, totalKuota: 0, totalHadir: 0, persentase: 0 };
-
-  const totalSantriHadir = bg.hadirPeserta + bn.hadirPeserta + tm.hadirPeserta;
-  const totalSantriKursi = bg.totalHadir + bn.totalHadir + tm.totalHadir;
-  const totalSantriDaftar = bg.totalPeserta + bn.totalPeserta + tm.totalPeserta;
-  const totalUndanganDaftar = undStat.totalUndangan;
-  const totalEntitasDaftar = totalSantriDaftar + totalUndanganDaftar;
-  const totalEntitasHadir = totalSantriHadir + undStat.hadirUndangan;
-
+async function getLiveSupabaseGuestPrompt(userQuery: string = ''): Promise<string> {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('id-ID', {
     hour: '2-digit',
@@ -254,112 +207,148 @@ function getLiveEventDataPrompt(): string {
     timeZone: 'Asia/Jakarta',
   });
 
-  const teksTamuHadir = tamuSudahHadirList.length > 0
-    ? tamuSudahHadirList.map((u, i) => {
-        const gol = getGolonganUndangan(u);
-        const golLabel = gol === 'ISTIMEWA' ? 'Tamu Istimewa (VVIP & VIP)' : gol === 'KEHORMATAN' ? 'Tamu Kehormatan (Tamu Khusus)' : 'Tamu Undangan Umum';
-        return `${i + 1}. ${u.nama} (Kode: ${u.kode}) - ${u.instansi || '-'} | Golongan: ${golLabel} | Status: SUDAH HADIR (${u.kuota.terpakai} Kursi VIP Terpakai) | Penempatan Duduk: Baris Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar.`;
-      }).join('\n')
-    : '(Belum ada tamu undangan yang presensi di gerbang)';
+  let tamuList: any[] = [];
+  let presensiLogs: any[] = [];
 
-  const teksKehormatan = kehormatanList.map((u, i) => {
-    const hadir = u.kuota.terpakai > 0;
-    const statusText = hadir
-      ? `SUDAH HADIR (${u.kuota.terpakai} Kursi VIP Terpakai, Duduk di Baris Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar)`
-      : `BELUM HADIR / Masih Ditunggu (${u.kuota.kuotaDasar} Kursi VIP dialokasikan)`;
-    return `${i + 1}. ${u.nama} (Kode: ${u.kode}) - ${u.instansi || '-'} -> STATUS: ${statusText}`;
-  }).join('\n');
+  try {
+    const { data: tData } = await supabase.from('tamu_undangan').select('*');
+    if (tData) tamuList = tData;
+  } catch (e) {
+    console.warn('Error fetching tamu_undangan:', e);
+  }
 
-  const teksIstimewa = istimewaList.length > 0
-    ? istimewaList.map((u, i) => {
-        const hadir = u.kuota.terpakai > 0;
-        return `${i + 1}. ${u.nama} (Kode: ${u.kode}) - ${u.instansi || '-'} -> STATUS: ${hadir ? `SUDAH HADIR (${u.kuota.terpakai} Kursi VIP Terpakai)` : 'BELUM HADIR / Masih Ditunggu'}`;
-      }).join('\n')
-    : '(Belum ada tokoh khusus di daftar Tamu Istimewa saat ini)';
+  try {
+    const { data: pData } = await supabase.from('presensi_log').select('*').order('created_at', { ascending: false });
+    if (pData) presensiLogs = pData;
+  } catch (e) {
+    console.warn('Error fetching presensi_log:', e);
+  }
+
+  // Fallback ke data mock jika tabel Supabase kosong/offline
+  if (!tamuList || tamuList.length === 0) {
+    const mockList = store.getUndanganList();
+    tamuList = mockList.map((u) => ({
+      kode: u.kode,
+      nama: u.nama,
+      kategori: u.kategori,
+      instansi: u.instansi,
+      kuota_dasar: u.kuota.kuotaDasar,
+      kuota_terpakai: u.kuota.terpakai,
+      warna_tiket: u.warnaTiket,
+    }));
+  }
+
+  const presensiSet = new Set(presensiLogs.map((p) => (p.kode_qr || '').toUpperCase()));
+
+  const totalTamu = tamuList.length;
+  let totalHadir = 0;
+  let totalKuota = 0;
+  let totalKuotaTerpakai = 0;
+
+  let vvipTotal = 0, vvipHadir = 0;
+  let kehormatanTotal = 0, kehormatanHadir = 0;
+  let umumTotal = 0, umumHadir = 0;
+
+  const tamuSudahHadirList: string[] = [];
+  const tamuBelumHadirList: string[] = [];
+
+  const qLower = userQuery.toLowerCase().trim();
+  const searchHits: string[] = [];
+
+  for (const t of tamuList) {
+    const kodeUpper = (t.kode || '').toUpperCase();
+    const namaFull = t.nama || [t.nama_putra, t.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan';
+    const instansi = t.instansi || '-';
+    const kat = (t.kategori || t.sub_kategori || 'UMUM').toUpperCase();
+
+    const isHadir = (t.kuota_terpakai > 0) || presensiSet.has(kodeUpper);
+    const kTerpakai = t.kuota_terpakai > 0 ? t.kuota_terpakai : (isHadir ? 1 : 0);
+    const kDasar = t.kuota_dasar || 1;
+    const kTotal = kDasar + (t.kuota_tambahan || 0);
+
+    totalKuota += kTotal;
+
+    if (isHadir) {
+      totalHadir++;
+      totalKuotaTerpakai += kTerpakai;
+      const log = presensiLogs.find((p) => (p.kode_qr || '').toUpperCase() === kodeUpper);
+      const jamHadir = log ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) : 'Hari-H';
+      const jalur = log?.jalur || t.jalur_masuk || 'Gerbang Presensi';
+
+      tamuSudahHadirList.push(`${tamuSudahHadirList.length + 1}. ${namaFull} (Kode: ${t.kode}) - ${instansi} | Kat: ${kat} | STATUS: SUDAH HADIR pukul ${jamHadir} via ${jalur} (${kTerpakai} Kursi Terpakai)`);
+    } else {
+      tamuBelumHadirList.push(`${tamuBelumHadirList.length + 1}. ${namaFull} (Kode: ${t.kode}) - ${instansi} | Kat: ${kat} | STATUS: BELUM HADIR / Masih Ditunggu (${kDasar} Kursi Dialokasikan)`);
+    }
+
+    if (kat.includes('VVIP') || kat.includes('ISTIMEWA')) {
+      vvipTotal++;
+      if (isHadir) vvipHadir++;
+    } else if (kat.includes('KEHORMATAN') || kat.includes('VIP')) {
+      kehormatanTotal++;
+      if (isHadir) kehormatanHadir++;
+    } else {
+      umumTotal++;
+      if (isHadir) umumHadir++;
+    }
+
+    // Pencarian kata spesifik nama / kode / instansi
+    if (qLower.length >= 3) {
+      const isCodeMatch = kodeUpper && qLower.includes(kodeUpper.toLowerCase());
+      const isNameMatch = qLower.split(/\s+/).some((term) => term.length >= 3 && namaFull.toLowerCase().includes(term));
+      const isInstansiMatch = instansi !== '-' && qLower.includes(instansi.toLowerCase());
+
+      if (isCodeMatch || isNameMatch || isInstansiMatch) {
+        const log = presensiLogs.find((p) => (p.kode_qr || '').toUpperCase() === kodeUpper);
+        if (isHadir) {
+          const jamHadir = log ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) : 'Hari-H';
+          searchHits.push(`- 🟢 DATALIVE MATCH SUPABASE: ${namaFull} (Kode: ${t.kode}, Instansi: ${instansi}, Kategori: ${kat}) -> SUDAH HADIR pukul ${jamHadir} via ${log?.jalur || 'Gerbang'} (${kTerpakai} Kursi Terpakai).`);
+        } else {
+          searchHits.push(`- 🔴 DATALIVE MATCH SUPABASE: ${namaFull} (Kode: ${t.kode}, Instansi: ${instansi}, Kategori: ${kat}) -> BELUM TERCATAT HADIR / Masih Ditunggu (Alokasi ${kDasar} Kursi).`);
+        }
+      }
+    }
+  }
+
+  // Log presensi 1 jam terakhir
+  let recentLogsText = '';
+  if (qLower.includes('baru datang') || qLower.includes('1 jam') || qLower.includes('terakhir')) {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const recent = presensiLogs.filter((p) => new Date(p.created_at) >= oneHourAgo && (p.tipe_peserta === 'TAMU' || (p.kode_qr || '').startsWith('UND')));
+    if (recent.length > 0) {
+      recentLogsText = `\n=== TAMU UNDANGAN YANG BARU HADIR DALAM 1 JAM TERAKHIR ===\n` +
+        recent.map((r, i) => `${i + 1}. ${r.nama_peserta || r.kode_qr} (Kode: ${r.kode_qr}) - Hadir pukul ${new Date(r.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} via ${r.jalur || 'Gerbang'}`).join('\n');
+    } else {
+      recentLogsText = `\n=== TAMU UNDANGAN YANG BARU HADIR DALAM 1 JAM TERAKHIR ===\nBelum ada tamu undangan baru yang presensi dalam 1 jam terakhir.`;
+    }
+  }
 
   return `
-[DATA LIVE MONITORING REALTIME SISTEM (DIPERBARUI PER DETIK INI - PUKUL ${timeStr} WIB)]:
-Status Sistem: Sesi Haul & Haflah P3TQ-MHMTQ 1448 H./2027 M. sedang AKTIF.
-Basis Data: Saat ini terdaftar ${totalSantriDaftar} santri shohibul hajat dan ${totalUndanganDaftar} tamu undangan (Total: ${totalEntitasDaftar} entitas).
+[DATA REKAPITULASI LIVE DATABASE SUPABASE (DIPERBARUI DETIK INI - PUKUL ${timeStr} WIB)]:
+Sumber Data: Tabel 'tamu_undangan' & 'presensi_log' (Supabase Realtime).
+Total Tamu Undangan Terdaftar: ${totalTamu} Tokoh/Instansi.
+Total Tamu Undangan Sudah Hadir: ${totalHadir} dari ${totalTamu} tokoh (${totalTamu > 0 ? Math.round((totalHadir / totalTamu) * 100) : 0}%).
+Total Kursi Terpakai: ${totalKuotaTerpakai} dari ${totalKuota} Kursi.
+Tamu Belum Hadir / Masih Ditunggu: ${totalTamu - totalHadir} tokoh (${totalKuota - totalKuotaTerpakai} kursi).
 
-=== 1. DATA KEHADIRAN TAMU UNDANGAN KHUSUS (TOTAL ${totalUndanganDaftar} TOKOH) ===
-- Total Tokoh Tamu Undangan: ${totalUndanganDaftar} Tokoh (Kapasitas Total: ${undStat.totalKuota} Kursi VIP).
-- Tamu Undangan Sudah Hadir Saat Ini: ${undStat.hadirUndangan} dari ${totalUndanganDaftar} tokoh (${undStat.persentase}% kehadiran tokoh).
-- Total Kursi Tamu Terpakai: ${undStat.totalHadir} dari ${undStat.totalKuota} kursi (${undStat.totalKuota > 0 ? Math.round((undStat.totalHadir / undStat.totalKuota) * 100) : 0}%).
-- Tamu Undangan Belum Hadir / Ditunggu: ${Math.max(0, totalUndanganDaftar - undStat.hadirUndangan)} tokoh (${Math.max(0, undStat.totalKuota - undStat.totalHadir)} kursi belum terisi).
-- Rincian Kehadiran per 3 Kategori Tamu Undangan:
-  * 🌟 Tamu Istimewa (VVIP & VIP): ${istimewaHadir} dari ${istimewaTotal} tokoh sudah hadir (${istimewaKursi} kursi terpakai, ${Math.max(0, istimewaTotal - istimewaHadir)} tokoh belum hadir).
-  * 🏛️ Tamu Kehormatan (Tamu Khusus): ${kehormatanHadir} dari ${kehormatanTotal} tokoh sudah hadir (${kehormatanKursi} kursi terpakai, ${Math.max(0, kehormatanTotal - kehormatanHadir)} tokoh belum hadir).
-  * 👥 Tamu Undangan Umum: ${umumHadir} dari ${umumTotal} tokoh sudah hadir (${umumKursi} kursi terpakai, ${Math.max(0, umumTotal - umumHadir)} tokoh belum hadir).
+=== RINCIAN KEHADIRAN PER KATEGORI TAMU UNDANGAN ===
+- 🌟 Tamu VVIP / Istimewa: ${vvipHadir} dari ${vvipTotal} tokoh sudah hadir (${vvipTotal - vvipHadir} belum hadir).
+- 🏛️ Tamu Kehormatan / VIP: ${kehormatanHadir} dari ${kehormatanTotal} tokoh sudah hadir (${kehormatanTotal - kehormatanHadir} belum hadir).
+- 👥 Tamu Undangan Umum: ${umumHadir} dari ${umumTotal} tokoh sudah hadir (${umumTotal - umumHadir} belum hadir).
 
-=== 2. DATA KEHADIRAN SANTRIWATI SHOHIBUL HAJAT (TOTAL ${totalSantriDaftar} SANTRIWATI) ===
-- Total Keluarga Santri Sudah Hadir: ${totalSantriHadir} dari ${totalSantriDaftar} keluarga santri (${totalSantriKursi} kursi terisi).
-- Keluarga Santri Belum Hadir: ${Math.max(0, totalSantriDaftar - totalSantriHadir)} keluarga santri.
-- Rincian per Kategori Santri:
-  * 🌟 Bil Ghoib (${bg.totalPeserta} Khadimatul Qur-an): ${bg.hadirPeserta} dari ${bg.totalPeserta} keluarga sudah hadir (${bg.totalHadir} dari ${bg.totalKuota} kursi terisi, ${bg.persentase}%).
-    - Status Tiket Emas Panggung Kehormatan: ${stats.totalPanggung} dari ${bg.totalPeserta} Tiket Emas telah diserahkan ke Ibu Kandung santriwati di meja presensi.
-  * 📖 Bin Nadzori (${bn.totalPeserta} Santriwati): ${bn.hadirPeserta} dari ${bn.totalPeserta} keluarga sudah hadir (${bn.totalHadir} dari ${bn.totalKuota} kursi terisi, ${bn.persentase}%).
-  * 🎓 Tamatan Aliyah (${tm.totalPeserta} Wisudawati): ${tm.hadirPeserta} dari ${tm.totalPeserta} keluarga sudah hadir (${tm.totalHadir} dari ${tm.totalKuota} kursi terisi, ${tm.persentase}%).
+${searchHits.length > 0 ? `=== HASIL PENCARIAN RELEVAN LANGSUNG DARI SUPABASE ===\n${searchHits.join('\n')}\n` : ''}
+${recentLogsText}
 
-=== 3. DATA REKAPITULASI GLOBAL & GERBANG ===
-- Total Entitas Terdaftar (Santri + Tamu): ${totalEntitasDaftar} Entitas (Sudah Hadir: ${totalEntitasHadir}, Belum Hadir: ${Math.max(0, totalEntitasDaftar - totalEntitasHadir)}).
-- Total Kuota Kursi Global: ${stats.totalKuota} Kursi.
-- Total Kursi Terisi / Hadir Global: ${stats.totalHadir} Kursi (${stats.persentaseHadir}% dari total kapasitas).
-- Sisa Kursi Kosong Belum Terisi: ${stats.sisaKuota} Kursi.
-- Distribusi Gender Rombongan: Laki-laki = ${stats.totalLaki} orang, Perempuan = ${stats.totalPerempuan} orang, Anak/Balita = ${stats.totalBalita} anak.
-- Distribusi Alur Gerbang: Jalur Barat (Putra) = ${stats.jalurBarat} pindaian, Jalur Timur (Putri) = ${stats.jalurTimur} pindaian, Meja Rekonsiliasi = ${stats.jalurRekon} penanganan kendala.
+=== DAFTAR TAMU UNDANGAN YANG SUDAH HADIR (REALTIME SUPABASE) ===
+${tamuSudahHadirList.length > 0 ? tamuSudahHadirList.join('\n') : '(Belum ada tamu undangan yang presensi)'}
 
-=== 4. STATUS KUOTA TAMBAHAN (PAGU 300 KURSI) ===
-- Pagu Kursi Maksimal: ${pagu.paguTotal} Kursi.
-- Kursi Berhasil Dipesan: ${pagu.terjual} kursi (${Math.round((pagu.terjual / (pagu.paguTotal || 300)) * 100)}%).
-- Sisa Pagu Tersedia: ${pagu.sisa} kursi.
-
-=== 5. DAFTAR NAMA TOKOH TAMU UNDANGAN YANG SUDAH HADIR SAAT INI (REALTIME) ===
-Berikut ${tamuSudahHadirList.length} tokoh tamu undangan yang SUDAH TIBA dan presensi di gerbang:
-${teksTamuHadir}
-
-=== 6. DAFTAR LENGKAP 11 TOKOH TAMU KEHORMATAN (TAMU KHUSUS / MASYAIKH) BESERTA STATUS KEHADIRANNYA ===
-Berikut status kehadiran seluruh 11 tokoh Tamu Kehormatan (Tamu Khusus):
-${teksKehormatan}
-
-=== 7. DAFTAR NAMA TAMU ISTIMEWA (VVIP & VIP) ===
-${teksIstimewa}
-
-=== 8. STATUS PENYERAHAN KARTU HITAM GOLD MAJU PANGGUNG BIL GHOIB (TOTAL 64 KHADIMATUL QUR-AN) ===
-- Total Santriwati Bil Ghoib 30 Juz: 64 Khadimatul Qur-an (Hak istimewa 1 Kartu Hitam Gold Maju Panggung khusus Ibu Kandung).
-- Kartu Hitam Gold SUDAH Diserahkan: ${stats.totalPanggung} dari 64 Kartu Hitam Gold (Ibu kandung telah menerima gelang Hitam Gold di meja presensi).
-- Kartu Hitam Gold Menunggu Penyerahan: ${64 - stats.totalPanggung} Kartu Hitam Gold (tersimpan rapi di meja presensi pintu timur).
-- Daftar Santriwati Bil Ghoib yang Kartu Hitam Goldnya SUDAH Diterima Ibu Kandung:
-  1. SH0001 - Khadimatul Qur-an Bil Ghoib 30 Juz (Ibu/Wali telah menerima Kartu Hitam Gold Maju Panggung di meja presensi).
-  2. SH0003 - Khadimatul Qur-an Bil Ghoib 30 Juz (Ibu/Wali telah menerima Kartu Hitam Gold Maju Panggung di meja presensi).
+=== DAFTAR TAMU UNDANGAN YANG BELUM HADIR / MASIH DITUNGGU (REALTIME SUPABASE) ===
+${tamuBelumHadirList.length > 0 ? tamuBelumHadirList.join('\n') : '(Semua tamu undangan sudah hadir)'}
 
 =============================================================================
-PETUNJUK KHUSUS WAJIB SAAT MENJAWAB PERTANYAAN TENTANG DATA, STATISTIK, ATAU KEHADIRAN:
-=============================================================================
-1. JAWAB DENGAN DATA ANGKA & NAMA AKTUAL (MUTLAK):
-   - DILARANG KERAS MEMBUAT ALASAN SEPERTI "nama individual belum ditampilkan dalam ringkasan agregat" atau "belum dipublikasikan secara rinci"! Anda MEMILIKI data nama individual di bagian 5, 6, 7, dan 8 di atas!
-   - JIKA DITANYA APAKAH TOKOH TERTENTU SUDAH HADIR (Misal: "apakah KH. M. ANWAR MANSHUR sudah hadir?" atau "apakah KH. Nurul Huda Djazuli sudah hadir?"):
-     * Cari nama tokoh di data di atas.
-     * JIKA KH. M. ANWAR MANSHUR atau KH. NURUL HUDA DJAZULI: JAWAB DENGAN TEGAS, JELAS, DAN GEMBIRA: "Alhamdulillah, KH. M. ANWAR MANSHUR SUDAH HADIR di lokasi acara Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M."
-     * Tampilkan rincian data beliau: Kode Undangan (UND0126), Instansi (Pengasuh Utama PP. Lirboyo Kediri), Golongan (Tamu Kehormatan / Tamu Khusus), Status (SUDAH HADIR), Kursi VIP Terpakai (2 Kursi VIP), dan Posisi Duduk di Baris Depan Kehormatan Sayap Barat Dekat Panggung Utama VIP Aula Muktamar.
-     * JIKA TOKOH BELUM HADIR (misal KH. Abdulloh Kafabihi Mahrus, KH. Atho'illah Sholahuddin Anwar, Gus Baha, dll): Jawab dengan santun bahwa beliau masih berstatus "Belum Hadir / Masih Ditunggu" dengan alokasi 2 kursi VIP dan petugas gerbang barat bersiap menyambut beliau.
-   - JIKA DITANYA "SIAPA SAJA" TAMU KEHORMATAN YANG HADIR (Misal: "tamu kehormatan yang hadir siapa saja?"):
-     * Sebutkan secara eksplisit 2 Masyayikh yang SUDAH HADIR:
-       1. KH. M. ANWAR MANSHUR (Pengasuh Utama PP. Lirboyo Kediri) - 2 Kursi VIP Terpakai
-       2. KH. NURUL HUDA DJAZULI (Masyayikh PP. Al-Falah Ploso Kediri) - 2 Kursi VIP Terpakai
-     * Sebutkan juga 9 tokoh Masyayikh lainnya yang masih ditunggu kedatangannya (KH. Abdulloh Kafabihi Mahrus, KH. Hasan Syukri Zarkasyi, KH. Atho'illah Sholahuddin Anwar, KH. Reza Ahmad Zahid, KH. An'im Falahuddin Mahrus, KH. Habibulloh Zawawi, Nyai Hj. Khadijah Mahrus, KH. Sholeh Qosim, KH. Zainuddin Jazuli).
-   - JIKA DITANYA TENTANG TIKET EMAS PANGGUNG BIL GHOIB (Misal: "santri bil ghoib yang tiket emasnya sudah diserahkan siapa saja?" atau "siapa saja yang sudah dapat tiket emas?"):
-     * Sebutkan dengan jelas bahwa saat ini ${stats.totalPanggung} dari 64 tiket emas panggung telah diserahkan (misal SH0001 dan SH0003), sedangkan ${64 - stats.totalPanggung} lainnya masih menunggu kedatangan Ibu Kandung di meja presensi gerbang.
-2. SIMPULKAN KONDISI KEHADIRAN (MENYIMPULKAN):
-   Berikan analisis dan kesimpulan cerdas dari data tersebut:
-   - Sebutkan persentase kedatangan dan rincian per sub-kategori/golongan.
-   - Berikan rangkuman apakah mayoritas sudah tiba atau masih banyak yang dalam perjalanan.
-   - Sampaikan catatan penting (misalnya untuk tamu khusus/masyayikh, atau tiket emas panggung bil ghoib).
-3. ARAHKAN JUGA DENGAN TAUTAN TOMBOL (MENGARAHKAN):
-   Tetap sertakan tautan tombol cepat di bagian akhir jawaban agar pengguna dapat melihat live feed detik-ke-detik di layar besar:
-   - [👉 Buka Live Dasbor](/admin/dasbor)
-   - Jika relevan dengan daftar nama: [👉 Buka Data Peserta & Tamu](/admin/peserta)
-   - Jika relevan dengan denah tempat duduk: [🗺️ Buka Denah Interaktif Haflah 2027](/denah)
+PETUNJUK UTAMA US HALWAA AI:
+1. Jawab pertanyaan seputar kehadiran tamu undangan 100% BERDASARKAN DATA LIVE SUPABASE DI ATAS!
+2. DILARANG MENG-HARDCODE NAMA ATAU KLAIM LAMA!
+3. Jika ditanya "apakah [Nama] / [UNDxxxx] sudah datang?", periksa section "HASIL PENCARIAN RELEVAN" atau daftar di atas, dan jawab secara tegas (SUDAH HADIR / BELUM TERCATAT HADIR).
 `;
 }
 
@@ -470,6 +459,91 @@ function searchPersonInEvent(userQuery: string): PersonSearchResult | null {
   }
 
   return null;
+}
+
+async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchResult | null> {
+  const q = userQuery.toLowerCase().trim();
+  const qClean = q
+    .replace(/[?!.,;:()]/g, ' ')
+    .replace(/\b(apakah|sudah|hadir|datang|kehadiran|status|posisi|cek|tolong|mohon|info|tamu|khusus|kehormatan|istimewa|santri|wali|keluarga|rombongan|nomor|no|hp|telepon|kontak|wa)\b/g, ' ')
+    .trim();
+
+  if (!qClean || qClean.length < 2) return null;
+
+  try {
+    // 1. Search Supabase 'tamu_undangan'
+    const { data: guests } = await supabase
+      .from('tamu_undangan')
+      .select('*')
+      .or(`kode.ilike.%${qClean}%,nama.ilike.%${qClean}%,nama_putra.ilike.%${qClean}%,nama_putri.ilike.%${qClean}%,instansi.ilike.%${qClean}%`);
+
+    if (guests && guests.length > 0) {
+      const g = guests[0];
+      const kodeUpper = (g.kode || '').toUpperCase();
+      const { data: pLog } = await supabase
+        .from('presensi_log')
+        .select('*')
+        .eq('kode_qr', kodeUpper)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const hasArrived = Boolean((g.kuota_terpakai && g.kuota_terpakai > 0) || (pLog && pLog.length > 0));
+      const namaFull = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan';
+      const gol = (g.kategori || g.sub_kategori || 'UMUM').toUpperCase();
+
+      return {
+        type: 'UNDANGAN',
+        name: namaFull,
+        code: g.kode,
+        roleOrInstansi: g.instansi || 'Tamu Undangan',
+        category: gol,
+        subCategory: g.sub_kategori,
+        quotaUsed: g.kuota_terpakai || (hasArrived ? 1 : 0),
+        quotaTotal: (g.kuota_dasar || 1) + (g.kuota_tambahan || 0),
+        hasArrived,
+        phone: g.no_hp || 'Tersedia di database',
+        seating: 'Baris Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar',
+        extraInfo: pLog && pLog.length > 0 ? `Hadir pukul ${new Date(pLog[0].created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} via ${pLog[0].jalur || 'Gerbang'}` : undefined,
+      };
+    }
+
+    // 2. Search Supabase 'peserta_santri'
+    const { data: santriList } = await supabase
+      .from('peserta_santri')
+      .select('*')
+      .or(`kode_keluarga.ilike.%${qClean}%,nama_santri.ilike.%${qClean}%,nama_wali.ilike.%${qClean}%`);
+
+    if (santriList && santriList.length > 0) {
+      const s = santriList[0];
+      const kodeUpper = (s.kode_keluarga || s.kode || '').toUpperCase();
+      const { data: pLog } = await supabase
+        .from('presensi_log')
+        .select('*')
+        .eq('kode_qr', kodeUpper)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const hasArrived = Boolean(pLog && pLog.length > 0);
+      const firstLog = pLog && pLog.length > 0 ? pLog[0] : null;
+
+      return {
+        type: 'SANTRI',
+        name: s.nama_santri || s.nama_wali,
+        code: s.kode_keluarga || s.kode,
+        roleOrInstansi: `Keluarga / Wali: ${s.nama_wali} (${s.alamat || '-'})`,
+        category: s.kategori || s.sub_kategori || 'Santri',
+        quotaUsed: hasArrived && firstLog ? ((firstLog.jumlah_l || 0) + (firstLog.jumlah_p || 0)) : 0,
+        quotaTotal: 2,
+        hasArrived,
+        phone: s.no_hp || 'Tersedia di database',
+        extraInfo: firstLog ? `Hadir pukul ${new Date(firstLog.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} via ${firstLog.jalur || 'Gerbang'}` : undefined,
+      };
+    }
+  } catch (e) {
+    console.warn('Error in searchPersonInSupabase:', e);
+  }
+
+  return searchPersonInEvent(userQuery);
 }
 
 function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
@@ -1837,6 +1911,36 @@ export async function POST(req: NextRequest) {
       qLower === 'p' ||
       qLower === 'tes';
 
+    // 1. Pencarian spesifik tamu/peserta secara LIVE di Supabase (tamu_undangan & presensi_log)
+    const personMatch = await searchPersonInSupabase(prompt);
+    if (personMatch) {
+      const statusText = personMatch.hasArrived
+        ? `Alhamdulillah, ${personMatch.name} (${personMatch.code}) SUDAH HADIR di lokasi acara.`
+        : `${personMatch.name} (${personMatch.code}) BELUM TERCATAT HADIR / Masih ditunggu kedatangannya.`;
+
+      const detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}${statusText}
+
+📋 **Data Rincian Undangan / Peserta**:
+- **Nama**: ${personMatch.name}
+- **Kode**: ${personMatch.code}
+- **Instansi / Keterangan**: ${personMatch.roleOrInstansi}
+- **Kategori / Golongan**: ${personMatch.category}
+- **Status Kehadiran**: ${personMatch.hasArrived ? '🟢 SUDAH HADIR' : '🔴 BELUM HADIR'} (${personMatch.quotaUsed} dari ${personMatch.quotaTotal} Kursi Terpakai)
+${personMatch.extraInfo ? `- **Catatan Presensi**: ${personMatch.extraInfo}\n` : ''}
+
+[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+
+      const cleanReply = cleanReplyForSession(detailText, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_query',
+        model: 'Us AI Live Database Engine',
+      });
+    }
+
     // Fast-path kilat: Cek apakah pertanyaan pengguna sudah terjawab presisi di Local Smart Engine
     const localSmartResult = generateLocalSmartResponse(prompt, isFirstTurn, currentRole);
     const isGenericFallback = localSmartResult.includes("Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah");
@@ -1857,7 +1961,7 @@ export async function POST(req: NextRequest) {
       ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika memperkenalkan diri, gunakan: \"Perkenalkan, saya Ustadzah AI, atau biasa dipanggil Us AI. Us AI adalah asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Us\", bukan \"Kang\" atau \"Mbak\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat. Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Us?\".]";
 
-    const liveDataPrompt = getLiveEventDataPrompt();
+    const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
 
 [PANDUAN KEPANITIAAN & DATA RESMI: Jika ditanya mengenai susunan panitia, divisi kesekretariatan, ketua, bendahara, seksi-seksi, ataupun teknis gerbang dan denah, Anda WAJIB memberikan nama-nama dan data aktual yang sudah tercantum lengkap di atas. DILARANG menyatakan kepengurusan belum diputuskan atau menyuruh mengecek SK lain, karena data kepanitiaan di atas adalah data resmi final SK Haflah 1448 H./ 2027 M.]`;
