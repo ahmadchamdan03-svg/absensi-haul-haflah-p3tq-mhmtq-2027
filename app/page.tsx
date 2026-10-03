@@ -22,7 +22,6 @@ const ROLE_BUTTONS: {
   key: AppRole;
   icon: React.ComponentType<{ className?: string }>;
   image: string;
-  imageStyle?: React.CSSProperties;
   color: {
     bg: string;
     border: string;
@@ -36,7 +35,6 @@ const ROLE_BUTTONS: {
     key: 'ADMIN',
     icon: ShieldCheck,
     image: '/images/halwaa/admin.png',
-    imageStyle: { clipPath: 'inset(0 0 55% 0)' },
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -50,7 +48,6 @@ const ROLE_BUTTONS: {
     key: 'PIMPINAN',
     icon: LayoutDashboard,
     image: '/images/halwaa/pimpinan.png',
-    imageStyle: { clipPath: 'inset(0 0 40% 0)' },
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -64,7 +61,6 @@ const ROLE_BUTTONS: {
     key: 'PENERIMA_TAMU',
     icon: Users,
     image: '/images/halwaa/penerima-tamu.png',
-    imageStyle: { clipPath: 'inset(0 0 40% 0)' },
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -78,7 +74,6 @@ const ROLE_BUTTONS: {
     key: 'PENJAGA_GERBANG',
     icon: QrCode,
     image: '/images/halwaa/penjaga-gerbang.png',
-    imageStyle: { clipPath: 'inset(0 0 40% 0)' },
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -191,20 +186,20 @@ export default function LandingPortalPage() {
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA (NEW IMAGE SET 2027) */}
+        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA */}
         <div className="grid grid-cols-2 gap-2.5 md:gap-3">
-          {ROLE_BUTTONS.map(({ key, icon: Icon, image, imageStyle, color }) => {
+          {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
             const config = ROLES_CONFIG[key];
 
             return (
               <div key={key} className="role-card-wrapper relative group hover:z-30 z-10">
-                {/* FOTO US. HALWAA — MUNCUL (POP-OUT HALF-BODY) DARI BELAKANG KARTU SAAT HOVER */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-[-18px] md:mb-[-22px] w-32 md:w-40 h-32 md:h-40 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none z-0 overflow-hidden flex items-end justify-center">
+                {/* FOTO US. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER (POSISI DITURUNKAN, TANPA CLIP-PATH) */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-1/2 mb-[-30px] md:mb-[-36px] w-32 md:w-40 h-32 md:h-40 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none overflow-hidden z-0 flex items-end justify-center">
                   <img
                     src={image}
                     alt={`Us. Halwaa - ${config.title}`}
                     className="w-full h-full object-cover object-top drop-shadow-2xl select-none"
-                    style={imageStyle}
+                    style={{ objectPosition: 'center top' }}
                     draggable={false}
                   />
                 </div>
