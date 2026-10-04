@@ -100,6 +100,13 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           fetchLiveDasborData();
         }
       )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pembelian_kuota' },
+        () => {
+          fetchLiveDasborData();
+        }
+      )
       .subscribe();
 
     return () => {

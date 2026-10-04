@@ -107,7 +107,18 @@ export default function KonfirmasiPage() {
   useEffect(() => {
     fetchKonfirmasiData();
     const interval = setInterval(fetchKonfirmasiData, 3000);
-    return () => clearInterval(interval);
+
+    const channel = supabase
+      .channel('konfirmasi_page_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, fetchKonfirmasiData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchKonfirmasiData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchKonfirmasiData)
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // 2. Kalkulasi Metrik Ringkasan Realtime

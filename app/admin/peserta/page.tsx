@@ -491,6 +491,19 @@ export default function ManajemenPesertaPage() {
         setStatusHadirFilter(statusParam);
       }
     }
+
+    // Supabase Realtime Subscription untuk update instant pada halaman Data Peserta
+    const channel = supabase
+      .channel('peserta_page_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, refreshData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, refreshData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, refreshData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, refreshData)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Update QR code saat qrDetailItem berubah

@@ -90,6 +90,7 @@ export default function RekonPage() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchAllData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchAllData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchAllData)
       .subscribe();
 
     return () => {
@@ -281,6 +282,13 @@ export default function RekonPage() {
     const targetTable = isSantri ? 'peserta_santri' : 'tamu_undangan';
 
     try {
+      // 1. Fetch data LAMA (before) dari Supabase sebelum update
+      const { data: beforeData } = await supabase
+        .from(targetTable)
+        .select('*')
+        .eq('kode', editingItem.kode)
+        .single();
+
       let payload: any = {};
 
       if (isSantri) {
@@ -331,6 +339,7 @@ export default function RekonPage() {
         };
       }
 
+      // 2. Perform update ke Supabase
       const { error } = await supabase
         .from(targetTable)
         .update(payload)
@@ -338,7 +347,58 @@ export default function RekonPage() {
 
       if (error) throw error;
 
-      // Log audit
+      // 3. Bandingkan before vs payload untuk deteksi field yang berubah
+      const changes: Record<string, { lama: any; baru: any }> = {};
+      if (beforeData) {
+        Object.keys(payload).forEach((key) => {
+          if (key === 'updated_at') return;
+          if (beforeData[key] !== payload[key]) {
+            changes[key] = {
+              lama: beforeData[key] ?? null,
+              baru: payload[key] ?? null,
+            };
+          }
+        });
+      }
+
+      // 4. Pengecekan Konsistensi kuota_terpakai vs presensi_log
+      const { data: presensiLogs } = await supabase
+        .from('presensi_log')
+        .select('jumlah_l, jumlah_p')
+        .eq('kode_qr', editingItem.kode);
+
+      const presensiSum = (presensiLogs || []).reduce(
+        (acc: number, curr: any) => acc + (Number(curr.jumlah_l || 0) + Number(curr.jumlah_p || 0)),
+        0
+      );
+
+      if (payload.kuota_terpakai !== presensiSum && presensiLogs && presensiLogs.length > 0) {
+        changes['presensi_sync_note'] = {
+          lama: `Presensi Log (${presensiSum} orang)`,
+          baru: `Manual Override (${payload.kuota_terpakai} kursi)`,
+        };
+      }
+
+      // 5. Pengecekan Konsistensi kuota_tambahan vs pembelian_kuota
+      const { data: pembelianList } = await supabase
+        .from('pembelian_kuota')
+        .select('jumlah_kursi')
+        .eq('kode_santri', editingItem.kode)
+        .eq('status', 'DIVERIFIKASI');
+
+      const verifiedSum = (pembelianList || []).reduce(
+        (acc: number, curr: any) => acc + Number(curr.jumlah_kursi || 0),
+        0
+      );
+
+      if (payload.kuota_tambahan !== verifiedSum && pembelianList && pembelianList.length > 0) {
+        changes['pembelian_sync_note'] = {
+          lama: `Pembelian Verifikasi (${verifiedSum} kursi)`,
+          baru: `Manual Adjustment (${payload.kuota_tambahan} kursi)`,
+        };
+      }
+
+      // 6. Simpan ke Audit Log jika ada perubahan
       await logAudit({
         panitia_id: 'PANITIA_REKONSILIASI',
         panitia_role: 'PENERIMA_TAMU',
@@ -346,10 +406,11 @@ export default function RekonPage() {
         tabel: targetTable,
         kode: editingItem.kode,
         nama: editingItem.nama,
-        field: 'edit_lengkap',
+        field: Object.keys(changes).length > 0 ? Object.keys(changes).join(', ') : 'edit_lengkap',
+        nilai_lama: JSON.stringify(beforeData || {}),
         nilai_baru: JSON.stringify(payload),
-        detail: payload,
-        catatan: `Edit Lengkap ${isSantri ? 'Santri' : 'Tamu'} via Meja Rekonsiliasi`,
+        detail: Object.keys(changes).length > 0 ? changes : payload,
+        catatan: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : `Koreksi Data ${isSantri ? 'Santri' : 'Tamu'} via Meja Rekonsiliasi`,
       });
 
       showToast(`✓ Perubahan data "${editingItem.nama}" (${editingItem.kode}) berhasil disimpan & tersinkron ke seluruh sistem.`);

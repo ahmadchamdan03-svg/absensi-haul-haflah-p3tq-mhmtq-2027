@@ -152,7 +152,19 @@ export default function LaporanPage() {
   useEffect(() => {
     fetchLaporanData();
     const interval = setInterval(fetchLaporanData, 3000);
-    return () => clearInterval(interval);
+
+    const channel = supabase
+      .channel('laporan_page_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, fetchLaporanData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchLaporanData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchLaporanData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchLaporanData)
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Template 14 Kategori Santri

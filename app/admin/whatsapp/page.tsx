@@ -305,6 +305,20 @@ export default function WhatsAppPage() {
           fetchKuotaConfigStatus();
         }
       )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'peserta_santri' },
+        () => {
+          fetchSantriWaData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tamu_undangan' },
+        () => {
+          fetchTamuWaData();
+        }
+      )
       .subscribe();
 
     return () => {
