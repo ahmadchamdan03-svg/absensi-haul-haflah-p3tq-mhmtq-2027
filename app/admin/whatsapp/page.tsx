@@ -410,7 +410,7 @@ Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk mengh
 *Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
 *Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ)*
 
-Hari/Tanggal : Sabtu, 02 Januari 2027 M. / 24 Rajab 1448 H.
+Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
 Waktu : 06.30 WIB - Selesai
 Tempat : Aula Muktamar Pondok Pesantren Lirboyo Kediri
 Masuk melalui: Gerbang Selatan (Bola Dunia)
@@ -423,7 +423,7 @@ Hak Kuota Masuk : *${totalKuota} orang*
 Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk dapat diakses pada tautan berikut:
 ${linkPortal}
 
-_Mohon QR Code disimpan dan ditunjukkan kepada petugas di gerbang pada hari acara._
+_Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara._
 
 Untuk informasi dan pengumuman terbaru, silakan bergabung di grup WhatsApp resmi wali santri:
 ${linkGrupWa}
@@ -707,7 +707,7 @@ Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk mengh
 *Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
 *Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ)*
 
-Hari/Tanggal : Sabtu, 02 Januari 2027 M. / 24 Rajab 1448 H.
+Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
 Waktu        : 06.30 WIB - Selesai
 Tempat       : Aula Muktamar Pondok Pesantren Lirboyo Kediri
 Masuk melalui: ${jalur || '[JALUR MASUK - MANUAL INPUT]'}
@@ -715,7 +715,7 @@ Masuk melalui: ${jalur || '[JALUR MASUK - MANUAL INPUT]'}
 Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk dapat diakses pada tautan berikut:
 ${linkPortal}
 
-_Mohon QR Code disimpan dan ditunjukkan kepada petugas di gerbang pada hari acara._
+_Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara._
 
 Atas perhatian dan kehadirannya kami sampaikan terima kasih.
 Jazakumullahu khairan katsiran.

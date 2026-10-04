@@ -899,17 +899,17 @@ export default function BeliKuotaPage() {
               {activePendingOrder.status === 'MENUNGGU_VERIFIKASI' && (
                 <div className="pt-2 space-y-2">
                   <a
-                    href={`https://wa.me/6285790633812?text=Assalamu%27alaikum%20Panitia%20Haflah%2C%20saya%20wali%20dari%20${encodeURIComponent(
+                    href={`https://wa.me/6285790633812?text=Assalamu%27alaikum%20Us...%2C%20saya%20wali%20dari%20${encodeURIComponent(
                       santri.nama
                     )}%20(ID%20Pesanan%3A%20${activePendingOrder.id_pesanan})%20sudah%20mengunggah%20bukti%20transfer%20sebesar%20Rp%20${activePendingOrder.total_bayar.toLocaleString(
                       'id-ID'
                     )}%2C%20mohon%20segera%20dikonfirmasi.%20Terima%20kasih.`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                   >
-                    <MessageCircle className="w-4.5 h-4.5 text-emerald-200" />
-                    <span>Hubungi Panitia via WhatsApp</span>
+                    <MessageCircle className="w-4.5 h-4.5 text-emerald-200 shrink-0" />
+                    <span className="truncate">Hubungi Panitia via WhatsApp</span>
                   </a>
                 </div>
               )}

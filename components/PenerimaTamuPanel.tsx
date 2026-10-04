@@ -291,41 +291,34 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
     const isAsatidzSekalian = selectedGolonganUndangan === 'UMUM' && finalKategori === 'Asatidz Mhmtq Sekalian';
 
-    let finalNama = '';
     const p = (undanganForm.namaPutra || '').trim().toUpperCase();
     const w = (undanganForm.namaPutri || '').trim().toUpperCase();
+    const n = (undanganForm.nama || '').trim().toUpperCase();
+
+    if (!p && !w && !n) {
+      alert('Mohon isi minimal salah satu: Nama Tamu Putra (Kyai/Gus/Ust.) atau Nama Tamu Putri (Nyai/Ning/Ustazah)!');
+      return;
+    }
+
+    let finalNama = '';
     let kuotaBase = 1;
 
-    if (selectedGolonganUndangan === 'ISTIMEWA') {
-      if (!p && !w) {
-        alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
-        return;
-      }
-      if (p && w) {
-        finalNama = `${p} & ${w}`;
-        kuotaBase = 2;
-      } else {
-        finalNama = p || w;
-        kuotaBase = 1;
-      }
-    } else if (isAsatidzSekalian) {
-      if (!p && !w) {
-        alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
-        return;
-      }
-      if (p && w) {
-        finalNama = `${p} & ${w}`;
-      } else {
-        finalNama = p || w;
-      }
+    if (p && w) {
+      finalNama = `${p} & ${w}`;
       kuotaBase = 2;
-    } else {
-      if (!undanganForm.nama.trim()) {
-        alert('Nama tamu undangan wajib diisi!');
-        return;
-      }
-      finalNama = undanganForm.nama.trim().toUpperCase();
+    } else if (p) {
+      finalNama = p;
       kuotaBase = 1;
+    } else if (w) {
+      finalNama = w;
+      kuotaBase = 1;
+    } else {
+      finalNama = n;
+      kuotaBase = 1;
+    }
+
+    if (isAsatidzSekalian && p && w) {
+      kuotaBase = 2;
     }
 
     let finalAlamat = '';
@@ -759,64 +752,35 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                 </div>
               </div>
 
-              {selectedGolonganUndangan === 'ISTIMEWA' ? (
-                <div className="space-y-3 bg-[#FAF7F3] p-3.5 rounded-2xl border border-[#D5C4B4]">
-                  <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putra:</label>
-                    <input
-                      type="text"
-                      value={undanganForm.namaPutra}
-                      onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
-                      placeholder="Contoh: KH. ABDULLOH FAQIHI"
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putri:</label>
-                    <input
-                      type="text"
-                      value={undanganForm.namaPutri}
-                      onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
-                      placeholder="Contoh: NYAI HJ. HINDAH"
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
-                    />
-                  </div>
-                </div>
-              ) : selectedGolonganUndangan === 'UMUM' && undanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' ? (
-                <div className="space-y-3 bg-[#FAF7F3] p-3.5 rounded-2xl border border-[#D5C4B4]">
-                  <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putra (Ustadz):</label>
-                    <input
-                      type="text"
-                      value={undanganForm.namaPutra}
-                      onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
-                      placeholder="Contoh: UST. AHMAD KHOIRUL"
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putri (Pendamping/Istri):</label>
-                    <input
-                      type="text"
-                      value={undanganForm.namaPutri}
-                      onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
-                      placeholder="Contoh: USTADZAH SITI ROKHMAH"
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
-                    />
-                  </div>
-                </div>
-              ) : (
+              <div className="space-y-3 bg-[#FAF7F3] p-3.5 rounded-2xl border border-[#D5C4B4]">
                 <div>
-                  <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Undangan:</label>
+                  <label className="block font-bold text-[#422F21] mb-1">
+                    Nama Tamu Putra <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
+                  </label>
                   <input
                     type="text"
-                    value={undanganForm.nama}
-                    onChange={(e) => setUndanganForm({ ...undanganForm, nama: e.target.value })}
-                    placeholder="Contoh: KH. ANWAR MASHADI"
-                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs focus:ring-1 focus:ring-emerald-700"
+                    value={undanganForm.namaPutra}
+                    onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
+                    placeholder="Contoh: KH. ABDULLOH FAQIH / UST. AHMAD"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
                   />
                 </div>
-              )}
+                <div>
+                  <label className="block font-bold text-[#422F21] mb-1">
+                    Nama Tamu Putri <span className="text-stone-500 font-normal">(Ning / Nyai / Ustazah)</span>:
+                  </label>
+                  <input
+                    type="text"
+                    value={undanganForm.namaPutri}
+                    onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
+                    placeholder="Contoh: NYAI HJ. HINDAH / USTADZAH SITI"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
+                  />
+                </div>
+                <div className="text-[10px] text-emerald-800 bg-emerald-50/80 p-2 rounded-xl border border-emerald-200 font-medium">
+                  💡 <strong>Aturan Kuota:</strong> Mengisi 2 nama (Putra &amp; Putri) = Otomatis 2 Kursi (1 L / 1 P). Mengisi 1 nama = 1 Kursi.
+                </div>
+              </div>
 
               {selectedGolonganUndangan !== 'KEHORMATAN' && (
                 <div>

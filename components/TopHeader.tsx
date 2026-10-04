@@ -46,7 +46,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Info Tanggal Acara */}
         <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] text-xs font-semibold text-[#5C3E28]">
           <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
-          <span>Sabtu, 02 Jan 2027 · 24 Rajab 1448 H</span>
+          <span>Sabtu, 24 Rajab 1448 H. / 02 Jan 2027 M.</span>
         </div>
 
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}

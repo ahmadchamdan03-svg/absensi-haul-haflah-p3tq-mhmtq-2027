@@ -87,10 +87,22 @@ DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
      * Ketua I: Arju Naylal Husna
      * Ketua II: Zakia
      * Sekretaris Umum: Refi Al Izzatul Kholifah
-     * Sekretaris 1: Najma Syarifa Faza
-     * Sekretaris II: Inarotud Duja
-     * Bendahara Umum: Aida Nur Laila (No. Rekening BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
-     * Bendahara 1: Umi Fadilah
+     * Sekretaris 1 (Sek I): Najma Syarifa Faza
+     * Sekretaris II (Sek II): Inarotud Duja
+     * Bendahara Umum (Bendum): Aida Nur Laila (No. Rekening BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
+     * Bendahara 1 (Bend I): Umi Fadilah
+   - Seksi-Seksi Operasional:
+     * Seksi Acara / Protokoler: Ning Hj. Jihan Zainab (Koordinator/Pembina), Arju Naylal Husna (Ketua Acara), Najma Syarifa Faza, Durrotun Nafisah, Durrotul Mahfudhoh. (Tugas: Pengatur Susunan Acara, Pengatur Waktu/Rundown, Pembawa Acara/MC, Protokoler Pendamping VVIP/Dzurriyyah).
+     * Seksi Kesekretariatan: Refi Al Izzatul Kholifah (Koordinator), Najma Syarifa Faza, Inarotud Duja. (Tugas: Pengelolaan Undangan, Data Registrasi, Sistem Barcode QR, Pos Kesekretariatan Gerbang Bola Dunia).
+     * Seksi Akomodasi & Tempat: Siti Nur Kholifah (Koordinator), Maimunah, Fatimatuz Zahro. (Tugas: Penataan Panggung Utama, Kursi Aula, Karpet, Terop, Pos Duduk Wali & Tamu).
+     * Seksi Konsumsi & Berkat: Umi Fadilah (Koordinator), Aida Nur Laila, Rofi'atul Adawiyah, Siti Mariyam. (Tugas: Suguhan Meja Aula, Catering VVIP/VIP, Berkat Walisantri, Shohibul Hajat, & Tamu Undangan).
+     * Seksi Peladen / Penerima Tamu: Ning Hj. Tu'ti Amanah Nafisah (Pembina), Sinta Maelani (Koordinator), Zakia, Siti Kholisotul Hasanah. (Tugas: Petugas Penerima Tamu 8 Pos Putri & 8 Pos Putra).
+     * Seksi Keamanan & Ketertiban: Nihayatur Rohmah (Koordinator), Wardatul Jannah, Zahrotul Mufida. (Tugas: Pengamanan Pintu Gerbang, Parkiran, Pembatas Satir Double, Ketertiban Shohibul Hajat).
+     * Seksi Pubdekdok & Dokumentasi: Fitriani (Koordinator), Annisa Nurul Aini. (Tugas: Live Streaming YouTube, Fotografi Panggung, Dekorasi Visual, Shooting Center).
+     * Seksi Perlengkapan & Sound System: Khoirun Nisa' (Koordinator), Umi Kalsum. (Tugas: Microphone, Sound System, Layar LED, Genset, Lighting Panggung).
+     * Seksi Penggalian Dana / Sponsorship: Aida Nur Laila (Koordinator), Sinta Maelani. (Tugas: Penggalangan Dana, Pemesanan Kuota Tambahan Kursi, Partnership).
+     * Seksi Kebersihan & Sanitasi: Nurul Hidayah (Koordinator), Siti Aminah. (Tugas: Kebersihan Aula, MCK, Sampah, Kerapian Pasca Acara).
+     * Seksi Kesehatan & P3K: Dr. Hj. Fitriana (Penanggung Jawab Medis), Nadhifa Kholida. (Tugas: Pos Kesehatan, Pertolongan Pertama Medis, Ambulans).
 
 3. PERATURAN DATA STATISTIK RESMI:
    - Data statistik peserta santri, tamu undangan, dan jumlah kuota WAJIB mengacu 100% pada DATA LIVE DARI DATABASE SUPABASE yang disisipkan secara dinamis dalam konteks percakapan.

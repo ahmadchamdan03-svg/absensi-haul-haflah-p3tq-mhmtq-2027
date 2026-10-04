@@ -956,92 +956,126 @@ export default function ScanPage() {
             })()}
 
             {/* Input Form Jumlah Kehadiran (L / P) */}
-            <div className="space-y-3 pt-2 border-t border-slate-100">
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
-                  <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                    JUMLAH PRIA (L)
-                  </label>
-                  <div className="flex items-center space-x-1.5">
+            {(() => {
+              const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
+              const terpakai = activeItem.kuota.terpakai;
+              const sisa = Math.max(0, totalKuota - terpakai);
+              const totalInput = jumlahL + jumlahP;
+              const isExceeded = totalInput > sisa;
+              const isPlusDisabled = totalInput >= sisa;
+
+              return (
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                      <label className="block text-[10px] font-bold text-slate-600 mb-1">
+                        JUMLAH PRIA (L)
+                      </label>
+                      <div className="flex items-center space-x-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setJumlahL(Math.max(0, jumlahL - 1))}
+                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min={0}
+                          value={jumlahL}
+                          onChange={(e) => setJumlahL(parseInt(e.target.value, 10) || 0)}
+                          className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setJumlahL(jumlahL + 1)}
+                          disabled={isPlusDisabled}
+                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                      <label className="block text-[10px] font-bold text-slate-600 mb-1">
+                        JUMLAH WANITA (P)
+                      </label>
+                      <div className="flex items-center space-x-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setJumlahP(Math.max(0, jumlahP - 1))}
+                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min={0}
+                          value={jumlahP}
+                          onChange={(e) => setJumlahP(parseInt(e.target.value, 10) || 0)}
+                          className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setJumlahP(jumlahP + 1)}
+                          disabled={isPlusDisabled}
+                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* INFO TEKS SISA KUOTA & STATUS AUTOMATIS */}
+                  <div className="text-[11px] font-semibold text-center py-1">
+                    {sisa === 0 ? (
+                      <span className="text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 inline-block">
+                        ⚠️ Kuota habis{activeItem.isBilGhoib ? ' — Kartu Hitam Gold sudah otomatis diberikan.' : '.'}
+                      </span>
+                    ) : (
+                      <span className="text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
+                        Sisa kuota: <strong>{sisa} kursi</strong> (Input saat ini: {totalInput} orang)
+                      </span>
+                    )}
+                  </div>
+
+                  {isExceeded && (
+                    <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                      <span>Jumlah presensi ({totalInput}) melebihi sisa kuota ({sisa})!</span>
+                    </div>
+                  )}
+
+                  {errorMsg && (
+                    <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center space-x-2 pt-1">
                     <button
                       type="button"
-                      onClick={() => setJumlahL(Math.max(0, jumlahL - 1))}
-                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                      onClick={handleResetForNext}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
                     >
-                      -
+                      Batal
                     </button>
-                    <input
-                      type="number"
-                      min={0}
-                      value={jumlahL}
-                      onChange={(e) => setJumlahL(parseInt(e.target.value, 10) || 0)}
-                      className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
-                    />
                     <button
                       type="button"
-                      onClick={() => setJumlahL(jumlahL + 1)}
-                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                      onClick={handleConfirmCheckin}
+                      disabled={isExceeded}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 disabled:opacity-40 disabled:cursor-not-allowed text-white font-serif font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
                     >
-                      +
+                      <Check className="w-4 h-4 text-emerald-200" />
+                      <span>Konfirmasi Presensi / Masuk</span>
                     </button>
                   </div>
                 </div>
-
-                <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
-                  <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                    JUMLAH WANITA (P)
-                  </label>
-                  <div className="flex items-center space-x-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setJumlahP(Math.max(0, jumlahP - 1))}
-                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      min={0}
-                      value={jumlahP}
-                      onChange={(e) => setJumlahP(parseInt(e.target.value, 10) || 0)}
-                      className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setJumlahP(jumlahP + 1)}
-                      className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {errorMsg && (
-                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>{errorMsg}</span>
-                </div>
-              )}
-
-              <div className="flex items-center space-x-2 pt-1">
-                <button
-                  type="button"
-                  onClick={handleResetForNext}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmCheckin}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
-                >
-                  <Check className="w-4 h-4 text-emerald-200" />
-                  <span>Konfirmasi Presensi / Masuk</span>
-                </button>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         </div>
       )}

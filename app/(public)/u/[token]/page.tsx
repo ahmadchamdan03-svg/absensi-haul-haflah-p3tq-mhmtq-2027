@@ -905,12 +905,15 @@ export default function UndanganWaliPage() {
               <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
-                    KODE AKSES RESMI GERBANG MASUK
+                    KODE AKSES RESMI LOKASI ACARA
                   </span>
                   <h3 className="font-serif font-black text-lg text-[#322116]">
-                    Tunjukkan QR Code Ini Kepada Petugas Pintu Registrasi
+                    Tunjukkan QR Code Ini Kepada Petugas
                   </h3>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-[#8C6A47] font-semibold">
+                    Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara.
+                  </p>
+                  <p className="text-[11px] text-stone-500">
                     Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
                   </p>
                 </div>
@@ -1184,7 +1187,7 @@ export default function UndanganWaliPage() {
               <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5">
                 <div className="space-y-3">
                   <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
-                    Rangkaian Acara Hari H (02 Januari 2027)
+                    Rangkaian Acara Haflah Akhirussanah P3TQ dan MHMTQ 1448 H. / 2027 M.
                   </h3>
                   <div className="space-y-2.5 text-xs md:text-sm leading-relaxed">
                     <div className="flex items-start space-x-3">
@@ -1254,12 +1257,15 @@ export default function UndanganWaliPage() {
               <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
-                    KODE AKSES RESMI GERBANG MASUK
+                    KODE AKSES RESMI LOKASI ACARA
                   </span>
                   <h3 className="font-serif font-black text-lg text-[#322116]">
-                    Tunjukkan QR Code Ini Kepada Petugas Gerbang
+                    Tunjukkan QR Code Ini Kepada Petugas
                   </h3>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-[#8C6A47] font-semibold">
+                    Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara.
+                  </p>
+                  <p className="text-[11px] text-stone-500">
                     Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
                   </p>
                 </div>
@@ -1581,7 +1587,7 @@ export default function UndanganWaliPage() {
                   <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
                   <p className="text-[10px] text-stone-500 font-semibold mt-0.5">Lirboyo Kediri</p>
                 </div>
-                <p>Platform Berbasis Web Murni · Dibuka langsung di browser tanpa perlu instalasi aplikasi</p>
+                <p>Web Resmi Haflah P3TQ dan MHMTQ 2027</p>
               </GlassCard>
             </ScrollReveal>
           </div>

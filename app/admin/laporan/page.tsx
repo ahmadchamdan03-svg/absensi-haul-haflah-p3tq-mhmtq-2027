@@ -437,7 +437,7 @@ export default function LaporanPage() {
       ['LEMBAR REKAPITULASI PRESENSI HAUL & HAFLAH 1448 H / 2027 M'],
       ['PONDOK PESANTREN PUTRI TAHFIZHIL QUR-AN (P3TQ) — MADRASAH HIDAYATUL MUBTADI-AAT FITTAHFIZHI WAL QIRO-AT (MHMTQ) LIRBOYO KEDIRI'],
       ['Alamat: Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kabupaten Kediri, Jawa Timur 64117'],
-      ['Tanggal Acara: Sabtu, 02 Januari 2027 / 24 Rajab 1448 H'],
+      ['Tanggal Acara: Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.'],
       [],
       ['No', 'Kategori Utama', 'Rincian Sub-Kategori', 'Warna Tiket', 'Jumlah Tamu', 'WS Laki-laki', 'WS Perempuan', 'Total Hadir', 'Total Kuota', 'Prosentase (%)'],
       ...blokSantri.map((r) => [r.no, 'Wali Santri Shohibul Hajat', r.kategori, r.warna || '', r.sh, r.l, r.p, r.total, r.kuota, `${r.pct}%`]),
@@ -512,7 +512,7 @@ export default function LaporanPage() {
             Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kabupaten Kediri, Jawa Timur 64117
           </p>
           <div className="text-[11px] text-slate-500 flex justify-center items-center gap-3">
-            <span>Hari/Tanggal: Sabtu, 02 Januari 2027</span>
+            <span>Hari/Tanggal: Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.</span>
             <span>·</span>
             <span>Gerbang Masuk: Gerbang Selatan Bola Dunia</span>
             <span>·</span>
