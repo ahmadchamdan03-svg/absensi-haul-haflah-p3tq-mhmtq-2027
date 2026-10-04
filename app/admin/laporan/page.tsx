@@ -230,7 +230,7 @@ export default function LaporanPage() {
 
       const terpakai = Number(s.kuota_terpakai || 0);
       const logs = presensiLogs.filter(
-        (l) => l.kuota_id === s.kode || l.kuota_id === s.id || l.kode_qr === s.kode
+        (l) => l.kode_qr === s.kode
       );
       let hadirL = 0;
       let hadirP = 0;
@@ -357,7 +357,7 @@ export default function LaporanPage() {
 
       const terpakai = Number(und.kuota_terpakai || 0);
       const logs = presensiLogs.filter(
-        (l) => l.kuota_id === und.kode || l.kuota_id === und.id || l.kode_qr === und.kode
+        (l) => l.kode_qr === und.kode
       );
       let hadirL = 0;
       let hadirP = 0;

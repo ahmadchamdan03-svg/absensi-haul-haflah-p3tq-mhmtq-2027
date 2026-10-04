@@ -200,6 +200,26 @@ export interface Kuota {
   hangusAt?: string | null;
 }
 
+export interface PesertaSantriDbRow {
+  id?: string | number;
+  kode: string;
+  nama: string;
+  kategori_utama: string;
+  kategori_sekunder?: string | null;
+  sub_kategori: string;
+  kelas?: string | null;
+  kamar?: string | null;
+  nama_wali: string;
+  no_hp?: string | null;
+  alamat?: string | null;
+  kuota_dasar: number;
+  kuota_tambahan: number;
+  kuota_terpakai: number;
+  warna_tiket: string;
+  status_wa?: string | null;
+  created_at?: string;
+}
+
 export interface TamuUndanganDbRow {
   id?: string | number;
   kode: string;
@@ -219,6 +239,45 @@ export interface TamuUndanganDbRow {
   jalur_masuk?: string | null;
   created_at?: string;
 }
+
+export interface AkunOtoritasDbRow {
+  id?: string;
+  peran: string;
+  password: string;
+  hak_akses?: string | null;
+  created_at?: string;
+}
+
+export interface VDasborPimpinan {
+  total_santri: number;
+  total_tamu: number;
+  total_kuota_wali: number;
+  total_kuota_tamu: number;
+  total_hadir_wali: number;
+  total_hadir_tamu: number;
+  total_l_wali: number;
+  total_p_wali: number;
+  total_l_tamu: number;
+  total_p_tamu: number;
+}
+
+export interface VRekapSohibulHajat {
+  kategori_utama: string;
+  sub_kategori: string;
+  jumlah_santri: number;
+  total_kuota_dasar: number;
+  total_kuota_tambahan: number;
+  total_kuota: number;
+}
+
+export interface KonfigurasiSistemDbRow {
+  id?: string | number;
+  kunci: string;
+  nilai: string;
+  keterangan?: string | null;
+  updated_at?: string;
+}
+
 
 export interface EstimasiKehadiran {
   kuotaId: string;

@@ -3,6 +3,9 @@
 // Haul & Haflah P3TQ - MHMTQ 1448 H. / 2027 M.
 // =====================================================================
 
+import { supabase } from '@/lib/supabase';
+
+
 export type AppRole = 'ADMIN' | 'PENERIMA_TAMU' | 'PIMPINAN' | 'PENJAGA_GERBANG' | 'WALI';
 
 export interface RoleConfig {
@@ -121,3 +124,26 @@ export function verifyRolePassword(role: AppRole, inputPassword: string): boolea
   if (!config.requirePassword) return true;
   return config.password === inputPassword.trim();
 }
+
+export async function verifyRolePasswordAsync(role: AppRole, inputPassword: string): Promise<boolean> {
+  const config = ROLES_CONFIG[role];
+  if (!config) return false;
+  if (!config.requirePassword) return true;
+
+  try {
+    const { data, error } = await supabase
+      .from('akun_otoritas')
+      .select('peran, password, hak_akses')
+      .eq('peran', role)
+      .maybeSingle();
+
+    if (!error && data && data.password) {
+      return data.password === inputPassword.trim();
+    }
+  } catch (e) {
+    console.warn('Fallback to local role password due to Supabase error:', e);
+  }
+
+  return verifyRolePassword(role, inputPassword);
+}
+

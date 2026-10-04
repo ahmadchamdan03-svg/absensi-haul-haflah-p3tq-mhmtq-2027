@@ -14,7 +14,7 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { AppRole, ROLES_CONFIG, verifyRolePassword, setActiveRole, getActiveRole } from '@/lib/auth-roles';
+import { AppRole, ROLES_CONFIG, verifyRolePassword, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
 
 // 6 POSE TOS INTERAKTIF US. HALWAA (DENGAN TIKET PERSIS DI TITIK KLIK KUROR)
@@ -228,9 +228,8 @@ export default function LandingPortalPage() {
     setIsSubmitting(true);
     setPasswordError(false);
 
-    // Jeda kecil untuk indikator visual loading ("Memproses...")
-    setTimeout(() => {
-      const isValid = verifyRolePassword(role, pass);
+    setTimeout(async () => {
+      const isValid = await verifyRolePasswordAsync(role, pass);
       if (isValid) {
         setActiveRole(role);
         const targetRoute = ROLES_CONFIG[role].route;

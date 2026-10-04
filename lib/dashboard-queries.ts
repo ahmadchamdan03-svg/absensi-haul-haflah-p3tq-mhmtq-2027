@@ -36,8 +36,8 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
   const sumLogMap: Record<string, number> = {};
 
   for (const log of logsData) {
-    const key = String(log.kode_qr || log.kuota_id || '').toUpperCase();
-    const logTime = log.created_at || log.server_time || '';
+    const key = String(log.kode_qr || '').toUpperCase();
+    const logTime = log.created_at || '';
     if (key) {
       if (!latestCheckinMap[key] && logTime) {
         latestCheckinMap[key] = logTime;
