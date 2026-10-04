@@ -29,6 +29,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logAudit } from '@/lib/audit-log';
 import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 
@@ -161,17 +162,19 @@ export default function RekonPage() {
 
         if (error) throw error;
 
-        // Log audit
-        await supabase.from('audit_log').insert([
-          {
-            tabel: targetTable,
-            kode: d.kode,
-            field: 'kuota_terpakai (batal hadir)',
-            nilai_lama: String(currentTerpakai),
-            nilai_baru: '0',
-            panitia_id: 'panitia-rekonsiliasi',
-          },
-        ]);
+        // Log audit BATALKAN_HADIR
+        await logAudit({
+          panitia_id: 'PANITIA_REKONSILIASI',
+          panitia_role: 'PENERIMA_TAMU',
+          aksi: 'BATALKAN_HADIR',
+          tabel: targetTable,
+          kode: d.kode,
+          nama: d.nama || d.kode,
+          field: 'kuota_terpakai',
+          nilai_lama: String(currentTerpakai),
+          nilai_baru: '0',
+          catatan: 'Pembatalan Kehadiran via Meja Rekonsiliasi',
+        });
 
         showToast(`✓ Berhasil membatalkan kehadiran untuk ${d.nama || d.kode}. (kuota_terpakai reset ke 0).`);
       } else {
@@ -201,17 +204,19 @@ export default function RekonPage() {
           },
         ]);
 
-        // Log audit
-        await supabase.from('audit_log').insert([
-          {
-            tabel: targetTable,
-            kode: d.kode,
-            field: 'kuota_terpakai (tandai hadir)',
-            nilai_lama: '0',
-            nilai_baru: String(newTerpakai),
-            panitia_id: 'panitia-rekonsiliasi',
-          },
-        ]);
+        // Log audit TANDAI_HADIR
+        await logAudit({
+          panitia_id: 'PANITIA_REKONSILIASI',
+          panitia_role: 'PENERIMA_TAMU',
+          aksi: 'TANDAI_HADIR',
+          tabel: targetTable,
+          kode: d.kode,
+          nama: d.nama || d.kode,
+          field: 'kuota_terpakai',
+          nilai_lama: '0',
+          nilai_baru: String(newTerpakai),
+          catatan: 'Tandai Hadir Manual via Meja Rekonsiliasi',
+        });
 
         showToast(`✓ Berhasil menandai HADIR untuk ${d.nama || d.kode} (1/${totalKuota} Kursi).`);
       }
@@ -334,17 +339,18 @@ export default function RekonPage() {
       if (error) throw error;
 
       // Log audit
-      try {
-        await supabase.from('audit_log').insert([
-          {
-            tabel: targetTable,
-            kode: editingItem.kode,
-            field: 'edit_lengkap_rekonsiliasi',
-            nilai_baru: JSON.stringify(payload),
-            panitia_id: 'panitia-rekonsiliasi',
-          },
-        ]);
-      } catch (aErr) {}
+      await logAudit({
+        panitia_id: 'PANITIA_REKONSILIASI',
+        panitia_role: 'PENERIMA_TAMU',
+        aksi: isSantri ? 'EDIT_PESERTA' : 'EDIT_TAMU',
+        tabel: targetTable,
+        kode: editingItem.kode,
+        nama: editingItem.nama,
+        field: 'edit_lengkap',
+        nilai_baru: JSON.stringify(payload),
+        detail: payload,
+        catatan: `Edit Lengkap ${isSantri ? 'Santri' : 'Tamu'} via Meja Rekonsiliasi`,
+      });
 
       showToast(`✓ Perubahan data "${editingItem.nama}" (${editingItem.kode}) berhasil disimpan & tersinkron ke seluruh sistem.`);
       setEditingItem(null);
@@ -423,6 +429,19 @@ export default function RekonPage() {
           },
         ]);
       }
+
+      await logAudit({
+        panitia_id: 'PANITIA_REKONSILIASI',
+        panitia_role: 'PENERIMA_TAMU',
+        aksi: 'TAMBAH_TAMU',
+        tabel: 'tamu_undangan',
+        kode: newKode,
+        nama: finalNama,
+        field: 'tamu_walkin_baru',
+        nilai_baru: JSON.stringify(payload),
+        detail: payload,
+        catatan: `Registrasi Tamu Walk-in ${walkinForm.langsungCheckin ? '(Langsung Hadir)' : ''}`,
+      });
 
       showToast(`✓ Berhasil mendaftarkan Tamu Walk-in: ${finalNama} (${newKode}) ${walkinForm.langsungCheckin ? '· Langsung Hadir' : ''}.`);
       setShowWalkinModal(false);

@@ -29,6 +29,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logAudit } from '@/lib/audit-log';
 import { normalkanNomorHp, buatPesanPengingatKonfirmasi } from '@/lib/hmac';
 import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getGolonganUndangan, getDefaultJalurMasuk } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
@@ -267,6 +268,20 @@ export default function WhatsAppPage() {
         alert(`⚠️ Gagal mengubah status Beli Kuota di Supabase: ${error.message || error}`);
       } else {
         setKuotaTambahanBuka(targetVal);
+
+        await logAudit({
+          panitia_id: 'ADMIN_SISTEM',
+          panitia_role: 'ADMIN',
+          aksi: 'TOGGLE_KUOTA_SWITCH',
+          tabel: 'konfigurasi_sistem',
+          kode: 'kuota_tambahan_status',
+          nama: 'Pintu Pembelian Kuota Tambahan',
+          field: 'aktif',
+          nilai_lama: String(kuotaTambahanBuka),
+          nilai_baru: String(targetVal),
+          detail: { aktif: targetVal },
+          catatan: `Toggle Pintu Beli Kuota Tambahan (${targetVal ? 'DIBUKA' : 'DITUTUP'})`,
+        });
       }
     } catch (e: any) {
       console.error('Exception toggling kuota_tambahan_status:', e);

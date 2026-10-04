@@ -26,6 +26,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logAudit } from '@/lib/audit-log';
 import AuthGuard from '@/components/AuthGuard';
 
 const getLiveBaseUrl = () => {
@@ -289,6 +290,20 @@ export default function VerifikasiPage() {
         }).catch((e) => console.warn('WA send error:', e));
       }
 
+      await logAudit({
+        panitia_id: 'ADMIN_VERIFIKASI',
+        panitia_role: 'ADMIN',
+        aksi: 'VERIFIKASI_KUOTA',
+        tabel: 'pembelian_kuota',
+        kode: targetKode,
+        nama: item.nama_wali || currentSantri?.nama_wali || 'Wali Santri',
+        field: 'status',
+        nilai_lama: item.status,
+        nilai_baru: 'DIVERIFIKASI',
+        detail: { id_pesanan: targetId, jumlah_kursi: numKursi, total_bayar: item.total_bayar },
+        catatan: `Verifikasi Pembelian Kuota Tambahan (+${numKursi} Kursi)`,
+      });
+
       setStatusMsg({
         tipe: 'success',
         text: `✓ Pesanan ${targetId} (${item.nama_wali}) BERHASIL DIVERIFIKASI! Kuota santri bertambah +${numKursi} kursi.`,
@@ -324,6 +339,20 @@ export default function VerifikasiPage() {
       if (updateErr) {
         setStatusMsg({ tipe: 'error', text: `Gagal menolak pesanan: ${updateErr.message}` });
       } else {
+        await logAudit({
+          panitia_id: 'ADMIN_VERIFIKASI',
+          panitia_role: 'ADMIN',
+          aksi: 'TOLAK_KUOTA',
+          tabel: 'pembelian_kuota',
+          kode: item.kode_santri || item.kode,
+          nama: item.nama_wali || item.nama_santri,
+          field: 'status',
+          nilai_lama: item.status,
+          nilai_baru: 'DITOLAK',
+          detail: { id_pesanan: targetId, jumlah_kursi: item.jumlah_kursi },
+          catatan: `Penolakan Pembelian Kuota Tambahan (ID: ${targetId})`,
+        });
+
         setStatusMsg({ tipe: 'success', text: `✓ Pesanan ${targetId} telah DITOLAK.` });
         fetchData();
       }

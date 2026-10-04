@@ -14,6 +14,7 @@ import {
   Send,
   RotateCcw,
   FileSpreadsheet,
+  History,
   Sparkles,
   X,
   ExternalLink,
@@ -169,6 +170,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       groupTitle: 'AUDIT & LAPORAN',
       items: [
         { href: '/rekon', label: 'Rekonsiliasi Kuota', icon: RotateCcw },
+        { href: '/admin/audit-log', label: 'Audit Log', icon: History },
         { href: '/admin/laporan', label: 'Rekap & Ekspor', icon: FileSpreadsheet },
       ],
     },

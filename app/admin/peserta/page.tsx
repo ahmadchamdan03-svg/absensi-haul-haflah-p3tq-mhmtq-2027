@@ -24,9 +24,11 @@ import {
   Check,
   RotateCcw,
   Info,
+  History,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
+import { logAudit } from '@/lib/audit-log';
 import { BAGIAN_TAMATAN_LIST, extractBagianTamatan, getWarnaTiketSantri, getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
 import * as XLSX from 'xlsx';
 import QRCode from 'qrcode';
@@ -157,6 +159,33 @@ export default function ManajemenPesertaPage() {
   const [qrDetailItem, setQrDetailItem] = useState<any | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Edit Modal Audit History Tab State
+  const [editModalTab, setEditModalTab] = useState<'FORM' | 'RIWAYAT'>('FORM');
+  const [itemAuditHistory, setItemAuditHistory] = useState<any[]>([]);
+  const [loadingAuditHistory, setLoadingAuditHistory] = useState(false);
+
+  useEffect(() => {
+    if (editingItem?.kode) {
+      setLoadingAuditHistory(true);
+      supabase
+        .from('audit_log')
+        .select('*')
+        .eq('kode', editingItem.kode)
+        .order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error && data) {
+            setItemAuditHistory(data);
+          } else {
+            setItemAuditHistory([]);
+          }
+          setLoadingAuditHistory(false);
+        });
+    } else {
+      setItemAuditHistory([]);
+      setEditModalTab('FORM');
+    }
+  }, [editingItem?.kode]);
 
   // Form state tambah santri (tanpa Sub-Kategori / Juz / Tingkat)
   const [formData, setFormData] = useState({
@@ -936,6 +965,19 @@ export default function ManajemenPesertaPage() {
         alamat: formData.alamat.trim().toUpperCase(),
       });
 
+      await logAudit({
+        panitia_id: 'ADMIN_SEKRETARIAT',
+        panitia_role: 'ADMIN',
+        aksi: 'TAMBAH_PESERTA',
+        tabel: 'peserta_santri',
+        kode: kodeBaru,
+        nama: formData.nama.trim().toUpperCase(),
+        field: 'tambah_santri_baru',
+        nilai_baru: JSON.stringify(formData),
+        detail: formData,
+        catatan: `Penambahan Data Santri Baru (${kodeBaru})`,
+      });
+
       await refreshData();
       setShowAddModal(false);
       showToast(`✓ Berhasil menambahkan santri baru ke database Supabase: ${formData.nama} (Kode: ${kodeBaru})`);
@@ -1067,6 +1109,19 @@ export default function ManajemenPesertaPage() {
         alert(`Terjadi kesalahan: ${err.message || err}`);
         return;
       }
+
+      await logAudit({
+        panitia_id: 'ADMIN_SEKRETARIAT',
+        panitia_role: 'ADMIN',
+        aksi: 'TAMBAH_TAMU',
+        tabel: 'tamu_undangan',
+        kode: res.code,
+        nama: finalNama,
+        field: 'tambah_tamu_baru',
+        nilai_baru: JSON.stringify(undanganForm),
+        detail: undanganForm,
+        catatan: `Penambahan Tamu Undangan Baru (${res.code})`,
+      });
 
       refreshData();
       setShowAddUndanganModal(false);
@@ -1200,6 +1255,19 @@ export default function ManajemenPesertaPage() {
         kuotaDasar: kuotaBase,
       });
 
+      await logAudit({
+        panitia_id: 'ADMIN_SEKRETARIAT',
+        panitia_role: 'ADMIN',
+        aksi: 'EDIT_TAMU',
+        tabel: 'tamu_undangan',
+        kode: targetKode,
+        nama: finalNama,
+        field: 'edit_tamu',
+        nilai_baru: JSON.stringify(editingItem),
+        detail: editingItem,
+        catatan: `Perubahan Data Tamu Undangan (${targetKode})`,
+      });
+
       await refreshData();
       setEditingItem(null);
       showToast(`✓ Perubahan data tamu undangan ${targetKode} berhasil disimpan!`);
@@ -1258,6 +1326,19 @@ export default function ManajemenPesertaPage() {
       kuotaDasar: Number(editingItem.kuotaDasar || 4),
     });
 
+    await logAudit({
+      panitia_id: 'ADMIN_SEKRETARIAT',
+      panitia_role: 'ADMIN',
+      aksi: 'EDIT_PESERTA',
+      tabel: 'peserta_santri',
+      kode: targetKode,
+      nama: editingItem.nama,
+      field: 'edit_santri',
+      nilai_baru: JSON.stringify(editingItem),
+      detail: editingItem,
+      catatan: `Perubahan Data Santri (${targetKode})`,
+    });
+
     await refreshData();
     setEditingItem(null);
     showToast(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
@@ -1280,6 +1361,19 @@ export default function ManajemenPesertaPage() {
           return;
         }
       }
+
+      await logAudit({
+        panitia_id: 'ADMIN_SEKRETARIAT',
+        panitia_role: 'ADMIN',
+        aksi: deletingItem.tipe === 'UNDANGAN' ? 'HAPUS_TAMU' : 'HAPUS_PESERTA',
+        tabel: deletingItem.tipe === 'UNDANGAN' ? 'tamu_undangan' : 'peserta_santri',
+        kode: deletingItem.kode,
+        nama: deletingItem.nama,
+        field: 'hapus_peserta',
+        nilai_lama: JSON.stringify(deletingItem),
+        detail: deletingItem,
+        catatan: `Penghapusan Data ${deletingItem.tipe === 'UNDANGAN' ? 'Tamu' : 'Santri'} (${deletingItem.kode}) - Backup di detail`,
+      });
     } catch (err: any) {
       alert(`Terjadi kesalahan saat menghapus data: ${err?.message || err}`);
       return;
@@ -2608,6 +2702,34 @@ export default function ManajemenPesertaPage() {
               </button>
             </div>
 
+            {/* TAB NAVIGASI EDIT MODAL */}
+            <div className="flex border-b border-slate-200 bg-slate-50 px-4 pt-2 gap-2 text-xs font-bold shrink-0">
+              <button
+                type="button"
+                onClick={() => setEditModalTab('FORM')}
+                className={`pb-2.5 px-3 border-b-2 transition-all cursor-pointer ${
+                  editModalTab === 'FORM'
+                    ? 'border-[#8C6A47] text-[#422F21]'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                📝 Form Edit Data
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditModalTab('RIWAYAT')}
+                className={`pb-2.5 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+                  editModalTab === 'RIWAYAT'
+                    ? 'border-[#8C6A47] text-[#422F21]'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Riwayat Audit ({itemAuditHistory.length})</span>
+              </button>
+            </div>
+
+            {editModalTab === 'FORM' ? (
             <form onSubmit={handleSaveEdit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
               {/* JIKA PESERTA ADALAH SANTRI: NAMA LENGKAP SANTRI */}
               {editingItem.tipe === 'SANTRI' && (
@@ -3114,6 +3236,66 @@ export default function ManajemenPesertaPage() {
                 </button>
               </div>
             </form>
+            ) : (
+              <div className="p-4 sm:p-6 space-y-3 text-xs overflow-y-auto flex-1 bg-stone-50">
+                {loadingAuditHistory ? (
+                  <div className="py-12 text-center text-stone-500 font-medium">
+                    Memuat riwayat audit...
+                  </div>
+                ) : itemAuditHistory.length === 0 ? (
+                  <div className="py-12 text-center text-stone-500">
+                    <History className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+                    <p className="font-bold">Belum Ada Riwayat Audit</p>
+                    <p className="text-[11px] text-stone-400 mt-1">
+                      Setiap aksi perubahan data pada peserta ini akan otomatis tercatat di sini.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {itemAuditHistory.map((log) => {
+                      const dtStr = log.created_at
+                        ? new Date(log.created_at).toLocaleString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            timeZone: 'Asia/Jakarta',
+                          })
+                        : '-';
+                      return (
+                        <div
+                          key={log.id}
+                          className="p-3.5 rounded-xl bg-white border border-stone-200 shadow-2xs space-y-1.5"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="px-2 py-0.5 rounded-md font-mono font-bold text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
+                              {log.aksi}
+                            </span>
+                            <span className="text-[10px] text-stone-400 font-mono">{dtStr} WIB</span>
+                          </div>
+                          <div className="text-xs font-semibold text-[#422F21]">
+                            Oleh: <span className="font-bold text-[#8C6A47]">{log.panitia_id || 'SYSTEM'}</span> ({log.panitia_role || 'PANITIA'})
+                          </div>
+                          {log.catatan && (
+                            <div className="text-[11px] text-stone-600 italic">
+                              "{log.catatan}"
+                            </div>
+                          )}
+                          {(log.nilai_lama || log.nilai_baru) && (
+                            <div className="text-[11px] font-mono bg-stone-50 p-2 rounded-lg border border-stone-200 text-stone-700 overflow-x-auto">
+                              {log.field && <span className="font-bold text-[#8C6A47]">{log.field}: </span>}
+                              {log.nilai_lama && <span className="line-through text-rose-600 mr-2">{log.nilai_lama}</span>}
+                              {log.nilai_baru && <span className="text-emerald-700 font-bold">{log.nilai_baru}</span>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

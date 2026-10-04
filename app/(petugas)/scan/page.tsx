@@ -19,6 +19,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logAudit } from '@/lib/audit-log';
 import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
@@ -512,6 +513,26 @@ export default function ScanPage() {
           })
           .eq('id', activeItem.id);
       }
+
+      await logAudit({
+        panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
+        panitia_role: 'PENJAGA_GERBANG',
+        aksi: 'TANDAI_HADIR',
+        tabel: activeItem.tipe === 'KELUARGA' ? 'peserta_santri' : 'tamu_undangan',
+        kode: activeItem.kode || String(activeItem.id),
+        nama: activeItem.nama || activeItem.namaSantri || 'Peserta',
+        field: 'kuota_terpakai',
+        nilai_lama: String(totalExisting),
+        nilai_baru: String(totalTerpakai),
+        detail: {
+          jumlah_l: jumlahL,
+          jumlah_p: jumlahP,
+          jumlah_balita: jumlahBalita,
+          jalur,
+          tiket_panggung: isNewlyGivingGold,
+        },
+        catatan: `Scan Presensi Pintu ${jalur} (${jumlahL} L / ${jumlahP} P)`,
+      });
 
       playSuccessChime();
 

@@ -278,6 +278,40 @@ export interface KonfigurasiSistemDbRow {
   updated_at?: string;
 }
 
+export type AksiAudit =
+  | 'TANDAI_HADIR'
+  | 'BATALKAN_HADIR'
+  | 'EDIT_PESERTA'
+  | 'EDIT_TAMU'
+  | 'TAMBAH_PESERTA'
+  | 'TAMBAH_TAMU'
+  | 'HAPUS_PESERTA'
+  | 'HAPUS_TAMU'
+  | 'EDIT_KUOTA'
+  | 'VERIFIKASI_KUOTA'
+  | 'TOLAK_KUOTA'
+  | 'REFUND_KUOTA'
+  | 'TOGGLE_KUOTA_SWITCH';
+
+export interface AuditLogDbRow {
+  id?: number;
+  panitia_id?: string | null;
+  panitia_role?: string | null;
+  aksi: AksiAudit | string;
+  tabel?: string | null;
+  kode?: string | null;
+  nama?: string | null;
+  field?: string | null;
+  nilai_lama?: string | null;
+  nilai_baru?: string | null;
+  detail?: any;
+  catatan?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+  created_at?: string;
+}
+
+
 
 export interface EstimasiKehadiran {
   kuotaId: string;
