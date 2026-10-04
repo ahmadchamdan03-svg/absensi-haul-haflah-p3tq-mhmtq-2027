@@ -62,6 +62,12 @@ class GeminiPoolManager {
   public getConfiguredKeys(): string[] {
     const rawKeys: string[] = [];
 
+    // 0. Baca GEMINI_PRO_API_KEY (Primary Engine Key)
+    if (process.env.GEMINI_PRO_API_KEY) {
+      const k = process.env.GEMINI_PRO_API_KEY.trim();
+      if (k) rawKeys.push(k);
+    }
+
     // 1. Baca GEMINI_API_KEYS (daftar banyak kunci dipisah koma atau newline)
     const multiEnv = process.env.GEMINI_API_KEYS;
     if (multiEnv) {
@@ -100,7 +106,8 @@ class GeminiPoolManager {
   /**
    * Menghasilkan daftar kunci urutan prioritas untuk request saat ini.
    * Kunci klien (jika ada) berada paling depan.
-   * Kunci server dirotasi dengan Round-Robin.
+   * Kunci GEMINI_PRO_API_KEY (jika sehat) diposisikan sebagai Primary Tier 1.
+   * Kunci server lainnya dirotasi dengan Round-Robin.
    * Kunci yang sedang cooldown diposisikan di paling belakang sebagai cadangan terakhir.
    */
   public getCandidateKeys(clientKey?: string | null): string[] {
@@ -135,18 +142,33 @@ class GeminiPoolManager {
       }
     }
 
-    // Terapkan rotasi round-robin pada kunci yang sehat
+    // Terapkan penempatan GEMINI_PRO_API_KEY di urutan teratas jika sehat, diikuti rotasi round-robin kunci lain
+    const proKey = process.env.GEMINI_PRO_API_KEY?.trim().replace(/^["']|["']$/g, '');
     let rotatedHealthy: string[] = [];
     if (healthyEnvKeys.length > 0) {
-      const shift = this.roundRobinIndex % healthyEnvKeys.length;
-      this.roundRobinIndex = (this.roundRobinIndex + 1) % 100000;
-      rotatedHealthy = [
-        ...healthyEnvKeys.slice(shift),
-        ...healthyEnvKeys.slice(0, shift),
-      ];
+      if (proKey && healthyEnvKeys.includes(proKey)) {
+        const remainingHealthy = healthyEnvKeys.filter((k) => k !== proKey);
+        let shift = 0;
+        if (remainingHealthy.length > 0) {
+          shift = this.roundRobinIndex % remainingHealthy.length;
+          this.roundRobinIndex = (this.roundRobinIndex + 1) % 100000;
+        }
+        rotatedHealthy = [
+          proKey,
+          ...remainingHealthy.slice(shift),
+          ...remainingHealthy.slice(0, shift),
+        ];
+      } else {
+        const shift = this.roundRobinIndex % healthyEnvKeys.length;
+        this.roundRobinIndex = (this.roundRobinIndex + 1) % 100000;
+        rotatedHealthy = [
+          ...healthyEnvKeys.slice(shift),
+          ...healthyEnvKeys.slice(0, shift),
+        ];
+      }
     }
 
-    // Gabungkan: Client Keys -> Rotated Healthy Keys -> Cooldown Keys (last resort)
+    // Gabungkan: Client Keys -> Rotated Healthy Keys (Pro Key #1) -> Cooldown Keys (last resort)
     const candidates = [...clientKeys, ...rotatedHealthy, ...cooldownEnvKeys];
 
     // Deduplikasi
@@ -242,6 +264,7 @@ class GeminiPoolManager {
   public getModelCandidates(): string[] {
     const configuredModel = process.env.GEMINI_MODEL;
     const defaultModels = [
+      'gemini-2.0-flash',
       'gemini-flash-lite-latest',
       'gemini-flash-latest',
       'gemini-2.5-flash',

@@ -2241,6 +2241,7 @@ function detectExpression(
 }
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const body = await req.json();
     const { prompt, history, apiKey: clientApiKey, role, userRole } = body;
@@ -2438,17 +2439,21 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     standardMessages.push({ role: 'user', content: prompt });
 
     // =========================================================================
-    // TIER 1: GOOGLE GEMINI (Multi-Key Pool & Smart Auto-Rotation / Failover)
+    // TIER 1: GOOGLE GEMINI (Gemini Pro Primary & Multi-Key Pool Failover)
     // =========================================================================
     const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 3);
     const candidateGeminiModels = geminiPool.getModelCandidates();
+    const proKeyClean = process.env.GEMINI_PRO_API_KEY?.trim().replace(/^["']|["']$/g, '');
 
     if (candidateGeminiKeys.length > 0) {
       for (const currentGeminiKey of candidateGeminiKeys) {
         let keySucceeded = false;
+        const isProKey = proKeyClean && currentGeminiKey === proKeyClean;
+        const engineLabel = isProKey ? 'Gemini Pro (Primary)' : 'Gemini Pool';
 
         for (const currentModel of candidateGeminiModels) {
           try {
+            console.log(`[Halwaa] Trying ${engineLabel} (${currentModel})...`);
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${currentGeminiKey}`;
 
             const contents: any[] = [];
@@ -2467,7 +2472,10 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
 
             const geminiRes = await fetch(geminiUrl, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': currentGeminiKey,
+              },
               signal: AbortSignal.timeout(4000),
               body: JSON.stringify({
                 system_instruction: {
@@ -2489,21 +2497,28 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
                 keySucceeded = true;
                 const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
                 const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+                const durationMs = Date.now() - startTime;
+                console.log(`[Halwaa] Success via ${engineLabel} (${currentModel})`);
+                console.log('[Halwaa] Engine used:', `${engineLabel} (${currentModel})`);
+                console.log('[Halwaa] Response time:', durationMs, 'ms');
+
                 return NextResponse.json({
                   reply: cleanReply,
                   expression: expr,
                   avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
                   source: 'gemini_api',
-                  model: `Gemini (${currentModel})`,
+                  model: `${engineLabel} (${currentModel})`,
                   keyPreview: geminiPool.maskKey(currentGeminiKey),
+                  responseTimeMs: durationMs,
                 });
               }
             } else {
-              // Jika status 429 atau 503, tandai cooldown dan langsung ganti kunci berikutnya tanpa menunggu lama
+              console.warn(`[Halwaa] ${engineLabel} (${currentModel}) failed with status ${geminiRes.status}, switching key/tier...`);
               geminiPool.markFailure(currentGeminiKey, geminiRes.status, geminiRes.status === 429 ? 60 : 30);
               break;
             }
-          } catch (geminiError) {
+          } catch (geminiError: any) {
+            console.warn(`[Halwaa] ${engineLabel} (${currentModel}) error: ${geminiError?.message || geminiError}, switching key/tier...`);
             geminiPool.markFailure(currentGeminiKey, 500, 30);
             break;
           }
