@@ -79,7 +79,7 @@ DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
    - Waktu Pelaksanaan: Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
    - Lokasi Utama: Aula Muktamar Pondok Pesantren Lirboyo, Jl. HM. Winarto, Campurejo, Kec. Mojoroto, Kota Kediri, Jawa Timur 64117.
 
-2. STRUKTUR PERSONALIA KEPANITIAAN RESMI 1448 H. / 2027 M.:
+2. STRUKTUR PERSONALIA KEPANITIAAN RESMI 1448 H. / 2027 M. (DARI MATERI KOORDINASI II):
    - Dewan Pengasuh / Pelindung: Agus H. Muhammad Hasyim, Agus H. Muhammad Kafabihi, Ning Hj. Tu'ti Amanah Nafisah, Ning Hj. Jihan Zainab.
    - Dewan Penasehat: Segenap Pimpinan P3TQ dan MHMTQ.
    - Dewan Harian (DH):
@@ -87,22 +87,26 @@ DATA DAN FAKTA RESMI ACARA (HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.):
      * Ketua I: Arju Naylal Husna
      * Ketua II: Zakia
      * Sekretaris Umum: Refi Al Izzatul Kholifah
-     * Sekretaris 1 (Sek I): Najma Syarifa Faza
+     * Sekretaris I (Sek I): Najma Syarifa Faza
      * Sekretaris II (Sek II): Inarotud Duja
      * Bendahara Umum (Bendum): Aida Nur Laila (No. Rekening BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
      * Bendahara 1 (Bend I): Umi Fadilah
-   - Seksi-Seksi Operasional:
-     * Seksi Acara / Protokoler: Ning Hj. Jihan Zainab (Koordinator/Pembina), Arju Naylal Husna (Ketua Acara), Najma Syarifa Faza, Durrotun Nafisah, Durrotul Mahfudhoh. (Tugas: Pengatur Susunan Acara, Pengatur Waktu/Rundown, Pembawa Acara/MC, Protokoler Pendamping VVIP/Dzurriyyah).
-     * Seksi Kesekretariatan: Refi Al Izzatul Kholifah (Koordinator), Najma Syarifa Faza, Inarotud Duja. (Tugas: Pengelolaan Undangan, Data Registrasi, Sistem Barcode QR, Pos Kesekretariatan Gerbang Bola Dunia).
-     * Seksi Akomodasi & Tempat: Siti Nur Kholifah (Koordinator), Maimunah, Fatimatuz Zahro. (Tugas: Penataan Panggung Utama, Kursi Aula, Karpet, Terop, Pos Duduk Wali & Tamu).
-     * Seksi Konsumsi & Berkat: Umi Fadilah (Koordinator), Aida Nur Laila, Rofi'atul Adawiyah, Siti Mariyam. (Tugas: Suguhan Meja Aula, Catering VVIP/VIP, Berkat Walisantri, Shohibul Hajat, & Tamu Undangan).
-     * Seksi Peladen / Penerima Tamu: Ning Hj. Tu'ti Amanah Nafisah (Pembina), Sinta Maelani (Koordinator), Zakia, Siti Kholisotul Hasanah. (Tugas: Petugas Penerima Tamu 8 Pos Putri & 8 Pos Putra).
-     * Seksi Keamanan & Ketertiban: Nihayatur Rohmah (Koordinator), Wardatul Jannah, Zahrotul Mufida. (Tugas: Pengamanan Pintu Gerbang, Parkiran, Pembatas Satir Double, Ketertiban Shohibul Hajat).
-     * Seksi Pubdekdok & Dokumentasi: Fitriani (Koordinator), Annisa Nurul Aini. (Tugas: Live Streaming YouTube, Fotografi Panggung, Dekorasi Visual, Shooting Center).
-     * Seksi Perlengkapan & Sound System: Khoirun Nisa' (Koordinator), Umi Kalsum. (Tugas: Microphone, Sound System, Layar LED, Genset, Lighting Panggung).
-     * Seksi Penggalian Dana / Sponsorship: Aida Nur Laila (Koordinator), Sinta Maelani. (Tugas: Penggalangan Dana, Pemesanan Kuota Tambahan Kursi, Partnership).
-     * Seksi Kebersihan & Sanitasi: Nurul Hidayah (Koordinator), Siti Aminah. (Tugas: Kebersihan Aula, MCK, Sampah, Kerapian Pasca Acara).
-     * Seksi Kesehatan & P3K: Dr. Hj. Fitriana (Penanggung Jawab Medis), Nadhifa Kholida. (Tugas: Pos Kesehatan, Pertolongan Pertama Medis, Ambulans).
+
+   - 14 SEKSI RESMI KEPANITIAAN (MATERI KOORDINASI II):
+     1. Seksi Sekretariat: Refi Al Izzatul Kholifah (Koordinator), Najma Syarifa Faza, Inarotud Duja. (Bpk. Asep Darajat & Bpk. Ahmad Chamdan Yuwafi).
+     2. Seksi Protokoler: Kasi: Bapak Abu Yazid Al Bustomi | Wakasi: Bapak Abhaa Muhammad Kafaa Bihi. (Ning Hj. Jihan Zainab & Arju Naylal Husna).
+     3. Seksi Akomodasi: Siti Nur Kholifah (Koordinator), Maimunah, Fatimatuz Zahro. (Bpk. Agus Ismanto & Bpk. Gama Maulana Ilham).
+     4. Seksi Konsumsi: Kasi: Bapak Ahmad Rizal 'Abidin | Wakasi: Bapak Muhammad Taufiqurrohman. (Umi Fadilah, Aida Nur Laila, Rofi'atul Adawiyah).
+     5. Seksi Berkatan: Umi Fadilah (Koordinator), Aida Nur Laila, Rofi'atul Adawiyah. (Bpk. Muhammad Fikri Al Munawwar & Bpk. Muhammad Abdurrohman Maulana).
+     6. Seksi Prasmanan Dzuriyyah: Umi Fadilah (Koordinator), Siti Mariyam. (Bpk. Saiful Nur Kholis & Bpk. Burhanuddin Isri).
+     7. Seksi Peladen: Sinta Maelani (Koordinator), Zakia, Siti Kholisotul Hasanah. (Bpk. Muhammad Syaikhul 'Arifin & Bpk. Ahmad Fathoni Fikri).
+     8. Seksi Penerima Tamu: Ning Hj. Tu'ti Amanah Nafisah (Pembina), Sinta Maelani (Koordinator), Zakia. (Bpk. Muhammad Badru Ro'in Amin & Bpk. Imam Ghozali).
+     9. Seksi Desain Grafis: Fitriani (Koordinator), Annisa Nurul Aini. (Bpk. Muhammad In'amul Muttaqin & Bpk. Agung Shobirin).
+     10. Seksi Humasy & Kostum: Wardatul Jannah (Koordinator), Zahrotul Mufida. (Bpk. Akfi Romiyan Kafabih & Bpk. Achmad Abdulloh Faqih).
+     11. Seksi Keamanan: Kasi: Bapak Adi Susilo | Wakasi: Bapak Reza Fadhilul 'Ulum. (Nihayatur Rohmah, Wardatul Jannah, Zahrotul Mufida).
+     12. Seksi PULP (Pembantu Umum Listrik & Perairan): Khoirun Nisa' (Koordinator), Umi Kalsum.
+     13. Seksi TDM (Tim Dokumentasi & Multimedia): Fitriani (Koordinator), Annisa Nurul Aini. (Bpk. Muhammad Maghfur Fatoni & Sdr. Amin Nur Waluyo).
+     14. Seksi Data: Refi Al Izzatul Kholifah (Koordinator), Najma Syarifa Faza.
 
 3. PERATURAN DATA STATISTIK RESMI:
    - Data statistik peserta santri, tamu undangan, dan jumlah kuota WAJIB mengacu 100% pada DATA LIVE DARI DATABASE SUPABASE yang disisipkan secara dinamis dalam konteks percakapan.
@@ -1337,13 +1341,48 @@ Wonten ingkang saget dibantu malih Us?`;
 9. **Desain Grafis**: Bapak Muhammad In'amul Muttaqin\* & Bapak Agung Shobirin\*\*
 10. **Humasy & Kostum**: Bapak Akfi Romiyan Kafabih\* & Bapak Achmad Abdulloh Faqih\*\*
 11. **Keamanan**: Bapak Adi Susilo\* & Bapak Reza Fadhilul 'Ulum\*\*
-12. **PULP & TDM**: Bapak Muhammad Maghfur Fatoni\* & Sdr. Amin Nur Waluyo\*\*
-
 Wonten ingkang saget dibantu malih Us?`;
   }
 
   // =========================================================================
-  // DETEKSI KHUSUS 0: PERTANYAAN NAMA TOKOH / SANTRI TERTENTU (SPESIFIK & NOMOR HP)
+  // DETEKSI KHUSUS: PROTOKOLER, KONSUMSI, KEAMANAN, DAN SEKSI-SEKSI RESMI (MATERI KOORDINASI II)
+  // =========================================================================
+  if (q.includes('protokoler') || (q.includes('acara') && q.includes('siapa'))) {
+    return `${headerIntro}Berdasarkan Struktur Kepanitiaan Resmi **Haul & Haflah P3TQ dan MHMTQ 2027 (Materi Koordinasi II)**, **Seksi Protokoler / Acara** dipimpin oleh:
+
+- **Kasi (Ketua Seksi)**: **Bapak Abu Yazid Al Bustomi\***
+- **Wakasi (Wakil Kasi)**: **Bapak Abhaa Muhammad Kafaa Bihi\*\***
+- **Pembina / Koordinator Putri**: **Ning Hj. Jihan Zainab** & **Arju Naylal Husna** (Ketua Acara)
+- **Tim Pelaksana**: Najma Syarifa Faza, Durrotun Nafisah, Durrotul Mahfudhoh.
+
+*Seksi Protokoler bertanggung jawab mengatur jalannya susunan acara, rundown waktu, pembawa acara (MC), dan protokoler pendamping VVIP/Dzurriyyah.*
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('konsumsi') && (q.includes('siapa') || q.includes('ketua') || q.includes('kasi') || q.includes('koordinator'))) {
+    return `${headerIntro}Berdasarkan Struktur Kepanitiaan Resmi **Haul & Haflah P3TQ dan MHMTQ 2027 (Materi Koordinasi II)**, **Seksi Konsumsi** dipimpin oleh:
+
+- **Kasi (Ketua Seksi)**: **Bapak Ahmad Rizal 'Abidin\***
+- **Wakasi (Wakil Kasi)**: **Bapak Muhammad Taufiqurrohman\*\***
+- **Koordinator Putri**: **Umi Fadilah** (Bendahara I), **Aida Nur Laila** (Bendahara Umum), Rofi'atul Adawiyah, Siti Mariyam.
+
+*Seksi Konsumsi bertanggung jawab atas penyediaan hidangan meja aula, catering VVIP/VIP Lyla, dan konsumsi wali santri serta panitia.*
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
+
+  if (q.includes('keamanan') && (q.includes('siapa') || q.includes('ketua') || q.includes('kasi') || q.includes('koordinator'))) {
+    return `${headerIntro}Berdasarkan Struktur Kepanitiaan Resmi **Haul & Haflah P3TQ dan MHMTQ 2027 (Materi Koordinasi II)**, **Seksi Keamanan** dipimpin oleh:
+
+- **Kasi (Ketua Seksi)**: **Bapak Adi Susilo\***
+- **Wakasi (Wakil Kasi)**: **Bapak Reza Fadhilul 'Ulum\*\***
+- **Koordinator Putri**: **Nihayatur Rohmah**, Wardatul Jannah, Zahrotul Mufida.
+
+*Seksi Keamanan bertanggung jawab mengamankan pintu gerbang, jalur satir double, parkiran VIP/VVIP, serta ketertiban shohibul hajat.*
+
+Wonten ingkang saget dibantu malih Us?`;
+  }
   // Contoh: "apakah KH. Hamdan (UND0101) sudah hadir?", "Nomor HP wali santri SH9451?", dll.
   // =========================================================================
   const personFound = searchPersonInEvent(userQuery);

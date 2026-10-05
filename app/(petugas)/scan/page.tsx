@@ -223,7 +223,8 @@ export default function ScanPage() {
         (entity.sub_kategori || '').toUpperCase().includes('GHOIB')
       );
       const isAlreadyGiven = Number(entity.tiket_panggung_diberi || 0) > 0;
-      setKartuHitamGoldDiberi(true);
+      setKartuHitamGoldDiberi(isAlreadyGiven || sisa === 0);
+      setSerahkanTiketEmas(isAlreadyGiven || sisa === 0);
 
       const itemObj = {
         id: entity.id,
