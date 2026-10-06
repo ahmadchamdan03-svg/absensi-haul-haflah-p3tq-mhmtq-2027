@@ -2287,24 +2287,24 @@ export default function ManajemenPesertaPage() {
       {/* MODAL 2: TAMBAH TAMU UNDANGAN (Istimewa, Kehormatan, Umum) */}
       {/* ========================================================================= */}
       {showAddUndanganModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-lg w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden">
-            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
+          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden">
+            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 md:p-6 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
                   {selectedGolonganUndangan === 'ISTIMEWA' ? (
-                    <Sparkles className="w-5 h-5 text-amber-400" />
+                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
                   ) : selectedGolonganUndangan === 'KEHORMATAN' ? (
-                    <Building className="w-5 h-5 text-purple-400" />
+                    <Building className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
                   ) : (
-                    <Users className="w-5 h-5 text-cyan-400" />
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-cyan-400" />
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-serif font-black text-sm sm:text-base text-gold-300 truncate">
+                  <h3 className="font-serif font-black text-base sm:text-lg md:text-xl text-gold-300 truncate">
                     Tambah Tamu {selectedGolonganUndangan === 'ISTIMEWA' ? 'Istimewa' : selectedGolonganUndangan === 'KEHORMATAN' ? 'Kehormatan' : 'Umum'}
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] text-opera-200 truncate">
+                  <p className="text-[10px] sm:text-[11px] md:text-xs text-opera-200 truncate mt-0.5">
                     {selectedGolonganUndangan === 'ISTIMEWA'
                       ? 'VVIP & Dzurriyyah / Keluarga Mahrus / Kunir / Bandar'
                       : selectedGolonganUndangan === 'KEHORMATAN'
@@ -2315,19 +2315,19 @@ export default function ManajemenPesertaPage() {
               </div>
               <button
                 onClick={() => setShowAddUndanganModal(false)}
-                className="text-opera-200 hover:text-white p-1"
+                className="text-opera-200 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleTambahUndangan} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+            <form onSubmit={handleTambahUndangan} className="p-4 sm:p-6 md:p-8 space-y-4 md:space-y-5 text-xs md:text-sm overflow-y-auto flex-1">
               {/* 3 Kotak Pemilih Golongan Undangan */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
+                <label className="block font-bold text-slate-700 mb-1.5 text-xs md:text-sm">
                   Pilih Golongan Tamu Undangan *
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 md:gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -2343,13 +2343,13 @@ export default function ManajemenPesertaPage() {
                       });
                       setCustomKategoriInput('');
                     }}
-                    className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
                       selectedGolonganUndangan === 'ISTIMEWA'
                         ? 'bg-amber-100 text-amber-900 border-amber-400 ring-2 ring-amber-400/30 shadow-sm'
                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-600" />
                     <span>🌟 Istimewa</span>
                   </button>
 
@@ -2367,13 +2367,13 @@ export default function ManajemenPesertaPage() {
                       });
                       setCustomKategoriInput('');
                     }}
-                    className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
                       selectedGolonganUndangan === 'KEHORMATAN'
                         ? 'bg-purple-100 text-purple-900 border-purple-400 ring-2 ring-purple-400/30 shadow-sm'
                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    <Building className="w-3.5 h-3.5 text-purple-600" />
+                    <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-600" />
                     <span>🏛️ Kehormatan</span>
                   </button>
 
@@ -2392,31 +2392,30 @@ export default function ManajemenPesertaPage() {
                       });
                       setCustomKategoriInput('');
                     }}
-                    className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
                       selectedGolonganUndangan === 'UMUM'
                         ? 'bg-cyan-100 text-cyan-900 border-cyan-400 ring-2 ring-cyan-400/30 shadow-sm'
                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    <Users className="w-3.5 h-3.5 text-cyan-700" />
+                    <Users className="w-3.5 h-3.5 md:w-4 md:h-4 text-cyan-700" />
                     <span>👥 Umum</span>
                   </button>
                 </div>
-
               </div>
 
               {/* NAMA TAMU UNDANGAN: INPUT PUTRA & PUTRI UNTUK SEMUA GOLONGAN */}
-              <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
+              <div className="p-4 md:p-5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <label className="block font-bold text-amber-950 text-xs md:text-sm flex items-center space-x-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-600" />
                     <span>Nama Tamu Undangan *</span>
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+                    <label className="block font-semibold text-slate-700 text-[11px] md:text-xs mb-1">
                       👨 Nama Tamu Putra (Gus / Kyai / Ust.)
                     </label>
                     <input
@@ -2424,12 +2423,12 @@ export default function ManajemenPesertaPage() {
                       value={undanganForm.namaPutra}
                       onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
                       placeholder="Nama tamu putra..."
-                      className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                      className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+                    <label className="block font-semibold text-slate-700 text-[11px] md:text-xs mb-1">
                       👩 Nama Tamu Putri (Ning / Nyai / Ust.)
                     </label>
                     <input
@@ -2437,7 +2436,7 @@ export default function ManajemenPesertaPage() {
                       value={undanganForm.namaPutri}
                       onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
                       placeholder="Nama tamu putri..."
-                      className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                      className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
                     />
                   </div>
                 </div>
@@ -2619,8 +2618,8 @@ export default function ManajemenPesertaPage() {
       {/* MODAL 3: EDIT PESERTA (Santri atau Tamu Undangan) */}
       {/* ========================================================================= */}
       {editingItem && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-xl w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
+          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden">
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 shrink-0">
