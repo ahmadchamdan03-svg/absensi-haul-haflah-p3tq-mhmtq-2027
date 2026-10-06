@@ -212,9 +212,21 @@ export default function ScanPage() {
         0
       );
 
-      const kuotaDasar = Number(entity.kuota_dasar || 2);
-      const kuotaTambahan = Number(entity.kuota_tambahan || 0);
+      const kuotaDasar = isSantri
+        ? Number(entity.kuota_dasar || 2)
+        : ((entity.nama_putra && String(entity.nama_putra).trim() !== '') ? 1 : 0) +
+          ((entity.nama_putri && String(entity.nama_putri).trim() !== '') ? 1 : 0);
+      const kuotaTambahan = isSantri ? Number(entity.kuota_tambahan || 0) : 0;
       const totalKuota = kuotaDasar + kuotaTambahan;
+
+      if (!isSantri) {
+        console.log('[Kuota Tamu]', {
+          kode: targetKode,
+          nama_putra: entity.nama_putra,
+          nama_putri: entity.nama_putri,
+          kuota: kuotaDasar,
+        });
+      }
       const sisa = Math.max(0, totalKuota - terpakai);
 
       const isBilGhoib = isSantri && (

@@ -642,7 +642,7 @@ export default function ManajemenPesertaPage() {
         alamat: (u as any).alamat || u.instansi || '-',
         kategori: u.kategori || 'Asatidz / Masyayikh',
         instansi: u.instansi || (u as any).alamat || '-',
-        kuotaDasar: kuota?.kuotaDasar || 4,
+        kuotaDasar: kuota?.kuotaDasar !== undefined ? kuota.kuotaDasar : (((u as any).namaPutra && String((u as any).namaPutra).trim() ? 1 : 0) + ((u as any).namaPutri && String((u as any).namaPutri).trim() ? 1 : 0)),
         kuotaTambahan: 0,
         terpakai: terpakai,
         sisa: sisa,
@@ -2403,32 +2403,6 @@ export default function ManajemenPesertaPage() {
                   </button>
                 </div>
 
-                {/* INFO KUOTA OTOMATIS */}
-                <div className="mt-2.5 p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex items-start space-x-2">
-                  <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold block text-amber-950 mb-0.5">Penetapan Kuota Kursi Otomatis:</span>
-                    {selectedGolonganUndangan === 'ISTIMEWA' && (
-                      <p>
-                        Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra &amp; Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
-                      </p>
-                    )}
-                    {selectedGolonganUndangan === 'KEHORMATAN' && (
-                      <p>
-                        Tamu Kehormatan otomatis mendapatkan <strong>1 kursi</strong>.
-                      </p>
-                    )}
-                    {selectedGolonganUndangan === 'UMUM' && (
-                      <p>
-                        {undanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' ? (
-                          <>Tamu <strong>"Asatidz Mhmtq Sekalian"</strong> otomatis mendapatkan <strong>2 kursi</strong> (1 Putra + 1 Putri).</>
-                        ) : (
-                          <>Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.</>
-                        )}
-                      </p>
-                    )}
-                  </div>
-                </div>
               </div>
 
               {/* NAMA TAMU UNDANGAN: INPUT PUTRA & PUTRI UNTUK SEMUA GOLONGAN */}
@@ -2436,51 +2410,35 @@ export default function ManajemenPesertaPage() {
                 <div className="flex items-center justify-between">
                   <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Nama Tamu Undangan ({selectedGolonganUndangan}) *</span>
+                    <span>Nama Tamu Undangan *</span>
                   </label>
-                  <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-semibold">
-                    Isi salah satu atau keduanya (Otomatis hitung kuota 1 / 2)
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                      🤵 Nama Tamu Putra (Gus / Kyai / Ustadz)
+                      👨 Nama Tamu Putra (Gus / Kyai / Ust.)
                     </label>
                     <input
                       type="text"
                       value={undanganForm.namaPutra}
                       onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
-                      placeholder="Contoh: KH. ABDULLOH FAQIH"
+                      placeholder="Nama tamu putra..."
                       className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                     />
                   </div>
 
                   <div>
                     <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                      🧕 Nama Tamu Putri (Ning / Nyai / Ustadzah)
+                      👩 Nama Tamu Putri (Ning / Nyai / Ust.)
                     </label>
                     <input
                       type="text"
                       value={undanganForm.namaPutri}
                       onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
-                      placeholder="Contoh: NYAI HJ. HINDAH"
+                      placeholder="Nama tamu putri..."
                       className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                     />
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-amber-800/80">
-                  <div>
-                    * Gabungan nama yang tercetak di kartu undangan:{' '}
-                    <strong className="text-amber-950">
-                      {undanganForm.namaPutra.trim() && undanganForm.namaPutri.trim()
-                        ? `${undanganForm.namaPutra.trim().toUpperCase()} & ${undanganForm.namaPutri.trim().toUpperCase()}`
-                        : (undanganForm.namaPutra.trim().toUpperCase() || undanganForm.namaPutri.trim().toUpperCase() || undanganForm.nama.trim().toUpperCase() || '(Belum diisi)')}
-                    </strong>
-                  </div>
-                  <div className="font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300 shrink-0">
-                    💡 Mengisi 2 nama = 2 kursi (1 L / 1 P). Mengisi 1 nama = 1 kursi.
                   </div>
                 </div>
               </div>
@@ -2797,32 +2755,6 @@ export default function ManajemenPesertaPage() {
                       </button>
                     </div>
 
-                    {/* INFO KUOTA OTOMATIS */}
-                    <div className="mt-2.5 p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex items-start space-x-2">
-                      <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold block text-amber-950 mb-0.5">Penetapan Kuota Kursi Otomatis:</span>
-                        {editGolonganUndangan === 'ISTIMEWA' && (
-                          <p>
-                            Sistem menghitung kuota otomatis: <strong>2 kursi</strong> (jika Nama Putra &amp; Putri diisi), atau <strong>1 kursi</strong> (jika hanya 1 nama diisi).
-                          </p>
-                        )}
-                        {editGolonganUndangan === 'KEHORMATAN' && (
-                          <p>
-                            Tamu Kehormatan otomatis mendapatkan <strong>1 kursi</strong>.
-                          </p>
-                        )}
-                        {editGolonganUndangan === 'UMUM' && (
-                          <p>
-                            {editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' ? (
-                              <>Tamu <strong>"Asatidz Mhmtq Sekalian"</strong> otomatis mendapatkan <strong>2 kursi</strong> (1 Putra + 1 Putri).</>
-                            ) : (
-                              <>Tamu Umum otomatis mendapatkan <strong>1 kursi</strong>.</>
-                            )}
-                          </p>
-                        )}
-                      </div>
-                    </div>
                   </div>
 
                   {/* NAMA TAMU ISTIMEWA ATAU ASATIDZ MHMTQ SEKALIAN (PUTRA & PUTRI) ATAU NAMA BIASA */}
@@ -2831,17 +2763,14 @@ export default function ManajemenPesertaPage() {
                       <div className="flex items-center justify-between">
                         <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
                           <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Nama Tamu Undangan {editGolonganUndangan === 'ISTIMEWA' ? 'Istimewa' : 'Asatidz MHMTQ Sekalian'} *</span>
+                          <span>Nama Tamu Undangan *</span>
                         </label>
-                        <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-semibold">
-                          Bisa diisi salah satu atau keduanya
-                        </span>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                            🤵 Nama Tamu Putra (Gus / Kyai / Ustadz)
+                            👨 Nama Tamu Putra (Gus / Kyai / Ust.)
                           </label>
                           <input
                             type="text"
@@ -2852,14 +2781,14 @@ export default function ManajemenPesertaPage() {
                               const combined = p.trim() && w.trim() ? `${p.trim()} & ${w.trim()}` : (p.trim() || w.trim());
                               setEditingItem({ ...editingItem, namaPutra: p, nama: combined });
                             }}
-                            placeholder=""
+                            placeholder="Nama tamu putra..."
                             className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                           />
                         </div>
 
                         <div>
                           <label className="block font-semibold text-slate-700 text-[11px] mb-1">
-                            🧕 Nama Tamu Putri (Ning / Nyai / Ustadzah)
+                            👩 Nama Tamu Putri (Ning / Nyai / Ust.)
                           </label>
                           <input
                             type="text"
@@ -2870,25 +2799,10 @@ export default function ManajemenPesertaPage() {
                               const combined = p.trim() && w.trim() ? `${p.trim()} & ${w.trim()}` : (p.trim() || w.trim());
                               setEditingItem({ ...editingItem, namaPutri: w, nama: combined });
                             }}
-                            placeholder=""
+                            placeholder="Nama tamu putri..."
                             className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
                           />
                         </div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-amber-800/80">
-                        <div>
-                          * Gabungan nama yang tercetak di kartu undangan:{' '}
-                          <strong className="text-amber-950">
-                            {editingItem.namaPutra && editingItem.namaPutri
-                              ? `${editingItem.namaPutra.trim().toUpperCase()} & ${editingItem.namaPutri.trim().toUpperCase()}`
-                              : (editingItem.namaPutra?.trim().toUpperCase() || editingItem.namaPutri?.trim().toUpperCase() || editingItem.nama || '(Belum diisi)')}
-                          </strong>
-                        </div>
-                        {editGolonganUndangan === 'UMUM' && editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian' && (
-                          <div className="font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300 shrink-0">
-                            Kuota otomatis: 2 kursi (1 Putra + 1 Putri)
-                          </div>
-                        )}
                       </div>
                     </div>
                   ) : (

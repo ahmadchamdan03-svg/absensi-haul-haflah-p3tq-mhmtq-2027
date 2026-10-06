@@ -146,8 +146,11 @@ export default function RekonPage() {
     const isSantri = item.tipe === 'SANTRI';
     const d = item.data;
     const currentTerpakai = Number(d.kuota_terpakai || 0);
-    const kBase = Number(d.kuota_dasar || 2);
-    const kExtra = Number(d.kuota_tambahan || 0);
+    const kBase = isSantri
+      ? Number(d.kuota_dasar || 2)
+      : ((d.nama_putra && String(d.nama_putra).trim() !== '') ? 1 : 0) +
+        ((d.nama_putri && String(d.nama_putri).trim() !== '') ? 1 : 0);
+    const kExtra = isSantri ? Number(d.kuota_tambahan || 0) : 0;
     const totalKuota = kBase + kExtra;
 
     const isHadir = currentTerpakai > 0;
@@ -250,7 +253,10 @@ export default function RekonPage() {
       subKategori: d.sub_kategori || '',
       kategori: d.kategori || 'Tamu Undangan',
       instansi: d.instansi || '',
-      kuotaDasar: d.kuota_dasar !== undefined && d.kuota_dasar !== null ? d.kuota_dasar : (isSantri ? (d.kategori_utama === 'BIL_GHOIB' ? 4 : 2) : 2),
+      kuotaDasar: isSantri
+        ? (d.kuota_dasar !== undefined && d.kuota_dasar !== null ? d.kuota_dasar : (d.kategori_utama === 'BIL_GHOIB' ? 4 : 2))
+        : ((d.nama_putra && String(d.nama_putra).trim() !== '') ? 1 : 0) +
+          ((d.nama_putri && String(d.nama_putri).trim() !== '') ? 1 : 0),
       kuotaTambahan: d.kuota_tambahan || 0,
       kuotaTerpakai: d.kuota_terpakai || 0,
       tiketPanggungJatah: d.tiket_panggung_jatah || 0,
@@ -629,8 +635,11 @@ export default function RekonPage() {
                   const isSantri = item.tipe === 'SANTRI';
                   const d = item.data;
                   const currentTerpakai = Number(d.kuota_terpakai || 0);
-                  const kBase = Number(d.kuota_dasar || 2);
-                  const kExtra = Number(d.kuota_tambahan || 0);
+                  const kBase = isSantri
+                    ? Number(d.kuota_dasar || 2)
+                    : ((d.nama_putra && String(d.nama_putra).trim() !== '') ? 1 : 0) +
+                      ((d.nama_putri && String(d.nama_putri).trim() !== '') ? 1 : 0);
+                  const kExtra = isSantri ? Number(d.kuota_tambahan || 0) : 0;
                   const totalKuota = kBase + kExtra;
                   const isHadir = currentTerpakai > 0;
 

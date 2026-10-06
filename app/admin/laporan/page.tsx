@@ -359,7 +359,8 @@ export default function LaporanPage() {
     const idx = getBlok3Index(und);
     if (blokUndangan[idx]) {
       blokUndangan[idx].sh += 1;
-      const kTot = Number(und.kuota_dasar || 2) + Number(und.kuota_tambahan || 0);
+      const kBase = ((und.nama_putra && String(und.nama_putra).trim() !== '') ? 1 : 0) + ((und.nama_putri && String(und.nama_putri).trim() !== '') ? 1 : 0);
+      const kTot = kBase + Number(und.kuota_tambahan || 0);
       blokUndangan[idx].kuota += kTot;
 
       // Ambil warna_tiket murni dari DB jika ada

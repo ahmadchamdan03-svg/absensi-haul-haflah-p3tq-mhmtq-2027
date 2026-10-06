@@ -163,7 +163,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
   const handleQuickCheckin = async (u: any) => {
     const terpakaiSekarang = u.kuota?.terpakai || 0;
-    const kuotaDasar = u.kuota?.kuotaDasar || 2;
+    const kuotaDasar = u.kuota?.kuotaDasar !== undefined ? u.kuota.kuotaDasar : (((u as any).namaPutra && String((u as any).namaPutra).trim() ? 1 : 0) + ((u as any).namaPutri && String((u as any).namaPutri).trim() ? 1 : 0));
     const kuotaTambahan = u.kuota?.kuotaTambahan || 0;
     const totalKuotaItem = kuotaDasar + kuotaTambahan;
     if (terpakaiSekarang >= totalKuotaItem) {
@@ -406,7 +406,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
   const totalKuotaTamu = useMemo(() => {
     return undanganList.reduce((acc, u) => {
-      const kBase = Number(u.kuota?.kuotaDasar !== undefined && u.kuota?.kuotaDasar !== null ? u.kuota.kuotaDasar : 2);
+      const kBase = Number(u.kuota?.kuotaDasar !== undefined && u.kuota?.kuotaDasar !== null ? u.kuota.kuotaDasar : (((u as any).namaPutra && String((u as any).namaPutra).trim() ? 1 : 0) + ((u as any).namaPutri && String((u as any).namaPutri).trim() ? 1 : 0)));
       const kExtra = Number(u.kuota?.kuotaTambahan || 0);
       return acc + kBase + kExtra;
     }, 0);
@@ -587,7 +587,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {filteredUndangan.map((u) => {
                   const terpakai = u.kuota?.terpakai || 0;
-                  const kuotaDasar = u.kuota?.kuotaDasar || 2;
+                  const kuotaDasar = u.kuota?.kuotaDasar !== undefined ? u.kuota.kuotaDasar : (((u as any).namaPutra && String((u as any).namaPutra).trim() ? 1 : 0) + ((u as any).namaPutri && String((u as any).namaPutri).trim() ? 1 : 0));
                   const kuotaTambahan = u.kuota?.kuotaTambahan || 0;
                   const totalKuotaItem = kuotaDasar + kuotaTambahan;
                   const sisa = Math.max(0, totalKuotaItem - terpakai);
@@ -758,30 +758,27 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <div className="space-y-3 bg-[#FAF7F3] p-3.5 rounded-2xl border border-[#D5C4B4]">
                 <div>
                   <label className="block font-bold text-[#422F21] mb-1">
-                    Nama Tamu Putra <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
+                    👨 Nama Tamu Putra <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
                   </label>
                   <input
                     type="text"
                     value={undanganForm.namaPutra}
                     onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
-                    placeholder="Contoh: KH. ABDULLOH FAQIH / UST. AHMAD"
+                    placeholder="Nama tamu putra..."
                     className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
                   />
                 </div>
                 <div>
                   <label className="block font-bold text-[#422F21] mb-1">
-                    Nama Tamu Putri <span className="text-stone-500 font-normal">(Ning / Nyai / Ustazah)</span>:
+                    👩 Nama Tamu Putri <span className="text-stone-500 font-normal">(Ning / Nyai / Ust.)</span>:
                   </label>
                   <input
                     type="text"
                     value={undanganForm.namaPutri}
                     onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
-                    placeholder="Contoh: NYAI HJ. HINDAH / USTADZAH SITI"
+                    placeholder="Nama tamu putri..."
                     className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-emerald-700"
                   />
-                </div>
-                <div className="text-[10px] text-emerald-800 bg-emerald-50/80 p-2 rounded-xl border border-emerald-200 font-medium">
-                  💡 <strong>Aturan Kuota:</strong> Mengisi 2 nama (Putra &amp; Putri) = Otomatis 2 Kursi (1 L / 1 P). Mengisi 1 nama = 1 Kursi.
                 </div>
               </div>
 
