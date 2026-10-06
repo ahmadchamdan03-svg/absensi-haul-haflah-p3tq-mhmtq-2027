@@ -105,7 +105,7 @@ export default function KonfirmasiPage() {
         const mappedTamu = resTamu.data.map((t: any) => {
           const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
           const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
-          const totKuota = (countL + countP) || 1;
+          const totKuota = countL + countP;
           const terpakai = Number(t.kuota_terpakai || 0);
 
           const estL = Number(t.perkiraan_l || 0);

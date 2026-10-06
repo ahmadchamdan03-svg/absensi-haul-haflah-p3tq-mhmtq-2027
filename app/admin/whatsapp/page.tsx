@@ -196,7 +196,7 @@ export default function WhatsAppPage() {
             instansi: t.instansi || '-',
             alamat: t.alamat || '-',
             noHp: t.no_hp || '',
-            kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0) || 1,
+            kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0),
             kuotaTambahan: 0,
             statusKonfirmasi: t.status_konfirmasi || null,
             warnaTiket: t.warna_tiket || 'Merah Gold',

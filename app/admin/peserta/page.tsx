@@ -436,7 +436,7 @@ export default function ManajemenPesertaPage() {
           kuota: {
             id: u.id,
             kodeQr: u.kode,
-            kuotaDasar: (u.nama_putra && String(u.nama_putra).trim() ? 1 : 0) + (u.nama_putri && String(u.nama_putri).trim() ? 1 : 0) || 1,
+            kuotaDasar: (u.nama_putra && String(u.nama_putra).trim() ? 1 : 0) + (u.nama_putri && String(u.nama_putri).trim() ? 1 : 0),
             kuotaTambahan: 0,
             terpakai: u.kuota_terpakai || 0,
             warnaTiket: u.warna_tiket !== undefined && u.warna_tiket !== null && u.warna_tiket !== ''

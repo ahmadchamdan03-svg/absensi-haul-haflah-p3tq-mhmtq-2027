@@ -58,8 +58,7 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
   const tamuKuota = undanganData.reduce((sum, u: any) => {
     const countL = u.nama_putra && String(u.nama_putra).trim() ? 1 : 0;
     const countP = u.nama_putri && String(u.nama_putri).trim() ? 1 : 0;
-    const kuota = (countL + countP) || 1;
-    return sum + kuota;
+    return sum + countL + countP;
   }, 0);
 
   // Calculate Total Hadir & Gender Breakdown (Numerators)
@@ -170,7 +169,7 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
 
     const countL = u.nama_putra && String(u.nama_putra).trim() ? 1 : 0;
     const countP = u.nama_putri && String(u.nama_putri).trim() ? 1 : 0;
-    const kuotaTotal = (countL + countP) || 1;
+    const kuotaTotal = countL + countP;
     const terpakai = isHadir
       ? (sumTerpakai !== undefined ? sumTerpakai : Number(u.kuota_terpakai || 0))
       : 0;

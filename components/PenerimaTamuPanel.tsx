@@ -126,7 +126,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           kuota: {
             id: d.id,
             kodeQr: d.kode,
-            kuotaDasar: (d.nama_putra && String(d.nama_putra).trim() ? 1 : 0) + (d.nama_putri && String(d.nama_putri).trim() ? 1 : 0) || 1,
+            kuotaDasar: (d.nama_putra && String(d.nama_putra).trim() ? 1 : 0) + (d.nama_putri && String(d.nama_putri).trim() ? 1 : 0),
             kuotaTambahan: 0,
             terpakai: d.kuota_terpakai || 0,
           },
@@ -330,6 +330,11 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
     } else {
       finalInstansi = (undanganForm.instansi || '').trim();
       finalAlamat = (undanganForm.alamat || '').trim();
+    }
+
+    if (!p && !w && !finalNama) {
+      alert('Minimal salah satu nama (Putra atau Putri) harus diisi!');
+      return;
     }
 
     const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;

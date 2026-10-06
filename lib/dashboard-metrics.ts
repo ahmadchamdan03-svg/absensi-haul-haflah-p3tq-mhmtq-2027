@@ -78,8 +78,7 @@ export async function getTamuUndanganMetrics(): Promise<MetricCardResult> {
   const totalKuota = (kuotaData || []).reduce((sum, r: any) => {
     const countL = r.nama_putra && String(r.nama_putra).trim() ? 1 : 0;
     const countP = r.nama_putri && String(r.nama_putri).trim() ? 1 : 0;
-    const kuota = (countL + countP) || 1;
-    return sum + kuota;
+    return sum + countL + countP;
   }, 0);
 
   const { data: presensiData, error: presensiErr } = await supabase
