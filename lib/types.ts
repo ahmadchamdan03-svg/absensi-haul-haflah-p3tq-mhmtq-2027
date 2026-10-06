@@ -231,8 +231,8 @@ export interface TamuUndanganDbRow {
   instansi?: string | null;
   alamat?: string | null;
   no_hp?: string | null;
-  kuota_dasar: number;
-  kuota_tambahan: number;
+  kuota_dasar?: number;
+  kuota_tambahan?: number;
   kuota_terpakai: number;
   warna_tiket: string;
   status_wa?: string | null;

@@ -155,9 +155,10 @@ export default function WhatsAppPage() {
               terpakai: s.kuota_terpakai || 0,
             },
             estimasi: {
-              statusKonfirmasi: s.kuota_terpakai > 0 ? 'SUDAH' : 'BELUM',
-              perkiraanL: 1,
-              perkiraanP: 1,
+              // Sumber tunggal: kolom status_konfirmasi (sama dengan /admin/konfirmasi & /u/[token])
+              statusKonfirmasi: String(s.status_konfirmasi || '').toUpperCase() === 'SUDAH' ? 'SUDAH' : 'BELUM',
+              perkiraanL: Number(s.perkiraan_l || 0),
+              perkiraanP: Number(s.perkiraan_p || 0),
             },
           }))
         );
@@ -195,8 +196,9 @@ export default function WhatsAppPage() {
             instansi: t.instansi || '-',
             alamat: t.alamat || '-',
             noHp: t.no_hp || '',
-            kuotaDasar: t.kuota_dasar || 2,
-            kuotaTambahan: t.kuota_tambahan || 0,
+            kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0) || 1,
+            kuotaTambahan: 0,
+            statusKonfirmasi: t.status_konfirmasi || null,
             warnaTiket: t.warna_tiket || 'Merah Gold',
             statusWa: t.status_wa || 'BELUM',
             jalurMasuk: t.jalur_masuk || '',
@@ -1482,8 +1484,11 @@ Wassalamu'alaikum warahmatullahi wabarakatuh
                             </td>
                             <td className="py-3 px-3 text-center whitespace-nowrap">
                               {isConfirmed ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                  ✓ Sudah Hadir
+                                <span className="inline-flex flex-col items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                  <span>✓ Sudah Konfirmasi</span>
+                                  <span className="font-semibold text-[9px] text-emerald-700">
+                                    L: {kel.estimasi?.perkiraanL ?? 0}, P: {kel.estimasi?.perkiraanP ?? 0}
+                                  </span>
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">

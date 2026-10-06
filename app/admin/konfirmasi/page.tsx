@@ -22,9 +22,12 @@ import {
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
 import { buatPesanPengingatKonfirmasi, normalkanNomorHp } from '@/lib/hmac';
+import { logAudit } from '@/lib/audit-log';
 
 export default function KonfirmasiPage() {
+  const [activeMainTab, setActiveMainTab] = useState<'WALI_SANTRI' | 'TAMU_UNDANGAN'>('WALI_SANTRI');
   const [daftarSantri, setDaftarSantri] = useState<any[]>([]);
+  const [daftarTamu, setDaftarTamu] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filter & Search
@@ -46,16 +49,16 @@ export default function KonfirmasiPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successToast, setSuccessToast] = useState('');
 
-  // 1. Fetch data murni 100% dari Supabase tabel 'peserta_santri'
+  // 1. Fetch data dari Supabase tabel 'peserta_santri' & 'tamu_undangan'
   const fetchKonfirmasiData = async () => {
     try {
-      const { data: supaSantri, error } = await supabase
-        .from('peserta_santri')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const [resSantri, resTamu] = await Promise.all([
+        supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
+        supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
+      ]);
 
-      if (supaSantri && !error) {
-        const mapped = supaSantri.map((s: any) => {
+      if (resSantri.data && !resSantri.error) {
+        const mapped = resSantri.data.map((s: any) => {
           const kDasar = Number(s.kuota_dasar || 2);
           const kTambahan = Number(s.kuota_tambahan || 0);
           const totKuota = kDasar + kTambahan;
@@ -71,6 +74,7 @@ export default function KonfirmasiPage() {
 
           return {
             id: s.id,
+            tipe: 'WALI_SANTRI',
             kode: s.kode || s.nis || 'SH000',
             namaSantri: s.nama || '-',
             namaWali: s.nama_wali || '-',
@@ -96,9 +100,54 @@ export default function KonfirmasiPage() {
       } else {
         setDaftarSantri([]);
       }
+
+      if (resTamu.data && !resTamu.error) {
+        const mappedTamu = resTamu.data.map((t: any) => {
+          const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
+          const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
+          const totKuota = (countL + countP) || 1;
+          const terpakai = Number(t.kuota_terpakai || 0);
+
+          const estL = Number(t.perkiraan_l || 0);
+          const estP = Number(t.perkiraan_p || 0);
+          const sumEst = estL + estP;
+
+          const isSudah = t.status_konfirmasi === 'SUDAH' || (t.status_konfirmasi !== 'BELUM' && (sumEst > 0 || terpakai > 0));
+          const status = isSudah ? 'SUDAH' : 'BELUM';
+          const totalEst = isSudah ? (sumEst > 0 ? sumEst : terpakai) : 0;
+
+          return {
+            id: t.id,
+            tipe: 'TAMU_UNDANGAN',
+            kode: t.kode || 'UND000',
+            namaSantri: t.nama || [t.nama_putra, t.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan',
+            namaWali: t.instansi || t.alamat || 'Tamu Undangan',
+            noHp: t.no_hp || '-',
+            alamat: t.alamat || '-',
+            kamar: '-',
+            kategoriUtama: t.kategori || 'Tamu Undangan',
+            subKategori: t.sub_kategori || 'ISTIMEWA',
+            kelas: t.kategori || 'Tamu',
+            kuotaDasar: totKuota,
+            kuotaTambahan: 0,
+            totalKuota: totKuota,
+            statusKonfirmasi: status,
+            perkiraanL: estL,
+            perkiraanP: estP,
+            totalEstimasi: totalEst,
+            catatan: t.catatan_konfirmasi || '',
+            diubahOleh: 'TAMU_OFFICIAL',
+            diisiAt: t.updated_at || t.created_at,
+          };
+        });
+        setDaftarTamu(mappedTamu);
+      } else {
+        setDaftarTamu([]);
+      }
     } catch (e) {
       console.error('Error fetching konfirmasi data:', e);
       setDaftarSantri([]);
+      setDaftarTamu([]);
     } finally {
       setLoading(false);
     }
@@ -111,6 +160,7 @@ export default function KonfirmasiPage() {
     const channel = supabase
       .channel('konfirmasi_page_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, fetchKonfirmasiData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchKonfirmasiData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchKonfirmasiData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchKonfirmasiData)
       .subscribe();
@@ -121,20 +171,24 @@ export default function KonfirmasiPage() {
     };
   }, []);
 
+  const currentDataset = useMemo(() => {
+    return activeMainTab === 'WALI_SANTRI' ? daftarSantri : daftarTamu;
+  }, [activeMainTab, daftarSantri, daftarTamu]);
+
   // 2. Kalkulasi Metrik Ringkasan Realtime
   const rekap = useMemo(() => {
-    const totalSantri = daftarSantri.length;
-    const totalKuotaSantri = daftarSantri.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
-    const sudahKonfirmasiCount = daftarSantri.filter((s) => s.statusKonfirmasi === 'SUDAH').length;
+    const totalSantri = currentDataset.length;
+    const totalKuotaSantri = currentDataset.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
+    const sudahKonfirmasiCount = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH').length;
     const belumKonfirmasiCount = Math.max(0, totalSantri - sudahKonfirmasiCount);
     const persentaseSudah = totalSantri > 0 ? Math.round((sudahKonfirmasiCount / totalSantri) * 100) : 0;
-    const totalEstimasiRombongan = daftarSantri.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0);
-    const totalEstL = daftarSantri.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
-    const totalEstP = daftarSantri.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
+    const totalEstimasiRombongan = currentDataset.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0);
+    const totalEstL = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
+    const totalEstP = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
 
-    const bilGhoibCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIL_GHOIB').length;
-    const binNadzorCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
-    const tamatanCount = daftarSantri.filter((s) => s.kategoriUtama === 'TAMATAN').length;
+    const bilGhoibCount = currentDataset.filter((s) => s.kategoriUtama === 'BIL_GHOIB').length;
+    const binNadzorCount = currentDataset.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
+    const tamatanCount = currentDataset.filter((s) => s.kategoriUtama === 'TAMATAN').length;
 
     return {
       totalSantri,
@@ -149,35 +203,35 @@ export default function KonfirmasiPage() {
       binNadzorCount,
       tamatanCount,
     };
-  }, [daftarSantri]);
+  }, [currentDataset]);
 
   // Filtered List
   const filteredList = useMemo(() => {
-    return daftarSantri.filter((item) => {
+    return currentDataset.filter((item) => {
       // Filter Status Konfirmasi
       if (filterStatus !== 'SEMUA' && item.statusKonfirmasi !== filterStatus) {
         return false;
       }
       // Filter Kategori Santri
-      if (filterKategori !== 'SEMUA' && item.kategoriUtama !== filterKategori) {
+      if (activeMainTab === 'WALI_SANTRI' && filterKategori !== 'SEMUA' && item.kategoriUtama !== filterKategori) {
         return false;
       }
       // Pencarian
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
-        const matchNama = item.namaSantri.toLowerCase().includes(q);
-        const matchWali = item.namaWali.toLowerCase().includes(q);
-        const matchKode = item.kode.toLowerCase().includes(q);
-        const matchKelas = item.kelas.toLowerCase().includes(q);
-        const matchAlamat = item.alamat.toLowerCase().includes(q);
-        const matchHp = item.noHp.toLowerCase().includes(q);
+        const matchNama = (item.namaSantri || '').toLowerCase().includes(q);
+        const matchWali = (item.namaWali || '').toLowerCase().includes(q);
+        const matchKode = (item.kode || '').toLowerCase().includes(q);
+        const matchKelas = (item.kelas || '').toLowerCase().includes(q);
+        const matchAlamat = (item.alamat || '').toLowerCase().includes(q);
+        const matchHp = (item.noHp || '').toLowerCase().includes(q);
         if (!matchNama && !matchWali && !matchKode && !matchKelas && !matchAlamat && !matchHp) {
           return false;
         }
       }
       return true;
     });
-  }, [daftarSantri, filterStatus, filterKategori, searchQuery]);
+  }, [currentDataset, activeMainTab, filterStatus, filterKategori, searchQuery]);
 
   // Paginasi
   const totalPages = Math.max(1, Math.ceil(filteredList.length / itemsPerPage));
@@ -194,7 +248,7 @@ export default function KonfirmasiPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterStatus, filterKategori, searchQuery]);
+  }, [activeMainTab, filterStatus, filterKategori, searchQuery]);
 
   // Buka Modal Edit Manual
   const handleOpenEdit = (item: any) => {
@@ -212,26 +266,57 @@ export default function KonfirmasiPage() {
 
     if (editL + editP > modalItem.totalKuota) {
       setErrorMsg(
-        `Total estimasi (${editL + editP} orang) melebihi jatah kuota santri (${modalItem.totalKuota} kursi)!`
+        `Total estimasi (${editL + editP} orang) melebihi jatah kuota (${modalItem.totalKuota} kursi)!`
       );
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('peserta_santri')
-        .update({
-          perkiraan_l: editL,
-          perkiraan_p: editP,
-          status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
-          catatan_konfirmasi: editCatatan,
-        })
-        .eq('kode', modalItem.kode);
+      if (modalItem.tipe === 'TAMU_UNDANGAN') {
+        const { error } = await supabase
+          .from('tamu_undangan')
+          .update({
+            perkiraan_l: editL,
+            perkiraan_p: editP,
+            status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
+            catatan_konfirmasi: editCatatan,
+          })
+          .eq('kode', modalItem.kode);
 
-      if (error) {
-        console.error('Error updating konfirmasi in Supabase:', error);
-        setErrorMsg(`Gagal menyimpan ke Supabase DB: ${error.message}`);
-        return;
+        if (error) {
+          console.error('Error updating tamu konfirmasi in Supabase:', error);
+          setErrorMsg(`Gagal menyimpan ke Supabase DB: ${error.message}`);
+          return;
+        }
+
+        await logAudit({
+          panitia_id: 'ADMIN_SEKRETARIAT',
+          panitia_role: 'ADMIN',
+          aksi: 'EDIT_TAMU',
+          tabel: 'tamu_undangan',
+          kode: modalItem.kode,
+          nama: modalItem.namaSantri || modalItem.namaWali,
+          field: 'edit_konfirmasi_tamu',
+          nilai_baru: JSON.stringify({ perkiraan_l: editL, perkiraan_p: editP, status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM', catatan_konfirmasi: editCatatan }),
+          detail: modalItem,
+          catatan: `Edit Konfirmasi Tamu Undangan (${modalItem.kode})`,
+        });
+      } else {
+        const { error } = await supabase
+          .from('peserta_santri')
+          .update({
+            perkiraan_l: editL,
+            perkiraan_p: editP,
+            status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
+            catatan_konfirmasi: editCatatan,
+          })
+          .eq('kode', modalItem.kode);
+
+        if (error) {
+          console.error('Error updating konfirmasi in Supabase:', error);
+          setErrorMsg(`Gagal menyimpan ke Supabase DB: ${error.message}`);
+          return;
+        }
       }
     } catch (err: any) {
       console.error('Exception updating konfirmasi:', err);
@@ -239,12 +324,13 @@ export default function KonfirmasiPage() {
       return;
     }
 
-    // Sync store
-    store.editKonfirmasiManual(modalItem.kode, editL, editP, editCatatan);
+    if (modalItem.tipe !== 'TAMU_UNDANGAN') {
+      store.editKonfirmasiManual(modalItem.kode, editL, editP, editCatatan);
+    }
 
     await fetchKonfirmasiData();
     setSuccessToast(
-      `Konfirmasi santri ${modalItem.namaSantri} (${modalItem.kode}) berhasil diperbarui secara manual!`
+      `Konfirmasi ${modalItem.tipe === 'TAMU_UNDANGAN' ? 'tamu' : 'santri'} ${modalItem.namaSantri || modalItem.namaWali} (${modalItem.kode}) berhasil diperbarui secara manual!`
     );
     setTimeout(() => setSuccessToast(''), 4000);
     setModalItem(null);
@@ -369,16 +455,58 @@ export default function KonfirmasiPage() {
       )}
 
       {/* Header Halaman */}
-      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#8C6A47]/40 space-y-2">
-        <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
-          <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
-          <span className="truncate">PANEL PANITIA · REKAPITULASI PRA-ACARA</span>
+      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#8C6A47]/40 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="space-y-1">
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
+              <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
+              <span className="truncate">PANEL PANITIA · REKAPITULASI PRA-ACARA</span>
+            </div>
+            <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#422F21] leading-tight">
+              Monitoring Konfirmasi Kehadiran {activeMainTab === 'WALI_SANTRI' ? 'Wali Santri' : 'Tamu Undangan'}
+            </h1>
+          </div>
+
+          {/* TOGGLE WALI SANTRI / TAMU UNDANGAN */}
+          <div className="flex items-center space-x-2 bg-[#FAF7F3] p-1.5 rounded-2xl border-2 border-[#8C6A47]/30 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMainTab('WALI_SANTRI');
+                setFilterKategori('SEMUA');
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center space-x-2 ${
+                activeMainTab === 'WALI_SANTRI'
+                  ? 'bg-[#8C6A47] text-white shadow-md'
+                  : 'text-[#7A624E] hover:bg-[#EFE8E1]'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Wali Santri ({daftarSantri.length})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMainTab('TAMU_UNDANGAN');
+                setFilterKategori('SEMUA');
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center space-x-2 ${
+                activeMainTab === 'TAMU_UNDANGAN'
+                  ? 'bg-[#8C6A47] text-white shadow-md'
+                  : 'text-[#7A624E] hover:bg-[#EFE8E1]'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
+              <span>Tamu Undangan ({daftarTamu.length})</span>
+            </button>
+          </div>
         </div>
-        <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#422F21] leading-tight">
-          Monitoring Konfirmasi Kehadiran Wali Santri
-        </h1>
         <p className="text-xs text-[#7A624E] font-medium leading-relaxed">
-          Pantau total konfirmasi kehadiran, data rombongan Laki-laki &amp; Perempuan untuk alokasi konsumsi dan kursi, serta lakukan edit manual bila wali santri konfirmasi via telepon/offline.
+          {activeMainTab === 'WALI_SANTRI'
+            ? 'Pantau total konfirmasi kehadiran, data rombongan Laki-laki & Perempuan untuk alokasi konsumsi dan kursi wali santri.'
+            : 'Pantau konfirmasi kehadiran Tamu Undangan / Kehormatan, jatah kursi alokasi, dan perkiraan rombongan.'}
         </p>
       </div>
 
@@ -554,7 +682,7 @@ export default function KonfirmasiPage() {
           </div>
 
           <div className="text-[11px] sm:text-xs text-[#7A624E] font-medium self-end md:self-auto">
-            Menampilkan {filteredList.length} dari {daftarSantri.length} santri
+            Menampilkan {filteredList.length} dari {currentDataset.length} {activeMainTab === 'WALI_SANTRI' ? 'santri' : 'tamu'}
           </div>
         </div>
 
@@ -567,7 +695,7 @@ export default function KonfirmasiPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama santri, wali, kode (SH0001), kelas, kamar, alamat..."
+              placeholder={activeMainTab === 'WALI_SANTRI' ? "Cari nama santri, wali, kode (SH0001), kelas, kamar, alamat..." : "Cari nama tamu, instansi, kode (UND0001), alamat, no hp..."}
               className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs text-[#422F21] placeholder-[#7A624E]/70 focus:outline-none focus:border-[#8C6A47] transition-colors"
             />
             {searchQuery && (
@@ -581,19 +709,21 @@ export default function KonfirmasiPage() {
           </div>
 
           {/* Filter Kategori Dropdown */}
-          <div className="flex items-center space-x-2 w-full md:w-auto">
-            <span className="text-xs font-bold text-[#7A624E] hidden sm:inline shrink-0">Kategori:</span>
-            <select
-              value={filterKategori}
-              onChange={(e) => setFilterKategori(e.target.value as any)}
-              className="w-full md:w-auto px-3 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs font-semibold text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
-            >
-              <option value="SEMUA">Semua Kategori ({rekap.totalSantri})</option>
-              <option value="BIL_GHOIB">Bil Ghoib ({rekap.bilGhoibCount} Santri)</option>
-              <option value="BIN_NADZOR">Bin Nadzori ({rekap.binNadzorCount} Santri)</option>
-              <option value="TAMATAN">Tamatan III Aliyah ({rekap.tamatanCount} Santri)</option>
-            </select>
-          </div>
+          {activeMainTab === 'WALI_SANTRI' && (
+            <div className="flex items-center space-x-2 w-full md:w-auto">
+              <span className="text-xs font-bold text-[#7A624E] hidden sm:inline shrink-0">Kategori:</span>
+              <select
+                value={filterKategori}
+                onChange={(e) => setFilterKategori(e.target.value as any)}
+                className="w-full md:w-auto px-3 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs font-semibold text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
+              >
+                <option value="SEMUA">Semua Kategori ({rekap.totalSantri})</option>
+                <option value="BIL_GHOIB">Bil Ghoib ({rekap.bilGhoibCount} Santri)</option>
+                <option value="BIN_NADZOR">Bin Nadzori ({rekap.binNadzorCount} Santri)</option>
+                <option value="TAMATAN">Tamatan III Aliyah ({rekap.tamatanCount} Santri)</option>
+              </select>
+            </div>
+          )}
         </div>
 
         {/* Indikator Geser di Layar HP */}
@@ -605,14 +735,14 @@ export default function KonfirmasiPage() {
           <span className="text-xs">↔️</span>
         </div>
 
-        {/* TABEL DATA KONFIRMASI SANTRI */}
+        {/* TABEL DATA KONFIRMASI */}
         <div className="overflow-x-auto rounded-b-2xl md:rounded-2xl border-2 border-[#D5C4B4] bg-white shadow-sm mt-0 md:mt-3">
           <table className="w-full text-left text-xs text-[#422F21]">
             <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold uppercase tracking-wider border-b border-[#D5C4B4]">
               <tr>
-                <th className="py-3 px-3.5 whitespace-nowrap">Kode &amp; Santri</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">Kategori &amp; Kelas</th>
-                <th className="py-3 px-3.5 whitespace-nowrap">Nama Wali &amp; Kontak WA</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">{activeMainTab === 'WALI_SANTRI' ? 'Kode & Santri' : 'Kode & Tamu'}</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">{activeMainTab === 'WALI_SANTRI' ? 'Kategori & Kelas' : 'Kategori & Golongan'}</th>
+                <th className="py-3 px-3.5 whitespace-nowrap">{activeMainTab === 'WALI_SANTRI' ? 'Nama Wali & Kontak WA' : 'Instansi & Kontak WA'}</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">Jatah Kuota</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">Status Konfirmasi</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">Estimasi Kursi</th>
@@ -625,7 +755,7 @@ export default function KonfirmasiPage() {
                   <td colSpan={7} className="py-8 text-center text-[#7A624E]">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Users className="w-8 h-8 text-[#8C6A47]/40" />
-                      <div className="font-semibold">Tidak ada data santri yang cocok</div>
+                      <div className="font-semibold">Tidak ada data {activeMainTab === 'WALI_SANTRI' ? 'santri' : 'tamu undangan'} yang cocok</div>
                       <div className="text-[11px] text-[#7A624E]">
                         Silakan sesuaikan filter status konfirmasi atau kata kunci pencarian.
                       </div>

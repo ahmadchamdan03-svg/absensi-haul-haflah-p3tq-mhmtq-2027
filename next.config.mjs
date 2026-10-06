@@ -23,6 +23,8 @@ const cspHeader = `
 const nextConfig = {
   reactStrictMode: false,
   images: {
+    // Foto Tos & aset lain dipakai apa adanya (tanpa resize/kompres/WebP oleh Next.js)
+    unoptimized: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;",
     dangerouslyAllowSVG: true,
   },

@@ -250,8 +250,7 @@ async function getTamuUndanganLive() {
       .select(`
         kode, nama, nama_putra, nama_putri,
         kategori, sub_kategori, instansi, alamat,
-        no_hp, kuota_dasar, kuota_tambahan,
-        kuota_terpakai, warna_tiket, jalur_masuk,
+        no_hp, kuota_terpakai, warna_tiket, jalur_masuk,
         status_konfirmasi, status_wa
       `)
       .like('kode', 'UND%')
@@ -429,7 +428,7 @@ Message: Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan co
     const kUpper = (t.kode || '').toUpperCase();
     const isHadir = (t.kuota_terpakai || 0) > 0 || presensiSet.has(kUpper);
     const namaFull = t.nama || [t.nama_putra, t.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan';
-    const totalK = (t.kuota_dasar || 1) + (t.kuota_tambahan || 0);
+    const totalK = ((t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0)) || 1;
     const instansi = t.instansi || '-';
     const kat = t.kategori || t.sub_kategori || 'Tamu Kehormatan';
     if (isHadir) {
@@ -464,7 +463,7 @@ Message: Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan co
   const percentWali = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
 
   const totalTamuHadir = tamuMetrics?.totalHadir ?? arrivedTamu.length;
-  const totalTamuKuota = tamuMetrics?.totalKuota ?? tamuList.reduce((acc: number, t: any) => acc + ((t.kuota_dasar || 1) + (t.kuota_tambahan || 0)), 0);
+  const totalTamuKuota = tamuMetrics?.totalKuota ?? tamuList.reduce((acc: number, t: any) => acc + (((t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0)) || 1), 0);
   const percentTamu = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
 
   const totalGlobalHadir = totalWaliHadir + totalTamuHadir;
@@ -664,7 +663,7 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
         category: gol,
         subCategory: g.sub_kategori,
         quotaUsed: g.kuota_terpakai || (hasArrived ? 1 : 0),
-        quotaTotal: (g.kuota_dasar || 1) + (g.kuota_tambahan || 0),
+        quotaTotal: ((g.nama_putra && String(g.nama_putra).trim() ? 1 : 0) + (g.nama_putri && String(g.nama_putri).trim() ? 1 : 0)) || 1,
         hasArrived,
         phone: g.no_hp || 'Tersedia di database',
         seating: 'Baris Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar',
@@ -883,7 +882,7 @@ async function getLiveArrivedGuestsResponse(prompt: string, isFirstTurn: boolean
         ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
         : 'Hari-H';
       const terpakai = (t.kuota_terpakai || 0) > 0 ? t.kuota_terpakai : (log ? (log.jumlah_l || 0) + (log.jumlah_p || 0) : 1);
-      const totalK = (t.kuota_dasar || 1) + (t.kuota_tambahan || 0);
+      const totalK = ((t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0)) || 1;
       const instansiInfo = t.instansi || t.alamat || 'Tamu Undangan';
       const katInfo = t.kategori || t.sub_kategori || 'Tamu Kehormatan';
 

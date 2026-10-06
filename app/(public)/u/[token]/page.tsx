@@ -163,8 +163,8 @@ export default function UndanganWaliPage() {
   const kodeSH = (token.split('-')[0] || 'SH0001').toUpperCase();
   const isTamuUndangan = kodeSH.startsWith('UND');
 
-  // State Item & Data Initializer
-  const [item, setItem] = useState<any>(() => {
+  // Helper: ambil data dari cache store lokal (HANYA dipanggil setelah mount)
+  const buildItemFromLocalStore = (): any => {
     if (kodeSH.startsWith('UND')) {
       const found = store.getUndanganList().find((u) => u.kode === kodeSH);
       if (found) {
@@ -208,7 +208,23 @@ export default function UndanganWaliPage() {
       };
     }
     return store.findByKode(kodeSH) || store.findByKode('SH0001');
-  });
+  };
+
+  // Hydration-safe: render pertama (server & client) memakai placeholder deterministik.
+  // Data cache lokal (localStorage store) baru dimuat setelah mount, lalu ditimpa data live Supa.
+  const [item, setItem] = useState<any>(() => ({
+    kode: kodeSH,
+    tipe: isTamuUndangan ? 'UNDANGAN' : 'KELUARGA',
+    nama: '',
+    kuota: { kodeQr: kodeSH, kuotaDasar: isTamuUndangan ? 1 : 2, kuotaTambahan: 0, terpakai: 0 },
+    estimasi: { statusKonfirmasi: 'BELUM', perkiraanL: 1, perkiraanP: 1, catatan: '' },
+  }));
+
+  useEffect(() => {
+    const cached = buildItemFromLocalStore();
+    if (cached) setItem((prev: any) => (prev?.nama ? prev : cached));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kodeSH]);
 
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [fullQrPayload, setFullQrPayload] = useState<string>('');
@@ -306,7 +322,9 @@ export default function UndanganWaliPage() {
             .maybeSingle();
 
           if (t && !error) {
-            const kDasar = Number(t.kuota_dasar !== undefined && t.kuota_dasar !== null ? t.kuota_dasar : (t.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1));
+            const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
+            const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
+            const kDasar = (countL + countP) || 1;
             const mappedTamu = {
               id: t.id,
               kode: t.kode,

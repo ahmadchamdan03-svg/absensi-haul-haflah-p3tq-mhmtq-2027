@@ -126,8 +126,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           kuota: {
             id: d.id,
             kodeQr: d.kode,
-            kuotaDasar: d.kuota_dasar !== undefined && d.kuota_dasar !== null ? d.kuota_dasar : (d.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1),
-            kuotaTambahan: d.kuota_tambahan || 0,
+            kuotaDasar: (d.nama_putra && String(d.nama_putra).trim() ? 1 : 0) + (d.nama_putri && String(d.nama_putri).trim() ? 1 : 0) || 1,
+            kuotaTambahan: 0,
             terpakai: d.kuota_terpakai || 0,
           },
         }));
@@ -347,8 +347,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           kategori: finalKategori,
           sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
           no_hp: undanganForm.noHp || '-',
-          kuota_dasar: kuotaBase,
-          kuota_tambahan: 0,
           kuota_terpakai: 0,
           warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
           jalur_masuk: finalJalur,

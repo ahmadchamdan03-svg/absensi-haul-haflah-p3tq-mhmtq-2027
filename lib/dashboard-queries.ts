@@ -55,11 +55,11 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     0
   );
 
-  const tamuKuota = undanganData.reduce((sum, u) => {
-    const defaultDasar = u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
-    const dasar = u.kuota_dasar !== undefined && u.kuota_dasar !== null ? Number(u.kuota_dasar) : defaultDasar;
-    const tambahan = Number(u.kuota_tambahan || 0);
-    return sum + dasar + tambahan;
+  const tamuKuota = undanganData.reduce((sum, u: any) => {
+    const countL = u.nama_putra && String(u.nama_putra).trim() ? 1 : 0;
+    const countP = u.nama_putri && String(u.nama_putri).trim() ? 1 : 0;
+    const kuota = (countL + countP) || 1;
+    return sum + kuota;
   }, 0);
 
   // Calculate Total Hadir & Gender Breakdown (Numerators)
@@ -168,10 +168,9 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     const sumTerpakai = sumLogMap[keyKode] ?? sumLogMap[keyId];
     const isHadir = (sumTerpakai !== undefined && sumTerpakai > 0) || loggedKeys.has(keyKode) || loggedKeys.has(keyId) || (u.kuota_terpakai || 0) > 0;
 
-    const defaultDasar = u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
-    const kDasar = u.kuota_dasar !== undefined && u.kuota_dasar !== null ? Number(u.kuota_dasar) : defaultDasar;
-    const kTambahan = Number(u.kuota_tambahan || 0);
-    const kuotaTotal = kDasar + kTambahan;
+    const countL = u.nama_putra && String(u.nama_putra).trim() ? 1 : 0;
+    const countP = u.nama_putri && String(u.nama_putri).trim() ? 1 : 0;
+    const kuotaTotal = (countL + countP) || 1;
     const terpakai = isHadir
       ? (sumTerpakai !== undefined ? sumTerpakai : Number(u.kuota_terpakai || 0))
       : 0;
@@ -189,8 +188,8 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
       kamar: '-',
       noHp: u.no_hp || '-',
       alamat: u.alamat || u.instansi || 'Kediri',
-      kuotaDasar: kDasar,
-      kuotaTambahan: kTambahan,
+      kuotaDasar: kuotaTotal,
+      kuotaTambahan: 0,
       kuotaTotal,
       terpakai,
       isHadir,

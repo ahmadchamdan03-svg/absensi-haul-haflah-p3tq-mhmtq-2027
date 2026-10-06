@@ -436,8 +436,8 @@ export default function ManajemenPesertaPage() {
           kuota: {
             id: u.id,
             kodeQr: u.kode,
-            kuotaDasar: u.kuota_dasar !== undefined && u.kuota_dasar !== null ? u.kuota_dasar : (u.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1),
-            kuotaTambahan: u.kuota_tambahan || 0,
+            kuotaDasar: (u.nama_putra && String(u.nama_putra).trim() ? 1 : 0) + (u.nama_putri && String(u.nama_putri).trim() ? 1 : 0) || 1,
+            kuotaTambahan: 0,
             terpakai: u.kuota_terpakai || 0,
             warnaTiket: u.warna_tiket !== undefined && u.warna_tiket !== null && u.warna_tiket !== ''
               ? u.warna_tiket
@@ -1098,8 +1098,6 @@ export default function ManajemenPesertaPage() {
             kategori: finalKategori,
             sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
             no_hp: undanganForm.noHp || '-',
-            kuota_dasar: kuotaBase,
-            kuota_tambahan: 0,
             kuota_terpakai: 0,
             warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
             jalur_masuk: finalJalur,
@@ -1232,7 +1230,6 @@ export default function ManajemenPesertaPage() {
             instansi: finalInstansi || '-',
             alamat: finalAlamat || '-',
             no_hp: (editingItem.noHp || '').trim() || '-',
-            kuota_dasar: kuotaBase,
             warna_tiket: getWarnaTiketUndangan(editGolonganUndangan, finalKat),
             jalur_masuk: finalJalurEdit,
           })

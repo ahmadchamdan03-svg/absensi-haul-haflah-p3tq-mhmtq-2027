@@ -69,17 +69,17 @@ export async function getWaliSantriMetrics(): Promise<MetricCardResult> {
 export async function getTamuUndanganMetrics(): Promise<MetricCardResult> {
   const { data: kuotaData, error: kuotaErr } = await supabase
     .from('tamu_undangan')
-    .select('kuota_dasar, kuota_tambahan, kategori');
+    .select('nama_putra, nama_putri, kategori');
 
   if (kuotaErr) {
     console.error('Error fetching tamu_undangan kuota metrics:', kuotaErr);
   }
 
-  const totalKuota = (kuotaData || []).reduce((sum, r) => {
-    const defaultDasar = r.kategori === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
-    const dasar = r.kuota_dasar !== undefined && r.kuota_dasar !== null ? Number(r.kuota_dasar) : defaultDasar;
-    const tambahan = Number(r.kuota_tambahan || 0);
-    return sum + dasar + tambahan;
+  const totalKuota = (kuotaData || []).reduce((sum, r: any) => {
+    const countL = r.nama_putra && String(r.nama_putra).trim() ? 1 : 0;
+    const countP = r.nama_putri && String(r.nama_putri).trim() ? 1 : 0;
+    const kuota = (countL + countP) || 1;
+    return sum + kuota;
   }, 0);
 
   const { data: presensiData, error: presensiErr } = await supabase

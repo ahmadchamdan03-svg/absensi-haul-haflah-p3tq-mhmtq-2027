@@ -141,7 +141,11 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     };
   }, [isResizing, sidebarWidth]);
 
-  const activeRole = typeof window !== 'undefined' ? getActiveRole() : null;
+  // Hydration-safe: role dibaca setelah mount (server & render pertama client sama-sama null)
+  const [activeRole, setActiveRoleState] = useState<ReturnType<typeof getActiveRole> | null>(null);
+  useEffect(() => {
+    setActiveRoleState(getActiveRole());
+  }, []);
 
   const allNavGroups: NavGroup[] = [
     {
