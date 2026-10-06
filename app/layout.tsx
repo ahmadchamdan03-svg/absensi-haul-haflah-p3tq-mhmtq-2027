@@ -3,28 +3,67 @@ import './globals.css';
 import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Haflah P3TQ',
+  title: {
+    default: 'Haflah P3TQ Lirboyo 2027 | Portal Resmi Kepanitiaan',
+    template: '%s | Haflah P3TQ Lirboyo 2027',
+  },
+  description:
+    'Web resmi Haflah Akhirussanah Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) & MHMTQ Lirboyo Kediri 1448 H / 2027 M. Portal kepanitiaan, undangan digital, dan manajemen presensi.',
+  keywords: [
+    'haflah p3tq',
+    'haflah pptq',
+    'haflah lirboyo',
+    'p3tq lirboyo',
+    'pptq lirboyo',
+    'p3tq',
+    'pptq',
+    'haflah akhirussanah',
+    'mhmtq lirboyo',
+    'pondok lirboyo',
+    'haul haflah lirboyo',
+    'p3tq mhmtq',
+    'undangan haflah lirboyo',
+  ],
+  authors: [{ name: 'Panitia Haflah P3TQ MHMTQ 2027' }],
   metadataBase: new URL('https://haflahp3tq.site'),
   manifest: '/manifest.json',
   openGraph: {
-    title: 'Haflah P3TQ',
+    title: 'Haflah P3TQ Lirboyo 2027 | Portal Resmi',
+    description:
+      'Web resmi Haflah Akhirussanah P3TQ & MHMTQ Lirboyo Kediri 1448 H / 2027 M.',
     url: 'https://haflahp3tq.site',
-    siteName: 'Haflah P3TQ',
+    siteName: 'Haflah P3TQ Lirboyo',
+    locale: 'id_ID',
+    type: 'website',
     images: [
       {
         url: '/logo-haul-haflah-transparent.png',
         width: 800,
         height: 800,
-        alt: 'Haflah P3TQ Logo',
+        alt: 'Haflah P3TQ Lirboyo Logo',
       },
     ],
-    locale: 'id_ID',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Haflah P3TQ',
+    title: 'Haflah P3TQ Lirboyo 2027',
+    description:
+      'Web resmi Haflah Akhirussanah P3TQ & MHMTQ Lirboyo Kediri 1448 H / 2027 M.',
     images: ['/logo-haul-haflah-transparent.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://haflahp3tq.site',
   },
   icons: {
     icon: [
