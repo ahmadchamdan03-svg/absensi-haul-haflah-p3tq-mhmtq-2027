@@ -469,7 +469,7 @@ export default function ScanPage() {
       const sisa = Math.max(0, totalKuota - totalExisting);
 
       if (inputTotal > sisa) {
-        setErrorMsg(`Kuota tidak cukup. Kuota Total: ${totalKuota}, Terpakai: ${totalExisting}, Sisa: ${sisa}. Input kehadiran (${inputTotal}) melebihi sisa!`);
+        setErrorMsg(`Gagal simpan presensi: Total input (${inputTotal} orang) melebihi sisa kuota (${sisa} orang)! Mohon kurangi jumlahnya.`);
         playBuzzerError();
         return;
       }
@@ -974,6 +974,7 @@ export default function ScanPage() {
               const terpakai = activeItem.kuota.terpakai;
               const sisa = Math.max(0, totalKuota - terpakai);
               const totalInput = jumlahL + jumlahP;
+              const isNewlyGivingGold = activeItem.isBilGhoib && (kartuHitamGoldDiberi || serahkanTiketEmas);
               const isExceeded = totalInput > sisa;
               const isPlusDisabled = totalInput >= sisa;
 
@@ -1003,6 +1004,7 @@ export default function ScanPage() {
                           type="button"
                           onClick={() => setJumlahL(jumlahL + 1)}
                           disabled={isPlusDisabled}
+                          title={isPlusDisabled ? `Sisa kuota: ${sisa} orang` : undefined}
                           className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           +
@@ -1033,6 +1035,7 @@ export default function ScanPage() {
                           type="button"
                           onClick={() => setJumlahP(jumlahP + 1)}
                           disabled={isPlusDisabled}
+                          title={isPlusDisabled ? `Sisa kuota: ${sisa} orang` : undefined}
                           className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           +
@@ -1049,7 +1052,7 @@ export default function ScanPage() {
                       </span>
                     ) : (
                       <span className="text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
-                        Sisa kuota: <strong>{sisa} kursi</strong> (Input saat ini: {totalInput} orang)
+                        Sisa kuota: <strong>{sisa} orang</strong> (Input saat ini: {totalInput} orang)
                       </span>
                     )}
                   </div>
@@ -1057,7 +1060,7 @@ export default function ScanPage() {
                   {isExceeded && (
                     <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
                       <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span>Jumlah presensi ({totalInput}) melebihi sisa kuota ({sisa})!</span>
+                      <span>Total input ({totalInput} orang) melebihi sisa kuota ({sisa} orang). Mohon kurangi jumlahnya.</span>
                     </div>
                   )}
 
@@ -1079,7 +1082,7 @@ export default function ScanPage() {
                     <button
                       type="button"
                       onClick={handleConfirmCheckin}
-                      disabled={isExceeded}
+                      disabled={isExceeded || (totalInput <= 0 && !isNewlyGivingGold) || sisa <= 0}
                       className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 disabled:opacity-40 disabled:cursor-not-allowed text-white font-serif font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
                     >
                       <Check className="w-4 h-4 text-emerald-200" />
