@@ -109,7 +109,7 @@ export default function WhatsAppPage() {
   }>({
     connected: true,
     name: 'Ahmad Chamdan Yuwafin',
-    device: '085790633812',
+    device: '085181805377',
     quota: '1000',
     loading: false,
   });
@@ -364,7 +364,7 @@ export default function WhatsAppPage() {
           setFonnteStatus({
             connected: json.data.device_status === 'connect' || json.data.status === true,
             name: json.data.name || 'Ahmad Chamdan Yuwafin',
-            device: json.data.device || '085790633812',
+            device: json.data.device || '085181805377',
             quota: json.data.quota || '1000',
             loading: false,
           });
@@ -444,8 +444,6 @@ Menindaklanjuti undangan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., kami mem
 Ketentuan:
 • Rincian biaya dan rekening tujuan transfer tersedia lengkap pada portal digital di bawah
 • Bila dalam 6 jam belum upload bukti transfer, maka pemesanan otomatis dibatalkan
-• Berlaku selama kuota masih tersedia (pagu terbatas 300 kuota)
-• Pembatalan sebelum hari-H dana dikembalikan penuh
 • Pendaftaran ditutup otomatis bila kuota habis
 • Kuota otomatis ditambahkan ke QR Code Anda
 

@@ -182,9 +182,16 @@ export default function KonfirmasiPage() {
     const sudahKonfirmasiCount = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH').length;
     const belumKonfirmasiCount = Math.max(0, totalSantri - sudahKonfirmasiCount);
     const persentaseSudah = totalSantri > 0 ? Math.round((sudahKonfirmasiCount / totalSantri) * 100) : 0;
-    const totalEstimasiRombongan = currentDataset.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0);
+    
+    const totalEstimasiRombongan = activeMainTab === 'WALI_SANTRI'
+      ? currentDataset.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0)
+      : currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH').reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
+
     const totalEstL = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
     const totalEstP = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
+
+    const countHadirL = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutra || s.perkiraanL > 0)).length;
+    const countHadirP = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutri || s.perkiraanP > 0)).length;
 
     const bilGhoibCount = currentDataset.filter((s) => s.kategoriUtama === 'BIL_GHOIB').length;
     const binNadzorCount = currentDataset.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
@@ -199,11 +206,13 @@ export default function KonfirmasiPage() {
       totalEstimasiRombongan,
       totalEstL,
       totalEstP,
+      countHadirL,
+      countHadirP,
       bilGhoibCount,
       binNadzorCount,
       tamatanCount,
     };
-  }, [currentDataset]);
+  }, [currentDataset, activeMainTab]);
 
   // Filtered List
   const filteredList = useMemo(() => {
@@ -512,7 +521,7 @@ export default function KonfirmasiPage() {
 
       {/* 4 KARTU METRIK RINGKASAN KONFIRMASI (MOBILE 2 KOLOM x 2 BARIS, DESKTOP 4 KOLOM) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {/* Card 1: Total Santri */}
+        {/* Card 1: Total Santri / Tamu */}
         <button
           type="button"
           onClick={() => {
@@ -525,11 +534,11 @@ export default function KonfirmasiPage() {
               ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
           }`}
-          title="Klik untuk menampilkan seluruh santri riil"
+          title="Klik untuk menampilkan seluruh data"
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-bold text-[#7A624E] uppercase tracking-wider group-hover:text-[#422F21]">
-              Total Santri Riil
+              {activeMainTab === 'WALI_SANTRI' ? 'Total Santri Riil' : 'TOTAL TAMU UNDANGAN'}
             </span>
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
               <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -537,7 +546,9 @@ export default function KonfirmasiPage() {
           </div>
           <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
             {rekap.totalSantri}{' '}
-            <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">Santri</span>
+            <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
+              {activeMainTab === 'WALI_SANTRI' ? 'Santri' : 'Tamu'}
+            </span>
           </div>
           <div className="text-[10px] sm:text-xs text-[#8C6A47] font-semibold flex items-center justify-between truncate">
             <span className="truncate">Kuota: {rekap.totalKuotaSantri} Kursi</span>
@@ -557,7 +568,7 @@ export default function KonfirmasiPage() {
               ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
           }`}
-          title="Klik untuk memfilter wali santri yang SUDAH konfirmasi"
+          title="Klik untuk memfilter data yang SUDAH konfirmasi"
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
@@ -570,11 +581,15 @@ export default function KonfirmasiPage() {
           <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
             {rekap.sudahKonfirmasiCount}{' '}
             <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
-              Wali ({rekap.persentaseSudah}%)
+              {activeMainTab === 'WALI_SANTRI' ? 'Wali' : 'Tamu'} ({rekap.persentaseSudah}%)
             </span>
           </div>
           <div className="text-[10px] sm:text-xs text-emerald-800 font-semibold truncate">
-            <span className="truncate">Est: {rekap.totalEstimasiRombongan} Orang</span>
+            <span className="truncate">
+              {activeMainTab === 'WALI_SANTRI'
+                ? `Est: ${rekap.totalEstimasiRombongan} Orang`
+                : `Est: ${rekap.countHadirL} Laki-laki, ${rekap.countHadirP} Perempuan`}
+            </span>
           </div>
         </button>
 
@@ -591,7 +606,7 @@ export default function KonfirmasiPage() {
               ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
           }`}
-          title="Klik untuk memfilter wali santri yang BELUM konfirmasi"
+          title="Klik untuk memfilter data yang BELUM konfirmasi"
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-bold text-amber-800 uppercase tracking-wider">
@@ -604,7 +619,7 @@ export default function KonfirmasiPage() {
           <div className="text-xl sm:text-3xl font-serif font-black text-amber-900 my-1">
             {rekap.belumKonfirmasiCount}{' '}
             <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
-              Wali ({100 - rekap.persentaseSudah}%)
+              {activeMainTab === 'WALI_SANTRI' ? 'Wali' : 'Tamu'} ({100 - rekap.persentaseSudah}%)
             </span>
           </div>
           <div className="text-[10px] sm:text-xs text-amber-800 font-semibold truncate">
@@ -612,7 +627,7 @@ export default function KonfirmasiPage() {
           </div>
         </button>
 
-        {/* Card 4: Estimasi Kursi Hadir Keseluruhan */}
+        {/* Card 4: Estimasi Kursi Hadir */}
         <button
           type="button"
           onClick={() => {
@@ -625,7 +640,7 @@ export default function KonfirmasiPage() {
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-bold text-[#8C6A47] uppercase tracking-wider">
-              Estimasi Kursi Hadir
+              ESTIMASI KURSI HADIR
             </span>
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
               <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -636,7 +651,7 @@ export default function KonfirmasiPage() {
             <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">Kursi</span>
           </div>
           <div className="text-[10px] sm:text-xs text-[#7A624E] font-medium truncate">
-            Alokasi santri &amp; rombongan
+            {activeMainTab === 'WALI_SANTRI' ? 'Alokasi santri & rombongan' : 'Estimasi tamu yang hadir'}
           </div>
         </button>
       </div>

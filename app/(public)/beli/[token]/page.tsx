@@ -899,7 +899,7 @@ export default function BeliKuotaPage() {
               {activePendingOrder.status === 'MENUNGGU_VERIFIKASI' && (
                 <div className="pt-2 space-y-2">
                   <a
-                    href={`https://wa.me/6285790633812?text=Assalamu%27alaikum%20Us...%2C%20saya%20wali%20dari%20${encodeURIComponent(
+                    href={`https://wa.me/6285181805377?text=Assalamu%27alaikum%20Us...%2C%20saya%20wali%20dari%20${encodeURIComponent(
                       santri.nama
                     )}%20(ID%20Pesanan%3A%20${activePendingOrder.id_pesanan})%20sudah%20mengunggah%20bukti%20transfer%20sebesar%20Rp%20${activePendingOrder.total_bayar.toLocaleString(
                       'id-ID'

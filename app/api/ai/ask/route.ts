@@ -462,7 +462,13 @@ Message: Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan co
   const totalWaliKuota = wsMetrics?.totalKuota ?? santriList.reduce((acc: number, s: any) => acc + ((s.kuota_dasar || 2) + (s.kuota_tambahan || 0)), 0);
   const percentWali = totalWaliKuota > 0 ? Math.round((totalWaliHadir / totalWaliKuota) * 100) : 0;
 
-  const totalTamuHadir = tamuMetrics?.totalHadir ?? arrivedTamu.length;
+  const arrivedTamuLogs = presensiLogs.filter((p: any) => {
+    const tipe = (p.tipe_peserta || '').toUpperCase();
+    const qr = (p.kode_qr || '').toUpperCase();
+    return tipe === 'TAMU' || tipe === 'UNDANGAN' || qr.startsWith('UND');
+  });
+
+  const totalTamuHadir = tamuMetrics?.totalHadir ?? (arrivedTamuLogs.length > 0 ? arrivedTamuLogs.reduce((acc: number, p: any) => acc + ((p.jumlah_l || 0) + (p.jumlah_p || 0)), 0) : arrivedTamu.length);
   const totalTamuKuota = tamuMetrics?.totalKuota ?? tamuList.reduce((acc: number, t: any) => acc + (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0), 0);
   const percentTamu = totalTamuKuota > 0 ? Math.round((totalTamuHadir / totalTamuKuota) * 100) : 0;
 
