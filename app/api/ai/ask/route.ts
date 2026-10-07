@@ -910,25 +910,58 @@ async function getLiveArrivedWaliResponse(prompt: string, isFirstTurn: boolean =
 
 async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
-  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  const isGreetingOnly =
-    q === 'halo' ||
-    q === 'hai' ||
+  // 0. IDENTITAS & SMALL TALK
+  if (
+    q.includes('siapa kamu') ||
+    q.includes('kamu siapa') ||
+    q.includes('siapa anda') ||
+    q.includes('kamu ai apa') ||
+    q.includes('kamu itu apa') ||
+    q.includes('siapa yang buat kamu') ||
+    q.includes('kamu bisa apa') ||
+    q.includes('siapa halwaa') ||
+    q.includes('siapa us halwaa') ||
+    q.includes('siapakah kamu') ||
+    q.includes('siapakah anda')
+  ) {
+    return `Saya Us. Halwaa, asisten resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Saya siap membantu Us (Panitia, Pimpinan, atau Pengurus) dengan informasi seputar:\n- Data peserta & tamu undangan\n- Statistik kehadiran realtime\n- Struktur kepanitiaan\n- Rundown acara & kalender kerja\n- Denah & pos lokasi\n- Menu konsumsi\n- Aturan & larangan\n- Biaya & anggaran\n\nAda yang bisa saya bantu, Us?`;
+  }
+
+  if (
     q === 'assalamualaikum' ||
     q === "assalamu'alaikum" ||
     q === "assalamu'alaikum wr wb" ||
     q === "assalamu'alaikum wr. wb." ||
     q === "assalamu'alaikum warahmatullahi wabarakatuh" ||
-    q.includes('siapa kamu') ||
-    q.includes('siapa anda') ||
-    q.includes('kenalan');
+    q === "assalamualaikum us" ||
+    q === "assalamu'alaikum us"
+  ) {
+    return "Waalaikumussalam warahmatullahi wabarakatuh Us. Ada yang bisa saya bantu?";
+  }
 
-  const intro = (isFirstTurn && isGreetingOnly)
-    ? `Perkenalkan, saya Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\n\n`
-    : '';
+  if (
+    q === 'halo' ||
+    q === 'halo us' ||
+    q === 'hai' ||
+    q === 'hai us' ||
+    q === 'p' ||
+    q === 'tes'
+  ) {
+    return "Halo Us. Ada yang bisa saya bantu?";
+  }
 
-  const headerIntro = `${greetingPrefix}${intro}`;
+  if (
+    q.includes('terima kasih') ||
+    q.includes('makasih') ||
+    q.includes('syukron') ||
+    q.includes('matur nuwun')
+  ) {
+    return "Sama-sama Us. Semoga bermanfaat.";
+  }
+
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+  const headerIntro = `${greetingPrefix}`;
 
   // 1. SALDO AKHIR & KEUANGAN (ATURAN 1: ANGGARAN & DISCLAIMER PERENCANAAN)
   if (q.includes('saldo')) {
@@ -1198,25 +1231,58 @@ function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = tr
 
 function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
   const q = userQuery.toLowerCase().trim();
-  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  const isGreetingOnly =
-    q === 'halo' ||
-    q === 'hai' ||
+  // 0. IDENTITAS & SMALL TALK
+  if (
+    q.includes('siapa kamu') ||
+    q.includes('kamu siapa') ||
+    q.includes('siapa anda') ||
+    q.includes('kamu ai apa') ||
+    q.includes('kamu itu apa') ||
+    q.includes('siapa yang buat kamu') ||
+    q.includes('kamu bisa apa') ||
+    q.includes('siapa halwaa') ||
+    q.includes('siapa us halwaa') ||
+    q.includes('siapakah kamu') ||
+    q.includes('siapakah anda')
+  ) {
+    return `Saya Us. Halwaa, asisten resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Saya siap membantu Us (Panitia, Pimpinan, atau Pengurus) dengan informasi seputar:\n- Data peserta & tamu undangan\n- Statistik kehadiran realtime\n- Struktur kepanitiaan\n- Rundown acara & kalender kerja\n- Denah & pos lokasi\n- Menu konsumsi\n- Aturan & larangan\n- Biaya & anggaran\n\nAda yang bisa saya bantu, Us?`;
+  }
+
+  if (
     q === 'assalamualaikum' ||
     q === "assalamu'alaikum" ||
     q === "assalamu'alaikum wr wb" ||
     q === "assalamu'alaikum wr. wb." ||
     q === "assalamu'alaikum warahmatullahi wabarakatuh" ||
-    q.includes('siapa kamu') ||
-    q.includes('siapa anda') ||
-    q.includes('kenalan');
+    q === "assalamualaikum us" ||
+    q === "assalamu'alaikum us"
+  ) {
+    return "Waalaikumussalam warahmatullahi wabarakatuh Us. Ada yang bisa saya bantu?";
+  }
 
-  const intro = (isFirstTurn && isGreetingOnly)
-    ? `Perkenalkan, saya Us. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\n\n`
-    : '';
+  if (
+    q === 'halo' ||
+    q === 'halo us' ||
+    q === 'hai' ||
+    q === 'hai us' ||
+    q === 'p' ||
+    q === 'tes'
+  ) {
+    return "Halo Us. Ada yang bisa saya bantu?";
+  }
 
-  const headerIntro = `${greetingPrefix}${intro}`;
+  if (
+    q.includes('terima kasih') ||
+    q.includes('makasih') ||
+    q.includes('syukron') ||
+    q.includes('matur nuwun')
+  ) {
+    return "Sama-sama Us. Semoga bermanfaat.";
+  }
+
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+  const headerIntro = `${greetingPrefix}`;
 
   // SALDO
   if (q.includes('saldo')) {
@@ -1561,7 +1627,18 @@ export async function POST(req: NextRequest) {
       qLower === 'hai' ||
       qLower === 'hai us' ||
       qLower === 'p' ||
-      qLower === 'tes';
+      qLower === 'tes' ||
+      qLower.includes('siapa kamu') ||
+      qLower.includes('kamu siapa') ||
+      qLower.includes('siapa anda') ||
+      qLower.includes('kamu ai apa') ||
+      qLower.includes('kamu itu apa') ||
+      qLower.includes('siapa yang buat kamu') ||
+      qLower.includes('kamu bisa apa') ||
+      qLower.includes('siapa halwaa') ||
+      qLower.includes('siapa us halwaa') ||
+      qLower.includes('terima kasih') ||
+      qLower.includes('makasih');
 
     if (isStatsQuery(prompt)) {
       const stats = await getLiveAttendanceStatsChart();

@@ -25,19 +25,7 @@ export interface GeminiKeyStatus {
 }
 
 const RAW_DEFAULT_GEMINI_KEYS_B64 = [
-  'QVEuQWI4Uk42SmhJZG5TZEVmdEFJLXJPblVHTEJzMzdwME9ySVJ1RUVjalBUN1dJOVE5SVE=',
-  'QVEuQWI4Uk42SklZNHBWU2J0VkZWb3Jqa2V6LVpjTHNMYi1YX19IUjh3dmJlV0NIbEQtWkE=',
-  'QVEuQWI4Uk42TDIxeThZNjdHaTRUclZrUzg5aVE2dVhTZmdGUWVNbDhiYUhRU2dVaHY3eVE=',
-  'QVEuQWI4Uk42SzBZRlN3Q0FYUS12bjZaUHBESk5wZWg5dlJFTkNEZjdJRmtCcFFMTGd4eFE=',
-  'QVEuQWI4Uk42TEZja3dzT2hEck9lY3duWVlGY3lGc2pyMzJxVEo0d2ZjS1A5eXNGM19OZmc=',
-  'QVEuQWI4Uk42SlpTTVBac2pHeTdSOHlLanh2OFI1TS1LcTVkUXcweTNCSXpDS09rV2pKaVE=',
-  'QVEuQWI4Uk42S1pjc0ZSX1pzdG1xeXQ4YWRIOS10Yi0xTGZZOEo0czRubGI3SEVUVXdXYlE=',
-  'QVEuQWI4Uk42SUw1M3lvWFEzRDdvUktmNm9jUkJxV2FDRVhnR3RSbWRkNG94blpyaTB6WkE=',
-  'QVEuQWI4Uk42S3I4S0NzczgxSjIwS0lHZzFrRUctUGctaEJTa1dWRzAtNTQ4bGNJdzZFckE=',
-  'QVEuQWI4Uk42SklGSUQ5dWFva0ZlaDdQc055R05OYmFjVzNjcDRaQ3FzNUJacXluNU9tZWc=',
-  'QVEuQWI4Uk42SndfLV81UE9UdlF3RWo5bVpCa2dXakJlQV85cGVnUzRPUFp3bnphZnU0SXc=',
-  'QVEuQWI4Uk42SU5tVklIUjJ2LTdacTlrclJxcEJJRHlidVlOUE1FZXE3M1YzWkJjYXp5M1E=',
-  'QVEuQWI4Uk42SmxBaXRuNnVSaG9ZRFRHRjZLWjM2X2t5MnFuWXFtSzlUaTIzVzdKbDJsWEE=',
+  'QVEuQWI4Uk42Sl9DTWpGMF9VWHdoRUlXZkI0Tmw4OUtuTk9pZldMNDZubk15MmdkN0dHV0E=',
 ];
 
 const DEFAULT_GEMINI_KEYS = RAW_DEFAULT_GEMINI_KEYS_B64.map((b) =>
@@ -264,10 +252,10 @@ class GeminiPoolManager {
   public getModelCandidates(): string[] {
     const configuredModel = process.env.GEMINI_MODEL;
     const defaultModels = [
-      'gemini-2.0-flash',
-      'gemini-flash-lite-latest',
+      'gemini-3.5-flash-lite',
+      'gemini-3.8-flash',
       'gemini-flash-latest',
-      'gemini-2.5-flash',
+      'gemini-3.5-flash',
     ];
 
     if (configuredModel && !defaultModels.includes(configuredModel)) {
