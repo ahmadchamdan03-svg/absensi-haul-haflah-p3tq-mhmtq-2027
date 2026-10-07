@@ -108,13 +108,10 @@ export default function KonfirmasiPage() {
           const totKuota = countL + countP;
           const terpakai = Number(t.kuota_terpakai || 0);
 
-          const estL = Number(t.perkiraan_l || 0);
-          const estP = Number(t.perkiraan_p || 0);
-          const sumEst = estL + estP;
-
-          const isSudah = t.status_konfirmasi === 'SUDAH' || (t.status_konfirmasi !== 'BELUM' && (sumEst > 0 || terpakai > 0));
+          const rawStatus = String(t.status_konfirmasi || '').toUpperCase().trim();
+          const isSudah = ['HADIR', 'BERHALANGAN', 'SUDAH'].includes(rawStatus) || Boolean(t.confirmed_at) || terpakai > 0;
           const status = isSudah ? 'SUDAH' : 'BELUM';
-          const totalEst = isSudah ? (sumEst > 0 ? sumEst : terpakai) : 0;
+          const isHadir = rawStatus === 'HADIR' || rawStatus === 'SUDAH' || (rawStatus !== 'BERHALANGAN' && isSudah);
 
           return {
             id: t.id,
@@ -122,6 +119,8 @@ export default function KonfirmasiPage() {
             kode: t.kode || 'UND000',
             namaSantri: t.nama || [t.nama_putra, t.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan',
             namaWali: t.instansi || t.alamat || 'Tamu Undangan',
+            namaPutra: t.nama_putra || '',
+            namaPutri: t.nama_putri || '',
             noHp: t.no_hp || '-',
             alamat: t.alamat || '-',
             kamar: '-',
@@ -132,12 +131,13 @@ export default function KonfirmasiPage() {
             kuotaTambahan: 0,
             totalKuota: totKuota,
             statusKonfirmasi: status,
-            perkiraanL: estL,
-            perkiraanP: estP,
-            totalEstimasi: totalEst,
+            rawStatusKonfirmasi: rawStatus || (isSudah ? 'HADIR' : 'BELUM'),
+            perkiraanL: countL,
+            perkiraanP: countP,
+            totalEstimasi: isHadir ? totKuota : 0,
             catatan: t.catatan_konfirmasi || '',
             diubahOleh: 'TAMU_OFFICIAL',
-            diisiAt: t.updated_at || t.created_at,
+            diisiAt: t.confirmed_at || t.updated_at || t.created_at,
           };
         });
         setDaftarTamu(mappedTamu);
@@ -484,6 +484,7 @@ export default function KonfirmasiPage() {
                 setActiveMainTab('WALI_SANTRI');
                 setFilterKategori('SEMUA');
                 setCurrentPage(1);
+                fetchKonfirmasiData();
               }}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center space-x-2 ${
                 activeMainTab === 'WALI_SANTRI'
@@ -500,6 +501,7 @@ export default function KonfirmasiPage() {
                 setActiveMainTab('TAMU_UNDANGAN');
                 setFilterKategori('SEMUA');
                 setCurrentPage(1);
+                fetchKonfirmasiData();
               }}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center space-x-2 ${
                 activeMainTab === 'TAMU_UNDANGAN'
@@ -850,7 +852,19 @@ export default function KonfirmasiPage() {
 
                     {/* Status Konfirmasi */}
                     <td className="py-3 px-4 text-center whitespace-nowrap">
-                      {item.statusKonfirmasi === 'SUDAH' ? (
+                      {item.rawStatusKonfirmasi === 'BERHALANGAN' ? (
+                        <div>
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                            <Clock className="w-3 h-3 mr-1 text-rose-600" />
+                            Berhalangan Hadir
+                          </span>
+                          {item.diisiAt && (
+                            <div className="text-[9px] text-[#7A624E] mt-0.5">
+                              {new Date(item.diisiAt).toLocaleDateString('id-ID')}
+                            </div>
+                          )}
+                        </div>
+                      ) : item.statusKonfirmasi === 'SUDAH' ? (
                         <div>
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                             <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
@@ -859,6 +873,8 @@ export default function KonfirmasiPage() {
                           <div className="text-[10px] text-[#7A624E] mt-0.5">
                             {item.diubahOleh === 'PANITIA_MANUAL' ? (
                               <span className="text-[#8C6A47] font-semibold">Oleh: Panitia Manual</span>
+                            ) : item.tipe === 'TAMU_UNDANGAN' ? (
+                              <span className="text-[#8C6A47] font-semibold">Oleh: Tamu (RSVP)</span>
                             ) : (
                               <span>Oleh: Wali Santri</span>
                             )}
