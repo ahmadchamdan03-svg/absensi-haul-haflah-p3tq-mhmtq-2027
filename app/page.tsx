@@ -17,7 +17,7 @@ import {
 import { AppRole, ROLES_CONFIG, verifyRolePassword, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
 
-// 6 POSE TOS INTERAKTIF US. HALWAA (DENGAN TIKET PERSIS DI TITIK KLIK KUROR)
+// 6 POSE TOS INTERAKTIF USTH. HALWAA (DENGAN TIKET PERSIS DI TITIK KLIK KUROR)
 const TOS_POSES = [
   { img: '/images/halwaa/tos/tos-1.png', text: 'Yuk Tos! ✋', handRelX: 0.28, handRelY: 0.38 },
   { img: '/images/halwaa/tos/tos-2.png', text: 'Siap Tos! 👋', handRelX: 0.28, handRelY: 0.35 },
@@ -151,7 +151,7 @@ export default function LandingPortalPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // State Multi-Tos Interaktif Us. Halwaa (Bisa Di-spam Instan)
+  // State Multi-Tos Interaktif Usth. Halwaa (Bisa Di-spam Instan)
   const [tosList, setTosList] = useState<
     Array<{
       id: string;
@@ -316,7 +316,7 @@ export default function LandingPortalPage() {
           </p>
         </div>
 
-        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER US. HALWAA */}
+        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER USTH. HALWAA */}
         <div className="grid grid-cols-2 gap-2.5 md:gap-3 items-stretch">
           {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
             const config = ROLES_CONFIG[key];
@@ -324,7 +324,7 @@ export default function LandingPortalPage() {
 
             return (
               <div key={key} className="role-card-wrapper relative group hover:z-30 z-10 h-full flex flex-col">
-                {/* FOTO US. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER (3/4 BADAN DILUAR, 1/4 TERTUTUP KARTU) */}
+                {/* FOTO USTH. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER (3/4 BADAN DILUAR, 1/4 TERTUTUP KARTU) */}
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none overflow-hidden z-0 flex items-end justify-center ${
                     isAdmin
@@ -334,7 +334,7 @@ export default function LandingPortalPage() {
                 >
                   <img
                     src={image}
-                    alt={`Us. Halwaa - ${config.title}`}
+                    alt={`Usth. Halwaa - ${config.title}`}
                     className="w-full h-full object-contain object-bottom drop-shadow-2xl select-none"
                     draggable={false}
                   />
@@ -472,7 +472,7 @@ export default function LandingPortalPage() {
         </div>
       )}
 
-      {/* INTERAKTIF US. HALWAA TOS POP-OUT OVERLAY (BISA DI-SPAM INSTAN DARI SETIAP KLIK KURSOR) */}
+      {/* INTERAKTIF USTH. HALWAA TOS POP-OUT OVERLAY (BISA DI-SPAM INSTAN DARI SETIAP KLIK KURSOR) */}
       {tosList.map((item) => (
         <div
           key={item.id}
@@ -499,10 +499,10 @@ export default function LandingPortalPage() {
             <span>{item.bubbleText}</span>
           </div>
 
-          {/* Foto Us. Halwaa */}
+          {/* Foto Usth. Halwaa */}
           <img
             src={item.imgUrl}
-            alt="Us. Halwaa - Tos!"
+            alt="Usth. Halwaa - Tos!"
             className="w-full h-full drop-shadow-md select-none object-contain"
             draggable={false}
           />

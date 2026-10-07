@@ -247,7 +247,7 @@ export default function UndanganWaliPage() {
   // State RSVP Khusus Tamu Undangan (2 Tombol: HADIR / BERHALANGAN)
   const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
 
-  // State Modal Denah & Us. Halwaa
+  // State Modal Denah & Usth. Halwaa
   const [isDenahOpen, setIsDenahOpen] = useState(false);
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
 
@@ -627,7 +627,7 @@ export default function UndanganWaliPage() {
 
   const textUsTanyaWali =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
+    `Usth., Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
     `Saya mau bertanya.`;
 
   const rawWaNo = (waPanitiaConfig || '6285181805377').replace(/[^0-9]/g, '');
@@ -639,14 +639,14 @@ export default function UndanganWaliPage() {
 
   const textUsTanyaTamu =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya ${namaPenerimaTamu}.\n\n` +
+    `Usth., Saya ${namaPenerimaTamu}.\n\n` +
     `Saya mau bertanya.`;
 
   const waUsTanyaLinkTamu = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textUsTanyaTamu)}`;
 
   const textHalKhusus =
     `Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n` +
-    `Us, Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
+    `Usth., Saya Wali Santri dari ${namaSantriTxt} (${kodeSantriTxt}) - ${kategoriTxt} - Kamar ${kamarTxt}.\n\n` +
     `Saya ingin menyampaikan hal khusus:\n\n` +
     `(silakan tulis di sini)`;
   const waHalKhususLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textHalKhusus)}`;
@@ -1611,7 +1611,7 @@ export default function UndanganWaliPage() {
         )
       )}
 
-      {/* FLOATING "US TANYA" BUTTON */}
+      {/* FLOATING "USTH TANYA" BUTTON */}
       <a
         href={isTamuUndangan ? waUsTanyaLinkTamu : waUsTanyaLink}
         target="_blank"
@@ -1621,7 +1621,7 @@ export default function UndanganWaliPage() {
       >
         <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
         <MessageCircle className="w-4.5 h-4.5 text-[#D49B5B] group-hover:scale-110 transition-transform" />
-        <span>Us Tanya</span>
+        <span>Usth. Tanya</span>
       </a>
 
       {/* MODAL DENAH LOKASI */}

@@ -456,7 +456,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               className="flex-1 md:flex-none justify-center px-3 py-2 sm:py-1.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
             >
               <HelpCircle className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Tanya Us. Halwaa</span>
+              <span>Tanya Usth. Halwaa</span>
             </button>
             {showLogout && (
               <button
@@ -864,7 +864,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
         </div>
       )}
 
-      {/* MODAL TANYA US */}
+      {/* MODAL TANYA USTH. HALWAA */}
       {isUsModalOpen && (
         <TanyaUsModal
           isOpen={isUsModalOpen}

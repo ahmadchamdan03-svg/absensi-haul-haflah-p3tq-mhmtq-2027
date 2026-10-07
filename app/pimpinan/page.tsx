@@ -32,7 +32,7 @@ export default function PimpinanPage() {
               />
             </div>
 
-            {/* SISI KANAN: TANGGAL, TANYA US AI, KELUAR */}
+            {/* SISI KANAN: TANGGAL, TANYA USTH. HALWAA, KELUAR */}
             <div className="flex items-center space-x-2">
               <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] text-xs font-semibold text-[#5C3E28]">
                 <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
@@ -44,7 +44,7 @@ export default function PimpinanPage() {
                 className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-700 to-amber-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-amber-200" />
-                <span>Tanya Us. Halwaa</span>
+                <span>Tanya Usth. Halwaa</span>
               </button>
               <button
                 type="button"

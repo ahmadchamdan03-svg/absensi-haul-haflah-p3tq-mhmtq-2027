@@ -34,7 +34,7 @@ const newHandlers = `const headerIntro = \`\${greetingPrefix}\${intro}\`;
       q.includes('kunci rahasia');
 
     if (isSensitiveInternal) {
-      return \`\${greetingPrefix}Ngapunten sanget Bapak/Ibu wali santri ingkang minulya, informasi kasebat kalebet data administratif internal kepanitiaan ingkang mboten kepareng dipunpublikasikaken umum. 🙏✨\\n\\nUntuk Bapak/Ibu wali santri, Us AI siap membantu informasi jadwal adicara, ketentuan sambangan, warna kartu masuk, denah lokasi, fasilitas penginapan, konsultasi ibadah, doa, utawi panduan sowan. Wonten ingkang saget dibantu malih?\`;
+      return \`\${greetingPrefix}Ngapunten sanget Bapak/Ibu wali santri ingkang minulya, informasi kasebat kalebet data administratif internal kepanitiaan ingkang mboten kepareng dipunpublikasikaken umum. 🙏✨\\n\\nUntuk Bapak/Ibu wali santri, Usth. Halwaa siap membantu informasi jadwal adicara, ketentuan sambangan, warna kartu masuk, denah lokasi, fasilitas penginapan, konsultasi ibadah, doa, utawi panduan sowan. Wonten ingkang saget dibantu malih?\`;
     }
   }
 
@@ -59,7 +59,7 @@ const newHandlers = `const headerIntro = \`\${greetingPrefix}\${intro}\`;
 3. **Stiker Kartu Parkir VIP**:
    - Diterbitkan oleh Seksi Keamanan khusus untuk kendaraan Tamu VIP & VVIP (Dzurriyah & Masyaikh).
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 
   // =========================================================================
@@ -98,7 +98,7 @@ Wonten ingkang saget dibantu malih Us?\`;
 7. **Pos 7 (Drop Point Dz Putra)**: *Bapak M. Izzuddin Assakhi, Bapak Muhammad Najih, Bapak M. Yazid Mahbubillah*.
 8. **Pos 8 (Sekitar Area Lobi)**: *Bapak Imam Ghozali, Bapak Afif Cholilul Umam, Bapak Muhammad Sabiqul Anam*.
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 
   // =========================================================================
@@ -120,7 +120,7 @@ Wonten ingkang saget dibantu malih Us?\`;
 4. 📷 **Penitipan Kamera**: Diperbolehkan menitipkan kamera bagi segenap shohibul hajat (disediakan jasa charger dengan syarat membawa charger sendiri). Kamera dapat diambil kembali selesai acara di tempat izin keluar Gerbang Bola Dunia.
 5. 🚷 **Sterilisasi Area**: Walisantri dilarang memasuki area Shohibul Hajat selama acara berlangsung.
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 
   // =========================================================================
@@ -153,7 +153,7 @@ Wonten ingkang saget dibantu malih Us?\`;
 - Pendaftaran kepulangan dibuka tanggal **20 – 30 Desember 2026** ke Keamanan Haflah dengan fotokopi KK.
 - Santriwati Takhtiman Bil Ghoibi **tidak diperkenankan pulang**.
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 
   // =========================================================================
@@ -181,7 +181,7 @@ Wonten ingkang saget dibantu malih Us?\`;
 ### 🎁 Tonjokan Dzuriyyah & VIP:
 - Dilayani oleh Lyla Catering serta menu spesial berkatan Wong Solo.
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 
   // =========================================================================
@@ -200,7 +200,7 @@ Wonten ingkang saget dibantu malih Us?\`;
 - **Pos Kesekretariatan Putri**: Sebelah timur jalan luar Gerbang Bola Dunia.
 - Disediakan transit penginapan di **Rusunawa** bagi walisantri yang rawuh sebelum hari pelaksanaan acara.
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 
   // =========================================================================
@@ -239,7 +239,7 @@ Wonten ingkang saget dibantu malih Us?\`;
 - **01.01 – 01.16 WIs**: Penayangan Video Closing *"Sajak Akhirussanah"* (Tim TDM P3TQ).
 - **01.17 – Selesai**: Sesi Foto Lengkap bersama Dzuriyyah.
 
-Wonten ingkang saget dibantu malih Us?\`;
+Wonten ingkang saget dibantu malih Usth.?\`;
   }
 `;
 

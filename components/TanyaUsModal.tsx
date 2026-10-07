@@ -687,7 +687,7 @@ export default function TanyaUsModal({
     {
       id: 'm-user-salam',
       role: 'user',
-      content: "Assalamu'alaikum Us.",
+      content: "Assalamu'alaikum Usth.",
       timestamp: 'Baru saja',
     },
     {
@@ -695,7 +695,7 @@ export default function TanyaUsModal({
       role: 'assistant',
       content: `Wa'alaikum Salam Wr. Wb. 🙏✨
 
-Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.? Kula siap mbantu informasi kuota, denah lokasi, tata tertib, jadwal acara, presensi, utawi rekapitulasi data. Silakan ketik pertanyaan di bawah ya! 😊`,
+Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.? Kula siap mbantu informasi kuota, denah lokasi, tata tertib, jadwal acara, presensi, utawi rekapitulasi data. Silakan ketik pertanyaan di bawah ya! 😊`,
       timestamp: 'Baru saja',
       model: 'Gemini 3.5 Pro',
       expression: 'wave',
@@ -785,13 +785,13 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
       {
         id: 'm-user-salam-' + Date.now(),
         role: 'user',
-        content: "Assalamu'alaikum Us.",
+        content: "Assalamu'alaikum Usth.",
         timestamp: 'Baru saja',
       },
       {
         id: 'm-welcome-' + Date.now(),
         role: 'assistant',
-        content: `Wa'alaikum Salam Wr. Wb. Obrolan sampun dipun-reset 🙏✨\n\nWonten ingkang saget kula bantu malih seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ, Us? Silakan ketik pertanyaan di bawah ya! 😊`,
+        content: `Wa'alaikum Salam Wr. Wb. Obrolan sampun dipun-reset 🙏✨\n\nWonten ingkang saget kula bantu malih seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ, Usth.? Silakan ketik pertanyaan di bawah ya! 😊`,
         timestamp: 'Baru saja',
         model: 'Gemini 3.5 Pro',
         expression: 'wave',
@@ -870,7 +870,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
           {
             id: 'ai-err-' + Date.now(),
             role: 'assistant',
-            content: `Maaf, Us AI mengalami kendala saat memproses jawaban: ${data?.error || 'Koneksi terganggu'}. Silakan coba ajukan kembali ya.`,
+            content: `Maaf, Usth. Halwaa mengalami kendala saat memproses jawaban: ${data?.error || 'Koneksi terganggu'}. Silakan coba ajukan kembali ya.`,
             timestamp: new Date().toLocaleTimeString('id-ID', {
               hour: '2-digit',
               minute: '2-digit',
@@ -924,7 +924,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
                     ? '/images/avatar/ustadzah-avatar-thinking.png'
                     : '/images/avatar/ustadzah-avatar-wave.png'
                 }
-                alt="Us. Halwaa"
+                alt="Usth. Halwaa"
                 className="w-full h-full object-cover transition-all duration-300"
               />
               <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-600 animate-pulse" />
@@ -933,7 +933,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 <h2 className="font-serif font-black text-sm sm:text-lg text-[#422F21] leading-tight truncate">
-                  Tanya Us. Halwaa
+                  Tanya Usth. Halwaa
                 </h2>
                 <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-gradient-to-r from-[#8C6A47] to-[#D49B5B] text-white text-[9px] sm:text-[10px] font-black tracking-wide shadow-xs shrink-0 flex items-center space-x-1">
                   <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-200 animate-pulse" />
@@ -1025,7 +1025,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
                 {!isUser && (
                   <div
                     className="w-10 h-10 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden mt-0.5 group/avatar relative"
-                    title={`Ekspresi Us AI: ${EXPRESSION_AVATARS[msg.expression || 'polite'].label}`}
+                    title={`Ekspresi Usth. Halwaa: ${EXPRESSION_AVATARS[msg.expression || 'polite'].label}`}
                   >
                     <img
                       src={EXPRESSION_AVATARS[msg.expression || 'polite'].src}
@@ -1059,7 +1059,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
                       ) : (
                         <>
                           <Sparkles className="w-3 h-3 text-[#D49B5B]" />
-                          <span>Us. Halwaa</span>
+                          <span>Usth. Halwaa</span>
                           <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-md bg-[#EFE8E1] text-[#8C6A47] font-semibold">
                             {msg.model || 'GPT-4o'}
                           </span>
@@ -1121,7 +1121,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
               <div className="w-10 h-10 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
                 <img
                   src="/images/avatar/ustadzah-avatar-thinking.png"
-                  alt="Us. Halwaa Berpikir"
+                  alt="Usth. Halwaa Berpikir"
                   className="w-full h-full object-cover animate-pulse"
                 />
               </div>
@@ -1133,7 +1133,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
                   <div className="w-2 h-2 rounded-full bg-[#D49B5B] animate-bounce [animation-delay:0.4s]" />
                 </div>
                 <span className="font-medium italic text-[11px]">
-                  Us. Halwaa sedang menyusun jawaban terbaik...
+                  Usth. Halwaa sedang menyusun jawaban terbaik...
                 </span>
               </div>
             </div>
@@ -1142,7 +1142,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Bar Tanya Us. Halwaa */}
+        {/* Input Bar Tanya Usth. Halwaa */}
         <div className="p-3 sm:p-4 bg-[#FAF7F3] border-t-2 border-[#D5C4B4] shrink-0 space-y-2">
           {/* Quick Action Chips per Role */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
@@ -1241,7 +1241,7 @@ Nggih Us, wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ
                 onChange={(e) => setInputQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={1}
-                placeholder="Tanyakan apapun pada Us. Halwaa seputar Haflah... (Enter untuk kirim)"
+                placeholder="Tanyakan apapun pada Usth. Halwaa seputar Haflah... (Enter untuk kirim)"
                 className="w-full px-3.5 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] focus:border-[#8C6A47] focus:outline-none text-xs sm:text-sm text-[#422F21] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
               />
             </div>
