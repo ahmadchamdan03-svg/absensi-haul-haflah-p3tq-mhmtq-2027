@@ -285,10 +285,10 @@ export default function KonfirmasiPage() {
         const { error } = await supabase
           .from('tamu_undangan')
           .update({
-            perkiraan_l: editL,
-            perkiraan_p: editP,
             status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
             catatan_konfirmasi: editCatatan,
+            confirmed_at: editL + editP > 0 ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString(),
           })
           .eq('kode', modalItem.kode);
 

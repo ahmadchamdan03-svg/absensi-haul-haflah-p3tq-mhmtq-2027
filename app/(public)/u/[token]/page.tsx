@@ -529,8 +529,7 @@ export default function UndanganWaliPage() {
 
     const payload = {
       status_konfirmasi: status,
-      perkiraan_l: status === 'HADIR' ? 1 : 0,
-      perkiraan_p: status === 'HADIR' ? 1 : 0,
+      confirmed_at: nowIso,
       updated_at: nowIso,
     };
 
