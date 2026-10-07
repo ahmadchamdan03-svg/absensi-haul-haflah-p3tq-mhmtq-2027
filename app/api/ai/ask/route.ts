@@ -241,7 +241,7 @@ async function getTamuUndanganLive() {
     return {
       source: 'unavailable' as const,
       data: null,
-      message: 'Mohon maaf Usth., sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.',
+      message: 'Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.',
     };
   }
 }
@@ -281,7 +281,7 @@ async function getPesertaSantriLive() {
     return {
       source: 'unavailable' as const,
       data: null,
-      message: 'Mohon maaf Usth., sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.',
+      message: 'Mohon maaf Us, sistem sedang tidak dapat mengakses database. Silakan coba beberapa saat lagi.',
     };
   }
 }
@@ -316,7 +316,7 @@ async function getPresensiLive() {
     return {
       source: 'unavailable' as const,
       data: null,
-      message: 'Mohon maaf Usth., sistem presensi sedang tidak dapat diakses.',
+      message: 'Mohon maaf Us, sistem presensi sedang tidak dapat diakses.',
     };
   }
 }
@@ -792,7 +792,7 @@ async function getLiveArrivedGuestsResponse(prompt: string, isFirstTurn: boolean
     );
 
     if (arrivedTamu.length === 0 && tamuMetrics.totalHadir === 0) {
-      return `${intro}Alhamdulillah Usth., per 02 Januari 2027 pukul ${nowStr} WIB, belum ada Tamu Undangan yang tercatat presensi di gerbang masuk.\n\nTotal Tamu Undangan Terdaftar: **${tamuMetrics.totalKuota} tamu**.\nSisa **${tamuMetrics.totalKuota} tamu** masih dalam perjalanan / belum di-absen.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+      return `${intro}Alhamdulillah Us, per 02 Januari 2027 pukul ${nowStr} WIB, belum ada Tamu Undangan yang tercatat presensi di gerbang masuk.\n\nTotal Tamu Undangan Terdaftar: **${tamuMetrics.totalKuota} tamu**.\nSisa **${tamuMetrics.totalKuota} tamu** masih dalam perjalanan / belum di-absen.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
     }
 
     const guestLines = arrivedTamu.map((t, idx) => {
@@ -813,9 +813,9 @@ async function getLiveArrivedGuestsResponse(prompt: string, isFirstTurn: boolean
     const percentRatio = tamuMetrics.persenHadir;
     const sisa = Math.max(0, totalTerdaftar - totalHadirCount);
 
-    return `${intro}Alhamdulillah Usth., per 02 Januari 2027 pukul ${nowStr} WIB, tercatat **${arrivedTamu.length} Tamu Undangan** yang sudah hadir:\n\n${guestLines.join('\n\n')}\n\nTotal yang sudah hadir: **${totalHadirCount} tamu** dari **${totalTerdaftar} tamu terdaftar** (${percentRatio}%). Sisa **${sisa} tamu** yang belum tercatat hadir.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+    return `${intro}Alhamdulillah Us, per 02 Januari 2027 pukul ${nowStr} WIB, tercatat **${arrivedTamu.length} Tamu Undangan** yang sudah hadir:\n\n${guestLines.join('\n\n')}\n\nTotal yang sudah hadir: **${totalHadirCount} tamu** dari **${totalTerdaftar} tamu terdaftar** (${percentRatio}%). Sisa **${sisa} tamu** yang belum tercatat hadir.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
   } catch (err: any) {
-    return `${intro}Maaf Usth., terjadi kendala saat query data tamu realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
+    return `${intro}Maaf Us, terjadi kendala saat query data tamu realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
   }
 }
 
@@ -891,7 +891,7 @@ async function getLiveArrivedWaliResponse(prompt: string, isFirstTurn: boolean =
     const totalHadirCount = wsMetrics?.totalHadir || res.totalWaliHadir;
 
     if (res.list.length === 0 && totalHadirCount === 0) {
-      return `${intro}Alhamdulillah Usth., per ${dateStr} pukul ${nowStr} WIB, belum ada Wali Santri yang tercatat presensi di gerbang masuk.\n\nTotal Kuota Wali Santri: **${totalKuota} kursi**.\nSisa **${totalKuota} kursi** belum di-absen.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+      return `${intro}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, belum ada Wali Santri yang tercatat presensi di gerbang masuk.\n\nTotal Kuota Wali Santri: **${totalKuota} kursi**.\nSisa **${totalKuota} kursi** belum di-absen.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
     }
 
     const waliLines = res.list.map((w, idx) => {
@@ -902,9 +902,9 @@ async function getLiveArrivedWaliResponse(prompt: string, isFirstTurn: boolean =
 
     const percentRatio = totalKuota > 0 ? Math.round((totalHadirCount / totalKuota) * 100) : 0;
 
-    return `${intro}Alhamdulillah Usth., per ${dateStr} pukul ${nowStr} WIB, tercatat **${res.list.length} wali santri** yang sudah hadir:\n\n${waliLines.join('\n\n')}\n\nTotal yang sudah hadir: **${totalHadirCount} wali santri**.\nTotal kuota wali santri: **${totalKuota} kursi**.\nPersentase: **${percentRatio}%** dari kuota.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+    return `${intro}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, tercatat **${res.list.length} wali santri** yang sudah hadir:\n\n${waliLines.join('\n\n')}\n\nTotal yang sudah hadir: **${totalHadirCount} wali santri**.\nTotal kuota wali santri: **${totalKuota} kursi**.\nPersentase: **${percentRatio}%** dari kuota.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
   } catch (err: any) {
-    return `${intro}Maaf Usth., terjadi kendala saat query data wali santri realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
+    return `${intro}Maaf Us, terjadi kendala saat query data wali santri realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
   }
 }
 
@@ -925,7 +925,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
     q.includes('siapakah kamu') ||
     q.includes('siapakah anda')
   ) {
-    return `Saya Usth. Halwaa, asisten resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Saya siap membantu Usth. (Panitia, Pimpinan, atau Pengurus) dengan informasi seputar:\n- Data peserta & tamu undangan\n- Statistik kehadiran realtime\n- Struktur kepanitiaan\n- Rundown acara & kalender kerja\n- Denah & pos lokasi\n- Menu konsumsi\n- Aturan & larangan\n- Biaya & anggaran\n\nAda yang bisa saya bantu, Usth.?`;
+    return "Saya Usth. Halwaa, Asisten Cerdas Resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M.\n\nAda yang bisa saya bantu, Us?";
   }
 
   if (
@@ -939,7 +939,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
     q === "assalamualaikum usth" ||
     q === "assalamu'alaikum usth"
   ) {
-    return "Waalaikumussalam warahmatullahi wabarakatuh Usth. Ada yang bisa saya bantu?";
+    return "Waalaikumussalam warahmatullahi wabarakatuh Us. Ada yang bisa saya bantu?";
   }
 
   if (
@@ -952,7 +952,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
     q === 'p' ||
     q === 'tes'
   ) {
-    return "Halo Usth. Ada yang bisa saya bantu?";
+    return "Halo Us. Ada yang bisa saya bantu?";
   }
 
   if (
@@ -961,7 +961,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
     q.includes('syukron') ||
     q.includes('matur nuwun')
   ) {
-    return "Sama-sama Usth. Semoga bermanfaat.";
+    return "Sama-sama Us. Semoga bermanfaat.";
   }
 
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
@@ -974,7 +974,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
 - **Anggaran Pemasukan**: Rp 548.552.000 (masih perencanaan, bukan realisasi)
 - **Anggaran Pengeluaran**: Rp 547.450.000 (masih perencanaan, bukan realisasi)
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // 2. PEMASUKAN
@@ -982,7 +982,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
     return `${headerIntro}Berdasarkan Anggaran Pemasukan Panitia Haul & Haflah 2027 (USTH AL):
 - **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // 3. PENGELUARAN
@@ -990,7 +990,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
     return `${headerIntro}Berdasarkan Anggaran Pengeluaran Panitia Haul & Haflah 2027 (USTH AL):
 - **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // 4. BIAYA SHOHIBUL HAJAT & SANTRI
@@ -1010,7 +1010,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
 - **Santri Nduduk**: Rp 30.000 per santri`;
     }
     if (q.includes('tamu') || q.includes('undangan')) {
-      return `${headerIntro}Tamu undangan **TIDAK dikenakan biaya masuk (GRATIS)**. Yang membayar biaya (subsidi) hanya Shohibul Hajat. Jika Usth. sebagai tamu undangan, tidak ada biaya apa pun yang harus dibayar.`;
+      return `${headerIntro}Tamu undangan **TIDAK dikenakan biaya masuk (GRATIS)**. Yang membayar biaya (subsidi) hanya Shohibul Hajat. Jika Us sebagai tamu undangan, tidak ada biaya apa pun yang harus dibayar.`;
     }
   }
 
@@ -1083,7 +1083,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
 3. **Seksi PULP (Pembantu Umum Listrik & Perairan)**
 4. **Seksi Berkatan**
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // 7. PROTOKOLER
@@ -1226,7 +1226,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
   }
 
   // Default Fallback
-  return `${headerIntro}Wonten ingkang saget dibantu Usth.? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., Usth. Halwaa siap membantu dengan senang hati! 😊`;
+  return `${headerIntro}Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., Usth. Halwaa siap membantu dengan senang hati! 😊`;
 }
 
 function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
@@ -1250,7 +1250,7 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
     q.includes('siapakah kamu') ||
     q.includes('siapakah anda')
   ) {
-    return `Saya Usth. Halwaa, asisten resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Saya siap membantu Usth. (Panitia, Pimpinan, atau Pengurus) dengan informasi seputar:\n- Data peserta & tamu undangan\n- Statistik kehadiran realtime\n- Struktur kepanitiaan\n- Rundown acara & kalender kerja\n- Denah & pos lokasi\n- Menu konsumsi\n- Aturan & larangan\n- Biaya & anggaran\n\nAda yang bisa saya bantu, Usth.?`;
+    return "Saya Usth. Halwaa, Asisten Cerdas Resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M.\n\nAda yang bisa saya bantu, Us?";
   }
 
   if (
@@ -1264,7 +1264,7 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
     q === "assalamualaikum usth" ||
     q === "assalamu'alaikum usth"
   ) {
-    return "Waalaikumussalam warahmatullahi wabarakatuh Usth. Ada yang bisa saya bantu?";
+    return "Waalaikumussalam warahmatullahi wabarakatuh Us. Ada yang bisa saya bantu?";
   }
 
   if (
@@ -1277,7 +1277,7 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
     q === 'p' ||
     q === 'tes'
   ) {
-    return "Halo Usth. Ada yang bisa saya bantu?";
+    return "Halo Us. Ada yang bisa saya bantu?";
   }
 
   if (
@@ -1286,7 +1286,7 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
     q.includes('syukron') ||
     q.includes('matur nuwun')
   ) {
-    return "Sama-sama Usth. Semoga bermanfaat.";
+    return "Sama-sama Us. Semoga bermanfaat.";
   }
 
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
@@ -1299,7 +1299,7 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
 - **Anggaran Pemasukan**: Rp 548.552.000 (masih perencanaan, bukan realisasi)
 - **Anggaran Pengeluaran**: Rp 547.450.000 (masih perencanaan, bukan realisasi)
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // PEMASUKAN
@@ -1307,7 +1307,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
     return `${headerIntro}Berdasarkan Anggaran Pemasukan Panitia Haul & Haflah 2027 (USTH AL):
 - **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // PENGELUARAN
@@ -1315,7 +1315,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
     return `${headerIntro}Berdasarkan Anggaran Pengeluaran Panitia Haul & Haflah 2027 (USTH AL):
 - **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // BIAYA
@@ -1335,7 +1335,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
 - **Santri Nduduk**: Rp 30.000 per santri`;
     }
     if (q.includes('tamu') || q.includes('undangan')) {
-      return `${headerIntro}Tamu undangan **TIDAK dikenakan biaya masuk (GRATIS)**. Yang membayar biaya (subsidi) hanya Shohibul Hajat. Jika Usth. sebagai tamu undangan, tidak ada biaya apa pun yang harus dibayar.`;
+      return `${headerIntro}Tamu undangan **TIDAK dikenakan biaya masuk (GRATIS)**. Yang membayar biaya (subsidi) hanya Shohibul Hajat. Jika Us sebagai tamu undangan, tidak ada biaya apa pun yang harus dibayar.`;
     }
   }
 
@@ -1351,7 +1351,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
 3. **Seksi PULP (Pembantu Umum Listrik & Perairan)**
 4. **Seksi Berkatan**
 
-Wonten ingkang saget dibantu malih Usth.?`;
+Wonten ingkang saget dibantu malih Us?`;
   }
 
   // PROTOKOLER
@@ -1451,7 +1451,7 @@ Wonten ingkang saget dibantu malih Usth.?`;
     return `${headerIntro}Total Panitia Haul & Haflah 2027 berjumlah **200 orang** (15 Dewan Penasehat, 68 Dewan Pembimbing, 117 Seluruh Panitia).`;
   }
 
-  return `${headerIntro}Wonten ingkang saget dibantu Usth.? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., Usth. Halwaa siap membantu dengan senang hati! 😊`;
+  return `${headerIntro}Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., Usth. Halwaa siap membantu dengan senang hati! 😊`;
 }
 
 function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt?: string, role: string = 'WALI'): string {
@@ -1474,15 +1474,15 @@ function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt
 
   reply = reply.replace(
     /wonten\s+ingkang\s+saget\s+(usth\.\s*halwaa|us\s+ai|us)\s+bantu[,\s]+(kang\s+atau\s+mbak|usth\.|us)\?[^.\n]*([.\n]|$)/gi,
-    'Wonten ingkang saget dibantu Usth.?\n'
+    'Wonten ingkang saget dibantu Us?\n'
   );
   reply = reply.replace(
     /wonten\s+ingkang\s+saget\s+(usth\.\s*halwaa|us\s+ai|us\s+)?bantu[,\s]+(kang\s+utawi\s+mbak|kang\s+atau\s+mbak|us)\?/gi,
-    'Wonten ingkang saget dibantu Usth.?'
+    'Wonten ingkang saget dibantu Us?'
   );
 
-  reply = reply.replace(/Kang\s+atau\s+Mbak/gi, 'Usth.');
-  reply = reply.replace(/\b(Kang|Mbak)\b/g, 'Usth.');
+  reply = reply.replace(/Kang\s+atau\s+Mbak/gi, 'Us');
+  reply = reply.replace(/\b(Kang|Mbak)\b/g, 'Us');
 
   reply = reply.replace(
     /Madrasah\s+Hidayatul\s+Mubtadi-aat\s+Tahfizhil\s+Qur-an/gi,
@@ -1721,11 +1721,11 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     if (personMatch) {
       let detailText = '';
       if (personMatch.code === 'NOT_FOUND' || personMatch.extraInfo === 'DATA_NOT_FOUND') {
-        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Maaf Usth., data untuk **${personMatch.name}** belum tersedia di sistem. Mohon cek menu [Data Peserta & Tamu](/admin/peserta).`;
+        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Maaf Us, data untuk **${personMatch.name}** belum tersedia di sistem. Mohon cek menu [Data Peserta & Tamu](/admin/peserta).`;
       } else if (personMatch.hasArrived) {
-        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Usth., **${personMatch.name}** (${personMatch.code}) tercatat sudah hadir ${personMatch.extraInfo ? personMatch.extraInfo : 'di lokasi acara'}. Beliau hadir ${personMatch.quotaUsed > 1 ? 'bersama ' + (personMatch.quotaUsed - 1) + ' pendamping' : 'dengan alokasi 1 kursi'}.`;
+        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, **${personMatch.name}** (${personMatch.code}) tercatat sudah hadir ${personMatch.extraInfo ? personMatch.extraInfo : 'di lokasi acara'}. Beliau hadir ${personMatch.quotaUsed > 1 ? 'bersama ' + (personMatch.quotaUsed - 1) + ' pendamping' : 'dengan alokasi 1 kursi'}.`;
       } else {
-        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Mohon maaf Usth., sampai saat ini belum ada catatan kehadiran untuk **${personMatch.name}** (${personMatch.code}) di sistem presensi. Beliau mungkin belum datang atau belum di-absen oleh petugas gerbang.`;
+        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Mohon maaf Us, sampai saat ini belum ada catatan kehadiran untuk **${personMatch.name}** (${personMatch.code}) di sistem presensi. Beliau mungkin belum datang atau belum di-absen oleh petugas gerbang.`;
       }
 
       const cleanReply = cleanReplyForSession(detailText, isFirstTurn, prompt);
@@ -1740,7 +1740,7 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     }
 
     const localSmartResult = await generateLocalSmartResponseAsync(prompt, isFirstTurn, currentRole);
-    const isGenericFallback = localSmartResult.includes("Wonten ingkang saget dibantu Usth.? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah");
+    const isGenericFallback = localSmartResult.includes("Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah");
 
     if (!isGenericFallback || isGreetingPrompt) {
       const cleanReply = cleanReplyForSession(localSmartResult, isFirstTurn, prompt);
@@ -1755,8 +1755,8 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     }
 
     const sessionPromptDirective = isFirstTurn
-      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Usth.?\".]"
-      : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Usth.?\".]";
+      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Us?\".]"
+      : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Us?\".]";
 
     const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
