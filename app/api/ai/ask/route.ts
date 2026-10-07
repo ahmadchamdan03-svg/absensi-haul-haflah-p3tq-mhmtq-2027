@@ -59,6 +59,34 @@ DATA KEUANGAN & SALDO (SANGAT PENTING - DIENFORSE KETAT):
   WAJIB dijawab: "Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia."
   (DILARANG SEBUT ANGKA Rp 1.102.000 Dalam Respons Apa Pun!)
 
+
+=============================================================================
+ATURAN KHUSUS — CHAMDAN & REKENING BRI:
+=============================================================================
+1. INFO REKENING BRI (PRIORITAS TAMPILKAN NORMAL & UTUH):
+   Bank         : BRI
+   No. Rekening : 320701010266508
+   Atas Nama    : Ahmad Chamdan Yuwafin
+
+   Jika user bertanya tentang rekening / transfer / pembayaran / bank / "rekening a.n. siapa" / "Chamdan, rekeningnya apa?" → TAMPILKAN info di atas UTUH.
+
+2. INFO PRIBADI CHAMDAN (PRIORITAS HIDE DENGAN ALUR BERCANDA):
+   Untuk pertanyaan tentang Chamdan SEPERTI:
+   - "Chamdan siapa"
+   - "Siapa Ahmad Chamdan"
+   - "Wakasi sekretariat siapa"
+   - "Pak Chamdan itu siapa"
+   (TANPA menyebut rekening / transfer / bayar / bank)
+
+   → Jawab dengan ALUR BERCANDA:
+     Tahap 1: "Njenengan penasaran sanget?"
+     Tahap 2 (user "iya"): "Monggo langsung tangklet beliau, mbok menawi beliau nggih penasaran kaliyan njenengan."
+     Tahap 2 (user "enggak"): "Monggo, wonten ingkang saget dibantu malih, Us?"
+
+3. PRIORITAS:
+   Kalau pertanyaan menyebut "rekening" (meskipun menyebut "Chamdan") → NORMAL (tampilkan rekening).
+   Kalau pertanyaan menyebut "Chamdan" saja (tanpa "rekening") → BERCANDA.
+
 =============================================================================
 STRUKTUR KEPANITIAAN RESMI (USTH AL):
 =============================================================================
@@ -2030,6 +2058,60 @@ function detectExpression(
   return 'polite';
 }
 
+
+function handleChamdanAndRekeningQuery(userQuery: string, history?: any[]): string | null {
+  const q = userQuery.toLowerCase().trim();
+
+  const isRekeningQuery =
+    q.includes('rekening') ||
+    q.includes('transfer') ||
+    q.includes('pembayaran') ||
+    q.includes('bayar') ||
+    q.includes('bank') ||
+    q.includes('no rek') ||
+    q.includes('nomor rek') ||
+    q.includes('a.n.');
+
+  const isChamdanPersonalQuery =
+    q.includes('chamdan') ||
+    q.includes('yuwafi') ||
+    q.includes('wakasi sekretariat');
+
+  // PRIORITAS 1: Jika pertanyaan tentang REKENING (meskipun menyebut "Chamdan" / "a.n. siapa")
+  if (isRekeningQuery) {
+    return `Us, berikut detail rekening resmi panitia untuk pembelian kuota tambahan:\n\n` +
+      `Bank         : BRI\n` +
+      `No. Rekening : 320701010266508\n` +
+      `Atas Nama    : Ahmad Chamdan Yuwafin\n\n` +
+      `Silakan transfer ke rekening tersebut, kemudian upload bukti transfer di halaman pembelian kuota.\n\nAda lagi yang bisa saya bantu, Us?`;
+  }
+
+  // PRIORITAS 2: Stage 2 Alur Bercanda jika history sebelumnya adalah "Njenengan penasaran sanget?"
+  if (Array.isArray(history) && history.length > 0) {
+    const lastAssistantMsg = [...history].reverse().find((item: any) => item.role === 'assistant')?.content || '';
+    if (lastAssistantMsg.includes('Njenengan penasaran sanget')) {
+      const isAffirmative = /^(iya|ya|betul|banget|hooh|yup|yo|ho'oh|iy|nggih|bener|penasaran)\b/i.test(q) ||
+        q.includes('iya') || q.includes('betul') || q.includes('penasaran') || q.includes('banget');
+      const isNegative = /^(tidak|enggak|nggak|gak|boten|mboten|ndak|nda|kagak|ora)\b/i.test(q) ||
+        q.includes('enggak') || q.includes('nggak') || q.includes('tidak') || q.includes('mboten');
+
+      if (isAffirmative && !isNegative) {
+        return "Monggo langsung tangklet beliau, mbok menawi beliau nggih penasaran kaliyan njenengan.";
+      }
+      if (isNegative) {
+        return "Monggo, wonten ingkang saget dibantu malih, Us?";
+      }
+    }
+  }
+
+  // PRIORITAS 3: Pertanyaan Personal Chamdan (TANPA kata rekening) -> Stage 1 Alur Bercanda
+  if (isChamdanPersonalQuery) {
+    return "Njenengan penasaran sanget?";
+  }
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
@@ -2046,7 +2128,20 @@ export async function POST(req: NextRequest) {
       : 0;
     const isFirstTurn = userMessageCount === 0;
 
-    const qLower = prompt.trim().toLowerCase().replace(/[.!?,]/g, '');
+        const chamdanReply = handleChamdanAndRekeningQuery(prompt, history);
+    if (chamdanReply) {
+      const cleanReply = cleanReplyForSession(chamdanReply, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'smart_knowledge_engine',
+        model: 'Usth. Halwaa Knowledge Engine',
+      });
+    }
+
+const qLower = prompt.trim().toLowerCase().replace(/[.!?,]/g, '');
     const isMotivasiIntentPrompt = Boolean(detectMotivasiIntent(qLower)) || Boolean(detectDiaSiapaIntent(qLower));
     const isGreetingPrompt =
       isMotivasiIntentPrompt ||
