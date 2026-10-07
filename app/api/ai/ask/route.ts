@@ -87,6 +87,25 @@ ATURAN KHUSUS — CHAMDAN & REKENING BRI:
    Kalau pertanyaan menyebut "rekening" (meskipun menyebut "Chamdan") → NORMAL (tampilkan rekening).
    Kalau pertanyaan menyebut "Chamdan" saja (tanpa "rekening") → BERCANDA.
 
+
+❌ DILARANG KERAS menyebutkan nama dokumen sumber seperti "(USTH AL)", "(Koor 2)", "Berdasarkan USTH AL", "Dari PDF USTH AL" dalam jawaban ke pengguna! Cukup sajikan datanya secara langsung.
+
+- RINCIAN ANGGARAN PENGELUARAN 12 POS (ANGGARAN / MASIH PERENCANAAN):
+  1. Sekretariat       : Rp  13.550.000
+  2. Protokoler        : Rp     800.000
+  3. Akomodasi         : Rp  62.000.000
+  4. Konsumsi          : Rp  75.000.000
+  5. Berkatan          : Rp 260.000.000
+  6. Desain Grafis     : Rp  11.500.000
+  7. TDM               : Rp  28.150.000
+  8. Keamanan          : Rp     500.000
+  9. Humasy            : Rp   2.000.000
+  10. PULP             : Rp  18.950.000
+  11. UTK              : Rp  70.000.000
+  12. Lain-lain        : Rp   5.000.000
+                       ───────────────
+  TOTAL                : Rp 547.450.000
+
 =============================================================================
 STRUKTUR KEPANITIAAN RESMI (USTH AL):
 =============================================================================
@@ -1371,15 +1390,55 @@ Wonten ingkang saget dibantu malih Us?`;
 
   // 2. PEMASUKAN
   if (q.includes('pemasukan') || q.includes('total pemasukan')) {
-    return `${headerIntro}Berdasarkan Anggaran Pemasukan Panitia Haul & Haflah 2027 (USTH AL):
+    return `${headerIntro}Us, berikut Anggaran Pemasukan Panitia Haul & Haflah 2027:
 - **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
 Wonten ingkang saget dibantu malih Us?`;
   }
 
+    // 12 POS ANGGARAN PENGELUARAN
+  if ((q.includes('pengeluaran') || q.includes('pos')) && (q.includes('rincian') || q.includes('perincian') || q.includes('detail') || q.includes('12 pos') || q.includes('12pos'))) {
+    return `${headerIntro}Us, berikut rincian Anggaran Pengeluaran Panitia Haul & Haflah 2027 (masih perencanaan, bukan realisasi):\n\n` +
+      `1. Sekretariat       : Rp  13.550.000\n` +
+      `2. Protokoler        : Rp     800.000\n` +
+      `3. Akomodasi         : Rp  62.000.000\n` +
+      `4. Konsumsi          : Rp  75.000.000\n` +
+      `5. Berkatan          : Rp 260.000.000\n` +
+      `6. Desain Grafis     : Rp  11.500.000\n` +
+      `7. TDM               : Rp  28.150.000\n` +
+      `8. Keamanan          : Rp     500.000\n` +
+      `9. Humasy            : Rp   2.000.000\n` +
+      `10. PULP             : Rp  18.950.000\n` +
+      `11. UTK              : Rp  70.000.000\n` +
+      `12. Lain-lain        : Rp   5.000.000\n` +
+      `                     ───────────────\n` +
+      `TOTAL                : Rp 547.450.000\n\n` +
+      `Wonten ingkang saget dibantu malih Us?`;
+  }
+
+    // 12 POS ANGGARAN PENGELUARAN
+  if ((q.includes('pengeluaran') || q.includes('pos')) && (q.includes('rincian') || q.includes('perincian') || q.includes('detail') || q.includes('12 pos') || q.includes('12pos'))) {
+    return `${headerIntro}Us, berikut rincian Anggaran Pengeluaran Panitia Haul & Haflah 2027 (masih perencanaan, bukan realisasi):\n\n` +
+      `1. Sekretariat       : Rp  13.550.000\n` +
+      `2. Protokoler        : Rp     800.000\n` +
+      `3. Akomodasi         : Rp  62.000.000\n` +
+      `4. Konsumsi          : Rp  75.000.000\n` +
+      `5. Berkatan          : Rp 260.000.000\n` +
+      `6. Desain Grafis     : Rp  11.500.000\n` +
+      `7. TDM               : Rp  28.150.000\n` +
+      `8. Keamanan          : Rp     500.000\n` +
+      `9. Humasy            : Rp   2.000.000\n` +
+      `10. PULP             : Rp  18.950.000\n` +
+      `11. UTK              : Rp  70.000.000\n` +
+      `12. Lain-lain        : Rp   5.000.000\n` +
+      `                     ───────────────\n` +
+      `TOTAL                : Rp 547.450.000\n\n` +
+      `Wonten ingkang saget dibantu malih Us?`;
+  }
+
   // 3. PENGELUARAN
   if (q.includes('pengeluaran') || q.includes('total pengeluaran')) {
-    return `${headerIntro}Berdasarkan Anggaran Pengeluaran Panitia Haul & Haflah 2027 (USTH AL):
+    return `${headerIntro}Us, berikut Anggaran Pengeluaran Panitia Haul & Haflah 2027:
 - **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
 Wonten ingkang saget dibantu malih Us?`;
@@ -1469,7 +1528,7 @@ Wonten ingkang saget dibantu malih Us?`;
 
   // 6. SEKSI KETUA II
   if (q.includes('ketua ii') || q.includes('ketua 2') || q.includes('di bawah ketua ii') || q.includes('dibawah ketua ii') || q.includes('dibawah ketua 2')) {
-    return `${headerIntro}Berdasarkan Garis Koordinasi Panitia Haflah 2027 (USTH AL), seksi di bawah **Ketua II (Zakia)** adalah:
+    return `${headerIntro}Us, berdasarkan Garis Koordinasi Panitia Haflah 2027, seksi di bawah **Ketua II (Zakia)** adalah:
 1. **Seksi Akomodasi**
 2. **Seksi Desain Grafis**
 3. **Seksi PULP (Pembantu Umum Listrik & Perairan)**
@@ -1742,7 +1801,7 @@ Wonten ingkang saget dibantu malih Us?`;
 
   // PEMASUKAN
   if (q.includes('pemasukan') || q.includes('total pemasukan')) {
-    return `${headerIntro}Berdasarkan Anggaran Pemasukan Panitia Haul & Haflah 2027 (USTH AL):
+    return `${headerIntro}Us, berikut Anggaran Pemasukan Panitia Haul & Haflah 2027:
 - **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
 Wonten ingkang saget dibantu malih Us?`;
@@ -1750,7 +1809,7 @@ Wonten ingkang saget dibantu malih Us?`;
 
   // PENGELUARAN
   if (q.includes('pengeluaran') || q.includes('total pengeluaran')) {
-    return `${headerIntro}Berdasarkan Anggaran Pengeluaran Panitia Haul & Haflah 2027 (USTH AL):
+    return `${headerIntro}Us, berikut Anggaran Pengeluaran Panitia Haul & Haflah 2027:
 - **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
 Wonten ingkang saget dibantu malih Us?`;
@@ -1783,7 +1842,7 @@ Wonten ingkang saget dibantu malih Us?`;
 
   // SEKSI KETUA II
   if (q.includes('ketua ii') || q.includes('ketua 2') || q.includes('di bawah ketua ii') || q.includes('dibawah ketua ii') || q.includes('dibawah ketua 2')) {
-    return `${headerIntro}Berdasarkan Garis Koordinasi Panitia Haflah 2027 (USTH AL), seksi di bawah **Ketua II (Zakia)** adalah:
+    return `${headerIntro}Us, berdasarkan Garis Koordinasi Panitia Haflah 2027, seksi di bawah **Ketua II (Zakia)** adalah:
 1. **Seksi Akomodasi**
 2. **Seksi Desain Grafis**
 3. **Seksi PULP (Pembantu Umum Listrik & Perairan)**
@@ -1959,6 +2018,33 @@ function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt
     'Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.'
   );
   reply = reply.replace(/___LIRBOYO_PUSAT___/g, 'Pondok Pesantren Lirboyo Pusat');
+
+  
+  // STRIP DOKUMEN FILE MENTIONS FROM USER RESPONSES
+  reply = reply.replace(/\(USTH AL\)/gi, '');
+  reply = reply.replace(/\(Koor 2( Bagian 2)?\)/gi, '');
+  reply = reply.replace(/Berdasarkan USTH AL/gi, 'Berdasarkan dokumen resmi kepanitiaan');
+  reply = reply.replace(/Menurut dokumen USTH AL/gi, 'Berdasarkan dokumen resmi kepanitiaan');
+  reply = reply.replace(/Dari PDF USTH AL/gi, 'Berdasarkan dokumen resmi kepanitiaan');
+  reply = reply.replace(/Sesuai Koor 2/gi, 'Sesuai dokumen resmi kepanitiaan');
+  reply = reply.replace(/USTH AL/g, '');
+
+  // ENFORCE USER SALUTATION TO 'Us'
+  reply = reply.replace(/bantu[,\s]+Usth\./gi, 'bantu, Us');
+  reply = reply.replace(/bantu[,\s]+Usth\?/gi, 'bantu, Us?');
+  reply = reply.replace(/malih[,\s]+Usth\?/gi, 'malih Us?');
+  reply = reply.replace(/malih[,\s]+Usth\./gi, 'malih Us.');
+  reply = reply.replace(/Nggih[,\s]+Usth\./gi, 'Nggih, Us.');
+  reply = reply.replace(/Nggih[,\s]+Usth,/gi, 'Nggih, Us,');
+  reply = reply.replace(/Halo[,\s]+Usth\./gi, 'Halo Us.');
+  reply = reply.replace(/Maaf[,\s]+Usth\./gi, 'Maaf Us.');
+  reply = reply.replace(/Mohon maaf[,\s]+Usth\./gi, 'Mohon maaf Us.');
+  reply = reply.replace(/Alhamdulillah[,\s]+Usth\./gi, 'Alhamdulillah Us.');
+  reply = reply.replace(/Sama-sama[,\s]+Usth\./gi, 'Sama-sama Us.');
+  reply = reply.replace(/,\s*Usth\./g, ', Us.');
+  reply = reply.replace(/,\s*Usth\?/g, ', Us?');
+  reply = reply.replace(/,\s*Usth!/g, ', Us!');
+  reply = reply.replace(/,\s*Usth,/g, ', Us,');
 
   reply = reply.replace(/\.\.+/g, '.');
 
