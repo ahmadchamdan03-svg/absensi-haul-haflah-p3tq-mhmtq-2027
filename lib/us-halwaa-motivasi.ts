@@ -288,3 +288,122 @@ export function detectMotivasiIntent(q: string): MotivasiCategory | null {
 
   return null;
 }
+
+export const MOTIVASI_DIA_SIAPA = {
+  // ============================================
+  // KATEGORI 1: FOKUS DIRI & KETIDAKPEDULIAN SEHAT
+  // ============================================
+  fokus_diri: [
+    "Us, dia itu cuma tokoh figuran di lembar hidupmu yang nggak berpengaruh apa-apa; energi dan waktumu terlalu berharga buat mikirin orang yang bahkan nggak bayarin tagihanmu.",
+    "Siapa pun dia, nggak ada sangkut pautnya sama masa depanmu, Us. Dunia nggak bakal berhenti berputar hanya karena kamu nggak kenal dia.",
+    "Us, dia cuma orang asing yang kebetulan lewat. Jangan buang kuota pikiranmu buat sosok yang nggak ngasih dampak positif buat progresmu hari ini.",
+    "Anggap aja dia angin lalu, Us. Mau dia siapa pun, yang pegang kendali atas kesuksesan dan kebahagiaanmu tetap dirimu sendiri.",
+    "Us, fokus ke panggungmu sendiri. Dia bukan juri kehidupanmu dan nggak berhak dapat ruang gratis di kepalamu.",
+    "Us, dia bukan karakter utama di ceritamu. Kenapa harus kamu beri waktu untuk sosok yang bahkan nggak ada perannya di jalan hidupmu?",
+    "Us, kepala kamu itu bukan gudang arsip orang lain. Nggak perlu simpan data orang yang nggak ada kontribusinya.",
+  ],
+
+  // ============================================
+  // KATEGORI 2: REALITAS PAHIT TAPI MEMBANGUN
+  // ============================================
+  realitas_pahit: [
+    "Us, kenapa pusing mikirin siapa dia? Orang yang hebat sibuk berkarya, sementara yang biasa sibuk kepo urusan orang yang nggak ada dampaknya.",
+    "Dia cuma orang lain, Us. Nggak nambah saldo rekeningmu, nggak bikin tugasmu selesai, dan nggak nentuin nilaimu sedikit pun.",
+    "Us, hidupmu terlalu mahal buat diisi tanda tanya soal orang yang belum tentu peduli kamu masih bernapas atau nggak hari ini.",
+    "Mau dia siapa pun, dia nggak punya saham di hidupmu, Us. Jadi buat apa repot-repot mencari tahu?",
+    "Us, daripada sibuk menebak siapa dia, mending pastikan dulu kamu sendiri makin berkembang dan makin sulit dikejar.",
+    "Us, dia bukan stakeholder hidupmu. Nggak punya kepentingan, nggak punya saham, nggak punya pengaruh. Skip.",
+  ],
+
+  // ============================================
+  // KATEGORI 3: SENTILAN SANTAI & JENAKA
+  // ============================================
+  jenaka: [
+    "Us, dia itu bukan siapa-siapa, cuma NPC di kehidupan nyata yang nggak bakal ngasih kamu exp ataupun reward.",
+    "Kalau keberadaannya nggak bikin beban hidupmu berkurang, Us, nama dan asal-usulnya sama sekali nggak penting buat diketahui.",
+    "Us, jangan biarkan orang yang nggak berpengaruh di hidupmu menyita ruang pikiran yang seharusnya buat ide-ide brilianmu.",
+    "Dia cuma sebutir debu di lini masa hidupmu, Us. Ditiup sedikit juga hilang, jadi nggak usah diambil pusing.",
+    "Us, dia orang lain, titik. Prioritaskan orang yang jelas-jelas ada dan berjuang bersamamu, bukan yang sekadar lewat tanpa arti.",
+    "Us, kalau dia bukan bagian dari tim kamu, bukan bagian dari keluarga kamu, ya udah, anggap aja latar belakang doang.",
+  ],
+
+  // ============================================
+  // KATEGORI 4: EFISIENSI WAKTU & ENERGI
+  // ============================================
+  efisiensi: [
+    "Us, hidupmu bukan tabloid gosip; nggak ada royalti sepeser pun buat waktu yang terbuang cuma demi ngurusin eksistensi orang lain.",
+    "Siapa pun dia, nggak bakal nambah 24 jam dalam harimu, Us. Mending tenagamu disimpan buat hal-hal yang jelas menghasilkan karya.",
+    "Us, mikirin orang yang nggak punya kontribusi di hidupmu itu bentuk pemborosan energi yang paling sia-sia.",
+    "Pintu pikiranmu itu area VIP, Us. Jangan biarkan sembarang orang masuk dan nongkrong gratis di sana tanpa kontribusi apa-apa.",
+    "Us, hidup ini terlalu singkat kalau harus dihabiskan buat mencari tahu latar belakang orang yang bahkan nggak peduli arah langkahmu.",
+  ],
+
+  // ============================================
+  // KATEGORI 5: TAMPARAN LOGIKA & NILAI DIRI
+  // ============================================
+  logika: [
+    "Us, mau dia siapa pun, dia nggak pegang remote kendali masa depanmu; kenapa harus kamu kasih panggung di kepalamu?",
+    "Kalau kehadirannya nggak ngurangin cicilan atau nyelesaiin beban tugasmu, Us, status dia tetap sama: nggak penting.",
+    "Us, orang berkualitas fokus memperbesar kapasitas diri, bukan sibuk menganalisis orang lain yang cuma numpang lewat.",
+    "Jangan bikin dirimu terdistraksi, Us. Dia cuma sebutir debu di spion perjalanan suksesmu—nggak usah ditoleh lagi.",
+    "Us, nilai dirimu terlalu tinggi untuk direndahkan dengan rasa penasaran receh pada sosok yang nggak berpengaruh apa-apa.",
+  ],
+
+  // ============================================
+  // KATEGORI 6: FILOSOFI BODO AMAT
+  // ============================================
+  bodo_amat: [
+    "Us, dia itu ibarat karakter di latar belakang anime: digambar tanpa wajah detail karena memang nggak ada perannya di jalan ceritamu.",
+    "Anggap aja dia iklan yang nggak bisa di-skip, Us: biarkan lewat beberapa detik tanpa perlu dimasukkan ke hati.",
+    "Us, kalau namanya nggak tertulis di daftar orang-orang yang kamu perjuangkan, mencoret rasa ingin tahumu adalah keputusan paling bijak.",
+    "Dia cuma sekelebat bayangan di keramaian, Us. Kedip sekali saja, fokusmu harus sudah kembali ke impian besarmu.",
+    "Us, hidup itu tentang siapa yang bertahan di sisimu saat berjuang, bukan tentang orang acak yang mendadak muncul lalu bikin kamu kepikiran.",
+  ],
+};
+
+const last5DiaSiapaMotivasi: string[] = [];
+
+export function getRandomMotivasiDiaSiapa(): string {
+  const categories = Object.keys(MOTIVASI_DIA_SIAPA) as Array<keyof typeof MOTIVASI_DIA_SIAPA>;
+  const allItems: string[] = [];
+  categories.forEach((cat) => {
+    allItems.push(...MOTIVASI_DIA_SIAPA[cat]);
+  });
+
+  const available = allItems.filter((item) => !last5DiaSiapaMotivasi.includes(item));
+  const pool = available.length > 0 ? available : allItems;
+
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  const selected = pool[randomIndex];
+
+  last5DiaSiapaMotivasi.push(selected);
+  if (last5DiaSiapaMotivasi.length > 5) {
+    last5DiaSiapaMotivasi.shift();
+  }
+
+  return selected;
+}
+
+export function detectDiaSiapaIntent(pertanyaan: string): boolean {
+  const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, '');
+
+  // Must NOT contain specific codes (e.g. SH1234, UND1234) or specific category words
+  if (/sh\d|und\d|vvip|vip|kehormatan|penguji|asatidz|perwakilan|tamu|santri|wali|absen|presensi|panitia/i.test(q)) {
+    return false;
+  }
+
+  const patterns = [
+    /^dia siapa$/,
+    /^siapa dia$/,
+    /^dia itu siapa$/,
+    /^siapa sih dia$/,
+    /^dia sebenarnya siapa$/,
+    /^itu siapa$/,
+    /^orang itu siapa$/,
+    /^dia orangnya siapa$/,
+    /^dia siapa sih$/,
+    /^siapa sih dia sebenarnya$/,
+  ];
+
+  return patterns.some((p) => p.test(q));
+}
