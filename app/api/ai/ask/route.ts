@@ -389,6 +389,302 @@ function detectIntent(pertanyaan: string) {
   };
 }
 
+
+async function handleLiveCategoryNameQueries(userQuery: string, isFirstTurn: boolean = false): Promise<string | null> {
+  const q = userQuery.toLowerCase().trim();
+
+  const isNameQuestion =
+    q.includes('siapa') ||
+    q.includes('siapakah') ||
+    q.includes('nama') ||
+    q.includes('daftar') ||
+    q.includes('sebutkan') ||
+    q.includes('siapa saja') ||
+    q.includes('siapa-siapa');
+
+  if (!isNameQuestion) return null;
+
+  // Don't intercept if asking about who arrived (handled by getLiveArrivedGuestsResponse / getLiveArrivedWaliResponse)
+  if (q.includes('hadir') || q.includes('datang') || q.includes('tiba') || q.includes('masuk') || q.includes('presensi')) {
+    return null;
+  }
+
+  // Don't intercept AI identity questions
+  if (q.includes('kamu') || q.includes('anda') || q.includes('pembuat') || q.includes('halwaa')) {
+    return null;
+  }
+
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+
+  // 1. TAMU VVIP
+  if (q.includes('vvip')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%VVIP%,sub_kategori.ilike.%VVIP%')
+        .order('nama', { ascending: true });
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      const mockList = store.getUndanganList().filter((u) => getGolonganUndangan(u) === 'ISTIMEWA');
+      guests = mockList.map((u) => ({
+        kode: u.kode,
+        nama: u.nama,
+        instansi: u.instansi,
+        kuota_terpakai: u.kuota.terpakai,
+        no_hp: (u as any).noHp || (u as any).telepon,
+      }));
+    }
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Tamu VVIP yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu VVIP';
+      const instansi = g.instansi || g.alamat || 'Lirboyo';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      const phone = g.no_hp ? ` (No. HP: ${g.no_hp})` : '';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}${phone}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Tamu VVIP** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 2. TAMU VIP (excluding VVIP)
+  if (q.includes('vip') && !q.includes('vvip')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%VIP%,sub_kategori.ilike.%VIP%')
+        .order('nama', { ascending: true });
+      if (res.data) {
+        guests = res.data.filter((g) => {
+          const cat = `${g.kategori || ''} ${g.sub_kategori || ''}`.toUpperCase();
+          return !cat.includes('VVIP');
+        });
+      }
+    } catch {}
+
+    if (guests.length === 0) {
+      const mockList = store.getUndanganList().filter((u) => {
+        const txt = `${u.kategori || ''} ${u.nama || ''}`.toLowerCase();
+        return txt.includes('vip') && !txt.includes('vvip');
+      });
+      guests = mockList.map((u) => ({
+        kode: u.kode,
+        nama: u.nama,
+        instansi: u.instansi,
+        kuota_terpakai: u.kuota.terpakai,
+        no_hp: (u as any).noHp || (u as any).telepon,
+      }));
+    }
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Tamu VIP yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu VIP';
+      const instansi = g.instansi || g.alamat || 'Lirboyo';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      const phone = g.no_hp ? ` (No. HP: ${g.no_hp})` : '';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}${phone}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Tamu VIP** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 3. TAMU KEHORMATAN
+  if (q.includes('kehormatan')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%KEHORMATAN%,sub_kategori.ilike.%KEHORMATAN%')
+        .order('nama', { ascending: true });
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      const mockList = store.getUndanganList().filter((u) => getGolonganUndangan(u) === 'KEHORMATAN');
+      guests = mockList.map((u) => ({
+        kode: u.kode,
+        nama: u.nama,
+        instansi: u.instansi,
+        kuota_terpakai: u.kuota.terpakai,
+        no_hp: (u as any).noHp || (u as any).telepon,
+      }));
+    }
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Tamu Kehormatan yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu Kehormatan';
+      const instansi = g.instansi || g.alamat || 'Masyayikh / Tokoh';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      const phone = g.no_hp ? ` (No. HP: ${g.no_hp})` : '';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}${phone}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Tamu Kehormatan** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 4. PENGUJI AL-QUR'AN
+  if (q.includes('penguji')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%PENGUJI%,sub_kategori.ilike.%PENGUJI%')
+        .order('nama', { ascending: true });
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Penguji Al-Qur'an yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Penguji Al-Qur\'an';
+      const instansi = g.instansi || g.alamat || 'Penguji Qur-an';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      const phone = g.no_hp ? ` (No. HP: ${g.no_hp})` : ' (No. HP: Tersedia di database)';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}${phone}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Penguji Al-Qur'an** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 5. ASATIDZ MHMTQ
+  if (q.includes('asatidz') || q.includes('ustadz mhmtq')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%ASATIDZ%,sub_kategori.ilike.%ASATIDZ%')
+        .order('nama', { ascending: true });
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Asatidz MHMTQ Sekalian yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Asatidz MHMTQ';
+      const instansi = g.instansi || g.alamat || 'MHMTQ Lirboyo';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      const phone = g.no_hp ? ` (No. HP: ${g.no_hp})` : '';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}${phone}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Asatidz MHMTQ Sekalian** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 6. PERWAKILAN PONDOK
+  if (q.includes('perwakilan')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%PERWAKILAN%,sub_kategori.ilike.%PERWAKILAN%')
+        .order('nama', { ascending: true });
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Perwakilan Pondok yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Perwakilan Pondok';
+      const instansi = g.instansi || g.alamat || 'Perwakilan Pondok Pesantren';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      const phone = g.no_hp ? ` (No. HP: ${g.no_hp})` : '';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}${phone}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Perwakilan Pondok** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 7. IDS
+  if (q.includes('ids')) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .or('kategori.ilike.%IDS%,sub_kategori.ilike.%IDS%')
+        .order('nama', { ascending: true });
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data Tamu IDS yang tercatat di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu IDS';
+      const instansi = g.instansi || g.alamat || 'Undangan Digital IDS';
+      const status = (g.kuota_terpakai || 0) > 0 ? '✅ **HADIR**' : '⏳ Belum Presensi';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) - ${instansi}\n   - **Status**: ${status}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut daftar **${guests.length} Tamu IDS** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  // 8. "NAMANYA SIAPA?" / GENERAL GUEST NAME QUERY
+  if (q.includes('namanya siapa') || q.includes('nama-nama') || q.includes('siapa nama') || (q.includes('siapa saja') && !q.includes('hadir'))) {
+    let guests: any[] = [];
+    try {
+      const res = await supabase
+        .from('tamu_undangan')
+        .select('kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat')
+        .order('kategori', { ascending: true })
+        .order('nama', { ascending: true })
+        .limit(25);
+      if (res.data && res.data.length > 0) guests = res.data;
+    } catch {}
+
+    if (guests.length === 0) {
+      const mockList = store.getUndanganList();
+      guests = mockList.map((u) => ({
+        kode: u.kode,
+        nama: u.nama,
+        kategori: u.kategori,
+        instansi: u.instansi,
+      }));
+    }
+
+    if (guests.length === 0) {
+      return `${greetingPrefix}Belum ada data tamu undangan terdaftar di database Supabase.`;
+    }
+
+    const lines = guests.map((g, idx) => {
+      const namaDisp = g.nama || [g.nama_putra, g.nama_putri].filter(Boolean).join(' & ') || 'Tamu Undangan';
+      const katDisp = g.kategori || g.sub_kategori || 'Tamu Undangan';
+      const instansi = g.instansi || g.alamat || '-';
+      return `${idx + 1}. **${namaDisp}** (\`${g.kode}\`) [${katDisp}] - ${instansi}`;
+    });
+
+    return `${greetingPrefix}Alhamdulillah Us, berikut sampel daftar nama **Tamu Undangan** yang terdaftar di database Supabase (LIVE):\n\n${lines.join('\n')}\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
+  }
+
+  return null;
+}
+
 async function getLiveDatabaseContextPrompt(userQuery: string = ''): Promise<string> {
   const [resTamu, resSantri, resPresensi, sisaKuota, guestCounts, wsMetrics, tamuMetrics] = await Promise.all([
     getTamuUndanganLive(),
@@ -432,6 +728,15 @@ Timestamp: ${dateStr}, pukul ${timeStr} WIB
 - ASATIDZ MHMTQ (LIVE SUPA): ${asatidzText}
 - PERWAKILAN PONDOK (LIVE SUPA): ${perwakilanText}
 - SISA KUOTA TAMBAHAN (LIVE SUPA): ${sisaKuota} kursi dari 300 pagu
+
+--- DAFTAR NAMA TAMU INDIVIDUAL RESMI DARI SUPABASE (LIVE & DETIL) ---
+• Tamu VVIP: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VVIP')).map((g: any) => `${g.nama||g.nama_putra||'VVIP'} (${g.kode})`).join(', ')) || 'Belum ada data'}
+• Tamu VIP: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VIP') && !`${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VVIP')).map((g: any) => `${g.nama||g.nama_putra||'VIP'} (${g.kode})`).slice(0, 10).join(', ')) || 'Belum ada data'}
+• Tamu Kehormatan: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('KEHORMATAN')).map((g: any) => `${g.nama||g.nama_putra||'Kehormatan'} (${g.kode})`).join(', ')) || 'Belum ada data'}
+• Penguji Al-Qur'an: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('PENGUJI')).map((g: any) => `${g.nama||g.nama_putra||'Penguji'} (${g.kode}, No. HP: ${g.no_hp||'Tersedia'})`).join(', ')) || 'Belum ada data'}
+• Asatidz MHMTQ: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('ASATIDZ')).map((g: any) => `${g.nama||g.nama_putra||'Asatidz'} (${g.kode})`).join(', ')) || 'Belum ada data'}
+• Perwakilan Pondok: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('PERWAKILAN')).map((g: any) => `${g.nama||g.nama_putra||'Perwakilan'} (${g.kode})`).join(', ')) || 'Belum ada data'}
+[CATATAN PENTING AI: Anda MEMILIKI AKSES PENUH ke daftar nama individu di atas. SEBUTKAN nama spesifik tersebut saat ditanyakan dan DILARANG MERESPON 'tidak disimpan di Knowledge Base' ATAU 'tidak memiliki akses ke daftar nama'!]
 
 --- STATISTIK KEHADIRAN (REALTIME) ---
 - Wali Santri Hadir: ${wsMetrics?.totalHadir || 0} dari ${wsMetrics?.totalKuota || 0} kuota (${wsMetrics?.persenHadir || 0}%)
@@ -1811,6 +2116,19 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
       (qLower.includes('siapa') || qLower.includes('siapakah') || qLower.includes('daftar') || qLower.includes('sebutkan') || qLower.includes('mana') || qLower.includes('siapa saja') || qLower.includes('yang sudah hadir')) &&
       (qLower.includes('hadir') || qLower.includes('datang') || qLower.includes('tiba') || qLower.includes('masuk') || qLower.includes('presensi'));
 
+        const categoryNameReply = await handleLiveCategoryNameQueries(prompt, isFirstTurn);
+    if (categoryNameReply) {
+      const cleanReply = cleanReplyForSession(categoryNameReply, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_query',
+        model: 'Usth. Halwaa Live Database Engine',
+      });
+    }
+
     if (isAskingWaliArrived) {
       const replyText = await getLiveArrivedWaliResponse(prompt, isFirstTurn);
       const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
@@ -1830,7 +2148,25 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
       if (personMatch.code === 'NOT_FOUND' || personMatch.extraInfo === 'DATA_NOT_FOUND') {
         detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Maaf Us, data untuk **${personMatch.name}** belum tersedia di sistem. Mohon cek menu [Data Peserta & Tamu](/admin/peserta).`;
       } else if (personMatch.hasArrived) {
-        detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, **${personMatch.name}** (${personMatch.code}) tercatat sudah hadir ${personMatch.extraInfo ? personMatch.extraInfo : 'di lokasi acara'}. Beliau hadir ${personMatch.quotaUsed > 1 ? 'bersama ' + (personMatch.quotaUsed - 1) + ' pendamping' : 'dengan alokasi 1 kursi'}.`;
+        if (personMatch.type === 'SANTRI') {
+          const statusHadir = personMatch.hasArrived ? '✅ **HADIR**' : '⏳ Belum Presensi';
+          detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, data peserta / wali santri **${personMatch.name}** (\`${personMatch.code}\`):\n\n` +
+            `- **Nama Santri**: ${personMatch.name}\n` +
+            `- **${personMatch.roleOrInstansi}**\n` +
+            `- **Kategori**: ${personMatch.category}\n` +
+            `- **Status Kehadiran**: ${statusHadir}\n` +
+            `- **Kontak / HP**: ${personMatch.phone || 'Tersedia di database'}\n` +
+            `${personMatch.extraInfo ? '- **Keterangan**: ' + personMatch.extraInfo : ''}`;
+        } else {
+          const statusHadir = personMatch.hasArrived ? '✅ **HADIR**' : '⏳ Belum Presensi';
+          detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, data **${personMatch.name}** (\`${personMatch.code}\`):\n\n` +
+            `- **Nama Tamu**: ${personMatch.name}\n` +
+            `- **Instansi / Alamat**: ${personMatch.roleOrInstansi}\n` +
+            `- **Kategori**: ${personMatch.category}\n` +
+            `- **Status Kehadiran**: ${statusHadir}\n` +
+            `- **Kontak / HP**: ${personMatch.phone || 'Tersedia di database'}\n` +
+            `${personMatch.extraInfo ? '- **Keterangan**: ' + personMatch.extraInfo : ''}`;
+        }
       } else {
         detailText = `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Mohon maaf Us, sampai saat ini belum ada catatan kehadiran untuk **${personMatch.name}** (${personMatch.code}) di sistem presensi. Beliau mungkin belum datang atau belum di-absen oleh petugas gerbang.`;
       }
