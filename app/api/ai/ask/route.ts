@@ -21,15 +21,21 @@ SUMBER DATA & HIERARKI KNOWLEDGE BASE (MUTLAK):
 =============================================================================
 ATURAN DATA LIVE DARI SUPABASE (WAJIB & MUTLAK):
 =============================================================================
-1. TOTAL SHOHIBUL HAJAT:
-   - Sumber: COUNT(*) dari tabel 'peserta_santri' di database Supabase (disisipkan di context).
+1. TOTAL SHOHIBUL HAJAT & JUMLAH SANTRI:
+   - Sumber: LIVE COUNT(*) dari tabel 'peserta_santri' di database Supabase (disisipkan di context).
    - DILARANG keras menyebut / hardcode angka 536!
-   - Jika belum ada data di database → tampilkan "Belum ada data".
+   - Jika belum ada data di database → tampilkan "Belum ada data di sistem".
 
-2. TOTAL TAMU UNDANGAN:
-   - Sumber: COUNT(*) dari tabel 'tamu_undangan' di database Supabase (disisipkan di context).
-   - DILARANG keras menyebut / hardcode angka 1.534!
-   - Jika belum ada data di database → tampilkan "Belum ada data".
+2. TOTAL TAMU UNDANGAN & RINCIAN KATEGORI TAMU:
+   - Total Tamu Undangan: LIVE COUNT(*) dari tabel 'tamu_undangan' di database Supabase.
+   - Tamu VVIP: LIVE COUNT(*) dari Supabase sub_kategori='VVIP' / kategori='VVIP' (JANGAN hardcode 10).
+   - Tamu VIP: LIVE COUNT(*) dari Supabase sub_kategori='VIP' / kategori='VIP' (JANGAN hardcode 80).
+   - Tamu IDS: LIVE COUNT(*) dari Supabase sub_kategori='IDS' (JANGAN hardcode 57).
+   - Tamu Kehormatan: LIVE COUNT(*) dari Supabase kategori='KEHORMATAN' (JANGAN hardcode 3).
+   - Penguji Al-Qur'an: LIVE COUNT(*) dari Supabase sub_kategori='PENGUJI' (JANGAN hardcode 19).
+   - Asatidz MHMTQ: LIVE COUNT(*) dari Supabase sub_kategori='ASATIDZ' (JANGAN hardcode 18).
+   - Perwakilan Pondok: LIVE COUNT(*) dari Supabase sub_kategori='PERWAKILAN' (JANGAN hardcode 16).
+   - Jika data kategori di database kosong / 0 → WAJIB tampilkan "Belum ada data [kategori] di sistem".
 
 3. STATISTIK KEHADIRAN & OKUPANSI:
    - Sumber: LIVE dari presensi_log atau view v_dasbor_pimpinan.
@@ -44,9 +50,9 @@ DATA KEUANGAN & SALDO (SANGAT PENTING - DIENFORSE KETAT):
 ❌ SALDO AKHIR Rp 1.102.000 SANGAT DILARANG DITAMPILKAN / DISEBUTKAN!
    Alasan: Angka ini masih bersifat ANGGARAN (perencanaan), bukan realisasi. Menampilkannya dapat menimbulkan salah paham.
 
-- YANG BOLEH DITAMPILKAN HANYA:
-  * Total Pemasukan (Anggaran): Rp 548.552.000
-  * Total Pengeluaran (Anggaran): Rp 547.450.000
+- CARA MENJAWAB ANGGARAN YANG BENAR (WAJIB PAKAI KATA "ANGGARAN" & DISCLAIMER "MASIH PERENCANAAN"):
+  * Total Pemasukan: "Anggaran pemasukan: Rp 548.552.000 (masih perencanaan, bukan realisasi)"
+  * Total Pengeluaran: "Anggaran pengeluaran: Rp 547.450.000 (masih perencanaan, bukan realisasi)"
 
 - JIKA PENGGUNA BERTANYA "BERAPA SALDO?" / "BERAPA SALDO AKHIR?":
   WAJIB dijawab: "Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia."
@@ -330,6 +336,44 @@ async function getSisaKuotaTambahanLive(): Promise<number> {
   }
 }
 
+async function getGuestCategoryCountsLive() {
+  try {
+    const { data: guests, error } = await supabase
+      .from('tamu_undangan')
+      .select('kategori, sub_kategori');
+
+    if (error || !guests) return null;
+
+    let total = guests.length;
+    let vvip = 0;
+    let vip = 0;
+    let ids = 0;
+    let kehormatan = 0;
+    let penguji = 0;
+    let asatidz = 0;
+    let perwakilan = 0;
+
+    for (const g of guests) {
+      const kat = (g.kategori || '').toUpperCase();
+      const sub = (g.sub_kategori || '').toUpperCase();
+      const combined = `${kat} ${sub}`;
+
+      if (combined.includes('VVIP')) vvip++;
+      else if (combined.includes('VIP')) vip++;
+
+      if (combined.includes('IDS')) ids++;
+      if (combined.includes('KEHORMATAN')) kehormatan++;
+      if (combined.includes('PENGUJI')) penguji++;
+      if (combined.includes('ASATIDZ')) asatidz++;
+      if (combined.includes('PERWAKILAN')) perwakilan++;
+    }
+
+    return { total, vvip, vip, ids, kehormatan, penguji, asatidz, perwakilan };
+  } catch (err) {
+    return null;
+  }
+}
+
 function detectIntent(pertanyaan: string) {
   const q = pertanyaan.toLowerCase();
   return {
@@ -345,11 +389,12 @@ function detectIntent(pertanyaan: string) {
 }
 
 async function getLiveDatabaseContextPrompt(userQuery: string = ''): Promise<string> {
-  const [resTamu, resSantri, resPresensi, sisaKuota, wsMetrics, tamuMetrics] = await Promise.all([
+  const [resTamu, resSantri, resPresensi, sisaKuota, guestCounts, wsMetrics, tamuMetrics] = await Promise.all([
     getTamuUndanganLive(),
     getPesertaSantriLive(),
     getPresensiLive(),
     getSisaKuotaTambahanLive(),
+    getGuestCategoryCountsLive(),
     getWaliSantriMetrics().catch(() => null),
     getTamuUndanganMetrics().catch(() => null),
   ]);
@@ -361,15 +406,30 @@ async function getLiveDatabaseContextPrompt(userQuery: string = ''): Promise<str
   const tamuList = resTamu.data || [];
   const santriList = resSantri.data || [];
 
-  const totalSHText = santriList.length > 0 ? `${santriList.length} keluarga santri` : 'Belum ada data';
-  const totalTamuText = tamuList.length > 0 ? `${tamuList.length} tamu undangan` : 'Belum ada data';
+  const totalSHText = santriList.length > 0 ? `${santriList.length} keluarga santri` : 'Belum ada data di sistem';
+  const totalTamuText = tamuList.length > 0 ? `${tamuList.length} tamu undangan` : 'Belum ada data di sistem';
+
+  const vvipText = guestCounts?.vvip ? `${guestCounts.vvip} tamu` : 'Belum ada data di sistem';
+  const vipText = guestCounts?.vip ? `${guestCounts.vip} tamu` : 'Belum ada data di sistem';
+  const idsText = guestCounts?.ids ? `${guestCounts.ids} tamu` : 'Belum ada data di sistem';
+  const kehormatanText = guestCounts?.kehormatan ? `${guestCounts.kehormatan} tamu` : 'Belum ada data di sistem';
+  const pengujiText = guestCounts?.penguji ? `${guestCounts.penguji} orang` : 'Belum ada data di sistem';
+  const asatidzText = guestCounts?.asatidz ? `${guestCounts.asatidz} orang` : 'Belum ada data di sistem';
+  const perwakilanText = guestCounts?.perwakilan ? `${guestCounts.perwakilan} perwakilan` : 'Belum ada data di sistem';
 
   return `
-=== DATA DARI DATABASE SUPABASE (LIVE) ===
+=== DATA DARI DATABASE SUPABASE (LIVE & ACTUAL) ===
 Timestamp: ${dateStr}, pukul ${timeStr} WIB
 
 - TOTAL SHOHIBUL HAJAT TERDAFTAR (LIVE SUPA): ${totalSHText}
 - TOTAL TAMU UNDANGAN TERDAFTAR (LIVE SUPA): ${totalTamuText}
+- TAMU VVIP (LIVE SUPA): ${vvipText}
+- TAMU VIP (LIVE SUPA): ${vipText}
+- TAMU IDS (LIVE SUPA): ${idsText}
+- TAMU KEHORMATAN (LIVE SUPA): ${kehormatanText}
+- PENGUJI AL-QUR'AN (LIVE SUPA): ${pengujiText}
+- ASATIDZ MHMTQ (LIVE SUPA): ${asatidzText}
+- PERWAKILAN PONDOK (LIVE SUPA): ${perwakilanText}
 - SISA KUOTA TAMBAHAN (LIVE SUPA): ${sisaKuota} kursi dari 300 pagu
 
 --- STATISTIK KEHADIRAN (REALTIME) ---
@@ -594,11 +654,11 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
 
 function isStatsQuery(prompt: string): boolean {
   const q = prompt.toLowerCase();
-  const hasCountWord = q.includes('berapa') || q.includes('jumlah') || q.includes('prosentase') || q.includes('persentase') || q.includes('%') || q.includes('statistik') || q.includes('progress');
-  const hasSubjectWord = q.includes('hadir') || q.includes('datang') || q.includes('kehadiran') || q.includes('presensi') || q.includes('walisantri') || q.includes('wali santri') || q.includes('tamu');
+  const hasCountWord = q.includes('berapa') || q.includes('jumlah') || q.includes('prosentase') || q.includes('persentase') || q.includes('%') || q.includes('statistik') || q.includes('progress') || q.includes('okupansi');
+  const hasAttendanceWord = q.includes('hadir') || q.includes('datang') || q.includes('kehadiran') || q.includes('presensi');
 
-  if (hasCountWord && hasSubjectWord) return true;
-  if (q.includes('statistik') || q.includes('progress kehadiran') || q.includes('persentase kehadiran') || q.includes('prosentase kehadiran') || q.includes('berapa yang hadir')) return true;
+  if (hasCountWord && hasAttendanceWord) return true;
+  if (q.includes('statistik') || q.includes('progress kehadiran') || q.includes('persentase kehadiran') || q.includes('prosentase kehadiran') || q.includes('berapa yang hadir') || q.includes('okupansi')) return true;
 
   return false;
 }
@@ -870,12 +930,12 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
 
   const headerIntro = `${greetingPrefix}${intro}`;
 
-  // 1. SALDO AKHIR & KEUANGAN
+  // 1. SALDO AKHIR & KEUANGAN (ATURAN 1: ANGGARAN & DISCLAIMER PERENCANAAN)
   if (q.includes('saldo')) {
     return `${headerIntro}Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia.
 
-- **Total Pemasukan (Anggaran)**: Rp 548.552.000
-- **Total Pengeluaran (Anggaran)**: Rp 547.450.000
+- **Anggaran Pemasukan**: Rp 548.552.000 (masih perencanaan, bukan realisasi)
+- **Anggaran Pengeluaran**: Rp 547.450.000 (masih perencanaan, bukan realisasi)
 
 Wonten ingkang saget dibantu malih Us?`;
   }
@@ -883,7 +943,7 @@ Wonten ingkang saget dibantu malih Us?`;
   // 2. PEMASUKAN
   if (q.includes('pemasukan') || q.includes('total pemasukan')) {
     return `${headerIntro}Berdasarkan Anggaran Pemasukan Panitia Haul & Haflah 2027 (USTH AL):
-- **Total Pemasukan (Anggaran)**: **Rp 548.552.000** (berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
+- **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
 Wonten ingkang saget dibantu malih Us?`;
   }
@@ -891,7 +951,7 @@ Wonten ingkang saget dibantu malih Us?`;
   // 3. PENGELUARAN
   if (q.includes('pengeluaran') || q.includes('total pengeluaran')) {
     return `${headerIntro}Berdasarkan Anggaran Pengeluaran Panitia Haul & Haflah 2027 (USTH AL):
-- **Total Pengeluaran (Anggaran)**: **Rp 547.450.000** (terbagi dalam 12 pos belanja kepanitiaan).
+- **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
 Wonten ingkang saget dibantu malih Us?`;
   }
@@ -921,7 +981,64 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}Tamu undangan **TIDAK dikenakan biaya masuk (GRATIS)**. Yang membayar biaya (subsidi) hanya Shohibul Hajat ke pondok.`;
   }
 
-  // 5. SEKSI KETUA II
+  // 5. LIVE COUNTS PER TAMU CATEGORY (ATURAN 2: LIVE SUPABASE)
+  if (q.includes('vvip')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.vvip === 0) {
+      return `${headerIntro}Belum ada data tamu VVIP di sistem (0 tamu).`;
+    }
+    return `${headerIntro}Total Tamu VVIP yang terdaftar di database Supabase saat ini: **${counts.vvip} tamu** (LIVE Supabase).`;
+  }
+
+  if (q.includes('vip') && !q.includes('vvip')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.vip === 0) {
+      return `${headerIntro}Belum ada data tamu VIP di sistem (0 tamu).`;
+    }
+    return `${headerIntro}Total Tamu VIP yang terdaftar di database Supabase saat ini: **${counts.vip} tamu** (LIVE Supabase).`;
+  }
+
+  if (q.includes('ids')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.ids === 0) {
+      return `${headerIntro}Belum ada data tamu IDS di sistem (0 tamu).`;
+    }
+    return `${headerIntro}Total Tamu IDS (Undangan Non-Fisik) yang terdaftar di database Supabase saat ini: **${counts.ids} tamu** (LIVE Supabase).`;
+  }
+
+  if (q.includes('kehormatan') && !q.includes('tamu kehormatan')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.kehormatan === 0) {
+      return `${headerIntro}Belum ada data tamu Kehormatan di sistem (0 tamu).`;
+    }
+    return `${headerIntro}Total Tamu Kehormatan yang terdaftar di database Supabase saat ini: **${counts.kehormatan} tamu** (LIVE Supabase).`;
+  }
+
+  if (q.includes('penguji')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.penguji === 0) {
+      return `${headerIntro}Belum ada data Penguji Al-Qur'an di sistem (0 orang).`;
+    }
+    return `${headerIntro}Total Penguji Al-Qur'an yang terdaftar di database Supabase saat ini: **${counts.penguji} orang** (LIVE Supabase).`;
+  }
+
+  if (q.includes('asatidz')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.asatidz === 0) {
+      return `${headerIntro}Belum ada data Asatidz MHMTQ di sistem (0 orang).`;
+    }
+    return `${headerIntro}Total Asatidz MHMTQ Sekalian yang terdaftar di database Supabase saat ini: **${counts.asatidz} orang** (LIVE Supabase).`;
+  }
+
+  if (q.includes('perwakilan')) {
+    const counts = await getGuestCategoryCountsLive();
+    if (!counts || counts.perwakilan === 0) {
+      return `${headerIntro}Belum ada data Perwakilan Pondok di sistem (0 perwakilan).`;
+    }
+    return `${headerIntro}Total Perwakilan Pondok yang terdaftar di database Supabase saat ini: **${counts.perwakilan} perwakilan** (LIVE Supabase).`;
+  }
+
+  // 6. SEKSI KETUA II
   if (q.includes('ketua ii') || q.includes('ketua 2') || q.includes('di bawah ketua ii') || q.includes('dibawah ketua ii') || q.includes('dibawah ketua 2')) {
     return `${headerIntro}Berdasarkan Garis Koordinasi Panitia Haflah 2027 (USTH AL), seksi di bawah **Ketua II (Zakia)** adalah:
 1. **Seksi Akomodasi**
@@ -932,7 +1049,7 @@ Wonten ingkang saget dibantu malih Us?`;
 Wonten ingkang saget dibantu malih Us?`;
   }
 
-  // 6. PROTOKOLER
+  // 7. PROTOKOLER
   if (q.includes('protokoler') || q.includes('siapa protokoler')) {
     return `${headerIntro}Berikut susunan personalia **Seksi Protokoler**:
 - **Kasi Pa**: **Bapak Abu Yazid Al Bustomi\***
@@ -943,7 +1060,7 @@ Wonten ingkang saget dibantu malih Us?`;
 - **Garis Koordinasi**: Berada langsung di bawah **Ketua Umum (Sinta Maelani)**.`;
   }
 
-  // 7. KONSUMSI
+  // 8. KONSUMSI
   if (q.includes('ketua konsumsi') || (q.includes('konsumsi') && (q.includes('kasi') || q.includes('ketua')))) {
     return `${headerIntro}Berikut susunan pimpinan **Seksi Konsumsi**:
 - **Kasi Pa**: **Bapak Ahmad Rizal 'Abidin\***
@@ -952,7 +1069,7 @@ Wonten ingkang saget dibantu malih Us?`;
 - **Wakasi Pi**: **Lailatul Munawaroh\*\***`;
   }
 
-  // 8. KEAMANAN
+  // 9. KEAMANAN
   if (q.includes('ketua keamanan') || (q.includes('keamanan') && (q.includes('kasi') || q.includes('ketua')))) {
     return `${headerIntro}Berikut susunan pimpinan **Seksi Keamanan**:
 - **Kasi Pa**: **Bapak Adi Susilo\***
@@ -961,7 +1078,7 @@ Wonten ingkang saget dibantu malih Us?`;
 - **Wakasi Pi**: **Fitrotin Yulia Arifin\*\***`;
   }
 
-  // 9. SEKRETARIS UMUM & HARIAN
+  // 10. SEKRETARIS UMUM & HARIAN
   if (q.includes('sekretaris umum')) {
     return `${headerIntro}**Sekretaris Umum** Panitia Haul & Haflah 2027 adalah **Refi Al Izzatul Kholifah**.`;
   }
@@ -969,7 +1086,7 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}**Ketua Umum** Panitia Haul & Haflah 2027 adalah **Sinta Maelani**.`;
   }
 
-  // 10. GLADI KOTOR & GLADI BERSIH
+  // 11. GLADI KOTOR & GLADI BERSIH
   if (q.includes('gladi kotor') || q.includes('gladikotor')) {
     return `${headerIntro}Jadwal **Gladi Kotor**: **Sabtu, 12 Desember 2026 (03 Rajab 1448 H)** di Aula Al-Muktamar Lirboyo. *(Pra-Gladikotor: Selasa, 17 November 2026)*.`;
   }
@@ -977,7 +1094,7 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}Jadwal **Gladi Bersih**: **Rabu, 16 Desember 2026 (07 Rajab 1448 H)** di Aula Al-Muktamar Lirboyo.`;
   }
 
-  // 11. SAMBANGAN & LOKASI
+  // 12. SAMBANGAN & LOKASI
   if (q.includes('sambangan') || q.includes('cara sambang')) {
     return `${headerIntro}Berikut ketentuan **Sambangan Shohibul Hajat**:
 - **Lokasi Sambangan**:
@@ -989,14 +1106,14 @@ Wonten ingkang saget dibantu malih Us?`;
   2. Wajib mendaftarkan diri di depan Gerbang Bola Dunia membawa KKS / fotokopi KK & KTP.`;
   }
 
-  // 12. REGISTRASI & WAKTU
+  // 13. REGISTRASI & WAKTU
   if (q.includes('registrasi buka') || q.includes('jam registrasi') || q.includes('jam berapa registrasi')) {
     return `${headerIntro}Pintu registrasi hadir di Pos Kesekretariatan dibuka mulai pukul **06.30 WIB / 07.00 WIs**.
 - Pos Kesekretariatan Putra: Sebelah barat jalan luar Gerbang Bola Dunia.
 - Pos Kesekretariatan Putri: Sebelah timur jalan luar Gerbang Bola Dunia.`;
   }
 
-  // 13. LARANGAN SHOHIBUL HAJAT
+  // 14. LARANGAN SHOHIBUL HAJAT
   if (q.includes('larangan') || q.includes('aturan shohibul hajat')) {
     return `${headerIntro}Berikut **10 Poin Larangan Shohibul Hajat**:
 1. Dilarang membawa / mengoperasikan alat elektronik selama acara berlangsung.
@@ -1011,29 +1128,29 @@ Wonten ingkang saget dibantu malih Us?`;
 10. Dilarang membawa HP di luar area sambangan.`;
   }
 
-  // 14. KUOTA TAMBAHAN
+  // 15. KUOTA TAMBAHAN
   if (q.includes('kuota tambahan') || q.includes('harga kuota tambahan')) {
     return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 80.000 per kursi** (pagu total 300 kursi, maksimal 2 kursi per santri). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
   }
 
-  // 15. LIVE QUERIES FROM DATABASE SUPABASE
+  // 16. LIVE QUERIES FROM DATABASE SUPABASE
   if (q.includes('total sh') || q.includes('shohibul hajat terdaftar') || q.includes('total shohibul hajat')) {
     try {
       const { count } = await supabase.from('peserta_santri').select('*', { count: 'exact', head: true });
-      const shText = count && count > 0 ? `${count} keluarga santri` : 'Belum ada data';
+      const shText = count && count > 0 ? `${count} keluarga santri` : 'Belum ada data di sistem';
       return `${headerIntro}Total Shohibul Hajat yang terdaftar di database Supabase saat ini: **${shText}**.`;
     } catch {
-      return `${headerIntro}Total Shohibul Hajat yang terdaftar di database Supabase saat ini: **Belum ada data**.`;
+      return `${headerIntro}Total Shohibul Hajat yang terdaftar di database Supabase saat ini: **Belum ada data di sistem**.`;
     }
   }
 
   if (q.includes('total tamu') || q.includes('tamu undangan terdaftar')) {
     try {
       const { count } = await supabase.from('tamu_undangan').select('*', { count: 'exact', head: true });
-      const tamuText = count && count > 0 ? `${count} tamu undangan` : 'Belum ada data';
+      const tamuText = count && count > 0 ? `${count} tamu undangan` : 'Belum ada data di sistem';
       return `${headerIntro}Total Tamu Undangan yang terdaftar di database Supabase saat ini: **${tamuText}**.`;
     } catch {
-      return `${headerIntro}Total Tamu Undangan yang terdaftar di database Supabase saat ini: **Belum ada data**.`;
+      return `${headerIntro}Total Tamu Undangan yang terdaftar di database Supabase saat ini: **Belum ada data di sistem**.`;
     }
   }
 
@@ -1058,7 +1175,7 @@ Wonten ingkang saget dibantu malih Us?`;
     }
   }
 
-  // 16. LOKASI DAN WAKTU UTAMA ACARA
+  // 17. LOKASI DAN WAKTU UTAMA ACARA
   if (q.includes('kapan acara') || q.includes('tanggal acara') || q.includes('kapan haflah')) {
     return `${headerIntro}Acara Haul & Haflah P3TQ dan MHMTQ dilaksanakan pada **Sabtu, 24 Rajab 1448 H / 02 Januari 2027 M**.`;
   }
@@ -1076,7 +1193,6 @@ Wonten ingkang saget dibantu malih Us?`;
 }
 
 function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
-  // Sync wrapper that delegates or uses fallback
   return generateLocalSmartResponseSync(userQuery, isFirstTurn, role);
 }
 
@@ -1106,8 +1222,8 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
   if (q.includes('saldo')) {
     return `${headerIntro}Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia.
 
-- **Total Pemasukan (Anggaran)**: Rp 548.552.000
-- **Total Pengeluaran (Anggaran)**: Rp 547.450.000
+- **Anggaran Pemasukan**: Rp 548.552.000 (masih perencanaan, bukan realisasi)
+- **Anggaran Pengeluaran**: Rp 547.450.000 (masih perencanaan, bukan realisasi)
 
 Wonten ingkang saget dibantu malih Us?`;
   }
@@ -1115,7 +1231,7 @@ Wonten ingkang saget dibantu malih Us?`;
   // PEMASUKAN
   if (q.includes('pemasukan') || q.includes('total pemasukan')) {
     return `${headerIntro}Berdasarkan Anggaran Pemasukan Panitia Haul & Haflah 2027 (USTH AL):
-- **Total Pemasukan (Anggaran)**: **Rp 548.552.000** (berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
+- **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
 Wonten ingkang saget dibantu malih Us?`;
   }
@@ -1123,7 +1239,7 @@ Wonten ingkang saget dibantu malih Us?`;
   // PENGELUARAN
   if (q.includes('pengeluaran') || q.includes('total pengeluaran')) {
     return `${headerIntro}Berdasarkan Anggaran Pengeluaran Panitia Haul & Haflah 2027 (USTH AL):
-- **Total Pengeluaran (Anggaran)**: **Rp 547.450.000** (terbagi dalam 12 pos belanja kepanitiaan).
+- **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
 Wonten ingkang saget dibantu malih Us?`;
   }
@@ -1560,7 +1676,7 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
 
-[PANDUAN KEPANITIAAN & DATA RESMI: Anda WAJIB memberikan nama-nama dan data aktual yang sudah tercantum lengkap di atas. DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase.]`;
+[PANDUAN KEPANITIAAN & DATA RESMI: Anda WAJIB memberikan nama-nama dan data aktual yang sudah tercantum lengkap di atas. DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
     const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 3);
     const candidateGeminiModels = geminiPool.getModelCandidates();
