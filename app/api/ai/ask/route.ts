@@ -3,6 +3,7 @@ import { store } from '@/lib/mock-data';
 import { geminiPool } from '@/lib/gemini-pool';
 import { supabase } from '@/lib/supabase';
 import { getWaliSantriMetrics, getTamuUndanganMetrics } from '@/lib/dashboard-metrics';
+import { MOTIVASI, getRandomMotivasi, detectMotivasiIntent } from '@/lib/us-halwaa-motivasi';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Usth. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri).
@@ -911,6 +912,52 @@ async function getLiveArrivedWaliResponse(prompt: string, isFirstTurn: boolean =
 async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
 
+  // 0. FITUR MOTIVASI KONTEKSTUAL
+  const motivasiIntent = detectMotivasiIntent(q);
+  if (motivasiIntent) {
+    if (motivasiIntent === 'identitas') {
+      const motivasi = getRandomMotivasi('identitas');
+      return `Us, kamu adalah bagian dari keluarga besar Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M.\n\n${motivasi}\n\nAda yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'lelah') {
+      const motivasi = getRandomMotivasi('lelah');
+      return `${motivasi}\n\nKalau ada yang bisa saya bantu, tinggal bilang ya, Us.`;
+    }
+    if (motivasiIntent === 'selesai') {
+      const motivasi = getRandomMotivasi('selesai');
+      return `${motivasi}\n\nNikmati rasa lega ini, kamu pantas merayakannya.`;
+    }
+    if (motivasiIntent === 'tugas_berat') {
+      const motivasi = getRandomMotivasi('tugas_berat');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'syukur') {
+      const motivasi = getRandomMotivasi('syukur');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'harapan') {
+      const motivasi = getRandomMotivasi('harapan');
+      return `${motivasi}\n\nAda yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'sedih') {
+      const motivasi = getRandomMotivasi('sedih');
+      return `${motivasi}\n\nKalau ada yang bisa saya bantu, tinggal bilang ya, Us.`;
+    }
+    if (motivasiIntent === 'tertekan') {
+      const motivasi = getRandomMotivasi('tertekan');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'dedikasi') {
+      const motivasi = getRandomMotivasi('dedikasi');
+      return `${motivasi}\n\nAda yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'nilai_diri') {
+      const motivasi = getRandomMotivasi('nilai_diri');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+  }
+
+
   // 0. IDENTITAS & SMALL TALK
   if (
     q.includes('siapa kamu') ||
@@ -1236,6 +1283,52 @@ function generateLocalSmartResponse(userQuery: string, isFirstTurn: boolean = tr
 function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
   const q = userQuery.toLowerCase().trim();
 
+  // 0. FITUR MOTIVASI KONTEKSTUAL
+  const motivasiIntent = detectMotivasiIntent(q);
+  if (motivasiIntent) {
+    if (motivasiIntent === 'identitas') {
+      const motivasi = getRandomMotivasi('identitas');
+      return `Us, kamu adalah bagian dari keluarga besar Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M.\n\n${motivasi}\n\nAda yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'lelah') {
+      const motivasi = getRandomMotivasi('lelah');
+      return `${motivasi}\n\nKalau ada yang bisa saya bantu, tinggal bilang ya, Us.`;
+    }
+    if (motivasiIntent === 'selesai') {
+      const motivasi = getRandomMotivasi('selesai');
+      return `${motivasi}\n\nNikmati rasa lega ini, kamu pantas merayakannya.`;
+    }
+    if (motivasiIntent === 'tugas_berat') {
+      const motivasi = getRandomMotivasi('tugas_berat');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'syukur') {
+      const motivasi = getRandomMotivasi('syukur');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'harapan') {
+      const motivasi = getRandomMotivasi('harapan');
+      return `${motivasi}\n\nAda yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'sedih') {
+      const motivasi = getRandomMotivasi('sedih');
+      return `${motivasi}\n\nKalau ada yang bisa saya bantu, tinggal bilang ya, Us.`;
+    }
+    if (motivasiIntent === 'tertekan') {
+      const motivasi = getRandomMotivasi('tertekan');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'dedikasi') {
+      const motivasi = getRandomMotivasi('dedikasi');
+      return `${motivasi}\n\nAda yang bisa saya bantu, Us?`;
+    }
+    if (motivasiIntent === 'nilai_diri') {
+      const motivasi = getRandomMotivasi('nilai_diri');
+      return `${motivasi}\n\nAda lagi yang bisa saya bantu, Us?`;
+    }
+  }
+
+
   // 0. IDENTITAS & SMALL TALK
   if (
     q.includes('siapa kamu') ||
@@ -1524,6 +1617,18 @@ function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt
 
   reply = reply.replace(/\.\.+/g, '.');
 
+  // CLOSING PANJANG (> 100 kata): Tambahkan 1 motivasi singkat jika belum ada motivasi di dalam respon
+  const wordCount = reply.split(/\s+/).length;
+  const hasMotivasiAlready = Object.values(MOTIVASI).some((categoryList) =>
+    categoryList.some((m) => reply.includes(m.slice(0, 20)))
+  );
+
+  if (wordCount > 100 && !hasMotivasiAlready && !reply.includes('http') && !reply.includes('/admin/')) {
+    const closingMotivasi = getRandomMotivasi('energi_positif');
+    reply += `\n\n${closingMotivasi}`;
+  }
+
+
   return reply;
 }
 
@@ -1625,7 +1730,9 @@ export async function POST(req: NextRequest) {
     const isFirstTurn = userMessageCount === 0;
 
     const qLower = prompt.trim().toLowerCase().replace(/[.!?,]/g, '');
+    const isMotivasiIntentPrompt = Boolean(detectMotivasiIntent(qLower));
     const isGreetingPrompt =
+      isMotivasiIntentPrompt ||
       qLower === "assalamu'alaikum" ||
       qLower === "assalamu'alaikum us" ||
       qLower === 'assalamualaikum' ||
