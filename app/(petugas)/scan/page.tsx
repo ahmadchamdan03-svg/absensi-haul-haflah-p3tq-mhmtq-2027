@@ -17,6 +17,7 @@ import {
   Volume2,
   HelpCircle,
   Compass,
+  Info,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
@@ -43,6 +44,10 @@ export default function ScanPage() {
   const [checkinResult, setCheckinResult] = useState<CheckinResult | null>(null);
   const [buzzerTested, setBuzzerTested] = useState(false);
 
+  // Riwayat & Submitting state
+  const [recentScans, setRecentScans] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Camera scanner state
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -51,6 +56,39 @@ export default function ScanPage() {
 
   const scannerRef = useRef<any>(null);
   const isScanningRef = useRef(false);
+
+  // Fetch 5 scan terakhir hari ini
+  const fetchRecentScans = useCallback(async () => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const { data: logs } = await supabase
+        .from('presensi_log')
+        .select('id, kode_qr, nama_peserta, jumlah_l, jumlah_p, jalur, created_at')
+        .gte('created_at', today.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      setRecentScans(logs || []);
+    } catch (err) {
+      console.error('Error fetching recent scans:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRecentScans();
+    const channel = supabase
+      .channel('scan_recent_logs_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, () => {
+        fetchRecentScans();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchRecentScans]);
 
   // Audio synthesizer beep saat scan QR berhasil dideteksi
   const playBeep = () => {
@@ -447,7 +485,8 @@ export default function ScanPage() {
 
   // Handler Konfirmasi Checkin (Update Kuota & Simpan Log ke Tabel 'presensi_log' Supabase)
   const handleConfirmCheckin = async () => {
-    if (!activeItem) return;
+    if (!activeItem || isSubmitting) return;
+    setIsSubmitting(true);
     setErrorMsg(null);
 
     const inputTotal = jumlahL + jumlahP;
@@ -460,6 +499,7 @@ export default function ScanPage() {
 
     if (inputTotal <= 0 && !isNewlyGivingGold) {
       setErrorMsg('Masukkan jumlah orang yang hadir (L/P) atau centang Kartu Hitam Gold.');
+      setIsSubmitting(false);
       return;
     }
 
@@ -480,6 +520,7 @@ export default function ScanPage() {
       if (inputTotal > totalKuota) {
         setErrorMsg(`Gagal simpan presensi: Total input (${inputTotal} orang) melebihi total kuota (${totalKuota} kursi)! Mohon kurangi jumlahnya.`);
         playBuzzerError();
+        setIsSubmitting(false);
         return;
       }
 
@@ -500,6 +541,7 @@ export default function ScanPage() {
       } catch (logErr: any) {
         setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message || logErr}`);
         playBuzzerError();
+        setIsSubmitting(false);
         return;
       }
 
@@ -535,6 +577,7 @@ export default function ScanPage() {
         catatan: `Scan Presensi Pintu ${jalur} (${jumlahL} L / ${jumlahP} P)`,
       });
 
+      await fetchRecentScans();
       playSuccessChime();
 
       confetti({
@@ -564,6 +607,8 @@ export default function ScanPage() {
     } catch (e: any) {
       console.error('Error during checkin confirmation:', e);
       setErrorMsg(`Gagal memproses presensi: ${e.message || e}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1117,6 +1162,60 @@ export default function ScanPage() {
           </button>
         </div>
       )}
+
+      {/* RIWAYAT SCAN TERAKHIR HARI INI */}
+      <div className="bg-white rounded-3xl p-5 shadow-xs border border-stone-200 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-[#8C6A47]" />
+            <h3 className="font-serif font-black text-xs sm:text-sm text-[#422F21]">
+              Scan Terakhir Hari Ini
+            </h3>
+          </div>
+          <span className="text-[10px] font-bold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
+            5 Terakhir
+          </span>
+        </div>
+
+        {recentScans.length === 0 ? (
+          <p className="text-xs text-stone-400 font-medium text-center py-3">
+            Belum ada riwayat scan presensi hari ini.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {recentScans.map((log) => {
+              const totalOrang = (Number(log.jumlah_l) || 0) + (Number(log.jumlah_p) || 0);
+              const timeStr = log.created_at
+                ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                : '-';
+
+              return (
+                <div
+                  key={log.id}
+                  className="flex items-center justify-between p-2.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-xs"
+                >
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
+                      ✓
+                    </span>
+                    <div className="min-w-0">
+                      <span className="font-mono font-bold text-[#422F21] block truncate">
+                        {log.kode_qr} — <span className="font-sans font-semibold text-stone-700">{log.nama_peserta || 'Peserta'}</span>
+                      </span>
+                      <span className="text-[10px] text-stone-500">
+                        {timeStr} WIB · Jalur {log.jalur || 'Gerbang'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-serif font-black text-amber-900 bg-amber-100 px-2.5 py-1 rounded-xl border border-amber-200 shrink-0">
+                    {totalOrang} orang
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* DENAH MODAL */}
       {isDenahOpen && (
