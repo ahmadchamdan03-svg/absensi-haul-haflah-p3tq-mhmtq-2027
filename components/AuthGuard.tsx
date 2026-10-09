@@ -33,9 +33,10 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
       const nameTitle = roleConfig ? roleConfig.title : 'Pengguna';
       setUserName(nameTitle);
 
-      const welcomeKey = `haflah_welcome_shown_${currentRole}`;
-      if (typeof window !== 'undefined' && !sessionStorage.getItem(welcomeKey)) {
+      const shouldShow = typeof window !== 'undefined' && sessionStorage.getItem('show_welcome') === 'true';
+      if (shouldShow) {
         setShowWelcome(true);
+        sessionStorage.removeItem('show_welcome');
       }
     }
     setIsChecking(false);
@@ -43,10 +44,6 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
 
   const handleCloseWelcome = () => {
     setShowWelcome(false);
-    const currentRole = getActiveRole();
-    if (currentRole && typeof window !== 'undefined') {
-      sessionStorage.setItem(`haflah_welcome_shown_${currentRole}`, 'true');
-    }
   };
 
   // Tampilkan loading singkat saat pengecekan

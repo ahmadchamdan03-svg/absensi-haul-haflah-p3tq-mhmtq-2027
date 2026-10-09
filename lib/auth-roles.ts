@@ -107,13 +107,15 @@ export function setActiveRole(role: AppRole): void {
   try {
     sessionStorage.setItem(SESSION_ROLE_KEY, role);
     localStorage.setItem(SESSION_ROLE_KEY, role);
+    sessionStorage.setItem('show_welcome', 'true');
+    sessionStorage.setItem('user_role', role);
   } catch (e) {}
 }
 
 export function clearActiveRole(): void {
   if (typeof window === 'undefined') return;
   try {
-    sessionStorage.removeItem(SESSION_ROLE_KEY);
+    sessionStorage.clear();
     localStorage.removeItem(SESSION_ROLE_KEY);
   } catch (e) {}
 }
