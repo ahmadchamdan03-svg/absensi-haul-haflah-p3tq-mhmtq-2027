@@ -9,10 +9,16 @@ interface Props {
 
 export function WelcomePopup({ userName, onClose }: Props) {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 4000);
-    return () => clearTimeout(timer);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
   }, [onClose]);
 
   return (
@@ -57,6 +63,9 @@ export function WelcomePopup({ userName, onClose }: Props) {
           >
             Tutup
           </button>
+          <p className="text-[10px] text-[#A38B75] italic mt-2">
+            Tekan ESC atau klik area luar untuk menutup
+          </p>
         </div>
       </div>
     </div>
