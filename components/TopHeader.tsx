@@ -20,7 +20,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const router = useRouter();
 
   return (
-    <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3]/95 backdrop-blur-md border-b-2 border-[#D5C4B4] text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none">
+    <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3] border-b-2 border-[#D5C4B4] text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none">
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         {/* Tombol Hamburger di HP/Tablet */}
         <button

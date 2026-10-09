@@ -257,30 +257,7 @@ export default function UndanganWaliPage() {
   const [loadingKuotaControl, setLoadingKuotaControl] = useState<boolean>(true);
   const [waPanitiaConfig, setWaPanitiaConfig] = useState<string>('6285181805377');
 
-  // Countdown Timer
-  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
 
-  useEffect(() => {
-    const targetDate = new Date('2027-01-02T06:30:00+07:00').getTime();
-    const updateCountdown = () => {
-      const now = Date.now();
-      const diff = Math.max(0, targetDate - now);
-      setTimeLeft({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((diff / (1000 * 60)) % 60),
-        seconds: Math.floor((diff / 1000) % 60),
-      });
-    };
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Fetch WA Panitia Config (PERBAIKAN 2)
   useEffect(() => {
@@ -317,7 +294,7 @@ export default function UndanganWaliPage() {
         if (isTamuUndangan) {
           const { data: t, error } = await supabase
             .from('tamu_undangan')
-            .select('*')
+            .select('id, kode, nama, nama_putra, nama_putri, kategori, golongan, instansi, alamat, no_hp, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, created_at, updated_at')
             .eq('kode', kodeSH)
             .maybeSingle();
 
@@ -361,7 +338,7 @@ export default function UndanganWaliPage() {
         } else {
           const { data: s, error } = await supabase
             .from('peserta_santri')
-            .select('*')
+            .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, created_at, updated_at')
             .eq('kode', kodeSH)
             .maybeSingle();
 
@@ -657,7 +634,7 @@ export default function UndanganWaliPage() {
       <PortalBackground />
 
       {/* Audio Elemen Tersembunyi */}
-      <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="auto" />
+      <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="none" />
 
       {/* Floating Music Button */}
       {isOpened && (
@@ -838,32 +815,7 @@ export default function UndanganWaliPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.days}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.hours}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.minutes}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
-                      {timeLeft.seconds}
-                    </div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
-                  </div>
-                </div>
+                <EventCountdownGrid targetDate="2027-01-02T06:30:00+07:00" />
 
                 <div className="pt-2">
                   <button
@@ -1477,24 +1429,7 @@ export default function UndanganWaliPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.days}</div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.hours}</div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.minutes}</div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
-                  </div>
-                  <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
-                    <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">{timeLeft.seconds}</div>
-                    <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
-                  </div>
-                </div>
+                <EventCountdownGrid targetDate="2027-01-02T06:30:00+07:00" />
 
                 <div className="pt-2">
                   <button
@@ -1626,6 +1561,60 @@ export default function UndanganWaliPage() {
 
       {/* MODAL DENAH LOKASI */}
       <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
+    </div>
+  );
+}
+
+function EventCountdownGrid({ targetDate }: { targetDate: string }) {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
+    return {
+      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+    };
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return (
+    <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+      <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+          {timeLeft.days}
+        </div>
+        <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
+      </div>
+      <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+          {timeLeft.hours}
+        </div>
+        <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
+      </div>
+      <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+          {timeLeft.minutes}
+        </div>
+        <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
+      </div>
+      <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#D5C4B4]">
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#8C6A47]">
+          {timeLeft.seconds}
+        </div>
+        <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
+      </div>
     </div>
   );
 }

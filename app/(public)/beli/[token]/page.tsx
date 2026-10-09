@@ -97,13 +97,7 @@ export default function BeliKuotaPage() {
   const [statusMsg, setStatusMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
   const [copiedRekening, setCopiedRekening] = useState(false);
 
-  // Countdown State 6 Jam untuk Order MENUNGGU_PEMBAYARAN
-  const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number; isExpired: boolean }>({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    isExpired: false,
-  });
+
 
   // 1. Fetch Data Santri dari Supabase peserta_santri
   useEffect(() => {
@@ -246,39 +240,7 @@ export default function BeliKuotaPage() {
     (o) => o.status === 'MENUNGGU_PEMBAYARAN' || o.status === 'MENUNGGU_VERIFIKASI'
   );
 
-  // 4. Timer Countdown 6 Jam untuk Active Order (MENUNGGU_PEMBAYARAN)
-  useEffect(() => {
-    if (!activePendingOrder || activePendingOrder.status !== 'MENUNGGU_PEMBAYARAN' || !activePendingOrder.locked_until)
-      return;
 
-    const updateTimer = () => {
-      const lockedTime = new Date(activePendingOrder.locked_until).getTime();
-      const nowTime = Date.now();
-      const diff = lockedTime - nowTime;
-
-      if (diff <= 0) {
-        setTimeLeft({ hours: 0, minutes: 0, seconds: 0, isExpired: true });
-
-        // Update status ke BATAL jika lewat 6 jam & belum bayar
-        supabase
-          .from('pembelian_kuota')
-          .update({ status: 'BATAL', updated_at: new Date().toISOString() })
-          .eq('id_pesanan', activePendingOrder.id_pesanan)
-          .then(() => {
-            fetchAllOrders();
-          });
-      } else {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-        setTimeLeft({ hours, minutes, seconds, isExpired: false });
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [activePendingOrder]);
 
   // Handler Salin Nomor Rekening
   const handleCopyRekening = () => {
@@ -696,23 +658,9 @@ export default function BeliKuotaPage() {
               </div>
             </div>
 
-            {/* TIMER COUNTDOWN 6 JAM */}
-            {activePendingOrder.status === 'MENUNGGU_PEMBAYARAN' && (
-              <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-center space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
-                  SISA WAKTU MENGUNCI PESANAN (6 JAM)
-                </span>
-                <div className="flex items-center justify-center space-x-2 font-mono font-black text-2xl text-amber-900">
-                  <Clock className="w-5 h-5 text-amber-700 animate-pulse" />
-                  <span>
-                    {String(timeLeft.hours).padStart(2, '0')} : {String(timeLeft.minutes).padStart(2, '0')} :{' '}
-                    {String(timeLeft.seconds).padStart(2, '0')}
-                  </span>
-                </div>
-                <p className="text-[11px] text-amber-800">
-                  Pesanan akan otomatis dibatalkan jika transfer &amp; unggah bukti tidak dilakukan dalam 6 jam.
-                </p>
-              </div>
+            {/* TIMER COUNTDOWN 6 JAM (TERISOLASI) */}
+            {activePendingOrder.status === 'MENUNGGU_PEMBAYARAN' && activePendingOrder.locked_until && (
+              <PaymentCountdownTimer lockedUntil={activePendingOrder.locked_until} onExpire={fetchAllOrders} />
             )}
 
             {/* DETAIL ALOKASI & TOTAL HARGA */}
@@ -1082,6 +1030,53 @@ export default function BeliKuotaPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function PaymentCountdownTimer({ lockedUntil, onExpire }: { lockedUntil: string; onExpire: () => void }) {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = new Date(lockedUntil).getTime() - Date.now();
+    if (diff <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+    return {
+      hours: Math.floor(diff / (1000 * 60 * 60)),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+    };
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = new Date(lockedUntil).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+        onExpire();
+      } else {
+        setTimeLeft({
+          hours: Math.floor(diff / (1000 * 60 * 60)),
+          minutes: Math.floor((diff / (1000 * 60)) % 60),
+          seconds: Math.floor((diff / 1000) % 60),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockedUntil]);
+
+  return (
+    <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-center space-y-2">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
+        SISA WAKTU MENGUNCI PESANAN (6 JAM)
+      </span>
+      <div className="flex items-center justify-center space-x-2 font-mono font-black text-2xl text-amber-900">
+        <Clock className="w-5 h-5 text-amber-700 animate-pulse" />
+        <span>
+          {String(timeLeft.hours).padStart(2, '0')} : {String(timeLeft.minutes).padStart(2, '0')} :{' '}
+          {String(timeLeft.seconds).padStart(2, '0')}
+        </span>
+      </div>
+      <p className="text-[11px] text-amber-800">
+        Pesanan akan otomatis dibatalkan jika transfer &amp; unggah bukti tidak dilakukan dalam 6 jam.
+      </p>
     </div>
   );
 }

@@ -74,7 +74,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
 
   useEffect(() => {
     fetchLiveDasborData();
-    const interval = setInterval(fetchLiveDasborData, 3000);
+    const interval = setInterval(fetchLiveDasborData, 60000);
 
     // Supabase Realtime Subscription untuk update instant saat presensi di-absen
     const channel = supabase

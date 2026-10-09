@@ -151,7 +151,7 @@ export default function LaporanPage() {
 
   useEffect(() => {
     fetchLaporanData();
-    const interval = setInterval(fetchLaporanData, 3000);
+    const interval = setInterval(fetchLaporanData, 60000);
 
     const channel = supabase
       .channel('laporan_page_realtime')

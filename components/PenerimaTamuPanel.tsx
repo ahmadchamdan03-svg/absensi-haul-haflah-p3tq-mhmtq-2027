@@ -144,8 +144,19 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
   useEffect(() => {
     fetchTamuData();
-    const interval = setInterval(fetchTamuData, 3000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchTamuData, 60000);
+
+    const channel = supabase
+      .channel('penerima_tamu_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchTamuData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchTamuData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchTamuData)
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const filteredUndangan = useMemo(() => {

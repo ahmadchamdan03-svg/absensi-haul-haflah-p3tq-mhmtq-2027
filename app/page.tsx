@@ -19,12 +19,12 @@ import StageBackground from '@/components/StageBackground';
 
 // 6 POSE TOS INTERAKTIF USTH. HALWAA (DENGAN TIKET PERSIS DI TITIK KLIK KUROR)
 const TOS_POSES = [
-  { img: '/images/halwaa/tos/tos-1.png', text: 'Yuk Tos! ✋', handRelX: 0.28, handRelY: 0.38 },
-  { img: '/images/halwaa/tos/tos-2.png', text: 'Siap Tos! 👋', handRelX: 0.28, handRelY: 0.35 },
-  { img: '/images/halwaa/tos/tos-3.png', text: 'Ayo Tos! ✨', handRelX: 0.28, handRelY: 0.36 },
-  { img: '/images/halwaa/tos/tos-4.png', text: 'Tos High-Five! 🙌', handRelX: 0.26, handRelY: 0.32 },
-  { img: '/images/halwaa/tos/tos-5.png', text: 'Semangat Haflah! 🥰', handRelX: 0.26, handRelY: 0.28 },
-  { img: '/images/halwaa/tos/tos-6.png', text: 'Tos Dulu! 👊', handRelX: 0.72, handRelY: 0.26 },
+  { img: '/images/halwaa/tos/tos-1.webp', text: 'Yuk Tos! ✋', handRelX: 0.28, handRelY: 0.38 },
+  { img: '/images/halwaa/tos/tos-2.webp', text: 'Siap Tos! 👋', handRelX: 0.28, handRelY: 0.35 },
+  { img: '/images/halwaa/tos/tos-3.webp', text: 'Ayo Tos! ✨', handRelX: 0.28, handRelY: 0.36 },
+  { img: '/images/halwaa/tos/tos-4.webp', text: 'Tos High-Five! 🙌', handRelX: 0.26, handRelY: 0.32 },
+  { img: '/images/halwaa/tos/tos-5.webp', text: 'Semangat Haflah! 🥰', handRelX: 0.26, handRelY: 0.28 },
+  { img: '/images/halwaa/tos/tos-6.webp', text: 'Tos Dulu! 👊', handRelX: 0.72, handRelY: 0.26 },
 ];
 
 const playTosSound = () => {
@@ -91,7 +91,7 @@ const ROLE_BUTTONS: {
   {
     key: 'ADMIN',
     icon: ShieldCheck,
-    image: '/images/halwaa/admin.png',
+    image: '/images/halwaa/admin.webp',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -104,7 +104,7 @@ const ROLE_BUTTONS: {
   {
     key: 'PIMPINAN',
     icon: LayoutDashboard,
-    image: '/images/halwaa/pimpinan.png',
+    image: '/images/halwaa/pimpinan.webp',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -117,7 +117,7 @@ const ROLE_BUTTONS: {
   {
     key: 'PENERIMA_TAMU',
     icon: Users,
-    image: '/images/halwaa/penerima-tamu.png',
+    image: '/images/halwaa/penerima-tamu.webp',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',
@@ -130,7 +130,7 @@ const ROLE_BUTTONS: {
   {
     key: 'PENJAGA_GERBANG',
     icon: QrCode,
-    image: '/images/halwaa/penjaga-gerbang.png',
+    image: '/images/halwaa/penjaga-gerbang.webp',
     color: {
       bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
       border: 'border-[#E8DFD5]',

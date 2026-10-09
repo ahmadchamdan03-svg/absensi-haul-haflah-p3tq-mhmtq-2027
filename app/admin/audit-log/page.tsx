@@ -52,7 +52,7 @@ export default function AuditLogPage() {
         .from('audit_log')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(1000);
+        .limit(100);
 
       const { data, error } = await query;
       if (!error && data) {
