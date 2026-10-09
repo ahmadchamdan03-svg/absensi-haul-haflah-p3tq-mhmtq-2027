@@ -299,7 +299,7 @@ async function getPesertaSantriLive() {
     const { data, error } = await supabase
       .from('peserta_santri')
       .select(`
-        kode, nama_santri, nama_wali, kategori_utama, sub_kategori,
+        kode, nama, nama_wali, kategori_utama, sub_kategori,
         kelas, kamar, alamat, no_hp,
         kuota_dasar, kuota_tambahan, kuota_terpakai,
         tiket_panggung_jatah, tiket_panggung_diberi,
@@ -969,12 +969,12 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
 
     const { data: santriList } = await supabase
       .from('peserta_santri')
-      .select('*')
-      .or(`kode_keluarga.ilike.%${termToSearch}%,nama_santri.ilike.%${termToSearch}%,nama_wali.ilike.%${termToSearch}%`);
+      .select('kode, nama, nama_wali, kelas, kamar, alamat, no_hp, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai')
+      .or(`kode.ilike.%${termToSearch}%,nama.ilike.%${termToSearch}%,nama_wali.ilike.%${termToSearch}%`);
 
     if (santriList && santriList.length > 0) {
       const s = santriList[0];
-      const kodeUpper = (s.kode_keluarga || s.kode || '').toUpperCase();
+      const kodeUpper = (s.kode || '').toUpperCase();
       const { data: pLog } = await supabase
         .from('presensi_log')
         .select('*')
@@ -987,15 +987,15 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
 
       return {
         type: 'SANTRI',
-        name: s.nama_santri || s.nama_wali,
-        code: s.kode_keluarga || s.kode,
-        roleOrInstansi: `Keluarga / Wali: ${s.nama_wali} (${s.alamat || '-'})`,
-        category: s.kategori || s.sub_kategori || 'Santri',
-        quotaUsed: hasArrived && firstLog ? ((firstLog.jumlah_l || 0) + (firstLog.jumlah_p || 0)) : 0,
-        quotaTotal: 2,
+        name: s.nama,
+        code: s.kode,
+        roleOrInstansi: `Wali Santri: ${s.nama_wali || s.nama} (${s.alamat || 'Kediri'})`,
+        category: s.sub_kategori || s.kategori_utama || 'Santri',
+        quotaUsed: Number(s.kuota_terpakai || 0),
+        quotaTotal: Number(s.kuota_dasar || 2) + Number(s.kuota_tambahan || 0),
         hasArrived,
         phone: s.no_hp || 'Tersedia di database',
-        extraInfo: firstLog ? `pada 02 Januari 2027 pukul ${new Date(firstLog.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} melalui ${firstLog.jalur || 'Gerbang'}` : undefined,
+        extraInfo: firstLog ? `pada 02 Januari 2027 pukul ${new Date(firstLog.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB melalui ${firstLog.jalur || 'Gerbang'}` : undefined,
       };
     }
   } catch (e) {
@@ -1194,19 +1194,17 @@ async function getWaliSantriHadir() {
     const kodes = Array.from(new Set(presensi.map((p) => p.kode_qr).filter(Boolean)));
     const { data: santriList } = await supabase
       .from('peserta_santri')
-      .select('kode, kode_keluarga, nama_santri, nama_wali, kategori_utama, sub_kategori')
-      .or(`kode.in.(${kodes.join(',')}),kode_keluarga.in.(${kodes.join(',')})`);
+      .select('kode, nama, nama_wali, kategori_utama, sub_kategori')
+      .in('kode', kodes);
 
     const combined = presensi.map((p) => {
       const kUpper = (p.kode_qr || '').toUpperCase();
       const s = santriList?.find(
-        (x: any) =>
-          (x.kode || '').toUpperCase() === kUpper ||
-          (x.kode_keluarga || '').toUpperCase() === kUpper
+        (x: any) => (x.kode || '').toUpperCase() === kUpper
       );
       return {
         kode: p.kode_qr,
-        namaSantri: s?.nama_santri || (s as any)?.nama || 'Santriwati',
+        namaSantri: s?.nama || 'Santriwati',
         namaWali: s?.nama_wali || p.nama_peserta || 'Wali Santri',
         kategori: s?.sub_kategori || s?.kategori_utama || 'Reguler',
         jumlahL: p.jumlah_l || 0,
@@ -1258,6 +1256,72 @@ async function getLiveArrivedWaliResponse(prompt: string, isFirstTurn: boolean =
     return `${intro}Alhamdulillah Us, per ${dateStr} pukul ${nowStr} WIB, tercatat **${res.list.length} wali santri** yang sudah hadir:\n\n${waliLines.join('\n\n')}\n\nTotal yang sudah hadir: **${totalHadirCount} wali santri**.\nTotal kuota wali santri: **${totalKuota} kursi**.\nPersentase: **${percentRatio}%** dari kuota.\n\n[👉 Buka Live Dasbor](/admin/dasbor) · [👉 Data Peserta & Tamu](/admin/peserta)`;
   } catch (err: any) {
     return `${intro}Maaf Us, terjadi kendala saat query data wali santri realtime dari database. Mohon cek langsung menu [👉 Live Dasbor](/admin/dasbor).`;
+  }
+}
+
+async function handleWaliSantriQueries(prompt: string, isFirstTurn: boolean): Promise<string | null> {
+  const qLower = prompt.toLowerCase().trim();
+  const isWaliQuery =
+    qLower.includes('wali') ||
+    qLower.includes('walisantri') ||
+    qLower.includes('orang tua');
+
+  if (!isWaliQuery) return null;
+
+  const isAsking =
+    qLower.includes('siapa') ||
+    qLower.includes('siapakah') ||
+    qLower.includes('daftar') ||
+    qLower.includes('sebutkan') ||
+    qLower.includes('mana') ||
+    qLower.includes('siapa saja') ||
+    qLower.includes('nama');
+
+  if (!isAsking) return null;
+
+  try {
+    const termToSearch = qLower
+      .replace(/\b(siapa|siapakah|wali|walisantri|orang|tua|dari|santri|daftar|sebutkan|mana|saja|apakah|nama|siapa saja|yang|itu)\b/gi, ' ')
+      .trim();
+
+    let query = supabase
+      .from('peserta_santri')
+      .select('kode, nama, nama_wali, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, no_hp, alamat')
+      .order('kode');
+
+    if (termToSearch && termToSearch.length >= 2) {
+      query = query.or(`kode.ilike.%${termToSearch}%,nama.ilike.%${termToSearch}%,nama_wali.ilike.%${termToSearch}%`);
+    } else {
+      query = query.limit(20);
+    }
+
+    const { data, error } = await query;
+    if (error || !data || data.length === 0) return null;
+
+    const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+
+    if (termToSearch && data.length <= 5) {
+      const items = data.map((s, idx) => {
+        const isHadir = Number(s.kuota_terpakai || 0) > 0;
+        const totalK = Number(s.kuota_dasar || 2) + Number(s.kuota_tambahan || 0);
+        return `${idx + 1}. **Santri**: **${s.nama}** (\`${s.kode}\`)\n` +
+          `   - **Nama Wali**: **${s.nama_wali || s.nama}**\n` +
+          `   - **Kelas / Kamar**: ${s.kelas || '-'} / Kamar ${s.kamar || '-'}\n` +
+          `   - **Status Presensi**: ${isHadir ? '✅ **SUDAH HADIR**' : '⏳ Belum Presensi'} (${s.kuota_terpakai || 0}/${totalK} Kursi)\n` +
+          `   - **Alamat**: ${s.alamat || 'Kediri'}`;
+      });
+
+      return `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, berikut data **Wali Santri** di database Supabase yang Anda cari:\n\n${items.join('\n\n')}\n\n[📋 Buka Data Peserta & Wali](/admin/peserta)`;
+    }
+
+    const listLines = data.slice(0, 15).map((s, idx) => {
+      return `${idx + 1}. **${s.nama_wali || s.nama}** (Wali dari **${s.nama}** - \`${s.kode}\`)`;
+    });
+
+    return `${isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : ""}Alhamdulillah Us, per ${dateStr}, berikut daftar data **Wali Santri** di database Supabase (${data.length} santri terdaftar):\n\n${listLines.join('\n')}\n\n${data.length > 15 ? `_...dan ${data.length - 15} wali santri lainnya._\n\n` : ''}[📋 Lihat Seluruh Data Santri & Wali](/admin/peserta)`;
+  } catch (e) {
+    console.warn('Error querying wali santri:', e);
+    return null;
   }
 }
 
@@ -2309,7 +2373,20 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
       (qLower.includes('siapa') || qLower.includes('siapakah') || qLower.includes('daftar') || qLower.includes('sebutkan') || qLower.includes('mana') || qLower.includes('siapa saja') || qLower.includes('yang sudah hadir')) &&
       (qLower.includes('hadir') || qLower.includes('datang') || qLower.includes('tiba') || qLower.includes('masuk') || qLower.includes('presensi'));
 
-        const categoryNameReply = await handleLiveCategoryNameQueries(prompt, isFirstTurn);
+    const waliQueryReply = await handleWaliSantriQueries(prompt, isFirstTurn);
+    if (waliQueryReply) {
+      const cleanReply = cleanReplyForSession(waliQueryReply, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_query',
+        model: 'Usth. Halwaa Live Database Engine',
+      });
+    }
+
+    const categoryNameReply = await handleLiveCategoryNameQueries(prompt, isFirstTurn);
     if (categoryNameReply) {
       const cleanReply = cleanReplyForSession(categoryNameReply, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);

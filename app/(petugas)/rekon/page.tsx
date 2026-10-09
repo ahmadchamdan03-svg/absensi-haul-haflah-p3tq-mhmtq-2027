@@ -335,11 +335,20 @@ export default function RekonPage() {
           warna_tiket: editingItem.warnaTiket,
           jalur_masuk: editingItem.jalurMasuk.trim() || 'Jalur VIP',
           status_konfirmasi: editingItem.statusKonfirmasi,
+          perkiraan_l: Math.max(0, Number(editingItem.perkiraanL)),
+          perkiraan_p: Math.max(0, Number(editingItem.perkiraanP)),
           status_wa: editingItem.statusWa,
           catatan_konfirmasi: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : null,
           updated_at: new Date().toISOString(),
         };
       }
+
+      // Bersihkan nilai undefined agar tidak menyebabkan error PostgREST
+      Object.keys(payload).forEach((key) => {
+        if (payload[key] === undefined) {
+          delete payload[key];
+        }
+      });
 
       // 2. Perform update ke Supabase
       const { error } = await supabase
@@ -347,7 +356,11 @@ export default function RekonPage() {
         .update(payload)
         .eq('kode', editingItem.kode);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating rekon data in Supabase:', error);
+        alert(`Gagal memperbarui data: ${error.message} (Kode: ${error.code || 'PGRST'})`);
+        return;
+      }
 
       // 3. Bandingkan before vs payload untuk deteksi field yang berubah
       const changes: Record<string, { lama: any; baru: any }> = {};

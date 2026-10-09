@@ -626,7 +626,7 @@ export default function BeliKuotaPage() {
                 Kuota Tambahan Pagu Nasional Sudah Habis
               </h3>
               <p className="text-xs text-amber-900 leading-relaxed">
-                Total pagu kuota tambahan kursi sebanyak <strong>300 kursi</strong> telah terisi penuh (300/300 unit).
+                Pembelian kuota tambahan tersedia selama masa pemesanan aktif dan kuota masih tersedia.
               </p>
             </div>
           </div>
@@ -873,7 +873,7 @@ export default function BeliKuotaPage() {
                 Formulir Pemesanan Kuota Kursi Tambahan
               </h3>
               <p className="text-xs text-stone-600">
-                Sisa kuota pagu nasional: <strong>{sisaPaguGlobal} kursi</strong> ({totalDiverifikasiGlobal}/300 terisi).
+                Pembelian kuota tambahan tersedia selama masa pemesanan aktif dan kuota masih tersedia.
               </p>
             </div>
 

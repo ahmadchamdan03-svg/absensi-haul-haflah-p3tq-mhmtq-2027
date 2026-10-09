@@ -274,7 +274,7 @@ export default function VerifikasiPage() {
           `Pembayaran pesanan kuota tambahan kursi Anda (ID Pesanan: *${targetId}*) sebanyak *${numKursi} Kursi* telah *BERHASIL DIVERIFIKASI RESMI* oleh panitia.\n\n` +
           `📋 *Detail Terkini*:\n` +
           `• ID Pesanan: ${targetId}\n` +
-          `• Tambahan: +${numKursi} Kursi (Rp ${Number(item.total_bayar || item.totalBayar || numKursi * 80000).toLocaleString('id-ID')})\n` +
+          `• Tambahan: +${numKursi} Kursi\n` +
           `• Status: *Aktif pada QR Code Santri*\n\n` +
           `Akses Kartu Presensi Digital & QR Code:\n` +
           `🔗 ${origin}/u/${targetKode}\n\n` +
@@ -433,7 +433,7 @@ export default function VerifikasiPage() {
             `📋 *Rincian Status*:\n` +
             `• ID Pesanan: ${orderId}\n` +
             `• Metode: ${manualMetode === 'TUNAI' ? 'Kas Tunai di Sekretariat' : 'Transfer Rekening BRI'}\n` +
-            `• Jumlah: +${manualJumlah} Kursi (Rp ${totalBayar.toLocaleString('id-ID')})\n` +
+            `• Jumlah: +${manualJumlah} Kursi\n` +
             `• Status: *DIVERIFIKASI LANGSUNG (Aktif)*\n\n` +
             `Akses E-Undangan & QR Presensi:\n` +
             `🔗 ${origin}/u/${selectedSantri.kode}\n\n` +

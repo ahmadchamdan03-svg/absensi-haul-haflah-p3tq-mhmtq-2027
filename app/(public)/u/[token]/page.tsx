@@ -294,14 +294,18 @@ export default function UndanganWaliPage() {
         if (isTamuUndangan) {
           const { data: t, error } = await supabase
             .from('tamu_undangan')
-            .select('id, kode, nama, nama_putra, nama_putri, kategori, golongan, instansi, alamat, no_hp, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, created_at, updated_at')
+            .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, created_at, updated_at')
             .eq('kode', kodeSH)
             .maybeSingle();
+
+          if (error) {
+            console.error('Error fetching tamu_undangan in u/[token]:', error);
+          }
 
           if (t && !error) {
             const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
             const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
-            const kDasar = countL + countP;
+            const kDasar = t.kuota_dasar ? Number(t.kuota_dasar) : Math.max(1, countL + countP);
             const mappedTamu = {
               id: t.id,
               kode: t.kode,
@@ -310,7 +314,7 @@ export default function UndanganWaliPage() {
               namaPutra: t.nama_putra || '',
               namaPutri: t.nama_putri || '',
               kategori: t.kategori || 'Tamu Undangan',
-              subKategori: t.golongan || 'ISTIMEWA',
+              subKategori: t.sub_kategori || (t as any).golongan || 'ISTIMEWA',
               instansi: t.instansi || '',
               alamat: t.alamat || '',
               noHp: t.no_hp || '',
@@ -338,9 +342,13 @@ export default function UndanganWaliPage() {
         } else {
           const { data: s, error } = await supabase
             .from('peserta_santri')
-            .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, created_at, updated_at')
+            .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, created_at, updated_at')
             .eq('kode', kodeSH)
             .maybeSingle();
+
+          if (error) {
+            console.error('Error fetching peserta_santri in u/[token]:', error);
+          }
 
           if (s && !error) {
             const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
