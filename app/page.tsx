@@ -16,16 +16,7 @@ import {
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import StageBackground from '@/components/StageBackground';
-
-// 6 POSE TOS INTERAKTIF USTH. HALWAA (DENGAN TIKET PERSIS DI TITIK KLIK KUROR)
-const TOS_POSES = [
-  { img: '/images/halwaa/tos/tos-1.webp', text: 'Yuk Tos! ✋', handRelX: 0.28, handRelY: 0.38 },
-  { img: '/images/halwaa/tos/tos-2.webp', text: 'Siap Tos! 👋', handRelX: 0.28, handRelY: 0.35 },
-  { img: '/images/halwaa/tos/tos-3.webp', text: 'Ayo Tos! ✨', handRelX: 0.28, handRelY: 0.36 },
-  { img: '/images/halwaa/tos/tos-4.webp', text: 'Tos High-Five! 🙌', handRelX: 0.26, handRelY: 0.32 },
-  { img: '/images/halwaa/tos/tos-5.webp', text: 'Semangat Haflah! 🥰', handRelX: 0.26, handRelY: 0.28 },
-  { img: '/images/halwaa/tos/tos-6.webp', text: 'Tos Dulu! 👊', handRelX: 0.72, handRelY: 0.26 },
-];
+import { TOS_FOTOS } from '@/lib/tos-fotos';
 
 const playTosSound = () => {
   try {
@@ -165,14 +156,16 @@ export default function LandingPortalPage() {
   >([]);
 
   const triggerTos = useCallback((clientX: number, clientY: number) => {
-    const randomPose = TOS_POSES[Math.floor(Math.random() * TOS_POSES.length)];
+    const randomPose = TOS_FOTOS[Math.floor(Math.random() * TOS_FOTOS.length)];
 
     // Dimensi gambar yang dirender setara 2x2 cm (~76px pada mobile, ~84px pada desktop)
     const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
     const imgSize = isDesktop ? 84 : 76;
 
-    const handXRel = randomPose.handRelX * imgSize;
-    const handYRel = randomPose.handRelY * imgSize;
+    const relX = randomPose.handRelX ?? 0.35;
+    const relY = randomPose.handRelY ?? 0.4;
+    const handXRel = relX * imgSize;
+    const handYRel = relY * imgSize;
 
     // Hitung posisi absolut kontainer gambar agar posisi tangan pas di kursor klik (clientX, clientY)
     let posX = clientX - handXRel;
@@ -189,8 +182,8 @@ export default function LandingPortalPage() {
     const id = Math.random().toString(36).substring(2, 9);
     const newItem = {
       id,
-      imgUrl: randomPose.img,
-      bubbleText: randomPose.text,
+      imgUrl: randomPose.src,
+      bubbleText: randomPose.caption,
       left: posX,
       top: posY,
       clickX: clientX,
@@ -214,11 +207,11 @@ export default function LandingPortalPage() {
       router.replace(ROLES_CONFIG[role].route);
     }
 
-    // Preload seluruh foto Tos saat landing page dimuat agar respon klik 100% instan
-    TOS_POSES.forEach((pose) => {
+    // Preload seluruh foto Halwaa saat landing page dimuat agar respon klik 100% instan
+    TOS_FOTOS.forEach((pose) => {
       if (typeof window !== 'undefined') {
         const img = new Image();
-        img.src = pose.img;
+        img.src = pose.src;
       }
     });
   }, [router]);
