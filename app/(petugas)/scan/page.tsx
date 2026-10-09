@@ -21,6 +21,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
+import { upsertPresensiLog, syncKuotaTerpakai } from '@/lib/presensi-helper';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
 
@@ -474,58 +475,37 @@ export default function ScanPage() {
         return;
       }
 
-      // 2. Insert riwayat presensi ke tabel 'presensi_log' di Supabase
-      const { error: logErr } = await supabase
-        .from('presensi_log')
-        .insert([
-          {
-            kode_qr: activeItem.kode || String(activeItem.id),
-            nama_peserta: activeItem.nama || activeItem.namaSantri || 'Peserta',
-            tipe_peserta: activeItem.tipe === 'KELUARGA' ? 'KELUARGA' : 'UNDANGAN',
-            jalur: jalur,
-            panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
-            jumlah_l: jumlahL,
-            jumlah_p: jumlahP,
-            jumlah_balita: jumlahBalita,
-            tiket_panggung: isNewlyGivingGold ? '1' : '0',
-            catatan: `Scan Pintu ${jalur}`,
-            created_at: new Date().toISOString(),
-          },
-        ]);
-
-      if (logErr) {
-        setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message}`);
+      // 2. Upsert riwayat presensi ke tabel 'presensi_log' di Supabase
+      try {
+        await upsertPresensiLog({
+          kode_qr: activeItem.kode || String(activeItem.id),
+          nama_peserta: activeItem.nama || activeItem.namaSantri || 'Peserta',
+          tipe_peserta: activeItem.tipe === 'KELUARGA' ? 'KELUARGA' : 'UNDANGAN',
+          jalur: jalur,
+          panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
+          jumlah_l: jumlahL,
+          jumlah_p: jumlahP,
+          jumlah_balita: jumlahBalita,
+          tiket_panggung: isNewlyGivingGold ? 1 : 0,
+          catatan: `Scan Pintu ${jalur}`,
+        });
+      } catch (logErr: any) {
+        setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message || logErr}`);
         playBuzzerError();
         return;
       }
 
-      // 3. Sync kuota_terpakai cache in database
-      const { data: presensiAll } = await supabase
-        .from('presensi_log')
-        .select('jumlah_l, jumlah_p')
-        .eq('kode_qr', activeItem.kode);
-
-      const totalTerpakai = (presensiAll || []).reduce(
-        (sum, r) => sum + Number(r.jumlah_l || 0) + Number(r.jumlah_p || 0),
-        0
-      );
-
-      if (activeItem.tipe === 'KELUARGA') {
+      // 3. Update tiket_panggung_diberi bila perlu
+      if (activeItem.tipe === 'KELUARGA' && nextTiketPanggung > 0) {
         await supabase
           .from('peserta_santri')
           .update({
-            kuota_terpakai: totalTerpakai,
             tiket_panggung_diberi: nextTiketPanggung,
           })
           .eq('id', activeItem.id);
-      } else {
-        await supabase
-          .from('tamu_undangan')
-          .update({
-            kuota_terpakai: totalTerpakai,
-          })
-          .eq('id', activeItem.id);
       }
+
+      const totalTerpakai = await syncKuotaTerpakai(activeItem.kode || String(activeItem.id));
 
       await logAudit({
         panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',

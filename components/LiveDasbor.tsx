@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Building,
   Compass,
+  AlertCircle,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { fetchDashboardMetrics } from '@/lib/dashboard-queries';
@@ -123,6 +124,14 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
   const totalKuotaTamu = supaMetrics.tamuKuota;
   const totalHadirTamu = supaMetrics.tamuHadir;
 
+  // Anomaly Validation: Hadir > Kuota
+  const isWsAnomaly = totalKuotaWaliSantri > 0 && totalHadirWaliSantri > totalKuotaWaliSantri;
+  const isTamuAnomaly = totalKuotaTamu > 0 && totalHadirTamu > totalKuotaTamu;
+  const totalHadirCombined = totalHadirWaliSantri + totalHadirTamu;
+  const totalKuotaCombined = totalKuotaWaliSantri + totalKuotaTamu;
+  const isOverallAnomaly = totalKuotaCombined > 0 && totalHadirCombined > totalKuotaCombined;
+  const isAnomaly = isWsAnomaly || isTamuAnomaly || isOverallAnomaly;
+
   // Unified participant list (Santri + Tamu)
   const allUnifiedList = useMemo(() => {
     return [...keluargaList, ...undanganList];
@@ -133,9 +142,6 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
     if (isPimpinanView) {
       const q = searchQuery.toLowerCase().trim();
       if (!q) {
-        // SAAT SEARCH KOSONG DI AKUN PIMPINAN:
-        // HANYA Tamu Undangan yang SUDAH HADIR.
-        // Diurutkan berdasarkan WAKTU KEHADIRAN TERBARU (DESCENDING).
         const arrivedGuests = undanganList.filter((u) => u.isHadir);
         return arrivedGuests.sort((a, b) => {
           const tA = new Date(a.lastCheckinTime || 0).getTime();
@@ -144,8 +150,6 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
         });
       }
 
-      // SAAT SEARCH DIISI DI AKUN PIMPINAN:
-      // Pencarian ke Tamu Undangan + Peserta Santri (termasuk yang belum hadir).
       const matched = allUnifiedList.filter((item) => {
         const matchKode = (item.kode || '').toLowerCase().includes(q);
         const matchNama = (item.nama || '').toLowerCase().includes(q);
@@ -156,7 +160,6 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
         return matchKode || matchNama || matchWali || matchKat || matchAlamat || matchHp;
       });
 
-      // Tamu/wali yang sudah hadir diurutkan berdasar waktu (DESC), sisanya berdasar nama A-Z
       const arrived = matched
         .filter((i) => i.isHadir)
         .sort((a, b) => new Date(b.lastCheckinTime || 0).getTime() - new Date(a.lastCheckinTime || 0).getTime());
@@ -198,6 +201,21 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
 
   return (
     <div className="space-y-6">
+      {/* BANNER WARNING ANOMALI BILA HADIR > KUOTA */}
+      {isAnomaly && (
+        <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-400 text-amber-950 flex items-start space-x-3 shadow-xs">
+          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pulse" />
+          <div className="space-y-1">
+            <h5 className="font-serif font-black text-sm text-amber-900">
+              ⚠️ TERDETEKSI ANOMALI KEHADIRAN
+            </h5>
+            <p className="text-xs text-amber-800 leading-relaxed">
+              Total Hadir ({totalHadirCombined} orang) melebihi Total Kuota ({totalKuotaCombined} kursi). Silakan cek &amp; lakukan koreksi data via Meja Rekonsiliasi.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -235,8 +253,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
               TOTAL WALI SANTRI
             </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 badge-transition">
-              {totalKuotaWaliSantri > 0 ? Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100) : 0}% Hadir
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isWsAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
+              {totalKuotaWaliSantri > 0 ? Math.min(100, Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100)) : 0}% Hadir {isWsAnomaly && '⚠️ (Over)'}
             </span>
           </div>
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
@@ -259,8 +277,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <Award className="w-4.5 h-4.5 text-emerald-700" />
               TOTAL TAMU UNDANGAN
             </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 badge-transition">
-              {totalKuotaTamu > 0 ? Math.round((totalHadirTamu / totalKuotaTamu) * 100) : 0}% Hadir
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isTamuAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}>
+              {totalKuotaTamu > 0 ? Math.min(100, Math.round((totalHadirTamu / totalKuotaTamu) * 100)) : 0}% Hadir {isTamuAnomaly && '⚠️ (Over)'}
             </span>
           </div>
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">

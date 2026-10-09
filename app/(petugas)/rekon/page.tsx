@@ -31,6 +31,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { syncKuotaTerpakai, upsertPresensiLog } from '@/lib/presensi-helper';
 import AuthGuard from '@/components/AuthGuard';
 
 type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
@@ -146,25 +147,22 @@ export default function RekonPage() {
     const isSantri = item.tipe === 'SANTRI';
     const d = item.data;
     const currentTerpakai = Number(d.kuota_terpakai || 0);
-    const kBase = isSantri
-      ? Number(d.kuota_dasar || 2)
-      : ((d.nama_putra && String(d.nama_putra).trim() !== '') ? 1 : 0) +
-        ((d.nama_putri && String(d.nama_putri).trim() !== '') ? 1 : 0);
-    const kExtra = isSantri ? Number(d.kuota_tambahan || 0) : 0;
-    const totalKuota = kBase + kExtra;
 
     const isHadir = currentTerpakai > 0;
     const targetTable = isSantri ? 'peserta_santri' : 'tamu_undangan';
 
     try {
       if (isHadir) {
-        // Batalkan Hadir (Reset kuota_terpakai = 0)
-        const { error } = await supabase
-          .from(targetTable)
-          .update({ kuota_terpakai: 0, updated_at: new Date().toISOString() })
-          .eq('kode', d.kode);
+        // Batalkan Hadir (Hapus SEMUA baris presensi_log untuk kode_qr ini tanpa limit 1)
+        const { error: delErr } = await supabase
+          .from('presensi_log')
+          .delete()
+          .eq('kode_qr', d.kode);
 
-        if (error) throw error;
+        if (delErr) throw delErr;
+
+        // Reset kuota_terpakai = 0 di database via helper
+        await syncKuotaTerpakai(d.kode);
 
         // Log audit BATALKAN_HADIR
         await logAudit({
@@ -182,31 +180,17 @@ export default function RekonPage() {
 
         showToast(`✓ Berhasil membatalkan kehadiran untuk ${d.nama || d.kode}. (kuota_terpakai reset ke 0).`);
       } else {
-        // Tandai Hadir (Set kuota_terpakai = 1)
-        const newTerpakai = 1;
-        const { error } = await supabase
-          .from(targetTable)
-          .update({ kuota_terpakai: newTerpakai, updated_at: new Date().toISOString() })
-          .eq('kode', d.kode);
-
-        if (error) throw error;
-
-        // Insert presensi_log
-        await supabase.from('presensi_log').insert([
-          {
-            kode_qr: d.kode,
-            nama_peserta: d.nama,
-            tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
-            jalur: d.jalur_masuk || 'MEJA_REKONSILIASI',
-            panitia_id: 'panitia-rekonsiliasi',
-            jumlah_l: 1,
-            jumlah_p: 0,
-            jumlah_balita: 0,
-            tiket_panggung: d.tiket_panggung_jatah || 0,
-            catatan: 'Hadir via Meja Rekonsiliasi',
-            created_at: new Date().toISOString(),
-          },
-        ]);
+        // Tandai Hadir (Upsert ke presensi_log & sync kuota_terpakai)
+        await upsertPresensiLog({
+          kode_qr: d.kode,
+          nama_peserta: d.nama,
+          tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
+          jalur: d.jalur_masuk || 'MEJA_REKONSILIASI',
+          panitia_id: 'panitia-rekonsiliasi',
+          jumlah_l: 1,
+          jumlah_p: 0,
+          catatan: 'Hadir via Meja Rekonsiliasi',
+        });
 
         // Log audit TANDAI_HADIR
         await logAudit({
@@ -218,11 +202,11 @@ export default function RekonPage() {
           nama: d.nama || d.kode,
           field: 'kuota_terpakai',
           nilai_lama: '0',
-          nilai_baru: String(newTerpakai),
+          nilai_baru: '1',
           catatan: 'Tandai Hadir Manual via Meja Rekonsiliasi',
         });
 
-        showToast(`✓ Berhasil menandai HADIR untuk ${d.nama || d.kode} (1/${totalKuota} Kursi).`);
+        showToast(`✓ Berhasil menandai HADIR untuk ${d.nama || d.kode}.`);
       }
 
       await fetchAllData();
@@ -233,9 +217,18 @@ export default function RekonPage() {
   };
 
   // Open Edit Modal (Edit Lengkap)
-  const handleOpenEdit = (item: any) => {
+  const handleOpenEdit = async (item: any) => {
     const isSantri = item.tipe === 'SANTRI';
     const d = item.data;
+
+    // Fetch existing presensi_log untuk hitung awal L & P
+    const { data: pLogs } = await supabase
+      .from('presensi_log')
+      .select('jumlah_l, jumlah_p')
+      .eq('kode_qr', d.kode);
+
+    const initL = (pLogs || []).reduce((acc: number, curr: any) => acc + (Number(curr.jumlah_l) || 0), 0);
+    const initP = (pLogs || []).reduce((acc: number, curr: any) => acc + (Number(curr.jumlah_p) || 0), 0);
 
     setEditingItem({
       tipe: item.tipe,
@@ -259,6 +252,8 @@ export default function RekonPage() {
           ((d.nama_putri && String(d.nama_putri).trim() !== '') ? 1 : 0),
       kuotaTambahan: d.kuota_tambahan || 0,
       kuotaTerpakai: d.kuota_terpakai || 0,
+      presensiL: initL,
+      presensiP: initP,
       tiketPanggungJatah: d.tiket_panggung_jatah || 0,
       tiketPanggungDiberi: d.tiket_panggung_diberi || 0,
       kartuHitamGoldDiberi: Boolean(d.kartu_hitam_gold_diberi),
@@ -297,7 +292,10 @@ export default function RekonPage() {
 
       let payload: any = {};
 
+      const totalPresensiInput = Math.max(0, Number(editingItem.presensiL || 0) + Number(editingItem.presensiP || 0));
+
       if (isSantri) {
+        // FIX 3: Hanya kolom resmi yang ada pada tabel peserta_santri
         payload = {
           nama: editingItem.nama.trim(),
           nama_wali: editingItem.namaWali.trim() || '-',
@@ -309,19 +307,16 @@ export default function RekonPage() {
           sub_kategori: editingItem.subKategori.trim() || 'Bil Ghoib',
           kuota_dasar: Math.max(0, Number(editingItem.kuotaDasar)),
           kuota_tambahan: Math.max(0, Number(editingItem.kuotaTambahan)),
-          kuota_terpakai: Math.max(0, Number(editingItem.kuotaTerpakai)),
-          tiket_panggung_jatah: Math.max(0, Number(editingItem.tiketPanggungJatah)),
-          tiket_panggung_diberi: Math.max(0, Number(editingItem.tiketPanggungDiberi)),
-          kartu_hitam_gold_diberi: editingItem.kartuHitamGoldDiberi,
+          kuota_terpakai: totalPresensiInput,
           warna_tiket: editingItem.warnaTiket,
           status_konfirmasi: editingItem.statusKonfirmasi,
           perkiraan_l: Math.max(0, Number(editingItem.perkiraanL)),
           perkiraan_p: Math.max(0, Number(editingItem.perkiraanP)),
-          status_wa: editingItem.statusWa,
           catatan_konfirmasi: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : null,
           updated_at: new Date().toISOString(),
         };
       } else {
+        // FIX 3: Hanya kolom resmi yang ada pada tabel tamu_undangan (TANPA kuota_dasar / kuota_tambahan!)
         payload = {
           nama: editingItem.nama.trim(),
           nama_putra: editingItem.namaPutra.trim() || null,
@@ -331,13 +326,12 @@ export default function RekonPage() {
           no_hp: editingItem.noHp.trim() || '-',
           kategori: editingItem.kategori.trim() || 'Tamu Undangan',
           sub_kategori: editingItem.subKategori || 'ISTIMEWA',
-          kuota_terpakai: Math.max(0, Number(editingItem.kuotaTerpakai)),
+          kuota_terpakai: totalPresensiInput,
           warna_tiket: editingItem.warnaTiket,
           jalur_masuk: editingItem.jalurMasuk.trim() || 'Jalur VIP',
           status_konfirmasi: editingItem.statusKonfirmasi,
           perkiraan_l: Math.max(0, Number(editingItem.perkiraanL)),
           perkiraan_p: Math.max(0, Number(editingItem.perkiraanP)),
-          status_wa: editingItem.statusWa,
           catatan_konfirmasi: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : null,
           updated_at: new Date().toISOString(),
         };
@@ -362,58 +356,43 @@ export default function RekonPage() {
         return;
       }
 
-      // 3. Bandingkan before vs payload untuk deteksi field yang berubah
-      const changes: Record<string, { lama: any; baru: any }> = {};
-      if (beforeData) {
-        Object.keys(payload).forEach((key) => {
-          if (key === 'updated_at') return;
-          if (beforeData[key] !== payload[key]) {
-            changes[key] = {
-              lama: beforeData[key] ?? null,
-              baru: payload[key] ?? null,
-            };
-          }
+      // FIX 6: Upsert presensi_log berdasar Section 3 stepper (L & P)
+      if (totalPresensiInput > 0) {
+        await upsertPresensiLog({
+          kode_qr: editingItem.kode,
+          nama_peserta: editingItem.nama,
+          tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
+          jalur: editingItem.jalurMasuk || 'MEJA_REKONSILIASI',
+          panitia_id: 'panitia-rekonsiliasi',
+          jumlah_l: Number(editingItem.presensiL || 0),
+          jumlah_p: Number(editingItem.presensiP || 0),
+          catatan: 'Update via Modal Edit Rekonsiliasi',
         });
+      } else {
+        // Jika diset 0, hapus presensi_log dan sync
+        await supabase.from('presensi_log').delete().eq('kode_qr', editingItem.kode);
+        await syncKuotaTerpakai(editingItem.kode);
       }
 
-      // 4. Pengecekan Konsistensi kuota_terpakai vs presensi_log
-      const { data: presensiLogs } = await supabase
-        .from('presensi_log')
-        .select('jumlah_l, jumlah_p')
-        .eq('kode_qr', editingItem.kode);
+      // FIX 4: Pengecekan Konsistensi kuota_tambahan vs pembelian_kuota
+      if (isSantri) {
+        const { data: pembelianList } = await supabase
+          .from('pembelian_kuota')
+          .select('jumlah_kursi')
+          .eq('kode_santri', editingItem.kode)
+          .eq('status', 'DIVERIFIKASI');
 
-      const presensiSum = (presensiLogs || []).reduce(
-        (acc: number, curr: any) => acc + (Number(curr.jumlah_l || 0) + Number(curr.jumlah_p || 0)),
-        0
-      );
+        const verifiedSum = (pembelianList || []).reduce(
+          (acc: number, curr: any) => acc + Number(curr.jumlah_kursi || 0),
+          0
+        );
 
-      if (payload.kuota_terpakai !== presensiSum && presensiLogs && presensiLogs.length > 0) {
-        changes['presensi_sync_note'] = {
-          lama: `Presensi Log (${presensiSum} orang)`,
-          baru: `Manual Override (${payload.kuota_terpakai} kursi)`,
-        };
+        if (payload.kuota_tambahan !== verifiedSum && (pembelianList && pembelianList.length > 0)) {
+          showToast(`⚠️ Perhatian: Kuota Tambahan (${payload.kuota_tambahan}) berbeda dari total pembelian terverifikasi (${verifiedSum}).`, 'error');
+        }
       }
 
-      // 5. Pengecekan Konsistensi kuota_tambahan vs pembelian_kuota
-      const { data: pembelianList } = await supabase
-        .from('pembelian_kuota')
-        .select('jumlah_kursi')
-        .eq('kode_santri', editingItem.kode)
-        .eq('status', 'DIVERIFIKASI');
-
-      const verifiedSum = (pembelianList || []).reduce(
-        (acc: number, curr: any) => acc + Number(curr.jumlah_kursi || 0),
-        0
-      );
-
-      if (payload.kuota_tambahan !== verifiedSum && pembelianList && pembelianList.length > 0) {
-        changes['pembelian_sync_note'] = {
-          lama: `Pembelian Verifikasi (${verifiedSum} kursi)`,
-          baru: `Manual Adjustment (${payload.kuota_tambahan} kursi)`,
-        };
-      }
-
-      // 6. Simpan ke Audit Log jika ada perubahan
+      // Audit Log
       await logAudit({
         panitia_id: 'PANITIA_REKONSILIASI',
         panitia_role: 'PENERIMA_TAMU',
@@ -421,10 +400,9 @@ export default function RekonPage() {
         tabel: targetTable,
         kode: editingItem.kode,
         nama: editingItem.nama,
-        field: Object.keys(changes).length > 0 ? Object.keys(changes).join(', ') : 'edit_lengkap',
+        field: 'edit_lengkap',
         nilai_lama: JSON.stringify(beforeData || {}),
         nilai_baru: JSON.stringify(payload),
-        detail: Object.keys(changes).length > 0 ? changes : payload,
         catatan: editingItem.catatanKonfirmasi ? editingItem.catatanKonfirmasi.trim() : `Koreksi Data ${isSantri ? 'Santri' : 'Tamu'} via Meja Rekonsiliasi`,
       });
 
@@ -439,7 +417,7 @@ export default function RekonPage() {
     }
   };
 
-  // Handle Tamu Walk-in Baru
+  // Handle Tamu Walk-in Baru (FIX 2)
   const handleSaveWalkin = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingWalkin(true);
@@ -447,7 +425,6 @@ export default function RekonPage() {
     let finalNama = '';
     const p = walkinForm.namaPutra.trim().toUpperCase();
     const w = walkinForm.namaPutri.trim().toUpperCase();
-    let kuotaBase = walkinForm.kuotaDasar;
 
     if (walkinForm.golongan === 'ISTIMEWA') {
       if (!p && !w) {
@@ -456,19 +433,19 @@ export default function RekonPage() {
         return;
       }
       finalNama = p && w ? `${p} & ${w}` : p || w;
-      kuotaBase = p && w ? 2 : 1;
     } else {
-      if (!walkinForm.nama.trim()) {
+      if (!walkinForm.nama.trim() && !p && !w) {
         showToast('Nama Tamu Walk-in wajib diisi!', 'error');
         setSavingWalkin(false);
         return;
       }
-      finalNama = walkinForm.nama.trim().toUpperCase();
+      finalNama = walkinForm.nama.trim().toUpperCase() || (p && w ? `${p} & ${w}` : p || w);
     }
 
     const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;
 
     try {
+      // FIX 2: Payload HANYA kolom resmi tabel tamu_undangan (TANPA kuota_dasar / kuota_tambahan)
       const payload = {
         kode: newKode,
         nama: finalNama,
@@ -479,31 +456,29 @@ export default function RekonPage() {
         kategori: walkinForm.kategori.trim() || 'Tamu Walk-in',
         sub_kategori: walkinForm.golongan,
         no_hp: walkinForm.noHp.trim() || '-',
-        kuota_dasar: kuotaBase,
-        kuota_tambahan: 0,
         kuota_terpakai: walkinForm.langsungCheckin ? 1 : 0,
         warna_tiket: getWarnaTiketUndangan(walkinForm.golongan, walkinForm.kategori),
         jalur_masuk: walkinForm.jalurMasuk.trim() || getDefaultJalurMasuk(walkinForm.golongan),
+        created_at: new Date().toISOString(),
       };
 
       const { error } = await supabase.from('tamu_undangan').insert([payload]);
-      if (error) throw error;
+      if (error) {
+        alert(`Gagal mendaftarkan walk-in: ${error.message} (Kode: ${error.code || 'PGRST'})`);
+        throw error;
+      }
 
       if (walkinForm.langsungCheckin) {
-        await supabase.from('presensi_log').insert([
-          {
-            kode_qr: newKode,
-            nama_peserta: finalNama,
-            tipe_peserta: 'UNDANGAN',
-            jalur: walkinForm.jalurMasuk,
-            panitia_id: 'panitia-rekonsiliasi',
-            jumlah_l: 1,
-            jumlah_p: 0,
-            jumlah_balita: 0,
-            catatan: 'Walk-in Langsung Hadir',
-            created_at: new Date().toISOString(),
-          },
-        ]);
+        await upsertPresensiLog({
+          kode_qr: newKode,
+          nama_peserta: finalNama,
+          tipe_peserta: 'UNDANGAN',
+          jalur: walkinForm.jalurMasuk,
+          panitia_id: 'panitia-rekonsiliasi',
+          jumlah_l: 1,
+          jumlah_p: 0,
+          catatan: 'Walk-in Langsung Hadir',
+        });
       }
 
       await logAudit({
@@ -960,9 +935,105 @@ export default function RekonPage() {
                   </div>
                 </div>
 
-                {/* BLOK 3: RSVP & STATUS */}
+                {/* BLOK 3: JUMLAH KEHADIRAN (PRESENSI REALTIME) */}
+                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-serif font-black text-sm text-[#422F21]">
+                      3. Jumlah Kehadiran (Presensi Realtime)
+                    </h4>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                      Total Kuota: {(Number(editingItem.kuotaDasar || 0) + Number(editingItem.kuotaTambahan || 0))} Kursi
+                    </span>
+                  </div>
+
+                  {(() => {
+                    const maxKuota = Number(editingItem.kuotaDasar || 0) + Number(editingItem.kuotaTambahan || 0);
+                    const currentTotal = Number(editingItem.presensiL || 0) + Number(editingItem.presensiP || 0);
+                    const isMaxReached = currentTotal >= maxKuota;
+
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {/* Stepper Putra */}
+                        <div className="p-3 rounded-xl bg-white border border-[#D5C4B4] flex items-center justify-between shadow-2xs">
+                          <div>
+                            <span className="font-bold text-xs text-[#422F21] block">Putra / Laki-laki (L)</span>
+                            <span className="text-[10px] text-stone-500">Jumlah fisik hadir</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingItem((prev: any) => ({
+                                  ...prev,
+                                  presensiL: Math.max(0, Number(prev.presensiL || 0) - 1),
+                                }))
+                              }
+                              disabled={Number(editingItem.presensiL || 0) <= 0}
+                              className="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer border border-stone-300 transition-all"
+                            >
+                              -
+                            </button>
+                            <span className="font-black text-sm w-6 text-center">{editingItem.presensiL || 0}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingItem((prev: any) => ({
+                                  ...prev,
+                                  presensiL: Number(prev.presensiL || 0) + 1,
+                                }))
+                              }
+                              disabled={isMaxReached}
+                              className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-amber-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Stepper Putri */}
+                        <div className="p-3 rounded-xl bg-white border border-[#D5C4B4] flex items-center justify-between shadow-2xs">
+                          <div>
+                            <span className="font-bold text-xs text-[#422F21] block">Putri / Perempuan (P)</span>
+                            <span className="text-[10px] text-stone-500">Jumlah fisik hadir</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingItem((prev: any) => ({
+                                  ...prev,
+                                  presensiP: Math.max(0, Number(prev.presensiP || 0) - 1),
+                                }))
+                              }
+                              disabled={Number(editingItem.presensiP || 0) <= 0}
+                              className="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer border border-stone-300 transition-all"
+                            >
+                              -
+                            </button>
+                            <span className="font-black text-sm w-6 text-center">{editingItem.presensiP || 0}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingItem((prev: any) => ({
+                                  ...prev,
+                                  presensiP: Number(prev.presensiP || 0) + 1,
+                                }))
+                              }
+                              disabled={isMaxReached}
+                              className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-amber-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* BLOK 4: RSVP & STATUS */}
                 <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
-                  <h4 className="font-serif font-black text-sm text-[#422F21]">3. RSVP &amp; Catatan</h4>
+                  <h4 className="font-serif font-black text-sm text-[#422F21]">4. RSVP &amp; Catatan</h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
