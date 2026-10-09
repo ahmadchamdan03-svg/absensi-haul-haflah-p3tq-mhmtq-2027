@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getActiveRole, AppRole } from '@/lib/auth-roles';
+import { getActiveRole, AppRole, ROLES_CONFIG } from '@/lib/auth-roles';
+import { WelcomePopup } from '@/components/WelcomePopup';
 
 interface AuthGuardProps {
   /** Role(s) yang diizinkan mengakses halaman ini */
@@ -18,6 +19,8 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const currentRole = getActiveRole();
@@ -26,9 +29,25 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
       router.replace('/');
     } else {
       setIsAuthorized(true);
+      const roleConfig = ROLES_CONFIG[currentRole];
+      const nameTitle = roleConfig ? roleConfig.title : 'Pengguna';
+      setUserName(nameTitle);
+
+      const welcomeKey = `haflah_welcome_shown_${currentRole}`;
+      if (typeof window !== 'undefined' && !sessionStorage.getItem(welcomeKey)) {
+        setShowWelcome(true);
+      }
     }
     setIsChecking(false);
   }, [allowedRoles, router]);
+
+  const handleCloseWelcome = () => {
+    setShowWelcome(false);
+    const currentRole = getActiveRole();
+    if (currentRole && typeof window !== 'undefined') {
+      sessionStorage.setItem(`haflah_welcome_shown_${currentRole}`, 'true');
+    }
+  };
 
   // Tampilkan loading singkat saat pengecekan
   if (isChecking || !isAuthorized) {
@@ -42,5 +61,12 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {showWelcome && (
+        <WelcomePopup userName={userName} onClose={handleCloseWelcome} />
+      )}
+    </>
+  );
 }
