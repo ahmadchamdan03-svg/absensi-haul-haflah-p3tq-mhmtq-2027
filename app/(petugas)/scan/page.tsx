@@ -1306,56 +1306,62 @@ export default function ScanPage() {
       {/* MODAL KONFIRMASI RESET KARTU HITAM GOLD */}
       {showResetConfirmModal && activeItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl border-2 border-amber-500 overflow-hidden text-center animate-in zoom-in-95 duration-200">
-            {/* Image / Fallback Avatar */}
-            <div className="relative w-28 h-28 mx-auto rounded-2xl overflow-hidden border-2 border-amber-400 shadow-md bg-amber-50 flex items-center justify-center">
+          <div className="relative flex flex-col items-center w-full max-w-sm">
+            {/* FOTO USTH. HALWAA — POP-OUT DARI BELAKANG KOTAK */}
+            <div className="relative z-0 -mb-12 sm:-mb-16 w-32 sm:w-40 h-32 sm:h-40 pointer-events-none flex justify-center items-end">
               <img
                 src="/images/halwaa/peringatan.webp"
                 alt="Usth. Halwaa Warning"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain drop-shadow-2xl"
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
                   const fallbackEl = document.getElementById('halwaa-fallback-icon');
                   if (fallbackEl) fallbackEl.style.display = 'flex';
                 }}
               />
-              <div id="halwaa-fallback-icon" className="hidden flex-col items-center justify-center text-amber-700">
-                <AlertCircle className="w-12 h-12" />
+              <div
+                id="halwaa-fallback-icon"
+                className="hidden w-20 h-20 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-700 flex-col items-center justify-center shadow-lg"
+              >
+                <AlertCircle className="w-10 h-10" />
               </div>
             </div>
 
-            {/* Warning Content */}
-            <div className="space-y-1.5">
-              <h3 className="font-serif font-black text-amber-950 text-base leading-tight">
-                Peringatan Pembatalan Kartu Gold
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Us, apakah Us yakin ingin mereset status <strong className="text-amber-900">&quot;Kartu Hitam Gold&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <span className="font-bold text-rose-600">BELUM</span>?
-              </p>
-            </div>
+            {/* KOTAK POP-UP — DI DEPAN FOTO (HANYA TEKS + TOMBOL) */}
+            <div className="relative z-10 bg-white rounded-3xl w-full p-6 space-y-4 shadow-2xl border-2 border-amber-300 text-center animate-in zoom-in-95 duration-200">
+              {/* Teks Peringatan */}
+              <div className="space-y-2">
+                <h3 className="font-serif font-black text-amber-950 text-base sm:text-lg leading-tight">
+                  Peringatan Pembatalan Kartu Gold
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
+                  Us, apakah Us yakin ingin mereset status <strong className="text-amber-950">&quot;Kartu Hitam Gold&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <strong className="text-rose-600 font-bold">BELUM</strong>?
+                </p>
+              </div>
 
-            {/* Buttons */}
-            <div className="flex items-center space-x-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowResetConfirmModal(false)}
-                disabled={isUpdatingKartuGold}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmResetKartuHitamGold}
-                disabled={isUpdatingKartuGold}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-serif font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center space-x-1 disabled:opacity-50"
-              >
-                {isUpdatingKartuGold ? (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                ) : (
-                  <span>Ya, Reset</span>
-                )}
-              </button>
+              {/* Tombol */}
+              <div className="flex items-center space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowResetConfirmModal(false)}
+                  disabled={isUpdatingKartuGold}
+                  className="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmResetKartuHitamGold}
+                  disabled={isUpdatingKartuGold}
+                  className="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-serif font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-1.5 disabled:opacity-50"
+                >
+                  {isUpdatingKartuGold ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  ) : (
+                    <span>Ya, Reset</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
