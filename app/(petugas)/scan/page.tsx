@@ -38,6 +38,8 @@ export default function ScanPage() {
   const [jumlahBalita, setJumlahBalita] = useState(0);
   const [serahkanTiketEmas, setSerahkanTiketEmas] = useState(true);
   const [kartuHitamGoldDiberi, setKartuHitamGoldDiberi] = useState(false);
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
+  const [isUpdatingKartuGold, setIsUpdatingKartuGold] = useState(false);
 
   // Result state
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -483,6 +485,108 @@ export default function ScanPage() {
     };
   }, [activeItem, checkinResult]);
 
+  // Handler Check / Uncheck Kartu Hitam Gold (dengan konfirmasi modal & audit log)
+  const handleToggleKartuHitamGold = async () => {
+    if (!activeItem || isUpdatingKartuGold) return;
+    const isCurrentlyChecked = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || kartuHitamGoldDiberi || serahkanTiketEmas;
+
+    if (isCurrentlyChecked) {
+      // Intent to uncheck -> trigger confirmation popup
+      setShowResetConfirmModal(true);
+    } else {
+      // Intent to check -> set to 1 immediately in Supabase + audit log
+      setIsUpdatingKartuGold(true);
+      try {
+        const { error } = await supabase
+          .from('peserta_santri')
+          .update({ tiket_panggung_diberi: 1 })
+          .eq('id', activeItem.id);
+
+        if (error) throw error;
+
+        await logAudit({
+          panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
+          panitia_role: 'PENJAGA_GERBANG',
+          aksi: 'CHECK_KARTU_HITAM_GOLD',
+          tabel: 'peserta_santri',
+          kode: activeItem.kode,
+          nama: activeItem.nama,
+          field: 'tiket_panggung_diberi',
+          nilai_lama: '0',
+          nilai_baru: '1',
+          catatan: 'Diberikan Kartu Hitam Gold via Scanner Gerbang',
+        });
+
+        setKartuHitamGoldDiberi(true);
+        setSerahkanTiketEmas(true);
+        setActiveItem((prev: any) =>
+          prev
+            ? {
+                ...prev,
+                kartuHitamGoldDiberi: true,
+                kuota: {
+                  ...prev.kuota,
+                  tiketPanggungDiberi: 1,
+                },
+              }
+            : null
+        );
+      } catch (err: any) {
+        console.error('Error checking Kartu Hitam Gold:', err);
+        setErrorMsg(`Gagal mengupdate Kartu Hitam Gold: ${err.message || err}`);
+      } finally {
+        setIsUpdatingKartuGold(false);
+      }
+    }
+  };
+
+  const handleConfirmResetKartuHitamGold = async () => {
+    if (!activeItem || isUpdatingKartuGold) return;
+    setIsUpdatingKartuGold(true);
+    try {
+      const { error } = await supabase
+        .from('peserta_santri')
+        .update({ tiket_panggung_diberi: 0 })
+        .eq('id', activeItem.id);
+
+      if (error) throw error;
+
+      await logAudit({
+        panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
+        panitia_role: 'PENJAGA_GERBANG',
+        aksi: 'UNCHECK_KARTU_HITAM_GOLD',
+        tabel: 'peserta_santri',
+        kode: activeItem.kode,
+        nama: activeItem.nama,
+        field: 'tiket_panggung_diberi',
+        nilai_lama: '1',
+        nilai_baru: '0',
+        catatan: 'Reset/Uncheck Kartu Hitam Gold via Scanner Gerbang',
+      });
+
+      setKartuHitamGoldDiberi(false);
+      setSerahkanTiketEmas(false);
+      setActiveItem((prev: any) =>
+        prev
+            ? {
+                ...prev,
+                kartuHitamGoldDiberi: false,
+                kuota: {
+                  ...prev.kuota,
+                  tiketPanggungDiberi: 0,
+                },
+              }
+            : null
+      );
+      setShowResetConfirmModal(false);
+    } catch (err: any) {
+      console.error('Error resetting Kartu Hitam Gold:', err);
+      setErrorMsg(`Gagal mereset Kartu Hitam Gold: ${err.message || err}`);
+    } finally {
+      setIsUpdatingKartuGold(false);
+    }
+  };
+
   // Handler Konfirmasi Checkin (Update Kuota & Simpan Log ke Tabel 'presensi_log' Supabase)
   const handleConfirmCheckin = async () => {
     if (!activeItem || isSubmitting) return;
@@ -921,66 +1025,43 @@ export default function ScanPage() {
               );
             })()}
 
-            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB (One-Time Disabled jika sudah diberikan) */}
+            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB */}
             {activeItem.isBilGhoib && (() => {
-              const isAlreadyGiven = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || Boolean(activeItem.kartuHitamGoldDiberi);
-              const isChecked = isAlreadyGiven || kartuHitamGoldDiberi || serahkanTiketEmas;
+              const isChecked = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || kartuHitamGoldDiberi || serahkanTiketEmas;
 
               return (
                 <div
-                  onClick={() => {
-                    if (!isAlreadyGiven) {
-                      const nextVal = !kartuHitamGoldDiberi;
-                      setKartuHitamGoldDiberi(nextVal);
-                      setSerahkanTiketEmas(nextVal);
-                    }
-                  }}
-                  className={`p-3 rounded-2xl border-2 transition-all select-none ${
-                    isAlreadyGiven
-                      ? 'bg-[#1C1712] border-amber-500/80 text-amber-200 opacity-90 cursor-not-allowed'
-                      : isChecked
-                      ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs cursor-pointer'
-                      : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21] cursor-pointer'
+                  onClick={handleToggleKartuHitamGold}
+                  className={`p-3 rounded-2xl border-2 transition-all select-none cursor-pointer ${
+                    isChecked
+                      ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs hover:border-amber-400'
+                      : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21]'
                   }`}
-                  title={isAlreadyGiven ? 'Kartu Hitam Gold sudah diberikan — hanya 1 kuota maju panggung.' : undefined}
+                  title={isChecked ? 'Klik untuk membatalkan/uncheck Kartu Hitam Gold' : 'Klik untuk memberikan Kartu Hitam Gold'}
                 >
                   <div className="flex items-start space-x-2.5">
                     <input
                       type="checkbox"
                       id="checkbox-hitam-gold"
                       checked={isChecked}
-                      disabled={isAlreadyGiven}
-                      onChange={(e) => {
-                        if (!isAlreadyGiven) {
-                          setKartuHitamGoldDiberi(e.target.checked);
-                          setSerahkanTiketEmas(e.target.checked);
-                        }
-                      }}
+                      onChange={handleToggleKartuHitamGold}
                       onClick={(e) => e.stopPropagation()}
-                      className={`w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 accent-amber-600 mt-0.5 ${
-                        isAlreadyGiven ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
-                      }`}
+                      className="w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 accent-amber-600 mt-0.5 cursor-pointer"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <label
                           htmlFor="checkbox-hitam-gold"
-                          className={`text-xs font-bold leading-tight flex items-center gap-1.5 ${
-                            isAlreadyGiven ? 'cursor-not-allowed' : 'cursor-pointer'
-                          }`}
+                          className="text-xs font-bold leading-tight flex items-center gap-1.5 cursor-pointer"
                         >
                           <span>Kartu Hitam Gold</span>
                           <span className="text-[10px] text-amber-300 font-normal">(Maju Panggung)</span>
                         </label>
 
-                        {isAlreadyGiven ? (
-                          <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-xs shrink-0 flex items-center gap-1">
+                        {isChecked ? (
+                          <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0 flex items-center gap-1 shadow-xs">
                             <Check className="w-3 h-3 text-white" />
                             SUDAH
-                          </span>
-                        ) : isChecked ? (
-                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0">
-                            ✓ DIBERIKAN
                           </span>
                         ) : (
                           <span className="text-[9px] font-semibold text-stone-500 px-2 py-0.5 rounded-full bg-stone-100 ml-1 shrink-0">
@@ -989,12 +1070,12 @@ export default function ScanPage() {
                         )}
                       </div>
 
-                      {isAlreadyGiven && (
-                        <p className="text-[10px] text-amber-300/90 font-medium mt-1 leading-tight flex items-center gap-1">
-                          <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0"></span>
-                          Kartu Hitam Gold sudah diberikan — hanya 1 kuota maju panggung.
-                        </p>
-                      )}
+                      <p className="text-[10px] text-stone-500 mt-1 leading-tight flex items-center gap-1">
+                        <span className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${isChecked ? 'bg-amber-400' : 'bg-stone-300'}`}></span>
+                        {isChecked
+                          ? 'Status: SUDAH DIBERIKAN (1 kuota panggung). Klik untuk mereset/uncheck.'
+                          : 'Status: BELUM DIBERIKAN. Centang jika kartu diserahkan.'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1220,6 +1301,64 @@ export default function ScanPage() {
       {/* DENAH MODAL */}
       {isDenahOpen && (
         <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
+      )}
+
+      {/* MODAL KONFIRMASI RESET KARTU HITAM GOLD */}
+      {showResetConfirmModal && activeItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl border-2 border-amber-500 overflow-hidden text-center animate-in zoom-in-95 duration-200">
+            {/* Image / Fallback Avatar */}
+            <div className="relative w-28 h-28 mx-auto rounded-2xl overflow-hidden border-2 border-amber-400 shadow-md bg-amber-50 flex items-center justify-center">
+              <img
+                src="/images/halwaa/peringatan.webp"
+                alt="Usth. Halwaa Warning"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                  const fallbackEl = document.getElementById('halwaa-fallback-icon');
+                  if (fallbackEl) fallbackEl.style.display = 'flex';
+                }}
+              />
+              <div id="halwaa-fallback-icon" className="hidden flex-col items-center justify-center text-amber-700">
+                <AlertCircle className="w-12 h-12" />
+              </div>
+            </div>
+
+            {/* Warning Content */}
+            <div className="space-y-1.5">
+              <h3 className="font-serif font-black text-amber-950 text-base leading-tight">
+                Peringatan Pembatalan Kartu Gold
+              </h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Us, apakah Us yakin ingin mereset status <strong className="text-amber-900">&quot;Kartu Hitam Gold&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <span className="font-bold text-rose-600">BELUM</span>?
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex items-center space-x-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowResetConfirmModal(false)}
+                disabled={isUpdatingKartuGold}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmResetKartuHitamGold}
+                disabled={isUpdatingKartuGold}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-serif font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center space-x-1 disabled:opacity-50"
+              >
+                {isUpdatingKartuGold ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <span>Ya, Reset</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
