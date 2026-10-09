@@ -1307,8 +1307,8 @@ export default function ScanPage() {
       {showResetConfirmModal && activeItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="relative flex flex-col items-center w-full max-w-sm">
-            {/* FOTO USTH. HALWAA — POP-OUT DARI BELAKANG KOTAK */}
-            <div className="relative z-0 -mb-12 sm:-mb-16 w-32 sm:w-40 h-32 sm:h-40 pointer-events-none flex justify-center items-end">
+            {/* FOTO USTH. HALWAA — POP-OUT DARI BELAKANG KOTAK (HANYA BANTAN BAWAH 5% TERTUTUP) */}
+            <div className="relative z-0 -mb-2 sm:-mb-2.5 w-36 sm:w-44 h-36 sm:h-44 pointer-events-none flex justify-center items-end">
               <img
                 src="/images/halwaa/peringatan.webp"
                 alt="Usth. Halwaa Warning"
