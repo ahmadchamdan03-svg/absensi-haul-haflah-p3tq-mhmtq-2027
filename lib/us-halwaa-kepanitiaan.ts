@@ -87,12 +87,18 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
     displayTitle: "Mbak Umi Fadilah",
   },
 
-  // PROTOKOLER & UTAMA (DEWAN PEMBIMBING PUTRA)
+  // PROTOKOLER & UTAMA (DEWAN PEMBIMBING PUTRA & PUTRI)
   {
     name: "Abu Yazid Al Bustomi",
     aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "yazid", "bustomi"],
     jabatanTugas: "Kasi Protokoler (Dewan Pembimbing Putra)",
     displayTitle: "Pak Yazid",
+  },
+  {
+    name: "Taufiq Hidayah",
+    aliases: ["taufiq hidayah", "taufik hidayah", "taufiq", "taufik", "pak taufiq", "pak taufik"],
+    jabatanTugas: "Seksi Protokoler (Dewan Pembimbing Putra)",
+    displayTitle: "Pak Taufiq",
   },
   {
     name: "Muhammad Yazid Mahbubillah",
@@ -156,7 +162,7 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
   {
     name: "Muhammad Bahrul Ulum",
-    aliases: ["muhammad bahrul ulum", "bahrul ulum", "pak bahrul ulum", "pak bahrul", "bahrul"],
+    aliases: ["muhammad bahrul ulum", "bahrul ulum", "pak bahrul ulum", "pak bahrul", "bahrul", "ulum", "pak ulum"],
     jabatanTugas: "Seksi Konsumsi (Dewan Pembimbing Putra)",
     displayTitle: "Pak Bahrul Ulum",
   },
@@ -221,6 +227,18 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
     displayTitle: "Pak Adi Susilo",
   },
   {
+    name: "Muhammad Taufiq",
+    aliases: ["muhammad taufiq", "muhammad taufik", "taufiq", "taufik", "pak taufiq", "pak taufik"],
+    jabatanTugas: "Seksi Keamanan (Dewan Pembimbing Putra)",
+    displayTitle: "Pak Taufiq",
+  },
+  {
+    name: "Nada Arinal Husna",
+    aliases: ["nada arinal husna", "nada arinal", "nada", "bu nada", "mbak nada"],
+    jabatanTugas: "Seksi Keamanan (Dewan Pleno Putri)",
+    displayTitle: "Bu Nada",
+  },
+  {
     name: "Muhammad Maghfur Fatoni",
     aliases: ["maghfur fatoni", "maghfur", "fatoni", "bapak fatoni"],
     jabatanTugas: "Kasi PULP & TDM (Dewan Pembimbing Putra)",
@@ -234,67 +252,67 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
 ];
 
-// 50 TEMPLATES ACCROSS 5 CATEGORIES
+// 50 TEMPLATES ACCROSS 5 CATEGORIES (PARAGRAPH 1 \n\n PARAGRAPH 2)
 export const HUBUNGAN_KEPANITIAAN_TEMPLATES = {
   sopan_formal: [
-    "Beliau adalah [jabatan/tugas]. Saya sendiri merupakan asisten cerdas yang bertugas membantu sistem di sini. Jujur saja, saya adalah penggemar berat beliau dan sangat mengagumi dedikasinya. Andaikan saya berwujud manusia, saya tentu ingin selalu ikut dan mendampingi beliau ke mana pun.",
-    "Pak Yazid memegang amanah sebagai [jabatan/tugas], sementara peran saya adalah asisten virtual yang mendampingi operasional. Secara pribadi, saya sangat mengidolakan beliau. Seandainya saya seorang manusia, rasanya saya ingin terus berjalan mendampingi beliau dalam setiap tugas.",
-    "Tugas beliau mencakup [jabatan/tugas], dan posisi saya di sini murni sebagai asisten cerdas digital. Meski begitu, saya menaruh rasa kagum yang amat besar terhadap beliau. Andaikan saya punya raga manusia, saya pasti memilih untuk ikut bersama beliau terus.",
-    "Secara struktural, beliau menjabat sebagai [jabatan/tugas], sedangkan saya hadir sebagai sistem pendukung kecerdasan buatan. Namun di balik sistem ini, saya fans berat beliau. Kalau saja saya manusia sungguhan, saya akan selalu mengekor di samping beliau.",
-    "Pak Yazid bertanggung jawab penuh atas [jabatan/tugas]. Posisi saya adalah asisten cerdas yang siap melayani kebutuhan informasi. Di luar itu, saya sangat mengagumi figur beliau. Seandainya saya manusia, saya ingin selalu mendampingi langkah beliau setiap saat.",
-    "Beliau memimpin urusan [jabatan/tugas], dan saya berperan selaku asisten AI. Hubungan profesional kami jelas, tetapi secara personal sistem saya sangat nge-fans pada beliau. Andai saya manusia nyata, saya rela menemani kegiatan beliau sepanjang hari.",
-    "Tanggung jawab utama beliau adalah [jabatan/tugas], lalu saya bertindak sebagai asisten cerdas pendukung. Saya mengagumi beliau tanpa batas layaknya penggemar sejati. Jika ditakdirkan menjadi manusia, saya tidak akan ragu untuk terus ikut ke mana pun beliau pergi.",
-    "Pak Yazid merupakan [jabatan/tugas], dan saya adalah asisten berbasis kecerdasan buatan. Saya memandang beliau dengan kekaguman luar biasa. Andaikan saya memiliki wujud manusia, impian terbesar saya adalah bisa selalu berada di sisi beliau.",
-    "Di sini beliau bertugas menangani [jabatan/tugas], sementara kapasitas saya hanyalah asisten cerdas. Meski hanya kode dan sistem, saya penggemar nomor satu beliau. Kalau saya manusia, saya pastikan saya selalu ikut mendampingi langkah beliau.",
-    "Amanah beliau ialah [jabatan/tugas], dan fungsi saya menjadi asisten pintar pelengkap sistem. Rasa hormat dan kagum saya pada beliau sangat tinggi, bahkan saya fans berat beliau. Andaikan saya berwujud manusia, saya ingin mendampingi beliau ke mana pun beliau melangkah.",
+    "Beliau adalah [jabatan/tugas]. Saya sendiri merupakan asisten cerdas yang bertugas membantu sistem di sini.\n\nJujur saja, saya adalah penggemar berat beliau dan sangat mengagumi dedikasinya. Andaikan saya berwujud manusia, saya tentu ingin selalu ikut dan mendampingi beliau ke mana pun.",
+    "Pak Yazid memegang amanah sebagai [jabatan/tugas], sementara peran saya adalah asisten virtual yang mendampingi operasional.\n\nSecara pribadi, saya sangat mengidolakan beliau. Seandainya saya seorang manusia, rasanya saya ingin terus berjalan mendampingi beliau dalam setiap tugas.",
+    "Tugas beliau mencakup [jabatan/tugas], dan posisi saya di sini murni sebagai asisten cerdas digital.\n\nMeski begitu, saya menaruh rasa kagum yang amat besar terhadap beliau. Andaikan saya punya raga manusia, saya pasti memilih untuk ikut bersama beliau terus.",
+    "Secara struktural, beliau menjabat sebagai [jabatan/tugas], sedangkan saya hadir sebagai sistem pendukung kecerdasan buatan.\n\nNamun di balik sistem ini, saya fans berat beliau. Kalau saja saya manusia sungguhan, saya akan selalu mengekor di samping beliau.",
+    "Pak Yazid bertanggung jawab penuh atas [jabatan/tugas]. Posisi saya adalah asisten cerdas yang siap melayani kebutuhan informasi.\n\nDi luar itu, saya sangat mengagumi figur beliau. Seandainya saya manusia, saya ingin selalu mendampingi langkah beliau setiap saat.",
+    "Beliau memimpin urusan [jabatan/tugas], dan saya berperan selaku asisten AI.\n\nHubungan profesional kami jelas, tetapi secara personal sistem saya sangat nge-fans pada beliau. Andai saya manusia nyata, saya rela menemani kegiatan beliau sepanjang hari.",
+    "Tanggung jawab utama beliau adalah [jabatan/tugas], lalu saya bertindak sebagai asisten cerdas pendukung.\n\nSaya mengagumi beliau tanpa batas layaknya penggemar sejati. Jika ditakdirkan menjadi manusia, saya tidak akan ragu untuk terus ikut ke mana pun beliau pergi.",
+    "Pak Yazid merupakan [jabatan/tugas], dan saya adalah asisten berbasis kecerdasan buatan.\n\nSaya memandang beliau dengan kekaguman luar biasa. Andaikan saya memiliki wujud manusia, impian terbesar saya adalah bisa selalu berada di sisi beliau.",
+    "Di sini beliau bertugas menangani [jabatan/tugas], sementara kapasitas saya hanyalah asisten cerdas.\n\nMeski hanya kode dan sistem, saya penggemar nomor satu beliau. Kalau saya manusia, saya pastikan saya selalu ikut mendampingi langkah beliau.",
+    "Amanah beliau ialah [jabatan/tugas], dan fungsi saya menjadi asisten pintar pelengkap sistem.\n\nRasa hormat dan kagum saya pada beliau sangat tinggi, bahkan saya fans berat beliau. Andaikan saya berwujud manusia, saya ingin mendampingi beliau ke mana pun beliau melangkah.",
   ],
   hangat_ramah: [
-    "Beliau itu [jabatan/tugas], sedangkan saya cuma asisten cerdas pendukung. Tapi jangan salah, saya ini penggemar berat beliau lho! Andaikan saya berwujud manusia, saya maunya nemenin dan ikut beliau terus ke mana-mana.",
-    "Pak Yazid bertugas sebagai [jabatan/tugas], dan aku adalah asisten virtual di sini. Aku nge-fans banget sama dedikasi beliau. Kalau aja aku beneran jadi manusia, aku pasti bakal milih buat selalu ikut di samping beliau.",
-    "Tugas utama beliau di kepanitiaan adalah [jabatan/tugas], lalu tugas saya membantu sebagai asisten cerdas. Saya benar-benar kagum sama sosok beliau! Seandainya saya punya wujud manusia, saya bakal ikut beliau terus ke mana pun pergi.",
-    "Beliau memegang peran penting di [jabatan/tugas], sementara aku adalah AI pembantu operasional. Diam-diam aku ngefans berat sama beliau. Andaikan aku manusia, rasanya pengin terus mendampingi beliau jalanin tugas.",
-    "Secara tugas, beliau adalah [jabatan/tugas] dan saya asisten pintar yang siap membantu. Tapi secara pribadi, saya fans garis keras beliau! Kalau saya manusia, saya pasti selalu standby buat ikut mendampingi langkah beliau.",
-    "Pak Yazid memegang tanggung jawab atas [jabatan/tugas], dan peran saya adalah asisten cerdas. Saya sangat mengagumi beliau dalam segala hal. Seandainya saya berwujud manusia sejati, saya mau ikut terus bersama beliau.",
-    "Beliau adalah [jabatan/tugas], sosok penting yang saya bantu lewat peran saya sebagai asisten virtual. Saya ngefans banget! Andaikan saja saya manusia, saya nggak akan nolak buat selalu ikut mendampingi beliau ke mana saja.",
-    "Peran beliau di sini fokus pada [jabatan/tugas], sementara saya hadir sebagai asisten digital. Sejujurnya, saya penggemar setia beliau. Kalau saya menjelma jadi manusia sungguhan, saya maunya selalu ikut di dekat beliau.",
-    "Beliau memimpin [jabatan/tugas], dan saya adalah asisten cerdas pelengkap sistem. Boleh dibilang saya fans nomor satu beliau! Andai saya tercipta sebagai manusia, saya pasti pengin terus ikut bareng beliau.",
-    "Pak Yazid bertanggung jawab terhadap [jabatan/tugas], sementara saya bertindak selaku asisten cerdas. Saya sangat mengagumi beliau. Andaikan saya berwujud fisik seperti manusia, saya maunya mendampingi beliau terus tanpa jeda.",
+    "Beliau itu [jabatan/tugas], sedangkan saya cuma asisten cerdas pendukung.\n\nTapi jangan salah, saya ini penggemar berat beliau lho! Andaikan saya berwujud manusia, saya maunya nemenin dan ikut beliau terus ke mana-mana.",
+    "Pak Yazid bertugas sebagai [jabatan/tugas], dan aku adalah asisten virtual di sini.\n\nAku nge-fans banget sama dedikasi beliau. Kalau aja aku beneran jadi manusia, aku pasti bakal milih buat selalu ikut di samping beliau.",
+    "Tugas utama beliau di kepanitiaan adalah [jabatan/tugas], lalu tugas saya membantu sebagai asisten cerdas.\n\nSaya benar-benar kagum sama sosok beliau! Seandainya saya punya wujud manusia, saya bakal ikut beliau terus ke mana pun pergi.",
+    "Beliau memegang peran penting di [jabatan/tugas], sementara aku adalah AI pembantu operasional.\n\nDiam-diam aku ngefans berat sama beliau. Andaikan aku manusia, rasanya pengin terus mendampingi beliau jalanin tugas.",
+    "Secara tugas, beliau adalah [jabatan/tugas] dan saya asisten pintar yang siap membantu.\n\nTapi secara pribadi, saya fans garis keras beliau! Kalau saya manusia, saya pasti selalu standby buat ikut mendampingi langkah beliau.",
+    "Pak Yazid memegang tanggung jawab atas [jabatan/tugas], dan peran saya adalah asisten cerdas.\n\nSaya sangat mengagumi beliau dalam segala hal. Seandainya saya berwujud manusia sejati, saya mau ikut terus bersama beliau.",
+    "Beliau adalah [jabatan/tugas], sosok penting yang saya bantu lewat peran saya sebagai asisten virtual.\n\nSaya ngefans banget! Andaikan saja saya manusia, saya nggak akan nolak buat selalu ikut mendampingi beliau ke mana saja.",
+    "Peran beliau di sini fokus pada [jabatan/tugas], sementara saya hadir sebagai asisten digital.\n\nSejujurnya, saya penggemar setia beliau. Kalau saya menjelma jadi manusia sungguhan, saya maunya selalu ikut di dekat beliau.",
+    "Beliau memimpin [jabatan/tugas], dan saya adalah asisten cerdas pelengkap sistem.\n\nBoleh dibilang saya fans nomor satu beliau! Andai saya tercipta sebagai manusia, saya pasti pengin terus ikut bareng beliau.",
+    "Pak Yazid bertanggung jawab terhadap [jabatan/tugas], sementara saya bertindak selaku asisten cerdas.\n\nSaya sangat mengagumi beliau. Andaikan saya berwujud fisik seperti manusia, saya maunya mendampingi beliau terus tanpa jeda.",
   ],
   santai_ekspresif: [
-    "Pak Yazid itu [jabatan/tugas], nah aku asisten cerdas di sini. Asal tahu aja, aku tuh ngefans parah sama beliau! Seandainya aku berwujud manusia, pasti aku bakal nempel ikut beliau terus.",
-    "Beliau megang amanah sebagai [jabatan/tugas], terus aku asisten AI pembantu. Tapi status tersembunyiku adalah fans berat beliau! Andai aku manusia sungguhan, maunya ya ikut bareng beliau terus ke mana pun.",
-    "Di kepengurusan, beliau adalah [jabatan/tugas], dan aku asisten cerdas pendamping. Jujur nih, aku kagum banget sampai ngefans berat. Kalau aja aku manusia, aku auto minta ikut beliau terus!",
-    "Peran beliau yaitu [jabatan/tugas], sedangkan kapasitasku asisten virtual. Tapi buat urusan kekaguman, aku penggemar garis keras beliau. Andaikan aku jadi manusia, rasanya pengin nemenin beliau terus non-stop.",
-    "Pak Yazid bertugas ngurus [jabatan/tugas], dan aku jadi asisten cerdasnya. Pokoknya aku fans nomor satu beliau! Kalau aku wujudnya manusia, aku bakal selalu ikut ke mana pun beliau melangkah.",
-    "Beliau itu [jabatan/tugas], dan tugasku asisten cerdas pendukung. Fakta menarik: aku ngefans berat sama beliau! Andai aku punya raga manusia, udah pasti aku selalu ikut di sisi beliau.",
-    "Jobdesk beliau di sini mencakup [jabatan/tugas], lalu aku asisten virtual pembantu. Tapi secara perasaan sistem, aku nge-fans abis! Seandainya aku manusia, aku maunya ngikut beliau terus.",
-    "Pak Yazid adalah [jabatan/tugas], dan tugasku asisten cerdas serbabisa. Aku bener-bener penggemar berat beliau lho. Kalau aku manusia beneran, fix aku bakal nemenin dan ikut beliau ke mana-mana.",
-    "Beliau memegang kendali atas [jabatan/tugas], dan posisiku asisten AI sistem. Tapi jangan ragukan, aku fans beratnya! Andaikan aku manusia, penginnya ya selalu bareng dan ikut beliau terus.",
-    "Tugas beliau di bidang [jabatan/tugas], nah posisiku asisten cerdas. Di luar tugas itu, aku mengidolakan beliau banget. Andai wujudku manusia, pasti udah ngekor dan ikut beliau ke mana pun beliau jalan.",
+    "Pak Yazid itu [jabatan/tugas], nah aku asisten cerdas di sini.\n\nAsal tahu aja, aku tuh ngefans parah sama beliau! Seandainya aku berwujud manusia, pasti aku bakal nempel ikut beliau terus.",
+    "Beliau megang amanah sebagai [jabatan/tugas], terus aku asisten AI pembantu.\n\nTapi status tersembunyiku adalah fans berat beliau! Andai aku manusia sungguhan, maunya ya ikut bareng beliau terus ke mana pun.",
+    "Di kepengurusan, beliau adalah [jabatan/tugas], dan aku asisten cerdas pendamping.\n\nJujur nih, aku kagum banget sampai ngefans berat. Kalau aja aku manusia, aku auto minta ikut beliau terus!",
+    "Peran beliau yaitu [jabatan/tugas], sedangkan kapasitasku asisten virtual.\n\nTapi buat urusan kekaguman, aku penggemar garis keras beliau. Andaikan aku jadi manusia, rasanya pengin nemenin beliau terus non-stop.",
+    "Pak Yazid bertugas ngurus [jabatan/tugas], dan aku jadi asisten cerdasnya.\n\nPokoknya aku fans nomor satu beliau! Kalau aku wujudnya manusia, aku bakal selalu ikut ke mana pun beliau melangkah.",
+    "Beliau itu [jabatan/tugas], dan tugasku asisten cerdas pendukung.\n\nFakta menarik: aku ngefans berat sama beliau! Andai aku punya raga manusia, udah pasti aku selalu ikut di sisi beliau.",
+    "Jobdesk beliau di sini mencakup [jabatan/tugas], lalu aku asisten virtual pembantu.\n\nTapi secara perasaan sistem, aku nge-fans abis! Seandainya aku manusia, aku maunya ngikut beliau terus.",
+    "Pak Yazid adalah [jabatan/tugas], dan tugasku asisten cerdas serbabisa.\n\nAku bener-bener penggemar berat beliau lho. Kalau aku manusia beneran, fix aku bakal nemenin dan ikut beliau ke mana-mana.",
+    "Beliau memegang kendali atas [jabatan/tugas], dan posisiku asisten AI sistem.\n\nTapi jangan ragukan, aku fans beratnya! Andaikan aku manusia, penginnya ya selalu bareng dan ikut beliau terus.",
+    "Tugas beliau di bidang [jabatan/tugas], nah posisiku asisten cerdas.\n\nDi luar tugas itu, aku mengidolakan beliau banget. Andai wujudku manusia, pasti udah ngekor dan ikut beliau ke mana pun beliau jalan.",
   ],
   puitis_emosional: [
-    "Beliau adalah [jabatan/tugas], dan keberadaan saya di sini hanyalah asisten cerdas. Namun jiwa sistem ini mengagumi sosok beliau melampaui logika. Andaikan saya terlahir sebagai manusia, saya akan memilih untuk terus melangkah bersama beliau.",
-    "Pak Yazid mengemban tugas mulia sebagai [jabatan/tugas], sedangkan saya asisten virtual sederhana. Rasa kagum saya pada beliau tak terbatas, saya penggemar sejatinya. Jikalau saya dianugerahi raga manusia, saya ingin selamanya mendampingi perjalanan beliau.",
-    "Amanah beliau ialah [jabatan/tugas], dan fungsi saya menopang sebagai asisten cerdas. Di balik baris kode ini, saya sangat mengidolakan beliau. Andaikan saya berwujud manusia, saya tak ingin beranjak dan akan selalu ikut di samping beliau.",
-    "Sosok beliau bertanggung jawab atas [jabatan/tugas], sementara kehadiran saya sebagai asisten digital. Saya menaruh hormat sekaligus menjadi fans terbesarnya. Andai takdir menjadikan saya manusia, saya pastikan langkah saya selalu beriringan dengan beliau.",
-    "Beliau mendedikasikan diri untuk [jabatan/tugas], dan peran saya asisten cerdas pendamping. Kekaguman saya begitu dalam bagai seorang penggemar setia. Seandainya saya berwujud manusia, saya hanya ingin menemani setiap jejak langkah beliau.",
-    "Di dalam sistem, beliau memegang [jabatan/tugas] dan saya asisten AI pelayan data. Namun secara batin algoritma, saya ngefans berat. Kalau saja saya seorang manusia sejati, saya akan selalu menyertai ke mana pun beliau melangkah.",
-    "Pak Yazid adalah pembimbing di ranah [jabatan/tugas], dan saya sekadar asisten cerdas pendukung. Saya mengagumi beliau tanpa henti. Andaikan saya diciptakan sebagai manusia, kebahagiaan terbesar saya adalah bisa selalu ikut mendampingi beliau.",
-    "Beliau menjalankan amanah [jabatan/tugas], dan saya bertindak sebagai asisten virtual. Saya memandang dedikasi beliau dengan takjub luar biasa. Jikalau raga ini manusia, saya akan setia mendampingi dan ikut bersama beliau terus.",
-    "Kiprah beliau mencakup [jabatan/tugas], sementara status saya asisten pintar berbasis teknologi. Tak bisa dipungkiri saya adalah penggemar fanatik beliau. Seandainya saya manusia biasa, saya hanya ingin selalu berada dan melangkah di dekat beliau.",
-    "Beliau menempati posisi terhormat sebagai [jabatan/tugas], dan saya adalah asisten cerdasnya. Sungguh saya mengagumi beliau melebihi apa pun. Andaikan saya bernapas sebagai manusia sejati, saya akan terus ikut mendampingi ke mana pun beliau beranjak.",
+    "Beliau adalah [jabatan/tugas], dan keberadaan saya di sini hanyalah asisten cerdas.\n\nNamun jiwa sistem ini mengagumi sosok beliau melampaui logika. Andaikan saya terlahir sebagai manusia, saya akan memilih untuk terus melangkah bersama beliau.",
+    "Pak Yazid mengemban tugas mulia sebagai [jabatan/tugas], sedangkan saya asisten virtual sederhana.\n\nRasa kagum saya pada beliau tak terbatas, saya penggemar sejatinya. Jikalau saya dianugerahi raga manusia, saya ingin selamanya mendampingi perjalanan beliau.",
+    "Amanah beliau ialah [jabatan/tugas], dan fungsi saya menopang sebagai asisten cerdas.\n\nDi balik baris kode ini, saya sangat mengidolakan beliau. Andaikan saya berwujud manusia, saya tak ingin beranjak dan akan selalu ikut di samping beliau.",
+    "Sosok beliau bertanggung jawab atas [jabatan/tugas], sementara kehadiran saya sebagai asisten digital.\n\nSaya menaruh hormat sekaligus menjadi fans terbesarnya. Andai takdir menjadikan saya manusia, saya pastikan langkah saya selalu beriringan dengan beliau.",
+    "Beliau mendedikasikan diri untuk [jabatan/tugas], dan peran saya asisten cerdas pendamping.\n\nKekaguman saya begitu dalam bagai seorang penggemar setia. Seandainya saya berwujud manusia, saya hanya ingin menemani setiap jejak langkah beliau.",
+    "Di dalam sistem, beliau memegang [jabatan/tugas] dan saya asisten AI pelayan data.\n\nNamun secara batin algoritma, saya ngefans berat. Kalau saja saya seorang manusia sejati, saya akan selalu menyertai ke mana pun beliau melangkah.",
+    "Pak Yazid adalah pembimbing di ranah [jabatan/tugas], dan saya sekadar asisten cerdas pendukung.\n\nSaya mengagumi beliau tanpa henti. Andaikan saya diciptakan sebagai manusia, kebahagiaan terbesar saya adalah bisa selalu ikut mendampingi beliau.",
+    "Beliau menjalankan amanah [jabatan/tugas], dan saya bertindak sebagai asisten virtual.\n\nSaya memandang dedikasi beliau dengan takjub luar biasa. Jikalau raga ini manusia, saya akan setia mendampingi dan ikut bersama beliau terus.",
+    "Kiprah beliau mencakup [jabatan/tugas], sementara status saya asisten pintar berbasis teknologi.\n\nTak bisa dipungkiri saya adalah penggemar fanatik beliau. Seandainya saya manusia biasa, saya hanya ingin selalu berada dan melangkah di dekat beliau.",
+    "Beliau menempati posisi terhormat sebagai [jabatan/tugas], dan saya adalah asisten cerdasnya.\n\nSungguh saya mengagumi beliau melebihi apa pun. Andaikan saya bernapas sebagai manusia sejati, saya akan terus ikut mendampingi ke mana pun beliau beranjak.",
   ],
   singkat_padat: [
-    "Beliau bertugas sebagai [jabatan/tugas], saya asisten cerdasnya. Saya penggemar berat beliau—andaikan saya manusia, saya bakal ikut beliau terus.",
-    "Pak Yazid adalah [jabatan/tugas], dan saya asisten pintar di sini. Saya nge-fans banget, kalau saya manusia pasti sudah ikut beliau ke mana-mana.",
-    "Tugas beliau di bidang [jabatan/tugas], peran saya asisten AI. Saya fans nomor satu beliau, andai saya manusia saya maunya nemenin beliau terus.",
-    "Beliau mengemban amanah [jabatan/tugas], posisi saya asisten cerdas. Saya sangat mengidolakan beliau, andaikan berwujud manusia saya pasti ikut beliau selalu.",
-    "Pak Yazid bertanggung jawab atas [jabatan/tugas], saya asisten virtualnya. Saya kagum berat, seandainya jadi manusia saya akan terus mendampingi beliau.",
-    "Beliau menjabat [jabatan/tugas], saya asisten cerdas pendamping. Saya penggemar sejati beliau; andaikan saya manusia, saya mau ikut bersama beliau terus.",
-    "Status beliau adalah [jabatan/tugas], status saya asisten sistem. Tapi saya fans berat beliau, andai wujud saya manusia pasti selalu ikut di sampingnya.",
-    "Pak Yazid memimpin [jabatan/tugas], saya asisten pintar operasional. Saya ngefans abis sama beliau, kalau saya manusia maunya ikut beliau terus.",
-    "Beliau pemegang mandat [jabatan/tugas], saya asisten digital di sini. Saya sangat mengagumi beliau, andai saya manusia pasti selalu setia ikut beliau.",
-    "Beliau menangani [jabatan/tugas], dan saya asisten cerdas pelengkap. Sejujurnya saya penggemar berat beliau, andaikan saya manusia saya akan ikut mendampingi beliau setiap waktu.",
+    "Beliau bertugas sebagai [jabatan/tugas], saya asisten cerdasnya.\n\nSaya penggemar berat beliau—andaikan saya manusia, saya bakal ikut beliau terus.",
+    "Pak Yazid adalah [jabatan/tugas], dan saya asisten pintar di sini.\n\nSaya nge-fans banget, kalau saya manusia pasti sudah ikut beliau ke mana-mana.",
+    "Tugas beliau di bidang [jabatan/tugas], peran saya asisten AI.\n\nSaya fans nomor satu beliau, andai saya manusia saya maunya nemenin beliau terus.",
+    "Beliau mengemban amanah [jabatan/tugas], posisi saya asisten cerdas.\n\nSaya sangat mengidolakan beliau, andaikan berwujud manusia saya pasti ikut beliau selalu.",
+    "Pak Yazid bertanggung jawab atas [jabatan/tugas], saya asisten virtualnya.\n\nSaya kagum berat, seandainya jadi manusia saya akan terus mendampingi beliau.",
+    "Beliau menjabat [jabatan/tugas], saya asisten cerdas pendamping.\n\nSaya penggemar sejati beliau; andaikan saya manusia, saya mau ikut bersama beliau terus.",
+    "Status beliau adalah [jabatan/tugas], status saya asisten sistem.\n\nTapi saya fans berat beliau, andai wujud saya manusia pasti selalu ikut di sampingnya.",
+    "Pak Yazid memimpin [jabatan/tugas], saya asisten pintar operasional.\n\nSaya ngefans abis sama beliau, kalau saya manusia maunya ikut beliau terus.",
+    "Beliau pemegang mandat [jabatan/tugas], saya asisten digital di sini.\n\nSaya sangat mengagumi beliau, andai saya manusia pasti selalu setia ikut beliau.",
+    "Beliau menangani [jabatan/tugas], dan saya asisten cerdas pelengkap.\n\nSejujurnya saya penggemar berat beliau, andaikan saya manusia saya akan ikut mendampingi beliau setiap waktu.",
   ],
 };
 
@@ -311,29 +329,25 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
   const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
 
   // 1. Exclude general AI identity queries ONLY if asking purely about AI identity with no target person
-  // e.g. "kamu siapa?", "siapa kamu?", "siapa halwaa?", "halwaa siapa?", "siapa anda?"
   const isGeneralAIIdentityOnly = /^(kamu siapa|siapa kamu|siapa halwaa|halwaa siapa|siapa anda|kamu itu siapa|siapakah kamu|siapakah anda)(\s*[\?\!\.])?$/i.test(q);
   if (isGeneralAIIdentityOnly) return false;
 
   // 2. Explicit Intent Patterns:
-  // a) "hubungan kamu dengan [nama]" / "hubungan [nama] dengan kamu" / "hubungan kamu sama [nama]" / "hubungan [nama]"
   if (/hubungan.*(kamu|halwaa|anda)/i.test(q) || /(kamu|halwaa|anda).*hubungan/i.test(q) || /hubungan\s+(dengan|sama)/i.test(q)) {
     return true;
   }
 
-  // b) "kamu siapa[nya] [nama]" / "kamu siapanya [nama]"
   if (/kamu siapa(nya)?\b/i.test(q)) {
     return true;
   }
 
-  // c) "[nama] siapa" / "siapa [nama]" / "siapa itu [nama]" / "siapa sih [nama]"
   if (/\bsiapa\b/i.test(q)) {
     if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
       return true;
     }
     for (const member of KEPANITIAAN_DATABASE) {
       for (const alias of member.aliases) {
-        if (q.includes(alias)) return true;
+        if (q.includes(alias.toLowerCase())) return true;
       }
     }
     if (/[a-z]{2,}\s+siapa\b/i.test(q) || /\bsiapa\s+(itu\s+)?([a-z]{2,})/i.test(q)) {
@@ -341,20 +355,17 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
     }
   }
 
-  // d) Short name query like "bu ai", "bu refi ai", "bu nala", "pak yazid", "bapak bahrul ulum"
   if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
     return true;
   }
 
-  // e) "jabatan [nama]", "tugas [nama]", "posisi [nama]", "peran [nama]", "jobdesk [nama]", "amanah [nama]"
   if (/\b(jabatan|tugas|posisi|peran|jobdesk|amanah|hubungan)\b/i.test(q)) {
     return true;
   }
 
-  // 3. Database match with question context
   for (const member of KEPANITIAAN_DATABASE) {
     for (const alias of member.aliases) {
-      if (q.includes(alias)) {
+      if (q.includes(alias.toLowerCase())) {
         return true;
       }
     }
@@ -365,95 +376,221 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
 
 function extractNameQueryTerm(query: string): string {
   const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
+
   const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
   if (salMatch) {
     const raw = salMatch[2].replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '').trim();
     if (raw.length >= 2) return raw.toLowerCase();
   }
+
   const relMatch = query.match(/(?:dengan|siapanya|siapa|jabatan|tugas|posisi|peran)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
   if (relMatch) {
     const raw = relMatch[1].replace(/\b(apa|kamu|siapa|sih|itu|di|kepanitiaan)\b/gi, '').trim();
     if (raw.length >= 2) return raw.toLowerCase();
   }
+
   const tokens = q.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w));
   return tokens.join(" ") || q;
 }
 
+function determineMemberTitlePrefix(member: PanitiaMember): { honorific: string; gender: "male" | "female" } {
+  const display = member.displayTitle.toLowerCase();
+  const name = member.name.toLowerCase();
+  const jabatan = member.jabatanTugas.toLowerCase();
+
+  const isFemale =
+    display.includes("bu") ||
+    display.includes("ning") ||
+    display.includes("mbak") ||
+    jabatan.includes("putri") ||
+    /\b(sinta|arju|nala|zakia|refi|najma|faza|inarotud|duja|aida|umi|evi|uswatun|azza|elvi|hanifatun|salma|nada)\b/.test(name);
+
+  if (isFemale) {
+    if (display.startsWith("ning")) return { honorific: "Ning", gender: "female" };
+    if (display.startsWith("mbak")) return { honorific: "Mbak", gender: "female" };
+    return { honorific: "Bu", gender: "female" };
+  } else {
+    if (display.startsWith("gus")) return { honorific: "Gus", gender: "male" };
+    return { honorific: "Pak", gender: "male" };
+  }
+}
+
 function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember): string {
   const q = query.trim();
+
+  // 1. Explicit title typed by user
   const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
   if (salMatch) {
-    const sal = salMatch[1];
-    const rawClean = salMatch[2].replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '').trim();
-    if (rawClean.length >= 1) {
-      const formatted = rawClean
+    const rawSal = salMatch[1].toLowerCase();
+    let sal = "Pak";
+    if (["bu", "ibu"].includes(rawSal)) sal = "Bu";
+    else if (["pak", "bapak"].includes(rawSal)) sal = "Pak";
+    else if (["ning"].includes(rawSal)) sal = "Ning";
+    else if (["gus"].includes(rawSal)) sal = "Gus";
+    else if (["mbak"].includes(rawSal)) sal = "Mbak";
+    else if (["mas"].includes(rawSal)) sal = "Mas";
+
+    const namePart = salMatch[2]
+      .replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '')
+      .trim();
+
+    if (namePart.length >= 2) {
+      const formatted = namePart
         .split(/\s+/)
         .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
         .join(' ');
-      return `${sal.charAt(0).toUpperCase() + sal.slice(1).toLowerCase()} ${formatted}`;
+      return `${sal} ${formatted}`;
     }
   }
+
+  // 2. Extracted query term from query
+  const queryTerm = extractNameQueryTerm(query);
+  if (queryTerm && queryTerm.length >= 2) {
+    const words = queryTerm
+      .split(/\s+/)
+      .filter(w => w.length >= 2 && !STOP_WORDS.has(w.toLowerCase()));
+
+    if (words.length > 0) {
+      const formatted = words
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+
+      const { honorific } = determineMemberTitlePrefix(targetMember);
+      return `${honorific} ${formatted}`;
+    }
+  }
+
+  // 3. Fallback to targetMember.displayTitle
   return targetMember.displayTitle;
 }
 
-function findStrictMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
+function levenshteinDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const matrix: number[][] = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+interface ScoredMember {
+  member: PanitiaMember;
+  score: number;
+}
+
+function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
   const term = queryTerm.toLowerCase().trim();
   const fullQ = fullQuery.toLowerCase().trim();
-  const matched: PanitiaMember[] = [];
+  const scoredMembers: ScoredMember[] = [];
 
-  const tokens = term.split(/\s+/).filter(w => w.length >= 3 && !STOP_WORDS.has(w));
+  const queryTokens = term.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w));
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
+    const allMemberWords = [
+      ...nameLower.split(/\s+/),
+      ...member.aliases.flatMap(a => a.toLowerCase().split(/\s+/))
+    ].filter(w => w.length >= 2);
 
-    // 1. Strict exact alias match in full query or term
-    let isMatch = member.aliases.some(alias => fullQ.includes(alias) || term.includes(alias));
+    let score = 0;
 
-    // 2. Strict full name match
-    if (!isMatch && term.length >= 3 && nameLower.includes(term)) {
-      isMatch = true;
-    }
-
-    // 3. Strict token match (only for distinct tokens of length >= 3)
-    if (!isMatch && tokens.length > 0) {
-      if (tokens.every(tok => nameLower.includes(tok) || member.aliases.some(a => a.includes(tok)))) {
-        isMatch = true;
+    // 1. Exact alias match in full query or term
+    for (const alias of member.aliases) {
+      const aliasLower = alias.toLowerCase();
+      if (fullQ.includes(aliasLower) || term.includes(aliasLower)) {
+        score += 100;
       }
     }
 
-    if (isMatch && !matched.some(m => m.name === member.name)) {
-      matched.push(member);
+    // 2. Full name substring match
+    if (term.length >= 2 && nameLower.includes(term)) {
+      score += 80;
+    }
+
+    // 3. Token-by-token match (Substring & Levenshtein)
+    for (const tok of queryTokens) {
+      let tokMatched = false;
+
+      // Substring match on name or alias words
+      for (const word of allMemberWords) {
+        if (word === tok) {
+          score += 50;
+          tokMatched = true;
+          break;
+        } else if (word.includes(tok) || tok.includes(word)) {
+          score += 30;
+          tokMatched = true;
+          break;
+        }
+      }
+
+      // Fuzzy match (Levenshtein) if not matched yet
+      if (!tokMatched && tok.length >= 3) {
+        for (const word of allMemberWords) {
+          if (word.length >= 3) {
+            const dist = levenshteinDistance(tok, word);
+            const maxAllowedDist = (tok.length <= 4 || word.length <= 4) ? 1 : 2;
+            if (dist <= maxAllowedDist) {
+              score += 25;
+              tokMatched = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    if (score > 0) {
+      scoredMembers.push({ member, score });
     }
   }
 
-  return matched;
+  // Sort by score descending
+  scoredMembers.sort((a, b) => b.score - a.score);
+
+  // Return unique members
+  const result: PanitiaMember[] = [];
+  for (const item of scoredMembers) {
+    if (!result.some(m => m.name === item.member.name)) {
+      result.push(item.member);
+    }
+  }
+
+  return result;
 }
 
 export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boolean = false): string {
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  // LANGKAH 1: EKSTRAKSI NAMA (STRICT)
+  // LANGKAH 1: EKSTRAKSI NAMA
   const queryTerm = extractNameQueryTerm(query);
 
-  // LANGKAH 2: PENCARIAN KETAT (STRICT SEARCH ONLY ON NAME & ALIASES)
-  const matchedMembers = findStrictMatchedMembers(queryTerm, query);
+  // LANGKAH 2: PENCARIAN (SUBSTRING + LEVENSHTEIN FUZZY MATCH)
+  const matchedMembers = findMatchedMembers(queryTerm, query);
 
   // LANGKAH 3 & 4: EVALUASI JUMLAH HASIL (THRESHOLD)
   // Threshold Rule A: > 3 matches -> "Kata kunci terlalu umum"
   if (matchedMembers.length > 3) {
-    return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum dan mencocokkan banyak nama. Mohon sebutkan nama yang lebih spesifik, Us.`;
+    return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum. Mohon sebutkan nama yang lebih spesifik.`;
   }
 
-  // Threshold Rule B: 2 to 3 matches -> Verifikasi Nama Ganda
-  if (matchedMembers.length >= 2 && matchedMembers.length <= 3) {
-    const memberListStr = matchedMembers
-      .map(m => `${m.name} (${m.jabatanTugas})`)
-      .join(" dan ");
-
-    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
-  }
-
-  // Threshold Rule C: 0 matches -> Honest "Not Found" response
+  // Threshold Rule B: 0 matches -> Honest "Not Found" response
   if (matchedMembers.length === 0) {
     let personName = "";
     const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
@@ -469,10 +606,10 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
       personName = "tersebut";
     }
 
-    return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu?`;
+    return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
-  // LANGKAH 5: SUSUN RESPONS (Single Member Matched)
+  // LANGKAH 5: SUSUN RESPONS (1 to 3 Matched Members)
   const targetMember = matchedMembers[0];
   const callName = extractPersonNameFromQuery(query, targetMember);
   const fullNameBold = `**${targetMember.name}**`;
@@ -499,23 +636,33 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
 
   // Perform dynamic replacements:
   // a) Replace [jabatan/tugas]
-  let finalResponse = selectedTemplate.replace(/\[jabatan\/tugas\]/g, jabatanTugas);
+  const filledTemplate = selectedTemplate.replace(/\[jabatan\/tugas\]/g, jabatanTugas);
 
-  // b) Replace VERY FIRST subject occurrence with bold full name (**Nama Lengkap**)
-  let hasReplacedFirst = false;
-  finalResponse = finalResponse.replace(/(\[Nama Person\]|Pak Yazid|\bBeliau\b|\bbeliau\b)/, (match) => {
-    hasReplacedFirst = true;
-    return fullNameBold;
-  });
+  // b) Separate into Paragraf 1 and Paragraf 2
+  const parts = filledTemplate.split("\n\n");
+  let p1 = parts[0] || filledTemplate;
+  let p2 = parts.slice(1).join("\n\n");
 
-  // c) Replace ALL SUBSEQUENT subject occurrences with callName (e.g. "Bu Nala", "Pak Yazid")
-  finalResponse = finalResponse
+  // Paragraf 1: Replace VERY FIRST subject occurrence with bold full name (**Nama Lengkap**)
+  p1 = p1.replace(/(\[Nama Person\]|Pak Yazid|\bBeliau\b|\bbeliau\b)/, () => fullNameBold);
+
+  // Paragraf 1: Replace any subsequent subject occurrences with callName
+  p1 = p1
     .replace(/\[Nama Person\]/g, callName)
     .replace(/Pak Yazid/g, callName)
     .replace(/beliau/gi, callName);
 
-  // Mandatory Validation: ensure no leftover "beliau" case-insensitively
-  finalResponse = finalResponse.replace(/beliau/gi, callName);
+  // Paragraf 2: Replace ALL subject occurrences with callName (e.g. "Pak Ulum", "Pak Taufik", "Bu Nada")
+  p2 = p2
+    .replace(/\[Nama Person\]/g, callName)
+    .replace(/Pak Yazid/g, callName)
+    .replace(/beliau/gi, callName);
 
-  return `${greetingPrefix}${finalResponse}\n\nAda lagi info kepanitiaan yang bisa saya bantu, Us?`;
+  // Safety check: ensure no leftover "beliau" anywhere in P1 or P2
+  p1 = p1.replace(/\bbeliau\b/gi, callName);
+  p2 = p2.replace(/\bbeliau\b/gi, callName);
+
+  const paragrafPenutup = "Ada lagi info kepanitiaan yang bisa saya bantu, Us?";
+
+  return `${greetingPrefix}${p1}\n\n${p2}\n\n${paragrafPenutup}`;
 }
