@@ -2292,6 +2292,19 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (detectHubunganKepanitiaanIntent(prompt)) {
+      const replyText = getHubunganKepanitiaanResponse(prompt, isFirstTurn);
+      const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'smart_knowledge_engine',
+        model: 'Usth. Halwaa Committee Assistant Engine',
+      });
+    }
+
 const qLower = prompt.trim().toLowerCase().replace(/[.!?,]/g, '');
     const isMotivasiIntentPrompt = Boolean(detectMotivasiIntent(qLower)) || Boolean(detectDiaSiapaIntent(qLower));
     const isGreetingPrompt =
