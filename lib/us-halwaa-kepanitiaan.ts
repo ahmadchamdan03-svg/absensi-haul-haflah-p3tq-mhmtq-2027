@@ -14,7 +14,7 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   // DEWAN PENGASUH & PELINDUNG
   {
     name: "Agus H. Muhammad Hasyim",
-    aliases: ["gus hasyim", "muhammad hasyim", "yazid", "hasyim", "bapak hasyim"],
+    aliases: ["gus hasyim", "muhammad hasyim", "hasyim", "bapak hasyim"],
     jabatanTugas: "Pengasuh & Pelindung Utama Haflah Akhirussanah P3TQ",
     displayTitle: "Gus Hasyim",
   },
@@ -41,69 +41,69 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Sinta Maelani",
     aliases: ["sinta", "sinta maelani", "ning sinta", "mbak sinta", "bu sinta", "ibu sinta"],
-    jabatanTugas: "Ketua Umum Panitia Haflah (memimpin seluruh koordinasi utama Haflah)",
+    jabatanTugas: "Ketua Umum (Dewan Harian)",
     displayTitle: "Ning Sinta Maelani",
   },
   {
     name: "Arju Naylal Husna",
     aliases: ["arju", "arju naylal", "naylal husna", "nala", "bu nala", "mbak nala", "ibu nala", "naylal"],
-    jabatanTugas: "Ketua I Panitia Haflah (koordinator Seksi Keamanan, Penerima Tamu, Humasy & Kostum)",
+    jabatanTugas: "Ketua I (Dewan Harian)",
     displayTitle: "Mbak Arju Naylal Husna",
   },
   {
     name: "Zakia",
     aliases: ["zakia", "mbak zakia", "bu zakia", "ibu zakia"],
-    jabatanTugas: "Ketua II Panitia Haflah (koordinator Seksi Akomodasi, Desain Grafis, PULP, dan Berkatan)",
+    jabatanTugas: "Ketua II (Dewan Harian)",
     displayTitle: "Mbak Zakia",
   },
   {
     name: "Refi Al Izzatul Kholifah",
     aliases: ["refi", "refi al izzatul", "kholifah", "mbak refi", "bu refi", "ibu refi"],
-    jabatanTugas: "Sekretaris Umum Panitia Haflah (penanggung jawab administrasi & dokumen Haflah)",
+    jabatanTugas: "Sekretaris Umum (Dewan Harian)",
     displayTitle: "Mbak Refi Al Izzatul Kholifah",
   },
   {
     name: "Najma Syarifa Faza",
     aliases: ["najma", "najma syarifa", "faza", "mbak najma"],
-    jabatanTugas: "Sekretaris I Panitia Haflah (membantu kesekretariatan & persuratan)",
+    jabatanTugas: "Sekretaris I (Dewan Harian)",
     displayTitle: "Mbak Najma Syarifa Faza",
   },
   {
     name: "Inarotud Duja",
     aliases: ["inarotud", "duja", "inarotud duja", "mbak duja", "mbak inarotud"],
-    jabatanTugas: "Sekretaris II Panitia Haflah (membantu administrasi & data panitia)",
+    jabatanTugas: "Sekretaris II (Dewan Harian)",
     displayTitle: "Mbak Inarotud Duja",
   },
   {
     name: "Aida Nur Laila",
     aliases: ["aida", "aida nur laila", "mbak aida", "bu aida", "ibu aida"],
-    jabatanTugas: "Bendahara Umum Panitia Haflah (penanggung jawab keuangan & kas Haflah)",
+    jabatanTugas: "Bendahara Umum (Dewan Harian)",
     displayTitle: "Mbak Aida Nur Laila",
   },
   {
     name: "Umi Fadilah",
     aliases: ["umi fadilah", "fadilah", "mbak umi fadilah"],
-    jabatanTugas: "Bendahara I Panitia Haflah (membantu keuangan & pembukuan kas Haflah)",
+    jabatanTugas: "Bendahara I (Dewan Harian)",
     displayTitle: "Mbak Umi Fadilah",
   },
 
-  // PROTOKOLER & UTAMA
+  // PROTOKOLER & UTAMA (DEWAN PEMBIMBING PUTRA)
   {
     name: "Abu Yazid Al Bustomi",
-    aliases: ["yazid", "pak yazid", "abu yazid", "bapak yazid", "abu yazid al bustomi", "bustomi"],
-    jabatanTugas: "Kasi Protokoler Putra (penanggung jawab ketertiban & susunan acara panggung)",
+    aliases: ["pak yazid mahbubillah", "yazid mahbubillah", "abu yazid al bustomi", "pak yazid", "abu yazid", "bapak yazid", "yazid", "bustomi"],
+    jabatanTugas: "Kasi Protokoler (Dewan Pembimbing Putra)",
     displayTitle: "Pak Yazid",
   },
   {
     name: "Abhaa Muhammad Kafaa Bihi",
     aliases: ["abhaa", "kafaa bihi", "abhaa muhammad", "pak abhaa", "bapak abhaa"],
-    jabatanTugas: "Wakasi Protokoler Putra (membantu koordinator susunan acara panggung)",
+    jabatanTugas: "Wakasi Protokoler (Dewan Pembimbing Putra)",
     displayTitle: "Bapak Abhaa Muhammad",
   },
   {
     name: "Evi Inarotus Soimah",
     aliases: ["evi", "inarotus", "soimah", "evi inarotus", "mbak evi", "bu evi"],
-    jabatanTugas: "Kasi Protokoler Putri (penanggung jawab susunan acara panggung putri)",
+    jabatanTugas: "Kasi Protokoler (Dewan Pleno Putri)",
     displayTitle: "Mbak Evi Inarotus Soimah",
   },
 
@@ -111,19 +111,19 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Asep Darajat",
     aliases: ["asep", "pak asep", "asep darajat", "bapak asep"],
-    jabatanTugas: "Kasi Sekretariat Putra (penanggung jawab kesekretariatan & sistem)",
+    jabatanTugas: "Kasi Sekretariat (Dewan Pembimbing Putra)",
     displayTitle: "Pak Asep Darajat",
   },
   {
     name: "Ahmad Chamdan Yuwafi",
     aliases: ["chamdan", "pak chamdan", "ahmad chamdan", "yuwafi", "yuwafin", "bapak chamdan"],
-    jabatanTugas: "Wakasi Sekretariat Putra (penanggung jawab administrasi, sistem, & rekening)",
+    jabatanTugas: "Wakasi Sekretariat (Dewan Pembimbing Putra)",
     displayTitle: "Pak Chamdan",
   },
   {
     name: "Uswatun Khasanah",
     aliases: ["uswatun", "uswatun khasanah", "mbak uswatun"],
-    jabatanTugas: "Kasi Data Putri (penanggung jawab pengelolaan data peserta & wali)",
+    jabatanTugas: "Kasi Data (Dewan Pleno Putri)",
     displayTitle: "Mbak Uswatun Khasanah",
   },
 
@@ -131,13 +131,13 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Agus Ismanto",
     aliases: ["agus ismanto", "ismanto", "pak agus ismanto", "pak ismanto"],
-    jabatanTugas: "Kasi Akomodasi Putra (penanggung jawab tempat & perlengkapan aula)",
+    jabatanTugas: "Kasi Akomodasi (Dewan Pembimbing Putra)",
     displayTitle: "Pak Agus Ismanto",
   },
   {
     name: "Azza Nur Laila Mlg",
     aliases: ["azza", "azza nur laila", "mbak azza"],
-    jabatanTugas: "Kasi Akomodasi Putri (penanggung jawab penataan area putri)",
+    jabatanTugas: "Kasi Akomodasi (Dewan Pleno Putri)",
     displayTitle: "Mbak Azza Nur Laila",
   },
 
@@ -145,19 +145,19 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Ahmad Rizal 'Abidin",
     aliases: ["rizal abidin", "ahmad rizal", "pak rizal", "rizal", "bapak rizal"],
-    jabatanTugas: "Kasi Konsumsi Putra (penanggung jawab konsumsi & hidangan)",
+    jabatanTugas: "Kasi Konsumsi (Dewan Pembimbing Putra)",
     displayTitle: "Pak Rizal 'Abidin",
   },
   {
     name: "Saiful Nur Kholis",
     aliases: ["saiful", "saiful nur kholis", "pak saiful", "bapak saiful"],
-    jabatanTugas: "Kasi Prasmanan Dzuriyyah Putra (penanggung jawab jamuan Dzuriyyah)",
+    jabatanTugas: "Kasi Prasmanan Dzuriyyah (Dewan Pembimbing Putra)",
     displayTitle: "Pak Saiful Nur Kholis",
   },
   {
     name: "Elvi Aniqotus Zakiyah",
     aliases: ["elvi", "aniqotus", "elvi aniqotus", "mbak elvi"],
-    jabatanTugas: "Kasi Konsumsi Putri (penanggung jawab konsumsi jamaah putri)",
+    jabatanTugas: "Kasi Konsumsi (Dewan Pleno Putri)",
     displayTitle: "Mbak Elvi Aniqotus",
   },
 
@@ -165,13 +165,13 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Muhammad Fikri Al Munawwar",
     aliases: ["fikri al munawwar", "fikri munawwar", "pak fikri", "fikri", "bapak fikri"],
-    jabatanTugas: "Kasi Berkatan Putra (penanggung jawab pendistribusian berkat)",
+    jabatanTugas: "Kasi Berkatan (Dewan Pembimbing Putra)",
     displayTitle: "Pak Fikri Al Munawwar",
   },
   {
     name: "Muhammad Syaikhul 'Arifin",
     aliases: ["syaikhul arifin", "arifin", "pak syaikhul", "syaikhul"],
-    jabatanTugas: "Kasi Peladen Putra (penanggung jawab tim peladen hidangan)",
+    jabatanTugas: "Kasi Peladen (Dewan Pembimbing Putra)",
     displayTitle: "Pak Syaikhul 'Arifin",
   },
 
@@ -179,13 +179,13 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Muhammad Badru Ro'in Amin",
     aliases: ["badru roin", "badru", "pak badru", "bapak badru"],
-    jabatanTugas: "Kasi Penerima Tamu Putra (penanggung jawab penyambutan tamu VVIP & VIP)",
+    jabatanTugas: "Kasi Penerima Tamu (Dewan Pembimbing Putra)",
     displayTitle: "Pak Badru Ro'in",
   },
   {
     name: "Hanifatun Nasihah",
     aliases: ["hanifatun", "nasihah", "mbak hanifatun"],
-    jabatanTugas: "Kasi Penerima Tamu Putri (penanggung jawab penyambutan tamu putri)",
+    jabatanTugas: "Kasi Penerima Tamu (Dewan Pleno Putri)",
     displayTitle: "Mbak Hanifatun Nasihah",
   },
 
@@ -193,31 +193,31 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   {
     name: "Muhammad In'amul Muttaqin",
     aliases: ["inamul", "muttaqin", "in'amul muttaqin", "pak inamul", "pak in'amul"],
-    jabatanTugas: "Kasi Desain Grafis Putra (penanggung jawab media visual & cetak)",
+    jabatanTugas: "Kasi Desain Grafis (Dewan Pembimbing Putra)",
     displayTitle: "Pak In'amul Muttaqin",
   },
   {
     name: "Akfi Romiyan Kafabih",
     aliases: ["akfi", "romiyan", "akfi romiyan", "pak akfi"],
-    jabatanTugas: "Kasi Humasy & Kostum Putra (penanggung jawab humas & seragam panitia)",
+    jabatanTugas: "Kasi Humasy & Kostum (Dewan Pembimbing Putra)",
     displayTitle: "Pak Akfi Romiyan",
   },
   {
     name: "Adi Susilo",
     aliases: ["adi susilo", "pak adi susilo", "pak adi", "adi"],
-    jabatanTugas: "Kasi Keamanan Putra (penanggung jawab ketertiban & keamanan gerbang)",
+    jabatanTugas: "Kasi Keamanan (Dewan Pembimbing Putra)",
     displayTitle: "Pak Adi Susilo",
   },
   {
     name: "Muhammad Maghfur Fatoni",
-    aliases: ["maghfur", "fatoni", "maghfur fatoni", "pak toni", "toni", "pak fatoni", "bapak toni", "bapak fatoni"],
-    jabatanTugas: "Kasi PULP & TDM Putra (penanggung jawab dokumentasi & tata panggung)",
+    aliases: ["maghfur fatoni", "maghfur", "fatoni", "bapak fatoni"],
+    jabatanTugas: "Kasi PULP & TDM (Dewan Pembimbing Putra)",
     displayTitle: "Pak Maghfur Fatoni",
   },
   {
     name: "Salma Aesy Bik Hamidah",
     aliases: ["salma aesy", "salma", "hamidah", "mbak salma"],
-    jabatanTugas: "Kasi TDM Putri (penanggung jawab dekorasi & panggung putri)",
+    jabatanTugas: "Kasi TDM (Dewan Pleno Putri)",
     displayTitle: "Mbak Salma Aesy",
   },
 ];
@@ -346,26 +346,25 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
   const q = query.toLowerCase().trim();
 
   let matchedMember: PanitiaMember | null = null;
+  let longestMatchLen = 0;
 
-  // 1. Search in Committee Database
+  // 1. Search in Committee Database using longest alias match for exact precision
   for (const member of KEPANITIAAN_DATABASE) {
     for (const alias of member.aliases) {
       if (q.includes(alias)) {
-        matchedMember = member;
-        break;
+        if (alias.length > longestMatchLen) {
+          longestMatchLen = alias.length;
+          matchedMember = member;
+        }
       }
     }
-    if (matchedMember) break;
   }
 
-  let personName = "";
-  let jabatanTugas = "";
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  if (matchedMember) {
-    personName = matchedMember.displayTitle;
-    jabatanTugas = matchedMember.jabatanTugas;
-  } else {
-    // Extract name from query when not directly matched in database
+  // 2. If NOT found in database, return honest "not found" response
+  if (!matchedMember) {
+    let personName = "";
     const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
     if (salMatch) {
       const sal = salMatch[1];
@@ -382,13 +381,16 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     }
 
     if (!personName || personName.length < 2) {
-      personName = "Beliau";
+      personName = "tersebut";
     }
 
-    jabatanTugas = "salah satu panitia & jajaran pengurus Haflah Akhirussanah P3TQ & MHMTQ";
+    return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu?`;
   }
 
-  // Flatten all 50 templates across 5 categories
+  const personName = matchedMember.displayTitle;
+  const jabatanTugas = matchedMember.jabatanTugas;
+
+  // 3. Flatten all 50 templates across 5 categories
   const categories = Object.keys(HUBUNGAN_KEPANITIAAN_TEMPLATES) as Array<keyof typeof HUBUNGAN_KEPANITIAAN_TEMPLATES>;
   const allTemplates: string[] = [];
   categories.forEach((cat) => {
@@ -412,8 +414,6 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     .replace(/\[jabatan\/tugas\]/g, jabatanTugas)
     .replace(/\[Nama Person\]/g, personName)
     .replace(/Pak Yazid/g, personName);
-
-  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
   return `${greetingPrefix}${finalResponse}\n\nAda lagi info kepanitiaan yang bisa saya bantu, Us?`;
 }
