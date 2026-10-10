@@ -58,7 +58,7 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
   {
     name: "Refi Al Izzatul Kholifah",
-    aliases: ["refi", "refi al izzatul", "kholifah", "mbak refi", "bu refi", "ibu refi"],
+    aliases: ["refi al izzatul kholifah", "refi al izzatul", "bu refi ai", "refi ai", "bu refi", "mbak refi", "refi", "kholifah"],
     jabatanTugas: "Sekretaris Umum (Dewan Harian)",
     displayTitle: "Mbak Refi Al Izzatul Kholifah",
   },
@@ -76,7 +76,7 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
   {
     name: "Aida Nur Laila",
-    aliases: ["aida", "aida nur laila", "mbak aida", "bu aida", "ibu aida"],
+    aliases: ["aida nur laila", "bu aida", "ibu aida", "mbak aida", "bu ai", "aida", "ai"],
     jabatanTugas: "Bendahara Umum (Dewan Harian)",
     displayTitle: "Mbak Aida Nur Laila",
   },
@@ -323,12 +323,17 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
         if (q.includes(alias)) return true;
       }
     }
-    if (/[a-z]{3,}\s+siapa\b/i.test(q) || /\bsiapa\s+(itu\s+)?([a-z]{3,})/i.test(q)) {
+    if (/[a-z]{2,}\s+siapa\b/i.test(q) || /\bsiapa\s+(itu\s+)?([a-z]{2,})/i.test(q)) {
       return true;
     }
   }
 
-  // d) "jabatan [nama]", "tugas [nama]", "posisi [nama]", "peran [nama]", "jobdesk [nama]", "amanah [nama]"
+  // d) Short name query like "bu ai", "bu refi ai", "bu nala", "pak yazid"
+  if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
+    return true;
+  }
+
+  // e) "jabatan [nama]", "tugas [nama]", "posisi [nama]", "peran [nama]", "jobdesk [nama]", "amanah [nama]"
   if (/\b(jabatan|tugas|posisi|peran|jobdesk|amanah|hubungan)\b/i.test(q)) {
     return true;
   }
@@ -336,13 +341,30 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
   // 3. Database match with question context
   for (const member of KEPANITIAAN_DATABASE) {
     for (const alias of member.aliases) {
-      if (q.includes(alias) && /siapa|jabatan|tugas|posisi|peran|hubungan|kepanitiaan|dia|jobdesk|amanah|apakah|siapanya/i.test(q)) {
+      if (q.includes(alias)) {
         return true;
       }
     }
   }
 
   return false;
+}
+
+function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember): string {
+  const q = query.trim();
+  const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+  if (salMatch) {
+    const sal = salMatch[1];
+    const rawClean = salMatch[2].replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '').trim();
+    if (rawClean.length >= 1) {
+      const formatted = rawClean
+        .split(/\s+/)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+      return `${sal.charAt(0).toUpperCase() + sal.slice(1).toLowerCase()} ${formatted}`;
+    }
+  }
+  return targetMember.displayTitle;
 }
 
 export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boolean = false): string {
@@ -367,7 +389,7 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
 
   // If no exact alias match, check query tokens against member names
   if (matchedMembers.length === 0) {
-    const tokens = q.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+    const tokens = q.split(/\s+/).filter(w => w.length >= 2 && !stopWords.has(w));
     for (const member of KEPANITIAAN_DATABASE) {
       const nameLower = member.name.toLowerCase();
       if (tokens.some(tok => nameLower.includes(tok))) {
@@ -407,7 +429,7 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
       }
     }
     if (!queriedName) {
-      const tokens = q.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      const tokens = q.split(/\s+/).filter(w => w.length >= 2 && !stopWords.has(w));
       queriedName = tokens.join(" ") || "tersebut";
     }
 
@@ -445,16 +467,7 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
 
   // Single matched member
   const targetMember = matchedMembers[0];
-
-  // Determine person title to use in string replacement:
-  // If user used "pak yazid" or "bu nala", prefer title from query if available, otherwise displayTitle
-  let personName = targetMember.displayTitle;
-  if (q.includes("bu nala") || q.includes("nala")) {
-    personName = "Bu Nala";
-  } else if (q.includes("pak yazid")) {
-    personName = "Pak Yazid";
-  }
-
+  const personName = extractPersonNameFromQuery(query, targetMember);
   const jabatanTugas = targetMember.jabatanTugas;
 
   // 4. Flatten all 50 templates across 5 categories
@@ -476,13 +489,15 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     last5HubunganTemplates.shift();
   }
 
-  // 5. Perform dynamic replacements & REPLACE "BELIAU" WITH PERSON'S NAME
+  // 5. Perform dynamic replacements & MANDATORY REPLACEMENT OF "BELIAU" WITH PERSON'S NAME
   let finalResponse = selectedTemplate
     .replace(/\[jabatan\/tugas\]/g, jabatanTugas)
     .replace(/\[Nama Person\]/g, personName)
     .replace(/Pak Yazid/g, personName)
-    .replace(/\bBeliau\b/g, personName)
-    .replace(/\bbeliau\b/g, personName);
+    .replace(/beliau/gi, personName);
+
+  // Mandatory Validation: ensure no leftover "beliau" case-insensitively
+  finalResponse = finalResponse.replace(/beliau/gi, personName);
 
   return `${greetingPrefix}${finalResponse}\n\nAda lagi info kepanitiaan yang bisa saya bantu, Us?`;
 }
