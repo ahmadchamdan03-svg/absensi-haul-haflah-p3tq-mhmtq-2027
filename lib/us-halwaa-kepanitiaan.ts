@@ -318,15 +318,87 @@ export const HUBUNGAN_KEPANITIAAN_TEMPLATES = {
 
 const last5HubunganTemplates: string[] = [];
 
+const PRONOUNS_SET = new Set([
+  "saya", "aku", "kamu", "anda", "dia", "beliau", "mereka", "kami", "kita", "kalian",
+  "nya", "ku", "mu"
+]);
+
 const STOP_WORDS = new Set([
   "apa", "hubungan", "mu", "kamu", "dengan", "sama", "siapa", "siapakah", "siapanya",
   "tugas", "jabatan", "posisi", "peran", "jobdesk", "amanah", "sih", "itu", "di",
   "kepanitiaan", "us", "usth", "tolong", "info", "ya", "kan",
   "pak", "bapak", "bu", "ibu", "mas", "mbak", "saudara", "ning", "agus", "kh", "ust", "usth", "ustadz", "ustdz", "kiai", "kyai",
-  "al", "el", "bin", "binti"
+  "al", "el", "bin", "binti", "saya", "aku", "anda", "dia", "beliau", "mereka", "kami", "kita", "kalian"
 ]);
 
-export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
+export function isPronounQuery(query: string): boolean {
+  const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
+  const words = q.split(/\s+/).filter(w => w.length >= 2);
+
+  const nonQuestionWords = words.filter(w => !new Set([
+    "siapa", "siapakah", "apa", "dengan", "sama", "posisi", "jabatan", "tugas", "hubungan", "sih", "itu", "us", "usth", "tolong", "info", "ya", "kan"
+  ]).has(w));
+
+  if (nonQuestionWords.length === 0) return false;
+
+  return nonQuestionWords.every(w => PRONOUNS_SET.has(w));
+}
+
+export function detectDuplicateSelectionIntent(prompt: string, history?: any[]): { isSelection: boolean; selectedMember?: PanitiaMember } {
+  if (!history || history.length === 0) return { isSelection: false };
+
+  const lastAssistantMsg = [...history].reverse().find(
+    (m) => m.role === 'assistant' || m.sender === 'ai' || m.sender === 'assistant'
+  );
+  if (!lastAssistantMsg) return { isSelection: false };
+
+  const content = (lastAssistantMsg.content || lastAssistantMsg.text || lastAssistantMsg.message || '').toString();
+
+  if (!content.includes('ada beberapa nama yang cocok dengan') || !content.includes('Maksud Anda yang mana?')) {
+    return { isSelection: false };
+  }
+
+  const candidateMembers: PanitiaMember[] = [];
+  for (const member of KEPANITIAAN_DATABASE) {
+    if (content.includes(member.name)) {
+      candidateMembers.push(member);
+    }
+  }
+
+  if (candidateMembers.length === 0) return { isSelection: false };
+
+  const p = prompt.trim().toLowerCase();
+
+  const numMatch = p.match(/^(?:pilihan|nomor|no\.?|opsi)?\s*([1-9])\b/i);
+  if (numMatch) {
+    const idx = parseInt(numMatch[1], 10) - 1;
+    if (idx >= 0 && idx < candidateMembers.length) {
+      return { isSelection: true, selectedMember: candidateMembers[idx] };
+    }
+  }
+
+  const matched = candidateMembers.filter((m) => {
+    const n = m.name.toLowerCase();
+    const display = m.displayTitle.toLowerCase();
+    return p.includes(n) || n.includes(p) || display.includes(p) || m.aliases.some((a) => p.includes(a.toLowerCase()));
+  });
+
+  if (matched.length > 0) {
+    return { isSelection: true, selectedMember: matched[0] };
+  }
+
+  return { isSelection: false };
+}
+
+export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: any[]): boolean {
+  if (isPronounQuery(pertanyaan)) {
+    return true;
+  }
+
+  if (detectDuplicateSelectionIntent(pertanyaan, history).isSelection) {
+    return true;
+  }
+
   const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
 
   // 1. Exclude general AI identity queries ONLY if asking purely about AI identity with no target person
@@ -586,8 +658,6 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   const topScore = scoredMembers[0].score;
 
   // Filter candidates:
-  // If multi-word query (queryTokensCount >= 2), filter strictly by relative score (score >= topScore * 0.7)
-  // If single-word query (queryTokensCount === 1), filter candidates with score >= topScore * 0.5
   const thresholdRatio = queryTokensCount >= 2 ? 0.7 : 0.5;
   const filtered = scoredMembers.filter((item) => item.score >= topScore * thresholdRatio);
 
@@ -601,52 +671,13 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   return result;
 }
 
-export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boolean = false): string {
+export function generateHubunganResponseForMember(
+  targetMember: PanitiaMember,
+  query: string,
+  isFirstTurn: boolean = false
+): string {
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  // LANGKAH 1: EKSTRAKSI KATA KUNCI
-  const queryTerm = extractNameQueryTerm(query);
-
-  // LANGKAH 2: PENCARIAN (PARSIAL SUBSTRING + LEVENSHTEIN <= 2)
-  const matchedMembers = findMatchedMembers(queryTerm, query);
-  const matchCount = matchedMembers.length;
-
-  // LANGKAH 3: HITUNG JUMLAH KECOCOKAN & THRESHOLD EVALUATION
-  // a) 0 matches -> Honest "Not Found" response
-  if (matchCount === 0) {
-    let personName = "";
-    const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
-    if (salMatch) {
-      const sal = salMatch[1];
-      const cleanName = salMatch[2].replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu)\b/gi, '').trim();
-      personName = `${sal} ${cleanName}`.trim();
-    } else {
-      personName = queryTerm.charAt(0).toUpperCase() + queryTerm.slice(1);
-    }
-
-    if (!personName || personName.length < 2) {
-      personName = "tersebut";
-    }
-
-    return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
-  }
-
-  // b) > 5 matches -> "Terlalu umum"
-  if (matchCount > 5) {
-    return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum. Mohon sebutkan nama yang lebih spesifik.`;
-  }
-
-  // c) 2 to 5 matches -> Verifikasi Pilihan
-  if (matchCount >= 2 && matchCount <= 5) {
-    const memberListStr = matchedMembers
-      .map((m) => `${m.name} (${m.jabatanTugas.replace(/\s*\(Dewan Pembimbing Putra\)|\s*\(Dewan Pleno Putri\)|\s*\(Dewan Harian\)/gi, '')})`)
-      .join(' dan ');
-
-    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
-  }
-
-  // d) Exactly 1 match -> LANGSUNG JAWAB!
-  const targetMember = matchedMembers[0];
   const callName = extractPersonNameFromQuery(query, targetMember);
   const fullNameBold = `**${targetMember.name}**`;
   const jabatanTugas = targetMember.jabatanTugas;
@@ -701,4 +732,67 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
   const paragrafPenutup = 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
 
   return `${greetingPrefix}${p1}\n\n${p2}\n\n${paragrafPenutup}`;
+}
+
+export function getHubunganKepanitiaanResponse(
+  query: string,
+  isFirstTurn: boolean = false,
+  history?: any[]
+): string {
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+
+  // BUG 1 FIX: Pronoun Filter
+  if (isPronounQuery(query)) {
+    return `${greetingPrefix}Mohon maaf Us, saya tidak bisa mencari berdasarkan kata ganti orang. Mohon sebutkan nama spesifik yang ingin ditanyakan, Us.`;
+  }
+
+  // BUG 2 FIX: Duplicate Selection Check from History
+  const dupSelection = detectDuplicateSelectionIntent(query, history);
+  if (dupSelection.isSelection && dupSelection.selectedMember) {
+    return generateHubunganResponseForMember(dupSelection.selectedMember, query, isFirstTurn);
+  }
+
+  // LANGKAH 1: EKSTRAKSI KATA KUNCI
+  const queryTerm = extractNameQueryTerm(query);
+
+  // LANGKAH 2: PENCARIAN (PARSIAL SUBSTRING + LEVENSHTEIN <= 2)
+  const matchedMembers = findMatchedMembers(queryTerm, query);
+  const matchCount = matchedMembers.length;
+
+  // LANGKAH 3: HITUNG JUMLAH KECOCOKAN & THRESHOLD EVALUATION
+  // a) 0 matches -> Honest "Not Found" response
+  if (matchCount === 0) {
+    let personName = "";
+    const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+    if (salMatch) {
+      const sal = salMatch[1];
+      const cleanName = salMatch[2].replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu)\b/gi, '').trim();
+      personName = `${sal} ${cleanName}`.trim();
+    } else {
+      personName = queryTerm.charAt(0).toUpperCase() + queryTerm.slice(1);
+    }
+
+    if (!personName || personName.length < 2) {
+      personName = "tersebut";
+    }
+
+    return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
+  }
+
+  // b) > 5 matches -> "Terlalu umum"
+  if (matchCount > 5) {
+    return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum. Mohon sebutkan nama yang lebih spesifik.`;
+  }
+
+  // c) 2 to 5 matches -> Verifikasi Pilihan
+  if (matchCount >= 2 && matchCount <= 5) {
+    const memberListStr = matchedMembers
+      .map((m) => `${m.name} (${m.jabatanTugas.replace(/\s*\(Dewan Pembimbing Putra\)|\s*\(Dewan Pleno Putri\)|\s*\(Dewan Harian\)/gi, '')})`)
+      .join(' dan ');
+
+    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
+  }
+
+  // d) Exactly 1 match -> LANGSUNG JAWAB!
+  return generateHubunganResponseForMember(matchedMembers[0], query, isFirstTurn);
 }

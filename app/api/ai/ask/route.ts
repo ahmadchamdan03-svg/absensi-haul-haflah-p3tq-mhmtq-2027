@@ -2292,8 +2292,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (detectHubunganKepanitiaanIntent(prompt)) {
-      const replyText = getHubunganKepanitiaanResponse(prompt, isFirstTurn);
+    if (detectHubunganKepanitiaanIntent(prompt, history)) {
+      const replyText = getHubunganKepanitiaanResponse(prompt, isFirstTurn, history);
       const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
       return NextResponse.json({
