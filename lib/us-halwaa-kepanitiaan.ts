@@ -90,7 +90,7 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   // PROTOKOLER & UTAMA (DEWAN PEMBIMBING PUTRA & PUTRI)
   {
     name: "Abu Yazid Al Bustomi",
-    aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "yazid", "bustomi"],
+    aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "yazid", "bustomi", "yazid al busthomi", "yazid bustomi"],
     jabatanTugas: "Kasi Protokoler (Dewan Pembimbing Putra)",
     displayTitle: "Pak Yazid",
   },
@@ -322,7 +322,8 @@ const STOP_WORDS = new Set([
   "apa", "hubungan", "mu", "kamu", "dengan", "sama", "siapa", "siapakah", "siapanya",
   "tugas", "jabatan", "posisi", "peran", "jobdesk", "amanah", "sih", "itu", "di",
   "kepanitiaan", "us", "usth", "tolong", "info", "ya", "kan", "pak", "bapak", "bu",
-  "ibu", "mbak", "ning", "gus", "mas", "ustadz", "ustdz", "kh", "kyai", "kiai"
+  "ibu", "mbak", "ning", "gus", "mas", "ustadz", "ustdz", "kh", "kyai", "kiai",
+  "al", "el", "bin", "binti", "van", "der", "of"
 ]);
 
 export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
@@ -494,66 +495,87 @@ interface ScoredMember {
   score: number;
 }
 
-function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
+function findMatchedMembers(queryTerm: string, fullQuery: string): { matchedMembers: PanitiaMember[]; queryTokensCount: number } {
   const term = queryTerm.toLowerCase().trim();
   const fullQ = fullQuery.toLowerCase().trim();
   const scoredMembers: ScoredMember[] = [];
 
   const queryTokens = term.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w));
+  const queryTokensCount = queryTokens.length;
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
+    const aliasesLower = member.aliases.map(a => a.toLowerCase());
     const allMemberWords = [
       ...nameLower.split(/\s+/),
-      ...member.aliases.flatMap(a => a.toLowerCase().split(/\s+/))
-    ].filter(w => w.length >= 2);
+      ...aliasesLower.flatMap(a => a.split(/\s+/))
+    ].filter(w => w.length >= 2 && !STOP_WORDS.has(w));
 
     let score = 0;
 
-    // 1. Exact alias match in full query or term
-    for (const alias of member.aliases) {
-      const aliasLower = alias.toLowerCase();
-      if (fullQ.includes(aliasLower) || term.includes(aliasLower)) {
+    // 1. Exact alias match or full name match
+    for (const alias of aliasesLower) {
+      if (fullQ.includes(alias) || term.includes(alias)) {
+        score += 150;
+      }
+      // Check fuzzy phrase match if alias is multi-word
+      if (term.length >= 4) {
+        const dist = levenshteinDistance(term, alias);
+        if (dist <= 2) {
+          score += 140;
+        }
+      }
+    }
+
+    // 2. Full name substring or fuzzy match
+    if (term.length >= 3 && nameLower.includes(term)) {
+      score += 120;
+    } else if (term.length >= 5) {
+      const dist = levenshteinDistance(term, nameLower);
+      if (dist <= 3) {
         score += 100;
       }
     }
 
-    // 2. Full name substring match
-    if (term.length >= 2 && nameLower.includes(term)) {
-      score += 80;
-    }
-
     // 3. Token-by-token match (Substring & Levenshtein)
+    let matchedTokenCount = 0;
     for (const tok of queryTokens) {
       let tokMatched = false;
 
-      // Substring match on name or alias words
       for (const word of allMemberWords) {
         if (word === tok) {
-          score += 50;
+          score += 60;
           tokMatched = true;
           break;
         } else if (word.includes(tok) || tok.includes(word)) {
-          score += 30;
+          score += 40;
           tokMatched = true;
           break;
         }
       }
 
-      // Fuzzy match (Levenshtein) if not matched yet
       if (!tokMatched && tok.length >= 3) {
         for (const word of allMemberWords) {
           if (word.length >= 3) {
             const dist = levenshteinDistance(tok, word);
             const maxAllowedDist = (tok.length <= 4 || word.length <= 4) ? 1 : 2;
             if (dist <= maxAllowedDist) {
-              score += 25;
+              score += 35;
               tokMatched = true;
               break;
             }
           }
         }
       }
+
+      if (tokMatched) {
+        matchedTokenCount++;
+      }
+    }
+
+    // Bonus for matching multiple tokens in a multi-token query
+    if (queryTokensCount > 1 && matchedTokenCount > 1) {
+      score += matchedTokenCount * 50;
     }
 
     if (score > 0) {
@@ -564,15 +586,24 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   // Sort by score descending
   scoredMembers.sort((a, b) => b.score - a.score);
 
-  // Return unique members
+  if (scoredMembers.length === 0) {
+    return { matchedMembers: [], queryTokensCount };
+  }
+
+  const maxScore = scoredMembers[0].score;
+
+  // Filter out weak candidates whose score is much lower than top match
+  const thresholdRatio = queryTokensCount >= 2 ? 0.6 : 0.4;
+  const filtered = scoredMembers.filter(item => item.score >= maxScore * thresholdRatio);
+
   const result: PanitiaMember[] = [];
-  for (const item of scoredMembers) {
+  for (const item of filtered) {
     if (!result.some(m => m.name === item.member.name)) {
       result.push(item.member);
     }
   }
 
-  return result;
+  return { matchedMembers: result, queryTokensCount };
 }
 
 export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boolean = false): string {
@@ -581,16 +612,25 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
   // LANGKAH 1: EKSTRAKSI NAMA
   const queryTerm = extractNameQueryTerm(query);
 
-  // LANGKAH 2: PENCARIAN (SUBSTRING + LEVENSHTEIN FUZZY MATCH)
-  const matchedMembers = findMatchedMembers(queryTerm, query);
+  // LANGKAH 2: PENCARIAN (LONGEST MATCH & TOP RELEVANCE)
+  const { matchedMembers, queryTokensCount } = findMatchedMembers(queryTerm, query);
 
   // LANGKAH 3 & 4: EVALUASI JUMLAH HASIL (THRESHOLD)
-  // Threshold Rule A: > 3 matches -> "Kata kunci terlalu umum"
-  if (matchedMembers.length > 3) {
+  // Threshold Rule A: > 3 matches -> ONLY applies if single word query!
+  if (queryTokensCount <= 1 && matchedMembers.length > 3) {
     return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum. Mohon sebutkan nama yang lebih spesifik.`;
   }
 
-  // Threshold Rule B: 0 matches -> Honest "Not Found" response
+  // Threshold Rule B: 2 to 3 matches for single word query OR equal top scores
+  if (matchedMembers.length >= 2 && (queryTokensCount <= 1 || matchedMembers.length <= 3)) {
+    const memberListStr = matchedMembers
+      .map(m => `${m.name} (${m.jabatanTugas})`)
+      .join(" dan ");
+
+    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
+  }
+
+  // Threshold Rule C: 0 matches -> Honest "Not Found" response
   if (matchedMembers.length === 0) {
     let personName = "";
     const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
@@ -609,7 +649,7 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
-  // LANGKAH 5: SUSUN RESPONS (1 to 3 Matched Members)
+  // LANGKAH 5: SUSUN RESPONS (Single Top Matched Member)
   const targetMember = matchedMembers[0];
   const callName = extractPersonNameFromQuery(query, targetMember);
   const fullNameBold = `**${targetMember.name}**`;
