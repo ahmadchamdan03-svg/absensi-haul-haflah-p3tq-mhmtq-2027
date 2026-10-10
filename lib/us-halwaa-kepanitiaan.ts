@@ -90,7 +90,7 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   // PROTOKOLER & UTAMA (DEWAN PEMBIMBING PUTRA & PUTRI)
   {
     name: "Abu Yazid Al Bustomi",
-    aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "yazid", "bustomi", "yazid al busthomi", "yazid bustomi"],
+    aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "yazid", "bustomi", "yazid al busthomi", "yazid bustomi", "busthomi"],
     jabatanTugas: "Kasi Protokoler (Dewan Pembimbing Putra)",
     displayTitle: "Pak Yazid",
   },
@@ -321,9 +321,9 @@ const last5HubunganTemplates: string[] = [];
 const STOP_WORDS = new Set([
   "apa", "hubungan", "mu", "kamu", "dengan", "sama", "siapa", "siapakah", "siapanya",
   "tugas", "jabatan", "posisi", "peran", "jobdesk", "amanah", "sih", "itu", "di",
-  "kepanitiaan", "us", "usth", "tolong", "info", "ya", "kan", "pak", "bapak", "bu",
-  "ibu", "mbak", "ning", "gus", "mas", "ustadz", "ustdz", "kh", "kyai", "kiai",
-  "al", "el", "bin", "binti", "van", "der", "of"
+  "kepanitiaan", "us", "usth", "tolong", "info", "ya", "kan",
+  "pak", "bapak", "bu", "ibu", "mas", "mbak", "saudara", "ning", "agus", "kh", "ust", "usth", "ustadz", "ustdz", "kiai", "kyai",
+  "al", "el", "bin", "binti"
 ]);
 
 export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
@@ -378,20 +378,12 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string): boolean {
 function extractNameQueryTerm(query: string): string {
   const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
 
-  const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
-  if (salMatch) {
-    const raw = salMatch[2].replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '').trim();
-    if (raw.length >= 2) return raw.toLowerCase();
-  }
+  const words = q.split(/\s+/);
+  const cleanWords = words.filter((w) => {
+    return w.length >= 2 && !STOP_WORDS.has(w);
+  });
 
-  const relMatch = query.match(/(?:dengan|siapanya|siapa|jabatan|tugas|posisi|peran)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
-  if (relMatch) {
-    const raw = relMatch[1].replace(/\b(apa|kamu|siapa|sih|itu|di|kepanitiaan)\b/gi, '').trim();
-    if (raw.length >= 2) return raw.toLowerCase();
-  }
-
-  const tokens = q.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w));
-  return tokens.join(" ") || q;
+  return cleanWords.join(" ") || q;
 }
 
 function determineMemberTitlePrefix(member: PanitiaMember): { honorific: string; gender: "male" | "female" } {
@@ -495,45 +487,46 @@ interface ScoredMember {
   score: number;
 }
 
-function findMatchedMembers(queryTerm: string, fullQuery: string): { matchedMembers: PanitiaMember[]; queryTokensCount: number } {
+function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
   const term = queryTerm.toLowerCase().trim();
   const fullQ = fullQuery.toLowerCase().trim();
-  const scoredMembers: ScoredMember[] = [];
 
-  const queryTokens = term.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w));
+  // Extract non-stop query tokens
+  const queryTokens = term.split(/\s+/).filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
   const queryTokensCount = queryTokens.length;
+
+  const scoredMembers: ScoredMember[] = [];
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
-    const aliasesLower = member.aliases.map(a => a.toLowerCase());
+    const aliasesLower = member.aliases.map((a) => a.toLowerCase());
     const allMemberWords = [
       ...nameLower.split(/\s+/),
-      ...aliasesLower.flatMap(a => a.split(/\s+/))
-    ].filter(w => w.length >= 2 && !STOP_WORDS.has(w));
+      ...aliasesLower.flatMap((a) => a.split(/\s+/)),
+    ].filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
 
     let score = 0;
 
-    // 1. Exact alias match or full name match
+    // 1. Exact alias or name phrase match
     for (const alias of aliasesLower) {
-      if (fullQ.includes(alias) || term.includes(alias)) {
-        score += 150;
+      if (fullQ.includes(alias) || term.includes(alias) || alias.includes(term)) {
+        score += 200;
       }
-      // Check fuzzy phrase match if alias is multi-word
       if (term.length >= 4) {
         const dist = levenshteinDistance(term, alias);
         if (dist <= 2) {
-          score += 140;
+          score += 180;
         }
       }
     }
 
     // 2. Full name substring or fuzzy match
-    if (term.length >= 3 && nameLower.includes(term)) {
-      score += 120;
+    if (term.length >= 3 && (nameLower.includes(term) || term.includes(nameLower))) {
+      score += 160;
     } else if (term.length >= 5) {
       const dist = levenshteinDistance(term, nameLower);
       if (dist <= 3) {
-        score += 100;
+        score += 140;
       }
     }
 
@@ -558,7 +551,7 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): { matchedMemb
         for (const word of allMemberWords) {
           if (word.length >= 3) {
             const dist = levenshteinDistance(tok, word);
-            const maxAllowedDist = (tok.length <= 4 || word.length <= 4) ? 1 : 2;
+            const maxAllowedDist = tok.length <= 4 || word.length <= 4 ? 1 : 2;
             if (dist <= maxAllowedDist) {
               score += 35;
               tokMatched = true;
@@ -573,9 +566,9 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): { matchedMemb
       }
     }
 
-    // Bonus for matching multiple tokens in a multi-token query
+    // Bonus for matching multiple tokens in a multi-token query (Longest Match Bonus)
     if (queryTokensCount > 1 && matchedTokenCount > 1) {
-      score += matchedTokenCount * 50;
+      score += matchedTokenCount * 100;
     }
 
     if (score > 0) {
@@ -587,51 +580,40 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): { matchedMemb
   scoredMembers.sort((a, b) => b.score - a.score);
 
   if (scoredMembers.length === 0) {
-    return { matchedMembers: [], queryTokensCount };
+    return [];
   }
 
-  const maxScore = scoredMembers[0].score;
+  const topScore = scoredMembers[0].score;
 
-  // Filter out weak candidates whose score is much lower than top match
-  const thresholdRatio = queryTokensCount >= 2 ? 0.6 : 0.4;
-  const filtered = scoredMembers.filter(item => item.score >= maxScore * thresholdRatio);
+  // Filter candidates:
+  // If multi-word query (queryTokensCount >= 2), filter strictly by relative score (score >= topScore * 0.7)
+  // If single-word query (queryTokensCount === 1), filter candidates with score >= topScore * 0.5
+  const thresholdRatio = queryTokensCount >= 2 ? 0.7 : 0.5;
+  const filtered = scoredMembers.filter((item) => item.score >= topScore * thresholdRatio);
 
   const result: PanitiaMember[] = [];
   for (const item of filtered) {
-    if (!result.some(m => m.name === item.member.name)) {
+    if (!result.some((m) => m.name === item.member.name)) {
       result.push(item.member);
     }
   }
 
-  return { matchedMembers: result, queryTokensCount };
+  return result;
 }
 
 export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boolean = false): string {
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  // LANGKAH 1: EKSTRAKSI NAMA
+  // LANGKAH 1: EKSTRAKSI KATA KUNCI
   const queryTerm = extractNameQueryTerm(query);
 
-  // LANGKAH 2: PENCARIAN (LONGEST MATCH & TOP RELEVANCE)
-  const { matchedMembers, queryTokensCount } = findMatchedMembers(queryTerm, query);
+  // LANGKAH 2: PENCARIAN (PARSIAL SUBSTRING + LEVENSHTEIN <= 2)
+  const matchedMembers = findMatchedMembers(queryTerm, query);
+  const matchCount = matchedMembers.length;
 
-  // LANGKAH 3 & 4: EVALUASI JUMLAH HASIL (THRESHOLD)
-  // Threshold Rule A: > 3 matches -> ONLY applies if single word query!
-  if (queryTokensCount <= 1 && matchedMembers.length > 3) {
-    return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum. Mohon sebutkan nama yang lebih spesifik.`;
-  }
-
-  // Threshold Rule B: 2 to 3 matches for single word query OR equal top scores
-  if (matchedMembers.length >= 2 && (queryTokensCount <= 1 || matchedMembers.length <= 3)) {
-    const memberListStr = matchedMembers
-      .map(m => `${m.name} (${m.jabatanTugas})`)
-      .join(" dan ");
-
-    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
-  }
-
-  // Threshold Rule C: 0 matches -> Honest "Not Found" response
-  if (matchedMembers.length === 0) {
+  // LANGKAH 3: HITUNG JUMLAH KECOCOKAN & THRESHOLD EVALUATION
+  // a) 0 matches -> Honest "Not Found" response
+  if (matchCount === 0) {
     let personName = "";
     const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
     if (salMatch) {
@@ -649,7 +631,21 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     return `${greetingPrefix}Mohon maaf Us, nama **${personName}** tidak ditemukan dalam struktur kepanitiaan Haul & Haflah. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
-  // LANGKAH 5: SUSUN RESPONS (Single Top Matched Member)
+  // b) > 5 matches -> "Terlalu umum"
+  if (matchCount > 5) {
+    return `${greetingPrefix}Mohon maaf Us, kata kunci '${queryTerm}' terlalu umum. Mohon sebutkan nama yang lebih spesifik.`;
+  }
+
+  // c) 2 to 5 matches -> Verifikasi Pilihan
+  if (matchCount >= 2 && matchCount <= 5) {
+    const memberListStr = matchedMembers
+      .map((m) => `${m.name} (${m.jabatanTugas.replace(/\s*\(Dewan Pembimbing Putra\)|\s*\(Dewan Pleno Putri\)|\s*\(Dewan Harian\)/gi, '')})`)
+      .join(' dan ');
+
+    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
+  }
+
+  // d) Exactly 1 match -> LANGSUNG JAWAB!
   const targetMember = matchedMembers[0];
   const callName = extractPersonNameFromQuery(query, targetMember);
   const fullNameBold = `**${targetMember.name}**`;
@@ -679,9 +675,9 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
   const filledTemplate = selectedTemplate.replace(/\[jabatan\/tugas\]/g, jabatanTugas);
 
   // b) Separate into Paragraf 1 and Paragraf 2
-  const parts = filledTemplate.split("\n\n");
+  const parts = filledTemplate.split('\n\n');
   let p1 = parts[0] || filledTemplate;
-  let p2 = parts.slice(1).join("\n\n");
+  let p2 = parts.slice(1).join('\n\n');
 
   // Paragraf 1: Replace VERY FIRST subject occurrence with bold full name (**Nama Lengkap**)
   p1 = p1.replace(/(\[Nama Person\]|Pak Yazid|\bBeliau\b|\bbeliau\b)/, () => fullNameBold);
@@ -702,7 +698,7 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
   p1 = p1.replace(/\bbeliau\b/gi, callName);
   p2 = p2.replace(/\bbeliau\b/gi, callName);
 
-  const paragrafPenutup = "Ada lagi info kepanitiaan yang bisa saya bantu, Us?";
+  const paragrafPenutup = 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
 
   return `${greetingPrefix}${p1}\n\n${p2}\n\n${paragrafPenutup}`;
 }
