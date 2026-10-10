@@ -4,6 +4,7 @@ import { geminiPool } from '@/lib/gemini-pool';
 import { supabase } from '@/lib/supabase';
 import { getWaliSantriMetrics, getTamuUndanganMetrics } from '@/lib/dashboard-metrics';
 import { MOTIVASI, getRandomMotivasi, detectMotivasiIntent, MOTIVASI_DIA_SIAPA, getRandomMotivasiDiaSiapa, detectDiaSiapaIntent } from '@/lib/us-halwaa-motivasi';
+import { detectHubunganKepanitiaanIntent, getHubunganKepanitiaanResponse } from '@/lib/us-halwaa-kepanitiaan';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Usth. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri).
@@ -1328,10 +1329,10 @@ async function handleWaliSantriQueries(prompt: string, isFirstTurn: boolean): Pr
 async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
 
-    // 0. FITUR MOTIVASI SATIR "DIA SIAPA"
-  if (detectDiaSiapaIntent(q)) {
-    const motivasiSatir = getRandomMotivasiDiaSiapa();
-    return `${motivasiSatir}\n\nAda lagi yang bisa saya bantu, Us?`;
+  // 0. FITUR HUBUNGAN KEPANITIAAN (Tugas/Jabatan & Opini Fans Usth. Halwaa)
+  if (detectHubunganKepanitiaanIntent(userQuery)) {
+    const resHub = getHubunganKepanitiaanResponse(userQuery, isFirstTurn);
+    if (resHub) return resHub;
   }
 
   // 0. FITUR MOTIVASI SATIR "DIA SIAPA"
