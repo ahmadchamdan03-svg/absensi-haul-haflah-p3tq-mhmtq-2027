@@ -1,7 +1,6 @@
 export const MOTIVASI = {
   // ============================================
   // KATEGORI 1: APRESIASI DEDIKASI & KETULUSAN
-  // Untuk: user yang sedang/sudah kerja keras di balik layar, jarang terlihat, tapi berdampak besar
   // ============================================
   dedikasi: [
     "Dan ketahuilah Us, kamu adalah orang yang HEBAT. Dedikasi dan ketulusanmu jauh lebih besar dari yang kamu sadari.",
@@ -18,7 +17,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 2: PENGUAT SEMANGAT SAAT LELAH/PUSING
-  // Untuk: user yang mengeluh capek, lelah, pusing, penat
   // ============================================
   lelah: [
     "Us, tarik napas sejenak dan istirahatlah sebentar. Kamu sudah melangkah sangat jauh hari ini.",
@@ -35,7 +33,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 3: PENYEMANGAT HADAPI TUGAS BERAT/RUMIT
-  // Untuk: user yang merasa tugasnya susah, rumit, berat
   // ============================================
   tugas_berat: [
     "Us, kerumitan ini hanyalah fase sementara. Dengan ketenangan dan fokusmu, kamu pasti bisa mengurainya satu per satu.",
@@ -52,7 +49,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 4: APRESIASI SELESAI TUGAS & CAPAIAN
-  // Untuk: user yang baru menyelesaikan tugas, capai target
   // ============================================
   selesai: [
     "Kerja bagus, Us! Satu tugas tuntas dengan sangat rapi berkat keuletanmu.",
@@ -69,7 +65,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 5: PEMBERI ENERGI POSITIF & KEHANGATAN
-  // Untuk: sapaan, pembuka, momen hangat
   // ============================================
   energi_positif: [
     "Us, keberadaanmu di tim ini membawa ketenangan dan dampak yang sangat positif.",
@@ -86,7 +81,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 6: PENGAKUAN NILAI DIRI & DAMPAK NYATA
-  // Untuk: user yang merasa kontribusinya kecil
   // ============================================
   nilai_diri: [
     "Us, kehadiranmu di sini bukan sekadar pelengkap; kontribusimu adalah salah satu penggerak utama keberhasilan agenda ini.",
@@ -103,7 +97,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 7: PENGUAT MENTAL SAAT TERTEKAN
-  // Untuk: user yang merasa ragu, tertekan, cemas
   // ============================================
   tertekan: [
     "Us, jangan biarkan rasa ragu menghentikan langkahmu; kamu sudah berkali-kali membuktikan ketangguhanmu.",
@@ -120,7 +113,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 8: PENYEMANGAT KONSISTENSI & PERJUANGAN
-  // Untuk: user yang menjalani proses panjang
   // ============================================
   konsistensi: [
     "Us, konsistensimu menjaga detail adalah kunci mengapa persiapan ini bisa bertahan sekuat sekarang.",
@@ -137,7 +129,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 9: APRESIASI KECEPATAN & KETELITIAN
-  // Untuk: user yang kerja cepat & akurat
   // ============================================
   kecekatan: [
     "Us, ketajaman matamu dalam melihat detail yang terlewat benar-benar menyelamatkan banyak hal penting hari ini.",
@@ -154,7 +145,6 @@ export const MOTIVASI = {
 
   // ============================================
   // KATEGORI 10: ENERGI KEHANGATAN & KEBERSAMAAN
-  // Untuk: sapaan hangat, obrolan santai
   // ============================================
   kehangatan: [
     "Us, ketulusan senyummu selalu berhasil mencairkan ketegangan di tengah padatnya jadwal persiapan.",
@@ -170,7 +160,7 @@ export const MOTIVASI = {
   ],
 
   // ============================================
-  // KATEGORI 11: SAPAAN & PERKENALAN (untuk pembuka)
+  // KATEGORI 11: SAPAAN & PERKENALAN
   // ============================================
   sapaan: [
     "Semoga aktivitas Us hari ini berjalan lancar & menyenangkan.",
@@ -223,18 +213,17 @@ export const MOTIVASI = {
 
 export type MotivasiCategory = keyof typeof MOTIVASI;
 
-// Global memory for tracking last 3 motivations to avoid repetition across 3 consecutive turns
+// Global memory for tracking last 3 motivations
 const last3Motivasi: string[] = [];
 
 export function getRandomMotivasi(category: MotivasiCategory): string {
   const list = MOTIVASI[category] || MOTIVASI.energi_positif;
   const available = list.filter((item) => !last3Motivasi.includes(item));
   const pool = available.length > 0 ? available : list;
-  
+
   const randomIndex = Math.floor(Math.random() * pool.length);
   const selected = pool[randomIndex];
 
-  // Update memory (keep max 3 recent items)
   last3Motivasi.push(selected);
   if (last3Motivasi.length > 3) {
     last3Motivasi.shift();
@@ -289,96 +278,74 @@ export function detectMotivasiIntent(q: string): MotivasiCategory | null {
   return null;
 }
 
-export const MOTIVASI_DIA_SIAPA = {
-  // ============================================
-  // KATEGORI 1: FOKUS DIRI & KETIDAKPEDULIAN SEHAT
-  // ============================================
-  fokus_diri: [
-    "Us, dia itu cuma tokoh figuran di lembar hidupmu yang nggak berpengaruh apa-apa; energi dan waktumu terlalu berharga buat mikirin orang yang bahkan nggak bayarin tagihanmu.",
-    "Siapa pun dia, nggak ada sangkut pautnya sama masa depanmu, Us. Dunia nggak bakal berhenti berputar hanya karena kamu nggak kenal dia.",
-    "Us, dia cuma orang asing yang kebetulan lewat. Jangan buang kuota pikiranmu buat sosok yang nggak ngasih dampak positif buat progresmu hari ini.",
-    "Anggap aja dia angin lalu, Us. Mau dia siapa pun, yang pegang kendali atas kesuksesan dan kebahagiaanmu tetap dirimu sendiri.",
-    "Us, fokus ke panggungmu sendiri. Dia bukan juri kehidupanmu dan nggak berhak dapat ruang gratis di kepalamu.",
-    "Us, dia bukan karakter utama di ceritamu. Kenapa harus kamu beri waktu untuk sosok yang bahkan nggak ada perannya di jalan hidupmu?",
-    "Us, kepala kamu itu bukan gudang arsip orang lain. Nggak perlu simpan data orang yang nggak ada kontribusinya.",
-  ],
+// =============================================================================
+// ARRAY 50 TEMPLATE MOTIVASI SATIR (UNTUK "DIA")
+// =============================================================================
+export const MOTIVASI_SATIR_DIA_TEMPLATES: string[] = [
+  "Us, dia adalah orang lain yang tidak perlu kamu pedulikan dalam setiap langkahmu. Waktu dan tenagamu terlalu berharga jika dihabiskan untuk memikirkan seseorang yang tidak berdampak. Fokuslah sepenuhnya pada tujuan besarmu sendiri. Kamu tanpa dia pasti bisa sukses dan berdiri tegak di puncak kemenangan.",
+  "Us, dia cuma masa lalu yang lewat dan tidak layak mendapat tempat di pikiranmu. Biarkan dia tertinggal jauh di belakang bersama segala penyesalan yang ada. Hari ini adalah lembaran baru untuk merajut mimpimu dengan tanganmu sendiri. Kamu tanpa dia pasti bisa sukses melangkah menuju masa depan yang gemilang.",
+  "Us, dia hanyalah distraksi dalam perjalanan panjang yang sedang kamu tempuh saat ini. Jangan biarkan kehadirannya memecah konsentrasi dan merusak mimpimu yang besar. Kendali penuh atas hidup dan masa depanmu ada di tanganmu sepenuhnya. Kamu tanpa dia pasti bisa sukses membuktikan kemampuan terbaikmu.",
+  "Us, dia bukan penentu jalan hidup yang harus kamu ikuti atau dengarkan. Garis tangan dan takdir suksesmu kamu cetak sendiri melalui keringat dan kerja kerasmu. Kehadiran atau ketiadaannya sama sekali tidak mengubah potensi luar biasa dalam dirimu. Kamu tanpa dia pasti bisa sukses dengan caramu yang hebat.",
+  "Us, dia tidak akan pernah memberi makan mimpimu ataupun menolongmu saat kamu jatuh. Mengandalkan validasi dari orang lain hanya akan memperlambat langkah besarmu. Bangunlah kekuatan mental yang kokoh untuk berjalan sendirian jika memang diperlukan. Kamu tanpa dia pasti bisa sukses merajai dunia impianmu.",
+  "Us, dia cuma babak pendek dalam cerita hidupmu yang tidak penting untuk dikenang. Jangan biarkan satu karakter figuran merusak keseluruhan skenario besar kesuksesanmu. Buktikan bahwa tanpa kehadirannya, kisah hidupmu tetap bernilai dan luar biasa. Kamu tanpa dia pasti bisa sukses menjadi pemenang sejati.",
+  "Us, dia tidak punya hak sedikit pun untuk mengatur atau membatasi masa depanmu. Jalur kesuksesanmu murni milikmu dan tidak bergantung pada restu atau kehadiran siapa pun. Teruslah berlari kencang mengejar target tanpa perlu menoleh ke belakang. Kamu tanpa dia pasti bisa sukses menaklukkan semua rintangan.",
+  "Us, dia hanyalah angin lalu yang tak berbekas dalam lembaran sejarah hidupmu. Segala omongan atau kehadirannya akan lenyap tertelan oleh kerja kerasmu. Tetaplah fokus menanam benih-benih prestasi yang akan membuahkan hasil manis. Kamu tanpa dia pasti bisa sukses menikmati buah dari ketekunanmu.",
+  "Us, dia tidak ikut berdarah-darah membangun mimpimu dari nol hingga sebesar sekarang. Oleh karena itu, pendapat dan keberadaannya tidak berhak menentukan arah hidupmu. Kamu adalah arsitek utama bagi masa depan dan kebahagiaanmu sendiri. Kamu tanpa dia pasti bisa sukses dengan usahamu yang gigih.",
+  "Us, dia bukan alasan yang tepat untuk membuatmu berhenti berjuang dan menyerah. Setiap tetes keringatmu adalah bukti nyata bahwa kamu adalah pejuang yang tangguh. Singkirkan segala keraguan yang muncul akibat orang-orang yang tidak penting. Kamu tanpa dia pasti bisa sukses mencapai garis akhir.",
+  "Us, dia hanya bayangan semu yang akan tertinggal jauh di belakang saat kamu melesat. Cahaya kesuksesanmu akan jauh lebih terang daripada kehadirannya yang meredup. Jangan biarkan bayangan itu menghentikan langkah kakimu yang perkasa. Kamu tanpa dia pasti bisa sukses menyinari dunia.",
+  "Us, dia tidak punya andil apa pun atas kerja keras dan jam lembur yang kamu habiskan. Segala pencapaian yang ada di depan mata adalah hasil dari keringatmu sendiri. Hargai setiap proses hebat yang telah kamu lalui seorang diri. Kamu tanpa dia pasti bisa sukses tanpa butuh pengakuan darinya.",
+  "Us, dia cuma opini murahan yang sama sekali tidak perlu didengar atau dimasukkan ke hati. Kata-kata negatifnya ibarat sampah yang hanya akan mengotori pikiran produktifmu. Buang jauh-jauh rasa sakit hati dan jadikan itu bahan bakar semangatmu. Kamu tanpa dia pasti bisa sukses membungkam semua keraguan.",
+  "Us, dia bukan siapa-siapa di tangga kesuksesan yang sedang kamu daki saat ini. Keberadaannya tidak memberikan kontribusi positif sedikit pun bagi perkembangan dirimu. Tetaplah melangkah ke atas dengan kepala tegak dan penuh percaya diri. Kamu tanpa dia pasti bisa sukses mencapai singgasana impian.",
+  "Us, dia tidak layak sedikit pun untuk membuat langkah hebatmu terhenti di tengah jalan. Potensi tak terbatas yang ada di dalam dirimu jauh lebih besar dari gangguannya. Teruslah berinovasi dan tunjukkan kualitas terbaik yang kamu miliki. Kamu tanpa dia pasti bisa sukses menembus batas kemampuan.",
+  "Us, dia hanyalah ujian kecil untuk melatih mental baja yang ada dalam dirimu. Anggaplah dia sebagai batu loncatan agar kamu bisa melompat lebih tinggi lagi. Ujian ini diciptakan semata-mata untuk menempa dirimu menjadi pribadi yang matang. Kamu tanpa dia pasti bisa sukses melewati semua cobaan.",
+  "Us, dia sama sekali tidak tahu seberapa besar potensi dan bakat terpendam dirimu. Batasan yang dia buat tidak berlaku untuk kapasitas otak dan mentalmu yang luar biasa. Dobrak semua keraguan dengan tindakan nyata yang spektakuler setiap hari. Kamu tanpa dia pasti bisa sukses melampaui ekspektasi.",
+  "Us, dia bukan orang yang memegang kendali penuh atas arah perjalanan hidupmu. Stir kendaraan masa depanmu ada di tanganmu, bukan di tangan orang lain. Tentukan sendiri ke mana arah kemudi akan kamu bawa tanpa rasa takut. Kamu tanpa dia pasti bisa sukses sampai di tujuan.",
+  "Us, dia cuma batu kecil di jalan tol mimpimu yang bisa ditendang dengan mudah. Jangan biarkan hal sepele seperti itu membuat perjalananmu menjadi tertunda. Teruslah melaju dengan kecepatan penuh tanpa menghiraukan hambatan kecil di bawah. Kamu tanpa dia pasti bisa sukses mencapai garis finis.",
+  "Us, dia tidak akan pernah sudi menolongmu saat kamu jatuh terpuruk di titik terendah. Oleh karena itu, jangan pernah menggantungkan harapan hidupmu pada kehadirannya. Bangkitlah menggunakan kekuatan dan tekad baja yang ada di dalam dirimu sendiri. Kamu tanpa dia pasti bisa sukses berdiri lagi dengan gagah.",
+  "Us, dia hanyalah suara sumbang yang hanya bisa melelahkan pikiran jika terus didengar. Tutup rapat telingamu dari segala omongan remeh yang tidak membangun sama sekali. Energimu terlalu berharga untuk dihabiskan meladeni hal-hal yang tidak berguna. Kamu tanpa dia pasti bisa sukses dengan karya nyata.",
+  "Us, dia tidak punya hak mutlak untuk membatasi tinggi rendahnya impian yang kamu miliki. Langit adalah batas bagi mimpimu, dan tidak ada satu pun orang yang bisa mengekangnya. Terbangkan cita-citamu setinggi mungkin dengan keyakinan yang kuat. Kamu tanpa dia pasti bisa sukses menggapai bintang.",
+  "Us, dia cuma bab yang sudah usang dibaca dan tidak perlu dibuka kembali. Tutup buku masa lalu itu rapat-rapat agar kamu bisa menulis kisah baru yang menakjubkan. Fokusmu harus tertuju pada halaman-halaman depan yang masih putih bersih. Kamu tanpa dia pasti bisa sukses menciptakan akhir cerita yang indah.",
+  "Us, dia sama sekali tidak pantas untuk kau tangisi atau pikirkan sepanjang malam. Waktu tidur dan istirahatmu jauh lebih berharga daripada memikirkan orang yang salah. Alihkan seluruh perhatianmu untuk memperbaiki kualitas diri setiap detiknya. Kamu tanpa dia pasti bisa sukses hidup tenang dan bahagia.",
+  "Us, dia hanyalah persinggahan sementara yang salah alamat dalam peta perjalanan hidupmu. Anggap saja kehadirannya sebagai pelajaran berharga agar kamu lebih selektif ke depannya. Perjalananmu masih sangat panjang dan penuh dengan hal-hal luar biasa menanti. Kamu tanpa dia pasti bisa sukses menemukan tempat yang tepat.",
+  "Us, dia tidak pernah memberi kontribusi nyata pada kesuksesan masa depanmu kelak. Semua fasilitas, ilmu, dan kerja keras yang kamu miliki adalah hasil jerih payahmu. Jangan biarkan orang yang nihil kontribusi merusak ketenangan mentalmu. Kamu tanpa dia pasti bisa sukses menikmati hasil jerih payah sendiri.",
+  "Us, dia cuma debu kecil yang akan tertiup angin kencang dari laju perjuanganmu. Kecepatannya melangkah tidak akan mampu menandingi konsistensi kerjamu setiap hari. Teruslah berlari ke depan hingga debu itu tertinggal jauh di belakang. Kamu tanpa dia pasti bisa sukses menembus badai.",
+  "Us, dia tidak akan pernah mengerti betapa mahalnya arti dari kerja kerasmu. Orang yang tidak pernah berjuang tidak akan pernah paham nilai sebuah pengorbanan. Lanjutkan saja langkahmu tanpa perlu repot-repot menjelaskan isi kepalamu. Kamu tanpa dia pasti bisa sukses membuktikannya lewat karya.",
+  "Us, dia bukan tujuan akhir atau destinasi utama dari perjalanan hidupmu yang panjang. Jangan pernah salah mengira bahwa hidupmu bergantung pada ada atau tidaknya dia. Fokus utamamu adalah mencapai kebahagiaan dan kemapanan finansial pribadi. Kamu tanpa dia pasti bisa sukses menjadi versi terbaik dirimu.",
+  "Us, dia hanyalah kerikil kecil yang tertendang sepatu bot perjuanganmu saat melangkah. Kehadirannya sama sekali tidak berarti apa-apa bagi ketangguhan fisik dan mentalmu. Teruslah melangkah maju tanpa pernah melihat ke bawah lagi. Kamu tanpa dia pasti bisa sukses mendaki gunung impian.",
+  "Us, dia tidak akan pernah peduli atau hadir saat kamu merayakan puncak kejayaan nanti. Orang-orang seperti itu biasanya hanya datang saat semuanya sudah terlihat mudah dan mapan. Oleh karena itu, raihlah suksesmu sendiri agar kamu tidak butuh pengakuannya. Kamu tanpa dia pasti bisa sukses berdiri di atas panggung megah.",
+  "Us, dia cuma masa lalu yang salah alamat dan tidak pantas singgah di hatimu. Hapus semua memori tentangnya yang hanya akan memperlambat langkah suksesmu. Ruang di hatimu kini hanya boleh diisi oleh ambisi dan mimpi-mimpi besar. Kamu tanpa dia pasti bisa sukses menata ulang hidup.",
+  "Us, dia sama sekali tidak punya hak atas porsi kebahagiaan yang harus kamu miliki. Kebahagiaanmu adalah tanggung jawab mutlak dirimu sendiri, bukan orang lain. Ciptakan sumber kebahagiaanmu lewat hobi, karier, dan pencapaian-pencapaian hebat. Kamu tanpa dia pasti bisa sukses hidup dalam kedamaian.",
+  "Us, dia hanyalah ujian kesabaran sementara yang kebetulan lewat di hadapanmu. Lalui ujian itu dengan senyuman dan kepala dingin tanpa emosi yang berlebihan. Kesabaranmu akan berbuah manis berupa kematangan jiwa yang luar biasa. Kamu tanpa dia pasti bisa sukses melewati masa-masa sulit.",
+  "Us, dia tidak layak sedikit pun membuatmu merasa ragu pada kemampuan diri sendiri. Kamu diciptakan dengan potensi unik yang tidak dimiliki oleh orang lain di luar sana. Percayalah pada kapasitas dirimu untuk menyelesaikan setiap tantangan berat. Kamu tanpa dia pasti bisa sukses menaikkan level hidupmu.",
+  "Us, dia cuma cerita lama yang membosankan dan tidak ada gunanya untuk diulang-ulang. Ingatan tentangnya sudah kedaluwarsa dan tidak relevan dengan kehidupanmu saat ini. Alihkan fokus totalmu pada proyek-proyek masa depan yang menghasilkan. Kamu tanpa dia pasti bisa sukses membuat gebrakan baru.",
+  "Us, dia tidak akan pernah mau ikut menanggung beban hidup atau masalah finansialmu. Jadi, tidak ada alasan bagimu untuk mendengarkan omongan atau penilaian buruknya. Tanggung jawab hidup ada di pundakmu sendiri, maka kuatkan punggungmu. Kamu tanpa dia pasti bisa sukses keluar dari tekanan.",
+  "Us, dia hanyalah batu sandungan kecil yang sangat mudah untuk dilompati dengan sigap. Rintangan sebesar apa pun akan terasa ringan jika tekadmu sudah bulat membaja. Jangan biarkan halangan remeh itu merusak mental juangmu yang tangguh. Kamu tanpa dia pasti bisa sukses melompati segala jurang kegagalan.",
+  "Us, dia tidak punya nilai tambah apa pun yang bisa meningkatkan kualitas hidupmu. Waktu berhargamu terlalu mahal untuk diinvestasikan pada relasi yang toksik. Pindahkan fokus energimu ke hal-hal produktif yang mendatangkan cuan dan prestasi. Kamu tanpa dia pasti bisa sukses secara mandiri.",
+  "Us, dia cuma bayang-bayang masa lalu yang ketakutan melihat terangnya cahayamu sekarang. Orang yang iri biasanya akan berusaha menjatuhkanmu dengan berbagai cara murahan. Abaikan saja mereka dan biarkan prestasimu yang berbicara dengan lantang. Kamu tanpa dia pasti bisa sukses menyilaukan mata dunia.",
+  "Us, dia sama sekali tidak berhak memadamkan api semangat yang sedang menyala terang. Kobaran ambisimu terlalu besar untuk dipadamkan oleh komentar-komentar pesimis. Jaga terus api itu tetap menyala dengan terus konsisten berkarya. Kamu tanpa dia pasti bisa sukses membakar semua keraguan.",
+  "Us, dia hanyalah orang asing yang salah tempat dalam lingkaran kehidupan produktifmu. Singkirkan dia dari daftar prioritas hidupmu hari ini juga tanpa rasa berat hati. Ruang di sekitarmu harus diisi oleh orang-orang yang sefrekuensi dan mendukung mimpimu. Kamu tanpa dia pasti bisa sukses melangkah lebih jauh.",
+  "Us, dia tidak berhak menentukan batas maksimal kemampuan atau pencapaian hidupmu. Kapasitas dirimu tidak terbatas dan bisa terus berkembang seiring waktu berjalan. Dobrak terus batasan-batasan semu yang pernah disematkan orang lain padamu. Kamu tanpa dia pasti bisa sukses melampaui rekor terbaikmu.",
+  "Us, dia cuma angin ribut sesaat yang tidak akan mampu merobohkan pohon kokoh mimpimu. Akar perjuanganmu sudah menghujam sangat dalam ke bumi ketekunan dan kerja keras. Badai sekencang apa pun hanya akan membuat batangnya semakin kuat. Kamu tanpa dia pasti bisa sukses bertahan di puncak.",
+  "Us, dia tidak tahu sama sekali seberapa mahal harga proses dan air mata yang kau bayar. Orang luar hanya melihat hasil akhirnya saja tanpa tahu perjuangan di balik layar. Tetaplah bangga pada dirimu sendiri yang sudah berjuang sejauh ini. Kamu tanpa dia pasti bisa sukses menikmati kemewahan proses.",
+  "Us, dia hanyalah bagian dari cerita gagal yang harus segera kamu tinggalkan di belakang. Jadikan kegagalan masa lalu bersama orang yang salah sebagai pelajaran berharga. Sekarang saatnya menulis babak baru yang penuh dengan kemenangan gemilang. Kamu tanpa dia pasti bisa sukses membalikkan keadaan.",
+  "Us, dia tidak berhak menginjak-injak harga diri dan martabat yang kamu jaga. Pertahankan kehormatan dirimu dengan membuktikan bahwa kamu mampu hidup jauh lebih baik. Harga dirimu jauh lebih mahal daripada harus tunduk pada orang yang salah. Kamu tanpa dia pasti bisa sukses dengan terhormat.",
+  "Us, dia cuma duri kecil yang menancap di sepatu dan gampang dicabut seketika. Jangan biarkan rasa sakit akibat duri itu menghentikan langkahmu untuk berlari. Begitu duri itu lepas, kamu akan bisa melompat jauh lebih bebas. Kamu tanpa dia pasti bisa sukses mencapai garis finish tanpa hambatan.",
+  "Us, dia tidak akan pernah bisa menandingi tingkat fokus dan disiplin kerjamu sekarang. Konsistensimu adalah senjata paling mematikan untuk menghancurkan setiap keraguan. Teruslah bekerja dalam diam dan biarkan kesuksesan yang berteriak paling keras. Kamu tanpa dia pasti bisa sukses luar biasa.",
+  "Us, dia benar-benar bukan siapa-siapa dalam peta kesuksesan yang sedang kamu bangun. Namanya bahkan sudah lenyap dari daftar prioritas dan rencana masa depanmu. Dengan tekad baja dan usaha tanpa kenal lelah, kemenangan mutlak sudah di depan mata. Kamu tanpa dia pasti akan sangat sukses menguasai duniamu."
+];
 
-  // ============================================
-  // KATEGORI 2: REALITAS PAHIT TAPI MEMBANGUN
-  // ============================================
-  realitas_pahit: [
-    "Us, kenapa pusing mikirin siapa dia? Orang yang hebat sibuk berkarya, sementara yang biasa sibuk kepo urusan orang yang nggak ada dampaknya.",
-    "Dia cuma orang lain, Us. Nggak nambah saldo rekeningmu, nggak bikin tugasmu selesai, dan nggak nentuin nilaimu sedikit pun.",
-    "Us, hidupmu terlalu mahal buat diisi tanda tanya soal orang yang belum tentu peduli kamu masih bernapas atau nggak hari ini.",
-    "Mau dia siapa pun, dia nggak punya saham di hidupmu, Us. Jadi buat apa repot-repot mencari tahu?",
-    "Us, daripada sibuk menebak siapa dia, mending pastikan dulu kamu sendiri makin berkembang dan makin sulit dikejar.",
-    "Us, dia bukan stakeholder hidupmu. Nggak punya kepentingan, nggak punya saham, nggak punya pengaruh. Skip.",
-  ],
+const last5DiaSatirMotivasi: string[] = [];
 
-  // ============================================
-  // KATEGORI 3: SENTILAN SANTAI & JENAKA
-  // ============================================
-  jenaka: [
-    "Us, dia itu bukan siapa-siapa, cuma NPC di kehidupan nyata yang nggak bakal ngasih kamu exp ataupun reward.",
-    "Kalau keberadaannya nggak bikin beban hidupmu berkurang, Us, nama dan asal-usulnya sama sekali nggak penting buat diketahui.",
-    "Us, jangan biarkan orang yang nggak berpengaruh di hidupmu menyita ruang pikiran yang seharusnya buat ide-ide brilianmu.",
-    "Dia cuma sebutir debu di lini masa hidupmu, Us. Ditiup sedikit juga hilang, jadi nggak usah diambil pusing.",
-    "Us, dia orang lain, titik. Prioritaskan orang yang jelas-jelas ada dan berjuang bersamamu, bukan yang sekadar lewat tanpa arti.",
-    "Us, kalau dia bukan bagian dari tim kamu, bukan bagian dari keluarga kamu, ya udah, anggap aja latar belakang doang.",
-  ],
-
-  // ============================================
-  // KATEGORI 4: EFISIENSI WAKTU & ENERGI
-  // ============================================
-  efisiensi: [
-    "Us, hidupmu bukan tabloid gosip; nggak ada royalti sepeser pun buat waktu yang terbuang cuma demi ngurusin eksistensi orang lain.",
-    "Siapa pun dia, nggak bakal nambah 24 jam dalam harimu, Us. Mending tenagamu disimpan buat hal-hal yang jelas menghasilkan karya.",
-    "Us, mikirin orang yang nggak punya kontribusi di hidupmu itu bentuk pemborosan energi yang paling sia-sia.",
-    "Pintu pikiranmu itu area VIP, Us. Jangan biarkan sembarang orang masuk dan nongkrong gratis di sana tanpa kontribusi apa-apa.",
-    "Us, hidup ini terlalu singkat kalau harus dihabiskan buat mencari tahu latar belakang orang yang bahkan nggak peduli arah langkahmu.",
-  ],
-
-  // ============================================
-  // KATEGORI 5: TAMPARAN LOGIKA & NILAI DIRI
-  // ============================================
-  logika: [
-    "Us, mau dia siapa pun, dia nggak pegang remote kendali masa depanmu; kenapa harus kamu kasih panggung di kepalamu?",
-    "Kalau kehadirannya nggak ngurangin cicilan atau nyelesaiin beban tugasmu, Us, status dia tetap sama: nggak penting.",
-    "Us, orang berkualitas fokus memperbesar kapasitas diri, bukan sibuk menganalisis orang lain yang cuma numpang lewat.",
-    "Jangan bikin dirimu terdistraksi, Us. Dia cuma sebutir debu di spion perjalanan suksesmu—nggak usah ditoleh lagi.",
-    "Us, nilai dirimu terlalu tinggi untuk direndahkan dengan rasa penasaran receh pada sosok yang nggak berpengaruh apa-apa.",
-  ],
-
-  // ============================================
-  // KATEGORI 6: FILOSOFI BODO AMAT
-  // ============================================
-  bodo_amat: [
-    "Us, dia itu ibarat karakter di latar belakang anime: digambar tanpa wajah detail karena memang nggak ada perannya di jalan ceritamu.",
-    "Anggap aja dia iklan yang nggak bisa di-skip, Us: biarkan lewat beberapa detik tanpa perlu dimasukkan ke hati.",
-    "Us, kalau namanya nggak tertulis di daftar orang-orang yang kamu perjuangkan, mencoret rasa ingin tahumu adalah keputusan paling bijak.",
-    "Dia cuma sekelebat bayangan di keramaian, Us. Kedip sekali saja, fokusmu harus sudah kembali ke impian besarmu.",
-    "Us, hidup itu tentang siapa yang bertahan di sisimu saat berjuang, bukan tentang orang acak yang mendadak muncul lalu bikin kamu kepikiran.",
-  ],
-};
-
-const last5DiaSiapaMotivasi: string[] = [];
-
-export function getRandomMotivasiDiaSiapa(): string {
-  const categories = Object.keys(MOTIVASI_DIA_SIAPA) as Array<keyof typeof MOTIVASI_DIA_SIAPA>;
-  const allItems: string[] = [];
-  categories.forEach((cat) => {
-    allItems.push(...MOTIVASI_DIA_SIAPA[cat]);
-  });
-
-  const available = allItems.filter((item) => !last5DiaSiapaMotivasi.includes(item));
-  const pool = available.length > 0 ? available : allItems;
+export function getRandomMotivasiSatirDia(): string {
+  const available = MOTIVASI_SATIR_DIA_TEMPLATES.filter((item) => !last5DiaSatirMotivasi.includes(item));
+  const pool = available.length > 0 ? available : MOTIVASI_SATIR_DIA_TEMPLATES;
 
   const randomIndex = Math.floor(Math.random() * pool.length);
   const selected = pool[randomIndex];
 
-  last5DiaSiapaMotivasi.push(selected);
-  if (last5DiaSiapaMotivasi.length > 5) {
-    last5DiaSiapaMotivasi.shift();
+  last5DiaSatirMotivasi.push(selected);
+  if (last5DiaSatirMotivasi.length > 5) {
+    last5DiaSatirMotivasi.shift();
   }
 
   return selected;
@@ -387,7 +354,6 @@ export function getRandomMotivasiDiaSiapa(): string {
 export function detectDiaSiapaIntent(pertanyaan: string): boolean {
   const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, '');
 
-  // Must NOT contain specific codes (e.g. SH1234, UND1234) or specific category words
   if (/sh\d|und\d|vvip|vip|kehormatan|penguji|asatidz|perwakilan|tamu|santri|wali|absen|presensi|panitia/i.test(q)) {
     return false;
   }
@@ -403,6 +369,10 @@ export function detectDiaSiapaIntent(pertanyaan: string): boolean {
     /^dia orangnya siapa$/,
     /^dia siapa sih$/,
     /^siapa sih dia sebenarnya$/,
+    /^siapa dirinya$/,
+    /^dirinya siapa$/,
+    /^siapa orang itu$/,
+    /^orang itu siapa$/,
   ];
 
   return patterns.some((p) => p.test(q));

@@ -3,6 +3,8 @@
 // Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M.
 // =============================================================================
 
+import { getRandomMotivasiSatirDia, detectDiaSiapaIntent } from './us-halwaa-motivasi';
+
 export interface PanitiaMember {
   name: string;
   aliases: string[];
@@ -318,9 +320,18 @@ export const HUBUNGAN_KEPANITIAAN_TEMPLATES = {
 
 const last5HubunganTemplates: string[] = [];
 
+const THIRD_PERSON_PRONOUNS_SET = new Set([
+  "dia", "dirinya", "orang itu", "si dia", "sosok itu", "orang tersebut"
+]);
+
+const OTHER_PRONOUNS_SET = new Set([
+  "saya", "aku", "kamu", "anda", "beliau", "mereka", "kami", "kita", "kalian",
+  "nya", "ku", "mu"
+]);
+
 const PRONOUNS_SET = new Set([
   "saya", "aku", "kamu", "anda", "dia", "beliau", "mereka", "kami", "kita", "kalian",
-  "nya", "ku", "mu"
+  "dirinya", "nya", "ku", "mu"
 ]);
 
 const STOP_WORDS = new Set([
@@ -331,17 +342,54 @@ const STOP_WORDS = new Set([
   "al", "el", "bin", "binti", "saya", "aku", "anda", "dia", "beliau", "mereka", "kami", "kita", "kalian"
 ]);
 
-export function isPronounQuery(query: string): boolean {
-  const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
-  const words = q.split(/\s+/).filter(w => w.length >= 2);
+export function isThirdPersonPronounQuery(query: string): boolean {
+  if (detectDiaSiapaIntent(query)) return true;
 
-  const nonQuestionWords = words.filter(w => !new Set([
-    "siapa", "siapakah", "apa", "dengan", "sama", "posisi", "jabatan", "tugas", "hubungan", "sih", "itu", "us", "usth", "tolong", "info", "ya", "kan"
-  ]).has(w));
+  const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
+  const words = q.split(/\s+/).filter((w) => w.length >= 1);
+
+  if (words.length === 1 && (words[0] === "dia" || words[0] === "dirinya")) {
+    return true;
+  }
+
+  const nonQuestionWords = words.filter(
+    (w) =>
+      !new Set([
+        "siapa", "siapakah", "apa", "dengan", "sama", "posisi", "jabatan", "tugas", "hubungan", "sih", "itu", "us", "usth", "tolong", "info", "ya", "kan", "sebenarnya", "sosok", "orang"
+      ]).has(w)
+  );
+
+  if (nonQuestionWords.length === 0) {
+    return /\b(dia|dirinya|orang itu|si dia|sosok itu|orang tersebut)\b/i.test(query);
+  }
+
+  return nonQuestionWords.every((w) => ["dia", "dirinya"].includes(w));
+}
+
+export function isOtherPronounQuery(query: string): boolean {
+  if (isThirdPersonPronounQuery(query)) return false;
+
+  const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
+  const words = q.split(/\s+/).filter((w) => w.length >= 1);
+
+  if (words.length === 1 && OTHER_PRONOUNS_SET.has(words[0])) {
+    return true;
+  }
+
+  const nonQuestionWords = words.filter(
+    (w) =>
+      !new Set([
+        "siapa", "siapakah", "apa", "dengan", "sama", "posisi", "jabatan", "tugas", "hubungan", "sih", "itu", "us", "usth", "tolong", "info", "ya", "kan"
+      ]).has(w)
+  );
 
   if (nonQuestionWords.length === 0) return false;
 
-  return nonQuestionWords.every(w => PRONOUNS_SET.has(w));
+  return nonQuestionWords.every((w) => OTHER_PRONOUNS_SET.has(w));
+}
+
+export function isPronounQuery(query: string): boolean {
+  return isThirdPersonPronounQuery(query) || isOtherPronounQuery(query);
 }
 
 export function detectDuplicateSelectionIntent(prompt: string, history?: any[]): { isSelection: boolean; selectedMember?: PanitiaMember } {
@@ -739,10 +787,15 @@ export function getHubunganKepanitiaanResponse(
   isFirstTurn: boolean = false,
   history?: any[]
 ): string {
+  // BUG 1 FIX Part A: Third-Person Pronoun Query -> Motivasi Satir Dia
+  if (isThirdPersonPronounQuery(query)) {
+    return getRandomMotivasiSatirDia();
+  }
+
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  // BUG 1 FIX: Pronoun Filter
-  if (isPronounQuery(query)) {
+  // BUG 1 FIX Part B: Other Pronoun Filter
+  if (isOtherPronounQuery(query) || isPronounQuery(query)) {
     return `${greetingPrefix}Mohon maaf Us, saya tidak bisa mencari berdasarkan kata ganti orang. Mohon sebutkan nama spesifik yang ingin ditanyakan, Us.`;
   }
 

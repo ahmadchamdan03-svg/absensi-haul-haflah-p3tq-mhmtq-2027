@@ -3,8 +3,8 @@ import { store } from '@/lib/mock-data';
 import { geminiPool } from '@/lib/gemini-pool';
 import { supabase } from '@/lib/supabase';
 import { getWaliSantriMetrics, getTamuUndanganMetrics } from '@/lib/dashboard-metrics';
-import { MOTIVASI, getRandomMotivasi, detectMotivasiIntent, MOTIVASI_DIA_SIAPA, getRandomMotivasiDiaSiapa, detectDiaSiapaIntent } from '@/lib/us-halwaa-motivasi';
-import { detectHubunganKepanitiaanIntent, getHubunganKepanitiaanResponse } from '@/lib/us-halwaa-kepanitiaan';
+import { MOTIVASI, getRandomMotivasi, detectMotivasiIntent, getRandomMotivasiSatirDia, detectDiaSiapaIntent } from '@/lib/us-halwaa-motivasi';
+import { detectHubunganKepanitiaanIntent, getHubunganKepanitiaanResponse, isThirdPersonPronounQuery } from '@/lib/us-halwaa-kepanitiaan';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Usth. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri).
@@ -1337,8 +1337,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
 
   // 0. FITUR MOTIVASI SATIR "DIA SIAPA"
   if (detectDiaSiapaIntent(q)) {
-    const motivasiSatir = getRandomMotivasiDiaSiapa();
-    return `${motivasiSatir}\n\nAda lagi yang bisa saya bantu, Us?`;
+    return getRandomMotivasiSatirDia();
   }
 
 // 0. FITUR MOTIVASI KONTEKSTUAL
@@ -2294,7 +2293,8 @@ export async function POST(req: NextRequest) {
 
     if (detectHubunganKepanitiaanIntent(prompt, history)) {
       const replyText = getHubunganKepanitiaanResponse(prompt, isFirstTurn, history);
-      const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+      const isThirdPerson = isThirdPersonPronounQuery(prompt);
+      const cleanReply = isThirdPerson ? replyText : cleanReplyForSession(replyText, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
       return NextResponse.json({
         reply: cleanReply,
