@@ -252,6 +252,30 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
     jabatanTugas: "Kasi TDM (Dewan Pleno Putri)",
     displayTitle: "Mbak Salma Aesy",
   },
+  {
+    name: "Muhammad Abdurrohman Maulana",
+    aliases: ["muhammad abdurrohman maulana", "abdurrohman maulana", "pak maulana", "maulana", "bapak maulana", "abdurrohman"],
+    jabatanTugas: "Wakasi Berkatan (Dewan Pembimbing Putra)",
+    displayTitle: "Pak Maulana",
+  },
+  {
+    name: "Muhammad Sabiqul Anam",
+    aliases: ["muhammad sabiqul anam", "sabiqul anam", "sabiqul", "pak sabiq", "sabiq", "bapak sabiq", "anam"],
+    jabatanTugas: "Seksi Penerima Tamu (Dewan Pembimbing Putra)",
+    displayTitle: "Pak Sabiq",
+  },
+  {
+    name: "Gama Maulana Ilham",
+    aliases: ["gama maulana ilham", "gama maulana", "pak gama", "gama"],
+    jabatanTugas: "Wakasi Akomodasi (Dewan Pembimbing Putra)",
+    displayTitle: "Pak Gama",
+  },
+  {
+    name: "Adiva Maulana",
+    aliases: ["adiva maulana", "adiva", "mbak adiva"],
+    jabatanTugas: "Kasi Desain Grafis (Dewan Pleno Putri)",
+    displayTitle: "Mbak Adiva",
+  },
 ];
 
 // 50 TEMPLATES ACCROSS 5 CATEGORIES (PARAGRAPH 1 \n\n PARAGRAPH 2)
@@ -605,109 +629,100 @@ function levenshteinDistance(a: string, b: string): number {
 interface ScoredMember {
   member: PanitiaMember;
   score: number;
+  matchedTokenCount: number;
 }
 
 function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
   const term = queryTerm.toLowerCase().trim();
-  const fullQ = fullQuery.toLowerCase().trim();
 
   // Extract non-stop query tokens
-  const queryTokens = term.split(/\s+/).filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
-  const queryTokensCount = queryTokens.length;
+  let queryTokens = term
+    .split(/\s+/)
+    .filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
+
+  if (queryTokens.length === 0 && term.length >= 2) {
+    queryTokens = [term];
+  }
+
+  if (queryTokens.length === 0) {
+    return [];
+  }
 
   const scoredMembers: ScoredMember[] = [];
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
+    const displayLower = member.displayTitle.toLowerCase();
     const aliasesLower = member.aliases.map((a) => a.toLowerCase());
     const allMemberWords = [
       ...nameLower.split(/\s+/),
+      ...displayLower.split(/\s+/),
       ...aliasesLower.flatMap((a) => a.split(/\s+/)),
     ].filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
 
-    let score = 0;
-
-    // 1. Exact alias or name phrase match
-    for (const alias of aliasesLower) {
-      if (fullQ.includes(alias) || term.includes(alias) || alias.includes(term)) {
-        score += 200;
-      }
-      if (term.length >= 4) {
-        const dist = levenshteinDistance(term, alias);
-        if (dist <= 2) {
-          score += 180;
-        }
-      }
-    }
-
-    // 2. Full name substring or fuzzy match
-    if (term.length >= 3 && (nameLower.includes(term) || term.includes(nameLower))) {
-      score += 160;
-    } else if (term.length >= 5) {
-      const dist = levenshteinDistance(term, nameLower);
-      if (dist <= 3) {
-        score += 140;
-      }
-    }
-
-    // 3. Token-by-token match (Substring & Levenshtein)
+    let memberScore = 0;
     let matchedTokenCount = 0;
+
     for (const tok of queryTokens) {
-      let tokMatched = false;
+      let tokScore = 0;
 
-      for (const word of allMemberWords) {
-        if (word === tok) {
-          score += 60;
-          tokMatched = true;
-          break;
-        } else if (word.includes(tok) || tok.includes(word)) {
-          score += 40;
-          tokMatched = true;
-          break;
-        }
-      }
+      // TAHAP 1 — EXACT MATCH (Prioritas Tertinggi)
+      const isExactAlias = aliasesLower.includes(tok) || aliasesLower.includes(term) || nameLower === tok || nameLower === term;
+      const isExactWord = allMemberWords.includes(tok) || nameLower.split(/\s+/).includes(tok);
 
-      if (!tokMatched && tok.length >= 3) {
-        for (const word of allMemberWords) {
-          if (word.length >= 3) {
-            const dist = levenshteinDistance(tok, word);
-            const maxAllowedDist = tok.length <= 4 || word.length <= 4 ? 1 : 2;
-            if (dist <= maxAllowedDist) {
-              score += 35;
-              tokMatched = true;
-              break;
+      if (isExactAlias) {
+        tokScore = 2000;
+      } else if (isExactWord) {
+        tokScore = 1000;
+      } else {
+        // TAHAP 2 — PREFIX MATCH
+        const isPrefix = allMemberWords.some((w) => w.startsWith(tok));
+        if (isPrefix) {
+          tokScore = 500;
+        } else if (tok.length >= 4) {
+          // TAHAP 3 — SUBSTRING MATCH (Minimal 4 Huruf Berturut-turut)
+          const isSubstring = allMemberWords.some((w) => w.includes(tok)) || nameLower.includes(tok) || aliasesLower.some((a) => a.includes(tok));
+          if (isSubstring) {
+            tokScore = 300;
+          } else {
+            // TAHAP 4 — TOLERANSI EJAAN / TYPO (Levenshtein Distance = 1 ONLY, BUKAN >= 2)
+            const isTypoDistanceOne = allMemberWords.some((w) => {
+              if (w.length < 4) return false;
+              return levenshteinDistance(tok, w) === 1;
+            });
+            if (isTypoDistanceOne) {
+              tokScore = 100;
             }
           }
         }
       }
 
-      if (tokMatched) {
+      if (tokScore > 0) {
         matchedTokenCount++;
+        memberScore += tokScore;
       }
     }
 
-    // Bonus for matching multiple tokens in a multi-token query (Longest Match Bonus)
-    if (queryTokensCount > 1 && matchedTokenCount > 1) {
-      score += matchedTokenCount * 100;
-    }
-
-    if (score > 0) {
-      scoredMembers.push({ member, score });
+    if (matchedTokenCount > 0 && memberScore > 0) {
+      scoredMembers.push({ member, score: memberScore, matchedTokenCount });
     }
   }
-
-  // Sort by score descending
-  scoredMembers.sort((a, b) => b.score - a.score);
 
   if (scoredMembers.length === 0) {
     return [];
   }
 
-  const topScore = scoredMembers[0].score;
+  // Filter candidates matching max token count
+  const maxMatchedTokens = Math.max(...scoredMembers.map((sm) => sm.matchedTokenCount));
+  let candidates = scoredMembers.filter((sm) => sm.matchedTokenCount === maxMatchedTokens);
 
-  // Filter candidates:
-  const thresholdRatio = queryTokensCount >= 2 ? 0.7 : 0.5;
-  const filtered = scoredMembers.filter((item) => item.score >= topScore * thresholdRatio);
+  // Sort candidates by score descending
+  candidates.sort((a, b) => b.score - a.score);
+
+  const topScore = candidates[0].score;
+
+  // Keep top matches (within 80% of top score)
+  const filtered = candidates.filter((item) => item.score >= topScore * 0.8);
 
   const result: PanitiaMember[] = [];
   for (const item of filtered) {
