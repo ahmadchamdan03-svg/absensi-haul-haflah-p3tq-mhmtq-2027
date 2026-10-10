@@ -90,13 +90,13 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   // PROTOKOLER & UTAMA (DEWAN PEMBIMBING PUTRA)
   {
     name: "Abu Yazid Al Bustomi",
-    aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "bustomi"],
+    aliases: ["abu yazid al bustomi", "pak yazid bustomi", "abu yazid", "pak yazid", "bapak yazid", "yazid", "bustomi"],
     jabatanTugas: "Kasi Protokoler (Dewan Pembimbing Putra)",
     displayTitle: "Pak Yazid",
   },
   {
     name: "Muhammad Yazid Mahbubillah",
-    aliases: ["muhammad yazid mahbubillah", "pak yazid mahbubillah", "yazid mahbubillah", "mahbubillah"],
+    aliases: ["muhammad yazid mahbubillah", "pak yazid mahbubillah", "yazid mahbubillah", "yazid", "mahbubillah"],
     jabatanTugas: "Seksi Penerima Tamu (Dewan Pembimbing Putra)",
     displayTitle: "Pak Yazid Mahbubillah",
   },
@@ -375,7 +375,10 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
   // 1. Search all matching members in database
   const matchedMembers: PanitiaMember[] = [];
 
-  // Check exact alias matches first
+  // Extract candidate query tokens for duplicate check
+  const rawTokens = q.split(/\s+/).map(w => w.replace(/[.,!?]/g, '')).filter(w => w.length >= 3 && !stopWords.has(w));
+
+  // Check alias matches
   for (const member of KEPANITIAAN_DATABASE) {
     for (const alias of member.aliases) {
       if (q.includes(alias)) {
@@ -387,12 +390,11 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     }
   }
 
-  // If no exact alias match, check query tokens against member names
+  // If no alias match, check query tokens against member names
   if (matchedMembers.length === 0) {
-    const tokens = q.split(/\s+/).filter(w => w.length >= 2 && !stopWords.has(w));
     for (const member of KEPANITIAAN_DATABASE) {
       const nameLower = member.name.toLowerCase();
-      if (tokens.some(tok => nameLower.includes(tok))) {
+      if (rawTokens.some(tok => nameLower.includes(tok))) {
         if (!matchedMembers.some(m => m.name === member.name)) {
           matchedMembers.push(member);
         }
@@ -400,23 +402,19 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     }
   }
 
-  // Also check if query contains ambiguous single name like "yazid" that matches multiple members
-  if (matchedMembers.length === 1) {
-    const tokens = q.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
-    for (const tok of tokens) {
-      const allWithTok = KEPANITIAAN_DATABASE.filter(m => m.name.toLowerCase().includes(tok) || m.aliases.some(a => a.includes(tok)));
-      if (allWithTok.length > 1) {
-        for (const m of allWithTok) {
-          if (!matchedMembers.some(x => x.name === m.name)) {
-            matchedMembers.push(m);
-          }
+  // Also check if any query token (e.g. "yazid") matches multiple database entries
+  for (const tok of rawTokens) {
+    const allWithTok = KEPANITIAAN_DATABASE.filter(m => m.name.toLowerCase().includes(tok) || m.aliases.some(a => a === tok || a.includes(tok)));
+    if (allWithTok.length > 1) {
+      for (const m of allWithTok) {
+        if (!matchedMembers.some(x => x.name === m.name)) {
+          matchedMembers.push(m);
         }
-        break;
       }
     }
   }
 
-  // 2. LOGIKA VERIFIKASI NAMA GANDA (If multiple matches found)
+  // 2. LOGIKA VERIFIKASI NAMA GANDA (If multiple distinct matches found)
   if (matchedMembers.length > 1) {
     let queriedName = "";
     const salMatch = query.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
@@ -429,8 +427,7 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
       }
     }
     if (!queriedName) {
-      const tokens = q.split(/\s+/).filter(w => w.length >= 2 && !stopWords.has(w));
-      queriedName = tokens.join(" ") || "tersebut";
+      queriedName = rawTokens.join(" ") || "tersebut";
     }
 
     const memberListStr = matchedMembers
@@ -467,7 +464,8 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
 
   // Single matched member
   const targetMember = matchedMembers[0];
-  const personName = extractPersonNameFromQuery(query, targetMember);
+  const callName = extractPersonNameFromQuery(query, targetMember);
+  const fullNameBold = `**${targetMember.name}**`;
   const jabatanTugas = targetMember.jabatanTugas;
 
   // 4. Flatten all 50 templates across 5 categories
@@ -489,15 +487,25 @@ export function getHubunganKepanitiaanResponse(query: string, isFirstTurn: boole
     last5HubunganTemplates.shift();
   }
 
-  // 5. Perform dynamic replacements & MANDATORY REPLACEMENT OF "BELIAU" WITH PERSON'S NAME
-  let finalResponse = selectedTemplate
-    .replace(/\[jabatan\/tugas\]/g, jabatanTugas)
-    .replace(/\[Nama Person\]/g, personName)
-    .replace(/Pak Yazid/g, personName)
-    .replace(/beliau/gi, personName);
+  // 5. Perform dynamic replacements:
+  // a) Replace [jabatan/tugas]
+  let finalResponse = selectedTemplate.replace(/\[jabatan\/tugas\]/g, jabatanTugas);
+
+  // b) Replace VERY FIRST subject occurrence with bold full name (**Nama Lengkap**)
+  let hasReplacedFirst = false;
+  finalResponse = finalResponse.replace(/(\[Nama Person\]|Pak Yazid|\bBeliau\b|\bbeliau\b)/, (match) => {
+    hasReplacedFirst = true;
+    return fullNameBold;
+  });
+
+  // c) Replace ALL SUBSEQUENT subject occurrences with callName (e.g. "Bu Nala", "Pak Yazid")
+  finalResponse = finalResponse
+    .replace(/\[Nama Person\]/g, callName)
+    .replace(/Pak Yazid/g, callName)
+    .replace(/beliau/gi, callName);
 
   // Mandatory Validation: ensure no leftover "beliau" case-insensitively
-  finalResponse = finalResponse.replace(/beliau/gi, personName);
+  finalResponse = finalResponse.replace(/beliau/gi, callName);
 
   return `${greetingPrefix}${finalResponse}\n\nAda lagi info kepanitiaan yang bisa saya bantu, Us?`;
 }
