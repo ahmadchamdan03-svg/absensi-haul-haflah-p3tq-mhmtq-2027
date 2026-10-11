@@ -845,6 +845,22 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
 
       const data = await res.json();
 
+      // Debug mode (?debug=1 di URL atau query parameter)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('debug') === '1' || urlParams.has('debug')) {
+          console.groupCollapsed(`%c[Halwaa Debug] 🔍 "${query}"`, 'color: #8C6A47; font-weight: bold;');
+          console.log('%cQuery Input:', 'font-weight: bold;', query);
+          console.log('%cModel / Engine:', 'font-weight: bold;', data?.model || 'Unknown');
+          console.log('%cSource:', 'font-weight: bold;', data?.source || 'Unknown');
+          console.log('%cExpression:', 'font-weight: bold;', data?.expression || 'polite');
+          console.log('%cReply Length:', 'font-weight: bold;', data?.reply?.length || 0, 'karakter');
+          console.log('%cReply Content:\n', 'font-weight: bold;', data?.reply);
+          if (data?.chart) console.log('%cChart Data:', 'font-weight: bold;', data.chart);
+          console.groupEnd();
+        }
+      }
+
       if (res.ok && data?.reply) {
         const assignedExpr: UstadzahExpression =
           data.expression || getExpressionFromContent(data.reply, false);
