@@ -21,6 +21,10 @@ import {
   detectInfoSeksiIntent,
   handleInfoSeksiQuery
 } from '@/lib/us-halwaa-seksi';
+import {
+  detectRekapKehadiranIntent,
+  getLiveRekapKehadiran
+} from '@/lib/us-halwaa-rekap';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Usth. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri).
@@ -1345,6 +1349,11 @@ async function handleWaliSantriQueries(prompt: string, isFirstTurn: boolean): Pr
 async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
 
+  // 0. FITUR REKAP KEHADIRAN REALTIME
+  if (detectRekapKehadiranIntent(userQuery)) {
+    return await getLiveRekapKehadiran(isFirstTurn);
+  }
+
   // 0. FITUR INFO BAGAN/SEKSI KEPANITIAAN
   if (detectInfoSeksiIntent(userQuery)) {
     return handleInfoSeksiQuery(userQuery, isFirstTurn);
@@ -2309,6 +2318,19 @@ export async function POST(req: NextRequest) {
         avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
         source: 'smart_knowledge_engine',
         model: 'Usth. Halwaa Knowledge Engine',
+      });
+    }
+
+    // 0. FITUR REKAP KEHADIRAN REALTIME
+    if (detectRekapKehadiranIntent(prompt)) {
+      const replyText = await getLiveRekapKehadiran(isFirstTurn);
+      const expr = detectExpression(replyText, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: replyText,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_stats',
+        model: 'Usth. Halwaa Live Attendance Recap Engine',
       });
     }
 
