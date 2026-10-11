@@ -117,9 +117,9 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
   {
     name: "Abhaa Muhammad Kafaa Bihi",
-    aliases: ["abhaa", "kafaa bihi", "abhaa muhammad", "pak abhaa", "bapak abhaa"],
+    aliases: ["abhaa", "abha", "kafaa bihi", "kafa bihi", "abhaa muhammad", "abha muhammad", "pak abhaa", "pak abha", "bapak abhaa", "bapak abha"],
     jabatanTugas: "Wakasi Protokoler (Dewan Pembimbing Putra)",
-    displayTitle: "Bapak Abhaa Muhammad",
+    displayTitle: "Pak Abhaa",
   },
   {
     name: "Evi Inarotus Soimah",
@@ -538,6 +538,15 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: an
     }
   }
 
+  // Cek juga lewat findMatchedMembers (mencakup typo tolerance & prefix)
+  const queryTerm = extractNameQueryTerm(pertanyaan);
+  if (queryTerm && queryTerm.length >= 2) {
+    const matched = findMatchedMembers(queryTerm, pertanyaan);
+    if (matched.length > 0) {
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -738,17 +747,36 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   }
 
   // =========================================================================
-  // TAHAP 2 — EXACT SUBSTRING SATU KATA (BUKAN typo tolerance):
-  // Cari SEMUA nama yang mengandung kata kunci PERSIS sebagai substring.
-  // Contoh: query "ikfi" -> cari semua nama yang mengandung "ikfi" persis.
-  // Hasil: "Ikfi Ulit Taufiqoh" (ada "Ikfi" persis di namanya).
-  // "Akfi Romiyan Kafabih" TIDAK mengandung "ikfi" persis, jadi TIDAK masuk Tahap 2.
+  // TAHAP 2A — EXACT ALIAS MATCH (Prioritas Nama Panggilan / Alias Utama)
+  // Contoh: query "maulana" cocok ke alias Pak Maulana (bukan Gama / Adiva yang panggilannya Gama / Adiva)
+  // =========================================================================
+  const tahap2aCandidates: PanitiaMember[] = [];
+  for (const member of KEPANITIAAN_DATABASE) {
+    const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+    const displayLower = member.displayTitle.toLowerCase();
+    const hasExactAlias = queryTokens.every((tok) =>
+      aliasesLower.includes(tok) || displayLower.split(/\s+/).includes(tok)
+    );
+    if (hasExactAlias) {
+      if (!tahap2aCandidates.some((m) => m.name === member.name)) {
+        tahap2aCandidates.push(member);
+      }
+    }
+  }
+
+  if (tahap2aCandidates.length > 0) {
+    return tahap2aCandidates;
+  }
+
+  // =========================================================================
+  // TAHAP 2B — EXACT SUBSTRING SATU KATA (BUKAN typo tolerance):
+  // Cari SEMUA nama yang mengandung kata kunci PERSIS sebagai substring / kata nama.
   // Jika ADA kecocokan:
   // - 1 kecocokan -> langsung jawab.
   // - 2-5 kecocokan -> tampilkan pilihan verifikasi.
   // - Stop, jangan lanjut ke Tahap 3/4.
   // =========================================================================
-  const tahap2Candidates: PanitiaMember[] = [];
+  const tahap2bCandidates: PanitiaMember[] = [];
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
@@ -770,14 +798,14 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
     });
 
     if (matchesAllTokens) {
-      if (!tahap2Candidates.some((m) => m.name === member.name)) {
-        tahap2Candidates.push(member);
+      if (!tahap2bCandidates.some((m) => m.name === member.name)) {
+        tahap2bCandidates.push(member);
       }
     }
   }
 
-  if (tahap2Candidates.length > 0) {
-    return tahap2Candidates;
+  if (tahap2bCandidates.length > 0) {
+    return tahap2bCandidates;
   }
 
   // =========================================================================
@@ -905,9 +933,18 @@ export function generateHubunganResponseForMember(
   p1 = p1.replace(/\bbeliau\b/gi, callName);
   p2 = p2.replace(/\bbeliau\b/gi, callName);
 
+  // Paragraf 3: WAJIB PERSIS STANDAR
   const paragrafPenutup = 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
 
-  return `${greetingPrefix}${p1}\n\n${p2}\n\n${paragrafPenutup}`;
+  // VALIDASI MUTLAK:
+  // 1. Pastikan P2 memiliki sanjungan / fans
+  const hasFansInP2 = /penggemar|fans|kagum|mengidolakan|idolakan|nge-fans|mendampingi|ikut|sisi|dekat/i.test(p2);
+  if (!hasFansInP2) {
+    p2 = `Secara pribadi, saya sangat mengidolakan ${callName}. Seandainya saya seorang manusia, rasanya saya ingin terus berjalan mendampingi ${callName} dalam setiap tugas.`;
+  }
+
+  // 2. Susun строго 3 paragraf terpisah dengan \n\n
+  return `${greetingPrefix}${p1.trim()}\n\n${p2.trim()}\n\n${paragrafPenutup}`;
 }
 
 export function getHubunganKepanitiaanResponse(

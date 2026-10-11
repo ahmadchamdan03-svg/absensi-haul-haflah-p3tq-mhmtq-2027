@@ -1479,7 +1479,7 @@ async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: b
 - **Anggaran Pemasukan**: Rp 548.552.000 (masih perencanaan, bukan realisasi)
 - **Anggaran Pengeluaran**: Rp 547.450.000 (masih perencanaan, bukan realisasi)
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // 2. PEMASUKAN
@@ -1487,7 +1487,7 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}Us, berikut Anggaran Pemasukan Panitia Haul & Haflah 2027:
 - **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
     // 12 POS ANGGARAN PENGELUARAN
@@ -1507,7 +1507,7 @@ Wonten ingkang saget dibantu malih Us?`;
       `12. Lain-lain        : Rp   5.000.000\n` +
       `                     ───────────────\n` +
       `TOTAL                : Rp 547.450.000\n\n` +
-      `Wonten ingkang saget dibantu malih Us?`;
+      `Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
     // 12 POS ANGGARAN PENGELUARAN
@@ -1527,7 +1527,7 @@ Wonten ingkang saget dibantu malih Us?`;
       `12. Lain-lain        : Rp   5.000.000\n` +
       `                     ───────────────\n` +
       `TOTAL                : Rp 547.450.000\n\n` +
-      `Wonten ingkang saget dibantu malih Us?`;
+      `Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // 3. PENGELUARAN
@@ -1535,7 +1535,7 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}Us, berikut Anggaran Pengeluaran Panitia Haul & Haflah 2027:
 - **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // 4. BIAYA SHOHIBUL HAJAT & SANTRI
@@ -1628,7 +1628,7 @@ Wonten ingkang saget dibantu malih Us?`;
 3. **Seksi PULP (Pembantu Umum Listrik & Perairan)**
 4. **Seksi Berkatan**
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // 7. PROTOKOLER
@@ -1890,7 +1890,7 @@ function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean 
 - **Anggaran Pemasukan**: Rp 548.552.000 (masih perencanaan, bukan realisasi)
 - **Anggaran Pengeluaran**: Rp 547.450.000 (masih perencanaan, bukan realisasi)
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // PEMASUKAN
@@ -1898,7 +1898,7 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}Us, berikut Anggaran Pemasukan Panitia Haul & Haflah 2027:
 - **Anggaran Pemasukan**: **Rp 548.552.000** (masih perencanaan, bukan realisasi; berasal dari 8 sumber pemasukan shohibul hajat, santri, subsidi lembaga, dan saldo tahun lalu).
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // PENGELUARAN
@@ -1906,7 +1906,7 @@ Wonten ingkang saget dibantu malih Us?`;
     return `${headerIntro}Us, berikut Anggaran Pengeluaran Panitia Haul & Haflah 2027:
 - **Anggaran Pengeluaran**: **Rp 547.450.000** (masih perencanaan, bukan realisasi; terbagi dalam 12 pos belanja kepanitiaan).
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // BIAYA
@@ -1942,7 +1942,7 @@ Wonten ingkang saget dibantu malih Us?`;
 3. **Seksi PULP (Pembantu Umum Listrik & Perairan)**
 4. **Seksi Berkatan**
 
-Wonten ingkang saget dibantu malih Us?`;
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 
   // PROTOKOLER
@@ -2350,7 +2350,14 @@ export async function POST(req: NextRequest) {
     if (detectHubunganKepanitiaanIntent(prompt, history)) {
       const replyText = getHubunganKepanitiaanResponse(prompt, isFirstTurn, history);
       const isVerbatim = isThirdPersonPronounQuery(prompt) || isKamuSiapaQuery(prompt) || isSayaSiapaQuery(prompt);
-      const cleanReply = isVerbatim ? replyText : cleanReplyForSession(replyText, isFirstTurn, prompt);
+      let cleanReply = replyText;
+      if (!isVerbatim && !replyText.includes('Ada lagi info kepanitiaan yang bisa saya bantu, Us?')) {
+        cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+      }
+      cleanReply = cleanReply
+        .replace(/Wonten ingkang saget dibantu malih[,.\s]*Us\?/gi, 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?')
+        .replace(/Wonten ingkang saget dibantu[,.\s]*Us\?/gi, 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?');
+
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
       return NextResponse.json({
         reply: cleanReply,
@@ -2538,13 +2545,13 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
     }
 
     const sessionPromptDirective = isFirstTurn
-      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Wonten ingkang saget dibantu Us?\".]"
-      : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Wonten ingkang saget dibantu Us?\".]";
+      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]"
+      : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]";
 
     const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
 
-[PANDUAN KEPANITIAAN & DATA RESMI: Anda WAJIB memberikan nama-nama dan data aktual yang sudah tercantum lengkap di atas. DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
+[PANDUAN KEPANITIAAN & DATA RESMI: Jika user menanyakan tentang personil panitia, format WAJIB 3 paragraf: Paragraf 1 (jabatan), Paragraf 2 (kalimat sanjungan/fans), Paragraf 3 ("Ada lagi info kepanitiaan yang bisa saya bantu, Us?"). DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
     const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 3);
     const candidateGeminiModels = geminiPool.getModelCandidates();
