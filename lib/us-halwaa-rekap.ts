@@ -71,11 +71,11 @@ export async function getLiveRekapKehadiran(isFirstTurn: boolean = false): Promi
     const undanganData = resUndangan.data || [];
     const logsData = resLogs.data || [];
 
-    // Total SH (Shohibul Hajat)
-    const totalSH = santriData.length > 0 ? santriData.length : 536;
+    // Total SH (Shohibul Hajat) LIVE dari Supabase
+    const totalSH = santriData.length;
 
-    // Total Tamu Undangan
-    const totalTamu = undanganData.length > 0 ? undanganData.length : 1534;
+    // Total Tamu Undangan LIVE dari Supabase
+    const totalTamu = undanganData.length;
 
     // Total Shohibul Hajat yang sudah scan
     const shLogs = logsData.filter((r) => {
@@ -114,7 +114,19 @@ export async function getLiveRekapKehadiran(isFirstTurn: boolean = false): Promi
 
     // 3. JIKA DATA KOSONG
     if (totalScan === 0 && shScanned === 0 && tamuHadir === 0) {
-      return `${greetingPrefix}Us, belum ada data presensi yang masuk hari ini. Total kuota siap scan: ${totalSH.toLocaleString('id-ID')} Shohibul Hajat dan ${totalTamu.toLocaleString('id-ID')} Tamu Undangan. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
+      return `${greetingPrefix}Berikut rekap kehadiran Haul & Haflah per pukul ${jamWIB}:
+
+📊 **Shohibul Hajat:**
+- Sudah scan: 0 dari ${totalSH.toLocaleString('id-ID')}
+- Persentase: 0.0%
+
+📊 **Tamu Undangan:**
+- Sudah RSVP Hadir: 0 dari ${totalTamu.toLocaleString('id-ID')}
+- Persentase: 0.0%
+
+📊 **Total Scan Hari Ini:** 0 kali
+
+Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
     }
 
     // 4. HITUNG PERSENTASE
@@ -136,6 +148,6 @@ export async function getLiveRekapKehadiran(isFirstTurn: boolean = false): Promi
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   } catch (err) {
     console.error('Error fetching live rekap kehadiran:', err);
-    return `${greetingPrefix}Us, belum ada data presensi yang masuk hari ini. Total kuota siap scan: 536 Shohibul Hajat dan 1.534 Tamu Undangan. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
+    return `${greetingPrefix}Mohon maaf Us, saat ini saya tidak bisa mengakses data kehadiran karena koneksi ke sistem sedang terganggu. Mohon coba beberapa saat lagi. Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
 }

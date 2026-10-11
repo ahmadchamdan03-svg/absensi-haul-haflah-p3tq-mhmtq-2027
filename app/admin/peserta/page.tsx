@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Users,
   Search,
@@ -25,6 +25,7 @@ import {
   RotateCcw,
   Info,
   History,
+  Loader2,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
@@ -186,6 +187,13 @@ export default function ManajemenPesertaPage() {
       setEditModalTab('FORM');
     }
   }, [editingItem?.kode]);
+
+  // State & Ref Guard Anti-Duplikasi Submit
+  const [isSubmittingSantri, setIsSubmittingSantri] = useState(false);
+  const submitLockSantri = useRef(false);
+
+  const [isSubmittingTamu, setIsSubmittingTamu] = useState(false);
+  const submitLockTamu = useRef(false);
 
   // Form state tambah santri (tanpa Sub-Kategori / Juz / Tingkat)
   const [formData, setFormData] = useState({
@@ -923,9 +931,11 @@ export default function ManajemenPesertaPage() {
     return filteredItems.slice(start, start + pageSize);
   }, [filteredItems, currentPage, pageSize]);
 
-  // Handler Tambah Santri Baru (Direct Supabase .insert())
+  // Handler Tambah Santri Baru (Direct Supabase .insert() + Optimistic UI)
   const handleTambahPeserta = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockSantri.current || isSubmittingSantri) return;
+
     if (!formData.nama.trim()) {
       alert('Nama santri wajib diisi!');
       return;
@@ -934,6 +944,9 @@ export default function ManajemenPesertaPage() {
       alert('Nama wali wajib diisi!');
       return;
     }
+
+    submitLockSantri.current = true;
+    setIsSubmittingSantri(true);
 
     const kodeBaru = 'SH' + Math.floor(1000 + Math.random() * 9000);
     const subKat =
@@ -968,6 +981,38 @@ export default function ManajemenPesertaPage() {
         return;
       }
 
+      // Optimistic UI: Buat item baru dan sisipkan ke state keluargaList seketika
+      const newSantriItem = {
+        id: data && (data as any)[0]?.id ? (data as any)[0].id : kodeBaru,
+        kode: kodeBaru,
+        namaWali: formData.namaWali.trim().toUpperCase(),
+        noHp: formData.noHp.trim() || '-',
+        alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
+        kamar: formData.kamar.trim() || '-',
+        santri: [
+          {
+            id: kodeBaru,
+            nis: kodeBaru,
+            nama: formData.nama.trim().toUpperCase(),
+            kelas: formData.kategoriUtama || '-',
+            kategoriUtama: formData.kategoriUtama || 'BIL_GHOIB',
+            subKategori: subKat || 'Bil Ghoib',
+            bagianTamatan: subKat || 'A.01',
+          },
+        ],
+        kuota: {
+          id: kodeBaru,
+          kodeQr: kodeBaru,
+          kuotaDasar: kuotaVal,
+          kuotaTambahan: 0,
+          terpakai: 0,
+          tiketPanggungJatah: 0,
+          warnaTiket: warna,
+        },
+      };
+
+      setKeluargaList((prev) => [newSantriItem, ...prev]);
+
       store.tambahPeserta({
         nama: formData.nama.trim().toUpperCase(),
         kategoriUtama: formData.kategoriUtama,
@@ -978,7 +1023,12 @@ export default function ManajemenPesertaPage() {
         alamat: formData.alamat.trim().toUpperCase(),
       });
 
-      await logAudit({
+      // Tutup modal SEGERA & tampilkan toast sukses (< 500ms)
+      setShowAddModal(false);
+      showToast(`✓ Berhasil menambahkan santri baru ke database: ${formData.nama} (Kode: ${kodeBaru})`);
+
+      // logAudit fire-and-forget (tanpa await yang memblokir UI)
+      logAudit({
         panitia_id: 'ADMIN_SEKRETARIAT',
         panitia_role: 'ADMIN',
         aksi: 'TAMBAH_PESERTA',
@@ -989,11 +1039,8 @@ export default function ManajemenPesertaPage() {
         nilai_baru: JSON.stringify(formData),
         detail: formData,
         catatan: `Penambahan Data Santri Baru (${kodeBaru})`,
-      });
+      }).catch((err) => console.warn('Audit log error:', err));
 
-      await refreshData();
-      setShowAddModal(false);
-      showToast(`✓ Berhasil menambahkan santri baru ke database Supabase: ${formData.nama} (Kode: ${kodeBaru})`);
       setFormData({
         nama: '',
         kategoriUtama: 'BIL_GHOIB',
@@ -1005,12 +1052,16 @@ export default function ManajemenPesertaPage() {
       });
     } catch (err: any) {
       alert(`Terjadi kesalahan sistem saat menghubungi Supabase: ${err?.message || err}`);
+    } finally {
+      submitLockSantri.current = false;
+      setIsSubmittingSantri(false);
     }
   };
 
-  // Handler Tambah Undangan Baru (Direct Supabase .insert())
+  // Handler Tambah Undangan Baru (Direct Supabase .insert() + Optimistic UI)
   const handleTambahUndangan = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockTamu.current || isSubmittingTamu) return;
 
     let finalKategori = '';
     if (selectedGolonganUndangan === 'KEHORMATAN') {
@@ -1037,6 +1088,9 @@ export default function ManajemenPesertaPage() {
       alert('Mohon isi minimal salah satu: Nama Tamu Putra (Kyai/Gus/Ust.) atau Nama Tamu Putri (Nyai/Ning/Ustazah)!');
       return;
     }
+
+    submitLockTamu.current = true;
+    setIsSubmittingTamu(true);
 
     let finalNama = '';
     let kuotaBase = 1;
@@ -1086,8 +1140,10 @@ export default function ManajemenPesertaPage() {
 
     if (res.ok) {
       try {
+        const warnaTiketVal = getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori);
+
         // Insert langsung ke tabel Supabase 'tamu_undangan'
-        const { error } = await supabase.from('tamu_undangan').insert([
+        const { data: uInsertData, error } = await supabase.from('tamu_undangan').insert([
           {
             kode: res.code,
             nama: finalNama,
@@ -1099,7 +1155,7 @@ export default function ManajemenPesertaPage() {
             sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
             no_hp: undanganForm.noHp || '-',
             kuota_terpakai: 0,
-            warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
+            warna_tiket: warnaTiketVal,
             jalur_masuk: finalJalur,
           },
         ]);
@@ -1108,41 +1164,72 @@ export default function ManajemenPesertaPage() {
           alert(`Gagal menyimpan Tamu Undangan ke Supabase DB: ${error.message}`);
           return;
         }
+
+        // Optimistic UI: Sisipkan langsung ke undanganList
+        const newUndanganItem = {
+          id: uInsertData && (uInsertData as any)[0]?.id ? (uInsertData as any)[0].id : res.code,
+          kode: res.code,
+          nama: finalNama,
+          namaPutra: p || '',
+          namaPutri: w || '',
+          kategori: finalKategori,
+          golongan: selectedGolonganUndangan || 'ISTIMEWA',
+          instansi: finalInstansi || '-',
+          alamat: finalAlamat || '-',
+          noHp: undanganForm.noHp || '-',
+          kuota: {
+            id: res.code,
+            kodeQr: res.code,
+            kuotaDasar: kuotaBase,
+            kuotaTambahan: 0,
+            terpakai: 0,
+            warnaTiket: warnaTiketVal,
+          },
+        };
+
+        setUndanganList((prev) => [newUndanganItem, ...prev]);
+
+        // Tutup modal SEGERA & tampilkan toast (< 500ms)
+        setShowAddUndanganModal(false);
+        showToast(`✓ Berhasil menambahkan Tamu Undangan ke database: ${finalNama} (Kode: ${res.code})`);
+
+        // logAudit fire-and-forget (tanpa await yang memblokir UI)
+        logAudit({
+          panitia_id: 'ADMIN_SEKRETARIAT',
+          panitia_role: 'ADMIN',
+          aksi: 'TAMBAH_TAMU',
+          tabel: 'tamu_undangan',
+          kode: res.code,
+          nama: finalNama,
+          field: 'tambah_tamu_baru',
+          nilai_baru: JSON.stringify(undanganForm),
+          detail: undanganForm,
+          catatan: `Penambahan Tamu Undangan Baru (${res.code})`,
+        }).catch((err) => console.warn('Audit log error:', err));
+
+        setUndanganForm({
+          nama: '',
+          namaPutra: '',
+          namaPutri: '',
+          kategori: OPSI_UNDANGAN_ISTIMEWA[0],
+          instansi: '',
+          alamat: '',
+          noHp: '',
+          kuotaDasar: 1,
+          jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
+        });
+        setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
+        setCustomKategoriInput('');
       } catch (err: any) {
         console.warn('Supabase direct insert tamu_undangan warning:', err);
         alert(`Terjadi kesalahan: ${err.message || err}`);
-        return;
+      } finally {
+        submitLockTamu.current = false;
+        setIsSubmittingTamu(false);
       }
-
-      await logAudit({
-        panitia_id: 'ADMIN_SEKRETARIAT',
-        panitia_role: 'ADMIN',
-        aksi: 'TAMBAH_TAMU',
-        tabel: 'tamu_undangan',
-        kode: res.code,
-        nama: finalNama,
-        field: 'tambah_tamu_baru',
-        nilai_baru: JSON.stringify(undanganForm),
-        detail: undanganForm,
-        catatan: `Penambahan Tamu Undangan Baru (${res.code})`,
-      });
-
-      refreshData();
-      setShowAddUndanganModal(false);
-      showToast(`✓ Berhasil menambahkan Tamu Undangan ke database: ${finalNama} (Kode: ${res.code})`);
-      setUndanganForm({
-        nama: '',
-        namaPutra: '',
-        namaPutri: '',
-        kategori: OPSI_UNDANGAN_ISTIMEWA[0],
-        instansi: '',
-        alamat: '',
-        noHp: '',
-        kuotaDasar: 1,
-        jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
-      });
-      setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
-      setCustomKategoriInput('');
+    } else {
+      submitLockTamu.current = false;
+      setIsSubmittingTamu(false);
     }
   };
 
@@ -2267,15 +2354,24 @@ export default function ManajemenPesertaPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold"
+                  disabled={isSubmittingSantri}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40"
+                  disabled={isSubmittingSantri}
+                  className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Simpan Santri Baru
+                  {isSubmittingSantri ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-gold-300 shrink-0" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    'Simpan Santri Baru'
+                  )}
                 </button>
               </div>
             </form>
@@ -2598,15 +2694,24 @@ export default function ManajemenPesertaPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddUndanganModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold"
+                  disabled={isSubmittingTamu}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40"
+                  disabled={isSubmittingTamu}
+                  className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Simpan Undangan
+                  {isSubmittingTamu ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-gold-300 shrink-0" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    'Simpan Undangan'
+                  )}
                 </button>
               </div>
             </form>

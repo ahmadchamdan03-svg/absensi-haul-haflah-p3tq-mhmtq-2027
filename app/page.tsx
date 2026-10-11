@@ -221,24 +221,45 @@ export default function LandingPortalPage() {
     setIsSubmitting(true);
     setPasswordError(false);
 
-    setTimeout(async () => {
-      const isValid = await verifyRolePasswordAsync(role, pass);
-      if (isValid) {
-        setActiveRole(role);
-        const targetRoute = ROLES_CONFIG[role].route;
-        setSelectedRole(null);
-        setInputPassword('');
-        setIsSubmitting(false);
-        router.push(targetRoute);
-      } else {
-        setPasswordError(true);
-        setInputPassword('');
-        setIsSubmitting(false);
-        if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-          navigator.vibrate([100, 50, 100]);
+    // 1. Verifikasi Lokal Instan (0ms)
+    const isLocalValid = verifyRolePassword(role, pass);
+    if (isLocalValid) {
+      setActiveRole(role);
+      const targetRoute = ROLES_CONFIG[role].route;
+      setSelectedRole(null);
+      setInputPassword('');
+      setIsSubmitting(false);
+      router.push(targetRoute);
+
+      // Sinkronisasi background (fire-and-forget) ke Supabase akun_otoritas
+      verifyRolePasswordAsync(role, pass).catch((e) => console.warn('Background sync error:', e));
+      return;
+    }
+
+    // 2. Jika password lokal tidak cocok (misal password sudah diubah di DB Supabase), cek async Supabase
+    (async () => {
+      try {
+        const isAsyncValid = await verifyRolePasswordAsync(role, pass);
+        if (isAsyncValid) {
+          setActiveRole(role);
+          const targetRoute = ROLES_CONFIG[role].route;
+          setSelectedRole(null);
+          setInputPassword('');
+          setIsSubmitting(false);
+          router.push(targetRoute);
+          return;
         }
+      } catch (err) {
+        console.warn('Async login error:', err);
       }
-    }, 400);
+
+      setPasswordError(true);
+      setInputPassword('');
+      setIsSubmitting(false);
+      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100]);
+      }
+    })();
   }, [isSubmitting, router]);
 
   const handleOpenRoleModal = (roleKey: AppRole) => {

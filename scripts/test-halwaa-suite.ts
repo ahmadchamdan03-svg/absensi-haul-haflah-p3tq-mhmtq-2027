@@ -80,11 +80,12 @@ const testCases: TestCase[] = [
     validate: (res) => {
       const hasSH = res.includes('Shohibul Hajat');
       const hasTamu = res.includes('Tamu Undangan');
-      const hasPresensiContext = res.includes('WIB') || res.includes('data presensi yang masuk') || res.includes('kuota siap scan');
+      const hasPresensiContext = res.includes('WIB') || res.includes('Total Scan Hari Ini');
       const noAdi = !res.includes('Adi Susilo');
+      const noHardcode = !res.includes('536') && !res.includes('1.534');
       return {
-        passed: hasSH && hasTamu && hasPresensiContext && noAdi,
-        message: `Expected live recap format without match to Adi Susilo.`,
+        passed: hasSH && hasTamu && hasPresensiContext && noAdi && noHardcode,
+        message: `Expected live recap format without match to Adi Susilo and without hardcoded 536/1.534.`,
       };
     },
   },

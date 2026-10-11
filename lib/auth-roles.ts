@@ -132,18 +132,28 @@ export async function verifyRolePasswordAsync(role: AppRole, inputPassword: stri
   if (!config) return false;
   if (!config.requirePassword) return true;
 
+  const trimmedInput = inputPassword.trim();
+
+  // Buat AbortController dengan timeout 1500ms agar login tidak pernah hanging lama
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
+
   try {
     const { data, error } = await supabase
       .from('akun_otoritas')
       .select('peran, password, hak_akses')
       .eq('peran', role)
+      .abortSignal(controller.signal)
       .maybeSingle();
 
+    clearTimeout(timeoutId);
+
     if (!error && data && data.password) {
-      return data.password === inputPassword.trim();
+      return data.password === trimmedInput;
     }
   } catch (e) {
-    console.warn('Fallback to local role password due to Supabase error:', e);
+    clearTimeout(timeoutId);
+    console.warn('Fallback to local role password due to Supabase timeout/error:', e);
   }
 
   return verifyRolePassword(role, inputPassword);
