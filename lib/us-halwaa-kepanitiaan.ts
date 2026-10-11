@@ -11,6 +11,7 @@ import {
   getRandomMotivasiPositifSaya,
   isSayaSiapaQuery
 } from './us-halwaa-motivasi';
+import { SEKSI_DATABASE } from './us-halwaa-seksi';
 
 export interface PanitiaMember {
   name: string;
@@ -19,7 +20,11 @@ export interface PanitiaMember {
   displayTitle: string;
 }
 
-export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
+export function normalizeApostrophes(str: string): string {
+  return str.replace(/[''ʼ`]/g, '');
+}
+
+export const MANUAL_KEPANITIAAN_DATABASE: PanitiaMember[] = [
   // DEWAN PENGASUH & PELINDUNG
   {
     name: "Agus H. Muhammad Hasyim",
@@ -291,6 +296,161 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
 ];
 
+function cleanRawName(raw: string): string[] {
+  if (raw.includes(' / ')) {
+    return raw.split(' / ').flatMap(cleanRawName);
+  }
+  if (raw.includes(' - ')) {
+    return raw.split(' - ').flatMap(cleanRawName);
+  }
+  let s = raw.trim();
+  s = s.replace(/\s*\([^)]*\)/g, '').trim();
+  s = s.replace(/\s*'\d{2}\b/g, '').trim();
+  s = s.replace(/^(Bapak|Saudara|Ibu)\s+/i, '').trim();
+  return s ? [s] : [];
+}
+
+function determineHonorific(rawName: string, jabatan: string): string {
+  if (/^(Bapak|Pak)\b/i.test(rawName.trim())) return 'Pak';
+  if (/^(Saudara|Sdr)\b/i.test(rawName.trim())) return 'Saudara';
+  if (/putri/i.test(jabatan)) {
+    if (/\bning\b/i.test(rawName)) return 'Ning';
+    if (/\b(bu|ibu)\b/i.test(rawName)) return 'Bu';
+    return 'Mbak';
+  }
+  if (/putra/i.test(jabatan)) return 'Pak';
+  return 'Pak';
+}
+
+function generateDisplayTitle(rawName: string, cleanName: string, jabatan: string, aliases: string[]): string {
+  const honorific = determineHonorific(rawName, jabatan);
+  const words = cleanName.split(/\s+/).filter(w => w.length >= 2);
+  let callName = words[0];
+  if (['muhammad', 'ahmad', 'achmad', 'm.'].includes(words[0].toLowerCase()) && words.length > 1) {
+    callName = words[1];
+  }
+  return `${honorific} ${callName}`;
+}
+
+export function buildAutoMembers(manualMembers: PanitiaMember[]): PanitiaMember[] {
+  const aliasToOwner = new Map<string, string>();
+
+  for (const m of manualMembers) {
+    const ownerKey = normalizeApostrophes(m.name.toLowerCase().trim());
+    for (const a of m.aliases) {
+      const aNorm = normalizeApostrophes(a.toLowerCase().trim());
+      aliasToOwner.set(aNorm, ownerKey);
+    }
+  }
+
+  const manualNameSet = new Set(
+    manualMembers.map(m => normalizeApostrophes(m.name.toLowerCase().trim()))
+  );
+
+  const autoMembers: PanitiaMember[] = [];
+  let conflictCount = 0;
+
+  for (const seksi of SEKSI_DATABASE) {
+    (['putra', 'putri'] as const).forEach(gender => {
+      const info = seksi[gender];
+      const dewan = gender === 'putra' ? 'Dewan Pembimbing Putra' : 'Dewan Pleno Putri';
+
+      const processPerson = (rawName: string, role: string) => {
+        const cleaned = cleanRawName(rawName);
+        for (const name of cleaned) {
+          const nameNorm = normalizeApostrophes(name.toLowerCase().trim());
+          if (manualNameSet.has(nameNorm)) {
+            continue;
+          }
+          if (autoMembers.some(m => normalizeApostrophes(m.name.toLowerCase().trim()) === nameNorm)) {
+            continue;
+          }
+
+          const jabatan = `${role} ${seksi.name} (${dewan})`;
+          const candAliases: string[] = [];
+          const nameLower = name.toLowerCase().trim();
+          const nameCleanNorm = normalizeApostrophes(nameLower);
+
+          candAliases.push(nameLower);
+          if (nameCleanNorm !== nameLower) {
+            candAliases.push(nameCleanNorm);
+          }
+
+          const rawWords = nameLower.split(/\s+/).filter(w => w.length >= 2);
+          const cleanWords = rawWords.map(w => normalizeApostrophes(w));
+
+          rawWords.forEach((w, idx) => {
+            const cw = cleanWords[idx];
+            if (cw.length >= 4) {
+              candAliases.push(w);
+              if (w !== cw) candAliases.push(cw);
+            }
+
+            if (/tu[ln]$/i.test(cw)) {
+              const rootH = cw.replace(/tu[ln]$/i, 'h');
+              const rootNone = cw.replace(/tu[ln]$/i, '');
+              candAliases.push(rootH);
+              candAliases.push(rootNone);
+            }
+          });
+
+          if (rawWords.length >= 2) {
+            candAliases.push(`${rawWords[0]} ${rawWords[1]}`);
+            candAliases.push(`${cleanWords[0]} ${cleanWords[1]}`);
+          }
+
+          if (rawWords.length >= 3) {
+            candAliases.push(`${rawWords[rawWords.length - 2]} ${rawWords[rawWords.length - 1]}`);
+            candAliases.push(`${cleanWords[cleanWords.length - 2]} ${cleanWords[cleanWords.length - 1]}`);
+          }
+
+          if (rawWords.length >= 3) {
+            candAliases.push(`${rawWords[0]} ${rawWords[rawWords.length - 1]}`);
+            candAliases.push(`${cleanWords[0]} ${cleanWords[cleanWords.length - 1]}`);
+          }
+
+          const safeAliases: string[] = [];
+          for (const rawA of candAliases) {
+            const a = rawA.trim();
+            if (!a) continue;
+            const aNorm = normalizeApostrophes(a);
+            const existingOwner = aliasToOwner.get(aNorm);
+            if (existingOwner && existingOwner !== nameNorm) {
+              conflictCount++;
+              continue;
+            }
+            if (!safeAliases.includes(a)) {
+              safeAliases.push(a);
+            }
+            aliasToOwner.set(aNorm, nameNorm);
+          }
+
+          const displayTitle = generateDisplayTitle(rawName, name, jabatan, safeAliases);
+
+          autoMembers.push({
+            name,
+            aliases: safeAliases,
+            jabatanTugas: jabatan,
+            displayTitle,
+          });
+        }
+      };
+
+      if (info.kasi) processPerson(info.kasi, 'Kasi');
+      if (info.wakasi) processPerson(info.wakasi, 'Wakasi');
+      (info.anggota || []).forEach(a => processPerson(a, 'Seksi'));
+    });
+  }
+
+  console.info(`[Halwaa Auto-Sync] Total: ${manualMembers.length + autoMembers.length} member (existing: ${manualMembers.length}, baru: ${autoMembers.length}). Konflik alias: ${conflictCount}.`);
+  return autoMembers;
+}
+
+export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
+  ...MANUAL_KEPANITIAAN_DATABASE,
+  ...buildAutoMembers(MANUAL_KEPANITIAAN_DATABASE),
+];
+
 // 50 TEMPLATES ACCROSS 5 CATEGORIES (PARAGRAPH 1 \n\n PARAGRAPH 2)
 export const HUBUNGAN_KEPANITIAAN_TEMPLATES = {
   sopan_formal: [
@@ -377,7 +537,11 @@ const STOP_WORDS = new Set([
   "kepanitiaan", "us", "usth", "tolong", "info", "ya", "kan",
   "pak", "bapak", "bu", "ibu", "mas", "mbak", "saudara", "ning", "agus", "kh", "ust", "usth", "ustadz", "ustdz", "kiai", "kyai",
   "al", "el", "bin", "binti", "saya", "aku", "anda", "dia", "beliau", "mereka", "kami", "kita", "kalian",
-  "rekap", "kehadiran", "presensi", "hari", "ini", "laporan", "statistik", "total", "jumlah", "kuota", "scan", "rsvp"
+  "rekap", "kehadiran", "presensi", "hari", "ini", "laporan", "statistik", "total", "jumlah", "kuota", "scan", "rsvp",
+  // Stop-words Bahasa Jawa
+  "sinten", "niku", "meniko", "puniko", "puniku", "punopo", "menopo", "opo",
+  "inggih", "nggih", "injih", "monggo", "mangga", "dalem", "kulo", "kula",
+  "panjenengan", "njenengan", "sampeyan", "piyambakipun", "piyambak", "pun", "kang"
 ]);
 
 export function isThirdPersonPronounQuery(query: string): boolean {
@@ -393,7 +557,8 @@ export function isThirdPersonPronounQuery(query: string): boolean {
   const nonQuestionWords = words.filter(
     (w) =>
       !new Set([
-        "siapa", "siapakah", "apa", "dengan", "sama", "posisi", "jabatan", "tugas", "hubungan", "sih", "itu", "us", "usth", "tolong", "info", "ya", "kan", "sebenarnya", "sosok", "orang"
+        "siapa", "siapakah", "apa", "dengan", "sama", "posisi", "jabatan", "tugas", "hubungan", "sih", "itu", "us", "usth", "tolong", "info", "ya", "kan", "sebenarnya", "sosok", "orang",
+        "sinten", "niku", "meniko"
       ]).has(w)
   );
 
@@ -506,21 +671,23 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: an
     return true;
   }
 
-  if (/\bsiapa\b/i.test(q)) {
-    if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
+  if (/\b(siapa|sinten)\b/i.test(q)) {
+    if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|saudara|sdr|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
       return true;
     }
+    const qNorm = normalizeApostrophes(q);
     for (const member of KEPANITIAAN_DATABASE) {
       for (const alias of member.aliases) {
-        if (q.includes(alias.toLowerCase())) return true;
+        const aLower = alias.toLowerCase();
+        if (q.includes(aLower) || qNorm.includes(normalizeApostrophes(aLower))) return true;
       }
     }
-    if (/[a-z]{2,}\s+siapa\b/i.test(q) || /\bsiapa\s+(itu\s+)?([a-z]{2,})/i.test(q)) {
+    if (/[a-z]{2,}\s+(siapa|sinten)\b/i.test(q) || /\b(siapa|sinten)\s+(itu\s+|niku\s+|meniko\s+)?([a-z]{2,})/i.test(q)) {
       return true;
     }
   }
 
-  if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
+  if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|saudara|sdr|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
     return true;
   }
 
@@ -528,11 +695,18 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: an
     return true;
   }
 
+  const qNorm = normalizeApostrophes(q);
   for (const member of KEPANITIAAN_DATABASE) {
     for (const alias of member.aliases) {
-      const escaped = alias.toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const aLower = alias.toLowerCase();
+      const escaped = aLower.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
       const regex = new RegExp(`(^|\\s)${escaped}($|\\s)`);
       if (regex.test(q)) {
+        return true;
+      }
+      const escapedNorm = normalizeApostrophes(aLower).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const regexNorm = new RegExp(`(^|\\s)${escapedNorm}($|\\s)`);
+      if (regexNorm.test(qNorm)) {
         return true;
       }
     }
@@ -571,7 +745,7 @@ function determineMemberTitlePrefix(member: PanitiaMember): { honorific: string;
     display.includes("ning") ||
     display.includes("mbak") ||
     jabatan.includes("putri") ||
-    /\b(sinta|arju|nala|zakia|refi|najma|faza|inarotud|duja|aida|umi|evi|uswatun|azza|elvi|hanifatun|salma|nada)\b/.test(name);
+    /\b(sinta|arju|nala|zakia|refi|najma|faza|inarotud|duja|aida|umi|evi|uswatun|azza|elvi|hanifatun|salma|nada|qorib)\b/.test(name);
 
   if (isFemale) {
     if (display.startsWith("ning")) return { honorific: "Ning", gender: "female" };
@@ -579,6 +753,7 @@ function determineMemberTitlePrefix(member: PanitiaMember): { honorific: string;
     return { honorific: "Bu", gender: "female" };
   } else {
     if (display.startsWith("gus")) return { honorific: "Gus", gender: "male" };
+    if (display.startsWith("saudara")) return { honorific: "Saudara", gender: "male" };
     return { honorific: "Pak", gender: "male" };
   }
 }
@@ -588,7 +763,7 @@ function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember):
   const { honorific, gender } = determineMemberTitlePrefix(targetMember);
 
   // 1. Explicit title typed by user
-  const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+  const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Saudara|Sdr|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
   if (salMatch) {
     const rawSal = salMatch[1].toLowerCase();
     let sal = honorific;
@@ -598,16 +773,17 @@ function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember):
     else if (["gus"].includes(rawSal)) sal = "Gus";
     else if (["mbak"].includes(rawSal)) sal = "Mbak";
     else if (["mas"].includes(rawSal)) sal = "Mas";
+    else if (["saudara", "sdr"].includes(rawSal)) sal = "Saudara";
 
     // Enforce gender consistency
-    if (gender === "female" && ["pak", "bapak", "mas", "gus"].includes(rawSal)) {
+    if (gender === "female" && ["pak", "bapak", "mas", "gus", "saudara", "sdr"].includes(rawSal)) {
       sal = "Bu";
     } else if (gender === "male" && ["bu", "ibu", "mbak", "ning"].includes(rawSal)) {
       sal = "Pak";
     }
 
     const namePart = salMatch[2]
-      .replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '')
+      .replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan|sinten|niku|meniko)\b/gi, '')
       .trim();
 
     if (namePart.length >= 2) {
@@ -716,23 +892,28 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   // =========================================================================
   if (queryTokens.length >= 2) {
     const fullPhrase = queryTokens.join(" ");
+    const fullPhraseNorm = normalizeApostrophes(fullPhrase);
     const tahap1Candidates: PanitiaMember[] = [];
 
     for (const member of KEPANITIAAN_DATABASE) {
       const nameLower = member.name.toLowerCase();
+      const nameNorm = normalizeApostrophes(nameLower);
       const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+      const aliasesNorm = aliasesLower.map(normalizeApostrophes);
 
       // 1. Direct phrase inclusion in full name or alias
-      const isFullNameSubstring = nameLower.includes(fullPhrase);
+      const isFullNameSubstring = nameLower.includes(fullPhrase) || nameNorm.includes(fullPhraseNorm);
       const isAliasMatch = aliasesLower.some(
-        (a) => a === fullPhrase || a.includes(fullPhrase)
+        (a, i) => a === fullPhrase || a.includes(fullPhrase) || aliasesNorm[i] === fullPhraseNorm || aliasesNorm[i].includes(fullPhraseNorm)
       );
 
       // 2. Token-by-token exact sequence match (NO typo tolerance!)
       const nameWords = nameLower.split(/\s+/).filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
-      const allTokensExactMatch = queryTokens.every((qTok) =>
-        nameWords.some((nw) => nw === qTok)
-      );
+      const nameWordsNorm = nameWords.map(normalizeApostrophes);
+      const allTokensExactMatch = queryTokens.every((qTok) => {
+        const qTokNorm = normalizeApostrophes(qTok);
+        return nameWords.some((nw, i) => nw === qTok || nameWordsNorm[i] === qTokNorm);
+      });
 
       if (isFullNameSubstring || isAliasMatch || allTokensExactMatch) {
         if (!tahap1Candidates.some((m) => m.name === member.name)) {
@@ -753,10 +934,21 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   const tahap2aCandidates: PanitiaMember[] = [];
   for (const member of KEPANITIAAN_DATABASE) {
     const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+    const aliasesNorm = aliasesLower.map(normalizeApostrophes);
     const displayLower = member.displayTitle.toLowerCase();
-    const hasExactAlias = queryTokens.every((tok) =>
-      aliasesLower.includes(tok) || displayLower.split(/\s+/).includes(tok)
-    );
+    const displayWords = displayLower.split(/\s+/);
+    const displayWordsNorm = displayWords.map(normalizeApostrophes);
+
+    const hasExactAlias = queryTokens.every((tok) => {
+      const tokNorm = normalizeApostrophes(tok);
+      return (
+        aliasesLower.includes(tok) ||
+        aliasesNorm.includes(tokNorm) ||
+        displayWords.includes(tok) ||
+        displayWordsNorm.includes(tokNorm)
+      );
+    });
+
     if (hasExactAlias) {
       if (!tahap2aCandidates.some((m) => m.name === member.name)) {
         tahap2aCandidates.push(member);
@@ -770,7 +962,7 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
 
   // =========================================================================
   // TAHAP 2B — EXACT SUBSTRING SATU KATA (BUKAN typo tolerance):
-  // Cari SEMUA nama yang mengandung kata kunci PERSIS sebagai substring / kata nama.
+  // Cari SEMUA nama yang mengandung kata kunci PERSIS sebagai kata utuh / alias.
   // Jika ADA kecocokan:
   // - 1 kecocokan -> langsung jawab.
   // - 2-5 kecocokan -> tampilkan pilihan verifikasi.
@@ -780,20 +972,25 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
+    const nameNorm = normalizeApostrophes(nameLower);
     const displayLower = member.displayTitle.toLowerCase();
     const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+    const aliasesNorm = aliasesLower.map(normalizeApostrophes);
     const allMemberWords = [
       ...nameLower.split(/\s+/),
       ...displayLower.split(/\s+/),
       ...aliasesLower.flatMap((a) => a.split(/\s+/)),
     ].filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
+    const allMemberWordsNorm = allMemberWords.map(normalizeApostrophes);
 
-    // Setiap token query harus cocok persis sebagai kata atau substring
     const matchesAllTokens = queryTokens.every((tok) => {
+      const tokNorm = normalizeApostrophes(tok);
       return (
         allMemberWords.includes(tok) ||
-        nameLower.includes(tok) ||
-        aliasesLower.some((a) => a === tok || a.split(/\s+/).includes(tok))
+        allMemberWordsNorm.includes(tokNorm) ||
+        aliasesLower.some((a, i) => a === tok || a.split(/\s+/).includes(tok) || aliasesNorm[i] === tokNorm || aliasesNorm[i].split(/\s+/).includes(tokNorm)) ||
+        new RegExp(`(^|\\s)${tok}($|\\s)`, 'i').test(nameLower) ||
+        new RegExp(`(^|\\s)${tokNorm}($|\\s)`, 'i').test(nameNorm)
       );
     });
 
@@ -810,7 +1007,7 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
 
   // =========================================================================
   // TAHAP 3 — PREFIX MATCH
-  // Cari nama yang salah satu katanya DIAWALI kata kunci.
+  // Cari nama yang salah satu katanya DIAWALI kata kunci (minimal 5 huruf).
   // =========================================================================
   const tahap3Candidates: PanitiaMember[] = [];
 
@@ -821,10 +1018,13 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
       ...nameLower.split(/\s+/),
       ...aliasesLower.flatMap((a) => a.split(/\s+/)),
     ].filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
+    const allMemberWordsNorm = allMemberWords.map(normalizeApostrophes);
 
-    const matchesAllTokensPrefix = queryTokens.every((tok) =>
-      allMemberWords.some((w) => w.startsWith(tok))
-    );
+    const matchesAllTokensPrefix = queryTokens.every((tok) => {
+      const tokNorm = normalizeApostrophes(tok);
+      if (tokNorm.length < 5) return false;
+      return allMemberWords.some((w, i) => w.startsWith(tok) || allMemberWordsNorm[i].startsWith(tokNorm));
+    });
 
     if (matchesAllTokensPrefix) {
       if (!tahap3Candidates.some((m) => m.name === member.name)) {
@@ -843,7 +1043,8 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   // =========================================================================
   if (queryTokens.length === 1) {
     const tok = queryTokens[0];
-    if (tok.length >= 4) {
+    const tokNorm = normalizeApostrophes(tok);
+    if (tokNorm.length >= 4) {
       const tahap4Candidates: PanitiaMember[] = [];
 
       for (const member of KEPANITIAAN_DATABASE) {
@@ -853,8 +1054,14 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
           ...nameLower.split(/\s+/),
           ...aliasesLower.flatMap((a) => a.split(/\s+/)),
         ].filter((w) => w.length >= 4 && !STOP_WORDS.has(w));
+        const allMemberWordsNorm = allMemberWords.map(normalizeApostrophes);
 
-        const hasTypoDistOne = allMemberWords.some((w) => levenshteinDistance(tok, w) === 1);
+        const hasTypoDistOne = allMemberWordsNorm.some((w) => {
+          if (tokNorm.length !== w.length && Math.min(tokNorm.length, w.length) < 5) {
+            return false;
+          }
+          return levenshteinDistance(tokNorm, w) === 1;
+        });
 
         if (hasTypoDistOne) {
           if (!tahap4Candidates.some((m) => m.name === member.name)) {
