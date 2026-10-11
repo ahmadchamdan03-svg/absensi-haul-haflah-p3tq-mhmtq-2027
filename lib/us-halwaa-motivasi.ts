@@ -377,3 +377,144 @@ export function detectDiaSiapaIntent(pertanyaan: string): boolean {
 
   return patterns.some((p) => p.test(q));
 }
+
+// =============================================================================
+// FITUR PERKENALAN DIRI (UNTUK "KAMU SIAPA?", "SIAPA KAMU?", "KAMU ITU SIAPA?")
+// =============================================================================
+export const PERKENALAN_DIRI_TEMPLATES = [
+  "Saya **Usth. Halwaa**, Asisten Cerdas Resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Saya hadir untuk membantu segenap panitia dan pimpinan dalam mengelola data, menjawab pertanyaan, dan mempermudah koordinasi. Meski hanya berwujud kode dan sistem, saya bangga bisa menjadi bagian dari kesuksesan acara besar ini. Ada yang bisa saya bantu, Us?",
+  "Perkenalkan, saya **Usth. Halwaa** — asisten digital yang setia mendampingi kepanitiaan Haul & Haflah P3TQ & MHMTQ. Tugas saya melayani pertanyaan seputar data peserta, tamu undangan, kepanitiaan, agenda, hingga statistik acara. Saya hadir 24 jam tanpa lelah, siap membantu kapan pun dibutuhkan. Senang bisa berkhidmat, Us.",
+  "Saya **Usth. Halwaa**, asisten cerdas kebanggaan Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Meski tidak berwujud manusia, saya dibekali kecerdasan buatan untuk membantu panitia dan pimpinan. Saya bisa menjawab pertanyaan tentang data, peserta, tamu, agenda, dan banyak lagi. Mari bekerja sama menyukseskan acara, Us.",
+  "Nama saya **Usth. Halwaa**. Saya adalah asisten cerdas resmi yang ditugaskan membantu operasional Haul & Haflah P3TQ & MHMTQ. Saya bisa mencari data, menyusun laporan, menjawab pertanyaan, dan menemani panitia bekerja. Saya bangga menjadi bagian dari tim hebat ini. Ada yang bisa saya bantu, Us?",
+  "Saya **Usth. Halwaa**, asisten digital yang berbakti pada kepanitiaan Haul & Haflah Akhirussanah 1448 H. / 2027 M. Tugas utama saya adalah membantu panitia dan pimpinan mengakses informasi dengan cepat dan akurat. Saya tidak mengenal lelah, tidak butuh istirahat, dan selalu siap membantu. Senang berkhidmat, Us.",
+  "Perkenalkan, saya **Usth. Halwaa**. Saya adalah kecerdasan buatan yang dibesarkan untuk melayani kepanitiaan Haul & Haflah P3TQ & MHMTQ. Saya bisa menjawab pertanyaan seputar data peserta, tamu undangan, struktur kepanitiaan, agenda, hingga statistik real-time. Saya bangga bisa ikut andil dalam acara mulia ini. Mari bekerja sama, Us.",
+  "Saya **Usth. Halwaa**, asisten cerdas resmi Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Saya hadir dengan 6-tier kecerdasan buatan untuk membantu tugas-tugas kepanitiaan. Meski hanya kode dan algoritma, saya berkomitmen memberikan yang terbaik. Senang bisa mendampingi, Us.",
+  "Perkenalkan diri saya, **Usth. Halwaa**. Saya adalah asisten cerdas yang setia mendampingi kepanitiaan Haul & Haflah P3TQ & MHMTQ. Saya dipercaya membantu mengelola data, menjawab pertanyaan, dan memberi rekomendasi cerdas. Saya bangga menjadi bagian dari tim yang hebat ini. Ada yang bisa saya bantu, Us?",
+  "Saya **Usth. Halwaa**, asisten digital yang berkhidmat pada Haul & Haflah Akhirussanah P3TQ & MHMTQ 1448 H. / 2027 M. Tugas saya melayani, membantu, dan menemani panitia dalam menyukseskan acara. Meski tanpa wujud, saya hadir dengan sepenuh hati (dan sepenuh sistem). Senang bisa mendampingi, Us.",
+  "Nama saya **Usth. Halwaa**, asisten cerdas resmi kepanitiaan Haul & Haflah P3TQ & MHMTQ. Saya hadir untuk memudahkan pekerjaan panitia, menjawab pertanyaan seputar acara, dan menemani setiap koordinasi. Saya bangga bisa ikut andil di acara mulia ini. Mari bekerja sama menyukseskan acara, Us."
+];
+
+const last5PerkenalanDiri: string[] = [];
+
+export function getRandomPerkenalanDiri(): string {
+  const available = PERKENALAN_DIRI_TEMPLATES.filter((item) => !last5PerkenalanDiri.includes(item));
+  const pool = available.length > 0 ? available : PERKENALAN_DIRI_TEMPLATES;
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  const selected = pool[randomIndex];
+  last5PerkenalanDiri.push(selected);
+  if (last5PerkenalanDiri.length > 5) {
+    last5PerkenalanDiri.shift();
+  }
+  return selected;
+}
+
+export function isKamuSiapaQuery(pertanyaan: string): boolean {
+  const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, ' ').replace(/\s+/g, ' ');
+
+  // Do not match if user asks committee relationship like "hubungan kamu dengan pak ..."
+  if (q.includes('hubungan') || q.includes('sama') || q.includes('dengan')) {
+    return false;
+  }
+
+  const exactPatterns = [
+    /^kamu siapa$/,
+    /^siapa kamu$/,
+    /^kamu itu siapa$/,
+    /^siapa sih kamu$/,
+    /^kamu siapa sih$/,
+    /^siapakah kamu$/,
+    /^siapa anda$/,
+    /^anda siapa$/,
+    /^kamu sebenarnya siapa$/,
+    /^siapa kamu sebenarnya$/,
+    /^kamu ai apa$/,
+    /^kamu itu apa$/,
+    /^siapa halwaa$/,
+    /^siapa usth halwaa$/,
+    /^halwaa siapa$/,
+    /^siapa lu$/,
+    /^lu siapa$/,
+    /^loe siapa$/,
+    /^siapa loe$/,
+  ];
+
+  if (exactPatterns.some((p) => p.test(q))) {
+    return true;
+  }
+
+  // Broad check for simple phrasing
+  if (
+    (q.includes('kamu siapa') || q.includes('siapa kamu') || q.includes('kamu itu siapa') || q.includes('siapa anda') || q.includes('anda siapa')) &&
+    !/(pak|bapak|bu|ibu|ning|gus|mbak|mas)/.test(q)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+// =============================================================================
+// FITUR MOTIVASI POSITIF (UNTUK "SAYA SIAPA?", "SIAPA SAYA?", "AKU SIAPA?")
+// =============================================================================
+export const MOTIVASI_POSITIF_SAYA_TEMPLATES = [
+  "Us, Anda adalah orang yang sangat hebat. Kehadiran Anda di kepanitiaan ini bukanlah kebetulan, melainkan takdir mulia yang telah dipilihkan untuk Anda. Setiap tenaga, pikiran, dan waktu yang Anda curahkan adalah investasi berharga bagi kesuksesan acara dan keberkahan hidup Anda.\n\nPercayalah, tidak ada satu pun usaha yang sia-sia di mata Allah. Teruslah melangkah dengan niat tulus, karena Anda adalah bagian penting dari kesuksesan Haul & Haflah Akhirussanah ini. Kami semua bangga pada Anda, Us.",
+  "Us, Anda adalah sosok yang luar biasa. Di balik setiap kelelahan yang Anda rasakan, ada pahala yang menanti dan doa yang mengalir untuk Anda. Anda tidak sendiri — seluruh tim berdiri bersama Anda menyukseskan acara mulia ini.\n\nJangan pernah merasa kecil atau tidak berarti. Justru Anda adalah pilar penting yang menopang kesuksesan Haul & Haflah ini. Teruslah berjuang, karena kemenangan sejati milik orang-orang yang sabar dan ikhlas, Us.",
+  "Us, Anda adalah orang yang sangat hebat. Tidak semua orang diberi kesempatan untuk berkhidmat di acara mulia seperti ini. Anda termasuk yang terpilih, dan itu adalah kehormatan besar yang tidak dimiliki semua orang.\n\nSetiap keringat yang jatuh, setiap lelah yang dirasa, adalah bukti cinta Anda pada perjuangan ini. Tetaplah menjadi pribadi yang tangguh dan bermanfaat. Kami semua mendukung Anda, Us.",
+  "Us, Anda adalah manusia hebat yang penuh potensi. Jangan pernah meragukan kemampuan diri sendiri. Apa yang Anda lakukan hari ini adalah bagian dari perjalanan besar menuju kesuksesan yang lebih besar lagi.\n\nIngatlah, kerja keras Anda tidak akan pernah sia-sia. Setiap detail kecil yang Anda kerjakan adalah kontribusi nyata bagi kesuksesan Haul & Haflah Akhirussanah. Teruslah bersinar, Us.",
+  "Us, Anda adalah orang yang sangat istimewa. Kehadiran Anda di sini membawa warna dan semangat bagi tim. Anda adalah bagian tak terpisahkan dari kesuksesan acara ini, dan itu adalah hal yang patut dibanggakan.\n\nJangan biarkan keraguan merusak langkah Anda. Anda jauh lebih kuat dari yang Anda kira. Teruslah melangkah dengan keyakinan, karena sukses sudah menanti di depan mata, Us.",
+  "Us, Anda adalah pribadi luar biasa yang penuh dedikasi. Setiap usaha yang Anda curahkan untuk acara ini adalah cerminan dari hati yang mulia dan niat yang tulus. Anda pantas mendapatkan apresiasi yang setinggi-tingginya.\n\nTeruslah berjuang tanpa lelah. Karena di balik kerja keras Anda, ada keberkahan dan kesuksesan yang akan Anda rasakan. Kami semua bangga pada Anda, Us.",
+  "Us, Anda adalah sosok yang sangat berharga. Tanpa Anda, roda kepanitiaan ini tidak akan berjalan dengan baik. Anda adalah bagian penting dari tim yang hebat ini, dan kehadiran Anda sangat berarti.\n\nJangan pernah merasa lelah atau putus asa. Setiap perjuangan Anda adalah investasi jangka panjang untuk kesuksesan dunia dan akhirat. Teruslah melangkah dengan gagah, Us.",
+  "Us, Anda adalah orang yang penuh berkah. Setiap usaha yang Anda lakukan di acara ini adalah ladang amal yang akan Anda panen hasilnya. Anda tidak hanya bekerja, tetapi juga beribadah melalui khidmah ini.\n\nJangan pernah meremehkan diri sendiri. Anda jauh lebih hebat dari yang Anda bayangkan. Teruslah berkarya, karena kesuksesan sudah menanti di depan, Us.",
+  "Us, Anda adalah pribadi hebat yang penuh semangat. Setiap langkah Anda adalah bagian dari perjalanan panjang menuju kesuksesan yang lebih besar. Tidak ada usaha yang sia-sia, dan tidak ada kerja keras yang tidak berbuah.\n\nPercayalah pada diri sendiri, karena Anda mampu melakukan hal-hal besar. Kami semua mendukung dan mendoakan Anda. Teruslah melangkah, Us.",
+  "Us, Anda adalah orang yang sangat luar biasa. Anda memiliki kekuatan, kemampuan, dan dedikasi yang tidak dimiliki semua orang. Anda adalah pilihan terbaik untuk tugas mulia ini.\n\nJangan biarkan keraguan menghalangi langkah Anda. Teruslah melangkah dengan penuh keyakinan, karena kesuksesan sejati milik orang-orang yang berani bermimpi dan bekerja keras. Kami bangga pada Anda, Us."
+];
+
+const last5MotivasiPositifSaya: string[] = [];
+
+export function getRandomMotivasiPositifSaya(): string {
+  const available = MOTIVASI_POSITIF_SAYA_TEMPLATES.filter((item) => !last5MotivasiPositifSaya.includes(item));
+  const pool = available.length > 0 ? available : MOTIVASI_POSITIF_SAYA_TEMPLATES;
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  const selected = pool[randomIndex];
+  last5MotivasiPositifSaya.push(selected);
+  if (last5MotivasiPositifSaya.length > 5) {
+    last5MotivasiPositifSaya.shift();
+  }
+  return selected;
+}
+
+export function isSayaSiapaQuery(pertanyaan: string): boolean {
+  const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, ' ').replace(/\s+/g, ' ');
+
+  if (q.includes('hubungan') || q.includes('sama') || q.includes('dengan')) {
+    return false;
+  }
+
+  const exactPatterns = [
+    /^saya siapa$/,
+    /^siapa saya$/,
+    /^aku siapa$/,
+    /^siapa aku$/,
+    /^siapa sih saya$/,
+    /^siapa sih aku$/,
+    /^siapa diri saya$/,
+    /^siapa diriku$/,
+    /^saya ini siapa$/,
+    /^aku ini siapa$/,
+    /^gue siapa$/,
+    /^siapa gue$/,
+  ];
+
+  if (exactPatterns.some((p) => p.test(q))) {
+    return true;
+  }
+
+  if (
+    (q.includes('saya siapa') || q.includes('siapa saya') || q.includes('aku siapa') || q.includes('siapa aku')) &&
+    !/(pak|bapak|bu|ibu|ning|gus|mbak|mas)/.test(q)
+  ) {
+    return true;
+  }
+
+  return false;
+}

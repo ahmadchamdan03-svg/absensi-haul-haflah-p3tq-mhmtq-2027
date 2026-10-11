@@ -3,7 +3,14 @@
 // Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M.
 // =============================================================================
 
-import { getRandomMotivasiSatirDia, detectDiaSiapaIntent } from './us-halwaa-motivasi';
+import {
+  getRandomMotivasiSatirDia,
+  detectDiaSiapaIntent,
+  getRandomPerkenalanDiri,
+  isKamuSiapaQuery,
+  getRandomMotivasiPositifSaya,
+  isSayaSiapaQuery
+} from './us-halwaa-motivasi';
 
 export interface PanitiaMember {
   name: string;
@@ -218,9 +225,15 @@ export const KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
   {
     name: "Akfi Romiyan Kafabih",
-    aliases: ["akfi", "romiyan", "akfi romiyan", "pak akfi"],
+    aliases: ["akfi", "ikfi", "romiyan", "akfi romiyan", "pak akfi"],
     jabatanTugas: "Kasi Humasy & Kostum (Dewan Pembimbing Putra)",
-    displayTitle: "Pak Akfi Romiyan",
+    displayTitle: "Pak Akfi",
+  },
+  {
+    name: "Ikfi Ulit Taufiqoh",
+    aliases: ["ikfi ulit taufiqoh", "ikfi ulit", "ulit taufiqoh", "bu ikfi", "mbak ikfi", "bu ikfi ulit"],
+    jabatanTugas: "Seksi Keamanan (Dewan Pleno Putri)",
+    displayTitle: "Bu Ikfi",
   },
   {
     name: "Adi Susilo",
@@ -392,6 +405,8 @@ export function isThirdPersonPronounQuery(query: string): boolean {
 
 export function isOtherPronounQuery(query: string): boolean {
   if (isThirdPersonPronounQuery(query)) return false;
+  if (isKamuSiapaQuery(query)) return false;
+  if (isSayaSiapaQuery(query)) return false;
 
   const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
   const words = q.split(/\s+/).filter((w) => w.length >= 1);
@@ -463,6 +478,10 @@ export function detectDuplicateSelectionIntent(prompt: string, history?: any[]):
 }
 
 export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: any[]): boolean {
+  if (isKamuSiapaQuery(pertanyaan) || isSayaSiapaQuery(pertanyaan)) {
+    return true;
+  }
+
   if (isPronounQuery(pertanyaan)) {
     return true;
   }
@@ -554,12 +573,13 @@ function determineMemberTitlePrefix(member: PanitiaMember): { honorific: string;
 
 function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember): string {
   const q = query.trim();
+  const { honorific, gender } = determineMemberTitlePrefix(targetMember);
 
   // 1. Explicit title typed by user
   const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
   if (salMatch) {
     const rawSal = salMatch[1].toLowerCase();
-    let sal = "Pak";
+    let sal = honorific;
     if (["bu", "ibu"].includes(rawSal)) sal = "Bu";
     else if (["pak", "bapak"].includes(rawSal)) sal = "Pak";
     else if (["ning"].includes(rawSal)) sal = "Ning";
@@ -567,16 +587,33 @@ function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember):
     else if (["mbak"].includes(rawSal)) sal = "Mbak";
     else if (["mas"].includes(rawSal)) sal = "Mas";
 
+    // Enforce gender consistency
+    if (gender === "female" && ["pak", "bapak", "mas", "gus"].includes(rawSal)) {
+      sal = "Bu";
+    } else if (gender === "male" && ["bu", "ibu", "mbak", "ning"].includes(rawSal)) {
+      sal = "Pak";
+    }
+
     const namePart = salMatch[2]
       .replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan)\b/gi, '')
       .trim();
 
     if (namePart.length >= 2) {
-      const formatted = namePart
-        .split(/\s+/)
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(' ');
-      return `${sal} ${formatted}`;
+      const words = namePart.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w.toLowerCase()));
+      // If 1 or 2 words, check if they match targetMember
+      if (words.length >= 1 && words.length <= 2) {
+        const memberWords = [
+          ...targetMember.name.toLowerCase().split(/\s+/),
+          ...targetMember.aliases.flatMap(a => a.toLowerCase().split(/\s+/))
+        ];
+        const allWordsMatch = words.every(w =>
+          memberWords.some(mw => mw === w.toLowerCase() || mw.startsWith(w.toLowerCase()) || levenshteinDistance(w.toLowerCase(), mw) <= 1)
+        );
+        if (allWordsMatch) {
+          const formatted = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+          return `${sal} ${formatted}`;
+        }
+      }
     }
   }
 
@@ -587,17 +624,27 @@ function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember):
       .split(/\s+/)
       .filter(w => w.length >= 2 && !STOP_WORDS.has(w.toLowerCase()));
 
-    if (words.length > 0) {
-      const formatted = words
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(' ');
+    // If user typed 1 or 2 words (e.g. "maulana" or "taufik hidayah"), check if they match targetMember
+    if (words.length >= 1 && words.length <= 2) {
+      const memberWords = [
+        ...targetMember.name.toLowerCase().split(/\s+/),
+        ...targetMember.aliases.flatMap(a => a.toLowerCase().split(/\s+/))
+      ];
+      // Check if words match targetMember
+      const exactMatch = words.every(w =>
+        memberWords.some(mw => mw === w.toLowerCase() || mw.startsWith(w.toLowerCase()))
+      );
 
-      const { honorific } = determineMemberTitlePrefix(targetMember);
-      return `${honorific} ${formatted}`;
+      if (exactMatch) {
+        const formatted = words
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ');
+        return `${honorific} ${formatted}`;
+      }
     }
   }
 
-  // 3. Fallback to targetMember.displayTitle
+  // 3. Fallback to targetMember.displayTitle (e.g. "Bu Ikfi", "Pak Maulana", "Pak Akfi")
   return targetMember.displayTitle;
 }
 
@@ -634,6 +681,7 @@ interface ScoredMember {
 
 function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
   const term = queryTerm.toLowerCase().trim();
+  const fullQ = fullQuery.toLowerCase().trim();
 
   // Extract non-stop query tokens
   let queryTokens = term
@@ -648,7 +696,51 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
     return [];
   }
 
-  const scoredMembers: ScoredMember[] = [];
+  // =========================================================================
+  // TAHAP 1 — EXACT MATCH FRASA LENGKAP (Prioritas Tertinggi)
+  // Jika user mengetik 2 kata atau lebih, cek dulu apakah ada nama di database
+  // yang mengandung SELURUH frasa sebagai substring utuh atau exact alias.
+  // =========================================================================
+  if (queryTokens.length >= 2) {
+    const fullPhrase = queryTokens.join(" ");
+    const tahap1Candidates: PanitiaMember[] = [];
+
+    for (const member of KEPANITIAAN_DATABASE) {
+      const nameLower = member.name.toLowerCase();
+      const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+
+      // 1. Direct phrase inclusion in full name or alias
+      const isFullNameSubstring = nameLower.includes(fullPhrase);
+      const isAliasMatch = aliasesLower.some(
+        (a) => a === fullPhrase || a.includes(fullPhrase) || fullPhrase.includes(a)
+      );
+
+      // 2. Token-by-token sequence match (with max 1 typo allowed per token)
+      // e.g. "taufik hidayah" matching "Taufiq Hidayah"
+      const nameWords = nameLower.split(/\s+/).filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
+      const allTokensMatchName = queryTokens.every((qTok) =>
+        nameWords.some(
+          (nw) => nw === qTok || nw.startsWith(qTok) || (qTok.length >= 4 && levenshteinDistance(qTok, nw) <= 1)
+        )
+      );
+
+      if (isFullNameSubstring || isAliasMatch || allTokensMatchName) {
+        if (!tahap1Candidates.some((m) => m.name === member.name)) {
+          tahap1Candidates.push(member);
+        }
+      }
+    }
+
+    if (tahap1Candidates.length > 0) {
+      return tahap1Candidates;
+    }
+  }
+
+  // =========================================================================
+  // TAHAP 2 — EXACT MATCH SATU KATA (Jika Tahap 1 Gagal atau query 1 kata)
+  // Cari nama yang mengandung kata kunci PERSIS (exact alias / exact word).
+  // =========================================================================
+  const tahap2Candidates: { member: PanitiaMember; score: number }[] = [];
 
   for (const member of KEPANITIAAN_DATABASE) {
     const nameLower = member.name.toLowerCase();
@@ -660,78 +752,97 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
       ...aliasesLower.flatMap((a) => a.split(/\s+/)),
     ].filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
 
-    let memberScore = 0;
-    let matchedTokenCount = 0;
+    let matchedCount = 0;
+    let score = 0;
 
     for (const tok of queryTokens) {
-      let tokScore = 0;
+      if (aliasesLower.includes(tok) || displayLower === tok) {
+        score += 2000;
+        matchedCount++;
+      } else if (allMemberWords.includes(tok)) {
+        score += 1000;
+        matchedCount++;
+      }
+    }
 
-      // TAHAP 1 — EXACT MATCH (Prioritas Tertinggi)
-      const isExactAlias = aliasesLower.includes(tok) || aliasesLower.includes(term) || nameLower === tok || nameLower === term;
-      const isExactWord = allMemberWords.includes(tok) || nameLower.split(/\s+/).includes(tok);
+    if (matchedCount === queryTokens.length && score > 0) {
+      tahap2Candidates.push({ member, score });
+    }
+  }
 
-      if (isExactAlias) {
-        tokScore = 2000;
-      } else if (isExactWord) {
-        tokScore = 1000;
-      } else {
-        // TAHAP 2 — PREFIX MATCH
-        const isPrefix = allMemberWords.some((w) => w.startsWith(tok));
-        if (isPrefix) {
-          tokScore = 500;
-        } else if (tok.length >= 4) {
-          // TAHAP 3 — SUBSTRING MATCH (Minimal 4 Huruf Berturut-turut)
-          const isSubstring = allMemberWords.some((w) => w.includes(tok)) || nameLower.includes(tok) || aliasesLower.some((a) => a.includes(tok));
-          if (isSubstring) {
-            tokScore = 300;
-          } else {
-            // TAHAP 4 — TOLERANSI EJAAN / TYPO (Levenshtein Distance = 1 ONLY, BUKAN >= 2)
-            const isTypoDistanceOne = allMemberWords.some((w) => {
-              if (w.length < 4) return false;
-              return levenshteinDistance(tok, w) === 1;
-            });
-            if (isTypoDistanceOne) {
-              tokScore = 100;
-            }
+  if (tahap2Candidates.length > 0) {
+    tahap2Candidates.sort((a, b) => b.score - a.score);
+    const topScore = tahap2Candidates[0].score;
+    return tahap2Candidates
+      .filter((item) => item.score >= topScore * 0.8)
+      .map((item) => item.member);
+  }
+
+  // =========================================================================
+  // TAHAP 3 — PREFIX MATCH
+  // Cari nama yang salah satu katanya DIAWALI kata kunci.
+  // =========================================================================
+  const tahap3Candidates: PanitiaMember[] = [];
+
+  for (const member of KEPANITIAAN_DATABASE) {
+    const nameLower = member.name.toLowerCase();
+    const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+    const allMemberWords = [
+      ...nameLower.split(/\s+/),
+      ...aliasesLower.flatMap((a) => a.split(/\s+/)),
+    ].filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
+
+    const matchesAllTokensPrefix = queryTokens.every((tok) =>
+      allMemberWords.some((w) => w.startsWith(tok))
+    );
+
+    if (matchesAllTokensPrefix) {
+      if (!tahap3Candidates.some((m) => m.name === member.name)) {
+        tahap3Candidates.push(member);
+      }
+    }
+  }
+
+  if (tahap3Candidates.length > 0) {
+    return tahap3Candidates;
+  }
+
+  // =========================================================================
+  // TAHAP 4 — TYPO TOLERANCE (Levenshtein Distance = 1 SAJA, BUKAN 2)
+  // HANYA untuk 1 huruf beda, DAN hanya jika user mengetik 1 KATA SAJA.
+  // =========================================================================
+  if (queryTokens.length === 1) {
+    const tok = queryTokens[0];
+    if (tok.length >= 4) {
+      const tahap4Candidates: PanitiaMember[] = [];
+
+      for (const member of KEPANITIAAN_DATABASE) {
+        const nameLower = member.name.toLowerCase();
+        const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+        const allMemberWords = [
+          ...nameLower.split(/\s+/),
+          ...aliasesLower.flatMap((a) => a.split(/\s+/)),
+        ].filter((w) => w.length >= 4 && !STOP_WORDS.has(w));
+
+        const hasTypoDistOne = allMemberWords.some((w) => levenshteinDistance(tok, w) === 1);
+
+        if (hasTypoDistOne) {
+          if (!tahap4Candidates.some((m) => m.name === member.name)) {
+            tahap4Candidates.push(member);
           }
         }
       }
 
-      if (tokScore > 0) {
-        matchedTokenCount++;
-        memberScore += tokScore;
+      if (tahap4Candidates.length > 0) {
+        return tahap4Candidates;
       }
     }
-
-    if (matchedTokenCount > 0 && memberScore > 0) {
-      scoredMembers.push({ member, score: memberScore, matchedTokenCount });
-    }
   }
 
-  if (scoredMembers.length === 0) {
-    return [];
-  }
-
-  // Filter candidates matching max token count
-  const maxMatchedTokens = Math.max(...scoredMembers.map((sm) => sm.matchedTokenCount));
-  let candidates = scoredMembers.filter((sm) => sm.matchedTokenCount === maxMatchedTokens);
-
-  // Sort candidates by score descending
-  candidates.sort((a, b) => b.score - a.score);
-
-  const topScore = candidates[0].score;
-
-  // Keep top matches (within 80% of top score)
-  const filtered = candidates.filter((item) => item.score >= topScore * 0.8);
-
-  const result: PanitiaMember[] = [];
-  for (const item of filtered) {
-    if (!result.some((m) => m.name === item.member.name)) {
-      result.push(item.member);
-    }
-  }
-
-  return result;
+  // =========================================================================
+  // TAHAP 5 — JIKA TIDAK ADA KECOCOKAN
+  // =========================================================================
+  return [];
 }
 
 export function generateHubunganResponseForMember(
@@ -802,14 +913,24 @@ export function getHubunganKepanitiaanResponse(
   isFirstTurn: boolean = false,
   history?: any[]
 ): string {
-  // BUG 1 FIX Part A: Third-Person Pronoun Query -> Motivasi Satir Dia
+  // 1. FITUR PERKENALAN DIRI (KAMU SIAPA?, SIAPA KAMU?)
+  if (isKamuSiapaQuery(query)) {
+    return getRandomPerkenalanDiri();
+  }
+
+  // 2. FITUR MOTIVASI POSITIF SAYA (SAYA SIAPA?, SIAPA SAYA?, AKU SIAPA?)
+  if (isSayaSiapaQuery(query)) {
+    return getRandomMotivasiPositifSaya();
+  }
+
+  // 3. FITUR MOTIVASI SATIR DIA (SIAPA DIA?, DIA SIAPA?)
   if (isThirdPersonPronounQuery(query)) {
     return getRandomMotivasiSatirDia();
   }
 
   const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
 
-  // BUG 1 FIX Part B: Other Pronoun Filter
+  // 4. KATA GANTI ORANG LAINNYA (BELIAU, MEREKA, KITA, KAMI, KALIAN)
   if (isOtherPronounQuery(query) || isPronounQuery(query)) {
     return `${greetingPrefix}Mohon maaf Us, saya tidak bisa mencari berdasarkan kata ganti orang. Mohon sebutkan nama spesifik yang ingin ditanyakan, Us.`;
   }

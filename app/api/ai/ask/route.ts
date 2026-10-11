@@ -3,8 +3,24 @@ import { store } from '@/lib/mock-data';
 import { geminiPool } from '@/lib/gemini-pool';
 import { supabase } from '@/lib/supabase';
 import { getWaliSantriMetrics, getTamuUndanganMetrics } from '@/lib/dashboard-metrics';
-import { MOTIVASI, getRandomMotivasi, detectMotivasiIntent, getRandomMotivasiSatirDia, detectDiaSiapaIntent } from '@/lib/us-halwaa-motivasi';
-import { detectHubunganKepanitiaanIntent, getHubunganKepanitiaanResponse, isThirdPersonPronounQuery } from '@/lib/us-halwaa-kepanitiaan';
+import {
+  MOTIVASI,
+  getRandomMotivasi,
+  detectMotivasiIntent,
+  getRandomMotivasiSatirDia,
+  detectDiaSiapaIntent,
+  isKamuSiapaQuery,
+  isSayaSiapaQuery
+} from '@/lib/us-halwaa-motivasi';
+import {
+  detectHubunganKepanitiaanIntent,
+  getHubunganKepanitiaanResponse,
+  isThirdPersonPronounQuery
+} from '@/lib/us-halwaa-kepanitiaan';
+import {
+  detectInfoSeksiIntent,
+  handleInfoSeksiQuery
+} from '@/lib/us-halwaa-seksi';
 
 const HAFLAH_KNOWLEDGE_SYSTEM_PROMPT = `
 Anda adalah Usth. Halwaa, asisten cerdas resmi yang mendampingi pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M. (Pondok Pesantren Putri Tahfizhil Qur-an & Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at Lirboyo Kediri).
@@ -1329,6 +1345,11 @@ async function handleWaliSantriQueries(prompt: string, isFirstTurn: boolean): Pr
 async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
 
+  // 0. FITUR INFO BAGAN/SEKSI KEPANITIAAN
+  if (detectInfoSeksiIntent(userQuery)) {
+    return handleInfoSeksiQuery(userQuery, isFirstTurn);
+  }
+
   // 0. FITUR HUBUNGAN KEPANITIAAN (Tugas/Jabatan & Opini Fans Usth. Halwaa)
   if (detectHubunganKepanitiaanIntent(userQuery)) {
     const resHub = getHubunganKepanitiaanResponse(userQuery, isFirstTurn);
@@ -2291,10 +2312,23 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // FITUR INFO BAGAN / SEKSI KEPANITIAAN
+    if (detectInfoSeksiIntent(prompt)) {
+      const replyText = handleInfoSeksiQuery(prompt, isFirstTurn);
+      const expr = detectExpression(replyText, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: replyText,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'smart_knowledge_engine',
+        model: 'Usth. Halwaa Committee Section Engine',
+      });
+    }
+
     if (detectHubunganKepanitiaanIntent(prompt, history)) {
       const replyText = getHubunganKepanitiaanResponse(prompt, isFirstTurn, history);
-      const isThirdPerson = isThirdPersonPronounQuery(prompt);
-      const cleanReply = isThirdPerson ? replyText : cleanReplyForSession(replyText, isFirstTurn, prompt);
+      const isVerbatim = isThirdPersonPronounQuery(prompt) || isKamuSiapaQuery(prompt) || isSayaSiapaQuery(prompt);
+      const cleanReply = isVerbatim ? replyText : cleanReplyForSession(replyText, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
       return NextResponse.json({
         reply: cleanReply,
