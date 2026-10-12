@@ -327,6 +327,177 @@ const testCases: TestCase[] = [
       };
     },
   },
+  // 21. Auto-Sync: Reza Fadhilul 'Ulum (Wakasi Keamanan)
+  {
+    no: 21,
+    category: 'Auto-Sync Personil',
+    query: 'reza siapa',
+    run: () => getHubunganKepanitiaanResponse('reza siapa', false),
+    validate: (res) => {
+      const parts = res.split('\n\n');
+      const hasName = res.includes("**Reza Fadhilul 'Ulum**");
+      const noBeliau = !/\bbeliau\b/i.test(res);
+      return {
+        passed: parts.length === 3 && hasName && noBeliau,
+        message: `Expected Reza Fadhilul 'Ulum with 3 paragraphs and no 'beliau'.`,
+      };
+    },
+  },
+  // 22. Auto-Sync: Sa'dun Musthofa (Seksi Keamanan)
+  {
+    no: 22,
+    category: 'Auto-Sync Personil',
+    query: "sa'dun siapa",
+    run: () => getHubunganKepanitiaanResponse("sa'dun siapa", false),
+    validate: (res) => {
+      const parts = res.split('\n\n');
+      const hasName = res.includes('**Sa\'dun Musthofa**');
+      return {
+        passed: parts.length === 3 && hasName,
+        message: `Expected Sa'dun Musthofa with 3 paragraphs.`,
+      };
+    },
+  },
+  // 23. Toleransi Apostrof: sadun siapa (tanpa petik)
+  {
+    no: 23,
+    category: 'Toleransi Apostrof',
+    query: 'sadun siapa',
+    run: () => getHubunganKepanitiaanResponse('sadun siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Sa\'dun Musthofa**');
+      return {
+        passed: hasName,
+        message: `Expected 'sadun' to match Sa'dun Musthofa without apostrophe.`,
+      };
+    },
+  },
+  // 24. Auto-Sync: Sufyan Tsauri (Seksi Protokoler)
+  {
+    no: 24,
+    category: 'Auto-Sync Personil',
+    query: 'tsauri siapa',
+    run: () => getHubunganKepanitiaanResponse('tsauri siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Sufyan Tsauri**');
+      return {
+        passed: hasName,
+        message: `Expected 'tsauri' to match Sufyan Tsauri.`,
+      };
+    },
+  },
+  // 25. Variasi Panggilan Pesantren: qoribah -> Qoribatul Maqbulah
+  {
+    no: 25,
+    category: 'Auto-Sync Personil',
+    query: 'qoribah siapa',
+    run: () => getHubunganKepanitiaanResponse('qoribah siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Qoribatul Maqbulah**');
+      return {
+        passed: hasName,
+        message: `Expected 'qoribah' to match Qoribatul Maqbulah.`,
+      };
+    },
+  },
+  // 26. Auto-Sync: Achmad Abdulloh Faqih (Wakasi Humasy & Kostum)
+  {
+    no: 26,
+    category: 'Auto-Sync Personil',
+    query: 'faqih siapa',
+    run: () => getHubunganKepanitiaanResponse('faqih siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Achmad Abdulloh Faqih**');
+      return {
+        passed: hasName,
+        message: `Expected 'faqih' to match Achmad Abdulloh Faqih.`,
+      };
+    },
+  },
+  // 27. Auto-Sync: Agung Shobirin (Wakasi Desain Grafis)
+  {
+    no: 27,
+    category: 'Auto-Sync Personil',
+    query: 'agung siapa',
+    run: () => getHubunganKepanitiaanResponse('agung siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Agung Shobirin**');
+      return {
+        passed: hasName,
+        message: `Expected 'agung' to match Agung Shobirin.`,
+      };
+    },
+  },
+  // 28. Auto-Sync: Imam Ghozali (Wakasi Penerima Tamu)
+  {
+    no: 28,
+    category: 'Auto-Sync Personil',
+    query: 'ghozali siapa',
+    run: () => getHubunganKepanitiaanResponse('ghozali siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Imam Ghozali**');
+      return {
+        passed: hasName,
+        message: `Expected 'ghozali' to match Imam Ghozali.`,
+      };
+    },
+  },
+  // 29. Auto-Sync: Ahmad Fathoni Fikri (Wakasi Peladen)
+  {
+    no: 29,
+    category: 'Auto-Sync Personil',
+    query: 'fathoni siapa',
+    run: () => getHubunganKepanitiaanResponse('fathoni siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Ahmad Fathoni Fikri**');
+      return {
+        passed: hasName,
+        message: `Expected 'fathoni' to match Ahmad Fathoni Fikri.`,
+      };
+    },
+  },
+  // 30. Auto-Sync: Amin Nur Waluyo (Wakasi PULP & TDM)
+  {
+    no: 30,
+    category: 'Auto-Sync Personil',
+    query: 'waluyo siapa',
+    run: () => getHubunganKepanitiaanResponse('waluyo siapa', false),
+    validate: (res) => {
+      const hasName = res.includes('**Amin Nur Waluyo**');
+      return {
+        passed: hasName,
+        message: `Expected 'waluyo' to match Amin Nur Waluyo.`,
+      };
+    },
+  },
+  // 31. Bahasa Jawa: Reza niku sinten?
+  {
+    no: 31,
+    category: 'Bahasa Jawa',
+    query: 'Reza niku sinten?',
+    run: () => getHubunganKepanitiaanResponse('Reza niku sinten?', false),
+    validate: (res) => {
+      const hasName = res.includes("**Reza Fadhilul 'Ulum**");
+      return {
+        passed: hasName,
+        message: `Expected 'Reza niku sinten?' to match Reza Fadhilul 'Ulum.`,
+      };
+    },
+  },
+  // 32. Bahasa Jawa: sinten Qoribah?
+  {
+    no: 32,
+    category: 'Bahasa Jawa',
+    query: 'sinten Qoribah?',
+    run: () => getHubunganKepanitiaanResponse('sinten Qoribah?', false),
+    validate: (res) => {
+      const hasName = res.includes('**Qoribatul Maqbulah**');
+      return {
+        passed: hasName,
+        message: `Expected 'sinten Qoribah?' to match Qoribatul Maqbulah.`,
+      };
+    },
+  },
 ];
 
 async function main() {

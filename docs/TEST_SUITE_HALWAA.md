@@ -29,6 +29,18 @@ Dokumen ini berisi kumpulan kasus uji baku (*test cases*) untuk memverifikasi ke
 | **18** | Prioritas Pencarian | `"ikfi"` | Prioritas Exact Substring | Wajib `**Ikfi Ulit Taufiqoh**` (BUKAN Akfi Romiyan Kafabih) | ✅ PASS | Bug 2026-10-11: Typo tolerance mendahului exact match sehingga lari ke Akfi. |
 | **19** | Prioritas Pencarian | `"akfi"` | Prioritas Exact Substring | Wajib `**Akfi Romiyan Kafabih**` (Kasi Humasy & Kostum) | ✅ PASS | Memastikan query "akfi" tetap tepat sasaran ke Pak Akfi. |
 | **20** | Kunci Template & Penutup | `"abha"` | Deterministic Locked Template | `**Abhaa Muhammad Kafaa Bihi**` + 3 paragraf fans + penutup standar bahasa Indonesia | ✅ PASS | Bug 2026-10-11: Fallback ke LLM ringkasan faktual & penutup bahasa Jawa. |
+| **21** | Auto-Sync Personil | `"reza siapa"` | Pencarian Personil Seksi | `**Reza Fadhilul 'Ulum**` (Wakasi Keamanan) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **22** | Auto-Sync Personil | `"sa'dun siapa"` | Pencarian Personil Seksi | `**Sa'dun Musthofa**` (Seksi Keamanan) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **23** | Toleransi Apostrof | `"sadun siapa"` | Normalisasi Apostrof | `**Sa'dun Musthofa**` (Seksi Keamanan) | ✅ PASS | Fitur 2026-10-11: Kueri tanpa petik otomatis match ke nama ber-apostrof. |
+| **24** | Auto-Sync Personil | `"tsauri siapa"` | Pencarian Personil Seksi | `**Sufyan Tsauri**` (Seksi Protokoler) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **25** | Auto-Sync Personil | `"qoribah siapa"` | Panggilan Pesantren (-tul/-h) | `**Qoribatul Maqbulah**` (Kasi Keamanan Putri) | ✅ PASS | Fitur 2026-10-11: Alias otomatis untuk panggilan akhiran "-tul" -> "-h". |
+| **26** | Auto-Sync Personil | `"faqih siapa"` | Pencarian Personil Seksi | `**Achmad Abdulloh Faqih**` (Wakasi Humasy & Kostum) | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **27** | Auto-Sync Personil | `"agung siapa"` | Pencarian Personil Seksi | `**Agung Shobirin**` (Wakasi Desain Grafis) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **28** | Auto-Sync Personil | `"ghozali siapa"` | Pencarian Personil Seksi | `**Imam Ghozali**` (Wakasi Penerima Tamu) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **29** | Auto-Sync Personil | `"fathoni siapa"` | Pencarian Personil Seksi | `**Ahmad Fathoni Fikri**` (Wakasi Peladen) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **30** | Auto-Sync Personil | `"waluyo siapa"` | Pencarian Personil Seksi | `**Amin Nur Waluyo**` (Wakasi PULP & TDM) + 3 paragraf | ✅ PASS | Fitur 2026-10-11: Personil missing di SEKSI_DATABASE tersinkronisasi otomatis. |
+| **31** | Bahasa Jawa | `"Reza niku sinten?"` | Stop-Words Jawa | `**Reza Fadhilul 'Ulum**` (Wakasi Keamanan) | ✅ PASS | Fitur 2026-10-11: Stop-words 'niku' & 'sinten' tereduksi otomatis. |
+| **32** | Bahasa Jawa | `"sinten Qoribah?"` | Stop-Words Jawa | `**Qoribatul Maqbulah**` (Kasi Keamanan Putri) | ✅ PASS | Fitur 2026-10-11: Stop-words 'sinten' tereduksi otomatis. |
 
 ---
 
