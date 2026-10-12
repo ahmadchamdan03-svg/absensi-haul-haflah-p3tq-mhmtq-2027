@@ -204,7 +204,7 @@ Berikut daftar potensi jebakan logika yang telah diproteksi di sistem:
 ## 7. ALUR FALLBACK & PENANGANAN KESALAHAN (ERROR HANDLING)
 
 1. **Jika Supabase Mengalami Timeout / Putus Jaringan**:
-   - Modul `lib/us-halwaa-rekap.ts` dilengkapi blok `try-catch`. Jika koneksi database putus, sistem tidak akan crash (500), melainkan mengembalikan data fallback aman dengan jumlah kuota dasar resmi (536 Shohibul Hajat & 1.534 Tamu Undangan).
+   - Modul `lib/us-halwaa-rekap.ts` dilengkapi blok `try-catch`. Jika koneksi database putus, sistem tidak akan crash (500), melainkan merespons dengan pesan: *"Mohon maaf Us, saat ini saya tidak bisa mengakses data kehadiran karena koneksi ke sistem sedang terganggu. Mohon coba beberapa saat lagi."* Jika data kosong, angka dihitung LIVE dari jumlah data Supabase (0 dari N wali santri, 0 dari N tamu undangan).
 2. **Jika Semua Kunci Gemini Mengalami Rate Limit (429) atau Error (500)**:
    - Modul `geminiPool` akan menandai kunci yang gagal untuk *cooldown* selama 30-60 detik dan mencoba kandidat kunci/model berikutnya.
    - Jika seluruh pool kunci Gemini habis, sistem secara otomatis mengeksekusi `generateLocalSmartResponseAsync` (Local Knowledge Engine Offline) sehingga pengguna tetap mendapatkan jawaban faktual.

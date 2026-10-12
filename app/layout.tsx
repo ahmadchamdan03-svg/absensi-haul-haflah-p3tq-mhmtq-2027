@@ -67,16 +67,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png?v=4.2', type: 'image/png' },
+      { url: '/favicon-32x32.png?v=4.2', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png?v=4.2', sizes: '16x16', type: 'image/png' },
+      { url: '/icon-192.png?v=4.2', sizes: '192x192', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-icon.png' },
-      { url: '/apple-touch-icon.png' },
+      { url: '/apple-icon.png?v=4.2' },
+      { url: '/apple-touch-icon.png?v=4.2' },
     ],
-    shortcut: '/icon.png',
+    shortcut: '/icon.png?v=4.2',
   },
 };
 
@@ -95,6 +95,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
+      <head>
+        <link rel="icon" type="image/png" href="/icon.png?v=4.2" />
+        <link rel="shortcut icon" href="/icon.png?v=4.2" />
+      </head>
       <body className="min-h-screen bg-[#FAF7F3] text-slate-900 antialiased">
         <AppShell>{children}</AppShell>
       </body>
