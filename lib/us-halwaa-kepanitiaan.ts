@@ -324,9 +324,10 @@ function determineHonorific(rawName: string, jabatan: string): string {
 
 function generateDisplayTitle(rawName: string, cleanName: string, jabatan: string, aliases: string[]): string {
   const honorific = determineHonorific(rawName, jabatan);
-  const words = cleanName.split(/\s+/).filter(w => w.length >= 2);
+  const words = cleanName.split(/\s+/).filter((w) => w.length >= 2);
   let callName = words[0];
-  if (['muhammad', 'ahmad', 'achmad', 'm.'].includes(words[0].toLowerCase()) && words.length > 1) {
+  const commonPrefixTitles = ['muhammad', 'ahmad', 'achmad', 'm.', 'abu', 'agus'];
+  if (words.length > 1 && commonPrefixTitles.includes(words[0].toLowerCase())) {
     callName = words[1];
   }
   return `${honorific} ${callName}`;
@@ -657,10 +658,6 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: an
   }
 
   const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
-
-  // 1. Exclude general AI identity queries ONLY if asking purely about AI identity with no target person
-  const isGeneralAIIdentityOnly = /^(kamu siapa|siapa kamu|siapa halwaa|halwaa siapa|siapa anda|kamu itu siapa|siapakah kamu|siapakah anda)(\s*[\?\!\.])?$/i.test(q);
-  if (isGeneralAIIdentityOnly) return false;
 
   // 2. Explicit Intent Patterns:
   if (/hubungan.*(kamu|halwaa|anda)/i.test(q) || /(kamu|halwaa|anda).*hubungan/i.test(q) || /hubungan\s+(dengan|sama)/i.test(q)) {
@@ -1181,6 +1178,16 @@ export function getHubunganKepanitiaanResponse(
     return `${greetingPrefix}Mohon maaf Us, saya tidak bisa mencari berdasarkan kata ganti orang. Mohon sebutkan nama spesifik yang ingin ditanyakan, Us.`;
   }
 
+  // 4b. CLARIFICATION FOR STANDALONE "KETUANYA SIAPA" / "PIMPINANNYA SIAPA"
+  const qClean = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ').replace(/\s+/g, ' ');
+  const isStandaloneKetua =
+    /^(siapa\s+)?(ketua|ketuanya|pimpinan|pimpinannya|bos|bosnya)(\s+siapa)?$/i.test(qClean) ||
+    /^(ketuanya\s+siapa|siapa\s+ketuanya|pimpinannya\s+siapa|siapa\s+pimpinannya)$/i.test(qClean);
+
+  if (isStandaloneKetua) {
+    return `${greetingPrefix}Mohon maaf Us, 'ketuanya' bisa merujuk ke seksi mana? Mohon sebutkan nama seksi yang dimaksud (contoh: 'ketua keamanan', 'ketua konsumsi').`;
+  }
+
   // BUG 2 FIX: Duplicate Selection Check from History
   const dupSelection = detectDuplicateSelectionIntent(query, history);
   if (dupSelection.isSelection && dupSelection.selectedMember) {
@@ -1221,11 +1228,14 @@ export function getHubunganKepanitiaanResponse(
 
   // c) 2 to 5 matches -> Verifikasi Pilihan
   if (matchCount >= 2 && matchCount <= 5) {
-    const memberListStr = matchedMembers
-      .map((m) => `${m.name} (${m.jabatanTugas.replace(/\s*\(Dewan Pembimbing Putra\)|\s*\(Dewan Pleno Putri\)|\s*\(Dewan Harian\)/gi, '')})`)
-      .join(' dan ');
+    const memberLines = matchedMembers
+      .map(
+        (m, idx) =>
+          `${idx + 1}. **${m.name}** (${m.jabatanTugas.replace(/\s*\(Dewan Pembimbing Putra\)|\s*\(Dewan Pleno Putri\)|\s*\(Dewan Harian\)/gi, '')})`
+      )
+      .join('\n');
 
-    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}': ${memberListStr}. Maksud Anda yang mana?`;
+    return `${greetingPrefix}Mohon maaf Us, ada beberapa nama yang cocok dengan '${queryTerm}':\n${memberLines}\n\nMaksud Anda yang mana?`;
   }
 
   // d) Exactly 1 match -> LANGSUNG JAWAB!

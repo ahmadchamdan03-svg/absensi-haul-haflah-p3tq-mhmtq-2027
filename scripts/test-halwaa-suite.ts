@@ -78,14 +78,15 @@ const testCases: TestCase[] = [
     query: 'rekap kehadiran hari ini',
     run: () => getLiveRekapKehadiran(false),
     validate: (res) => {
-      const hasSH = res.includes('Shohibul Hajat');
+      const hasWali = res.includes('Wali Santri');
       const hasTamu = res.includes('Tamu Undangan');
-      const hasPresensiContext = res.includes('WIB') || res.includes('Total Scan Hari Ini');
+      const noOldLabel = !res.includes('Shohibul Hajat') && !res.includes('Total Scan Hari Ini');
+      const hasPresensiContext = res.includes('WIB') && res.includes('Persentase:');
       const noAdi = !res.includes('Adi Susilo');
       const noHardcode = !res.includes('536') && !res.includes('1.534');
       return {
-        passed: hasSH && hasTamu && hasPresensiContext && noAdi && noHardcode,
-        message: `Expected live recap format without match to Adi Susilo and without hardcoded 536/1.534.`,
+        passed: hasWali && hasTamu && noOldLabel && hasPresensiContext && noAdi && noHardcode,
+        message: `Expected live recap format with Wali Santri & Tamu Undangan, without Shohibul Hajat and without hardcoded 536/1.534.`,
       };
     },
   },
@@ -100,11 +101,12 @@ const testCases: TestCase[] = [
       return getLiveRekapKehadiran(false);
     },
     validate: (res) => {
-      const hasSH = res.includes('Shohibul Hajat');
+      const hasWali = res.includes('Wali Santri');
       const hasTamu = res.includes('Tamu Undangan');
+      const noOldLabel = !res.includes('Shohibul Hajat');
       return {
-        passed: res !== 'INTENT_NOT_DETECTED' && hasSH && hasTamu,
-        message: `Expected live recap intent detected and formatted properly.`,
+        passed: res !== 'INTENT_NOT_DETECTED' && hasWali && hasTamu && noOldLabel,
+        message: `Expected live recap intent detected with Wali Santri and Tamu Undangan.`,
       };
     },
   },
@@ -495,6 +497,66 @@ const testCases: TestCase[] = [
       return {
         passed: hasName,
         message: `Expected 'sinten Qoribah?' to match Qoribatul Maqbulah.`,
+      };
+    },
+  },
+  // 33. Perkenalan Diri ("halwa siapa")
+  {
+    no: 33,
+    category: 'Perkenalan Diri',
+    query: 'halwa siapa',
+    run: () => getHubunganKepanitiaanResponse('halwa siapa', false),
+    validate: (res) => {
+      const hasHalwaa = res.includes('**Usth. Halwaa**');
+      const hasClosing = res.includes('Us?');
+      return {
+        passed: hasHalwaa && hasClosing,
+        message: `Expected self-introduction with bold **Usth. Halwaa**.`,
+      };
+    },
+  },
+  // 34. Pertanyaan Ambigu ("ketuanya siapa")
+  {
+    no: 34,
+    category: 'Klarifikasi Ketua',
+    query: 'ketuanya siapa',
+    run: () => getHubunganKepanitiaanResponse('ketuanya siapa', false),
+    validate: (res) => {
+      const isClarification = res.includes("'ketuanya' bisa merujuk ke seksi mana?");
+      const notNotFound = !res.includes('tidak ditemukan');
+      return {
+        passed: isClarification && notNotFound,
+        message: `Expected clarifying question for standalone 'ketuanya siapa'.`,
+      };
+    },
+  },
+  // 35. Format Bold Pilihan Ganda (2-5 Kandidat)
+  {
+    no: 35,
+    category: 'Format Pilihan Ganda',
+    query: 'yazid',
+    run: () => getHubunganKepanitiaanResponse('yazid', false),
+    validate: (res) => {
+      const hasBoldAbu = res.includes('1. **Abu Yazid Al Bustomi**');
+      const hasBoldMahbub = res.includes('2. **Muhammad Yazid Mahbubillah**');
+      return {
+        passed: hasBoldAbu && hasBoldMahbub,
+        message: `Expected numbered bold list for candidates in disambiguation.`,
+      };
+    },
+  },
+  // 36. Display Title Kata Pertama ("Zida Hikmana Ahmad" -> "Pak Zida")
+  {
+    no: 36,
+    category: 'Display Title Spesifik',
+    query: 'zida siapa',
+    run: () => getHubunganKepanitiaanResponse('zida siapa', false),
+    validate: (res) => {
+      const hasPakZida = res.includes('Pak Zida');
+      const hasFullName = res.includes('Zida Hikmana Ahmad');
+      return {
+        passed: hasPakZida && hasFullName,
+        message: `Expected Pak Zida (first word) instead of Pak Ahmad.`,
       };
     },
   },

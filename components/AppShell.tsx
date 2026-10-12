@@ -14,10 +14,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Halaman publik wali santri (portal undangan / beli kuota tambahan) tidak menggunakan sidebar panitia
-  const isPublicPage = pathname === '/' || pathname.startsWith('/u/') || pathname.startsWith('/beli/') || pathname === '/penerima-tamu' || pathname === '/pimpinan';
+  // Hanya halaman admin/petugas resmi yang menampilkan sidebar dan header navigasi.
+  // Semua halaman publik (termasuk /, /u, /u/[token], /beli/..., /denah, /game, dan halaman 404)
+  // TIDAK PERNAH menampilkan sidebar admin atau top header panitia.
+  const isAdminRoute =
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/scan') ||
+    pathname.startsWith('/rekon') ||
+    pathname.startsWith('/dasbor');
 
-  if (isPublicPage) {
+  if (!isAdminRoute) {
     return <main className="min-h-screen bg-[#FAF7F3]">{children}</main>;
   }
 

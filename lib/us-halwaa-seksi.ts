@@ -544,14 +544,18 @@ export function handleInfoSeksiQuery(query: string, isFirstTurn: boolean = false
   const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ').replace(/\s+/g, ' ');
 
   // 3. VARIASI PERTANYAAN
+  const kasiPutraBold = `**${matchedSeksi.putra.kasi}**`;
+  const kasiPutriBold = `**${matchedSeksi.putri.kasi}**`;
+  const wakasiPutraBold = `**${matchedSeksi.putra.wakasi}**`;
+  const wakasiPutriBold = `**${matchedSeksi.putri.wakasi}**`;
 
   // a. Kasi Saja ("kasi [seksi]")
   const isKasiOnly = /\bkasi\b/i.test(q) && !/\bwakasi\b/i.test(q) && !/\banggota\b/i.test(q);
   if (isKasiOnly) {
     return `${greetingPrefix}Berikut adalah Kasi **Seksi ${matchedSeksi.name}** untuk putra dan putri:
 
-- Kasi Putra: ${matchedSeksi.putra.kasi}
-- Kasi Putri: ${matchedSeksi.putri.kasi}
+- Kasi Putra: ${kasiPutraBold}
+- Kasi Putri: ${kasiPutriBold}
 
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
@@ -561,8 +565,8 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   if (isWakasiOnly) {
     return `${greetingPrefix}Berikut adalah Wakasi **Seksi ${matchedSeksi.name}** untuk putra dan putri:
 
-- Wakasi Putra: ${matchedSeksi.putra.wakasi}
-- Wakasi Putri: ${matchedSeksi.putri.wakasi}
+- Wakasi Putra: ${wakasiPutraBold}
+- Wakasi Putri: ${wakasiPutriBold}
 
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
@@ -579,12 +583,12 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
     return `${greetingPrefix}Berikut adalah jajaran pengurus **Seksi ${matchedSeksi.name}** untuk putra dan putri:
 
 **Seksi ${matchedSeksi.name} (Putra):**
-- Kasi: ${matchedSeksi.putra.kasi}
-- Wakasi: ${matchedSeksi.putra.wakasi}
+- Kasi: ${kasiPutraBold}
+- Wakasi: ${wakasiPutraBold}
 
 **Seksi ${matchedSeksi.name} (Putri):**
-- Kasi: ${matchedSeksi.putri.kasi}
-- Wakasi: ${matchedSeksi.putri.wakasi}
+- Kasi: ${kasiPutriBold}
+- Wakasi: ${wakasiPutriBold}
 
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   }
@@ -592,23 +596,23 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   // d. Lengkap dengan Anggota ("seksi [nama]", "anggota [seksi]", "struktur [seksi]")
   const anggotaPutraStr =
     matchedSeksi.putra.anggota && matchedSeksi.putra.anggota.length > 0
-      ? `\n- Anggota: ${matchedSeksi.putra.anggota.join(', ')}`
+      ? `\n- Anggota: ${matchedSeksi.putra.anggota.map((a) => `**${a}**`).join(', ')}`
       : '';
 
   const anggotaPutriStr =
     matchedSeksi.putri.anggota && matchedSeksi.putri.anggota.length > 0
-      ? `\n- Anggota: ${matchedSeksi.putri.anggota.join(', ')}`
+      ? `\n- Anggota: ${matchedSeksi.putri.anggota.map((a) => `**${a}**`).join(', ')}`
       : '';
 
   return `${greetingPrefix}Berikut adalah jajaran pengurus **Seksi ${matchedSeksi.name}** untuk putra dan putri:
 
 **Seksi ${matchedSeksi.name} (Putra):**
-- Kasi: ${matchedSeksi.putra.kasi}
-- Wakasi: ${matchedSeksi.putra.wakasi}${anggotaPutraStr}
+- Kasi: ${kasiPutraBold}
+- Wakasi: ${wakasiPutraBold}${anggotaPutraStr}
 
 **Seksi ${matchedSeksi.name} (Putri):**
-- Kasi: ${matchedSeksi.putri.kasi}
-- Wakasi: ${matchedSeksi.putri.wakasi}${anggotaPutriStr}
+- Kasi: ${kasiPutriBold}
+- Wakasi: ${wakasiPutriBold}${anggotaPutriStr}
 
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 }

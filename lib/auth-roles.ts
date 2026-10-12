@@ -109,6 +109,10 @@ export function setActiveRole(role: AppRole): void {
     localStorage.setItem(SESSION_ROLE_KEY, role);
     sessionStorage.setItem('show_welcome', 'true');
     sessionStorage.setItem('user_role', role);
+
+    // Set cookie untuk proteksi middleware & SSR
+    document.cookie = `haflah_active_role_session=${role}; path=/; max-age=86400; SameSite=Lax`;
+    document.cookie = `user_role=${role}; path=/; max-age=86400; SameSite=Lax`;
   } catch (e) {}
 }
 
@@ -117,6 +121,10 @@ export function clearActiveRole(): void {
   try {
     sessionStorage.clear();
     localStorage.removeItem(SESSION_ROLE_KEY);
+
+    // Hapus cookie
+    document.cookie = 'haflah_active_role_session=; path=/; max-age=0; SameSite=Lax';
+    document.cookie = 'user_role=; path=/; max-age=0; SameSite=Lax';
   } catch (e) {}
 }
 

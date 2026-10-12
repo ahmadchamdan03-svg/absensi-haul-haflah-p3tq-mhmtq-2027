@@ -732,9 +732,9 @@ export default function ScanPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-20">
       {/* Header Jalur Pemeriksaan */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="relative z-10 mb-4 bg-[#FAF7F3] rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         {/* Baris 1 (Mobile) / Sisi Kiri (Desktop): Info Gerbang & Tombol Denah */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-3">
+        <div className="flex items-center justify-between w-full md:w-auto gap-3 flex-wrap">
           <div className="flex items-center space-x-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm shrink-0">
               <QrCode className="w-5 h-5 text-[#8C6A47]" />
@@ -761,7 +761,7 @@ export default function ScanPage() {
         </div>
 
         {/* Baris 2 (Mobile) / Sisi Kanan (Desktop): Pemilih Jalur Barat vs Timur */}
-        <div className="flex w-full md:w-auto bg-[#EFE8E1] p-1 rounded-xl border border-[#D5C4B4] gap-1.5">
+        <div className="flex w-full md:w-auto bg-[#EFE8E1] p-1 rounded-xl border border-[#D5C4B4] gap-1.5 flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => setJalur('BARAT')}
@@ -812,7 +812,7 @@ export default function ScanPage() {
             </div>
 
             {/* Tombol Kontrol Kamera */}
-            <div className="flex items-center space-x-1.5">
+            <div className="flex items-center space-x-1.5 flex-wrap">
               {cameraActive ? (
                 <>
                   <button
@@ -849,7 +849,7 @@ export default function ScanPage() {
           </div>
 
           {/* FRAME KAMERA LIVE */}
-          <div className="relative rounded-3xl overflow-hidden bg-opera-950 border-2 border-opera-800 shadow-inner flex flex-col items-center justify-center min-h-[300px]">
+          <div className="relative rounded-3xl overflow-hidden bg-opera-950 border-2 border-opera-800 shadow-inner flex flex-col items-center justify-center min-h-[300px] aspect-video w-full">
             {/* Viewfinder Overlay */}
             <div className="absolute inset-0 pointer-events-none z-10 p-6 flex flex-col justify-between">
               <div className="flex justify-between">
@@ -871,7 +871,7 @@ export default function ScanPage() {
 
             <div
               id="qr-camera-reader"
-              className="w-full h-full max-w-[420px] aspect-square rounded-2xl overflow-hidden [&_video]:rounded-2xl [&_video]:object-cover"
+              className="w-full h-full max-w-full aspect-video rounded-2xl overflow-hidden [&_video]:rounded-2xl [&_video]:object-cover"
             ></div>
 
             {!cameraActive && !isInitializing && (

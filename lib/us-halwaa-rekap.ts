@@ -116,15 +116,13 @@ export async function getLiveRekapKehadiran(isFirstTurn: boolean = false): Promi
     if (totalScan === 0 && shScanned === 0 && tamuHadir === 0) {
       return `${greetingPrefix}Berikut rekap kehadiran Haul & Haflah per pukul ${jamWIB}:
 
-📊 **Shohibul Hajat:**
-- Sudah scan: 0 dari ${totalSH.toLocaleString('id-ID')}
+**Wali Santri:**
+- Hadir: 0 dari ${totalSH.toLocaleString('id-ID')} wali santri
 - Persentase: 0.0%
 
-📊 **Tamu Undangan:**
-- Sudah RSVP Hadir: 0 dari ${totalTamu.toLocaleString('id-ID')}
+**Tamu Undangan:**
+- Hadir: 0 dari ${totalTamu.toLocaleString('id-ID')} tamu undangan
 - Persentase: 0.0%
-
-📊 **Total Scan Hari Ini:** 0 kali
 
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
     }
@@ -135,15 +133,13 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 
     return `${greetingPrefix}Berikut rekap kehadiran Haul & Haflah per pukul ${jamWIB}:
 
-📊 **Shohibul Hajat:**
-- Sudah scan: ${shScanned.toLocaleString('id-ID')} dari ${totalSH.toLocaleString('id-ID')}
+**Wali Santri:**
+- Hadir: ${shScanned.toLocaleString('id-ID')} dari ${totalSH.toLocaleString('id-ID')} wali santri
 - Persentase: ${persenSH}%
 
-📊 **Tamu Undangan:**
-- Sudah RSVP Hadir: ${tamuHadir.toLocaleString('id-ID')} dari ${totalTamu.toLocaleString('id-ID')}
+**Tamu Undangan:**
+- Hadir: ${tamuHadir.toLocaleString('id-ID')} dari ${totalTamu.toLocaleString('id-ID')} tamu undangan
 - Persentase: ${persenTamu}%
-
-📊 **Total Scan Hari Ini:** ${totalScan.toLocaleString('id-ID')} kali
 
 Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
   } catch (err) {

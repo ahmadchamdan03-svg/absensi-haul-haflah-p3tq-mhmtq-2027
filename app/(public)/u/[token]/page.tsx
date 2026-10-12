@@ -159,12 +159,19 @@ function HeaderLogos() {
 
 export default function UndanganWaliPage() {
   const params = useParams();
-  const token = (params?.token as string) || '';
-  const kodeSH = (token.split('-')[0] || 'SH0001').toUpperCase();
+  const rawToken = (params?.token as string) || '';
+
+  // Sanitasi token: Hanya izinkan alfanumerik, garis bawah, dan tanda hubung
+  const isValidFormat = /^[A-Za-z0-9_-]+$/.test(rawToken) && !rawToken.includes('..');
+  const kodeSH = (rawToken.split('-')[0] || '').toUpperCase();
   const isTamuUndangan = kodeSH.startsWith('UND');
 
-  // Helper: ambil data dari cache store lokal (HANYA dipanggil setelah mount)
+  const [itemNotFound, setItemNotFound] = useState(!isValidFormat || !kodeSH);
+
+  // Helper: ambil data dari cache store lokal (HANYA dipanggil jika ada di store)
   const buildItemFromLocalStore = (): any => {
+    if (!isValidFormat || !kodeSH) return null;
+
     if (kodeSH.startsWith('UND')) {
       const found = store.getUndanganList().find((u) => u.kode === kodeSH);
       if (found) {
@@ -195,23 +202,14 @@ export default function UndanganWaliPage() {
           },
         };
       }
-      return {
-        kode: kodeSH,
-        tipe: 'UNDANGAN',
-        nama: 'Tamu Undangan',
-        kategori: 'Tamu Kehormatan',
-        subKategori: 'KEHORMATAN',
-        instansi: '-',
-        alamat: 'Kediri',
-        kuota: { kodeQr: kodeSH, kuotaDasar: 2, kuotaTambahan: 0, terpakai: 0 },
-        estimasi: { statusKonfirmasi: 'BELUM', perkiraanL: 1, perkiraanP: 1, catatan: '' },
-      };
+      return null;
     }
-    return store.findByKode(kodeSH) || store.findByKode('SH0001');
+
+    const foundSantri = store.findByKode(kodeSH);
+    return foundSantri || null;
   };
 
   // Hydration-safe: render pertama (server & client) memakai placeholder deterministik.
-  // Data cache lokal (localStorage store) baru dimuat setelah mount, lalu ditimpa data live Supa.
   const [item, setItem] = useState<any>(() => ({
     kode: kodeSH,
     tipe: isTamuUndangan ? 'UNDANGAN' : 'KELUARGA',
@@ -221,8 +219,14 @@ export default function UndanganWaliPage() {
   }));
 
   useEffect(() => {
+    if (!isValidFormat || !kodeSH) {
+      setItemNotFound(true);
+      return;
+    }
     const cached = buildItemFromLocalStore();
-    if (cached) setItem((prev: any) => (prev?.nama ? prev : cached));
+    if (cached) {
+      setItem((prev: any) => (prev?.nama ? prev : cached));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kodeSH]);
 
@@ -303,6 +307,7 @@ export default function UndanganWaliPage() {
           }
 
           if (t && !error) {
+            setItemNotFound(false);
             const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
             const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
             const kDasar = t.kuota_dasar ? Number(t.kuota_dasar) : Math.max(1, countL + countP);
@@ -338,6 +343,12 @@ export default function UndanganWaliPage() {
             formatQrPayload(t.kode).then((payload) => {
               setFullQrPayload(payload);
             });
+          } else {
+            // Cek apakah ada di cache lokal
+            const local = buildItemFromLocalStore();
+            if (!local) {
+              setItemNotFound(true);
+            }
           }
         } else {
           const { data: s, error } = await supabase
@@ -351,6 +362,7 @@ export default function UndanganWaliPage() {
           }
 
           if (s && !error) {
+            setItemNotFound(false);
             const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
             const kDasar = Number(s.kuota_dasar && s.kuota_dasar >= calculatedKDasar ? s.kuota_dasar : calculatedKDasar);
             const kTambahan = Number(s.kuota_tambahan || 0);
@@ -406,6 +418,12 @@ export default function UndanganWaliPage() {
             formatQrPayload(s.kode).then((payload) => {
               setFullQrPayload(payload);
             });
+          } else {
+            // Cek apakah ada di cache lokal
+            const local = buildItemFromLocalStore();
+            if (!local) {
+              setItemNotFound(true);
+            }
           }
         }
       } catch (e) {
@@ -416,7 +434,7 @@ export default function UndanganWaliPage() {
     }
 
     fetchInvitationData();
-  }, [kodeSH, isTamuUndangan]);
+  }, [kodeSH, isTamuUndangan, isValidFormat]);
 
   // Fetch Beli Kuota Control Status + Realtime Subscription
   useEffect(() => {
@@ -635,6 +653,63 @@ export default function UndanganWaliPage() {
     `Saya ingin menyampaikan hal khusus:\n\n` +
     `(silakan tulis di sini)`;
   const waHalKhususLink = `https://wa.me/${finalWaNo}?text=${encodeURIComponent(textHalKhusus)}`;
+
+  // Jika kode tidak valid atau tidak ditemukan di database & store lokal
+  if (!loadingSantri && itemNotFound) {
+    return (
+      <div className="min-h-screen bg-[#FAF7F3] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10">
+        <PortalBackground />
+        <div className="max-w-md w-full bg-white/85 backdrop-blur-md border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 relative z-20">
+          <div className="flex justify-center">
+            <img
+              src="/images/logo-haul-gold.png"
+              alt="Logo Haul & Haflah P3TQ MHMTQ"
+              className="h-16 sm:h-20 w-auto object-contain drop-shadow-sm"
+            />
+          </div>
+
+          <div className="flex items-center justify-center gap-3 text-[#8C6A47]/60">
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+            <span className="text-xs">❖</span>
+            <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-[#8C6A47] mb-1">
+              <AlertCircle className="w-6 h-6 animate-pulse" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
+              Kode Undangan Tidak Ditemukan
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              Mohon maaf, kode undangan tidak ditemukan. Silakan periksa kembali tautan undangan resmi Anda atau hubungi Sekretariat Panitia.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-2.5">
+            <a
+              href={`https://wa.me/${finalWaNo}?text=${encodeURIComponent("Assalamu'alaikum, saya ingin konfirmasi link undangan Haflah.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-xs sm:text-sm shadow-md transition-all active:scale-95 inline-flex items-center justify-center space-x-2"
+            >
+              <MessageCircle className="w-4 h-4 text-emerald-200" />
+              <span>Hubungi Panitia via WhatsApp</span>
+            </a>
+            <Link
+              href="/"
+              className="w-full py-2.5 px-6 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs sm:text-sm transition-all inline-flex items-center justify-center space-x-2"
+            >
+              <span>Kembali ke Beranda</span>
+            </Link>
+          </div>
+        </div>
+        <p className="text-[11px] text-stone-500 mt-6 font-medium relative z-20">
+          © 2027 Haflah Akhirussanah P3TQ &amp; MHMTQ Lirboyo Kediri
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">

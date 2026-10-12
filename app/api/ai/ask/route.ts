@@ -1028,6 +1028,16 @@ async function searchPersonInSupabase(userQuery: string): Promise<PersonSearchRe
 
 function isStatsQuery(prompt: string): boolean {
   const q = prompt.toLowerCase();
+  if (
+    q.includes('grafik') ||
+    q.includes('chart') ||
+    q.includes('diagram') ||
+    q.includes('visualisasi') ||
+    q.includes('donut') ||
+    q.includes('pie')
+  ) {
+    return true;
+  }
   const hasCountWord = q.includes('berapa') || q.includes('jumlah') || q.includes('prosentase') || q.includes('persentase') || q.includes('%') || q.includes('statistik') || q.includes('progress') || q.includes('okupansi');
   const hasAttendanceWord = q.includes('hadir') || q.includes('datang') || q.includes('kehadiran') || q.includes('presensi');
 
@@ -2123,7 +2133,7 @@ function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt
   reply = reply.replace(/Sesuai Koor 2/gi, 'Sesuai dokumen resmi kepanitiaan');
   reply = reply.replace(/USTH AL/g, '');
 
-  // ENFORCE USER SALUTATION TO 'Us'
+  // ENFORCE USER SALUTATION TO 'Us' (hindari mengubah 'Usth. Halwaa')
   reply = reply.replace(/bantu[,\s]+Usth\./gi, 'bantu, Us');
   reply = reply.replace(/bantu[,\s]+Usth\?/gi, 'bantu, Us?');
   reply = reply.replace(/malih[,\s]+Usth\?/gi, 'malih Us?');
@@ -2139,7 +2149,11 @@ function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt
   reply = reply.replace(/,\s*Usth\?/g, ', Us?');
   reply = reply.replace(/,\s*Usth!/g, ', Us!');
   reply = reply.replace(/,\s*Usth,/g, ', Us,');
-
+  reply = reply.replace(/Usth\.\s+(Anda|kamu|panjenengan|njenengan)/gi, 'Us, $1');
+  reply = reply.replace(/Usth\.\s*$/gm, 'Us.');
+  reply = reply.replace(/(?<!saya\s|nama\s+saya\s|asisten\s+)Usth\.(?!\s*Halwaa)/gi, 'Us');
+  reply = reply.replace(/\bUs\.\./g, 'Us.');
+  reply = reply.replace(/\bUs\.\s*\./g, 'Us.');
   reply = reply.replace(/\.\.+/g, '.');
 
   // CLOSING PANJANG (> 100 kata): Tambahkan 1 motivasi singkat jika belum ada motivasi di dalam respon
@@ -2254,7 +2268,9 @@ function handleChamdanAndRekeningQuery(userQuery: string, history?: any[]): stri
 
   const isChamdanPersonalQuery =
     q.includes('chamdan') ||
+    q.includes('hamdan') ||
     q.includes('yuwafi') ||
+    q.includes('yuwafin') ||
     q.includes('wakasi sekretariat');
 
   // PRIORITAS 1: Jika pertanyaan tentang REKENING (meskipun menyebut "Chamdan" / "a.n. siapa")
@@ -2322,6 +2338,29 @@ export async function POST(req: NextRequest) {
     }
 
     // 0. FITUR REKAP KEHADIRAN REALTIME
+    const isChartRequested =
+      prompt.toLowerCase().includes('grafik') ||
+      prompt.toLowerCase().includes('chart') ||
+      prompt.toLowerCase().includes('diagram') ||
+      prompt.toLowerCase().includes('visualisasi') ||
+      prompt.toLowerCase().includes('donut') ||
+      prompt.toLowerCase().includes('pie');
+
+    if (isChartRequested) {
+      const stats = await getLiveAttendanceStatsChart();
+      const replyText = await getLiveRekapKehadiran(isFirstTurn);
+      const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_stats',
+        model: 'Usth. Halwaa Live Attendance Recap Engine',
+        chart: stats.chart,
+      });
+    }
+
     if (detectRekapKehadiranIntent(prompt)) {
       const replyText = await getLiveRekapKehadiran(isFirstTurn);
       const expr = detectExpression(replyText, prompt, isFirstTurn);

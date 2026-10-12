@@ -521,8 +521,8 @@ export default function KonfirmasiPage() {
         </p>
       </div>
 
-      {/* 4 KARTU METRIK RINGKASAN KONFIRMASI (MOBILE 2 KOLOM x 2 BARIS, DESKTOP 4 KOLOM) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      {/* 4 KARTU METRIK RINGKASAN KONFIRMASI */}
+      <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
         {/* Card 1: Total Santri / Tamu */}
         <button
           type="button"
@@ -531,7 +531,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className={`rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between ${
+          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
             filterStatus === 'SEMUA'
               ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
@@ -565,7 +565,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className={`rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between ${
+          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
             filterStatus === 'SUDAH'
               ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
@@ -603,7 +603,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className={`rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between ${
+          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
             filterStatus === 'BELUM'
               ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
@@ -637,7 +637,7 @@ export default function KonfirmasiPage() {
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="rounded-3xl p-3.5 sm:p-5 shadow-sm border-2 border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6] text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[110px] flex flex-col justify-between"
+          className="rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6] text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between"
           title="Klik untuk melihat rincian alokasi kursi hadir"
         >
           <div className="flex items-center justify-between">

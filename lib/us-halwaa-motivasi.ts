@@ -430,8 +430,17 @@ export function isKamuSiapaQuery(pertanyaan: string): boolean {
     /^kamu ai apa$/,
     /^kamu itu apa$/,
     /^siapa halwaa$/,
+    /^siapa halwa$/,
     /^siapa usth halwaa$/,
+    /^siapa usth halwa$/,
+    /^siapa ustadzah halwaa$/,
+    /^siapa ustadzah halwa$/,
     /^halwaa siapa$/,
+    /^halwa siapa$/,
+    /^usth halwa siapa$/,
+    /^usth halwaa siapa$/,
+    /^ustadzah halwa siapa$/,
+    /^ustadzah halwaa siapa$/,
     /^siapa lu$/,
     /^lu siapa$/,
     /^loe siapa$/,
@@ -444,7 +453,7 @@ export function isKamuSiapaQuery(pertanyaan: string): boolean {
 
   // Broad check for simple phrasing
   if (
-    (q.includes('kamu siapa') || q.includes('siapa kamu') || q.includes('kamu itu siapa') || q.includes('siapa anda') || q.includes('anda siapa')) &&
+    (q.includes('kamu siapa') || q.includes('siapa kamu') || q.includes('kamu itu siapa') || q.includes('siapa anda') || q.includes('anda siapa') || q.includes('halwa siapa') || q.includes('siapa halwa') || q.includes('halwaa siapa') || q.includes('siapa halwaa')) &&
     !/(pak|bapak|bu|ibu|ning|gus|mbak|mas)/.test(q)
   ) {
     return true;
