@@ -400,7 +400,7 @@ export default function WhatsAppPage() {
         ? 'Bin Nadzori'
         : santri?.kategoriUtama === 'TAMATAN'
         ? `Tamatan (Bagian ${extractBagianTamatan(santri?.kelas || santri?.subKategori)})`
-        : 'Sohibul Hajat';
+        : 'Shohibul Hajat';
 
     if (gel === 1) {
       return `Yth. Bapak/Ibu Wali Santri
@@ -417,7 +417,7 @@ Waktu : 06.30 WIB - Selesai
 Tempat : Aula Muktamar Pondok Pesantren Lirboyo Kediri
 Masuk melalui: Gerbang Selatan (Bola Dunia)
 
-Sohibul hajat : *${santri?.nama || '-'}*
+Shohibul Hajat : *${santri?.nama || '-'}*
 Kategori : ${katText}
 Kamar : ${santri?.kamar || '-'}
 Hak Kuota Masuk : *${totalKuota} orang*

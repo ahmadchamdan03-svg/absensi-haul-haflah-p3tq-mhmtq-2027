@@ -1017,7 +1017,7 @@ export default function ScanPage() {
           <div className="p-4 space-y-3">
             <div>
               <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">
-                {activeItem.tipe === 'KELUARGA' ? 'SOHIBUL HAJAT (SANTRI)' : 'TAMU UNDANGAN'}
+                {activeItem.tipe === 'KELUARGA' ? 'SHOHIBUL HAJAT (SANTRI)' : 'TAMU UNDANGAN'}
               </div>
               <h2 className="text-base sm:text-lg font-serif font-black text-slate-900 leading-snug mt-0.5">
                 {activeItem.nama}

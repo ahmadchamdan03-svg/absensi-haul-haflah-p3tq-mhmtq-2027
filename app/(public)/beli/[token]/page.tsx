@@ -521,7 +521,7 @@ export default function BeliKuotaPage() {
         <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-3">
           <div className="flex items-center justify-between border-b border-stone-100 pb-3">
             <div>
-              <span className="text-[10px] text-[#8C6A47] font-bold uppercase tracking-wider block">
+              <span className="text-[10px] text-[#8C6A47] font-bold uppercase tracking-wider whitespace-nowrap block">
                 SHOHIBUL HAJAT (SANTRI):
               </span>
               <h2 className="font-serif font-black text-lg text-[#322116]">{santri.nama}</h2>
