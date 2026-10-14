@@ -276,13 +276,13 @@ export default function VerifikasiPage() {
           `• ID Pesanan: ${targetId}\n` +
           `• Tambahan: +${numKursi} Kursi\n` +
           `• Status: *Aktif pada QR Code Santri*\n\n` +
-          `*Konfirmasi Kehadiran Anda*\n` +
-          `Bantu panitia menyiapkan kursi dan penginapan dengan mengisi perkiraan jumlah kehadiran Anda di link undangan digital:\n` +
-          `${origin}/u/${targetKode}\n\n` +
-          `Silakan buka link di atas, scroll ke bagian RSVP, dan isi:\n` +
-          `- Hari kedatangan (Jum'at / Sabtu)\n` +
-          `- Jam kedatangan\n` +
-          `- Jumlah wali santri putra & putri\n\n` +
+          `*Konfirmasi Kehadiran Anda (RSVP)*\n` +
+          `Bantu panitia menyiapkan kursi dan penginapan dengan mengisi perkiraan jumlah kehadiran Anda di link undangan digital. Silakan buka link di bawah, scroll ke bagian RSVP, dan konfirmasi ulang:\n` +
+          `• Hari kedatangan (Jum'at / Sabtu)\n` +
+          `• Jam kedatangan\n` +
+          `• Jumlah wali santri putra & putri\n\n` +
+          `Akses Kartu Presensi Digital & QR Code:\n` +
+          `🔗 ${origin}/u/${targetKode}\n\n` +
           `Terima kasih atas kerja samanya.\n\n` +
           `_Panitia Haul & Haflah P3TQ - MHMTQ 2027_`;
 
@@ -441,6 +441,8 @@ export default function VerifikasiPage() {
             `• Metode: ${manualMetode === 'TUNAI' ? 'Kas Tunai di Sekretariat' : 'Transfer Rekening BRI'}\n` +
             `• Jumlah: +${manualJumlah} Kursi\n` +
             `• Status: *DIVERIFIKASI LANGSUNG (Aktif)*\n\n` +
+            `*Konfirmasi Kehadiran Anda (RSVP)*\n` +
+            `Bantu panitia menyiapkan kursi dan penginapan dengan memperbarui konfirmasi kehadiran (pilihan hari Jum'at/Sabtu, jam kedatangan, dan perkiraan jumlah L/P) pada E-Undangan:\n\n` +
             `Akses E-Undangan & QR Presensi:\n` +
             `🔗 ${origin}/u/${selectedSantri.kode}\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`
