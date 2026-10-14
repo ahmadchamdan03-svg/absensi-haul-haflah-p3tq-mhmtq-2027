@@ -142,6 +142,18 @@ export default function RekonPage() {
     return [...santriFiltered, ...tamuFiltered];
   }, [keyword, santriList, tamuList]);
 
+  // Listener tombol ESC untuk menutup modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (editingItem) setEditingItem(null);
+        if (showWalkinModal) setShowWalkinModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [editingItem, showWalkinModal]);
+
   // Quick Action: Tandai Hadir / Batalkan Hadir
   const handleToggleHadir = async (item: any) => {
     const isSantri = item.tipe === 'SANTRI';
@@ -374,21 +386,42 @@ export default function RekonPage() {
         await syncKuotaTerpakai(editingItem.kode);
       }
 
-      // FIX 4: Pengecekan Konsistensi kuota_tambahan vs pembelian_kuota
-      if (isSantri) {
-        const { data: pembelianList } = await supabase
+      // Fix 7 & 14: Sinkronisasi pengurangan kuota_tambahan ke pembelian_kuota & audit_log
+      if (isSantri && beforeData && payload.kuota_tambahan < Number(beforeData.kuota_tambahan || 0)) {
+        const pengurangan = Number(beforeData.kuota_tambahan || 0) - payload.kuota_tambahan;
+        let sisaKurang = pengurangan;
+
+        const { data: activePurchases } = await supabase
           .from('pembelian_kuota')
-          .select('jumlah_kursi')
+          .select('*')
           .eq('kode_santri', editingItem.kode)
-          .eq('status', 'DIVERIFIKASI');
+          .eq('status', 'DIVERIFIKASI')
+          .order('created_at', { ascending: false });
 
-        const verifiedSum = (pembelianList || []).reduce(
-          (acc: number, curr: any) => acc + Number(curr.jumlah_kursi || 0),
-          0
-        );
+        if (activePurchases && activePurchases.length > 0) {
+          for (const purchase of activePurchases) {
+            if (sisaKurang <= 0) break;
+            const jKursi = Number(purchase.jumlah_kursi || 0);
+            await supabase
+              .from('pembelian_kuota')
+              .update({ status: 'DIHAPUS', updated_at: new Date().toISOString() })
+              .eq('id', purchase.id);
 
-        if (payload.kuota_tambahan !== verifiedSum && (pembelianList && pembelianList.length > 0)) {
-          showToast(`⚠️ Perhatian: Kuota Tambahan (${payload.kuota_tambahan}) berbeda dari total pembelian terverifikasi (${verifiedSum}).`, 'error');
+            await logAudit({
+              panitia_id: 'PANITIA_REKONSILIASI',
+              panitia_role: 'PENERIMA_TAMU',
+              aksi: 'HAPUS_KUOTA_TAMBAHAN',
+              tabel: 'pembelian_kuota',
+              kode: editingItem.kode,
+              nama: editingItem.nama,
+              field: 'status',
+              nilai_lama: 'DIVERIFIKASI',
+              nilai_baru: 'DIHAPUS',
+              catatan: `Pengurangan kuota tambahan via Rekonsiliasi (Order: ${purchase.id_pesanan || purchase.id}, -${jKursi} kursi)`,
+            });
+
+            sisaKurang -= jKursi;
+          }
         }
       }
 
@@ -735,7 +768,12 @@ export default function RekonPage() {
 
         {/* MODAL EDIT LENGKAP (REKONSILIASI KOREKSI MASIF) */}
         {editingItem && (
-          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setEditingItem(null);
+            }}
+          >
             <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 border border-[#E8DFD5] max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
               <div className="flex items-center justify-between border-b border-stone-100 pb-4">
                 <div>
@@ -1107,7 +1145,12 @@ export default function RekonPage() {
 
         {/* MODAL WALK-IN GUEST BARU */}
         {showWalkinModal && (
-          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowWalkinModal(false);
+            }}
+          >
             <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-[#E8DFD5] max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
               <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                 <div>

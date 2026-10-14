@@ -254,11 +254,11 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               TOTAL WALI SANTRI
             </span>
             <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isWsAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
-              {totalKuotaWaliSantri > 0 ? Math.min(100, Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100)) : 0}% Hadir {isWsAnomaly && '⚠️ (Over)'}
+              {totalKuotaWaliSantri > 0 ? `${Math.min(100, Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100))}% Hadir` : '—'} {isWsAnomaly && '⚠️ (Over)'}
             </span>
           </div>
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
-            {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri}</span>
+            {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri > 0 ? totalKuotaWaliSantri : '—'}</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
             <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.wsL}</strong></span>
@@ -278,7 +278,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               TOTAL TAMU UNDANGAN
             </span>
             <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isTamuAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}>
-              {totalKuotaTamu > 0 ? Math.min(100, Math.round((totalHadirTamu / totalKuotaTamu) * 100)) : 0}% Hadir {isTamuAnomaly && '⚠️ (Over)'}
+              {totalKuotaTamu > 0 ? `${Math.min(100, Math.round((totalHadirTamu / totalKuotaTamu) * 100))}% Hadir` : '—'} {isTamuAnomaly && '⚠️ (Over)'}
             </span>
           </div>
           <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">

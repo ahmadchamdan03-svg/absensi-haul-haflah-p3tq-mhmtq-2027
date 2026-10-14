@@ -154,27 +154,41 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const kodeParam = searchParams.get('kode');
 
-    // FIX 6: Server-side direct lookup with service role key if requested for specific kode
+    // FIX 1: Server-side direct lookup with service role key if requested for specific kode
     if (kodeParam) {
       const cleanKode = kodeParam.toUpperCase().trim();
-      const { data: tamu, error: errTamu } = await supabase
-        .from('tamu_undangan')
-        .select('*')
-        .eq('kode', cleanKode)
-        .maybeSingle();
-
-      if (tamu) {
-        return NextResponse.json({ ok: true, tamu });
+      if (!/^(SH|UND)\d+$/i.test(cleanKode)) {
+        return NextResponse.json({ ok: false, message: 'Format kode tidak valid' }, { status: 400 });
       }
 
-      const { data: santri, error: errSantri } = await supabase
-        .from('peserta_santri')
-        .select('*')
-        .eq('kode', cleanKode)
-        .maybeSingle();
+      if (cleanKode.startsWith('UND')) {
+        const { data: tamu, error: errTamu } = await supabase
+          .from('tamu_undangan')
+          .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, created_at, updated_at')
+          .eq('kode', cleanKode)
+          .maybeSingle();
 
-      if (santri) {
-        return NextResponse.json({ ok: true, santri });
+        if (errTamu && process.env.NODE_ENV !== 'production') {
+          console.error('[API Sync] Error querying tamu_undangan:', errTamu);
+        }
+
+        if (tamu) {
+          return NextResponse.json({ ok: true, tamu });
+        }
+      } else {
+        const { data: santri, error: errSantri } = await supabase
+          .from('peserta_santri')
+          .select('*')
+          .eq('kode', cleanKode)
+          .maybeSingle();
+
+        if (errSantri && process.env.NODE_ENV !== 'production') {
+          console.error('[API Sync] Error querying peserta_santri:', errSantri);
+        }
+
+        if (santri) {
+          return NextResponse.json({ ok: true, santri });
+        }
       }
 
       return NextResponse.json({ ok: false, message: 'Data tidak ditemukan' }, { status: 404 });

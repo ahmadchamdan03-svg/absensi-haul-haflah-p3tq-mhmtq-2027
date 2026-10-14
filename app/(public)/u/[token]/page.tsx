@@ -41,6 +41,7 @@ import HeaderUndangan from '@/components/HeaderUndangan';
 import PortalBackground from '@/components/PortalBackground';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
+import DaftarShohibulHajatModal from '@/components/DaftarShohibulHajatModal';
 
 // Helper Kategori Tamu Undangan
 function getTamuCategoryLabel(item: any): string {
@@ -244,20 +245,23 @@ export default function UndanganWaliPage() {
   // State Estimasi Kehadiran (RSVP)
   const [estL, setEstL] = useState(1);
   const [estP, setEstP] = useState(1);
-  const [hariKonfirmasi, setHariKonfirmasi] = useState<'SABTU' | 'JUMAT'>('SABTU');
-  const [jamKonfirmasi, setJamKonfirmasi] = useState<string>('06:30');
+  // Fix 9: Kosongkan default value hari dan jam jika belum tersimpan di database
+  const [hariKonfirmasi, setHariKonfirmasi] = useState<'SABTU' | 'JUMAT' | ''>('');
+  const [jamKonfirmasi, setJamKonfirmasi] = useState<string>('');
   const [catatanRsvp, setCatatanRsvp] = useState('');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
   const [estimasiSaved, setEstimasiSaved] = useState(false);
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
+  const [rsvpValidationErr, setRsvpValidationErr] = useState<string | null>(null);
 
   // State RSVP Khusus Tamu Undangan (2 Tombol: HADIR / BERHALANGAN)
   const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
 
-  // State Modal Denah & Usth. Halwaa
+  // State Modal Denah & Daftar Shohibul Hajat
   const [isDenahOpen, setIsDenahOpen] = useState(false);
   const [isUsModalOpen, setIsUsModalOpen] = useState(false);
+  const [isDaftarPesertaOpen, setIsDaftarPesertaOpen] = useState(false);
 
   // State Global Switch Beli Kuota & Nomor WA Panitia (PERBAIKAN 2)
   const [kuotaSwitchAktif, setKuotaSwitchAktif] = useState<boolean>(false);
@@ -309,27 +313,38 @@ export default function UndanganWaliPage() {
           console.log('[Undangan Debug] Token:', kodeSH);
         }
 
-        // 2. Query Supabase ke DUA tabel secara simultan (Santri & Tamu Undangan)
-        const [resSantri, resTamu] = await Promise.all([
-          supabase
-            .from('peserta_santri')
-            .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, hari_konfirmasi, jam_konfirmasi, catatan_konfirmasi, warna_tiket, created_at, updated_at')
-            .eq('kode', kodeSH)
-            .maybeSingle(),
-          supabase
-            .from('tamu_undangan')
-            .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, hari_konfirmasi, jam_konfirmasi, created_at, updated_at')
-            .eq('kode', kodeSH)
-            .maybeSingle(),
-        ]);
+        // 2. Query Supabase terpisah berdasar tipe kode (Santri / Tamu)
+        let rawDataSantri: any = null;
+        let rawDataTamu: any = null;
 
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('[Undangan Debug] Query santri:', resSantri.data ? 'FOUND' : 'EMPTY');
-          console.log('[Undangan Debug] Query tamu:', resTamu.data ? 'FOUND' : 'EMPTY');
+        if (isTamuUndangan) {
+          const resTamu = await supabase
+            .from('tamu_undangan')
+            .select('*')
+            .eq('kode', kodeSH)
+            .maybeSingle();
+
+          if (resTamu.error) {
+            console.warn('[Undangan] Query tamu error:', resTamu.error);
+          }
+          rawDataTamu = resTamu.data;
+        } else {
+          const resSantri = await supabase
+            .from('peserta_santri')
+            .select('*')
+            .eq('kode', kodeSH)
+            .maybeSingle();
+
+          if (resSantri.error) {
+            console.warn('[Undangan] Query santri error:', resSantri.error);
+          }
+          rawDataSantri = resSantri.data;
         }
 
-        let rawDataSantri = resSantri.data;
-        let rawDataTamu = resTamu.data;
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Undangan Debug] Query santri:', rawDataSantri ? 'FOUND' : 'EMPTY');
+          console.log('[Undangan Debug] Query tamu:', rawDataTamu ? 'FOUND' : 'EMPTY');
+        }
 
         // 3. Fallback API route jika kedua query Supabase kosong (menjamin akses via service role)
         if (!rawDataSantri && !rawDataTamu) {
@@ -436,8 +451,8 @@ export default function UndanganWaliPage() {
               statusKonfirmasi: s.status_konfirmasi || 'BELUM',
               perkiraanL: Number(s.perkiraan_l || 0),
               perkiraanP: Number(s.perkiraan_p || 0),
-              hariKonfirmasi: s.hari_konfirmasi || 'SABTU',
-              jamKonfirmasi: s.jam_konfirmasi || '06:30',
+              hariKonfirmasi: s.hari_konfirmasi || '',
+              jamKonfirmasi: s.jam_konfirmasi || '',
               catatan: s.catatan_konfirmasi || '',
               diisiAt: s.updated_at || s.created_at,
             },
@@ -448,9 +463,13 @@ export default function UndanganWaliPage() {
           if (s.hari_konfirmasi) {
             const normH = String(s.hari_konfirmasi).toUpperCase();
             setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
+          } else {
+            setHariKonfirmasi('');
           }
           if (s.jam_konfirmasi) {
             setJamKonfirmasi(String(s.jam_konfirmasi));
+          } else {
+            setJamKonfirmasi('');
           }
 
           if (s.status_konfirmasi === 'SUDAH') {
@@ -590,7 +609,6 @@ export default function UndanganWaliPage() {
 
     const payload = {
       status_konfirmasi: status,
-      confirmed_at: nowIso,
       updated_at: nowIso,
     };
 
@@ -627,6 +645,16 @@ export default function UndanganWaliPage() {
 
   const handleSimpanEstimasiWali = async () => {
     if (!item) return;
+    if (!hariKonfirmasi) {
+      setRsvpValidationErr('Mohon tentukan Hari Kedatangan Anda (Jum\'at atau Sabtu).');
+      return;
+    }
+    if (!jamKonfirmasi) {
+      setRsvpValidationErr('Mohon tentukan Perkiraan Jam Kedatangan Anda.');
+      return;
+    }
+    setRsvpValidationErr(null);
+
     if (isWaliRsvpExceeded) {
       setRsvpError(`Total konfirmasi (${totalInputWali}) melebihi kuota Anda (${totalKuotaSantri} kursi). Mohon kurangi jumlahnya.`);
       return;
@@ -820,13 +848,6 @@ export default function UndanganWaliPage() {
                   </span>
                   {renderTamuName(item)}
 
-                  {/* Kategori Badge (e.g. VVIP / ISTIMEWA) */}
-                  <div className="flex items-center justify-center gap-1.5 pt-0.5">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-serif font-black bg-gradient-to-r from-amber-100 to-amber-200 text-[#5C3E28] border border-amber-300 shadow-2xs">
-                      ✦ {item?.kategori ? `${item.kategori} ${item.subKategori ? `(${item.subKategori})` : ''}` : getTamuCategoryLabel(item)} ✦
-                    </span>
-                  </div>
-
                   {renderInstansiDanAlamat(item)}
                 </div>
 
@@ -977,14 +998,22 @@ export default function UndanganWaliPage() {
 
                 <EventCountdownGrid targetDate="2027-01-02T06:30:00+07:00" />
 
-                <div className="pt-2">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setIsDenahOpen(true)}
-                    className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
                   >
                     <Compass className="w-4 h-4 text-[#8C6A47]" />
                     <span>Buka Denah Lokasi &amp; Parkir</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsDaftarPesertaOpen(true)}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-white hover:bg-stone-50 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+                  >
+                    <Users className="w-4 h-4 text-[#8C6A47]" />
+                    <span>Lihat Daftar Peserta</span>
                   </button>
                 </div>
               </GlassCard>
@@ -1453,79 +1482,57 @@ export default function UndanganWaliPage() {
                   )}
                 </div>
 
-                {/* PILIHAN HARI KEDATANGAN & JAM KEDATANGAN (FIX 4) */}
-                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
-                  <div>
-                    <label className="block text-xs font-serif font-black text-[#422F21] mb-1.5 uppercase tracking-wide">
-                      🗓️ Hari Kedatangan:
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setHariKonfirmasi('JUMAT')}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                          hariKonfirmasi === 'JUMAT'
-                            ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-sm'
-                            : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
-                        }`}
-                      >
-                        Jum'at (24 Rajab)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setHariKonfirmasi('SABTU')}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                          hariKonfirmasi === 'SABTU'
-                            ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-sm'
-                            : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
-                        }`}
-                      >
-                        Sabtu (25 Rajab) ✦ Default
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
+                {/* FORMAT 2 KOLOM: JAM (KIRI) & HARI (KANAN) - FIX 3 & FIX 9 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4]">
+                  {/* KOLOM KIRI: CLOCK PICKER 24 JAM */}
+                  <div className={`p-3 rounded-xl bg-white border transition-all ${!jamKonfirmasi && rsvpValidationErr ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300' : 'border-[#D5C4B4]'}`}>
+                    <div className="flex items-center justify-between mb-2">
                       <label className="block text-xs font-serif font-black text-[#422F21] uppercase tracking-wide">
-                        ⏰ Perkiraan Jam Kedatangan:
+                        ⏰ Jam Kedatangan:
                       </label>
-                      <span className="text-[10px] text-[#8C6A47] font-semibold">Format 24 Jam</span>
+                      <span className="text-[10px] text-[#8C6A47] font-semibold">24 Jam</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-2">
                       <div className="relative flex-1">
                         <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="time"
-                          step="1800"
                           value={jamKonfirmasi}
-                          onChange={(e) => setJamKonfirmasi(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border border-[#D5C4B4] text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                          onChange={(e) => {
+                            setJamKonfirmasi(e.target.value);
+                            setRsvpValidationErr(null);
+                          }}
+                          className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#422F21] focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47] ${
+                            !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#D5C4B4]'
+                          }`}
                         />
                       </div>
-                      <div className="text-xs font-bold text-[#8C6A47] px-3 py-2 bg-white rounded-xl border border-[#D5C4B4] shrink-0 font-mono">
-                        {jamKonfirmasi} WIB
+                      <div className="text-xs font-bold text-[#8C6A47] px-2.5 py-2 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4] shrink-0 font-mono">
+                        {jamKonfirmasi ? `${jamKonfirmasi} WIB` : 'Belum dipilih'}
                       </div>
                     </div>
 
-                    {/* Presets Jam Kedatangan */}
-                    <div className="flex flex-wrap gap-1.5 mt-2">
+                    {/* Presets Jam Kedatangan Cepat */}
+                    <div className="flex flex-wrap gap-1">
                       {[
-                        { label: '06:30 (Pagi)', val: '06:30' },
-                        { label: '08:00 (Acara)', val: '08:00' },
-                        { label: '10:00 (Siang)', val: '10:00' },
-                        { label: '14:00 (Sore)', val: '14:00' },
-                        { label: '20:00 (Malam)', val: '20:00' },
-                        { label: '03:00 (Dini Hari)', val: '03:00' },
+                        { label: '06:00', val: '06:00' },
+                        { label: '06:30', val: '06:30' },
+                        { label: '08:00', val: '08:00' },
+                        { label: '10:00', val: '10:00' },
+                        { label: '14:00', val: '14:00' },
+                        { label: '20:00', val: '20:00' },
                       ].map((preset) => (
                         <button
                           key={preset.val}
                           type="button"
-                          onClick={() => setJamKonfirmasi(preset.val)}
-                          className={`text-[10px] px-2 py-0.5 rounded-lg border font-medium transition-colors ${
+                          onClick={() => {
+                            setJamKonfirmasi(preset.val);
+                            setRsvpValidationErr(null);
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded-lg border font-mono font-bold transition-all cursor-pointer ${
                             jamKonfirmasi === preset.val
-                              ? 'bg-[#8C6A47] text-white border-[#8C6A47]'
+                              ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-xs'
                               : 'bg-white text-[#7A624E] border-[#D5C4B4]/80 hover:bg-[#FAF0E6]'
                           }`}
                         >
@@ -1534,7 +1541,64 @@ export default function UndanganWaliPage() {
                       ))}
                     </div>
                   </div>
+
+                  {/* KOLOM KANAN: PILIHAN HARI KEDATANGAN */}
+                  <div className={`p-3 rounded-xl bg-white border flex flex-col justify-between transition-all ${!hariKonfirmasi && rsvpValidationErr ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300' : 'border-[#D5C4B4]'}`}>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-xs font-serif font-black text-[#422F21] uppercase tracking-wide">
+                          🗓️ Hari Kedatangan:
+                        </label>
+                        <span className="text-[10px] text-stone-500">Pilih salah satu</span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHariKonfirmasi('JUMAT');
+                            setRsvpValidationErr(null);
+                          }}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
+                            hariKonfirmasi === 'JUMAT'
+                              ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-xs ring-2 ring-[#8C6A47]/30'
+                              : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
+                          }`}
+                        >
+                          Jum'at (24 Rajab)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHariKonfirmasi('SABTU');
+                            setRsvpValidationErr(null);
+                          }}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
+                            hariKonfirmasi === 'SABTU'
+                              ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-xs ring-2 ring-[#8C6A47]/30'
+                              : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
+                          }`}
+                        >
+                          Sabtu (25 Rajab)
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] text-stone-500 pt-2 text-center">
+                      {hariKonfirmasi ? (
+                        <span className="text-emerald-700 font-bold">✓ Terpilih: {hariKonfirmasi === 'JUMAT' ? "Jum'at" : 'Sabtu'}</span>
+                      ) : (
+                        <span className="text-stone-400 italic">Belum menentukan hari</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {/* PESAN VALIDASI HARI & JAM */}
+                {rsvpValidationErr && (
+                  <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs font-bold text-center animate-in fade-in">
+                    ⚠️ {rsvpValidationErr}
+                  </div>
+                )}
 
                 {/* STACK VERTIKAL (PUTRA & PUTRI) */}
                 <div className="space-y-4 md:space-y-5 pt-1">
@@ -1675,14 +1739,22 @@ export default function UndanganWaliPage() {
 
                 <EventCountdownGrid targetDate="2027-01-02T06:30:00+07:00" />
 
-                <div className="pt-2">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setIsDenahOpen(true)}
-                    className="px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
                   >
                     <Compass className="w-4 h-4 text-[#8C6A47]" />
                     <span>Buka Denah Lokasi &amp; Parkir</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsDaftarPesertaOpen(true)}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-white hover:bg-stone-50 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+                  >
+                    <Users className="w-4 h-4 text-[#8C6A47]" />
+                    <span>Lihat Daftar Peserta</span>
                   </button>
                 </div>
               </GlassCard>
@@ -1805,6 +1877,12 @@ export default function UndanganWaliPage() {
 
       {/* MODAL DENAH LOKASI */}
       <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
+
+      {/* MODAL DAFTAR SHOHIBUL HAJAT (FIX 4) */}
+      <DaftarShohibulHajatModal
+        isOpen={isDaftarPesertaOpen}
+        onClose={() => setIsDaftarPesertaOpen(false)}
+      />
     </div>
   );
 }

@@ -492,7 +492,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               Total Tamu Terdata
             </span>
             <div className="text-2xl font-serif font-black text-[#422F21]">
-              {totalKuotaTamu} Kursi
+              {totalKuotaTamu > 0 ? `${totalKuotaTamu} Kursi` : '—'}
             </div>
             <p className="text-[11px] text-stone-600">Total Kuota ({undanganList.length} Undangan)</p>
           </div>
@@ -502,9 +502,9 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               Tamu Sudah Rawuh
             </span>
             <div className="text-2xl font-serif font-black text-emerald-900">
-              {totalHadirTamu} Hadir
+              {totalHadirTamu > 0 || totalKuotaTamu > 0 ? `${totalHadirTamu} Hadir` : '—'}
             </div>
-            <p className="text-[11px] text-emerald-700">Terpakai ({totalHadirTamu}/{totalKuotaTamu} Kursi)</p>
+            <p className="text-[11px] text-emerald-700">Terpakai ({totalKuotaTamu > 0 ? `${totalHadirTamu}/${totalKuotaTamu} Kursi` : '—'})</p>
           </div>
 
           <div className="p-4 rounded-3xl bg-amber-50/70 border border-amber-200 shadow-xs space-y-1">

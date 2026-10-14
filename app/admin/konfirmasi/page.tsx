@@ -200,11 +200,20 @@ export default function KonfirmasiPage() {
     const binNadzorCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
     const tamatanCount = daftarSantri.filter((s) => s.kategoriUtama === 'TAMATAN').length;
 
-    // B. Metrik Tamu Undangan (FIX 8: 4 Metrik Spesifik Tamu Undangan)
+    // B. Metrik Tamu Undangan (FIX 8 & FIX 10: 4 Metrik Spesifik Tamu Undangan + Rincian L/P)
     const totalTamu = daftarTamu.length;
     const totalKuotaTamu = daftarTamu.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
-    const tamuHadirCount = daftarTamu.filter((t) => String(t.rawStatusKonfirmasi || '').toUpperCase() === 'HADIR' || (t.statusKonfirmasi === 'SUDAH' && String(t.rawStatusKonfirmasi || '').toUpperCase() !== 'BERHALANGAN')).length;
-    const tamuBerhalanganCount = daftarTamu.filter((t) => String(t.rawStatusKonfirmasi || '').toUpperCase() === 'BERHALANGAN').length;
+
+    const tamuHadirList = daftarTamu.filter((t) => String(t.rawStatusKonfirmasi || '').toUpperCase() === 'HADIR' || (t.statusKonfirmasi === 'SUDAH' && String(t.rawStatusKonfirmasi || '').toUpperCase() !== 'BERHALANGAN'));
+    const tamuHadirCount = tamuHadirList.length;
+    const countTamuHadirL = tamuHadirList.reduce((acc, t) => acc + (t.namaPutra && String(t.namaPutra).trim() ? 1 : 0), 0);
+    const countTamuHadirP = tamuHadirList.reduce((acc, t) => acc + (t.namaPutri && String(t.namaPutri).trim() ? 1 : 0), 0);
+
+    const tamuBerhalanganList = daftarTamu.filter((t) => String(t.rawStatusKonfirmasi || '').toUpperCase() === 'BERHALANGAN');
+    const tamuBerhalanganCount = tamuBerhalanganList.length;
+    const countTamuBerhalanganL = tamuBerhalanganList.reduce((acc, t) => acc + (t.namaPutra && String(t.namaPutra).trim() ? 1 : 0), 0);
+    const countTamuBerhalanganP = tamuBerhalanganList.reduce((acc, t) => acc + (t.namaPutri && String(t.namaPutri).trim() ? 1 : 0), 0);
+
     const tamuBelumCount = Math.max(0, totalTamu - tamuHadirCount - tamuBerhalanganCount);
     const persenTamuHadir = totalTamu > 0 ? Math.round((tamuHadirCount / totalTamu) * 100) : 0;
     const persenTamuBerhalangan = totalTamu > 0 ? Math.round((tamuBerhalanganCount / totalTamu) * 100) : 0;
@@ -221,6 +230,10 @@ export default function KonfirmasiPage() {
       tamuHadirCount,
       tamuBerhalanganCount,
       tamuBelumCount,
+      countTamuHadirL,
+      countTamuHadirP,
+      countTamuBerhalanganL,
+      countTamuBerhalanganP,
       persenTamuHadir,
       persenTamuBerhalangan,
       persenTamuBelum,
@@ -765,6 +778,9 @@ export default function KonfirmasiPage() {
                 Tamu ({rekap.persenTamuHadir}%)
               </span>
             </div>
+            <div className="text-[10px] sm:text-xs font-bold text-emerald-700">
+              L: {rekap.countTamuHadirL} | P: {rekap.countTamuHadirP}
+            </div>
             <div className="text-[10px] sm:text-xs font-semibold text-emerald-800 truncate">
               <span>Siap hadir di acara</span>
             </div>
@@ -798,6 +814,9 @@ export default function KonfirmasiPage() {
               <span className="text-xs sm:text-sm font-sans font-medium text-rose-700">
                 Tamu ({rekap.persenTamuBerhalangan}%)
               </span>
+            </div>
+            <div className="text-[10px] sm:text-xs font-bold text-rose-700">
+              L: {rekap.countTamuBerhalanganL} | P: {rekap.countTamuBerhalanganP}
             </div>
             <div className="text-[10px] sm:text-xs font-semibold truncate text-rose-800">
               <span>Tidak bisa hadir</span>

@@ -167,6 +167,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       items: [
         { href: '/admin/peserta', label: 'Data Peserta', icon: Users },
         { href: '/admin/konfirmasi', label: 'Konfirmasi Hadir', icon: ClipboardCheck },
+        { href: '/admin/import-export', label: 'Import & Export Excel', icon: FileSpreadsheet, badge: 'Excel' },
         { href: '/admin/whatsapp', label: 'WhatsApp Gateway', icon: Send, badge: 'Fonnte' },
       ],
     },

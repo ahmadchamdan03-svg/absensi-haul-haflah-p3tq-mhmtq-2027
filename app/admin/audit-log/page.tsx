@@ -20,11 +20,173 @@ import {
   ArrowRight,
   Clock,
   Tag,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AuditLogDbRow, AksiAudit } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import * as XLSX from 'xlsx';
+
+// FIX 5: Komponen Diff Table Key-Value dengan Highlight Kuning & Collapse Field Sistem
+function DiffTableViewer({
+  field,
+  nilaiLama,
+  nilaiBaru,
+  detail,
+}: {
+  field?: string | null;
+  nilaiLama?: any;
+  nilaiBaru?: any;
+  detail?: any;
+}) {
+  const [showSystemFields, setShowSystemFields] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const parseObj = (val: any) => {
+    if (!val) return null;
+    if (typeof val === 'object') return val;
+    try {
+      const parsed = JSON.parse(val);
+      if (typeof parsed === 'object' && parsed !== null) return parsed;
+    } catch {}
+    return null;
+  };
+
+  const objLama = parseObj(nilaiLama) || (detail?.sebelum ? parseObj(detail.sebelum) : null);
+  const objBaru = parseObj(nilaiBaru) || (detail?.sesudah ? parseObj(detail.sesudah) : null);
+
+  const rawJson = JSON.stringify({ field, nilaiLama, nilaiBaru, detail }, null, 2);
+
+  const handleCopy = () => {
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(rawJson);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (objLama && objBaru && typeof objLama === 'object' && typeof objBaru === 'object') {
+    const allKeys = Array.from(new Set([...Object.keys(objLama), ...Object.keys(objBaru)]));
+    const systemFields = ['id', 'created_at', 'updated_at'];
+    const displayedKeys = showSystemFields ? allKeys : allKeys.filter((k) => !systemFields.includes(k));
+
+    return (
+      <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-2">
+          <div>
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">
+              TABEL PERBANDINGAN PERUBAHAN DATA ({field || 'All Fields'})
+            </span>
+            <p className="text-[10px] text-stone-500">
+              Baris berwarna kuning menandakan nilai data yang mengalami perubahan.
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setShowSystemFields(!showSystemFields)}
+              className="text-[10px] font-bold text-[#8C6A47] hover:underline cursor-pointer"
+            >
+              {showSystemFields ? 'Sembunyikan Field Sistem' : 'Tampilkan Field Sistem'}
+            </button>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#422F21] text-[10px] font-bold border border-stone-300 flex items-center gap-1 cursor-pointer"
+              title="Salin JSON Mentah"
+            >
+              {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-[#8C6A47]" />}
+              <span>{copied ? 'Tersalin!' : 'Copy JSON'}</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="border border-stone-200 rounded-xl overflow-x-auto">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-[#FAF7F3] border-b border-stone-200 text-[#422F21] font-bold text-[11px]">
+              <tr>
+                <th className="py-2 px-3 w-1/4">Field</th>
+                <th className="py-2 px-3 w-3/8 text-rose-800">Sebelum</th>
+                <th className="py-2 px-3 w-3/8 text-emerald-800">Sesudah</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100 text-[11px]">
+              {displayedKeys.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="py-3 text-center text-stone-400 italic font-sans text-xs">
+                    Semua field identik atau disembunyikan.
+                  </td>
+                </tr>
+              ) : (
+                displayedKeys.map((key) => {
+                  const valLama = objLama[key] !== undefined ? JSON.stringify(objLama[key]) : '—';
+                  const valBaru = objBaru[key] !== undefined ? JSON.stringify(objBaru[key]) : '—';
+                  const isChanged = valLama !== valBaru;
+
+                  return (
+                    <tr
+                      key={key}
+                      className={
+                        isChanged
+                          ? 'bg-amber-100/80 font-bold text-amber-950 border-l-4 border-amber-500'
+                          : 'text-stone-400 bg-white'
+                      }
+                    >
+                      <td className="py-1.5 px-3 font-semibold break-all text-[#5C3E28]">
+                        {key}
+                        {isChanged && (
+                          <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 font-sans font-bold uppercase">
+                            Berubah
+                          </span>
+                        )}
+                      </td>
+                      <td className={`py-1.5 px-3 break-all ${isChanged ? 'text-rose-800 line-through' : 'text-stone-400'}`}>
+                        {valLama}
+                      </td>
+                      <td className={`py-1.5 px-3 break-all ${isChanged ? 'text-emerald-800' : 'text-stone-400'}`}>
+                        {valBaru}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback jika bukan JSON objek ganda
+  return (
+    <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] text-stone-400 font-bold uppercase">
+          PERUBAHAN DATA ({field || 'General'})
+        </span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#422F21] text-[10px] font-bold border border-stone-300 flex items-center gap-1 cursor-pointer"
+        >
+          {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-[#8C6A47]" />}
+          <span>{copied ? 'Tersalin!' : 'Copy JSON'}</span>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px]">
+        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900">
+          <div className="text-[10px] font-bold text-rose-600 uppercase mb-1">Nilai Sebelum:</div>
+          <pre className="whitespace-pre-wrap break-words">{String(nilaiLama || '(Kosong)')}</pre>
+        </div>
+        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+          <div className="text-[10px] font-bold text-emerald-600 uppercase mb-1">Nilai Sesudah:</div>
+          <pre className="whitespace-pre-wrap break-words">{String(nilaiBaru || '(Kosong)')}</pre>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AuditLogPage() {
   const [logs, setLogs] = useState<AuditLogDbRow[]>([]);
@@ -564,30 +726,13 @@ export default function AuditLogPage() {
                   </div>
                 )}
 
-                {(selectedLogDetail.nilai_lama || selectedLogDetail.nilai_baru) && (
-                  <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
-                    <span className="text-[10px] text-stone-400 font-bold uppercase">PERUBAHAN DATA ({selectedLogDetail.field || 'General'})</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px]">
-                      <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900">
-                        <div className="text-[10px] font-bold text-rose-600 uppercase mb-1">Nilai Sebelum:</div>
-                        <pre className="whitespace-pre-wrap break-words">{selectedLogDetail.nilai_lama || '(Kosong)'}</pre>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
-                        <div className="text-[10px] font-bold text-emerald-600 uppercase mb-1">Nilai Sesudah:</div>
-                        <pre className="whitespace-pre-wrap break-words">{selectedLogDetail.nilai_baru || '(Kosong)'}</pre>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedLogDetail.detail && (
-                  <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
-                    <span className="text-[10px] text-stone-400 font-bold uppercase">BACKUP DATA JSONB DETAIL</span>
-                    <pre className="p-3 rounded-xl bg-stone-900 text-amber-300 font-mono text-[10px] overflow-x-auto whitespace-pre-wrap">
-                      {JSON.stringify(selectedLogDetail.detail, null, 2)}
-                    </pre>
-                  </div>
-                )}
+                {/* FIX 5: Render Diff Table Key-Value dengan highlight kuning */}
+                <DiffTableViewer
+                  field={selectedLogDetail.field}
+                  nilaiLama={selectedLogDetail.nilai_lama}
+                  nilaiBaru={selectedLogDetail.nilai_baru}
+                  detail={selectedLogDetail.detail}
+                />
 
                 {selectedLogDetail.catatan && (
                   <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">

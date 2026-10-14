@@ -276,7 +276,7 @@ export default function VerifikasiPage() {
           `• ID Pesanan: ${targetId}\n` +
           `• Tambahan: +${numKursi} Kursi\n` +
           `• Status: *Aktif pada QR Code Santri*\n\n` +
-          `*Konfirmasi Kehadiran Anda (RSVP)*\n` +
+          `*Mohon Konfirmasi Ulang Kedatangan Anda*\n` +
           `Bantu panitia menyiapkan kursi dan penginapan dengan mengisi perkiraan jumlah kehadiran Anda di link undangan digital. Silakan buka link di bawah, scroll ke bagian RSVP, dan konfirmasi ulang:\n` +
           `• Hari kedatangan (Jum'at / Sabtu)\n` +
           `• Jam kedatangan\n` +

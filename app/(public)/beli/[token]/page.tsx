@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -26,6 +26,7 @@ import {
   Plus,
   Minus,
   History,
+  RefreshCw,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import NamaLembaga from '@/components/NamaLembaga';
@@ -99,76 +100,78 @@ export default function BeliKuotaPage() {
 
 
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // 1. Fetch Data Santri dari Supabase peserta_santri
-  useEffect(() => {
-    async function fetchSantri() {
-      try {
-        setLoadingSantri(true);
-        const { data, error } = await supabase
-          .from('peserta_santri')
-          .select('*')
-          .eq('kode', kodeSantri)
-          .maybeSingle();
+  const fetchSantri = useCallback(async () => {
+    try {
+      setLoadingSantri(true);
+      const { data, error } = await supabase
+        .from('peserta_santri')
+        .select('*')
+        .eq('kode', kodeSantri)
+        .maybeSingle();
 
-        if (data && !error) {
-          setSantri(data);
-        } else {
-          setSantri(null);
-        }
-      } catch (e) {
-        console.warn('Error fetching peserta_santri:', e);
+      if (data && !error) {
+        setSantri(data);
+      } else {
         setSantri(null);
-      } finally {
-        setLoadingSantri(false);
       }
+    } catch (e) {
+      console.warn('Error fetching peserta_santri:', e);
+      setSantri(null);
+    } finally {
+      setLoadingSantri(false);
     }
-
-    fetchSantri();
   }, [kodeSantri]);
 
-  // 2. Fetch Control Status (Switch & Sisa Pagu Global)
   useEffect(() => {
-    async function fetchControl() {
-      try {
-        setLoadingControl(true);
-        const { data: configData } = await supabase
-          .from('konfigurasi_sistem')
-          .select('value')
-          .eq('key', 'kuota_tambahan_status')
-          .maybeSingle();
+    fetchSantri();
+  }, [fetchSantri]);
 
-        if (configData && configData.value) {
-          let isAktif = false;
-          if (typeof configData.value === 'object' && configData.value !== null) {
-            isAktif = Boolean(configData.value.aktif);
-          } else if (typeof configData.value === 'string') {
-            isAktif = configData.value === 'true' || configData.value === 'TRUE';
-          } else if (typeof configData.value === 'boolean') {
-            isAktif = configData.value;
-          }
-          setKuotaSwitchAktif(isAktif);
-        } else {
-          setKuotaSwitchAktif(false);
+  // 2. Fetch Control Status (Switch & Sisa Pagu Global)
+  const fetchControl = useCallback(async () => {
+    try {
+      setLoadingControl(true);
+      const { data: configData } = await supabase
+        .from('konfigurasi_sistem')
+        .select('value')
+        .eq('key', 'kuota_tambahan_status')
+        .maybeSingle();
+
+      if (configData && configData.value) {
+        let isAktif = false;
+        if (typeof configData.value === 'object' && configData.value !== null) {
+          isAktif = Boolean(configData.value.aktif);
+        } else if (typeof configData.value === 'string') {
+          isAktif = configData.value === 'true' || configData.value === 'TRUE';
+        } else if (typeof configData.value === 'boolean') {
+          isAktif = configData.value;
         }
-
-        const { data: pembelianData } = await supabase
-          .from('pembelian_kuota')
-          .select('jumlah_kursi, status')
-          .in('status', ['DIVERIFIKASI', 'DITERIMA']);
-
-        if (pembelianData) {
-          const sumDiverifikasi = pembelianData.reduce((acc: number, p: any) => {
-            return acc + Number(p.jumlah_kursi || p.jumlah || 0);
-          }, 0);
-          setTotalDiverifikasiGlobal(sumDiverifikasi);
-        }
-      } catch (e) {
-        console.warn('Error fetching control status:', e);
-      } finally {
-        setLoadingControl(false);
+        setKuotaSwitchAktif(isAktif);
+      } else {
+        setKuotaSwitchAktif(false);
       }
-    }
 
+      const { data: pembelianData } = await supabase
+        .from('pembelian_kuota')
+        .select('jumlah_kursi, status')
+        .in('status', ['DIVERIFIKASI', 'DITERIMA']);
+
+      if (pembelianData) {
+        const sumDiverifikasi = pembelianData.reduce((acc: number, p: any) => {
+          return acc + Number(p.jumlah_kursi || p.jumlah || 0);
+        }, 0);
+        setTotalDiverifikasiGlobal(sumDiverifikasi);
+      }
+    } catch (e) {
+      console.warn('Error fetching control status:', e);
+    } finally {
+      setLoadingControl(false);
+    }
+  }, []);
+
+  useEffect(() => {
     fetchControl();
 
     const channel = supabase
@@ -184,10 +187,10 @@ export default function BeliKuotaPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [kodeSantri]);
+  }, [kodeSantri, fetchControl]);
 
   // 3. Fetch All Orders untuk Santri Ini (Fitur A)
-  const fetchAllOrders = async () => {
+  const fetchAllOrders = useCallback(async () => {
     try {
       setLoadingOrders(true);
       const { data, error } = await supabase
@@ -206,7 +209,7 @@ export default function BeliKuotaPage() {
     } finally {
       setLoadingOrders(false);
     }
-  };
+  }, [kodeSantri]);
 
   useEffect(() => {
     fetchAllOrders();
@@ -225,11 +228,22 @@ export default function BeliKuotaPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [kodeSantri]);
+  }, [kodeSantri, fetchAllOrders]);
+
+  // Refresh All Data handler
+  const handleRefreshAll = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([fetchSantri(), fetchControl(), fetchAllOrders()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Perhitungan Fitur A: Total Kuota & Deteksi Order Aktif Pending
+  // Fix 7 & 14: Kuota tambahan mengacu langsung ke peserta_santri.kuota_tambahan
+  const totalVerifiedExtraSeats = Number(santri?.kuota_tambahan || 0);
   const verifiedOrders = allOrders.filter((o) => o.status === 'DIVERIFIKASI' || o.status === 'DITERIMA');
-  const totalVerifiedExtraSeats = verifiedOrders.reduce((sum, o) => sum + Number(o.jumlah_kursi || 0), 0);
   const totalVerifiedTxCount = verifiedOrders.length;
 
   const kuotaDasar = santri ? calculateKuotaDasarSantri(santri.kategori_utama, santri.sub_kategori) : 2;
@@ -492,8 +506,8 @@ export default function BeliKuotaPage() {
     <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 py-8 px-4 sm:px-6 relative overflow-x-hidden">
       <PortalBackground />
       <div className="max-w-xl mx-auto space-y-6 relative z-10">
-        {/* TOMBOL KEMBALI KE UNDANGAN */}
-        <div className="flex items-center justify-between">
+        {/* TOMBOL KEMBALI KE UNDANGAN & REFRESH */}
+        <div className="flex items-center justify-between gap-2">
           <Link
             href={`/u/${santri.kode}`}
             className="inline-flex items-center space-x-2 text-xs font-bold text-[#8C6A47] hover:text-[#5C3E28] bg-white px-3.5 py-2 rounded-2xl border border-[#D5C4B4] shadow-xs transition-all"
@@ -501,7 +515,19 @@ export default function BeliKuotaPage() {
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Undangan Digital</span>
           </Link>
-          <span className="text-xs font-mono font-bold text-stone-400">Kode: {santri.kode}</span>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={handleRefreshAll}
+              disabled={isRefreshing}
+              className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#8C6A47] hover:text-[#5C3E28] bg-white px-3 py-2 rounded-2xl border border-[#D5C4B4] shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              title="Perbarui Data Kuota"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Perbarui</span>
+            </button>
+            <span className="text-xs font-mono font-bold text-stone-400">Kode: {santri.kode}</span>
+          </div>
         </div>
 
         {/* HEADER KARTU LEMBAGA */}
@@ -938,20 +964,18 @@ export default function BeliKuotaPage() {
           </div>
         )}
 
-        {/* FITUR A: RIWAYAT SEMUA PEMBELIAN KUOTA SANTRI */}
-        {allOrders.length > 0 && (
+        {/* FITUR A: RIWAYAT SEMUA PEMBELIAN KUOTA SANTRI (Hanya DIVERIFIKASI / DITERIMA) */}
+        {verifiedOrders.length > 0 && (
           <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-4">
             <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
               <History className="w-4 h-4 text-[#8C6A47]" />
               <h3 className="font-serif font-bold text-sm text-[#422F21]">
-                Riwayat Transaksi Kuota Tambahan ({allOrders.length})
+                Riwayat Transaksi Kuota Tambahan Disetujui ({verifiedOrders.length})
               </h3>
             </div>
 
             <div className="space-y-2.5">
-              {allOrders.map((order) => {
-                const isVerified = order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA';
-                const isPending = order.status === 'MENUNGGU_VERIFIKASI' || order.status === 'MENUNGGU_PEMBAYARAN';
+              {verifiedOrders.map((order) => {
                 return (
                   <div
                     key={order.id_pesanan || order.id}
@@ -964,7 +988,7 @@ export default function BeliKuotaPage() {
                         </span>
                         <span className="text-stone-400">•</span>
                         <span className="font-semibold text-stone-700">
-                          {order.jumlah_kursi} Kursi
+                          +{order.jumlah_kursi} Kursi
                         </span>
                       </div>
                       <div className="text-[10px] text-stone-500">
@@ -976,20 +1000,8 @@ export default function BeliKuotaPage() {
                       <div className="font-bold text-[#422F21]">
                         Rp {Number(order.total_bayar || 0).toLocaleString('id-ID')}
                       </div>
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          isVerified
-                            ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                            : isPending
-                            ? 'bg-sky-100 text-sky-900 border border-sky-300'
-                            : 'bg-rose-100 text-rose-900 border border-rose-300'
-                        }`}
-                      >
-                        {isVerified
-                          ? 'Terverifikasi'
-                          : isPending
-                          ? 'Proses'
-                          : order.status || 'Batal'}
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                        Terverifikasi
                       </span>
                     </div>
                   </div>
