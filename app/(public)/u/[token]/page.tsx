@@ -161,12 +161,14 @@ export default function UndanganWaliPage() {
   const params = useParams();
   const rawToken = (params?.token as string) || '';
 
-  // Sanitasi token: Hanya izinkan alfanumerik, garis bawah, dan tanda hubung
-  const isValidFormat = /^[A-Za-z0-9_-]+$/.test(rawToken) && !rawToken.includes('..');
-  const kodeSH = (rawToken.split('-')[0] || '').toUpperCase();
+  // 1. Validasi format token (izinkan SH dan UND dengan angka)
+  const cleanToken = (rawToken.split('-')[0] || '').toUpperCase().trim();
+  const isValidFormat = /^(SH|UND)\d+$/i.test(cleanToken);
+  const kodeSH = cleanToken;
   const isTamuUndangan = kodeSH.startsWith('UND');
 
-  const [itemNotFound, setItemNotFound] = useState(!isValidFormat || !kodeSH);
+  // Hanya set true jika format token memang salah
+  const [itemNotFound, setItemNotFound] = useState(!isValidFormat);
 
   // Helper: ambil data dari cache store lokal (HANYA dipanggil jika ada di store)
   const buildItemFromLocalStore = (): any => {
@@ -190,9 +192,9 @@ export default function UndanganWaliPage() {
           kuota: {
             id: found.id,
             kodeQr: found.kode,
-            kuotaDasar: found.kuota.kuotaDasar || 2,
+            kuotaDasar: found.kuota?.kuotaDasar || 2,
             kuotaTambahan: 0,
-            terpakai: found.kuota.terpakai || 0,
+            terpakai: found.kuota?.terpakai || 0,
           },
           estimasi: {
             statusKonfirmasi: 'BELUM',
@@ -291,187 +293,205 @@ export default function UndanganWaliPage() {
     fetchWaPanitia();
   }, []);
 
-  // Fetch Live Data dari Supabase
+  // Fetch Live Data dari Supabase (Dual-Table Query + API Fallback)
   useEffect(() => {
     async function fetchInvitationData() {
+      if (!isValidFormat || !kodeSH) {
+        setItemNotFound(true);
+        setLoadingSantri(false);
+        return;
+      }
+
       try {
         setLoadingSantri(true);
 
-        if (isTamuUndangan) {
-          let tData: any = null;
-          let tError: any = null;
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Undangan Debug] Token:', kodeSH);
+        }
 
-          const res = await supabase
-            .from('tamu_undangan')
-            .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, hari_konfirmasi, jam_konfirmasi, created_at, updated_at')
-            .eq('kode', kodeSH)
-            .maybeSingle();
-
-          tData = res.data;
-          tError = res.error;
-
-          // FIX 6: Fallback ke internal API route jika Supabase anon client mengembalikan null atau error
-          if (!tData) {
-            try {
-              const apiRes = await fetch(`/api/sync?kode=${encodeURIComponent(kodeSH)}`);
-              if (apiRes.ok) {
-                const apiJson = await apiRes.json();
-                if (apiJson?.tamu) {
-                  tData = apiJson.tamu;
-                  tError = null;
-                }
-              }
-            } catch (errApi) {
-              console.warn('API fallback fetch error:', errApi);
-            }
-          }
-
-          if (tError) {
-            console.error('Error fetching tamu_undangan in u/[token]:', tError);
-          }
-
-          const t = tData;
-
-          if (t && !tError) {
-            setItemNotFound(false);
-            const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
-            const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
-            const kDasar = t.kuota_dasar ? Number(t.kuota_dasar) : Math.max(1, countL + countP);
-            const mappedTamu = {
-              id: t.id,
-              kode: t.kode,
-              tipe: 'UNDANGAN',
-              nama: t.nama || '',
-              namaPutra: t.nama_putra || '',
-              namaPutri: t.nama_putri || '',
-              kategori: t.kategori || 'Tamu Undangan',
-              subKategori: t.sub_kategori || (t as any).golongan || 'ISTIMEWA',
-              instansi: t.instansi || '',
-              alamat: t.alamat || '',
-              noHp: t.no_hp || '',
-              kuota: {
-                id: t.id,
-                kodeQr: t.kode,
-                kuotaDasar: kDasar,
-                kuotaTambahan: 0,
-                terpakai: Number(t.kuota_terpakai || 0),
-              },
-              estimasi: {
-                statusKonfirmasi: t.status_konfirmasi || 'BELUM',
-                perkiraanL: Number(t.perkiraan_l || 1),
-                perkiraanP: Number(t.perkiraan_p || 1),
-                hariKonfirmasi: t.hari_konfirmasi || 'SABTU',
-                jamKonfirmasi: t.jam_konfirmasi || '06:30',
-                catatan: t.catatan_konfirmasi || '',
-                diisiAt: t.updated_at || t.created_at,
-              },
-            };
-            setItem(mappedTamu);
-
-            formatQrPayload(t.kode).then((payload) => {
-              setFullQrPayload(payload);
-            });
-          } else {
-            // Cek apakah ada di cache lokal
-            const local = buildItemFromLocalStore();
-            if (!local) {
-              setItemNotFound(true);
-            }
-          }
-        } else {
-          const { data: s, error } = await supabase
+        // 2. Query Supabase ke DUA tabel secara simultan (Santri & Tamu Undangan)
+        const [resSantri, resTamu] = await Promise.all([
+          supabase
             .from('peserta_santri')
             .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, hari_konfirmasi, jam_konfirmasi, catatan_konfirmasi, warna_tiket, created_at, updated_at')
             .eq('kode', kodeSH)
-            .maybeSingle();
+            .maybeSingle(),
+          supabase
+            .from('tamu_undangan')
+            .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, hari_konfirmasi, jam_konfirmasi, created_at, updated_at')
+            .eq('kode', kodeSH)
+            .maybeSingle(),
+        ]);
 
-          if (error) {
-            console.error('Error fetching peserta_santri in u/[token]:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Undangan Debug] Query santri:', resSantri.data ? 'FOUND' : 'EMPTY');
+          console.log('[Undangan Debug] Query tamu:', resTamu.data ? 'FOUND' : 'EMPTY');
+        }
+
+        let rawDataSantri = resSantri.data;
+        let rawDataTamu = resTamu.data;
+
+        // 3. Fallback API route jika kedua query Supabase kosong (menjamin akses via service role)
+        if (!rawDataSantri && !rawDataTamu) {
+          try {
+            const apiRes = await fetch(`/api/sync?kode=${encodeURIComponent(kodeSH)}`);
+            if (apiRes.ok) {
+              const apiJson = await apiRes.json();
+              if (apiJson?.tamu) {
+                rawDataTamu = apiJson.tamu;
+              } else if (apiJson?.santri) {
+                rawDataSantri = apiJson.santri;
+              }
+            }
+          } catch (errApi) {
+            console.warn('[Undangan] API fallback fetch error:', errApi);
+          }
+        }
+
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(
+            '[Undangan Debug] Final item:',
+            rawDataSantri || rawDataTamu ? 'FOUND' : 'NOT FOUND'
+          );
+        }
+
+        // Handle Tamu Undangan
+        if (rawDataTamu) {
+          const t = rawDataTamu;
+          setItemNotFound(false);
+          const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
+          const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
+          const kDasar = t.kuota_dasar ? Number(t.kuota_dasar) : Math.max(1, countL + countP);
+          const mappedTamu = {
+            id: t.id,
+            kode: t.kode,
+            tipe: 'UNDANGAN',
+            nama: t.nama || '',
+            namaPutra: t.nama_putra || '',
+            namaPutri: t.nama_putri || '',
+            kategori: t.kategori || 'Tamu Undangan',
+            subKategori: t.sub_kategori || (t as any).golongan || 'ISTIMEWA',
+            instansi: t.instansi || '',
+            alamat: t.alamat || '',
+            noHp: t.no_hp || '',
+            kuota: {
+              id: t.id,
+              kodeQr: t.kode,
+              kuotaDasar: kDasar,
+              kuotaTambahan: 0,
+              terpakai: Number(t.kuota_terpakai || 0),
+            },
+            estimasi: {
+              statusKonfirmasi: t.status_konfirmasi || 'BELUM',
+              perkiraanL: Number(t.perkiraan_l || 1),
+              perkiraanP: Number(t.perkiraan_p || 1),
+              hariKonfirmasi: t.hari_konfirmasi || 'SABTU',
+              jamKonfirmasi: t.jam_konfirmasi || '06:30',
+              catatan: t.catatan_konfirmasi || '',
+              diisiAt: t.updated_at || t.created_at,
+            },
+          };
+          setItem(mappedTamu);
+
+          formatQrPayload(t.kode).then((payload) => {
+            setFullQrPayload(payload);
+          });
+        }
+        // Handle Peserta Santri (Wali Santri)
+        else if (rawDataSantri) {
+          const s = rawDataSantri;
+          setItemNotFound(false);
+          const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
+          const kDasar = Number(s.kuota_dasar && s.kuota_dasar >= calculatedKDasar ? s.kuota_dasar : calculatedKDasar);
+          const kTambahan = Number(s.kuota_tambahan || 0);
+          const totKuota = kDasar + kTambahan;
+
+          const mappedItem = {
+            id: s.id,
+            kode: s.kode,
+            tipe: 'WALI',
+            entitas: {
+              id: s.id,
+              nama: s.nama,
+              namaWali: s.nama_wali || '-',
+              alamat: s.alamat || 'Kediri',
+              noHp: s.no_hp || '',
+            },
+            santri: {
+              id: s.id,
+              nama: s.nama,
+              kategoriUtama: s.kategori_utama || 'BIL_GHOIB',
+              subKategori: s.sub_kategori || 'Bil Ghoib',
+              kelas: s.kelas || '-',
+              kamar: s.kamar || '-',
+            },
+            kuota: {
+              id: s.id,
+              kodeQr: s.kode,
+              kuotaDasar: kDasar,
+              kuotaTambahan: kTambahan,
+              terpakai: Number(s.kuota_terpakai || 0),
+            },
+            estimasi: {
+              statusKonfirmasi: s.status_konfirmasi || 'BELUM',
+              perkiraanL: Number(s.perkiraan_l || 0),
+              perkiraanP: Number(s.perkiraan_p || 0),
+              hariKonfirmasi: s.hari_konfirmasi || 'SABTU',
+              jamKonfirmasi: s.jam_konfirmasi || '06:30',
+              catatan: s.catatan_konfirmasi || '',
+              diisiAt: s.updated_at || s.created_at,
+            },
+          };
+
+          setItem(mappedItem);
+
+          if (s.status_konfirmasi === 'SUDAH') {
+            setEstL(Number(s.perkiraan_l || 0));
+            setEstP(Number(s.perkiraan_p || 0));
+            if (s.hari_konfirmasi) {
+              const normH = String(s.hari_konfirmasi).toUpperCase();
+              setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
+            }
+            if (s.jam_konfirmasi) {
+              setJamKonfirmasi(String(s.jam_konfirmasi));
+            }
+            setCatatanRsvp(s.catatan_konfirmasi || '');
+            setLastSavedTime(s.updated_at ? new Date(s.updated_at).toLocaleTimeString('id-ID') : '');
+          } else {
+            setEstL(Math.min(1, totKuota));
+            setEstP(Math.max(0, Math.min(1, totKuota - 1)));
           }
 
-          if (s && !error) {
+          formatQrPayload(s.kode).then((payload) => {
+            setFullQrPayload(payload);
+          });
+        }
+        // Jika keduanya kosong di Supabase dan API fallback
+        else {
+          const local = buildItemFromLocalStore();
+          if (local) {
+            setItem(local);
             setItemNotFound(false);
-            const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
-            const kDasar = Number(s.kuota_dasar && s.kuota_dasar >= calculatedKDasar ? s.kuota_dasar : calculatedKDasar);
-            const kTambahan = Number(s.kuota_tambahan || 0);
-            const totKuota = kDasar + kTambahan;
-
-            const mappedItem = {
-              id: s.id,
-              kode: s.kode,
-              tipe: 'WALI',
-              entitas: {
-                id: s.id,
-                nama: s.nama,
-                namaWali: s.nama_wali || '-',
-                alamat: s.alamat || 'Kediri',
-                noHp: s.no_hp || '',
-              },
-              santri: {
-                id: s.id,
-                nama: s.nama,
-                kategoriUtama: s.kategori_utama || 'BIL_GHOIB',
-                subKategori: s.sub_kategori || 'Bil Ghoib',
-                kelas: s.kelas || '-',
-                kamar: s.kamar || '-',
-              },
-              kuota: {
-                id: s.id,
-                kodeQr: s.kode,
-                kuotaDasar: kDasar,
-                kuotaTambahan: kTambahan,
-                terpakai: Number(s.kuota_terpakai || 0),
-              },
-              estimasi: {
-                statusKonfirmasi: s.status_konfirmasi || 'BELUM',
-                perkiraanL: Number(s.perkiraan_l || 0),
-                perkiraanP: Number(s.perkiraan_p || 0),
-                hariKonfirmasi: s.hari_konfirmasi || 'SABTU',
-                jamKonfirmasi: s.jam_konfirmasi || '06:30',
-                catatan: s.catatan_konfirmasi || '',
-                diisiAt: s.updated_at || s.created_at,
-              },
-            };
-
-            setItem(mappedItem);
-
-            if (s.status_konfirmasi === 'SUDAH') {
-              setEstL(Number(s.perkiraan_l || 0));
-              setEstP(Number(s.perkiraan_p || 0));
-              if (s.hari_konfirmasi) {
-                const normH = String(s.hari_konfirmasi).toUpperCase();
-                setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
-              }
-              if (s.jam_konfirmasi) {
-                setJamKonfirmasi(String(s.jam_konfirmasi));
-              }
-              setCatatanRsvp(s.catatan_konfirmasi || '');
-              setLastSavedTime(s.updated_at ? new Date(s.updated_at).toLocaleTimeString('id-ID') : '');
-            } else {
-              setEstL(Math.min(1, totKuota));
-              setEstP(Math.max(0, Math.min(1, totKuota - 1)));
-            }
-
-            formatQrPayload(s.kode).then((payload) => {
-              setFullQrPayload(payload);
-            });
           } else {
-            // Cek apakah ada di cache lokal
-            const local = buildItemFromLocalStore();
-            if (!local) {
-              setItemNotFound(true);
-            }
+            setItemNotFound(true);
           }
         }
       } catch (e) {
         console.warn('Error fetching invitation data:', e);
+        const local = buildItemFromLocalStore();
+        if (local) {
+          setItem(local);
+          setItemNotFound(false);
+        } else {
+          setItemNotFound(true);
+        }
       } finally {
         setLoadingSantri(false);
       }
     }
 
     fetchInvitationData();
-  }, [kodeSH, isTamuUndangan, isValidFormat]);
+  }, [kodeSH, isValidFormat]);
 
   // Fetch Beli Kuota Control Status + Realtime Subscription
   useEffect(() => {
@@ -779,7 +799,7 @@ export default function UndanganWaliPage() {
       {/* ========================================================================= */}
       {/* SKENARIO A: UNDANGAN TAMU UNDANGAN (UNDxxxx)                              */}
       {/* ========================================================================= */}
-      {isTamuUndangan ? (
+      {item?.tipe === 'UNDANGAN' || isTamuUndangan ? (
         !isOpened ? (
           /* COVER TAMU UNDANGAN */
           <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
