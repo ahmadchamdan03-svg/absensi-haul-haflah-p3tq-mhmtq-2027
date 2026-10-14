@@ -18,6 +18,9 @@ import {
   HelpCircle,
   Compass,
   Info,
+  Usb,
+  Zap,
+  ShieldCheck,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
@@ -50,6 +53,15 @@ export default function ScanPage() {
   const [recentScans, setRecentScans] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Scan mode: USB Hardware vs Kamera
+  const [scanMode, setScanMode] = useState<'USB' | 'KAMERA'>('USB');
+  const [scanFeedback, setScanFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    name?: string;
+    kategori?: string;
+  } | null>(null);
+
   // Camera scanner state
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -59,6 +71,10 @@ export default function ScanPage() {
   const scannerRef = useRef<any>(null);
   const isScanningRef = useRef(false);
   const scanLockRef = useRef(false);
+  const isProcessingScanRef = useRef(false);
+  const lastScannedCodeRef = useRef('');
+  const lastScannedTimeRef = useRef(0);
+  const scanTimestampsRef = useRef<number[]>([]);
   const [isReceivingInput, setIsReceivingInput] = useState(false);
 
   // Fetch 5 scan terakhir hari ini
@@ -196,23 +212,23 @@ export default function ScanPage() {
   const scanBufferRef = useRef('');
   const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handler memproses kode QR (100% Query Langsung ke Supabasepeserta_santri & tamu_undangan)
+  // Handler memproses kode QR (100% Query Langsung ke Supabase peserta_santri & tamu_undangan)
   const handleScanCode = useCallback(async (scannedRaw: string) => {
-    // FIX 5: Guard anti-double-scan (lock 800ms)
-    if (scanLockRef.current) {
+    // 1. Guard pemrosesan simultan (Concurrency Lock)
+    if (isProcessingScanRef.current) {
       if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scanner] Ignored scan during 800ms lock: ${scannedRaw}`);
+        console.log('[Scan Debug] Ignored scan: sistem sedang memproses kode sebelumnya');
       }
       return;
     }
-    scanLockRef.current = true;
-    setTimeout(() => {
-      scanLockRef.current = false;
-    }, 800);
 
-    setErrorMsg(null);
-    setCheckinResult(null);
-    setIsReceivingInput(false);
+    // 2. Guard anti-double-scan (lock 1000ms)
+    if (scanLockRef.current) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scan Debug] Ignored scan during 1000ms lock: ${scannedRaw}`);
+      }
+      return;
+    }
 
     let cleanCode = scannedRaw.trim();
     // Tangani jika format QR adalah URL web (e.g. https://domain.com/u/SH0001)
@@ -225,10 +241,47 @@ export default function ScanPage() {
     }
 
     cleanCode = cleanCode.toUpperCase().trim();
+    if (!cleanCode || cleanCode.length < 2) return;
+
+    const now = Date.now();
+
+    // 3. Rate-Limiting: Maksimal 10 scan dalam rentang 10 detik
+    scanTimestampsRef.current = scanTimestampsRef.current.filter((t) => now - t < 10000);
+    if (scanTimestampsRef.current.length >= 10) {
+      setErrorMsg('Peringatan: Terlalu banyak scan berturut-turut dalam 10 detik. Mohon jeda 1 detik.');
+      playBuzzerError();
+      return;
+    }
+    scanTimestampsRef.current.push(now);
+
+    // 4. Anti-Duplicate: Abaikan jika kode yang sama persis di-scan dalam 2 detik
+    if (lastScannedCodeRef.current === cleanCode && now - lastScannedTimeRef.current < 2000) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scan Debug] Ignored duplicate scan within 2s for ${cleanCode}`);
+      }
+      return;
+    }
+    lastScannedCodeRef.current = cleanCode;
+    lastScannedTimeRef.current = now;
+
+    // Pasang lock 1000ms
+    scanLockRef.current = true;
+    setTimeout(() => {
+      scanLockRef.current = false;
+    }, 1000);
+
+    isProcessingScanRef.current = true;
+    setErrorMsg(null);
+    setCheckinResult(null);
+    setIsReceivingInput(false);
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[Scan Debug] Submit: "${cleanCode}" Processing: true Timestamp: ${now}`);
+    }
 
     try {
       // 1. Cek Peserta Santri (cocokkan dengan kolom 'kode' ATAU 'nis')
-      let { data: santri, error: santriErr } = await supabase
+      let { data: santri } = await supabase
         .from('peserta_santri')
         .select('*')
         .or(`kode.eq.${cleanCode},nis.eq.${cleanCode}`)
@@ -247,9 +300,18 @@ export default function ScanPage() {
 
       // 3. Jika kode tidak terdaftar di Supabase
       if (!santri && !tamu) {
-        setErrorMsg(`Kode QR "${cleanCode}" TIDAK TERDAFTAR dalam basis data!`);
+        const errMsg = `Kode QR "${cleanCode}" TIDAK TERDAFTAR dalam basis data!`;
+        setErrorMsg(errMsg);
         playBuzzerError();
         setActiveItem(null);
+        setScanFeedback({
+          type: 'error',
+          message: errMsg,
+        });
+        setTimeout(() => setScanFeedback(null), 3000);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Scan Debug] Hasil: FAILED (Tidak terdaftar) for', cleanCode);
+        }
         return;
       }
 
@@ -280,14 +342,6 @@ export default function ScanPage() {
       const kuotaTambahan = isSantri ? Number(entity.kuota_tambahan || 0) : 0;
       const totalKuota = kuotaDasar + kuotaTambahan;
 
-      if (!isSantri) {
-        console.log('[Kuota Tamu]', {
-          kode: targetKode,
-          nama_putra: entity.nama_putra,
-          nama_putri: entity.nama_putri,
-          kuota: kuotaDasar,
-        });
-      }
       const sisa = Math.max(0, totalKuota - terpakai);
 
       const isBilGhoib = isSantri && (
@@ -342,17 +396,29 @@ export default function ScanPage() {
 
       if (terpakai >= totalKuota) {
         playBuzzerError();
-        setErrorMsg(
-          `PERINGATAN KUOTA HABIS: Seluruh tiket untuk "${itemObj.nama}" sudah terpakai (${terpakai}/${totalKuota})!`
-        );
+        const warnMsg = `PERINGATAN KUOTA HABIS: Seluruh tiket untuk "${itemObj.nama}" sudah terpakai (${terpakai}/${totalKuota})!`;
+        setErrorMsg(warnMsg);
+        setScanFeedback({
+          type: 'error',
+          message: warnMsg,
+          name: itemObj.nama,
+          kategori: itemObj.kategori,
+        });
       } else {
         playBeep();
+        setScanFeedback({
+          type: 'success',
+          message: `QR ${cleanCode} Berhasil Terverifikasi`,
+          name: itemObj.nama,
+          kategori: itemObj.kategori,
+        });
       }
+      setTimeout(() => setScanFeedback(null), 2500);
 
       setActiveItem(itemObj);
       setKodeInput(cleanCode);
 
-      // Stop kamera saat item diproses
+      // Stop kamera saat item berhasil diproses
       stopCamera();
 
       // Konsep Scan Bertahap: Pre-fill dengan nilai existing (kumulatif) dari presensi_log bila ada
@@ -373,51 +439,83 @@ export default function ScanPage() {
       } else {
         setSerahkanTiketEmas(false);
       }
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Scan Debug] Hasil: SUCCESS for', cleanCode, itemObj.nama);
+      }
     } catch (err: any) {
       console.error('Error during scan verification:', err);
-      setErrorMsg(`Terjadi kesalahan sistem saat memverifikasi kode: ${err.message || err}`);
+      const msg = `Terjadi kesalahan sistem saat memverifikasi kode: ${err.message || err}`;
+      setErrorMsg(msg);
       playBuzzerError();
+      setScanFeedback({
+        type: 'error',
+        message: msg,
+      });
+      setTimeout(() => setScanFeedback(null), 3000);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Scan Debug] Hasil: FAILED with exception for', cleanCode, err);
+      }
+    } finally {
+      isProcessingScanRef.current = false;
     }
   }, []);
 
-  // Global USB Barcode Scanner Listener
+  // Global USB Barcode Scanner Listener (Hanya aktif jika scanMode === 'USB')
   useEffect(() => {
-    // FIX 5: Matikan auto-focus agresif jika menggunakan scanner USB agar tidak bentrok dual-path
+    if (scanMode !== 'USB') return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Jika kamera aktif, abaikan input keyboard scanner
-      if (isScanningRef.current) return;
-
       const target = e.target as HTMLElement;
-      // Jangan bypass input jika scanner mengetik dengan cepat
+      // Jangan intersep jika user sedang mengetik di textarea atau select
       if (target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
 
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
       if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scanner USB] Key: ${e.key} at ${new Date().toISOString()}`);
+        console.log(`[Scan Debug] Char masuk: "${e.key}" Timestamp: ${Date.now()}`);
       }
 
-      if (e.key === 'Enter') {
+      // Deteksi Terminator: Enter, \r, atau \n
+      if (e.key === 'Enter' || e.key === '\r' || e.key === '\n') {
+        e.preventDefault();
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
         setIsReceivingInput(false);
-        if (scanBufferRef.current.length >= 3) {
-          handleScanCode(scanBufferRef.current);
+
+        const bufferedCode = scanBufferRef.current.trim();
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Scan Debug] Terminator Enter terdeteksi, buffer:', bufferedCode);
+        }
+        if (bufferedCode.length >= 3) {
+          handleScanCode(bufferedCode);
         }
         scanBufferRef.current = '';
-        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-        e.preventDefault();
         return;
       }
 
+      // Akumulasi karakter ke buffer
       if (e.key.length === 1) {
         setIsReceivingInput(true);
         scanBufferRef.current += e.key;
+
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[Scan Debug] Buffer saat ini:', scanBufferRef.current);
+        }
+
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-        // FIX 5: Naikkan buffer timeout dari 100ms ke 300ms
+
+        // Buffer Timeout 500ms dengan Fallback Auto-Submit jika scanner tidak mengirim Enter
         scanTimerRef.current = setTimeout(() => {
+          const bufferedCode = scanBufferRef.current.trim();
+          if (bufferedCode.length >= 3) {
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('[Scan Debug] Auto-submit buffer setelah jeda 350ms (scanner tanpa Enter):', bufferedCode);
+            }
+            handleScanCode(bufferedCode);
+          }
           scanBufferRef.current = '';
           setIsReceivingInput(false);
-        }, 300);
+        }, 350);
       }
     };
 
@@ -426,7 +524,7 @@ export default function ScanPage() {
       window.removeEventListener('keydown', handleKeyPress);
       if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
     };
-  }, [handleScanCode]);
+  }, [scanMode, handleScanCode]);
 
   // Inisialisasi & Start Kamera
   const startCamera = async (mode: 'environment' | 'user' = facingMode) => {
@@ -455,7 +553,7 @@ export default function ScanPage() {
       await scanner.start(
         { facingMode: mode },
         {
-          fps: 12,
+          fps: 10,
           qrbox: { width: 260, height: 260 },
           aspectRatio: 1.0,
         },
@@ -503,14 +601,16 @@ export default function ScanPage() {
   };
 
   useEffect(() => {
-    if (!activeItem && !checkinResult) {
+    if (scanMode === 'KAMERA' && !activeItem && !checkinResult) {
       startCamera(facingMode);
+    } else {
+      stopCamera();
     }
 
     return () => {
       stopCamera();
     };
-  }, [activeItem, checkinResult]);
+  }, [scanMode, activeItem, checkinResult, facingMode]);
 
   // Handler Check / Uncheck Kartu Hitam Gold (dengan konfirmasi modal & audit log)
   const handleToggleKartuHitamGold = async () => {
@@ -650,6 +750,22 @@ export default function ScanPage() {
 
       if (inputTotal > totalKuota) {
         setErrorMsg(`Gagal simpan presensi: Total input (${inputTotal} orang) melebihi total kuota (${totalKuota} kursi)! Mohon kurangi jumlahnya.`);
+        playBuzzerError();
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Anti Race-Condition: Cek apakah kode ini baru saja dicatat dalam 3 detik terakhir
+      const threeSecAgo = new Date(Date.now() - 3000).toISOString();
+      const { data: recentDup } = await supabase
+        .from('presensi_log')
+        .select('id, created_at')
+        .eq('kode_qr', activeItem.kode || String(activeItem.id))
+        .gte('created_at', threeSecAgo)
+        .limit(1);
+
+      if (recentDup && recentDup.length > 0) {
+        setErrorMsg('Peringatan: Presensi untuk kode ini baru saja dicatat dalam 3 detik terakhir (Anti-Duplicate Guard).');
         playBuzzerError();
         setIsSubmitting(false);
         return;
@@ -817,153 +933,276 @@ export default function ScanPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* TAMPILAN 1: KAMERA OTOMATIS AKTIF & SCANNER QR */}
+      {/* OVERLAY VISUAL FEEDBACK (HASIL PINDAI KILAT)                              */}
+      {/* ========================================================================= */}
+      {scanFeedback && (
+        <div
+          className={`p-4 rounded-3xl border-2 shadow-xl animate-in zoom-in-95 duration-150 flex items-center justify-between gap-3 ${
+            scanFeedback.type === 'success'
+              ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
+              : 'bg-rose-50 border-rose-400 text-rose-950'
+          }`}
+        >
+          <div className="flex items-center space-x-3">
+            <div
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shrink-0 ${
+                scanFeedback.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
+              }`}
+            >
+              {scanFeedback.type === 'success' ? (
+                <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
+              ) : (
+                <AlertCircle className="w-6 h-6 stroke-[2.5]" />
+              )}
+            </div>
+            <div>
+              <div className="font-serif font-black text-sm sm:text-base leading-tight">
+                {scanFeedback.name ? `${scanFeedback.name} (${scanFeedback.kategori})` : scanFeedback.message}
+              </div>
+              <div
+                className={`text-xs font-semibold ${
+                  scanFeedback.type === 'success' ? 'text-emerald-800' : 'text-rose-800'
+                }`}
+              >
+                {scanFeedback.message}
+              </div>
+            </div>
+          </div>
+          <span
+            className={`px-3 py-1 rounded-xl text-xs font-mono font-bold shrink-0 ${
+              scanFeedback.type === 'success'
+                ? 'bg-emerald-200 text-emerald-900'
+                : 'bg-rose-200 text-rose-900'
+            }`}
+          >
+            {scanFeedback.type === 'success' ? '✓ OK' : '✕ GAGAL'}
+          </span>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAMPILAN 1: SCANNER AKTIF (PILIHAN DUA JALUR: USB HARDWARE vs KAMERA HP)   */}
       {/* ========================================================================= */}
       {!activeItem && !checkinResult && (
         <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-opera-200 space-y-5">
-          {/* Header Status Kamera */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span
-                className={`w-2.5 h-2.5 rounded-full ${
-                  cameraActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
+          {/* 1. TOGGLE MODE SCANNER (ELIMINASI BENTROK DUAL-PATH) */}
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-bold text-[#8C6A47] uppercase tracking-wider flex items-center justify-between">
+              <span>Pilih Mode Input Scanner:</span>
+              <span className="font-mono text-[10px] text-stone-500">Mode: {scanMode}</span>
+            </div>
+            <div className="bg-[#FAF7F3] rounded-2xl p-1.5 border border-[#D5C4B4] grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setScanMode('USB');
+                  stopCamera();
+                }}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+                  scanMode === 'USB'
+                    ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
+                    : 'bg-white text-[#7A624E] hover:bg-[#FAF0E6] border border-[#D5C4B4]/60'
                 }`}
-              ></span>
-              <span className="text-xs font-serif font-bold text-slate-800 tracking-wide">
-                {cameraActive
-                  ? 'KAMERA AKTIF — BIDIK KODE QR'
-                  : isInitializing
-                  ? 'MEMBUKA KAMERA...'
-                  : 'KAMERA NON-AKTIF'}
-              </span>
-            </div>
-
-            {/* Tombol Kontrol Kamera */}
-            <div className="flex items-center space-x-1.5 flex-wrap">
-              {cameraActive ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={toggleFacingMode}
-                    title="Ganti Kamera Depan/Belakang"
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs flex items-center space-x-1 transition-colors"
-                  >
-                    <SwitchCamera className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-semibold hidden sm:inline">
-                      {facingMode === 'environment' ? 'Kamera Belakang' : 'Kamera Depan'}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={stopCamera}
-                    title="Matikan Kamera"
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-                  >
-                    <CameraOff className="w-3.5 h-3.5" />
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => startCamera(facingMode)}
-                  className="px-3 py-1.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 text-xs font-bold border border-gold-500/40 flex items-center space-x-1 shadow-sm"
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Nyalakan Kamera</span>
-                </button>
-              )}
+              >
+                <Usb className="w-4 h-4 shrink-0" />
+                <span>Scanner USB Hardware</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setScanMode('KAMERA');
+                  startCamera(facingMode);
+                }}
+                className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+                  scanMode === 'KAMERA'
+                    ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
+                    : 'bg-white text-[#7A624E] hover:bg-[#FAF0E6] border border-[#D5C4B4]/60'
+                }`}
+              >
+                <Camera className="w-4 h-4 shrink-0" />
+                <span>Kamera HP / Web</span>
+              </button>
             </div>
           </div>
 
-          {/* FRAME KAMERA LIVE */}
-          <div className="relative rounded-3xl overflow-hidden bg-opera-950 border-2 border-opera-800 shadow-inner flex flex-col items-center justify-center min-h-[300px] aspect-video w-full">
-            {/* Viewfinder Overlay */}
-            <div className="absolute inset-0 pointer-events-none z-10 p-6 flex flex-col justify-between">
-              <div className="flex justify-between">
-                <div className="w-8 h-8 border-t-4 border-l-4 border-[#F5C26B] rounded-tl-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
-                <div className="w-8 h-8 border-t-4 border-r-4 border-[#F5C26B] rounded-tr-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
+          {/* 2A. MODE SCANNER USB HARDWARE (ZERO-LATENCY, BEBAS BENTROK KAMERA) */}
+          {scanMode === 'USB' ? (
+            <div className="rounded-3xl p-6 bg-gradient-to-b from-[#FAF7F3] to-[#F5ECE1] border-2 border-[#D5C4B4] space-y-4 text-center">
+              <div className="relative inline-flex items-center justify-center">
+                <div className="w-20 h-20 rounded-3xl bg-white border-2 border-[#8C6A47] shadow-md flex items-center justify-center text-[#8C6A47]">
+                  <Usb className="w-10 h-10 animate-pulse text-[#8C6A47]" />
+                </div>
+                <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
+                </span>
               </div>
 
-              {cameraActive && (
-                <div className="w-full flex items-center justify-center">
-                  <div className="w-3/4 h-0.5 bg-gradient-to-r from-transparent via-[#F5C26B] to-transparent shadow-[0_0_15px_#F5C26B] animate-pulse"></div>
-                </div>
-              )}
+              <div className="space-y-1 max-w-sm mx-auto">
+                <h3 className="font-serif font-black text-base text-[#422F21]">
+                  Scanner USB Hardware Siap Digunakan
+                </h3>
+                <p className="text-xs text-[#7A624E] leading-relaxed">
+                  Hubungkan barcode scanner USB ke laptop/komputer. Arahkan laser ke kode QR undangan pada kartu tamu/wali.
+                </p>
+              </div>
 
-              <div className="flex justify-between">
-                <div className="w-8 h-8 border-b-4 border-l-4 border-[#F5C26B] rounded-bl-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
-                <div className="w-8 h-8 border-b-4 border-r-4 border-[#F5C26B] rounded-br-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
+              {/* Status Buffer Realtime USB */}
+              <div className="p-3 rounded-2xl bg-white border border-[#D5C4B4] flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      isReceivingInput ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'
+                    }`}
+                  ></span>
+                  <span className="font-semibold text-stone-700">
+                    {isReceivingInput
+                      ? 'Sedang membaca stream barcode (<10ms)...'
+                      : 'Menunggu trigger scanner USB...'}
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#FAF7F3] border border-[#D5C4B4] text-[#8C6A47] font-bold">
+                  Buffer: 500ms
+                </span>
               </div>
             </div>
-
-            <div
-              id="qr-camera-reader"
-              className="w-full h-full max-w-full aspect-video rounded-2xl overflow-hidden [&_video]:rounded-2xl [&_video]:object-cover"
-            ></div>
-
-            {!cameraActive && !isInitializing && (
-              <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-6 text-center text-[#E4EDF5] space-y-3 bg-gradient-to-b from-[#142234] via-[#1F3450] to-[#0C1622]">
-                <div className="w-16 h-16 rounded-2xl bg-[#0C1622] border-2 border-[#4A7BB0]/50 flex items-center justify-center text-[#F5C26B]">
-                  <Camera className="w-8 h-8 text-[#F5C26B]" />
+          ) : (
+            /* 2B. MODE KAMERA HP / LAPTOP */
+            <div className="space-y-3">
+              {/* Header Status Kamera */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      cameraActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
+                    }`}
+                  ></span>
+                  <span className="text-xs font-serif font-bold text-slate-800 tracking-wide">
+                    {cameraActive
+                      ? 'KAMERA AKTIF — BIDIK KODE QR (10 FPS)'
+                      : isInitializing
+                      ? 'MEMBUKA KAMERA...'
+                      : 'KAMERA NON-AKTIF'}
+                  </span>
                 </div>
-                <div className="space-y-1 max-w-xs">
-                  <p className="font-serif font-bold text-white text-sm">
-                    Kamera Siap Dinyalakan
-                  </p>
-                  <p className="text-[11px] text-[#C8DBEC]">
-                    Arahkan kamera ke QR Code undangan (contoh: SH2943).
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => startCamera(facingMode)}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F5C26B] via-[#E5A845] to-[#F5C26B] hover:brightness-105 text-[#142234] font-black text-xs shadow-lg transition-all border border-[#FDF4E4]"
-                >
-                  Buka Kamera Sekarang
-                </button>
-              </div>
-            )}
 
-            {isInitializing && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-opera-950/90 text-gold-300 space-y-2">
-                <div className="w-8 h-8 border-2 border-gold-400 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-xs font-mono">Menyiapkan Kamera...</span>
-              </div>
-            )}
-          </div>
-
-          {cameraError && (
-            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start space-x-2.5">
-              <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <div className="font-bold">Info Perangkat &amp; Izin Kamera:</div>
-                <div className="text-[11px] text-amber-800 leading-relaxed">
-                  {cameraError}
+                {/* Tombol Kontrol Kamera */}
+                <div className="flex items-center space-x-1.5 flex-wrap">
+                  {cameraActive ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={toggleFacingMode}
+                        title="Ganti Kamera Depan/Belakang"
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs flex items-center space-x-1 transition-colors"
+                      >
+                        <SwitchCamera className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-semibold hidden sm:inline">
+                          {facingMode === 'environment' ? 'Kamera Belakang' : 'Kamera Depan'}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={stopCamera}
+                        title="Matikan Kamera"
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors"
+                      >
+                        <CameraOff className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => startCamera(facingMode)}
+                      className="px-3 py-1.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 text-xs font-bold border border-gold-500/40 flex items-center space-x-1 shadow-sm"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>Nyalakan Kamera</span>
+                    </button>
+                  )}
                 </div>
               </div>
+
+              {/* FRAME KAMERA LIVE */}
+              <div className="relative rounded-3xl overflow-hidden bg-opera-950 border-2 border-opera-800 shadow-inner flex flex-col items-center justify-center min-h-[280px] aspect-video w-full">
+                {/* Viewfinder Overlay */}
+                <div className="absolute inset-0 pointer-events-none z-10 p-6 flex flex-col justify-between">
+                  <div className="flex justify-between">
+                    <div className="w-8 h-8 border-t-4 border-l-4 border-[#F5C26B] rounded-tl-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
+                    <div className="w-8 h-8 border-t-4 border-r-4 border-[#F5C26B] rounded-tr-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
+                  </div>
+
+                  {cameraActive && (
+                    <div className="w-full flex items-center justify-center">
+                      <div className="w-3/4 h-0.5 bg-gradient-to-r from-transparent via-[#F5C26B] to-transparent shadow-[0_0_15px_#F5C26B] animate-pulse"></div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <div className="w-8 h-8 border-b-4 border-l-4 border-[#F5C26B] rounded-bl-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
+                    <div className="w-8 h-8 border-b-4 border-r-4 border-[#F5C26B] rounded-br-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
+                  </div>
+                </div>
+
+                <div
+                  id="qr-camera-reader"
+                  className="w-full h-full max-w-full aspect-video rounded-2xl overflow-hidden [&_video]:rounded-2xl [&_video]:object-cover"
+                ></div>
+
+                {!cameraActive && !isInitializing && (
+                  <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-6 text-center text-[#E4EDF5] space-y-3 bg-gradient-to-b from-[#142234] via-[#1F3450] to-[#0C1622]">
+                    <div className="w-16 h-16 rounded-2xl bg-[#0C1622] border-2 border-[#4A7BB0]/50 flex items-center justify-center text-[#F5C26B]">
+                      <Camera className="w-8 h-8 text-[#F5C26B]" />
+                    </div>
+                    <div className="space-y-1 max-w-xs">
+                      <p className="font-serif font-bold text-white text-sm">
+                        Kamera Siap Dinyalakan
+                      </p>
+                      <p className="text-[11px] text-[#C8DBEC]">
+                        Arahkan kamera ke QR Code undangan (contoh: SH2943 atau UND0103).
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => startCamera(facingMode)}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F5C26B] via-[#E5A845] to-[#F5C26B] hover:brightness-105 text-[#142234] font-black text-xs shadow-lg transition-all border border-[#FDF4E4]"
+                    >
+                      Buka Kamera Sekarang
+                    </button>
+                  </div>
+                )}
+
+                {isInitializing && (
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-opera-950/90 text-gold-300 space-y-2">
+                    <div className="w-8 h-8 border-2 border-gold-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-xs font-mono">Menyiapkan Kamera...</span>
+                  </div>
+                )}
+              </div>
+
+              {cameraError && (
+                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start space-x-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <div className="font-bold">Info Perangkat &amp; Izin Kamera:</div>
+                    <div className="text-[11px] text-amber-800 leading-relaxed">
+                      {cameraError}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Form Input Barcode / Manual USB Scanner */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <div className="flex items-center justify-between text-xs text-slate-500">
+          {/* Form Input Kode Manual / Cadangan */}
+          <div className="space-y-2 pt-2 border-t border-stone-200">
+            <div className="flex items-center justify-between text-xs text-stone-500">
               <span className="font-semibold flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                Scanner USB / Input Kode Manual:
+                Input Kode Manual / Cadangan:
               </span>
-              <span className="text-[11px] font-mono text-opera-700">Verifikasi Supabase Direct</span>
+              <span className="text-[11px] font-mono text-[#8C6A47]">Verifikasi Supabase Direct</span>
             </div>
-
-            {/* Indikator Feedback Input Scanner Sedang Menerima Data */}
-            {isReceivingInput && (
-              <div className="p-2 rounded-xl bg-amber-50 border border-amber-300 flex items-center justify-between text-xs text-amber-900 animate-pulse">
-                <span className="font-semibold flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block"></span>
-                  Sedang menerima data dari barcode scanner...
-                </span>
-                <span className="text-[10px] font-mono font-bold">Buffer Aktif (300ms)</span>
-              </div>
-            )}
 
             <form
               onSubmit={(e) => {
