@@ -242,6 +242,8 @@ export default function UndanganWaliPage() {
   // State Estimasi Kehadiran (RSVP)
   const [estL, setEstL] = useState(1);
   const [estP, setEstP] = useState(1);
+  const [hariKonfirmasi, setHariKonfirmasi] = useState<'SABTU' | 'JUMAT'>('SABTU');
+  const [jamKonfirmasi, setJamKonfirmasi] = useState<string>('06:30');
   const [catatanRsvp, setCatatanRsvp] = useState('');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
   const [estimasiSaved, setEstimasiSaved] = useState(false);
@@ -296,17 +298,41 @@ export default function UndanganWaliPage() {
         setLoadingSantri(true);
 
         if (isTamuUndangan) {
-          const { data: t, error } = await supabase
+          let tData: any = null;
+          let tError: any = null;
+
+          const res = await supabase
             .from('tamu_undangan')
-            .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, created_at, updated_at')
+            .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, hari_konfirmasi, jam_konfirmasi, created_at, updated_at')
             .eq('kode', kodeSH)
             .maybeSingle();
 
-          if (error) {
-            console.error('Error fetching tamu_undangan in u/[token]:', error);
+          tData = res.data;
+          tError = res.error;
+
+          // FIX 6: Fallback ke internal API route jika Supabase anon client mengembalikan null atau error
+          if (!tData) {
+            try {
+              const apiRes = await fetch(`/api/sync?kode=${encodeURIComponent(kodeSH)}`);
+              if (apiRes.ok) {
+                const apiJson = await apiRes.json();
+                if (apiJson?.tamu) {
+                  tData = apiJson.tamu;
+                  tError = null;
+                }
+              }
+            } catch (errApi) {
+              console.warn('API fallback fetch error:', errApi);
+            }
           }
 
-          if (t && !error) {
+          if (tError) {
+            console.error('Error fetching tamu_undangan in u/[token]:', tError);
+          }
+
+          const t = tData;
+
+          if (t && !tError) {
             setItemNotFound(false);
             const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
             const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
@@ -334,6 +360,8 @@ export default function UndanganWaliPage() {
                 statusKonfirmasi: t.status_konfirmasi || 'BELUM',
                 perkiraanL: Number(t.perkiraan_l || 1),
                 perkiraanP: Number(t.perkiraan_p || 1),
+                hariKonfirmasi: t.hari_konfirmasi || 'SABTU',
+                jamKonfirmasi: t.jam_konfirmasi || '06:30',
                 catatan: t.catatan_konfirmasi || '',
                 diisiAt: t.updated_at || t.created_at,
               },
@@ -353,7 +381,7 @@ export default function UndanganWaliPage() {
         } else {
           const { data: s, error } = await supabase
             .from('peserta_santri')
-            .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, created_at, updated_at')
+            .select('id, kode, nama, nama_wali, alamat, no_hp, kategori_utama, sub_kategori, kelas, kamar, kuota_dasar, kuota_tambahan, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, hari_konfirmasi, jam_konfirmasi, catatan_konfirmasi, warna_tiket, created_at, updated_at')
             .eq('kode', kodeSH)
             .maybeSingle();
 
@@ -398,6 +426,8 @@ export default function UndanganWaliPage() {
                 statusKonfirmasi: s.status_konfirmasi || 'BELUM',
                 perkiraanL: Number(s.perkiraan_l || 0),
                 perkiraanP: Number(s.perkiraan_p || 0),
+                hariKonfirmasi: s.hari_konfirmasi || 'SABTU',
+                jamKonfirmasi: s.jam_konfirmasi || '06:30',
                 catatan: s.catatan_konfirmasi || '',
                 diisiAt: s.updated_at || s.created_at,
               },
@@ -408,6 +438,13 @@ export default function UndanganWaliPage() {
             if (s.status_konfirmasi === 'SUDAH') {
               setEstL(Number(s.perkiraan_l || 0));
               setEstP(Number(s.perkiraan_p || 0));
+              if (s.hari_konfirmasi) {
+                const normH = String(s.hari_konfirmasi).toUpperCase();
+                setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
+              }
+              if (s.jam_konfirmasi) {
+                setJamKonfirmasi(String(s.jam_konfirmasi));
+              }
               setCatatanRsvp(s.catatan_konfirmasi || '');
               setLastSavedTime(s.updated_at ? new Date(s.updated_at).toLocaleTimeString('id-ID') : '');
             } else {
@@ -583,6 +620,8 @@ export default function UndanganWaliPage() {
       status_konfirmasi: 'SUDAH',
       perkiraan_l: Number(estL),
       perkiraan_p: Number(estP),
+      hari_konfirmasi: hariKonfirmasi,
+      jam_konfirmasi: jamKonfirmasi,
       catatan_konfirmasi: catatanRsvp ? catatanRsvp.trim() : null,
       updated_at: nowIso,
     };
@@ -604,6 +643,8 @@ export default function UndanganWaliPage() {
           statusKonfirmasi: 'SUDAH',
           perkiraanL: Number(estL),
           perkiraanP: Number(estP),
+          hariKonfirmasi: hariKonfirmasi,
+          jamKonfirmasi: jamKonfirmasi,
           catatan: catatanRsvp ? catatanRsvp.trim() : '',
           diisiAt: nowIso,
         },
@@ -758,6 +799,13 @@ export default function UndanganWaliPage() {
                   </span>
                   {renderTamuName(item)}
 
+                  {/* Kategori Badge (e.g. VVIP / ISTIMEWA) */}
+                  <div className="flex items-center justify-center gap-1.5 pt-0.5">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-serif font-black bg-gradient-to-r from-amber-100 to-amber-200 text-[#5C3E28] border border-amber-300 shadow-2xs">
+                      ✦ {item?.kategori ? `${item.kategori} ${item.subKategori ? `(${item.subKategori})` : ''}` : getTamuCategoryLabel(item)} ✦
+                    </span>
+                  </div>
+
                   {renderInstansiDanAlamat(item)}
                 </div>
 
@@ -810,6 +858,13 @@ export default function UndanganWaliPage() {
                   </span>
                   {renderTamuName(item)}
 
+                  {/* Kategori Badge (e.g. VVIP / ISTIMEWA) */}
+                  <div className="flex items-center justify-center gap-1.5 pt-0.5">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-serif font-black bg-gradient-to-r from-amber-100 to-amber-200 text-[#5C3E28] border border-amber-300 shadow-2xs">
+                      ✦ {item?.kategori ? `${item.kategori} ${item.subKategori ? `(${item.subKategori})` : ''}` : getTamuCategoryLabel(item)} ✦
+                    </span>
+                  </div>
+
                   {renderInstansiDanAlamat(item)}
                 </div>
 
@@ -835,6 +890,7 @@ export default function UndanganWaliPage() {
 
                 <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
                   <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
+                  <p className="text-sm text-[#8C6A47] font-black">• KH. MARZUQI DAHLAN •</p>
                   <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
                   <p className="text-sm text-[#8C6A47] font-black">• KH. AHMAD IDRIS MARZUQI •</p>
                   <p className="text-sm text-[#8C6A47] font-black">• IBU NYAI HJ. ADDINIYAH KHODIJAH •</p>
@@ -1226,6 +1282,7 @@ export default function UndanganWaliPage() {
 
                 <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
                   <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
+                  <p className="text-sm text-[#8C6A47] font-black">• KH. MARZUQI DAHLAN •</p>
                   <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
                   <p className="text-sm text-[#8C6A47] font-black">• KH. AHMAD IDRIS MARZUQI •</p>
                   <p className="text-sm text-[#8C6A47] font-black">• IBU NYAI HJ. ADDINIYAH KHODIJAH •</p>
@@ -1373,6 +1430,89 @@ export default function UndanganWaliPage() {
                       ✓ Terkonfirmasi
                     </span>
                   )}
+                </div>
+
+                {/* PILIHAN HARI KEDATANGAN & JAM KEDATANGAN (FIX 4) */}
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+                  <div>
+                    <label className="block text-xs font-serif font-black text-[#422F21] mb-1.5 uppercase tracking-wide">
+                      🗓️ Hari Kedatangan:
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setHariKonfirmasi('JUMAT')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          hariKonfirmasi === 'JUMAT'
+                            ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-sm'
+                            : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
+                        }`}
+                      >
+                        Jum'at (24 Rajab)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHariKonfirmasi('SABTU')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          hariKonfirmasi === 'SABTU'
+                            ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-sm'
+                            : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
+                        }`}
+                      >
+                        Sabtu (25 Rajab) ✦ Default
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-serif font-black text-[#422F21] uppercase tracking-wide">
+                        ⏰ Perkiraan Jam Kedatangan:
+                      </label>
+                      <span className="text-[10px] text-[#8C6A47] font-semibold">Format 24 Jam</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="time"
+                          step="1800"
+                          value={jamKonfirmasi}
+                          onChange={(e) => setJamKonfirmasi(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border border-[#D5C4B4] text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                        />
+                      </div>
+                      <div className="text-xs font-bold text-[#8C6A47] px-3 py-2 bg-white rounded-xl border border-[#D5C4B4] shrink-0 font-mono">
+                        {jamKonfirmasi} WIB
+                      </div>
+                    </div>
+
+                    {/* Presets Jam Kedatangan */}
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {[
+                        { label: '06:30 (Pagi)', val: '06:30' },
+                        { label: '08:00 (Acara)', val: '08:00' },
+                        { label: '10:00 (Siang)', val: '10:00' },
+                        { label: '14:00 (Sore)', val: '14:00' },
+                        { label: '20:00 (Malam)', val: '20:00' },
+                        { label: '03:00 (Dini Hari)', val: '03:00' },
+                      ].map((preset) => (
+                        <button
+                          key={preset.val}
+                          type="button"
+                          onClick={() => setJamKonfirmasi(preset.val)}
+                          className={`text-[10px] px-2 py-0.5 rounded-lg border font-medium transition-colors ${
+                            jamKonfirmasi === preset.val
+                              ? 'bg-[#8C6A47] text-white border-[#8C6A47]'
+                              : 'bg-white text-[#7A624E] border-[#D5C4B4]/80 hover:bg-[#FAF0E6]'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* STACK VERTIKAL (PUTRA & PUTRI) */}

@@ -151,6 +151,35 @@ function mergeStates(cloudState: any, clientState: any) {
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const kodeParam = searchParams.get('kode');
+
+    // FIX 6: Server-side direct lookup with service role key if requested for specific kode
+    if (kodeParam) {
+      const cleanKode = kodeParam.toUpperCase().trim();
+      const { data: tamu, error: errTamu } = await supabase
+        .from('tamu_undangan')
+        .select('*')
+        .eq('kode', cleanKode)
+        .maybeSingle();
+
+      if (tamu) {
+        return NextResponse.json({ ok: true, tamu });
+      }
+
+      const { data: santri, error: errSantri } = await supabase
+        .from('peserta_santri')
+        .select('*')
+        .eq('kode', cleanKode)
+        .maybeSingle();
+
+      if (santri) {
+        return NextResponse.json({ ok: true, santri });
+      }
+
+      return NextResponse.json({ ok: false, message: 'Data tidak ditemukan' }, { status: 404 });
+    }
+
     if (memoryCache && Date.now() - memoryCache.cachedAt < 2500) {
       return NextResponse.json({ ok: true, state: memoryCache.state, source: 'cache' });
     }

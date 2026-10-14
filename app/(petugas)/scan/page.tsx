@@ -58,6 +58,8 @@ export default function ScanPage() {
 
   const scannerRef = useRef<any>(null);
   const isScanningRef = useRef(false);
+  const scanLockRef = useRef(false);
+  const [isReceivingInput, setIsReceivingInput] = useState(false);
 
   // Fetch 5 scan terakhir hari ini
   const fetchRecentScans = useCallback(async () => {
@@ -196,8 +198,21 @@ export default function ScanPage() {
 
   // Handler memproses kode QR (100% Query Langsung ke Supabasepeserta_santri & tamu_undangan)
   const handleScanCode = useCallback(async (scannedRaw: string) => {
+    // FIX 5: Guard anti-double-scan (lock 800ms)
+    if (scanLockRef.current) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scanner] Ignored scan during 800ms lock: ${scannedRaw}`);
+      }
+      return;
+    }
+    scanLockRef.current = true;
+    setTimeout(() => {
+      scanLockRef.current = false;
+    }, 800);
+
     setErrorMsg(null);
     setCheckinResult(null);
+    setIsReceivingInput(false);
 
     let cleanCode = scannedRaw.trim();
     // Tangani jika format QR adalah URL web (e.g. https://domain.com/u/SH0001)
@@ -367,15 +382,24 @@ export default function ScanPage() {
 
   // Global USB Barcode Scanner Listener
   useEffect(() => {
-    if (inputRef.current) inputRef.current.focus();
+    // FIX 5: Matikan auto-focus agresif jika menggunakan scanner USB agar tidak bentrok dual-path
 
     const handleKeyPress = (e: KeyboardEvent) => {
+      // Jika kamera aktif, abaikan input keyboard scanner
+      if (isScanningRef.current) return;
+
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+      // Jangan bypass input jika scanner mengetik dengan cepat
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
 
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scanner USB] Key: ${e.key} at ${new Date().toISOString()}`);
+      }
+
       if (e.key === 'Enter') {
+        setIsReceivingInput(false);
         if (scanBufferRef.current.length >= 3) {
           handleScanCode(scanBufferRef.current);
         }
@@ -386,11 +410,14 @@ export default function ScanPage() {
       }
 
       if (e.key.length === 1) {
+        setIsReceivingInput(true);
         scanBufferRef.current += e.key;
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        // FIX 5: Naikkan buffer timeout dari 100ms ke 300ms
         scanTimerRef.current = setTimeout(() => {
           scanBufferRef.current = '';
-        }, 100);
+          setIsReceivingInput(false);
+        }, 300);
       }
     };
 
@@ -927,6 +954,17 @@ export default function ScanPage() {
               <span className="text-[11px] font-mono text-opera-700">Verifikasi Supabase Direct</span>
             </div>
 
+            {/* Indikator Feedback Input Scanner Sedang Menerima Data */}
+            {isReceivingInput && (
+              <div className="p-2 rounded-xl bg-amber-50 border border-amber-300 flex items-center justify-between text-xs text-amber-900 animate-pulse">
+                <span className="font-semibold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block"></span>
+                  Sedang menerima data dari barcode scanner...
+                </span>
+                <span className="text-[10px] font-mono font-bold">Buffer Aktif (300ms)</span>
+              </div>
+            )}
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -939,8 +977,7 @@ export default function ScanPage() {
                 type="text"
                 value={kodeInput}
                 onChange={(e) => setKodeInput(e.target.value)}
-                placeholder="Scanner USB / ketik kode (contoh: SH2943)..."
-                autoFocus
+                placeholder="Ketik kode manual jika scanner tidak tersambung (contoh: SH2943)..."
                 className="flex-1 px-4 py-3 text-sm rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
               />
               <button

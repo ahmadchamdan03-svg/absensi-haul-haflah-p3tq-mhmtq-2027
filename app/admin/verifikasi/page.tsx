@@ -276,8 +276,14 @@ export default function VerifikasiPage() {
           `• ID Pesanan: ${targetId}\n` +
           `• Tambahan: +${numKursi} Kursi\n` +
           `• Status: *Aktif pada QR Code Santri*\n\n` +
-          `Akses Kartu Presensi Digital & QR Code:\n` +
-          `🔗 ${origin}/u/${targetKode}\n\n` +
+          `*Konfirmasi Kehadiran Anda*\n` +
+          `Bantu panitia menyiapkan kursi dan penginapan dengan mengisi perkiraan jumlah kehadiran Anda di link undangan digital:\n` +
+          `${origin}/u/${targetKode}\n\n` +
+          `Silakan buka link di atas, scroll ke bagian RSVP, dan isi:\n` +
+          `- Hari kedatangan (Jum'at / Sabtu)\n` +
+          `- Jam kedatangan\n` +
+          `- Jumlah wali santri putra & putri\n\n` +
+          `Terima kasih atas kerja samanya.\n\n` +
           `_Panitia Haul & Haflah P3TQ - MHMTQ 2027_`;
 
         fetch('/api/whatsapp/send', {

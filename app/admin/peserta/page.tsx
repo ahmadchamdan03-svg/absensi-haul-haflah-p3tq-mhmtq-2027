@@ -1155,6 +1155,7 @@ export default function ManajemenPesertaPage() {
             sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
             no_hp: undanganForm.noHp || '-',
             kuota_terpakai: 0,
+            status_konfirmasi: 'BELUM',
             warna_tiket: warnaTiketVal,
             jalur_masuk: finalJalur,
           },

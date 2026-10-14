@@ -32,7 +32,7 @@ export default function KonfirmasiPage() {
 
   // Filter & Search
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'SEMUA' | 'SUDAH' | 'BELUM'>('SEMUA');
+  const [filterStatus, setFilterStatus] = useState<'SEMUA' | 'SUDAH' | 'BELUM' | 'HADIR' | 'BERHALANGAN'>('SEMUA');
   const [filterKategori, setFilterKategori] = useState<
     'SEMUA' | 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN'
   >('SEMUA');
@@ -183,12 +183,22 @@ export default function KonfirmasiPage() {
     const belumKonfirmasiCount = Math.max(0, totalSantri - sudahKonfirmasiCount);
     const persentaseSudah = totalSantri > 0 ? Math.round((sudahKonfirmasiCount / totalSantri) * 100) : 0;
     
+    // FIX 8: Metrik spesifik Tamu Undangan
+    const tamuHadirCount = daftarTamu.filter((t) => t.rawStatusKonfirmasi === 'HADIR' || t.statusKonfirmasi === 'SUDAH' && t.rawStatusKonfirmasi !== 'BERHALANGAN').length;
+    const tamuBerhalanganCount = daftarTamu.filter((t) => t.rawStatusKonfirmasi === 'BERHALANGAN').length;
+    const tamuBelumCount = Math.max(0, daftarTamu.length - tamuHadirCount - tamuBerhalanganCount);
+
     const totalEstimasiRombongan = activeMainTab === 'WALI_SANTRI'
       ? currentDataset.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0)
       : currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH').reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
 
     const totalEstL = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
     const totalEstP = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
+
+    // Untuk santri yang SUDAH konfirmasi (FIX 7: SUM perkiraan_l & perkiraan_p santri SUDAH konfirmasi)
+    const santriSudahList = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH');
+    const sumSudahL = santriSudahList.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
+    const sumSudahP = santriSudahList.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
 
     const countHadirL = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutra || s.perkiraanL > 0)).length;
     const countHadirP = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutri || s.perkiraanP > 0)).length;
@@ -203,23 +213,38 @@ export default function KonfirmasiPage() {
       sudahKonfirmasiCount,
       belumKonfirmasiCount,
       persentaseSudah,
+      tamuHadirCount,
+      tamuBerhalanganCount,
+      tamuBelumCount,
       totalEstimasiRombongan,
       totalEstL,
       totalEstP,
+      sumSudahL,
+      sumSudahP,
       countHadirL,
       countHadirP,
       bilGhoibCount,
       binNadzorCount,
       tamatanCount,
     };
-  }, [currentDataset, activeMainTab]);
+  }, [currentDataset, activeMainTab, daftarTamu]);
 
   // Filtered List
   const filteredList = useMemo(() => {
     return currentDataset.filter((item) => {
       // Filter Status Konfirmasi
-      if (filterStatus !== 'SEMUA' && item.statusKonfirmasi !== filterStatus) {
-        return false;
+      if (filterStatus !== 'SEMUA') {
+        if (filterStatus === 'HADIR') {
+          if (item.rawStatusKonfirmasi !== 'HADIR' && !(item.statusKonfirmasi === 'SUDAH' && item.rawStatusKonfirmasi !== 'BERHALANGAN')) {
+            return false;
+          }
+        } else if (filterStatus === 'BERHALANGAN') {
+          if (item.rawStatusKonfirmasi !== 'BERHALANGAN') {
+            return false;
+          }
+        } else if (item.statusKonfirmasi !== filterStatus) {
+          return false;
+        }
       }
       // Filter Kategori Santri
       if (activeMainTab === 'WALI_SANTRI' && filterKategori !== 'SEMUA' && item.kategoriUtama !== filterKategori) {
@@ -557,103 +582,131 @@ export default function KonfirmasiPage() {
           </div>
         </button>
 
-        {/* Card 2: Sudah Konfirmasi */}
+        {/* Card 2: Sudah Konfirmasi (Wali) / Konfirmasi Hadir (Tamu) */}
         <button
           type="button"
           onClick={() => {
-            setFilterStatus('SUDAH');
+            setFilterStatus(activeMainTab === 'WALI_SANTRI' ? 'SUDAH' : 'HADIR');
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
           className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
-            filterStatus === 'SUDAH'
+            (activeMainTab === 'WALI_SANTRI' && filterStatus === 'SUDAH') || (activeMainTab === 'TAMU_UNDANGAN' && filterStatus === 'HADIR')
               ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
               : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
           }`}
-          title="Klik untuk memfilter data yang SUDAH konfirmasi"
+          title={activeMainTab === 'WALI_SANTRI' ? "Klik untuk memfilter data yang SUDAH konfirmasi" : "Klik untuk memfilter tamu yang KONFIRMASI HADIR"}
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
-              Sudah Konfirmasi
+              {activeMainTab === 'WALI_SANTRI' ? 'Sudah Konfirmasi' : 'Konfirmasi Hadir'}
             </span>
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-emerald-700 transition-colors shrink-0">
               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
           <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
-            {rekap.sudahKonfirmasiCount}{' '}
+            {activeMainTab === 'WALI_SANTRI' ? rekap.sudahKonfirmasiCount : rekap.tamuHadirCount}{' '}
             <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
-              {activeMainTab === 'WALI_SANTRI' ? 'Wali' : 'Tamu'} ({rekap.persentaseSudah}%)
+              {activeMainTab === 'WALI_SANTRI'
+                ? `Wali (${rekap.persentaseSudah}%)`
+                : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuHadirCount / daftarTamu.length) * 100) : 0}%)`}
             </span>
           </div>
           <div className="text-[10px] sm:text-xs text-emerald-800 font-semibold truncate">
             <span className="truncate">
               {activeMainTab === 'WALI_SANTRI'
-                ? `Est: ${rekap.totalEstimasiRombongan} Orang`
+                ? `Est: ${rekap.totalEstimasiRombongan} Orang (L: ${rekap.sumSudahL} | P: ${rekap.sumSudahP})`
                 : `Est: ${rekap.countHadirL} Laki-laki, ${rekap.countHadirP} Perempuan`}
             </span>
           </div>
         </button>
 
-        {/* Card 3: Belum Konfirmasi */}
+        {/* Card 3: Belum Konfirmasi (Wali) / Konfirmasi Tidak Hadir (Tamu) */}
         <button
           type="button"
           onClick={() => {
-            setFilterStatus('BELUM');
+            setFilterStatus(activeMainTab === 'WALI_SANTRI' ? 'BELUM' : 'BERHALANGAN');
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
           className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
-            filterStatus === 'BELUM'
-              ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
-              : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
+            (activeMainTab === 'WALI_SANTRI' && filterStatus === 'BELUM') || (activeMainTab === 'TAMU_UNDANGAN' && filterStatus === 'BERHALANGAN')
+              ? activeMainTab === 'WALI_SANTRI'
+                ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
+                : 'bg-rose-50/90 border-rose-600 ring-2 ring-rose-500/30'
+              : activeMainTab === 'WALI_SANTRI'
+                ? 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-rose-500 hover:bg-rose-50/50'
           }`}
-          title="Klik untuk memfilter data yang BELUM konfirmasi"
+          title={activeMainTab === 'WALI_SANTRI' ? "Klik untuk memfilter data yang BELUM konfirmasi" : "Klik untuk memfilter tamu yang BERHALANGAN HADIR"}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-amber-800 uppercase tracking-wider">
-              Belum Konfirmasi
+            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-800' : 'text-rose-800'}`}>
+              {activeMainTab === 'WALI_SANTRI' ? 'Belum Konfirmasi' : 'Konfirmasi Tidak Hadir'}
             </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-100 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center text-amber-700 transition-colors shrink-0">
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+              activeMainTab === 'WALI_SANTRI'
+                ? 'bg-amber-100 group-hover:bg-amber-600 group-hover:text-white text-amber-700'
+                : 'bg-rose-100 group-hover:bg-rose-600 group-hover:text-white text-rose-700'
+            }`}>
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-3xl font-serif font-black text-amber-900 my-1">
-            {rekap.belumKonfirmasiCount}{' '}
-            <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
-              {activeMainTab === 'WALI_SANTRI' ? 'Wali' : 'Tamu'} ({100 - rekap.persentaseSudah}%)
+          <div className={`text-xl sm:text-3xl font-serif font-black my-1 ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-900' : 'text-rose-900'}`}>
+            {activeMainTab === 'WALI_SANTRI' ? rekap.belumKonfirmasiCount : rekap.tamuBerhalanganCount}{' '}
+            <span className={`text-xs sm:text-sm font-sans font-medium ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-700' : 'text-rose-700'}`}>
+              {activeMainTab === 'WALI_SANTRI'
+                ? `Wali (${100 - rekap.persentaseSudah}%)`
+                : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuBerhalanganCount / daftarTamu.length) * 100) : 0}%)`}
             </span>
           </div>
-          <div className="text-[10px] sm:text-xs text-amber-800 font-semibold truncate">
-            <span>Menunggu konfirmasi</span>
+          <div className={`text-[10px] sm:text-xs font-semibold truncate ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-800' : 'text-rose-800'}`}>
+            <span>{activeMainTab === 'WALI_SANTRI' ? 'Menunggu konfirmasi' : 'Telah menyatakan berhalangan'}</span>
           </div>
         </button>
 
-        {/* Card 4: Estimasi Kursi Hadir */}
+        {/* Card 4: Estimasi Kursi Hadir (Wali) / Belum Konfirmasi (Tamu) */}
         <button
           type="button"
           onClick={() => {
-            setFilterStatus('SUDAH');
+            setFilterStatus(activeMainTab === 'WALI_SANTRI' ? 'SUDAH' : 'BELUM');
             const el = document.getElementById('tabel-konfirmasi');
             el?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6] text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between"
-          title="Klik untuk melihat rincian alokasi kursi hadir"
+          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            activeMainTab === 'TAMU_UNDANGAN' && filterStatus === 'BELUM'
+              ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
+              : 'border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6]'
+          }`}
+          title={activeMainTab === 'WALI_SANTRI' ? "Klik untuk melihat rincian alokasi kursi hadir" : "Klik untuk memfilter tamu yang BELUM konfirmasi"}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-[#8C6A47] uppercase tracking-wider">
-              ESTIMASI KURSI HADIR
+            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${activeMainTab === 'WALI_SANTRI' ? 'text-[#8C6A47]' : 'text-amber-800'}`}>
+              {activeMainTab === 'WALI_SANTRI' ? 'ESTIMASI KURSI HADIR' : 'Belum Konfirmasi'}
             </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+              activeMainTab === 'WALI_SANTRI'
+                ? 'bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white text-[#8C6A47]'
+                : 'bg-amber-100 group-hover:bg-amber-600 group-hover:text-white text-amber-700'
+            }`}>
+              {activeMainTab === 'WALI_SANTRI' ? (
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              ) : (
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              )}
             </div>
           </div>
-          <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
-            {rekap.totalEstimasiRombongan}{' '}
-            <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">Kursi</span>
+          <div className={`text-xl sm:text-3xl font-serif font-black my-1 ${activeMainTab === 'WALI_SANTRI' ? 'text-[#422F21]' : 'text-amber-900'}`}>
+            {activeMainTab === 'WALI_SANTRI' ? rekap.totalEstimasiRombongan : rekap.tamuBelumCount}{' '}
+            <span className={`text-xs sm:text-sm font-sans font-medium ${activeMainTab === 'WALI_SANTRI' ? 'text-[#7A624E]' : 'text-amber-700'}`}>
+              {activeMainTab === 'WALI_SANTRI'
+                ? 'Kursi'
+                : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuBelumCount / daftarTamu.length) * 100) : 0}%)`}
+            </span>
           </div>
-          <div className="text-[10px] sm:text-xs text-[#7A624E] font-medium truncate">
-            {activeMainTab === 'WALI_SANTRI' ? 'Alokasi santri & rombongan' : 'Estimasi tamu yang hadir'}
+          <div className={`text-[10px] sm:text-xs font-medium truncate ${activeMainTab === 'WALI_SANTRI' ? 'text-[#7A624E]' : 'text-amber-800 font-semibold'}`}>
+            {activeMainTab === 'WALI_SANTRI' ? 'Alokasi santri & rombongan' : 'Belum mengisi RSVP kehadiran'}
           </div>
         </button>
       </div>

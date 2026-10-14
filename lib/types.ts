@@ -217,6 +217,9 @@ export interface PesertaSantriDbRow {
   kuota_terpakai: number;
   warna_tiket: string;
   status_wa?: string | null;
+  hari_konfirmasi?: string | null;
+  jam_konfirmasi?: string | null;
+  wa_reminder_sent_at?: string | null;
   created_at?: string;
 }
 
@@ -235,8 +238,11 @@ export interface TamuUndanganDbRow {
   kuota_tambahan?: number;
   kuota_terpakai: number;
   warna_tiket: string;
+  status_konfirmasi?: string | null;
   status_wa?: string | null;
   jalur_masuk?: string | null;
+  hari_konfirmasi?: string | null;
+  jam_konfirmasi?: string | null;
   created_at?: string;
 }
 

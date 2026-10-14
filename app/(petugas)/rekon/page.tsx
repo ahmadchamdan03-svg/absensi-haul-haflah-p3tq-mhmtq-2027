@@ -457,6 +457,7 @@ export default function RekonPage() {
         sub_kategori: walkinForm.golongan,
         no_hp: walkinForm.noHp.trim() || '-',
         kuota_terpakai: walkinForm.langsungCheckin ? 1 : 0,
+        status_konfirmasi: 'BELUM',
         warna_tiket: getWarnaTiketUndangan(walkinForm.golongan, walkinForm.kategori),
         jalur_masuk: walkinForm.jalurMasuk.trim() || getDefaultJalurMasuk(walkinForm.golongan),
         created_at: new Date().toISOString(),
