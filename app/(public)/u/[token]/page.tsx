@@ -445,16 +445,17 @@ export default function UndanganWaliPage() {
 
           setItem(mappedItem);
 
+          if (s.hari_konfirmasi) {
+            const normH = String(s.hari_konfirmasi).toUpperCase();
+            setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
+          }
+          if (s.jam_konfirmasi) {
+            setJamKonfirmasi(String(s.jam_konfirmasi));
+          }
+
           if (s.status_konfirmasi === 'SUDAH') {
             setEstL(Number(s.perkiraan_l || 0));
             setEstP(Number(s.perkiraan_p || 0));
-            if (s.hari_konfirmasi) {
-              const normH = String(s.hari_konfirmasi).toUpperCase();
-              setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
-            }
-            if (s.jam_konfirmasi) {
-              setJamKonfirmasi(String(s.jam_konfirmasi));
-            }
             setCatatanRsvp(s.catatan_konfirmasi || '');
             setLastSavedTime(s.updated_at ? new Date(s.updated_at).toLocaleTimeString('id-ID') : '');
           } else {
