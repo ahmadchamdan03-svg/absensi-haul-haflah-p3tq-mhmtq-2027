@@ -18,6 +18,7 @@ import {
   Check,
   Loader2,
   Zap,
+  XCircle,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
@@ -177,35 +178,37 @@ export default function KonfirmasiPage() {
 
   // 2. Kalkulasi Metrik Ringkasan Realtime
   const rekap = useMemo(() => {
-    const totalSantri = currentDataset.length;
-    const totalKuotaSantri = currentDataset.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
-    const sudahKonfirmasiCount = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH').length;
+    // A. Metrik Wali Santri
+    const totalSantri = daftarSantri.length;
+    const totalKuotaSantri = daftarSantri.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
+    const sudahKonfirmasiCount = daftarSantri.filter((s) => s.statusKonfirmasi === 'SUDAH').length;
     const belumKonfirmasiCount = Math.max(0, totalSantri - sudahKonfirmasiCount);
     const persentaseSudah = totalSantri > 0 ? Math.round((sudahKonfirmasiCount / totalSantri) * 100) : 0;
-    
-    // FIX 8: Metrik spesifik Tamu Undangan
-    const tamuHadirCount = daftarTamu.filter((t) => t.rawStatusKonfirmasi === 'HADIR' || t.statusKonfirmasi === 'SUDAH' && t.rawStatusKonfirmasi !== 'BERHALANGAN').length;
-    const tamuBerhalanganCount = daftarTamu.filter((t) => t.rawStatusKonfirmasi === 'BERHALANGAN').length;
-    const tamuBelumCount = Math.max(0, daftarTamu.length - tamuHadirCount - tamuBerhalanganCount);
 
-    const totalEstimasiRombongan = activeMainTab === 'WALI_SANTRI'
-      ? currentDataset.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0)
-      : currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH').reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
-
-    const totalEstL = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
-    const totalEstP = currentDataset.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
-
-    // Untuk santri yang SUDAH konfirmasi (FIX 7: SUM perkiraan_l & perkiraan_p santri SUDAH konfirmasi)
-    const santriSudahList = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH');
+    const santriSudahList = daftarSantri.filter((s) => s.statusKonfirmasi === 'SUDAH');
+    const totalEstimasiRombongan = daftarSantri.reduce((acc, curr) => acc + (curr.totalEstimasi || 0), 0);
     const sumSudahL = santriSudahList.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
     const sumSudahP = santriSudahList.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
 
-    const countHadirL = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutra || s.perkiraanL > 0)).length;
-    const countHadirP = currentDataset.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutri || s.perkiraanP > 0)).length;
+    const totalEstL = daftarSantri.reduce((acc, curr) => acc + (curr.perkiraanL || 0), 0);
+    const totalEstP = daftarSantri.reduce((acc, curr) => acc + (curr.perkiraanP || 0), 0);
 
-    const bilGhoibCount = currentDataset.filter((s) => s.kategoriUtama === 'BIL_GHOIB').length;
-    const binNadzorCount = currentDataset.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
-    const tamatanCount = currentDataset.filter((s) => s.kategoriUtama === 'TAMATAN').length;
+    const countHadirL = daftarSantri.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutra || s.perkiraanL > 0)).length;
+    const countHadirP = daftarSantri.filter((s) => s.statusKonfirmasi === 'SUDAH' && (s.namaPutri || s.perkiraanP > 0)).length;
+
+    const bilGhoibCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIL_GHOIB').length;
+    const binNadzorCount = daftarSantri.filter((s) => s.kategoriUtama === 'BIN_NADZOR').length;
+    const tamatanCount = daftarSantri.filter((s) => s.kategoriUtama === 'TAMATAN').length;
+
+    // B. Metrik Tamu Undangan (FIX 8: 4 Metrik Spesifik Tamu Undangan)
+    const totalTamu = daftarTamu.length;
+    const totalKuotaTamu = daftarTamu.reduce((acc, curr) => acc + (curr.totalKuota || 0), 0);
+    const tamuHadirCount = daftarTamu.filter((t) => String(t.rawStatusKonfirmasi || '').toUpperCase() === 'HADIR' || (t.statusKonfirmasi === 'SUDAH' && String(t.rawStatusKonfirmasi || '').toUpperCase() !== 'BERHALANGAN')).length;
+    const tamuBerhalanganCount = daftarTamu.filter((t) => String(t.rawStatusKonfirmasi || '').toUpperCase() === 'BERHALANGAN').length;
+    const tamuBelumCount = Math.max(0, totalTamu - tamuHadirCount - tamuBerhalanganCount);
+    const persenTamuHadir = totalTamu > 0 ? Math.round((tamuHadirCount / totalTamu) * 100) : 0;
+    const persenTamuBerhalangan = totalTamu > 0 ? Math.round((tamuBerhalanganCount / totalTamu) * 100) : 0;
+    const persenTamuBelum = totalTamu > 0 ? Math.round((tamuBelumCount / totalTamu) * 100) : 0;
 
     return {
       totalSantri,
@@ -213,9 +216,14 @@ export default function KonfirmasiPage() {
       sudahKonfirmasiCount,
       belumKonfirmasiCount,
       persentaseSudah,
+      totalTamu,
+      totalKuotaTamu,
       tamuHadirCount,
       tamuBerhalanganCount,
       tamuBelumCount,
+      persenTamuHadir,
+      persenTamuBerhalangan,
+      persenTamuBelum,
       totalEstimasiRombongan,
       totalEstL,
       totalEstP,
@@ -227,23 +235,27 @@ export default function KonfirmasiPage() {
       binNadzorCount,
       tamatanCount,
     };
-  }, [currentDataset, activeMainTab, daftarTamu]);
+  }, [daftarSantri, daftarTamu]);
 
   // Filtered List
   const filteredList = useMemo(() => {
     return currentDataset.filter((item) => {
       // Filter Status Konfirmasi
       if (filterStatus !== 'SEMUA') {
-        if (filterStatus === 'HADIR') {
-          if (item.rawStatusKonfirmasi !== 'HADIR' && !(item.statusKonfirmasi === 'SUDAH' && item.rawStatusKonfirmasi !== 'BERHALANGAN')) {
+        if (activeMainTab === 'TAMU_UNDANGAN') {
+          const raw = String(item.rawStatusKonfirmasi || '').toUpperCase().trim();
+          const isHadir = raw === 'HADIR' || (item.statusKonfirmasi === 'SUDAH' && raw !== 'BERHALANGAN');
+          const isBerhalangan = raw === 'BERHALANGAN';
+          const isBelum = !isHadir && !isBerhalangan;
+
+          if (filterStatus === 'HADIR' && !isHadir) return false;
+          if (filterStatus === 'BERHALANGAN' && !isBerhalangan) return false;
+          if (filterStatus === 'BELUM' && !isBelum) return false;
+          if (filterStatus === 'SUDAH' && !isHadir) return false;
+        } else {
+          if (item.statusKonfirmasi !== filterStatus) {
             return false;
           }
-        } else if (filterStatus === 'BERHALANGAN') {
-          if (item.rawStatusKonfirmasi !== 'BERHALANGAN') {
-            return false;
-          }
-        } else if (item.statusKonfirmasi !== filterStatus) {
-          return false;
         }
       }
       // Filter Kategori Santri
@@ -507,6 +519,7 @@ export default function KonfirmasiPage() {
               type="button"
               onClick={() => {
                 setActiveMainTab('WALI_SANTRI');
+                setFilterStatus('SEMUA');
                 setFilterKategori('SEMUA');
                 setCurrentPage(1);
                 fetchKonfirmasiData();
@@ -524,6 +537,7 @@ export default function KonfirmasiPage() {
               type="button"
               onClick={() => {
                 setActiveMainTab('TAMU_UNDANGAN');
+                setFilterStatus('SEMUA');
                 setFilterKategori('SEMUA');
                 setCurrentPage(1);
                 fetchKonfirmasiData();
@@ -547,172 +561,284 @@ export default function KonfirmasiPage() {
       </div>
 
       {/* 4 KARTU METRIK RINGKASAN KONFIRMASI */}
-      <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
-        {/* Card 1: Total Santri / Tamu */}
-        <button
-          type="button"
-          onClick={() => {
-            setFilterStatus('SEMUA');
-            const el = document.getElementById('tabel-konfirmasi');
-            el?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
-            filterStatus === 'SEMUA'
-              ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
-              : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
-          }`}
-          title="Klik untuk menampilkan seluruh data"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-[#7A624E] uppercase tracking-wider group-hover:text-[#422F21]">
-              {activeMainTab === 'WALI_SANTRI' ? 'Total Santri Riil' : 'TOTAL TAMU UNDANGAN'}
-            </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+      {activeMainTab === 'WALI_SANTRI' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
+          {/* Card 1: Total Santri Riil */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('SEMUA');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'SEMUA'
+                ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
+            }`}
+            title="Klik untuk menampilkan seluruh data wali santri"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold text-[#7A624E] uppercase tracking-wider group-hover:text-[#422F21]">
+                Total Santri Riil
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
             </div>
-          </div>
-          <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
-            {rekap.totalSantri}{' '}
-            <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
-              {activeMainTab === 'WALI_SANTRI' ? 'Santri' : 'Tamu'}
-            </span>
-          </div>
-          <div className="text-[10px] sm:text-xs text-[#8C6A47] font-semibold flex items-center justify-between truncate">
-            <span className="truncate">Kuota: {rekap.totalKuotaSantri} Kursi</span>
-          </div>
-        </button>
-
-        {/* Card 2: Sudah Konfirmasi (Wali) / Konfirmasi Hadir (Tamu) */}
-        <button
-          type="button"
-          onClick={() => {
-            setFilterStatus(activeMainTab === 'WALI_SANTRI' ? 'SUDAH' : 'HADIR');
-            const el = document.getElementById('tabel-konfirmasi');
-            el?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
-            (activeMainTab === 'WALI_SANTRI' && filterStatus === 'SUDAH') || (activeMainTab === 'TAMU_UNDANGAN' && filterStatus === 'HADIR')
-              ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
-              : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
-          }`}
-          title={activeMainTab === 'WALI_SANTRI' ? "Klik untuk memfilter data yang SUDAH konfirmasi" : "Klik untuk memfilter tamu yang KONFIRMASI HADIR"}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
-              {activeMainTab === 'WALI_SANTRI' ? 'Sudah Konfirmasi' : 'Konfirmasi Hadir'}
-            </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-emerald-700 transition-colors shrink-0">
-              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
+              {rekap.totalSantri}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
+                Santri
+              </span>
             </div>
-          </div>
-          <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
-            {activeMainTab === 'WALI_SANTRI' ? rekap.sudahKonfirmasiCount : rekap.tamuHadirCount}{' '}
-            <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
-              {activeMainTab === 'WALI_SANTRI'
-                ? `Wali (${rekap.persentaseSudah}%)`
-                : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuHadirCount / daftarTamu.length) * 100) : 0}%)`}
-            </span>
-          </div>
-          <div className="text-[11px] sm:text-xs text-emerald-900 space-y-0.5 mt-0.5">
-            <p className="font-semibold text-emerald-800">
-              Est: {activeMainTab === 'WALI_SANTRI' ? `${rekap.totalEstimasiRombongan || 0} Orang` : `${rekap.tamuHadirCount || 0} Tamu`}
-            </p>
-            <p className="text-[10px] sm:text-xs font-bold text-emerald-700">
-              {activeMainTab === 'WALI_SANTRI'
-                ? `L: ${rekap.sumSudahL || 0} | P: ${rekap.sumSudahP || 0}`
-                : `L: ${rekap.countHadirL || 0} | P: ${rekap.countHadirP || 0}`}
-            </p>
-          </div>
-        </button>
+            <div className="text-[10px] sm:text-xs text-[#8C6A47] font-semibold flex items-center justify-between truncate">
+              <span className="truncate">Kuota: {rekap.totalKuotaSantri} Kursi</span>
+            </div>
+          </button>
 
-        {/* Card 3: Belum Konfirmasi (Wali) / Konfirmasi Tidak Hadir (Tamu) */}
-        <button
-          type="button"
-          onClick={() => {
-            setFilterStatus(activeMainTab === 'WALI_SANTRI' ? 'BELUM' : 'BERHALANGAN');
-            const el = document.getElementById('tabel-konfirmasi');
-            el?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
-            (activeMainTab === 'WALI_SANTRI' && filterStatus === 'BELUM') || (activeMainTab === 'TAMU_UNDANGAN' && filterStatus === 'BERHALANGAN')
-              ? activeMainTab === 'WALI_SANTRI'
+          {/* Card 2: Sudah Konfirmasi */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('SUDAH');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'SUDAH'
+                ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
+            }`}
+            title="Klik untuk memfilter data yang SUDAH konfirmasi"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                Sudah Konfirmasi
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-emerald-700 transition-colors shrink-0">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
+              {rekap.sudahKonfirmasiCount}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
+                Wali ({rekap.persentaseSudah}%)
+              </span>
+            </div>
+            <div className="text-[11px] sm:text-xs text-emerald-900 space-y-0.5 mt-0.5">
+              <p className="font-semibold text-emerald-800">
+                Est: {rekap.totalEstimasiRombongan || 0} Orang
+              </p>
+              <p className="text-[10px] sm:text-xs font-bold text-emerald-700">
+                L: {rekap.sumSudahL || 0} | P: {rekap.sumSudahP || 0}
+              </p>
+            </div>
+          </button>
+
+          {/* Card 3: Belum Konfirmasi */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('BELUM');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'BELUM'
                 ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
-                : 'bg-rose-50/90 border-rose-600 ring-2 ring-rose-500/30'
-              : activeMainTab === 'WALI_SANTRI'
-                ? 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-rose-500 hover:bg-rose-50/50'
-          }`}
-          title={activeMainTab === 'WALI_SANTRI' ? "Klik untuk memfilter data yang BELUM konfirmasi" : "Klik untuk memfilter tamu yang BERHALANGAN HADIR"}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-800' : 'text-rose-800'}`}>
-              {activeMainTab === 'WALI_SANTRI' ? 'Belum Konfirmasi' : 'Konfirmasi Tidak Hadir'}
-            </span>
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-              activeMainTab === 'WALI_SANTRI'
-                ? 'bg-amber-100 group-hover:bg-amber-600 group-hover:text-white text-amber-700'
-                : 'bg-rose-100 group-hover:bg-rose-600 group-hover:text-white text-rose-700'
-            }`}>
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </div>
-          </div>
-          <div className={`text-xl sm:text-3xl font-serif font-black my-1 ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-900' : 'text-rose-900'}`}>
-            {activeMainTab === 'WALI_SANTRI' ? rekap.belumKonfirmasiCount : rekap.tamuBerhalanganCount}{' '}
-            <span className={`text-xs sm:text-sm font-sans font-medium ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-700' : 'text-rose-700'}`}>
-              {activeMainTab === 'WALI_SANTRI'
-                ? `Wali (${100 - rekap.persentaseSudah}%)`
-                : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuBerhalanganCount / daftarTamu.length) * 100) : 0}%)`}
-            </span>
-          </div>
-          <div className={`text-[10px] sm:text-xs font-semibold truncate ${activeMainTab === 'WALI_SANTRI' ? 'text-amber-800' : 'text-rose-800'}`}>
-            <span>{activeMainTab === 'WALI_SANTRI' ? 'Menunggu konfirmasi' : 'Telah menyatakan berhalangan'}</span>
-          </div>
-        </button>
-
-        {/* Card 4: Estimasi Kursi Hadir (Wali) / Belum Konfirmasi (Tamu) */}
-        <button
-          type="button"
-          onClick={() => {
-            setFilterStatus(activeMainTab === 'WALI_SANTRI' ? 'SUDAH' : 'BELUM');
-            const el = document.getElementById('tabel-konfirmasi');
-            el?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
-            activeMainTab === 'TAMU_UNDANGAN' && filterStatus === 'BELUM'
-              ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
-              : 'border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6]'
-          }`}
-          title={activeMainTab === 'WALI_SANTRI' ? "Klik untuk melihat rincian alokasi kursi hadir" : "Klik untuk memfilter tamu yang BELUM konfirmasi"}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${activeMainTab === 'WALI_SANTRI' ? 'text-[#8C6A47]' : 'text-amber-800'}`}>
-              {activeMainTab === 'WALI_SANTRI' ? 'ESTIMASI KURSI HADIR' : 'Belum Konfirmasi'}
-            </span>
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-              activeMainTab === 'WALI_SANTRI'
-                ? 'bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white text-[#8C6A47]'
-                : 'bg-amber-100 group-hover:bg-amber-600 group-hover:text-white text-amber-700'
-            }`}>
-              {activeMainTab === 'WALI_SANTRI' ? (
-                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              ) : (
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
+            }`}
+            title="Klik untuk memfilter data yang BELUM konfirmasi"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-800">
+                Belum Konfirmasi
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 bg-amber-100 group-hover:bg-amber-600 group-hover:text-white text-amber-700">
                 <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              )}
+              </div>
             </div>
-          </div>
-          <div className={`text-xl sm:text-3xl font-serif font-black my-1 ${activeMainTab === 'WALI_SANTRI' ? 'text-[#422F21]' : 'text-amber-900'}`}>
-            {activeMainTab === 'WALI_SANTRI' ? rekap.totalEstimasiRombongan : rekap.tamuBelumCount}{' '}
-            <span className={`text-xs sm:text-sm font-sans font-medium ${activeMainTab === 'WALI_SANTRI' ? 'text-[#7A624E]' : 'text-amber-700'}`}>
-              {activeMainTab === 'WALI_SANTRI'
-                ? 'Kursi'
-                : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuBelumCount / daftarTamu.length) * 100) : 0}%)`}
-            </span>
-          </div>
-          <div className={`text-[10px] sm:text-xs font-medium truncate ${activeMainTab === 'WALI_SANTRI' ? 'text-[#7A624E]' : 'text-amber-800 font-semibold'}`}>
-            {activeMainTab === 'WALI_SANTRI' ? 'Alokasi santri & rombongan' : 'Belum mengisi RSVP kehadiran'}
-          </div>
-        </button>
-      </div>
+            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-amber-900">
+              {rekap.belumKonfirmasiCount}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
+                Wali ({100 - rekap.persentaseSudah}%)
+              </span>
+            </div>
+            <div className="text-[10px] sm:text-xs font-semibold truncate text-amber-800">
+              <span>Menunggu konfirmasi</span>
+            </div>
+          </button>
+
+          {/* Card 4: Estimasi Kursi Hadir */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('SUDAH');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6]"
+            title="Klik untuk melihat rincian alokasi kursi hadir"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#8C6A47]">
+                ESTIMASI KURSI HADIR
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white text-[#8C6A47]">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-[#422F21]">
+              {rekap.totalEstimasiRombongan}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
+                Kursi
+              </span>
+            </div>
+            <div className="text-[10px] sm:text-xs font-medium truncate text-[#7A624E]">
+              Alokasi santri & rombongan
+            </div>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
+          {/* Card 1: TOTAL TAMU UNDANGAN */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('SEMUA');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'SEMUA'
+                ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
+            }`}
+            title="Klik untuk menampilkan seluruh tamu undangan"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold text-[#7A624E] uppercase tracking-wider group-hover:text-[#422F21]">
+                TOTAL TAMU UNDANGAN
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFE8E1] group-hover:bg-[#8C6A47] group-hover:text-white flex items-center justify-center text-[#8C6A47] transition-colors shrink-0">
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
+              {rekap.totalTamu}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
+                Tamu
+              </span>
+            </div>
+            <div className="text-[10px] sm:text-xs text-[#8C6A47] font-semibold flex items-center justify-between truncate">
+              <span className="truncate">Kuota: {rekap.totalKuotaTamu} Kursi</span>
+            </div>
+          </button>
+
+          {/* Card 2: KONFIRMASI HADIR */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('HADIR');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'HADIR'
+                ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
+            }`}
+            title="Klik untuk memfilter tamu yang KONFIRMASI HADIR"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                KONFIRMASI HADIR
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-emerald-700 transition-colors shrink-0">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
+              {rekap.tamuHadirCount}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
+                Tamu ({rekap.persenTamuHadir}%)
+              </span>
+            </div>
+            <div className="text-[10px] sm:text-xs font-semibold text-emerald-800 truncate">
+              <span>Siap hadir di acara</span>
+            </div>
+          </button>
+
+          {/* Card 3: KONFIRMASI TIDAK HADIR */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('BERHALANGAN');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'BERHALANGAN'
+                ? 'bg-rose-50/90 border-rose-600 ring-2 ring-rose-500/30'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-rose-500 hover:bg-rose-50/50'
+            }`}
+            title="Klik untuk memfilter tamu yang BERHALANGAN HADIR"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-800">
+                KONFIRMASI TIDAK HADIR
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 bg-rose-100 group-hover:bg-rose-600 group-hover:text-white text-rose-700">
+                <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-rose-900">
+              {rekap.tamuBerhalanganCount}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-rose-700">
+                Tamu ({rekap.persenTamuBerhalangan}%)
+              </span>
+            </div>
+            <div className="text-[10px] sm:text-xs font-semibold truncate text-rose-800">
+              <span>Tidak bisa hadir</span>
+            </div>
+          </button>
+
+          {/* Card 4: BELUM KONFIRMASI */}
+          <button
+            type="button"
+            onClick={() => {
+              setFilterStatus('BELUM');
+              const el = document.getElementById('tabel-konfirmasi');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+              filterStatus === 'BELUM'
+                ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
+                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
+            }`}
+            title="Klik untuk memfilter tamu yang BELUM konfirmasi"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-800">
+                BELUM KONFIRMASI
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 bg-amber-100 group-hover:bg-amber-600 group-hover:text-white text-amber-700">
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-amber-900">
+              {rekap.tamuBelumCount}{' '}
+              <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
+                Tamu ({rekap.persenTamuBelum}%)
+              </span>
+            </div>
+            <div className="text-[10px] sm:text-xs font-semibold truncate text-amber-800">
+              <span>Menunggu respon</span>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* FILTER & PENCARIAN */}
       <div id="tabel-konfirmasi" className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4 scroll-mt-6">
@@ -720,38 +846,95 @@ export default function KonfirmasiPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2 bg-[#EFE8E1]/70 rounded-2xl border border-[#D5C4B4]">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 -mx-1 px-1 whitespace-nowrap no-scrollbar">
             <span className="text-xs font-bold text-[#7A624E] pl-1 hidden sm:inline">Status:</span>
-            <button
-              onClick={() => setFilterStatus('SEMUA')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                filterStatus === 'SEMUA'
-                  ? 'bg-[#8C6A47] text-white shadow-sm'
-                  : 'bg-white text-[#7A624E] hover:bg-[#FAF7F3] border border-[#D5C4B4]'
-              }`}
-            >
-              Semua ({daftarSantri.length})
-            </button>
-            <button
-              onClick={() => setFilterStatus('SUDAH')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
-                filterStatus === 'SUDAH'
-                  ? 'bg-emerald-700 text-white shadow-sm'
-                  : 'bg-white text-emerald-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Sudah Konfirmasi ({rekap.sudahKonfirmasiCount})</span>
-            </button>
-            <button
-              onClick={() => setFilterStatus('BELUM')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
-                filterStatus === 'BELUM'
-                  ? 'bg-amber-700 text-white shadow-sm'
-                  : 'bg-white text-amber-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>Belum Konfirmasi ({rekap.belumKonfirmasiCount})</span>
-            </button>
+            {activeMainTab === 'WALI_SANTRI' ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('SEMUA')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                    filterStatus === 'SEMUA'
+                      ? 'bg-[#8C6A47] text-white shadow-sm'
+                      : 'bg-white text-[#7A624E] hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  Semua ({daftarSantri.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('SUDAH')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 cursor-pointer ${
+                    filterStatus === 'SUDAH'
+                      ? 'bg-emerald-700 text-white shadow-sm'
+                      : 'bg-white text-emerald-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Sudah Konfirmasi ({rekap.sudahKonfirmasiCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('BELUM')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 cursor-pointer ${
+                    filterStatus === 'BELUM'
+                      ? 'bg-amber-700 text-white shadow-sm'
+                      : 'bg-white text-amber-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Belum Konfirmasi ({rekap.belumKonfirmasiCount})</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('SEMUA')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                    filterStatus === 'SEMUA'
+                      ? 'bg-[#8C6A47] text-white shadow-sm'
+                      : 'bg-white text-[#7A624E] hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  Semua ({daftarTamu.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('HADIR')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 cursor-pointer ${
+                    filterStatus === 'HADIR'
+                      ? 'bg-emerald-700 text-white shadow-sm'
+                      : 'bg-white text-emerald-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Konfirmasi Hadir ({rekap.tamuHadirCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('BERHALANGAN')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 cursor-pointer ${
+                    filterStatus === 'BERHALANGAN'
+                      ? 'bg-rose-700 text-white shadow-sm'
+                      : 'bg-white text-rose-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                  <span>Tidak Hadir ({rekap.tamuBerhalanganCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('BELUM')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shrink-0 cursor-pointer ${
+                    filterStatus === 'BELUM'
+                      ? 'bg-amber-700 text-white shadow-sm'
+                      : 'bg-white text-amber-800 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Belum Konfirmasi ({rekap.tamuBelumCount})</span>
+                </button>
+              </>
+            )}
           </div>
 
           <div className="text-[11px] sm:text-xs text-[#7A624E] font-medium self-end md:self-auto">
@@ -911,7 +1094,7 @@ export default function KonfirmasiPage() {
                       {item.rawStatusKonfirmasi === 'BERHALANGAN' ? (
                         <div>
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                            <Clock className="w-3 h-3 mr-1 text-rose-600" />
+                            <XCircle className="w-3 h-3 mr-1 text-rose-600" />
                             Berhalangan Hadir
                           </span>
                           {item.diisiAt && (
