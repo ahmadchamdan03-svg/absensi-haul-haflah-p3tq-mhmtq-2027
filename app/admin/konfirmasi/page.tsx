@@ -613,12 +613,15 @@ export default function KonfirmasiPage() {
                 : `Tamu (${daftarTamu.length > 0 ? Math.round((rekap.tamuHadirCount / daftarTamu.length) * 100) : 0}%)`}
             </span>
           </div>
-          <div className="text-[10px] sm:text-xs text-emerald-800 font-semibold truncate">
-            <span className="truncate">
+          <div className="text-[11px] sm:text-xs text-emerald-900 space-y-0.5 mt-0.5">
+            <p className="font-semibold text-emerald-800">
+              Est: {activeMainTab === 'WALI_SANTRI' ? `${rekap.totalEstimasiRombongan || 0} Orang` : `${rekap.tamuHadirCount || 0} Tamu`}
+            </p>
+            <p className="text-[10px] sm:text-xs font-bold text-emerald-700">
               {activeMainTab === 'WALI_SANTRI'
-                ? `Est: ${rekap.totalEstimasiRombongan} Orang (L: ${rekap.sumSudahL} | P: ${rekap.sumSudahP})`
-                : `Est: ${rekap.countHadirL} Laki-laki, ${rekap.countHadirP} Perempuan`}
-            </span>
+                ? `L: ${rekap.sumSudahL || 0} | P: ${rekap.sumSudahP || 0}`
+                : `L: ${rekap.countHadirL || 0} | P: ${rekap.countHadirP || 0}`}
+            </p>
           </div>
         </button>
 
