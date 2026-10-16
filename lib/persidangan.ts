@@ -13,6 +13,7 @@ export interface Persidangan {
   tempat?: string | null;
   agenda?: string | null;
   pdf_url?: string | null;
+  jpg_urls?: string[] | null;
   template_wa?: string | null;
   status: PersidanganStatus;
   created_at?: string;

@@ -6,10 +6,10 @@
 [INFORMASI DOKUMEN]
 ═══════════════════════════════════════════
 
-Versi           : v1.2.0 (Revisi 1.0 Final — Viewer Publik /persidangan/[slug] & Simplified UI)
+Versi           : v1.3.0 (PDF to JPG Conversion — Universal Mobile/Desktop Viewing)
 Status          : Implemented & Verified
 Tipe Fitur      : Modular / Standalone — bisa dihapus kapan saja
-Platform        : Next.js 14 App Router + Supabase Storage + Fonnte API
+Platform        : Next.js 14 App Router + Supabase Storage + Fonnte API + pdf-to-img
 Dependensi      : Minimal (tidak mengubah Halwaa, presensi, peserta, tamu, rekap)
 
 ═══════════════════════════════════════════
@@ -22,8 +22,10 @@ Fitur ini menyediakan:
 - Dashboard untuk mengelola persidangan
 - Formulir ringkas: Judul Persidangan + Template Pesan WhatsApp
 - Upload PDF undangan resmi ke Supabase Storage (yang sudah ditandatangani Ketua Umum & Sekretaris)
-- Halaman publik resmi `/persidangan/[slug]` dengan viewer PDF layar penuh (full-screen iframe) + floating action bar (Unduh PDF, Buka Tab Baru, Kembali)
+- **Konversi otomatis PDF ke Gambar (JPG)** via serverless endpoint `/api/persidangan/convert-pdf` menggunakan `pdf-to-img`
+- Halaman publik resmi `/persidangan/[slug]` yang me-render **gambar JPG resolusi tinggi** (scrollable, natural pinch-to-zoom di HP tanpa perlu PDF viewer / iframe) + floating action bar (⬇ Unduh PDF, ↗ Buka di Tab Baru, Kembali)
 - Tombol salin link resmi `https://haflahp3tq.site/persidangan/[slug]` di admin dashboard & uploader
+- Pratinjau gambar JPG di Tab 2 Dokumen PDF admin
 - Manajemen peserta sederhana (Nama + Nomor WhatsApp, tanpa kategori)
 - Import peserta via Excel (.xlsx, Kolom A: Nama, Kolom B: No WA)
 - Pengiriman WA per peserta via Fonnte API dengan tautan publik resmi persidangan
