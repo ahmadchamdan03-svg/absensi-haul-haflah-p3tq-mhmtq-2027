@@ -3,9 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Calendar,
-  Clock,
-  MapPin,
   FileText,
   MessageSquare,
   Save,
@@ -16,7 +13,6 @@ import {
 } from 'lucide-react';
 import {
   Persidangan,
-  PersidanganStatus,
   createPersidangan,
   updatePersidangan,
   DEFAULT_TEMPLATE_WA,
@@ -38,13 +34,7 @@ export default function PersidanganForm({
   const router = useRouter();
 
   const [judul, setJudul] = useState('');
-  const [deskripsi, setDeskripsi] = useState('');
-  const [tanggal, setTanggal] = useState('');
-  const [waktu, setWaktu] = useState('');
-  const [tempat, setTempat] = useState('');
-  const [agenda, setAgenda] = useState('');
   const [templateWa, setTemplateWa] = useState(DEFAULT_TEMPLATE_WA);
-  const [status, setStatus] = useState<PersidanganStatus>('DRAFT');
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -53,13 +43,7 @@ export default function PersidanganForm({
   useEffect(() => {
     if (initialData) {
       setJudul(initialData.judul || '');
-      setDeskripsi(initialData.deskripsi || '');
-      setTanggal(initialData.tanggal || '');
-      setWaktu(initialData.waktu || '');
-      setTempat(initialData.tempat || '');
-      setAgenda(initialData.agenda || '');
       setTemplateWa(initialData.template_wa || DEFAULT_TEMPLATE_WA);
-      setStatus(initialData.status || 'DRAFT');
     }
   }, [initialData]);
 
@@ -68,7 +52,7 @@ export default function PersidanganForm({
   };
 
   const handleResetTemplate = () => {
-    if (confirm('Apakah Anda yakin ingin mengembalikan template pesan WhatsApp ke format default?')) {
+    if (confirm('Apakah Anda yakin ingin mengembalikan template pesan WhatsApp ke format standar?')) {
       setTemplateWa(DEFAULT_TEMPLATE_WA);
     }
   };
@@ -82,8 +66,8 @@ export default function PersidanganForm({
       setErrorMsg('Judul persidangan wajib diisi.');
       return;
     }
-    if (!tanggal) {
-      setErrorMsg('Tanggal pelaksanaan wajib dipilih.');
+    if (!templateWa.trim()) {
+      setErrorMsg('Template pesan WhatsApp wajib diisi.');
       return;
     }
 
@@ -93,13 +77,7 @@ export default function PersidanganForm({
       if (mode === 'create') {
         const { data, error } = await createPersidangan({
           judul: judul.trim(),
-          deskripsi: deskripsi.trim() || null,
-          tanggal,
-          waktu: waktu.trim() || null,
-          tempat: tempat.trim() || null,
-          agenda: agenda.trim() || null,
-          template_wa: templateWa.trim() || DEFAULT_TEMPLATE_WA,
-          status,
+          template_wa: templateWa.trim(),
         });
 
         if (error || !data) {
@@ -111,18 +89,12 @@ export default function PersidanganForm({
         if (onSuccess) {
           onSuccess(data);
         } else {
-          router.push(`/admin/persidangan/${data.id}`);
+          router.push(`/admin/persidangan/${data.id}?tab=pdf`);
         }
       } else if (mode === 'edit' && initialData) {
         const { data, error } = await updatePersidangan(initialData.id, {
           judul: judul.trim(),
-          deskripsi: deskripsi.trim() || null,
-          tanggal,
-          waktu: waktu.trim() || null,
-          tempat: tempat.trim() || null,
-          agenda: agenda.trim() || null,
-          template_wa: templateWa.trim() || DEFAULT_TEMPLATE_WA,
-          status,
+          template_wa: templateWa.trim(),
         });
 
         if (error || !data) {
@@ -158,144 +130,30 @@ export default function PersidanganForm({
         </div>
       )}
 
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+      {/* Field 1: Judul Persidangan */}
+      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
         <h3 className="font-serif font-bold text-base sm:text-lg text-[#422F21] border-b border-[#E5D7C8] pb-3 flex items-center gap-2">
           <FileText className="w-5 h-5 text-[#8C6A47]" />
-          Informasi Utama Persidangan
+          Informasi Persidangan
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {/* Judul */}
-          <div className="md:col-span-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-              Judul Persidangan <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={judul}
-              onChange={(e) => setJudul(e.target.value)}
-              placeholder="Contoh: Sidang Harian II, Sidang Pleno, Sidang Ndalem"
-              maxLength={200}
-              required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-            />
-          </div>
-
-          {/* Deskripsi Singkat */}
-          <div className="md:col-span-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-              Deskripsi Singkat (Opsional)
-            </label>
-            <textarea
-              value={deskripsi}
-              onChange={(e) => setDeskripsi(e.target.value)}
-              placeholder="Keterangan singkat mengenai tujuan atau konteks persidangan..."
-              rows={2}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-            />
-          </div>
-
-          {/* Tanggal */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-              Tanggal Pelaksanaan <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Calendar className="w-4 h-4 text-[#8C6A47] absolute left-3.5 top-3 pointer-events-none" />
-              <input
-                type="date"
-                value={tanggal}
-                onChange={(e) => setTanggal(e.target.value)}
-                required
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-              />
-            </div>
-          </div>
-
-          {/* Waktu */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-              Waktu / Jam
-            </label>
-            <div className="relative">
-              <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3.5 top-3 pointer-events-none" />
-              <input
-                type="text"
-                value={waktu}
-                onChange={(e) => setWaktu(e.target.value)}
-                placeholder="Contoh: 09.00 WIs (Malam)"
-                maxLength={50}
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-              />
-            </div>
-          </div>
-
-          {/* Tempat */}
-          <div className="md:col-span-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-              Tempat Pelaksanaan
-            </label>
-            <div className="relative">
-              <MapPin className="w-4 h-4 text-[#8C6A47] absolute left-3.5 top-3 pointer-events-none" />
-              <input
-                type="text"
-                value={tempat}
-                onChange={(e) => setTempat(e.target.value)}
-                placeholder="Contoh: Aula Al Barokah, Ndalem Masyayikh, Gedung Utama"
-                maxLength={200}
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-              />
-            </div>
-          </div>
-
-          {/* Agenda */}
-          <div className="md:col-span-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-              Agenda Persidangan (Opsional)
-            </label>
-            <textarea
-              value={agenda}
-              onChange={(e) => setAgenda(e.target.value)}
-              placeholder="1. Pembacaan Tata Tertib&#10;2. Laporan Progres Tiap Divisi&#10;3. Pengesahan Keputusan Bersama"
-              rows={3}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-            />
-          </div>
-
-          {/* Status (Hanya pada mode edit) */}
-          {mode === 'edit' && (
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-                Status Persidangan
-              </label>
-              <div className="flex flex-wrap gap-3">
-                {(['DRAFT', 'AKTIF', 'SELESAI'] as PersidanganStatus[]).map((st) => (
-                  <label
-                    key={st}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
-                      status === st
-                        ? 'border-[#8C6A47] bg-[#F5E6D3] text-[#422F21] shadow-xs'
-                        : 'border-[#D5C4B4] bg-white text-[#735334] hover:bg-[#FAF7F3]'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="persidangan_status"
-                      value={st}
-                      checked={status === st}
-                      onChange={() => setStatus(st)}
-                      className="text-[#8C6A47] focus:ring-[#8C6A47]"
-                    />
-                    <span>{st === 'DRAFT' ? 'Draf' : st === 'AKTIF' ? 'Aktif' : 'Selesai'}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
+            Judul Persidangan <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={judul}
+            onChange={(e) => setJudul(e.target.value)}
+            placeholder="Contoh: Sidang Harian II, Sidang Pleno, Sidang Ndalem"
+            maxLength={200}
+            required
+            className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
+          />
         </div>
       </div>
 
-      {/* Editor Template WhatsApp */}
+      {/* Field 2: Editor Template WhatsApp */}
       <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5D7C8] pb-3">
           <h3 className="font-serif font-bold text-base sm:text-lg text-[#422F21] flex items-center gap-2">
@@ -308,24 +166,21 @@ export default function PersidanganForm({
             className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#8C6A47] hover:text-[#5E432A] hover:bg-[#EFE8E1] rounded-lg transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Reset ke Default
+            Reset ke Standar
           </button>
         </div>
 
         <p className="text-xs text-[#735334] leading-relaxed">
-          Pesan ini akan otomatis disesuaikan dengan data peserta saat tombol &quot;Kirim WA&quot; ditekan.
-          Klik salah satu tombol placeholder di bawah untuk menyisipkannya ke teks pesan:
+          Pesan ini akan otomatis dikirimkan ke WhatsApp peserta saat tombol &quot;Kirim WA&quot; ditekan.
+          Klik salah satu tombol placeholder di bawah untuk menyisipkannya:
         </p>
 
         {/* Placeholder insertion buttons */}
         <div className="flex flex-wrap gap-1.5">
           {[
-            { label: '[NAMA_PESERTA]', tip: 'Nama penerima' },
-            { label: '[JUDUL_PERSIDANGAN]', tip: 'Judul sidang' },
-            { label: '[TANGGAL]', tip: 'Tanggal format Indo' },
-            { label: '[WAKTU]', tip: 'Waktu / jam' },
-            { label: '[TEMPAT]', tip: 'Tempat' },
-            { label: '[LINK_UNDANGAN]', tip: 'Tautan unik undangan' },
+            { label: '[NAMA_PESERTA]', tip: 'Nama penerima undangan' },
+            { label: '[JUDUL_PERSIDANGAN]', tip: 'Judul persidangan' },
+            { label: '[LINK_PDF_LANGSUNG]', tip: 'Tautan langsung berkas PDF Supabase Storage' },
           ].map((item) => (
             <button
               key={item.label}
@@ -342,7 +197,8 @@ export default function PersidanganForm({
         <textarea
           value={templateWa}
           onChange={(e) => setTemplateWa(e.target.value)}
-          rows={10}
+          rows={11}
+          required
           className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
         />
       </div>
@@ -377,7 +233,7 @@ export default function PersidanganForm({
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          {loading ? 'Menyimpan...' : mode === 'create' ? 'Buat Persidangan' : 'Simpan Perubahan'}
+          {loading ? 'Menyimpan...' : mode === 'create' ? 'Buat Persidangan & Lanjut ke PDF' : 'Simpan Perubahan'}
         </button>
       </div>
     </form>

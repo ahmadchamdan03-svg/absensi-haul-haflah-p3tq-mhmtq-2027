@@ -6,29 +6,21 @@ import { useRouter } from 'next/navigation';
 import {
   FileText,
   Plus,
-  Calendar,
-  Clock,
-  MapPin,
   Users,
   Search,
   Filter,
   ExternalLink,
   Trash2,
-  Edit3,
-  RefreshCw,
+  ChevronRight,
   FileCheck,
   AlertCircle,
   Sparkles,
-  ChevronRight,
   ShieldAlert,
 } from 'lucide-react';
 import {
   Persidangan,
-  PersidanganStatus,
   getPersidanganList,
   deletePersidangan,
-  formatTanggalIndo,
-  getPublicInvitationUrl,
 } from '@/lib/persidangan';
 import { supabase } from '@/lib/supabase';
 
@@ -39,7 +31,6 @@ export default function PersidanganDashboardPage() {
   const [pesertaCounts, setPesertaCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('SEMUA');
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteModalTarget, setDeleteModalTarget] = useState<Persidangan | null>(null);
@@ -90,17 +81,14 @@ export default function PersidanganDashboardPage() {
   // Filtered Persidangan
   const filteredList = useMemo(() => {
     return persidanganList.filter((item) => {
-      if (filterStatus !== 'SEMUA' && item.status !== filterStatus) return false;
       if (search.trim()) {
         const q = search.toLowerCase().trim();
         const judul = (item.judul || '').toLowerCase();
-        const tempat = (item.tempat || '').toLowerCase();
-        const deskripsi = (item.deskripsi || '').toLowerCase();
-        return judul.includes(q) || tempat.includes(q) || deskripsi.includes(q);
+        return judul.includes(q);
       }
       return true;
     });
-  }, [persidanganList, filterStatus, search]);
+  }, [persidanganList, search]);
 
   const handleConfirmDelete = async () => {
     if (!deleteModalTarget) return;
@@ -134,7 +122,7 @@ export default function PersidanganDashboardPage() {
             Manajemen Persidangan
           </h1>
           <p className="text-xs text-[#735334] max-w-xl">
-            Kelola persidangan, unggah dokumen PDF resmi, dan distribusikan surat undangan digital kepanitiaan ke peserta via WhatsApp.
+            Kelola persidangan, unggah berkas PDF resmi, dan distribusikan tautan langsung ke peserta via WhatsApp.
           </p>
         </div>
 
@@ -147,31 +135,17 @@ export default function PersidanganDashboardPage() {
         </Link>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative w-full sm:w-80">
+      {/* Search Bar */}
+      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-4 shadow-xs">
+        <div className="relative w-full max-w-md">
           <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari judul atau lokasi sidang..."
+            placeholder="Cari judul persidangan..."
             className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
           />
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-[#8C6A47] shrink-0" />
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 font-medium"
-          >
-            <option value="SEMUA">Semua Status</option>
-            <option value="DRAFT">Draf (DRAFT)</option>
-            <option value="AKTIF">Aktif (AKTIF)</option>
-            <option value="SELESAI">Selesai (SELESAI)</option>
-          </select>
         </div>
       </div>
 
@@ -207,7 +181,7 @@ export default function PersidanganDashboardPage() {
             <p className="text-xs text-[#735334] max-w-sm mx-auto">
               {persidanganList.length === 0
                 ? 'Belum ada persidangan yang dibuat. Klik tombol di bawah untuk membuat surat undangan persidangan baru.'
-                : 'Coba ubah kata kunci pencarian atau reset filter status Anda.'}
+                : 'Coba ubah kata kunci pencarian Anda.'}
             </p>
           </div>
           {persidanganList.length === 0 && (
@@ -225,7 +199,6 @@ export default function PersidanganDashboardPage() {
           {filteredList.map((item) => {
             const countPeserta = pesertaCounts[item.id] || 0;
             const hasPdf = Boolean(item.pdf_url);
-            const publicUrl = getPublicInvitationUrl(item.slug, item.token);
 
             return (
               <div
@@ -235,16 +208,8 @@ export default function PersidanganDashboardPage() {
                 {/* Header Card */}
                 <div className="space-y-2.5">
                   <div className="flex items-start justify-between gap-2">
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                        item.status === 'AKTIF'
-                          ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                          : item.status === 'SELESAI'
-                          ? 'bg-blue-100 text-blue-800 border-blue-300'
-                          : 'bg-amber-100 text-amber-800 border-amber-300'
-                      }`}
-                    >
-                      {item.status}
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-100 text-emerald-800 border-emerald-300">
+                      Aktif
                     </span>
 
                     {hasPdf ? (
@@ -255,7 +220,7 @@ export default function PersidanganDashboardPage() {
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
                         <AlertCircle className="w-3 h-3" />
-                        Tanpa PDF
+                        Belum Ada PDF
                       </span>
                     )}
                   </div>
@@ -263,35 +228,10 @@ export default function PersidanganDashboardPage() {
                   <h3 className="font-serif font-bold text-base text-[#422F21] group-hover:text-[#8C6A47] transition-colors line-clamp-2">
                     {item.judul}
                   </h3>
-
-                  {item.deskripsi && (
-                    <p className="text-xs text-[#735334] line-clamp-2 leading-relaxed">
-                      {item.deskripsi}
-                    </p>
-                  )}
                 </div>
 
                 {/* Details info */}
                 <div className="space-y-2 py-2 border-y border-[#E5D7C8] text-xs text-[#735334]">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
-                    <span>{formatTanggalIndo(item.tanggal)}</span>
-                  </div>
-
-                  {item.waktu && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
-                      <span>{item.waktu}</span>
-                    </div>
-                  )}
-
-                  {item.tempat && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
-                      <span className="truncate">{item.tempat}</span>
-                    </div>
-                  )}
-
                   <div className="flex items-center gap-2">
                     <Users className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
                     <span>
@@ -303,15 +243,17 @@ export default function PersidanganDashboardPage() {
                 {/* Action Footer */}
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-1">
-                    <a
-                      href={publicUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Lihat halaman publik"
-                      className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
+                    {hasPdf && (
+                      <a
+                        href={item.pdf_url!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Buka Dokumen PDF"
+                        className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
+                      </a>
+                    )}
                     <button
                       type="button"
                       onClick={() => setDeleteModalTarget(item)}

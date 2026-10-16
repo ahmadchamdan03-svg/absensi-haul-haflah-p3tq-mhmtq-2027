@@ -18,7 +18,6 @@ import {
   Persidangan,
   uploadPersidanganPdf,
   updatePersidangan,
-  getPublicInvitationUrl,
 } from '@/lib/persidangan';
 
 interface PersidanganPDFUploaderProps {
@@ -38,11 +37,15 @@ export default function PersidanganPDFUploader({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const publicUrl = getPublicInvitationUrl(persidangan.slug, persidangan.token);
+  const directPdfUrl = persidangan.pdf_url || '';
 
   const handleCopyLink = async () => {
+    if (!directPdfUrl) {
+      setErrorMsg('Belum ada berkas PDF yang diunggah.');
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(publicUrl);
+      await navigator.clipboard.writeText(directPdfUrl);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     } catch {
@@ -169,45 +172,57 @@ export default function PersidanganPDFUploader({
         </div>
       )}
 
-      {/* Info Link Publik Undangan */}
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-            Tautan Publik Undangan Digital
+      {/* Info Link Langsung PDF Storage */}
+      {directPdfUrl ? (
+        <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1 min-w-0 flex-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+              Tautan Langsung Berkas PDF (Supabase Storage)
+            </div>
+            <div className="font-mono text-xs text-[#422F21] bg-white px-3 py-1.5 rounded-lg border border-[#E5D7C8] break-all select-all">
+              {directPdfUrl}
+            </div>
+            <div className="text-[11px] text-[#735334]">
+              Tautan ini yang disisipkan ke pesan WhatsApp pada placeholder <code>[LINK_PDF_LANGSUNG]</code>.
+            </div>
           </div>
-          <div className="font-mono text-xs text-[#422F21] bg-white px-3 py-1.5 rounded-lg border border-[#E5D7C8] break-all select-all">
-            {publicUrl}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
+            >
+              {copiedLink ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-300" />
+                  Tersalin!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Salin Link PDF
+                </>
+              )}
+            </button>
+            <a
+              href={directPdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Buka PDF
+            </a>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
-          >
-            {copiedLink ? (
-              <>
-                <Check className="w-4 h-4 text-emerald-300" />
-                Tersalin!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                Salin Link Publik
-              </>
-            )}
-          </button>
-          <a
-            href={publicUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Buka
-          </a>
+      ) : (
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2.5">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>
+            Belum ada dokumen PDF yang diunggah. Unggah berkas PDF di bawah agar tautan langsung otomatis aktif pada pesan WhatsApp.
+          </span>
         </div>
-      </div>
+      )}
 
       {/* Upload Box atau Preview PDF */}
       {!persidangan.pdf_url ? (
@@ -239,7 +254,7 @@ export default function PersidanganPDFUploader({
                 Unggah Dokumen PDF Undangan Resmi
               </h4>
               <p className="text-xs text-[#735334]">
-                Tarik & letakkan berkas PDF surat persidangan resmi di sini, atau klik tombol di bawah.
+                Tarik &amp; letakkan berkas PDF surat persidangan resmi di sini, atau klik tombol di bawah.
               </p>
             </div>
 
@@ -273,7 +288,7 @@ export default function PersidanganPDFUploader({
                   Dokumen PDF Undangan Aktif
                 </div>
                 <div className="text-[11px] text-[#735334]">
-                  Siap diakses oleh seluruh peserta melalui link undangan digital
+                  Siap diakses langsung oleh seluruh peserta melalui tautan WhatsApp
                 </div>
               </div>
             </div>
@@ -302,7 +317,7 @@ export default function PersidanganPDFUploader({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#8C6A47] text-white text-xs font-bold hover:bg-[#735334] transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Unduh / Buka PDF
+                Buka PDF di Tab Baru
               </a>
               <button
                 type="button"

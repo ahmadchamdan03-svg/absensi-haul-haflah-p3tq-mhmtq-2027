@@ -25,8 +25,6 @@ import {
 import {
   Persidangan,
   PersidanganPeserta,
-  PesertaKategori,
-  KATEGORI_PESERTA_OPTIONS,
   getPesertaList,
   addPeserta,
   addPesertaBatch,
@@ -36,7 +34,6 @@ import {
   normalizePhoneNumber,
   buildMessageFromTemplate,
   sendWhatsApp,
-  formatTanggalIndo,
 } from '@/lib/persidangan';
 
 interface PersidanganPesertaTableProps {
@@ -49,7 +46,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
 
   // Filter & Search
   const [search, setSearch] = useState('');
-  const [filterKategori, setFilterKategori] = useState<string>('SEMUA');
   const [filterStatus, setFilterStatus] = useState<string>('SEMUA');
 
   // Bulk Selection
@@ -64,16 +60,15 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
   // Add/Edit Form State
   const [inputNama, setInputNama] = useState('');
   const [inputNoWa, setInputNoWa] = useState('');
-  const [inputKategori, setInputKategori] = useState<PesertaKategori>('DEWAN_HARIAN');
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   // Excel Import State
   const excelInputRef = useRef<HTMLInputElement>(null);
   const [excelPreviewData, setExcelPreviewData] = useState<
-    Array<{ nama: string; no_wa: string; kategori: string }>
+    Array<{ nama: string; no_wa: string }>
   >([]);
   const [excelAllData, setExcelAllData] = useState<
-    Array<{ nama: string; no_wa: string; kategori: string }>
+    Array<{ nama: string; no_wa: string }>
   >([]);
   const [excelFileName, setExcelFileName] = useState<string>('');
   const [skipDuplicates, setSkipDuplicates] = useState(true);
@@ -125,7 +120,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
   // Filtered List
   const filteredList = useMemo(() => {
     return pesertaList.filter((item) => {
-      if (filterKategori !== 'SEMUA' && item.kategori !== filterKategori) return false;
       if (filterStatus !== 'SEMUA' && item.status_kirim !== filterStatus) return false;
       if (search.trim()) {
         const q = search.toLowerCase().trim();
@@ -135,7 +129,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       }
       return true;
     });
-  }, [pesertaList, filterKategori, filterStatus, search]);
+  }, [pesertaList, filterStatus, search]);
 
   // Selection helpers
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,7 +188,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
     setEditingPeserta(peserta);
     setInputNama(peserta.nama);
     setInputNoWa(peserta.no_wa);
-    setInputKategori((peserta.kategori as PesertaKategori) || 'DEWAN_HARIAN');
   };
 
   // Submit Add Manual
@@ -211,7 +204,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         persidangan_id: persidangan.id,
         nama: inputNama.trim(),
         no_wa: inputNoWa.trim(),
-        kategori: inputKategori,
+        kategori: null,
         status_kirim: 'BELUM',
         waktu_kirim: null,
         error_msg: null,
@@ -226,7 +219,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       setShowAddModal(false);
       setInputNama('');
       setInputNoWa('');
-      setInputKategori('DEWAN_HARIAN');
       fetchPeserta();
     } catch (err: any) {
       showToast('error', err?.message || 'Terjadi kesalahan.');
@@ -249,7 +241,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       const { data, error } = await updatePeserta(editingPeserta.id, {
         nama: inputNama.trim(),
         no_wa: inputNoWa.trim(),
-        kategori: inputKategori,
       });
 
       if (error || !data) {
@@ -288,8 +279,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
           return;
         }
 
-        // Cari index kolom
-        // Jika baris 0 ada header Nama/No WA, gunakan itu, jika tidak langsung baris 1
         let startRow = 1;
         const firstRow = rawData[0].map((c) => String(c || '').toLowerCase().trim());
         const hasHeader =
@@ -300,7 +289,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
           startRow = 0;
         }
 
-        const parsedItems: Array<{ nama: string; no_wa: string; kategori: string }> = [];
+        const parsedItems: Array<{ nama: string; no_wa: string }> = [];
 
         for (let i = startRow; i < rawData.length; i++) {
           const row = rawData[i];
@@ -308,19 +297,12 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
 
           const nama = String(row[0] || '').trim();
           const noWa = String(row[1] || '').trim();
-          let kategori = String(row[2] || '').trim().toUpperCase();
 
           if (!nama && !noWa) continue;
-
-          // Mapping kategori jika tidak cocok
-          const validKategori = KATEGORI_PESERTA_OPTIONS.some((k) => k.value === kategori)
-            ? kategori
-            : 'LAINNYA';
 
           parsedItems.push({
             nama,
             no_wa: normalizePhoneNumber(noWa),
-            kategori: validKategori,
           });
         }
 
@@ -361,7 +343,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         persidangan_id: persidangan.id,
         nama: item.nama,
         no_wa: item.no_wa,
-        kategori: item.kategori,
+        kategori: null,
         status_kirim: 'BELUM' as const,
         waktu_kirim: null,
         error_msg: null,
@@ -396,7 +378,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       const template = persidangan.template_wa || '';
       const pesan = buildMessageFromTemplate(
         template,
-        { nama: peserta.nama, kategori: peserta.kategori },
+        { nama: peserta.nama },
         persidangan
       );
 
@@ -508,7 +490,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
               onClick={() => {
                 setInputNama('');
                 setInputNoWa('');
-                setInputKategori('DEWAN_HARIAN');
                 setShowAddModal(true);
               }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
@@ -519,8 +500,8 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
           </div>
         </div>
 
-        {/* Filter & Search Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#E5D7C8]">
+        {/* Filter & Search Controls (Tanpa Kategori) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E5D7C8]">
           <div className="relative">
             <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
             <input
@@ -530,21 +511,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
               placeholder="Cari nama atau nomor WA..."
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
             />
-          </div>
-
-          <div>
-            <select
-              value={filterKategori}
-              onChange={(e) => setFilterKategori(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
-            >
-              <option value="SEMUA">Semua Kategori</option>
-              {KATEGORI_PESERTA_OPTIONS.map((k) => (
-                <option key={k.value} value={k.value}>
-                  {k.label}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div>
@@ -562,7 +528,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         </div>
       </div>
 
-      {/* Table Peserta */}
+      {/* Table Peserta (Tanpa Kolom Kategori) */}
       <div className="bg-white border-2 border-[#D5C4B4] rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -581,7 +547,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 <th className="p-3 w-12 text-center">No</th>
                 <th className="p-3">Nama Penerima</th>
                 <th className="p-3">No. WhatsApp</th>
-                <th className="p-3">Kategori</th>
                 <th className="p-3">Status Kirim</th>
                 <th className="p-3 text-center w-36">Aksi</th>
               </tr>
@@ -589,7 +554,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
             <tbody className="divide-y divide-[#EFE8E1] text-[#422F21]">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={6} className="p-8 text-center text-xs text-[#735334]">
                     <div className="inline-flex items-center gap-2">
                       <RefreshCw className="w-4 h-4 animate-spin text-[#8C6A47]" />
                       Memuat daftar peserta...
@@ -598,7 +563,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 </tr>
               ) : filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={6} className="p-8 text-center text-xs text-[#735334]">
                     {pesertaList.length === 0
                       ? 'Belum ada peserta dalam persidangan ini. Klik "+ Tambah Peserta" atau "Import Excel" di atas.'
                       : 'Tidak ada data peserta yang cocok dengan kriteria pencarian/filter.'}
@@ -630,12 +595,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                         <span className="flex items-center gap-1.5">
                           <Phone className="w-3 h-3 text-[#8C6A47]" />
                           {item.no_wa}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EFE8E1] text-[#735334] border border-[#D5C4B4]">
-                          {KATEGORI_PESERTA_OPTIONS.find((k) => k.value === item.kategori)?.label ||
-                            item.kategori}
                         </span>
                       </td>
                       <td className="p-3">
@@ -718,7 +677,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       </div>
 
       {/* ========================================================================= */}
-      {/* MODAL 1: TAMBAH PESERTA MANUAL                                            */}
+      {/* MODAL 1: TAMBAH PESERTA MANUAL (TANPA KATEGORI)                           */}
       {/* ========================================================================= */}
       {showAddModal && (
         <div
@@ -775,23 +734,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 </span>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1">
-                  Kategori Peserta
-                </label>
-                <select
-                  value={inputKategori}
-                  onChange={(e) => setInputKategori(e.target.value as PesertaKategori)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
-                >
-                  {KATEGORI_PESERTA_OPTIONS.map((k) => (
-                    <option key={k.value} value={k.value}>
-                      {k.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E5D7C8]">
                 <button
                   type="button"
@@ -814,7 +756,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL 2: EDIT PESERTA                                                     */}
+      {/* MODAL 2: EDIT PESERTA (TANPA KATEGORI)                                    */}
       {/* ========================================================================= */}
       {editingPeserta && (
         <div
@@ -866,23 +808,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1">
-                  Kategori Peserta
-                </label>
-                <select
-                  value={inputKategori}
-                  onChange={(e) => setInputKategori(e.target.value as PesertaKategori)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
-                >
-                  {KATEGORI_PESERTA_OPTIONS.map((k) => (
-                    <option key={k.value} value={k.value}>
-                      {k.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E5D7C8]">
                 <button
                   type="button"
@@ -913,7 +838,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
           onClick={() => setShowImportModal(false)}
         >
           <div
-            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-xl shadow-xl space-y-4"
+            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-lg shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[#E5D7C8] pb-3">
@@ -939,10 +864,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                   </li>
                   <li>
                     Kolom B: <strong>Nomor WhatsApp</strong> (contoh: 08123456789)
-                  </li>
-                  <li>
-                    Kolom C: <strong>Kategori</strong> (opsional: DEWAN_HARIAN, DEWAN_PEMBIMBING,
-                    DEWAN_PLENO, TAMU_VVIP, TAMU_VIP, LAINNYA)
                   </li>
                 </ul>
               </div>
@@ -982,7 +903,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                           <th className="p-2 w-8">No</th>
                           <th className="p-2">Nama</th>
                           <th className="p-2">No WA</th>
-                          <th className="p-2">Kategori</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#EFE8E1]">
@@ -991,7 +911,6 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                             <td className="p-2 text-center text-[#735334]">{idx + 1}</td>
                             <td className="p-2 font-medium">{row.nama}</td>
                             <td className="p-2 font-mono text-[#735334]">{row.no_wa}</td>
-                            <td className="p-2 text-[#735334]">{row.kategori}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1087,7 +1006,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
               </div>
 
               <p className="text-[11px] text-[#8C6A47]">
-                Pesan akan dikirim langsung via gateway WhatsApp Fonnte bersama tautan unik undangan digital.
+                Pesan akan dikirim langsung via gateway WhatsApp Fonnte bersama tautan dokumen PDF resmi.
               </p>
             </div>
 

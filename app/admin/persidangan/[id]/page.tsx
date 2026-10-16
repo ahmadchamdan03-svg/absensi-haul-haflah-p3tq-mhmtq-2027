@@ -2,27 +2,19 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   FileText,
   Upload,
   Users,
-  Eye,
   ExternalLink,
   RefreshCw,
-  Sparkles,
-  Calendar,
-  Clock,
-  MapPin,
-  CheckCircle2,
-  AlertCircle,
+  FileCheck,
 } from 'lucide-react';
 import {
   Persidangan,
   getPersidanganById,
-  formatTanggalIndo,
-  getPublicInvitationUrl,
 } from '@/lib/persidangan';
 import PersidanganForm from '@/components/PersidanganForm';
 import PersidanganPDFUploader from '@/components/PersidanganPDFUploader';
@@ -30,12 +22,25 @@ import PersidanganPesertaTable from '@/components/PersidanganPesertaTable';
 
 export default function PersidanganDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const id = params?.id as string;
 
+  const initialTabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'info' | 'pdf' | 'peserta'>(
+    initialTabParam === 'pdf' ? 'pdf' : initialTabParam === 'peserta' ? 'peserta' : 'info'
+  );
+
   const [persidangan, setPersidangan] = useState<Persidangan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'info' | 'pdf' | 'peserta' | 'preview'>('info');
+
+  // Sync tab dari search param jika berubah
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'pdf' || tabParam === 'peserta' || tabParam === 'info') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const fetchDetail = useCallback(async () => {
     if (!id) return;
@@ -74,8 +79,6 @@ export default function PersidanganDetailPage() {
     return null;
   }
 
-  const publicUrl = getPublicInvitationUrl(persidangan.slug, persidangan.token);
-
   return (
     <div className="space-y-6 pb-12">
       {/* Top Header Card */}
@@ -90,27 +93,17 @@ export default function PersidanganDetailPage() {
           </Link>
 
           <div className="flex items-center gap-2">
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                persidangan.status === 'AKTIF'
-                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                  : persidangan.status === 'SELESAI'
-                  ? 'bg-blue-100 text-blue-800 border-blue-300'
-                  : 'bg-amber-100 text-amber-800 border-amber-300'
-              }`}
-            >
-              Status: {persidangan.status}
-            </span>
-
-            <a
-              href={publicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
-              Buka Undangan Publik
-            </a>
+            {persidangan.pdf_url && (
+              <a
+                href={persidangan.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
+                Buka Berkas PDF
+              </a>
+            )}
           </div>
         </div>
 
@@ -118,28 +111,13 @@ export default function PersidanganDetailPage() {
           <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
             {persidangan.judul}
           </h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#735334] pt-1">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
-              {formatTanggalIndo(persidangan.tanggal)}
-            </span>
-            {persidangan.waktu && (
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[#8C6A47]" />
-                {persidangan.waktu}
-              </span>
-            )}
-            {persidangan.tempat && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#8C6A47]" />
-                {persidangan.tempat}
-              </span>
-            )}
-          </div>
+          <p className="text-xs text-[#735334] pt-1">
+            Kelola persidangan, unggah berkas PDF resmi, dan distribusikan tautan langsung ke peserta via WhatsApp.
+          </p>
         </div>
       </div>
 
-      {/* Tabs Navigation */}
+      {/* Tabs Navigation (3 Tab Bersih) */}
       <div className="flex border-b-2 border-[#D5C4B4] bg-[#FAF7F3] rounded-t-2xl px-2 pt-2 gap-1 overflow-x-auto">
         <button
           type="button"
@@ -166,7 +144,7 @@ export default function PersidanganDetailPage() {
           <Upload className="w-4 h-4 text-[#8C6A47]" />
           Tab 2: Dokumen PDF
           {persidangan.pdf_url && (
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500" title="PDF sudah diunggah"></span>
           )}
         </button>
 
@@ -180,20 +158,7 @@ export default function PersidanganDetailPage() {
           }`}
         >
           <Users className="w-4 h-4 text-[#8C6A47]" />
-          Tab 3: Peserta & Kirim WA
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('preview')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-xs font-bold tracking-wide transition-all border-t-2 border-x-2 -mb-0.5 whitespace-nowrap ${
-            activeTab === 'preview'
-              ? 'bg-white text-[#422F21] border-[#D5C4B4] border-b-white'
-              : 'text-[#735334] hover:text-[#422F21] border-transparent'
-          }`}
-        >
-          <Eye className="w-4 h-4 text-[#8C6A47]" />
-          Tab 4: Pratinjau Undangan
+          Tab 3: Peserta &amp; Kirim WA
         </button>
       </div>
 
@@ -216,33 +181,6 @@ export default function PersidanganDetailPage() {
 
         {activeTab === 'peserta' && (
           <PersidanganPesertaTable persidangan={persidangan} />
-        )}
-
-        {activeTab === 'preview' && (
-          <div className="space-y-4">
-            <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-4 flex items-center justify-between shadow-xs">
-              <span className="text-xs text-[#735334]">
-                Berikut adalah tampilan persis seperti yang akan dilihat oleh penerima saat membuka tautan undangan digital:
-              </span>
-              <a
-                href={publicUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#8C6A47] text-white text-xs font-bold hover:bg-[#735334] transition-colors"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                Buka di Tab Baru
-              </a>
-            </div>
-
-            <div className="border-2 border-[#D5C4B4] rounded-2xl overflow-hidden bg-white shadow-md">
-              <iframe
-                src={publicUrl}
-                title="Pratinjau Halaman Publik Undangan"
-                className="w-full h-[800px] border-none"
-              />
-            </div>
-          </div>
         )}
       </div>
     </div>

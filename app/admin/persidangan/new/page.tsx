@@ -11,7 +11,7 @@ export default function NewPersidanganPage() {
   const router = useRouter();
 
   const handleSuccess = (data: Persidangan) => {
-    router.push(`/admin/persidangan/${data.id}`);
+    router.push(`/admin/persidangan/${data.id}?tab=pdf`);
   };
 
   return (
@@ -31,7 +31,7 @@ export default function NewPersidanganPage() {
             Buat Persidangan Baru
           </h1>
           <p className="text-xs text-[#735334]">
-            Isi formulir persidangan di bawah. Setelah dibuat, Anda dapat mengunggah dokumen PDF dan mendaftarkan peserta.
+            Isi judul persidangan dan sesuaikan template pesan WhatsApp di bawah. Setelah dibuat, Anda akan langsung diarahkan untuk mengunggah berkas PDF undangan resmi.
           </p>
         </div>
       </div>

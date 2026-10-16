@@ -8,7 +8,7 @@ export interface Persidangan {
   token: string;
   judul: string;
   deskripsi?: string | null;
-  tanggal: string; // YYYY-MM-DD
+  tanggal?: string | null; // YYYY-MM-DD
   waktu?: string | null;
   tempat?: string | null;
   agenda?: string | null;
@@ -19,23 +19,6 @@ export interface Persidangan {
   updated_at?: string;
 }
 
-export type PesertaKategori =
-  | 'DEWAN_HARIAN'
-  | 'DEWAN_PEMBIMBING'
-  | 'DEWAN_PLENO'
-  | 'TAMU_VVIP'
-  | 'TAMU_VIP'
-  | 'LAINNYA';
-
-export const KATEGORI_PESERTA_OPTIONS: { value: PesertaKategori; label: string }[] = [
-  { value: 'DEWAN_HARIAN', label: 'Dewan Harian' },
-  { value: 'DEWAN_PEMBIMBING', label: 'Dewan Pembimbing' },
-  { value: 'DEWAN_PLENO', label: 'Dewan Pleno' },
-  { value: 'TAMU_VVIP', label: 'Tamu VVIP' },
-  { value: 'TAMU_VIP', label: 'Tamu VIP' },
-  { value: 'LAINNYA', label: 'Lainnya' },
-];
-
 export type StatusKirimWa = 'BELUM' | 'TERKIRIM' | 'GAGAL';
 
 export interface PersidanganPeserta {
@@ -43,7 +26,7 @@ export interface PersidanganPeserta {
   persidangan_id: string;
   nama: string;
   no_wa: string;
-  kategori: PesertaKategori | string;
+  kategori?: string | null;
   status_kirim: StatusKirimWa;
   waktu_kirim?: string | null;
   error_msg?: string | null;
@@ -52,14 +35,11 @@ export interface PersidanganPeserta {
 
 export const DEFAULT_TEMPLATE_WA = `Assalamu'alaikum Wr. Wb. Bapak [NAMA_PESERTA],
 
-Kami atas nama Panitia Haul & Haflah Akhirussanah P3TQ & MHMTQ Lirboyo mengundang Bapak untuk hadir dalam *[JUDUL_PERSIDANGAN]* pada:
+Kami atas nama Panitia Haul & Haflah Akhirussanah P3TQ & MHMTQ Lirboyo mengundang Bapak untuk hadir dalam [JUDUL_PERSIDANGAN].
 
-Tanggal: [TANGGAL]
-Waktu: [WAKTU]
-Tempat: [TEMPAT]
+Undangan resmi selengkapnya dapat dibuka melalui tautan berikut:
 
-Untuk detail lengkap, silakan buka undangan digital berikut:
-[LINK_UNDANGAN]
+[LINK_PDF_LANGSUNG]
 
 Wassalamu'alaikum Wr. Wb.
 Panitia Haul & Haflah 2027
@@ -142,10 +122,9 @@ export function generateToken(): string {
 /**
  * Format tanggal Indonesia: contoh "Sabtu, 12 Juli 2026"
  */
-export function formatTanggalIndo(dateStr: string): string {
+export function formatTanggalIndo(dateStr?: string | null): string {
   if (!dateStr) return '';
   try {
-    // Normalisasi format tanggal YYYY-MM-DD
     const parts = dateStr.split('-');
     if (parts.length === 3) {
       const year = parseInt(parts[0], 10);
@@ -173,7 +152,7 @@ export function formatTanggalIndo(dateStr: string): string {
 }
 
 /**
- * Dapatkan base URL untuk link publik undangan
+ * Dapatkan base URL untuk link publik
  */
 export function getLiveBaseUrl(): string {
   if (typeof window !== 'undefined' && window.location.origin) {
@@ -183,7 +162,7 @@ export function getLiveBaseUrl(): string {
 }
 
 /**
- * Dapatkan URL publik undangan
+ * Helper link undangan publik (fallback ke PDF URL jika tersedia)
  */
 export function getPublicInvitationUrl(slug: string, token: string, customBaseUrl?: string): string {
   const base = customBaseUrl || getLiveBaseUrl();
@@ -192,30 +171,23 @@ export function getPublicInvitationUrl(slug: string, token: string, customBaseUr
 
 /**
  * Replace placeholder template WA dengan data aktual
+ * Mendukung [NAMA_PESERTA], [JUDUL_PERSIDANGAN], [LINK_PDF_LANGSUNG], dan [LINK_UNDANGAN]
  */
 export function buildMessageFromTemplate(
   template: string,
-  peserta: { nama: string; kategori?: string },
+  peserta: { nama: string; no_wa?: string },
   persidangan: {
     judul: string;
-    tanggal: string;
-    waktu?: string | null;
-    tempat?: string | null;
-    slug: string;
-    token: string;
-  },
-  baseUrl?: string
+    pdf_url?: string | null;
+  }
 ): string {
-  const linkUndangan = getPublicInvitationUrl(persidangan.slug, persidangan.token, baseUrl);
-  const tglIndo = formatTanggalIndo(persidangan.tanggal);
+  const directPdfUrl = persidangan.pdf_url || '';
 
   let msg = template || DEFAULT_TEMPLATE_WA;
   msg = msg.replace(/\[NAMA_PESERTA\]/g, peserta.nama || '');
   msg = msg.replace(/\[JUDUL_PERSIDANGAN\]/g, persidangan.judul || '');
-  msg = msg.replace(/\[TANGGAL\]/g, tglIndo);
-  msg = msg.replace(/\[WAKTU\]/g, persidangan.waktu || '-');
-  msg = msg.replace(/\[TEMPAT\]/g, persidangan.tempat || '-');
-  msg = msg.replace(/\[LINK_UNDANGAN\]/g, linkUndangan);
+  msg = msg.replace(/\[LINK_PDF_LANGSUNG\]/g, directPdfUrl);
+  msg = msg.replace(/\[LINK_UNDANGAN\]/g, directPdfUrl);
 
   return msg;
 }
@@ -232,7 +204,7 @@ export async function sendWhatsApp(
     return { ok: false, message: 'Nomor WhatsApp tidak valid' };
   }
 
-  // Jika dipanggil dari client-side (browser), gunakan route proxy internal agar aman dari CORS & leak token
+  // Jika dipanggil dari client-side (browser), gunakan route proxy internal
   if (typeof window !== 'undefined') {
     try {
       const res = await fetch('/api/whatsapp/send', {
@@ -303,39 +275,21 @@ export async function getPersidanganById(id: string): Promise<Persidangan | null
   return data as Persidangan;
 }
 
-export async function getPersidanganBySlugAndToken(
-  slug: string,
-  token: string
-): Promise<Persidangan | null> {
-  if (!slug || !token) return null;
-
-  const { data, error } = await supabase
-    .from('persidangan')
-    .select('*')
-    .eq('slug', slug)
-    .eq('token', token)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-  return data as Persidangan;
-}
-
 export async function createPersidangan(
-  data: Partial<Persidangan> & { judul: string; tanggal: string }
+  data: Partial<Persidangan> & { judul: string }
 ): Promise<{ data: Persidangan | null; error: any }> {
   const slug = data.slug || (await generateSlug(data.judul));
   const token = data.token || generateToken();
   const template_wa = data.template_wa || DEFAULT_TEMPLATE_WA;
-  const status: PersidanganStatus = data.status || 'DRAFT';
+  const status: PersidanganStatus = data.status || 'AKTIF';
+  const tanggal = data.tanggal || new Date().toISOString().split('T')[0];
 
   const insertPayload = {
     slug,
     token,
     judul: data.judul,
     deskripsi: data.deskripsi || null,
-    tanggal: data.tanggal,
+    tanggal,
     waktu: data.waktu || null,
     tempat: data.tempat || null,
     agenda: data.agenda || null,
@@ -416,7 +370,7 @@ export async function addPeserta(
     persidangan_id: data.persidangan_id,
     nama: data.nama,
     no_wa: normalizePhoneNumber(data.no_wa),
-    kategori: data.kategori || 'LAINNYA',
+    kategori: data.kategori || null,
     status_kirim: data.status_kirim || 'BELUM',
     waktu_kirim: data.waktu_kirim || null,
     error_msg: data.error_msg || null,
@@ -445,7 +399,7 @@ export async function addPesertaBatch(
     persidangan_id: item.persidangan_id,
     nama: item.nama,
     no_wa: normalizePhoneNumber(item.no_wa),
-    kategori: item.kategori || 'LAINNYA',
+    kategori: item.kategori || null,
     status_kirim: item.status_kirim || 'BELUM',
     waktu_kirim: item.waktu_kirim || null,
     error_msg: item.error_msg || null,
@@ -515,7 +469,6 @@ export async function uploadPersidanganPdf(
   persidanganId: string
 ): Promise<{ publicUrl: string | null; error: any }> {
   try {
-    // Sanitasi nama file: hanya huruf, angka, underscore, dash, dan dot
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const storagePath = `${persidanganId}/${Date.now()}_${cleanFileName}`;
 

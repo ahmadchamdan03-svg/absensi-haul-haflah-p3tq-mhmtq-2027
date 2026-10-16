@@ -6,26 +6,26 @@
 [INFORMASI DOKUMEN]
 ═══════════════════════════════════════════
 
-Versi           : v1.0.0 (Initial Release)
-Status          : Ready for Implementation
-Tipe Fitur      : Modular / Temporary — bisa dihapus kapan saja
-Platform        : Next.js 14 App Router + Supabase + Fonnte API
+Versi           : v1.1.0 (Revisi 1.0 — Direct PDF Link & Simplified UI)
+Status          : Implemented & Verified
+Tipe Fitur      : Modular / Standalone — bisa dihapus kapan saja
+Platform        : Next.js 14 App Router + Supabase Storage + Fonnte API
 Dependensi      : Minimal (tidak mengubah Halwaa, presensi, peserta, tamu, rekap)
-Estimasi Selesai: 1 sprint (1-2 hari kerja Agrav)
 
 ═══════════════════════════════════════════
 [1. RINGKASAN EKSEKUTIF]
 ═══════════════════════════════════════════
 
-Fitur Persidangan adalah modul tambahan untuk membuat dan mengirim undangan digital persidangan kepanitiaan (contoh: Sidang Harian II, Sidang Pleno, Sidang Ndalem) kepada peserta via WhatsApp.
+Fitur Persidangan adalah modul tambahan untuk membuat dan mengirim undangan digital persidangan kepanitiaan (contoh: Sidang Harian II, Sidang Pleno, Sidang Ndalem) kepada peserta via WhatsApp dengan menyertakan tautan berkas PDF resmi langsung dari Supabase Storage.
 
 Fitur ini menyediakan:
 - Dashboard untuk mengelola persidangan
-- Upload PDF undangan resmi (yang sudah ditandatangani Ketua Umum & Sekretaris)
-- Editor template kata-kata WhatsApp
-- Manajemen peserta (input manual + import Excel)
-- Pengiriman WA per peserta via Fonnte API
-- Halaman publik undangan dengan token rahasia + embed PDF viewer
+- Formulir ringkas: Judul Persidangan + Template Pesan WhatsApp
+- Upload PDF undangan resmi ke Supabase Storage (yang sudah ditandatangani Ketua Umum & Sekretaris)
+- Tombol salin link langsung PDF Supabase Storage
+- Manajemen peserta sederhana (Nama + Nomor WhatsApp, tanpa kategori)
+- Import peserta via Excel (.xlsx, Kolom A: Nama, Kolom B: No WA)
+- Pengiriman WA per peserta via Fonnte API dengan tautan langsung PDF
 
 Sifat fitur: Modular, standalone, DI LUAR SISTEM UTAMA. Dapat dihapus kapan saja tanpa merusak sistem existing.
 
@@ -35,193 +35,81 @@ Sifat fitur: Modular, standalone, DI LUAR SISTEM UTAMA. Dapat dihapus kapan saja
 
 TERMASUK (IN SCOPE):
 1. Dashboard CRUD persidangan
-2. Upload PDF undangan ke Supabase Storage
-3. Custom template kata-kata WA dengan placeholder dinamis
-4. Input peserta manual (nama + no WA + kategori)
-5. Import peserta via Excel (.xlsx)
-6. Kirim WA per peserta (bukan massal)
-7. Halaman publik undangan dengan validasi token
-8. Embed PDF viewer di halaman publik
-9. Menu sidebar "Persidangan" (khusus role ADMIN)
+2. Formulir sederhana (Judul + Template WA)
+3. Upload PDF undangan ke Supabase Storage
+4. Custom template kata-kata WA dengan tautan [LINK_PDF_LANGSUNG]
+5. Input peserta manual (nama + no WA)
+6. Import peserta via Excel (.xlsx)
+7. Kirim WA per peserta (bukan massal) dengan link PDF langsung
+8. Menu sidebar "Persidangan" (khusus role ADMIN)
 
 TIDAK TERMASUK (OUT OF SCOPE):
-1. Tracking view (log siapa yang buka link)
-2. Audit log untuk aksi kirim WA
-3. Kirim WA massal (bulk)
-4. Auto-kirim WA saat tambah peserta
-5. Integrasi dengan database peserta existing (peserta_santri / tamu_undangan)
-6. Statistik/analytics penggunaan
-7. Template default multi-varian
-8. Role selain ADMIN untuk akses fitur
+1. Halaman publik internal /undangan/[slug] (sudah digantikan oleh direct PDF link)
+2. Kategori peserta di tabel dan modal (sudah dihilangkan)
+3. Input tanggal, waktu, tempat, deskripsi, agenda di form (sudah dihilangkan)
 
 ═══════════════════════════════════════════
-[3. USER FLOW]
+[3. USER FLOW REVISI 1.0]
 ═══════════════════════════════════════════
 
 ADMIN:
 1. Buka menu "Persidangan" dari sidebar
-2. Klik "+ Buat Persidangan Baru" — isi: judul, tanggal, waktu, tempat, agenda
-3. Upload PDF undangan resmi — generate link publik + token
-4. Tambah peserta: manual input (nama, no WA, kategori) atau Import Excel batch
-5. Edit template WA (opsional) dengan placeholder
-6. Klik tombol "Kirim WA" per peserta
-7. Update status_kirim (BELUM → TERKIRIM / GAGAL)
+2. Klik "+ Buat Persidangan Baru" — isi: Judul + Template WA
+3. Submit $\to$ otomatis diarahkan ke Tab 2 (Dokumen PDF)
+4. Upload PDF undangan resmi $\to$ dapatkan link langsung Supabase Storage
+5. Buka Tab 3 (Peserta) $\to$ Tambah peserta manual (Nama + No WA) atau Import Excel
+6. Klik tombol "Kirim WA" per peserta $\to$ konfirmasi pengiriman
+7. Status peserta terupdate ke TERKIRIM
 
 PESERTA:
-8. Terima WA berisi kata-kata + link undangan
-9. Klik link → buka /undangan/[slug]?token=xxx
-10. Lihat cover + embed PDF + tombol Download PDF
-
-Flow ringkas:
-Admin buat → Upload PDF → Tambah peserta → Kirim WA per peserta → Peserta terima WA → Peserta buka link → Lihat cover + PDF
+8. Terima WA berisi kata-kata undangan resmi + tautan langsung PDF
+9. Klik tautan $\to$ langsung membuka berkas PDF di viewer bawaan browser tanpa error embed/CSP
 
 ═══════════════════════════════════════════
-[4. SKEMA DATA]
+[4. FILE LIST (REVISI 1.0)]
 ═══════════════════════════════════════════
 
-TABEL 4.1: persidangan
-- id              : UUID (PK), auto-generated
-- slug            : VARCHAR(80) UNIQUE, dari judul lowercase dash-separated
-- token           : VARCHAR(64) UNIQUE, random 32 char (UUID tanpa dash)
-- judul           : VARCHAR(200), contoh "Sidang Harian II"
-- deskripsi       : TEXT, keterangan singkat (opsional)
-- tanggal         : DATE, tanggal pelaksanaan
-- waktu           : VARCHAR(50), contoh "09.00 WIs (Malam)"
-- tempat          : VARCHAR(200), contoh "Aula Al Barokah"
-- agenda          : TEXT, isi/agenda sidang (opsional)
-- pdf_url         : TEXT, link ke Supabase Storage
-- template_wa     : TEXT, template pesan WA
-- status          : VARCHAR(20), DRAFT / AKTIF / SELESAI
-- created_at      : TIMESTAMPTZ, auto
-- updated_at      : TIMESTAMPTZ, auto
-
-TABEL 4.2: persidangan_peserta
-- id              : UUID (PK), auto-generated
-- persidangan_id  : UUID (FK), ON DELETE CASCADE
-- nama            : VARCHAR(200), nama penerima undangan
-- no_wa           : VARCHAR(20), format 628xxx
-- kategori        : VARCHAR(50), DEWAN_HARIAN / DEWAN_PEMBIMBING / DEWAN_PLENO / TAMU_VVIP / TAMU_VIP / LAINNYA
-- status_kirim    : VARCHAR(20), BELUM / TERKIRIM / GAGAL
-- waktu_kirim     : TIMESTAMPTZ, kapan WA terkirim
-- error_msg       : TEXT, pesan error kalau gagal
-- created_at      : TIMESTAMPTZ, auto
-
-STORAGE BUCKET 4.3:
-- Bucket: undangan-pdf
-- Path: {persidangan_id}/{filename}.pdf
-- Akses: public read, anon write
-- Max size: 5 MB
-
-PLACEHOLDER TEMPLATE WA 4.4:
-- [NAMA_PESERTA]       → Nama dari tabel peserta
-- [JUDUL_PERSIDANGAN]  → Kolom judul
-- [TANGGAL]            → Kolom tanggal (format Indonesia)
-- [WAKTU]              → Kolom waktu
-- [TEMPAT]             → Kolom tempat
-- [LINK_UNDANGAN]      → https://haflahp3tq.site/undangan/{slug}?token={token}
-
-═══════════════════════════════════════════
-[5. FILE LIST]
-═══════════════════════════════════════════
-
-FILE BARU (CREATE):
+FILE FITUR:
 1. lib/persidangan.ts
-   - Helper functions + interface TypeScript + Fonnte sender
+   - Helper functions, interface TypeScript, Fonnte sender, format pesan direct PDF
 2. app/admin/persidangan/page.tsx
    - Dashboard grid kartu persidangan
 3. app/admin/persidangan/new/page.tsx
-   - Form buat persidangan baru
+   - Form buat persidangan baru (Judul + Template WA)
 4. app/admin/persidangan/[id]/page.tsx
-   - Detail persidangan (4 tab)
-5. app/(public)/undangan/[slug]/page.tsx
-   - Halaman publik undangan
-6. components/PersidanganForm.tsx
-   - Form reusable create/edit
-7. components/PersidanganPesertaTable.tsx
-   - Tabel peserta + kirim WA per baris
-8. components/PersidanganPDFUploader.tsx
-   - Upload PDF + copy link publik
-9. docs/PRD_PERSIDANGAN.md
+   - Detail persidangan (3 tab: Info, Dokumen PDF, Peserta & Kirim WA)
+5. components/PersidanganForm.tsx
+   - Form reusable (Judul + Template WA)
+6. components/PersidanganPesertaTable.tsx
+   - Tabel peserta bersih (Nama, No WA, Status Kirim, Aksi) tanpa kolom/filter kategori
+7. components/PersidanganPDFUploader.tsx
+   - Upload PDF + tombol "Salin Link PDF" langsung ke Supabase Storage
+8. docs/PRD_PERSIDANGAN.md
    - Dokumen ini
 
-FILE DIMODIFIKASI (MODIFY):
+FILE DIMODIFIKASI:
 1. components/Sidebar.tsx
-   - Tambah 1 menu "Persidangan" (role ADMIN)
-
-Total: 9 file baru + 1 file dimodifikasi.
+   - Menu "Persidangan" (role ADMIN)
 
 ═══════════════════════════════════════════
-[6. CLEANUP GUIDE — CARA HAPUS FITUR]
+[5. CLEANUP GUIDE — CARA HAPUS FITUR]
 ═══════════════════════════════════════════
 
-6.1. HAPUS FILE
+5.1. HAPUS FILE
 rm -rf app/admin/persidangan/
-rm -rf app/(public)/undangan/
 rm components/PersidanganForm.tsx
 rm components/PersidanganPesertaTable.tsx
 rm components/PersidanganPDFUploader.tsx
 rm lib/persidangan.ts
 rm docs/PRD_PERSIDANGAN.md
 
-6.2. REVERT SIDEBAR
+5.2. REVERT SIDEBAR
 Buka components/Sidebar.tsx, hapus 1 baris menu "Persidangan" dari area setelah "Rekap & Ekspor".
 
-6.3. HAPUS TABEL SUPA
+5.3. HAPUS TABEL SUPA
 DROP TABLE IF EXISTS persidangan_peserta CASCADE;
 DROP TABLE IF EXISTS persidangan CASCADE;
 
-6.4. HAPUS STORAGE BUCKET
+5.4. HAPUS STORAGE BUCKET
 DELETE FROM storage.objects WHERE bucket_id = 'undangan-pdf';
 DELETE FROM storage.buckets WHERE id = 'undangan-pdf';
-
-6.5. VERIFIKASI CLEANUP
-- npm run build → 0 error
-- Sidebar tidak menampilkan menu "Persidangan"
-- Route /admin/persidangan → 404
-- Route /undangan/xxx → 404
-- Tidak ada error di Console Supabase
-
-Estimasi waktu cleanup: < 15 menit.
-
-═══════════════════════════════════════════
-[7. DESIGN & TEMA]
-═══════════════════════════════════════════
-
-Warna utama     : Krem #F5E6D3
-Warna aksen     : Coklat #8C6A47
-Warna highlight : Emas #D49B5B
-Warna background: #FAF7F3
-Warna teks utama: #422F21
-Font judul      : Serif
-Font body       : Sans-serif
-Border radius   : rounded-xl atau rounded-2xl
-Shadow          : Soft, tidak berat
-Modal           : Tutup dengan ESC + klik area luar
-
-═══════════════════════════════════════════
-[8. ATURAN TEKNIS]
-═══════════════════════════════════════════
-
-1. TypeScript strict mode: 0 error
-2. Build: npm run build sukses
-3. Test suite: npm run test:halwaa tetap 36/36 PASS (tidak ada regresi)
-4. Normalisasi No WA:
-   - Mulai "08"  → replace jadi "628"
-   - Mulai "+62" → replace jadi "62"
-   - Mulai "8"   → tambahkan prefix "62"
-5. Fonnte API:
-   - Endpoint: POST https://api.fonnte.com/send
-   - Header: Authorization: {FONNTE_API_KEY}
-   - Body: target, message, countryCode=62
-6. Validasi Upload PDF:
-   - Format: hanya .pdf
-   - Size: max 5 MB
-   - Nama file disanitasi (hapus karakter khusus)
-7. Token Generation:
-   - crypto.randomUUID().replace(/-/g, '') → 32 karakter
-   - Unique di tabel
-8. Slug Generation:
-   - Lowercase judul
-   - Replace spasi dengan dash
-   - Hapus karakter non-alphanumeric (kecuali dash)
-   - Cek uniqueness di Supa
