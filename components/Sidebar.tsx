@@ -22,6 +22,7 @@ import {
   Search,
   LogOut,
   Bot,
+  Mail,
 } from 'lucide-react';
 import UniversalSearchModal from '@/components/UniversalSearchModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
@@ -177,6 +178,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         { href: '/rekon', label: 'Rekonsiliasi Kuota', icon: RotateCcw },
         { href: '/admin/audit-log', label: 'Audit Log', icon: History },
         { href: '/admin/laporan', label: 'Rekap & Ekspor', icon: FileSpreadsheet },
+        { href: '/admin/persidangan', label: 'Persidangan', icon: Mail },
       ],
     },
   ];
