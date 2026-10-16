@@ -11,10 +11,13 @@ import {
   ExternalLink,
   RefreshCw,
   FileCheck,
+  Copy,
+  Check,
 } from 'lucide-react';
 import {
   Persidangan,
   getPersidanganById,
+  getPublicPersidanganUrl,
 } from '@/lib/persidangan';
 import PersidanganForm from '@/components/PersidanganForm';
 import PersidanganPDFUploader from '@/components/PersidanganPDFUploader';
@@ -33,6 +36,19 @@ export default function PersidanganDetailPage() {
 
   const [persidangan, setPersidangan] = useState<Persidangan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleCopyOfficialLink = async () => {
+    if (!persidangan) return;
+    try {
+      const url = getPublicPersidanganUrl(persidangan.slug);
+      await navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    } catch {
+      alert('Gagal menyalin link resmi.');
+    }
+  };
 
   // Sync tab dari search param jika berubah
   useEffect(() => {
@@ -92,18 +108,34 @@ export default function PersidanganDetailPage() {
             Kembali ke Daftar Persidangan
           </Link>
 
-          <div className="flex items-center gap-2">
-            {persidangan.pdf_url && (
-              <a
-                href={persidangan.pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
-              >
-                <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
-                Buka Berkas PDF
-              </a>
-            )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCopyOfficialLink}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
+            >
+              {copiedLink ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  Link Tersalin!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  Salin Link Resmi
+                </>
+              )}
+            </button>
+
+            <a
+              href={`/persidangan/${persidangan.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
+              Buka Halaman Publik
+            </a>
           </div>
         </div>
 

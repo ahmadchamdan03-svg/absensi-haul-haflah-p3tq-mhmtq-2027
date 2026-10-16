@@ -180,7 +180,7 @@ export default function PersidanganForm({
           {[
             { label: '[NAMA_PESERTA]', tip: 'Nama penerima undangan' },
             { label: '[JUDUL_PERSIDANGAN]', tip: 'Judul persidangan' },
-            { label: '[LINK_PDF_LANGSUNG]', tip: 'Tautan langsung berkas PDF Supabase Storage' },
+            { label: '[LINK_UNDANGAN]', tip: 'Tautan resmi undangan persidangan' },
           ].map((item) => (
             <button
               key={item.label}

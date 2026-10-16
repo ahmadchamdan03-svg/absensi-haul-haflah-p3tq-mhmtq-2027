@@ -39,7 +39,7 @@ Kami atas nama Panitia Haul & Haflah Akhirussanah P3TQ & MHMTQ Lirboyo mengundan
 
 Undangan resmi selengkapnya dapat dibuka melalui tautan berikut:
 
-[LINK_PDF_LANGSUNG]
+[LINK_UNDANGAN]
 
 Wassalamu'alaikum Wr. Wb.
 Panitia Haul & Haflah 2027
@@ -62,7 +62,6 @@ export function normalizePhoneNumber(raw: string): string {
   } else if (cleaned.startsWith('8')) {
     cleaned = '628' + cleaned.slice(1);
   }
-  // Hapus tanda plus jika ada sisa
   cleaned = cleaned.replace(/\+/g, '');
   return cleaned;
 }
@@ -70,6 +69,7 @@ export function normalizePhoneNumber(raw: string): string {
 /**
  * Generate slug dari teks judul:
  * Lowercase, ganti spasi dengan dash, hapus non-alphanumeric selain dash.
+ * Contoh: "Sidang Harian 2" -> "sidang-harian-2"
  */
 export function slugify(text: string): string {
   return text
@@ -152,42 +152,45 @@ export function formatTanggalIndo(dateStr?: string | null): string {
 }
 
 /**
- * Dapatkan base URL untuk link publik
+ * Dapatkan live base URL sistem
  */
 export function getLiveBaseUrl(): string {
   if (typeof window !== 'undefined' && window.location.origin) {
     return window.location.origin;
   }
-  return 'https://www.haflahp3tq.site';
+  return 'https://haflahp3tq.site';
 }
 
 /**
- * Helper link undangan publik (fallback ke PDF URL jika tersedia)
+ * Dapatkan URL publik resmi persidangan: https://haflahp3tq.site/persidangan/[slug]
+ * Selalu prioritaskan domain resmi https://haflahp3tq.site agar link WA selalu valid
  */
-export function getPublicInvitationUrl(slug: string, token: string, customBaseUrl?: string): string {
-  const base = customBaseUrl || getLiveBaseUrl();
-  return `${base}/undangan/${slug}?token=${token}`;
+export function getPublicPersidanganUrl(slug: string, customBaseUrl?: string): string {
+  const base = customBaseUrl || 'https://haflahp3tq.site';
+  return `${base}/persidangan/${slug}`;
 }
 
 /**
  * Replace placeholder template WA dengan data aktual
- * Mendukung [NAMA_PESERTA], [JUDUL_PERSIDANGAN], [LINK_PDF_LANGSUNG], dan [LINK_UNDANGAN]
+ * Menghubungkan [LINK_UNDANGAN] ke halaman resmi https://haflahp3tq.site/persidangan/{slug}
  */
 export function buildMessageFromTemplate(
   template: string,
   peserta: { nama: string; no_wa?: string },
   persidangan: {
     judul: string;
+    slug: string;
     pdf_url?: string | null;
-  }
+  },
+  baseUrl?: string
 ): string {
-  const directPdfUrl = persidangan.pdf_url || '';
+  const publicUrl = getPublicPersidanganUrl(persidangan.slug, baseUrl);
 
   let msg = template || DEFAULT_TEMPLATE_WA;
   msg = msg.replace(/\[NAMA_PESERTA\]/g, peserta.nama || '');
   msg = msg.replace(/\[JUDUL_PERSIDANGAN\]/g, persidangan.judul || '');
-  msg = msg.replace(/\[LINK_PDF_LANGSUNG\]/g, directPdfUrl);
-  msg = msg.replace(/\[LINK_UNDANGAN\]/g, directPdfUrl);
+  msg = msg.replace(/\[LINK_UNDANGAN\]/g, publicUrl);
+  msg = msg.replace(/\[LINK_PDF_LANGSUNG\]/g, publicUrl);
 
   return msg;
 }
@@ -204,7 +207,7 @@ export async function sendWhatsApp(
     return { ok: false, message: 'Nomor WhatsApp tidak valid' };
   }
 
-  // Jika dipanggil dari client-side (browser), gunakan route proxy internal
+  // Client-side call: gunakan proxy internal Next.js
   if (typeof window !== 'undefined') {
     try {
       const res = await fetch('/api/whatsapp/send', {
@@ -222,7 +225,7 @@ export async function sendWhatsApp(
     }
   }
 
-  // Jika dipanggil dari server-side
+  // Server-side call: langsung panggil API Fonnte
   try {
     const token = process.env.FONNTE_API_KEY || process.env.FONNTE_TOKEN || 'qUYeuFbxZZPoTT6cniAj';
     const formData = new FormData();
@@ -270,6 +273,21 @@ export async function getPersidanganById(id: string): Promise<Persidangan | null
 
   if (error || !data) {
     console.error('Error fetching persidangan by id:', error);
+    return null;
+  }
+  return data as Persidangan;
+}
+
+export async function getPersidanganBySlug(slug: string): Promise<Persidangan | null> {
+  if (!slug) return null;
+
+  const { data, error } = await supabase
+    .from('persidangan')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error || !data) {
     return null;
   }
   return data as Persidangan;

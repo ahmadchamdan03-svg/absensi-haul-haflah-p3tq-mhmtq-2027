@@ -245,10 +245,10 @@ export default function PersidanganDashboardPage() {
                   <div className="flex items-center gap-1">
                     {hasPdf && (
                       <a
-                        href={item.pdf_url!}
+                        href={`/persidangan/${item.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="Buka Dokumen PDF"
+                        title="Buka Halaman Undangan Resmi"
                         className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
                       >
                         <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />

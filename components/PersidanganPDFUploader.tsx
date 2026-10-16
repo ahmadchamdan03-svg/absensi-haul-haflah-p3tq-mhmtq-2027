@@ -18,6 +18,7 @@ import {
   Persidangan,
   uploadPersidanganPdf,
   updatePersidangan,
+  getPublicPersidanganUrl,
 } from '@/lib/persidangan';
 
 interface PersidanganPDFUploaderProps {
@@ -36,8 +37,20 @@ export default function PersidanganPDFUploader({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedOfficialLink, setCopiedOfficialLink] = useState(false);
 
   const directPdfUrl = persidangan.pdf_url || '';
+  const officialPublicUrl = getPublicPersidanganUrl(persidangan.slug);
+
+  const handleCopyOfficialLink = async () => {
+    try {
+      await navigator.clipboard.writeText(officialPublicUrl);
+      setCopiedOfficialLink(true);
+      setTimeout(() => setCopiedOfficialLink(false), 2500);
+    } catch {
+      setErrorMsg('Gagal menyalin link resmi ke clipboard.');
+    }
+  };
 
   const handleCopyLink = async () => {
     if (!directPdfUrl) {
@@ -172,57 +185,93 @@ export default function PersidanganPDFUploader({
         </div>
       )}
 
-      {/* Info Link Langsung PDF Storage */}
-      {directPdfUrl ? (
-        <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Info Link Publik Resmi & Tautan PDF */}
+      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs space-y-4">
+        {/* Tautan Publik Resmi */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1 min-w-0 flex-1">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
-              Tautan Langsung Berkas PDF (Supabase Storage)
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
+                Tautan Resmi Undangan Publik
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                Viewer Fullscreen
+              </span>
             </div>
-            <div className="font-mono text-xs text-[#422F21] bg-white px-3 py-1.5 rounded-lg border border-[#E5D7C8] break-all select-all">
-              {directPdfUrl}
+            <div className="font-mono text-xs text-[#422F21] bg-white px-3 py-1.5 rounded-lg border border-[#E5D7C8] break-all select-all font-semibold">
+              {officialPublicUrl}
             </div>
             <div className="text-[11px] text-[#735334]">
-              Tautan ini yang disisipkan ke pesan WhatsApp pada placeholder <code>[LINK_PDF_LANGSUNG]</code>.
+              Tautan resmi ini yang disisipkan ke pesan WhatsApp pada placeholder <code>[LINK_UNDANGAN]</code>. Halaman ini memuat viewer PDF satu layar penuh dengan tombol unduh.
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={handleCopyLink}
+              onClick={handleCopyOfficialLink}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
             >
-              {copiedLink ? (
+              {copiedOfficialLink ? (
                 <>
                   <Check className="w-4 h-4 text-emerald-300" />
-                  Tersalin!
+                  Link Tersalin!
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  Salin Link PDF
+                  Salin Link Resmi
                 </>
               )}
             </button>
             <a
-              href={directPdfUrl}
+              href={`/persidangan/${persidangan.slug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
-              Buka PDF
+              Buka Halaman
             </a>
           </div>
         </div>
-      ) : (
-        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2.5">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>
-            Belum ada dokumen PDF yang diunggah. Unggah berkas PDF di bawah agar tautan langsung otomatis aktif pada pesan WhatsApp.
-          </span>
-        </div>
-      )}
+
+        {/* Status Berkas PDF */}
+        {directPdfUrl ? (
+          <div className="pt-3 border-t border-[#E5D7C8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#735334]">
+            <div className="flex items-center gap-2">
+              <FileCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="truncate max-w-md">
+                Berkas PDF Storage: <code className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-[#E5D7C8]">{directPdfUrl}</code>
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="text-[11px] font-bold text-[#8C6A47] hover:underline"
+              >
+                {copiedLink ? 'URL Storage Tersalin!' : 'Salin URL Berkas Storage'}
+              </button>
+              <span>•</span>
+              <a
+                href={directPdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-bold text-[#8C6A47] hover:underline"
+              >
+                Lihat File Asli
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              Belum ada dokumen PDF yang diunggah. Unggah dokumen PDF di bawah agar halaman resmi dapat menampilkan surat persidangan.
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Upload Box atau Preview PDF */}
       {!persidangan.pdf_url ? (
