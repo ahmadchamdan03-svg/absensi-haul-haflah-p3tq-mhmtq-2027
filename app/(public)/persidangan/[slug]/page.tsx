@@ -52,9 +52,27 @@ export default function PublicPersidanganViewerPage() {
   }, [slug]);
 
   const [downloading, setDownloading] = useState(false);
+  const [iframeError, setIframeError] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
 
-  const handleDownload = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  // Fallback timeout: jika setelah 3.5 detik iframe belum load (misal diblokir browser atau plugin PDF tidak ada)
+  useEffect(() => {
+    if (!persidangan?.pdf_url) return;
+
+    const timer = setTimeout(() => {
+      setIframeLoaded((loaded) => {
+        if (!loaded) {
+          setIframeError(true);
+        }
+        return loaded;
+      });
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [persidangan?.pdf_url]);
+
+  const handleDownload = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (!persidangan?.pdf_url) return;
     try {
       setDownloading(true);
@@ -227,7 +245,74 @@ export default function PublicPersidanganViewerPage() {
         src={persidangan.pdf_url}
         title={`Undangan ${persidangan.judul}`}
         className="w-full h-full border-0 select-none"
+        onLoad={() => {
+          setIframeLoaded(true);
+          setIframeError(false);
+        }}
+        onError={() => {
+          setIframeError(true);
+        }}
       />
+
+      {/* Fallback Panel Jika PDF Gagal Dimuat di Browser Tertentu */}
+      {iframeError && (
+        <div className="absolute inset-0 z-40 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl space-y-5">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+              <FileText className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="inline-block px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-bold uppercase tracking-wider">
+                Pratinjau Browser
+              </span>
+              <h3 className="font-serif font-black text-lg sm:text-xl text-[#422F21]">
+                PDF tidak bisa ditampilkan di browser ini.
+              </h3>
+              <p className="text-xs text-[#735334] leading-relaxed">
+                Silakan klik tombol di bawah untuk membuka atau mengunduh surat undangan persidangan resmi:
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => handleDownload()}
+                disabled={downloading}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md transition-all active:scale-95 disabled:opacity-50"
+              >
+                {downloading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                <span>⬇ Unduh PDF</span>
+              </button>
+
+              <a
+                href={persidangan.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#422F21] hover:bg-[#2b1f15] text-white text-xs font-bold shadow-md transition-all active:scale-95"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>↗ Buka di Tab Baru</span>
+              </a>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIframeError(false);
+                setIframeLoaded(true);
+              }}
+              className="text-[11px] text-[#A89887] hover:text-[#735334] underline pt-1 block mx-auto transition-colors"
+            >
+              Tutup &amp; coba lihat pratinjau kembali
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

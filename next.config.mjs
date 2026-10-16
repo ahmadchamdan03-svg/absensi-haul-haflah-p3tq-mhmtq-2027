@@ -4,7 +4,10 @@ const cspHeader = `
   script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob:;
   script-src-attr 'self' 'unsafe-inline';
   worker-src 'self' blob:;
-  child-src 'self' blob:;
+  child-src 'self' blob: https://*.supabase.co;
+  frame-src 'self' https://*.supabase.co blob: data:;
+  object-src 'self' https://*.supabase.co blob: data:;
+  media-src 'self' https://*.supabase.co;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' data: https://fonts.gstatic.com;
@@ -12,7 +15,8 @@ const cspHeader = `
   connect-src 'self' 
               https://*.supabase.co 
               wss://*.supabase.co 
-              https://api.fonnte.com;
+              https://api.fonnte.com 
+              https://generativelanguage.googleapis.com;
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
