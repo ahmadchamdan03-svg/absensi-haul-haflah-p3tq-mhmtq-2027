@@ -214,26 +214,24 @@ export default function ImportExportPage() {
       const ws = wb.addWorksheet(`Tamu ${katLabel}`);
 
       if (filterKat === 'ISTIMEWA') {
-        // Kolom Istimewa (6 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, KATEGORI UNDANGAN, ALAMAT, NO WHATSAPP / HP, JALUR MASUK
+        // Kolom Istimewa (5 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, KATEGORI UNDANGAN, ALAMAT, NO WHATSAPP / HP (Jalur masuk otomatis 'Jalur VIP')
         ws.columns = [
           { header: 'NAMA TAMU PUTRA', key: 'nama_putra', width: 30 },
           { header: 'NAMA TAMU PUTRI', key: 'nama_putri', width: 30 },
           { header: 'KATEGORI UNDANGAN', key: 'kategori', width: 24 },
           { header: 'ALAMAT', key: 'alamat', width: 26 },
           { header: 'NO WHATSAPP / HP', key: 'no_hp', width: 22 },
-          { header: 'JALUR MASUK', key: 'jalur_masuk', width: 24 },
         ];
       } else if (filterKat === 'KEHORMATAN') {
-        // Kolom Kehormatan (5 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, ALAMAT, NO WHATSAPP / HP, JALUR MASUK
+        // Kolom Kehormatan (4 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, ALAMAT, NO WHATSAPP / HP (Jalur masuk otomatis 'Jalur VIP')
         ws.columns = [
           { header: 'NAMA TAMU PUTRA', key: 'nama_putra', width: 30 },
           { header: 'NAMA TAMU PUTRI', key: 'nama_putri', width: 30 },
           { header: 'ALAMAT', key: 'alamat', width: 26 },
           { header: 'NO WHATSAPP / HP', key: 'no_hp', width: 22 },
-          { header: 'JALUR MASUK', key: 'jalur_masuk', width: 24 },
         ];
       } else {
-        // Kolom Umum (7 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, KATEGORI UNDANGAN, INSTANSI / ASAL LEMBAGA, ALAMAT, NO WHATSAPP / HP, JALUR MASUK
+        // Kolom Umum (6 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, KATEGORI UNDANGAN, INSTANSI / ASAL LEMBAGA, ALAMAT, NO WHATSAPP / HP (Jalur masuk otomatis 'Gerbang Selatan')
         ws.columns = [
           { header: 'NAMA TAMU PUTRA', key: 'nama_putra', width: 30 },
           { header: 'NAMA TAMU PUTRI', key: 'nama_putri', width: 30 },
@@ -241,7 +239,6 @@ export default function ImportExportPage() {
           { header: 'INSTANSI / ASAL LEMBAGA', key: 'instansi', width: 32 },
           { header: 'ALAMAT', key: 'alamat', width: 26 },
           { header: 'NO WHATSAPP / HP', key: 'no_hp', width: 22 },
-          { header: 'JALUR MASUK', key: 'jalur_masuk', width: 32 },
         ];
       }
 
@@ -271,7 +268,6 @@ export default function ImportExportPage() {
         kategori: 'VVIP',
         alamat: 'Kediri',
         no_hp: '081234567890',
-        jalur_masuk: 'Jalur VIP',
       };
 
       if (filterKat === 'KEHORMATAN') {
@@ -280,7 +276,6 @@ export default function ImportExportPage() {
           nama_putri: 'NYAI HJ. AZIZAH',
           alamat: 'Kediri',
           no_hp: '081298765432',
-          jalur_masuk: 'Jalur VIP',
         };
       } else if (filterKat === 'UMUM') {
         sampleData = {
@@ -290,7 +285,6 @@ export default function ImportExportPage() {
           instansi: 'Asatidz MHMTQ Sekalian',
           alamat: 'Kediri',
           no_hp: '085712345678',
-          jalur_masuk: 'Gerbang Selatan (Bola Dunia)',
         };
       }
 
@@ -304,7 +298,6 @@ export default function ImportExportPage() {
       if (filterKat === 'ISTIMEWA') {
         ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
         ws.getCell('E2').alignment = { vertical: 'middle', horizontal: 'center' };
-        ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
 
         // Dropdown Data Validation pada kolom C (KATEGORI UNDANGAN): VVIP, VIP
         const istimewaOptions = '"VVIP,VIP"';
@@ -320,7 +313,6 @@ export default function ImportExportPage() {
         }
       } else if (filterKat === 'KEHORMATAN') {
         ws.getCell('D2').alignment = { vertical: 'middle', horizontal: 'center' };
-        ws.getCell('E2').alignment = { vertical: 'middle', horizontal: 'center' };
       } else {
         // UMUM
         ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
