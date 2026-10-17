@@ -185,8 +185,17 @@ export function getPublicPersidanganUrl(
 }
 
 /**
+ * Dapatkan URL pendek resmi persidangan: https://haflahp3tq.site/s/[kode_peserta]
+ * Contoh: https://haflahp3tq.site/s/SD-A9X2
+ */
+export function getShortPersidanganUrl(kodePeserta: string, customBaseUrl?: string): string {
+  const base = customBaseUrl || 'https://haflahp3tq.site';
+  return `${base}/s/${encodeURIComponent(kodePeserta)}`;
+}
+
+/**
  * Replace placeholder template WA dengan data aktual
- * Menghubungkan [LINK_UNDANGAN] ke halaman resmi https://haflahp3tq.site/persidangan/{slug}?to={kode_peserta}
+ * Menggunakan URL pendek https://haflahp3tq.site/s/{kode_peserta} jika peserta memiliki kode presensi
  */
 export function buildMessageFromTemplate(
   template: string,
@@ -198,13 +207,15 @@ export function buildMessageFromTemplate(
   },
   baseUrl?: string
 ): string {
-  const publicUrl = getPublicPersidanganUrl(persidangan.slug, baseUrl, peserta.kode_peserta);
+  const targetUrl = peserta.kode_peserta
+    ? getShortPersidanganUrl(peserta.kode_peserta, baseUrl)
+    : getPublicPersidanganUrl(persidangan.slug, baseUrl);
 
   let msg = template || DEFAULT_TEMPLATE_WA;
   msg = msg.replace(/\[NAMA_PESERTA\]/g, peserta.nama || '');
   msg = msg.replace(/\[JUDUL_PERSIDANGAN\]/g, persidangan.judul || '');
-  msg = msg.replace(/\[LINK_UNDANGAN\]/g, publicUrl);
-  msg = msg.replace(/\[LINK_PDF_LANGSUNG\]/g, publicUrl);
+  msg = msg.replace(/\[LINK_UNDANGAN\]/g, targetUrl);
+  msg = msg.replace(/\[LINK_PDF_LANGSUNG\]/g, targetUrl);
 
   return msg;
 }
@@ -308,44 +319,54 @@ export async function getPersidanganBySlug(slug: string): Promise<Persidangan | 
 }
 
 /**
- * Generate sequential participant code with persidangan prefix:
- * Example: SD30001, SD30002, SN0001
+ * Helper untuk menghasilkan 4 karakter acak alphanumeric huruf kapital (A-Z, 0-9)
+ * Contoh: "A9X2", "7K1M"
+ */
+function getRandom4(): string {
+  let str = Math.random().toString(36).substring(2, 6).toUpperCase();
+  while (str.length < 4) {
+    str += Math.random().toString(36).substring(2, 3).toUpperCase();
+  }
+  return str.slice(0, 4);
+}
+
+/**
+ * Generate random participant code with format {prefix}-{random4}:
+ * Example: SD-A9X2, SN-7K1M
+ * Dilengkapi pengecekan duplikasi agar selalu unik di persidangan tersebut.
  */
 export async function generateKodePeserta(
   persidanganId: string,
   prefixKode?: string | null
 ): Promise<string> {
   const prefix = (prefixKode || 'SD').trim().toUpperCase();
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('persidangan_peserta')
     .select('kode_peserta')
     .eq('persidangan_id', persidanganId);
 
-  if (error || !data || data.length === 0) {
-    return `${prefix}0001`;
-  }
-
-  let maxSeq = 0;
-  const regex = new RegExp(`^${prefix}(\\d+)$`, 'i');
-
-  for (const row of data) {
-    if (!row.kode_peserta) continue;
-    const match = row.kode_peserta.match(regex);
-    if (match && match[1]) {
-      const num = parseInt(match[1], 10);
-      if (!isNaN(num) && num > maxSeq) {
-        maxSeq = num;
+  const existingCodes = new Set<string>();
+  if (data) {
+    for (const row of data) {
+      if (row.kode_peserta) {
+        existingCodes.add(row.kode_peserta.trim().toUpperCase());
       }
     }
   }
 
-  const nextSeq = maxSeq + 1;
-  return `${prefix}${String(nextSeq).padStart(4, '0')}`;
+  let code = `${prefix}-${getRandom4()}`;
+  let attempts = 0;
+  while (existingCodes.has(code) && attempts < 100) {
+    code = `${prefix}-${getRandom4()}`;
+    attempts++;
+  }
+
+  return code;
 }
 
 /**
- * Generate a sequential batch of participant codes with persidangan prefix:
- * Example for 3 participants: [SD30001, SD30002, SD30003]
+ * Generate a sequential batch of random unique participant codes with persidangan prefix:
+ * Example: [SD-A9X2, SD-7K1M, SD-3P9Q]
  */
 export async function generateBatchKodePeserta(
   persidanganId: string,
@@ -359,28 +380,30 @@ export async function generateBatchKodePeserta(
     .select('kode_peserta')
     .eq('persidangan_id', persidanganId);
 
-  let maxSeq = 0;
-  const regex = new RegExp(`^${prefix}(\\d+)$`, 'i');
-
-  if (data && data.length > 0) {
+  const existingCodes = new Set<string>();
+  if (data) {
     for (const row of data) {
-      if (!row.kode_peserta) continue;
-      const match = row.kode_peserta.match(regex);
-      if (match && match[1]) {
-        const num = parseInt(match[1], 10);
-        if (!isNaN(num) && num > maxSeq) {
-          maxSeq = num;
-        }
+      if (row.kode_peserta) {
+        existingCodes.add(row.kode_peserta.trim().toUpperCase());
       }
     }
   }
 
-  const codes: string[] = [];
-  for (let i = 1; i <= count; i++) {
-    const nextSeq = maxSeq + i;
-    codes.push(`${prefix}${String(nextSeq).padStart(4, '0')}`);
+  const generatedCodes: string[] = [];
+  const sessionSet = new Set<string>();
+
+  for (let i = 0; i < count; i++) {
+    let code = `${prefix}-${getRandom4()}`;
+    let attempts = 0;
+    while ((existingCodes.has(code) || sessionSet.has(code)) && attempts < 100) {
+      code = `${prefix}-${getRandom4()}`;
+      attempts++;
+    }
+    sessionSet.add(code);
+    generatedCodes.push(code);
   }
-  return codes;
+
+  return generatedCodes;
 }
 
 export async function createPersidangan(

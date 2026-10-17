@@ -21,10 +21,83 @@ import {
   updatePersidangan,
   getPublicPersidanganUrl,
 } from '@/lib/persidangan';
+import { supabase } from '@/lib/supabase';
 
 interface PersidanganPDFUploaderProps {
   persidangan: Persidangan;
   onUpdate: (updated: Persidangan) => void;
+}
+
+/**
+ * Konversi berkas PDF menjadi daftar gambar JPG langsung di browser (client-side)
+ * Menggunakan pdfjs-dist dan Canvas HTML5, lalu mengunggah hasilnya ke Supabase Storage.
+ */
+async function convertPdfDataToJpgUrls(
+  arrayBuffer: ArrayBuffer,
+  persidanganId: string,
+  onProgress?: (status: string) => void
+): Promise<string[]> {
+  const pdfjs = await import('pdfjs-dist');
+  if (typeof window !== 'undefined') {
+    pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+  }
+
+  const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+  const pdfDoc = await loadingTask.promise;
+  const numPages = Math.min(pdfDoc.numPages, 10);
+  const jpgUrls: string[] = [];
+  const timestamp = Date.now();
+
+  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+    if (onProgress) {
+      onProgress(`Mengonversi halaman ${pageNum} dari ${numPages}...`);
+    }
+
+    const page = await pdfDoc.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 1.8 });
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) continue;
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport,
+      canvas: canvas,
+    };
+
+    await page.render(renderContext as any).promise;
+
+    const blob: Blob | null = await new Promise((resolve) => {
+      canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.88);
+    });
+
+    if (!blob) continue;
+
+    const storagePath = `${persidanganId}/page-${pageNum}.jpg`;
+    const { error: uploadError } = await supabase.storage
+      .from('undangan-pdf')
+      .upload(storagePath, blob, {
+        contentType: 'image/jpeg',
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      throw new Error(`Gagal mengunggah halaman ${pageNum} ke storage: ${uploadError.message}`);
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from('undangan-pdf').getPublicUrl(storagePath);
+
+    jpgUrls.push(`${publicUrl}?v=${timestamp}`);
+  }
+
+  return jpgUrls;
 }
 
 export default function PersidanganPDFUploader({
@@ -74,29 +147,33 @@ export default function PersidanganPDFUploader({
     setErrorMsg(null);
     setSuccessMsg(null);
     setConverting(true);
-    setConvertingStatus('Sedang memproses PDF jadi gambar...');
+    setConvertingStatus('Mengunduh berkas PDF untuk diproses di browser...');
 
     try {
-      const convRes = await fetch('/api/persidangan/convert-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          persidangan_id: persidangan.id,
-          pdf_url: persidangan.pdf_url,
-        }),
+      const res = await fetch(persidangan.pdf_url);
+      if (!res.ok) {
+        throw new Error(`Gagal mengunduh berkas PDF dari storage (status HTTP: ${res.status})`);
+      }
+      const arrayBuffer = await res.arrayBuffer();
+
+      const jpgUrls = await convertPdfDataToJpgUrls(
+        arrayBuffer,
+        persidangan.id,
+        (status) => setConvertingStatus(status)
+      );
+
+      const { data: updatedData, error: updateErr } = await updatePersidangan(persidangan.id, {
+        jpg_urls: jpgUrls,
       });
 
-      const convJson = await convRes.json();
-      if (convJson.success && convJson.jpg_urls) {
-        setSuccessMsg(`Berhasil mengonversi dokumen menjadi ${convJson.jpg_urls.length} gambar!`);
-        onUpdate({
-          ...persidangan,
-          jpg_urls: convJson.jpg_urls,
-        });
-      } else {
-        setErrorMsg('Konversi gagal: ' + (convJson.message || 'Terjadi kesalahan sistem.'));
+      if (updateErr || !updatedData) {
+        throw new Error(updateErr?.message || 'Gagal menyimpan URL gambar ke database.');
       }
+
+      setSuccessMsg(`Berhasil mengonversi dokumen menjadi ${jpgUrls.length} gambar via browser!`);
+      onUpdate(updatedData);
     } catch (err: any) {
+      console.error('Error konversi PDF client-side:', err);
       setErrorMsg('Gagal mengonversi: ' + (err?.message || err));
     } finally {
       setConverting(false);
@@ -145,38 +222,39 @@ export default function PersidanganPDFUploader({
 
       onUpdate(updatedData);
 
-      // Konversi otomatis PDF -> JPG
+      // Konversi otomatis PDF -> JPG langsung di browser pengguna
       setConverting(true);
-      setConvertingStatus('Sedang memproses PDF jadi gambar...');
+      setConvertingStatus('Sedang mengonversi PDF menjadi gambar di browser...');
 
       try {
-        const convRes = await fetch('/api/persidangan/convert-pdf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            persidangan_id: persidangan.id,
-            pdf_url: pdfUrl,
-          }),
+        const arrayBuffer = await file.arrayBuffer();
+        const jpgUrls = await convertPdfDataToJpgUrls(
+          arrayBuffer,
+          persidangan.id,
+          (status) => setConvertingStatus(status)
+        );
+
+        const { data: finalUpdated, error: finalErr } = await updatePersidangan(persidangan.id, {
+          jpg_urls: jpgUrls,
         });
 
-        const convJson = await convRes.json();
-        if (convJson.success && convJson.jpg_urls) {
-          setSuccessMsg(
-            `Dokumen PDF berhasil diunggah & dikonversi menjadi ${convJson.jpg_urls.length} gambar!`
-          );
-          onUpdate({
-            ...updatedData,
-            pdf_url: pdfUrl,
-            jpg_urls: convJson.jpg_urls,
-          });
-        } else {
+        if (finalErr || !finalUpdated) {
           setErrorMsg(
-            'PDF berhasil diunggah, namun konversi otomatis ke gambar gagal: ' +
-              (convJson.message || 'Silakan klik tombol Coba Konversi Ulang.')
+            'PDF berhasil diunggah, namun gagal menyimpan daftar gambar: ' + (finalErr?.message || '')
           );
+        } else {
+          setSuccessMsg(
+            `Dokumen PDF berhasil diunggah & dikonversi menjadi ${jpgUrls.length} gambar via browser!`
+          );
+          onUpdate(finalUpdated);
         }
       } catch (convErr: any) {
-        setErrorMsg('Gagal mengonversi PDF ke gambar: ' + (convErr?.message || convErr));
+        console.error('Client-side convert error:', convErr);
+        setErrorMsg(
+          'PDF berhasil diunggah, namun konversi otomatis ke gambar gagal: ' +
+            (convErr?.message || convErr) +
+            '. Silakan coba klik tombol Konversi Ulang ke Gambar.'
+        );
       } finally {
         setConverting(false);
       }

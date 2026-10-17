@@ -27,7 +27,6 @@ function PublicPersidanganContent() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [autoConverting, setAutoConverting] = useState(false);
 
   useEffect(() => {
     async function loadPersidangan() {
@@ -56,34 +55,6 @@ function PublicPersidanganContent() {
 
     loadPersidangan();
   }, [slug]);
-
-  // Auto-convert fallback jika persidangan memiliki pdf_url tapi jpg_urls masih kosong
-  useEffect(() => {
-    if (
-      persidangan?.id &&
-      persidangan?.pdf_url &&
-      (!persidangan.jpg_urls || persidangan.jpg_urls.length === 0) &&
-      !autoConverting
-    ) {
-      setAutoConverting(true);
-      fetch('/api/persidangan/convert-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          persidangan_id: persidangan.id,
-          pdf_url: persidangan.pdf_url,
-        }),
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.success && data.jpg_urls) {
-            setPersidangan((prev) => (prev ? { ...prev, jpg_urls: data.jpg_urls } : null));
-          }
-        })
-        .catch((err) => console.error('Auto convert error:', err))
-        .finally(() => setAutoConverting(false));
-    }
-  }, [persidangan?.id, persidangan?.pdf_url, persidangan?.jpg_urls, autoConverting]);
 
   const handleDownload = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
@@ -281,10 +252,10 @@ function PublicPersidanganContent() {
             </div>
             <div className="space-y-2">
               <h3 className="font-serif font-bold text-lg text-[#422F21]">
-                {autoConverting ? 'Menyiapkan Gambar Undangan...' : 'PDF Sedang Diproses'}
+                PDF Sedang Dipersiapkan
               </h3>
               <p className="text-xs text-[#735334] max-w-md mx-auto leading-relaxed">
-                Halaman surat persidangan sedang dipersiapkan agar dapat tampil langsung di layar perangkat Anda. Silakan tunggu beberapa saat atau klik tombol <strong>⬇ Unduh PDF</strong> di atas.
+                Halaman surat persidangan sedang dipersiapkan. Anda dapat mengunduh berkas langsung melalui tombol <strong>⬇ Unduh PDF</strong> di atas.
               </p>
             </div>
           </div>
@@ -317,16 +288,6 @@ function PublicPersidanganContent() {
                   level="M"
                   style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
                 />
-              </div>
-
-              {/* Teks Kode Font Besar & Jelas */}
-              <div className="mt-4 px-6 py-2.5 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] shadow-xs">
-                <span className="text-[10px] font-bold text-[#8C6A47] uppercase tracking-widest block mb-0.5">
-                  ID Peserta
-                </span>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#422F21] tracking-widest">
-                  {toCode}
-                </span>
               </div>
 
               <p className="text-[11px] text-[#A89887] mt-3">

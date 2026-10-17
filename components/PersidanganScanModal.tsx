@@ -157,10 +157,13 @@ export default function PersidanganScanModal({
       const rawCode = String(decodedText || '').trim();
       if (!rawCode) return;
 
-      // Extract code if user scanned a full URL: e.g. https://domain/persidangan/slug?to=SD30001
+      // Extract code if user scanned a URL: e.g. /s/SD-A9X2 or ?to=SD-A9X2
       let cleanCode = rawCode;
       try {
-        if (rawCode.includes('?to=')) {
+        if (rawCode.includes('/s/')) {
+          const parts = rawCode.split('/s/');
+          if (parts[1]) cleanCode = parts[1].split('?')[0].split('/')[0];
+        } else if (rawCode.includes('?to=')) {
           const urlObj = new URL(rawCode);
           cleanCode = urlObj.searchParams.get('to') || cleanCode;
         } else if (rawCode.includes('to=')) {
