@@ -234,3 +234,143 @@ body {
   }
 }
 
+/* Custom Time Picker & Analog Clock (Tema Warm Latte, Mocha & Gold) */
+.custom-time-picker.react-time-picker {
+  display: flex !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+.custom-time-picker .react-time-picker__wrapper {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  border-radius: 0.75rem !important; /* rounded-xl */
+  border: 1px solid #D5C4B4 !important;
+  background-color: #ffffff !important;
+  padding: 0.375rem 0.625rem !important;
+  transition: all 0.2s ease !important;
+  min-height: 38px !important;
+}
+
+.custom-time-picker.has-error .react-time-picker__wrapper {
+  border-color: #fb7185 !important;
+  background-color: rgba(254, 242, 242, 0.5) !important;
+  box-shadow: 0 0 0 1px #fca5a5 !important;
+}
+
+.custom-time-picker .react-time-picker__wrapper:focus-within {
+  border-color: #8C6A47 !important;
+  box-shadow: 0 0 0 2px rgba(140, 106, 71, 0.2) !important;
+}
+
+.custom-time-picker .react-time-picker__inputGroup {
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  color: #422F21 !important;
+  padding: 0 4px !important;
+}
+
+.custom-time-picker .react-time-picker__inputGroup__input {
+  color: #422F21 !important;
+  font-weight: 700 !important;
+  padding: 0 2px !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.custom-time-picker .react-time-picker__inputGroup__input::placeholder {
+  color: #C4A88E !important;
+  opacity: 0.7 !important;
+}
+
+.custom-time-picker .react-time-picker__inputGroup__divider {
+  color: #8C6A47 !important;
+  font-weight: 800 !important;
+  padding: 0 2px !important;
+}
+
+.custom-time-picker .react-time-picker__button {
+  padding: 4px 6px !important;
+  color: #8C6A47 !important;
+  border-radius: 0.375rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+  border: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+}
+
+.custom-time-picker .react-time-picker__button:hover {
+  background-color: #FAF7F3 !important;
+  color: #422F21 !important;
+}
+
+.custom-time-picker .react-time-picker__clock {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  z-index: 60 !important;
+  width: 220px !important;
+  height: 220px !important;
+  background-color: #FAF7F3 !important;
+  border: 1.5px solid #D5C4B4 !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 12px 30px -4px rgba(66, 47, 33, 0.2), 0 6px 12px -2px rgba(66, 47, 33, 0.08) !important;
+  padding: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.custom-time-picker .react-time-picker__clock--closed {
+  display: none !important;
+}
+
+.custom-time-picker .react-clock {
+  width: 180px !important;
+  height: 180px !important;
+  background-color: #ffffff !important;
+  border-radius: 50% !important;
+  box-shadow: inset 0 2px 8px rgba(66, 47, 33, 0.08) !important;
+}
+
+.custom-time-picker .react-clock__face {
+  border: 2px solid #8C6A47 !important;
+}
+
+.custom-time-picker .react-clock__hand__body {
+  background-color: #422F21 !important;
+  border-radius: 2px !important;
+}
+
+.custom-time-picker .react-clock__hour-hand__body {
+  background-color: #422F21 !important;
+}
+
+.custom-time-picker .react-clock__minute-hand__body {
+  background-color: #8C6A47 !important;
+}
+
+.custom-time-picker .react-clock__second-hand__body {
+  background-color: #D49B5B !important;
+}
+
+.custom-time-picker .react-clock__mark__body {
+  background-color: #8C6A47 !important;
+}
+
+.custom-time-picker .react-clock__mark__number {
+  color: #422F21 !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+  font-family: inherit !important;
+}
+
+

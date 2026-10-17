@@ -1,9 +1,17 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'react-qr-code';
+import 'react-time-picker/dist/TimePicker.css';
+import 'react-clock/dist/Clock.css';
+
+const TimePicker = dynamic(() => import('react-time-picker'), {
+  ssr: false,
+});
+
 import {
   Calendar,
   Clock,
@@ -254,6 +262,22 @@ export default function UndanganWaliPage() {
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
   const [rsvpValidationErr, setRsvpValidationErr] = useState<string | null>(null);
+
+  // Deteksi Device untuk RSVP Time Picker (Desktop custom clock vs Mobile native input)
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const checkIsMobile = () => {
+      const isMobileWidth = window.innerWidth < 768;
+      const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileDevice(isMobileWidth || isMobileUA);
+    };
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   // State RSVP Khusus Tamu Undangan (2 Tombol: HADIR / BERHALANGAN)
   const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
@@ -1493,52 +1517,46 @@ export default function UndanganWaliPage() {
                       <span className="text-[10px] text-[#8C6A47] font-semibold">24 Jam</span>
                     </div>
 
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="relative flex-1">
-                        <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                          type="time"
-                          value={jamKonfirmasi}
-                          onChange={(e) => {
-                            setJamKonfirmasi(e.target.value);
-                            setRsvpValidationErr(null);
-                          }}
-                          className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#422F21] focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47] ${
-                            !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#D5C4B4]'
-                          }`}
-                        />
-                      </div>
+                    <div className="flex items-center gap-2">
+                      {isMounted && !isMobileDevice ? (
+                        <div className="relative flex-1">
+                          <TimePicker
+                            value={jamKonfirmasi || null}
+                            onChange={(val) => {
+                              setJamKonfirmasi(val || '');
+                              setRsvpValidationErr(null);
+                            }}
+                            format="HH:mm"
+                            disableClock={false}
+                            clearIcon={null}
+                            clockIcon={<Clock className="w-4 h-4 text-[#8C6A47]" />}
+                            className={`custom-time-picker w-full ${
+                              !jamKonfirmasi && rsvpValidationErr ? 'has-error' : ''
+                            }`}
+                            locale="id-ID"
+                            hourPlaceholder="00"
+                            minutePlaceholder="00"
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative flex-1">
+                          <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <input
+                            type="time"
+                            value={jamKonfirmasi}
+                            onChange={(e) => {
+                              setJamKonfirmasi(e.target.value);
+                              setRsvpValidationErr(null);
+                            }}
+                            className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#422F21] focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47] ${
+                              !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#D5C4B4]'
+                            }`}
+                          />
+                        </div>
+                      )}
                       <div className="text-xs font-bold text-[#8C6A47] px-2.5 py-2 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4] shrink-0 font-mono">
                         {jamKonfirmasi ? `${jamKonfirmasi} WIB` : 'Belum dipilih'}
                       </div>
-                    </div>
-
-                    {/* Presets Jam Kedatangan Cepat */}
-                    <div className="flex flex-wrap gap-1">
-                      {[
-                        { label: '06:00', val: '06:00' },
-                        { label: '06:30', val: '06:30' },
-                        { label: '08:00', val: '08:00' },
-                        { label: '10:00', val: '10:00' },
-                        { label: '14:00', val: '14:00' },
-                        { label: '20:00', val: '20:00' },
-                      ].map((preset) => (
-                        <button
-                          key={preset.val}
-                          type="button"
-                          onClick={() => {
-                            setJamKonfirmasi(preset.val);
-                            setRsvpValidationErr(null);
-                          }}
-                          className={`text-[10px] px-2 py-0.5 rounded-lg border font-mono font-bold transition-all cursor-pointer ${
-                            jamKonfirmasi === preset.val
-                              ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-xs'
-                              : 'bg-white text-[#7A624E] border-[#D5C4B4]/80 hover:bg-[#FAF0E6]'
-                          }`}
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
                     </div>
                   </div>
 
