@@ -53,8 +53,7 @@ export default function ScanPage() {
   const [recentScans, setRecentScans] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Scan mode: USB Hardware vs Kamera
-  const [scanMode, setScanMode] = useState<'USB' | 'KAMERA'>('USB');
+  // Visual feedback overlay
   const [scanFeedback, setScanFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -70,12 +69,6 @@ export default function ScanPage() {
 
   const scannerRef = useRef<any>(null);
   const isScanningRef = useRef(false);
-  const scanLockRef = useRef(false);
-  const isProcessingScanRef = useRef(false);
-  const lastScannedCodeRef = useRef('');
-  const lastScannedTimeRef = useRef(0);
-  const scanTimestampsRef = useRef<number[]>([]);
-  const [isReceivingInput, setIsReceivingInput] = useState(false);
 
   // Fetch 5 scan terakhir hari ini
   const fetchRecentScans = useCallback(async () => {
@@ -211,11 +204,8 @@ export default function ScanPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scanBufferRef = useRef('');
   const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastCharTimeRef = useRef(0);
-  const scanQueueRef = useRef<string[]>([]);
-  const handleScanCodeRef = useRef<(code: string) => Promise<void>>();
 
-  // Handler memproses kode QR (100% Query Langsung ke Supabase peserta_santri & tamu_undangan)
+  // Handler memproses kode QR (100% Query Langsung ke Supabase peserta_santri & tamu_undangan - Gen 2)
   const handleScanCode = useCallback(async (scannedRaw: string) => {
     let cleanCode = scannedRaw.trim();
     // Tangani jika format QR adalah URL web (e.g. https://domain.com/u/SH0001)
@@ -228,67 +218,15 @@ export default function ScanPage() {
     }
 
     cleanCode = cleanCode.toUpperCase().trim();
+    // Batasi input maksimal 50 karakter agar aman dari memory leak (FIX 4)
+    if (cleanCode.length > 50) cleanCode = cleanCode.substring(0, 50);
     if (!cleanCode || cleanCode.length < 2) return;
 
-    const now = Date.now();
-
-    // 1. Anti-Duplicate (FIX 4): Abaikan jika kode yang SAMA PERSIS di-scan dalam kurun waktu 2000ms
-    if (lastScannedCodeRef.current === cleanCode && now - lastScannedTimeRef.current < 2000) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Ignored duplicate scan within 2s for ${cleanCode}`);
-      }
-      return;
-    }
-
-    // 2. Guard Lock 400ms (FIX 4): Mencegah double-trigger hardware simultan untuk kode yang sama
-    // (Diturunkan dari 1000ms ke 400ms; kode yang berbeda tetap diizinkan berurutan)
-    if (scanLockRef.current && lastScannedCodeRef.current === cleanCode) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Ignored scan during 400ms lock: ${cleanCode}`);
-      }
-      return;
-    }
-
-    // Pasang lock 400ms untuk anti-bounce hardware
-    scanLockRef.current = true;
-    setTimeout(() => {
-      scanLockRef.current = false;
-    }, 400);
-
-    // 3. Concurrency Lock & Antrean Cepat (FIX 5):
-    // Jika sistem sedang memproses query Supabase untuk kode sebelumnya, masukkan ke antrean
-    // agar scan antrean cepat (<1 detik antar scan) tidak dibuang/di-ignore!
-    if (isProcessingScanRef.current) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Sistem sedang memproses query, masukkan ${cleanCode} ke antrean`);
-      }
-      if (!scanQueueRef.current.includes(cleanCode)) {
-        scanQueueRef.current.push(cleanCode);
-      }
-      return;
-    }
-
-    // Update tracking kode & waktu terakhir
-    lastScannedCodeRef.current = cleanCode;
-    lastScannedTimeRef.current = now;
-
-    // 4. Rate-Limiting: Maksimal 10 scan dalam rentang 10 detik
-    scanTimestampsRef.current = scanTimestampsRef.current.filter((t) => now - t < 10000);
-    if (scanTimestampsRef.current.length >= 10) {
-      setErrorMsg('Peringatan: Terlalu banyak scan berturut-turut dalam 10 detik. Mohon jeda 1 detik.');
-      playBuzzerError();
-      return;
-    }
-    scanTimestampsRef.current.push(now);
-
-    // FIX 5: Set isProcessingScanRef.current = true tepat saat proses query dimulai
-    isProcessingScanRef.current = true;
     setErrorMsg(null);
     setCheckinResult(null);
-    setIsReceivingInput(false);
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`[Scan Debug] Submit: "${cleanCode}" Processing: true Timestamp: ${now}`);
+      console.log(`[Scan Debug] Submit: "${cleanCode}" Timestamp: ${Date.now()}`);
     }
 
     try {
@@ -469,97 +407,50 @@ export default function ScanPage() {
         console.log('[Scan Debug] Hasil: FAILED with exception for', cleanCode, err);
       }
     } finally {
-      // FIX 5: Pastikan isProcessingScanRef.current SELALU dimatikan apapun hasilnya (sukses/gagal)
-      isProcessingScanRef.current = false;
-
-      // Jalankan scan berikutnya dari antrean jika ada (antrean cepat <1s)
-      if (scanQueueRef.current.length > 0) {
-        const nextCode = scanQueueRef.current.shift();
-        if (nextCode && handleScanCodeRef.current) {
-          setTimeout(() => {
-            handleScanCodeRef.current?.(nextCode);
-          }, 50);
-        }
-      }
+      // Gen 2: Tanpa lock dan tanpa antrean
     }
   }, []);
 
-  handleScanCodeRef.current = handleScanCode;
-
-  // Global USB Barcode Scanner Listener (Hanya aktif jika scanMode === 'USB')
+  // =========================================================================
+  // GLOBAL USB BARCODE SCANNER LISTENER (GEN 2 - bcaf486)
+  // Scanner USB HID mengetik karakter sangat cepat lalu mengirim Enter.
+  // Listener ini menangkap pola tersebut secara global tanpa perlu fokus ke input.
+  // =========================================================================
   useEffect(() => {
-    if (scanMode !== 'USB') return;
+    // Auto-focus input field saat halaman dimuat
+    if (inputRef.current) inputRef.current.focus();
 
     const handleKeyPress = (e: KeyboardEvent) => {
+      // FIX 2: Abaikan jika user sedang mengetik di input field, textarea, atau select
       const target = e.target as HTMLElement;
-      // FIX 2: Kembalikan filter tag INPUT, TEXTAREA, dan SELECT
-      // Jangan intersep jika user sedang mengetik di input manual, textarea, atau select
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
         return;
       }
 
-      // Abaikan tombol modifier (Ctrl, Alt, Meta)
+      // Abaikan modifier keys
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
-      const now = Date.now();
-      const diff = lastCharTimeRef.current ? now - lastCharTimeRef.current : 0;
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Char masuk: "${e.key}" Diff: ${diff}ms Timestamp: ${now}`);
-      }
-
-      // Deteksi Terminator: Enter, \r, atau \n
-      if (e.key === 'Enter' || e.key === '\r' || e.key === '\n') {
-        e.preventDefault();
-        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-        setIsReceivingInput(false);
-        lastCharTimeRef.current = 0;
-
+      if (e.key === 'Enter') {
+        // Enter = akhir input dari scanner USB
         const bufferedCode = scanBufferRef.current.trim();
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('[Scan Debug] Terminator Enter terdeteksi, buffer:', bufferedCode);
-        }
         if (bufferedCode.length >= 3) {
           handleScanCode(bufferedCode);
         }
         scanBufferRef.current = '';
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        e.preventDefault();
         return;
       }
 
-      // FIX 1 & FIX 3: Akumulasi karakter ke buffer tanpa memicu re-render loop
+      // FIX 2: Hanya tangkap karakter printable, buffer timeout 100ms
       if (e.key.length === 1) {
-        // Typing Velocity Detection & Buffer Management (FIX 3):
-        // - Scanner USB ultra-fast mengirim karakter sangat cepat (<25ms).
-        // - Scanner USB jeda lambat (misal jeda 200ms antar karakter) tetap diakomodasi utuh tanpa terpotong.
-        // - Jika jeda antar karakter > 500ms (idle) atau buffer kosong, reset buffer untuk barcode baru.
-        if (diff > 500 || scanBufferRef.current === '') {
-          scanBufferRef.current = '';
+        if (scanBufferRef.current.length < 50) {
+          scanBufferRef.current += e.key;
         }
-        lastCharTimeRef.current = now;
-
-        // Cukup simpan di buffer ref murni (Hapus setIsReceivingInput per-karakter agar tidak drop character)
-        scanBufferRef.current += e.key;
-
-        if (process.env.NODE_ENV !== 'production') {
-          const isFast = diff > 0 && diff < 25;
-          console.log(`[Scan Debug] Buffer saat ini: "${scanBufferRef.current}" (Diff: ${diff}ms, FastUSB: ${isFast})`);
-        }
-
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-
-        // FIX 3: Buffer Timeout dilonggarkan menjadi 500ms untuk fallback scanner tanpa Enter
         scanTimerRef.current = setTimeout(() => {
-          const bufferedCode = scanBufferRef.current.trim();
-          if (bufferedCode.length >= 3) {
-            if (process.env.NODE_ENV !== 'production') {
-              console.log('[Scan Debug] Auto-submit buffer setelah jeda fallback 500ms (scanner tanpa Enter):', bufferedCode);
-            }
-            handleScanCode(bufferedCode);
-          }
           scanBufferRef.current = '';
-          lastCharTimeRef.current = 0;
-          setIsReceivingInput(false);
-        }, 500);
+        }, 100);
       }
     };
 
@@ -568,7 +459,7 @@ export default function ScanPage() {
       window.removeEventListener('keydown', handleKeyPress);
       if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
     };
-  }, [scanMode, handleScanCode]);
+  }, [handleScanCode]);
 
   // Inisialisasi & Start Kamera
   const startCamera = async (mode: 'environment' | 'user' = facingMode) => {
@@ -645,16 +536,14 @@ export default function ScanPage() {
   };
 
   useEffect(() => {
-    if (scanMode === 'KAMERA' && !activeItem && !checkinResult) {
+    if (!activeItem && !checkinResult) {
       startCamera(facingMode);
-    } else {
-      stopCamera();
     }
 
     return () => {
       stopCamera();
     };
-  }, [scanMode, activeItem, checkinResult, facingMode]);
+  }, [activeItem, checkinResult, facingMode]);
 
   // Handler Check / Uncheck Kartu Hitam Gold (dengan konfirmasi modal & audit log)
   const handleToggleKartuHitamGold = async () => {
@@ -1029,90 +918,8 @@ export default function ScanPage() {
       {/* ========================================================================= */}
       {!activeItem && !checkinResult && (
         <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-opera-200 space-y-5">
-          {/* 1. TOGGLE MODE SCANNER (ELIMINASI BENTROK DUAL-PATH) */}
-          <div className="space-y-1.5">
-            <div className="text-[11px] font-bold text-[#8C6A47] uppercase tracking-wider flex items-center justify-between">
-              <span>Pilih Mode Input Scanner:</span>
-              <span className="font-mono text-[10px] text-stone-500">Mode: {scanMode}</span>
-            </div>
-            <div className="bg-[#FAF7F3] rounded-2xl p-1.5 border border-[#D5C4B4] grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setScanMode('USB');
-                  stopCamera();
-                }}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
-                  scanMode === 'USB'
-                    ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
-                    : 'bg-white text-[#7A624E] hover:bg-[#FAF0E6] border border-[#D5C4B4]/60'
-                }`}
-              >
-                <Usb className="w-4 h-4 shrink-0" />
-                <span>Scanner USB Hardware</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setScanMode('KAMERA');
-                  startCamera(facingMode);
-                }}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
-                  scanMode === 'KAMERA'
-                    ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
-                    : 'bg-white text-[#7A624E] hover:bg-[#FAF0E6] border border-[#D5C4B4]/60'
-                }`}
-              >
-                <Camera className="w-4 h-4 shrink-0" />
-                <span>Kamera HP / Web</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 2A. MODE SCANNER USB HARDWARE (ZERO-LATENCY, BEBAS BENTROK KAMERA) */}
-          {scanMode === 'USB' ? (
-            <div className="rounded-3xl p-6 bg-gradient-to-b from-[#FAF7F3] to-[#F5ECE1] border-2 border-[#D5C4B4] space-y-4 text-center">
-              <div className="relative inline-flex items-center justify-center">
-                <div className="w-20 h-20 rounded-3xl bg-white border-2 border-[#8C6A47] shadow-md flex items-center justify-center text-[#8C6A47]">
-                  <Usb className="w-10 h-10 animate-pulse text-[#8C6A47]" />
-                </div>
-                <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
-                </span>
-              </div>
-
-              <div className="space-y-1 max-w-sm mx-auto">
-                <h3 className="font-serif font-black text-base text-[#422F21]">
-                  Scanner USB Hardware Siap Digunakan
-                </h3>
-                <p className="text-xs text-[#7A624E] leading-relaxed">
-                  Hubungkan barcode scanner USB ke laptop/komputer. Arahkan laser ke kode QR undangan pada kartu tamu/wali.
-                </p>
-              </div>
-
-              {/* Status Buffer Realtime USB */}
-              <div className="p-3 rounded-2xl bg-white border border-[#D5C4B4] flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      isReceivingInput ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'
-                    }`}
-                  ></span>
-                  <span className="font-semibold text-stone-700">
-                    {isReceivingInput
-                      ? 'Sedang membaca stream barcode (<10ms)...'
-                      : 'Menunggu trigger scanner USB...'}
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#FAF7F3] border border-[#D5C4B4] text-[#8C6A47] font-bold">
-                  Buffer: 500ms
-                </span>
-              </div>
-            </div>
-          ) : (
-            /* 2B. MODE KAMERA HP / LAPTOP */
-            <div className="space-y-3">
+          {/* Panel Kamera Live */}
+          <div className="space-y-3">
               {/* Header Status Kamera */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -1236,16 +1043,15 @@ export default function ScanPage() {
                 </div>
               )}
             </div>
-          )}
 
-          {/* Form Input Kode Manual / Cadangan */}
+          {/* Form Input Barcode / Manual USB Scanner */}
           <div className="space-y-2 pt-2 border-t border-stone-200">
             <div className="flex items-center justify-between text-xs text-stone-500">
               <span className="font-semibold flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                Input Kode Manual / Cadangan:
+                Scanner USB Aktif / Input Kode Manual:
               </span>
-              <span className="text-[11px] font-mono text-[#8C6A47]">Verifikasi Supabase Direct</span>
+              <span className="text-[11px] font-mono text-[#8C6A47]">Auto-detect USB HID</span>
             </div>
 
             <form
