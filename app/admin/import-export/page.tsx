@@ -125,46 +125,9 @@ export default function ImportExportPage() {
         };
       });
 
-      // 1 Baris Contoh Data Dummy Sesuai Kategori
-      let sampleData: any = {
-        nama_santri: 'FATIMAH AZ-ZAHRA',
-        kamar: 'A-02',
-        nama_wali: 'H. AHMAD SYUKRI',
-        no_hp: '081234567890',
-        alamat: 'KEDIRI',
-      };
-
-      if (filterKat === 'BIN_NADZOR') {
-        sampleData = {
-          nama_santri: 'ZAHRA ALYA',
-          kamar: 'B-05',
-          nama_wali: 'H. MUHAMMAD',
-          no_hp: '085712345678',
-          alamat: 'SURABAYA',
-        };
-      } else if (filterKat === 'TAMATAN') {
-        sampleData = {
-          nama_santri: 'ZULFA RAHMAWATI',
-          kamar: 'C-12',
-          nama_wali: 'K.H. IMRON',
-          no_hp: '081398765432',
-          alamat: 'JOMBANG',
-          bagian_tamatan: 'A.01',
-        };
-      }
-
-      const sampleRow = ws.addRow(sampleData);
-      sampleRow.height = 22;
-      sampleRow.eachCell((cell) => {
-        cell.font = { name: 'Calibri', size: 10 };
-        cell.alignment = { vertical: 'middle', horizontal: 'left' };
-      });
-      ws.getCell('B2').alignment = { vertical: 'middle', horizontal: 'center' };
-      ws.getCell('D2').alignment = { vertical: 'middle', horizontal: 'center' };
-
       // Khusus Tamatan: Tambahkan Dropdown Data Validation pada kolom BAGIAN TAMATAN (F2:F500)
+      // Baris ke-2 dan seterusnya kosong bersih (hanya header di baris 1)
       if (filterKat === 'TAMATAN') {
-        ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
         const tamatanOptions = '"A.01,A.02,A.03,A.04,B.01,B.02,B.03"';
         for (let r = 2; r <= 500; r++) {
           ws.getCell(`F${r}`).dataValidation = {
@@ -261,73 +224,69 @@ export default function ImportExportPage() {
         };
       });
 
-      // 1 Baris Contoh Data Dummy
-      let sampleData: any = {
-        nama_putra: 'KH. ANWAR MANSHUR',
-        nama_putri: 'IBU NYAI HJ. MAHMUDAH',
-        kategori: 'VVIP',
-        alamat: 'Kediri',
-        no_hp: '081234567890',
-      };
+      // Opsi Dropdown Sesuai Form UI Aplikasi
+      const OPSI_UNDANGAN_ISTIMEWA = [
+        'VVIP',
+        'VIP Bani Marzuqi',
+        'VIP Bani Qomariyah',
+        'VIP Bani Mahrus (Zainab)',
+        'VIP Bani Salamah',
+        'VIP Bani Aisyah',
+        'VIP Bandar',
+        'VIP Keluarga Kunir - Blitar',
+        'VIP IDS',
+        'Lainnya (Ketik Sendiri...)',
+      ];
 
-      if (filterKat === 'KEHORMATAN') {
-        sampleData = {
-          nama_putra: 'K.H. ABDULLAH KAFABIHI MAHRUS',
-          nama_putri: 'NYAI HJ. AZIZAH',
-          alamat: 'Kediri',
-          no_hp: '081298765432',
-        };
-      } else if (filterKat === 'UMUM') {
-        sampleData = {
-          nama_putra: 'AL-USTADZ ZAINUDDIN',
-          nama_putri: '',
-          kategori: 'Asatidz MHMTQ',
-          instansi: 'Asatidz MHMTQ Sekalian',
-          alamat: 'Kediri',
-          no_hp: '085712345678',
-        };
-      }
+      const OPSI_UNDANGAN_UMUM = [
+        'Asatidz MHMTQ Sekalian',
+        'Asatidz Purna Bakti',
+        'Asatidzah MHMTQ Nduduk Rumah',
+        'Mustahiq Tamatan Non Purna',
+        'Purna Mustahiqoh Ibtidaiyah Tamatan Aliyah',
+        'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)',
+        'Pengajar Unit',
+        "Penguji Al-Qur'an",
+        'Perwakilan Pondok',
+        'Lainnya (Ketik Sendiri...)',
+      ];
 
-      const sampleRow = ws.addRow(sampleData);
-      sampleRow.height = 22;
-      sampleRow.eachCell((cell) => {
-        cell.font = { name: 'Calibri', size: 10 };
-        cell.alignment = { vertical: 'middle', horizontal: 'left' };
-      });
+      // Baris ke-2 dan seterusnya kosong bersih (hanya header di baris 1)
 
       if (filterKat === 'ISTIMEWA') {
-        ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
-        ws.getCell('E2').alignment = { vertical: 'middle', horizontal: 'center' };
+        // Lembar Referensi tersembunyi agar opsi dropdown 100% kompatibel dan tidak terkena limit 255 karakter
+        const wsRef = wb.addWorksheet('Referensi');
+        wsRef.state = 'hidden';
+        OPSI_UNDANGAN_ISTIMEWA.forEach((opt, idx) => {
+          wsRef.getCell(`A${idx + 1}`).value = opt;
+        });
 
-        // Dropdown Data Validation pada kolom C (KATEGORI UNDANGAN): VVIP, VIP
-        const istimewaOptions = '"VVIP,VIP"';
         for (let r = 2; r <= 500; r++) {
           ws.getCell(`C${r}`).dataValidation = {
             type: 'list',
             allowBlank: true,
-            formulae: [istimewaOptions],
+            formulae: [`Referensi!$A$1:$A$${OPSI_UNDANGAN_ISTIMEWA.length}`],
             showErrorMessage: true,
             errorTitle: 'Kategori Tidak Valid',
-            error: 'Silakan pilih antara VVIP atau VIP.',
+            error: 'Silakan pilih kategori dari daftar pilihan dropdown yang tersedia.',
           };
         }
-      } else if (filterKat === 'KEHORMATAN') {
-        ws.getCell('D2').alignment = { vertical: 'middle', horizontal: 'center' };
-      } else {
-        // UMUM
-        ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
-        ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+      } else if (filterKat === 'UMUM') {
+        // Lembar Referensi tersembunyi agar opsi dropdown 100% kompatibel dan tidak terkena limit 255 karakter
+        const wsRef = wb.addWorksheet('Referensi');
+        wsRef.state = 'hidden';
+        OPSI_UNDANGAN_UMUM.forEach((opt, idx) => {
+          wsRef.getCell(`A${idx + 1}`).value = opt;
+        });
 
-        // Dropdown Data Validation pada kolom C (KATEGORI UNDANGAN): Asatidz MHMTQ, Penguji Al-Quran, Perwakilan Pondok, Umum
-        const umumOptions = '"Asatidz MHMTQ,Penguji Al-Quran,Perwakilan Pondok,Umum"';
         for (let r = 2; r <= 500; r++) {
           ws.getCell(`C${r}`).dataValidation = {
             type: 'list',
             allowBlank: true,
-            formulae: [umumOptions],
+            formulae: [`Referensi!$A$1:$A$${OPSI_UNDANGAN_UMUM.length}`],
             showErrorMessage: true,
             errorTitle: 'Kategori Tidak Valid',
-            error: 'Silakan pilih kategori dari daftar pilihan yang tersedia.',
+            error: 'Silakan pilih kategori dari daftar pilihan dropdown yang tersedia.',
           };
         }
       }
