@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import QRCode from 'react-qr-code';
 import {
   Download,
   ExternalLink,
@@ -11,13 +12,16 @@ import {
   FileText,
   Home,
   RefreshCw,
+  QrCode as QrCodeIcon,
 } from 'lucide-react';
 import { Persidangan, getPersidanganBySlug } from '@/lib/persidangan';
 
-export default function PublicPersidanganViewerPage() {
+function PublicPersidanganContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const slug = (params?.slug as string) || '';
+  const toCode = searchParams.get('to')?.trim() || '';
 
   const [persidangan, setPersidangan] = useState<Persidangan | null>(null);
   const [loading, setLoading] = useState(true);
@@ -286,11 +290,74 @@ export default function PublicPersidanganViewerPage() {
           </div>
         )}
 
+        {/* Card QR Code Akses Presensi Kehadiran (Hanya tampil jika parameter ?to= ada) */}
+        {toCode && (
+          <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 text-center shadow-xl space-y-4 my-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF7F3] border border-[#D5C4B4] text-[#8C6A47] text-xs font-bold uppercase tracking-wider">
+              <QrCodeIcon className="w-4 h-4 text-[#8C6A47]" />
+              Kode Akses Presensi
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
+                QR Code Kehadiran Persidangan
+              </h3>
+              <p className="text-xs text-[#735334] max-w-md mx-auto leading-relaxed">
+                Tunjukkan QR Code ini kepada petugas persidangan untuk mencatat kehadiran Anda.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col items-center justify-center">
+              <div className="p-4 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[240px] w-full aspect-square flex items-center justify-center">
+                <QRCode
+                  value={toCode}
+                  size={200}
+                  bgColor="#FAF7F3"
+                  fgColor="#422F21"
+                  level="M"
+                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                />
+              </div>
+
+              {/* Teks Kode Font Besar & Jelas */}
+              <div className="mt-4 px-6 py-2.5 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] shadow-xs">
+                <span className="text-[10px] font-bold text-[#8C6A47] uppercase tracking-widest block mb-0.5">
+                  ID Peserta
+                </span>
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#422F21] tracking-widest">
+                  {toCode}
+                </span>
+              </div>
+
+              <p className="text-[11px] text-[#A89887] mt-3">
+                Pastikan kecerahan layar perangkat Anda cukup saat dipindai oleh panitia.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Footer Panitia */}
         <div className="text-center pt-8 pb-4 text-[11px] text-[#8C6A47] font-medium">
           Panitia Haul &amp; Haflah Akhirussanah P3TQ &amp; MHMTQ Lirboyo 1448 H. / 2027 M.
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PublicPersidanganViewerPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FAF7F3] flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-[#D5C4B4] rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
+            <div className="w-12 h-12 rounded-full border-4 border-[#8C6A47] border-t-transparent animate-spin mx-auto"></div>
+            <p className="text-xs text-[#735334]">Memuat dokumen undangan...</p>
+          </div>
+        </div>
+      }
+    >
+      <PublicPersidanganContent />
+    </Suspense>
   );
 }

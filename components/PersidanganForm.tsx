@@ -34,6 +34,7 @@ export default function PersidanganForm({
   const router = useRouter();
 
   const [judul, setJudul] = useState('');
+  const [prefixKode, setPrefixKode] = useState('');
   const [templateWa, setTemplateWa] = useState(DEFAULT_TEMPLATE_WA);
 
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ export default function PersidanganForm({
   useEffect(() => {
     if (initialData) {
       setJudul(initialData.judul || '');
+      setPrefixKode(initialData.prefix_kode || '');
       setTemplateWa(initialData.template_wa || DEFAULT_TEMPLATE_WA);
     }
   }, [initialData]);
@@ -66,6 +68,10 @@ export default function PersidanganForm({
       setErrorMsg('Judul persidangan wajib diisi.');
       return;
     }
+    if (!prefixKode.trim()) {
+      setErrorMsg('Awalan kode (prefix) wajib diisi (contoh: SD3, SN).');
+      return;
+    }
     if (!templateWa.trim()) {
       setErrorMsg('Template pesan WhatsApp wajib diisi.');
       return;
@@ -77,6 +83,7 @@ export default function PersidanganForm({
       if (mode === 'create') {
         const { data, error } = await createPersidangan({
           judul: judul.trim(),
+          prefix_kode: prefixKode.trim().toUpperCase(),
           template_wa: templateWa.trim(),
         });
 
@@ -94,6 +101,7 @@ export default function PersidanganForm({
       } else if (mode === 'edit' && initialData) {
         const { data, error } = await updatePersidangan(initialData.id, {
           judul: judul.trim(),
+          prefix_kode: prefixKode.trim().toUpperCase(),
           template_wa: templateWa.trim(),
         });
 
@@ -130,26 +138,53 @@ export default function PersidanganForm({
         </div>
       )}
 
-      {/* Field 1: Judul Persidangan */}
+      {/* Field 1: Judul Persidangan & Prefix Kode */}
       <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
         <h3 className="font-serif font-bold text-base sm:text-lg text-[#422F21] border-b border-[#E5D7C8] pb-3 flex items-center gap-2">
           <FileText className="w-5 h-5 text-[#8C6A47]" />
           Informasi Persidangan
         </h3>
 
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
-            Judul Persidangan <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={judul}
-            onChange={(e) => setJudul(e.target.value)}
-            placeholder="Contoh: Sidang Harian II, Sidang Pleno, Sidang Ndalem"
-            maxLength={200}
-            required
-            className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
+              Judul Persidangan <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={judul}
+              onChange={(e) => setJudul(e.target.value)}
+              placeholder="Contoh: Sidang Harian II, Sidang Pleno, Sidang Ndalem"
+              maxLength={200}
+              required
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] placeholder-[#A89887] text-sm focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1.5">
+              Awalan Kode (Prefix) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={prefixKode}
+              onChange={(e) =>
+                setPrefixKode(
+                  e.target.value
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, '')
+                    .slice(0, 4)
+                )
+              }
+              placeholder="Contoh: SD3, SN"
+              maxLength={4}
+              required
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#D5C4B4] bg-white text-[#422F21] font-mono font-bold text-sm tracking-wider uppercase placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:border-[#8C6A47]"
+            />
+            <span className="text-[10px] text-[#735334] mt-1 block">
+              Maks. 4 karakter kapital (contoh: SD3, SN).
+            </span>
+          </div>
         </div>
       </div>
 

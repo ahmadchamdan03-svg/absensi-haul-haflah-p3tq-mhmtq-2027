@@ -31,6 +31,8 @@ import {
   updatePeserta,
   deletePeserta,
   deletePesertaBatch,
+  generateKodePeserta,
+  generateBatchKodePeserta,
   normalizePhoneNumber,
   buildMessageFromTemplate,
   sendWhatsApp,
@@ -120,12 +122,22 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
   // Filtered List
   const filteredList = useMemo(() => {
     return pesertaList.filter((item) => {
-      if (filterStatus !== 'SEMUA' && item.status_kirim !== filterStatus) return false;
+      if (filterStatus === 'HADIR' && item.status_kehadiran !== 'HADIR') return false;
+      if (filterStatus === 'BELUM_HADIR' && item.status_kehadiran === 'HADIR') return false;
+      if (
+        filterStatus !== 'SEMUA' &&
+        filterStatus !== 'HADIR' &&
+        filterStatus !== 'BELUM_HADIR' &&
+        item.status_kirim !== filterStatus
+      )
+        return false;
+
       if (search.trim()) {
         const q = search.toLowerCase().trim();
         const nama = (item.nama || '').toLowerCase();
         const wa = (item.no_wa || '').toLowerCase();
-        return nama.includes(q) || wa.includes(q);
+        const kode = (item.kode_peserta || '').toLowerCase();
+        return nama.includes(q) || wa.includes(q) || kode.includes(q);
       }
       return true;
     });
@@ -200,8 +212,13 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
 
     setFormSubmitting(true);
     try {
+      const kodePeserta = await generateKodePeserta(persidangan.id, persidangan.prefix_kode);
+
       const { data, error } = await addPeserta({
         persidangan_id: persidangan.id,
+        kode_peserta: kodePeserta,
+        status_kehadiran: 'BELUM',
+        waktu_hadir: null,
         nama: inputNama.trim(),
         no_wa: inputNoWa.trim(),
         kategori: null,
@@ -215,7 +232,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         return;
       }
 
-      showToast('success', `Peserta ${data.nama} berhasil ditambahkan.`);
+      showToast('success', `Peserta ${data.nama} (${data.kode_peserta || kodePeserta}) berhasil ditambahkan.`);
       setShowAddModal(false);
       setInputNama('');
       setInputNoWa('');
@@ -339,8 +356,17 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         return;
       }
 
-      const itemsForBatch = dataToInsert.map((item) => ({
+      const codes = await generateBatchKodePeserta(
+        persidangan.id,
+        persidangan.prefix_kode,
+        dataToInsert.length
+      );
+
+      const itemsForBatch = dataToInsert.map((item, idx) => ({
         persidangan_id: persidangan.id,
+        kode_peserta: codes[idx],
+        status_kehadiran: 'BELUM' as const,
+        waktu_hadir: null,
         nama: item.nama,
         no_wa: item.no_wa,
         kategori: null,
@@ -356,7 +382,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         return;
       }
 
-      showToast('success', `Berhasil mengimpor ${count} peserta dari Excel.`);
+      showToast('success', `Berhasil mengimpor ${count} peserta dari Excel dengan kode presensi.`);
       setShowImportModal(false);
       setExcelAllData([]);
       setExcelPreviewData([]);
@@ -378,7 +404,11 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       const template = persidangan.template_wa || '';
       const pesan = buildMessageFromTemplate(
         template,
-        { nama: peserta.nama },
+        {
+          nama: peserta.nama,
+          no_wa: peserta.no_wa,
+          kode_peserta: peserta.kode_peserta,
+        },
         persidangan
       );
 
@@ -452,7 +482,11 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 Daftar Peserta Persidangan
               </h4>
               <p className="text-[11px] text-[#735334]">
-                Total: <strong>{pesertaList.length}</strong> orang • Terkirim:{' '}
+                Total: <strong>{pesertaList.length}</strong> orang • Hadir:{' '}
+                <strong className="text-emerald-700">
+                  {pesertaList.filter((p) => p.status_kehadiran === 'HADIR').length}
+                </strong>{' '}
+                • Terkirim:{' '}
                 <strong className="text-emerald-700">
                   {pesertaList.filter((p) => p.status_kirim === 'TERKIRIM').length}
                 </strong>{' '}
@@ -500,7 +534,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
           </div>
         </div>
 
-        {/* Filter & Search Controls (Tanpa Kategori) */}
+        {/* Filter & Search Controls */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E5D7C8]">
           <div className="relative">
             <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
@@ -508,7 +542,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari nama atau nomor WA..."
+              placeholder="Cari nama, nomor WA, atau kode..."
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
             />
           </div>
@@ -519,16 +553,18 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
               onChange={(e) => setFilterStatus(e.target.value)}
               className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
             >
-              <option value="SEMUA">Semua Status Kirim</option>
-              <option value="BELUM">Belum Dikirim</option>
-              <option value="TERKIRIM">Sudah Terkirim</option>
-              <option value="GAGAL">Gagal Kirim</option>
+              <option value="SEMUA">Semua Status</option>
+              <option value="HADIR">Presensi: Hadir</option>
+              <option value="BELUM_HADIR">Presensi: Belum Hadir</option>
+              <option value="TERKIRIM">WA: Sudah Terkirim</option>
+              <option value="BELUM">WA: Belum Dikirim</option>
+              <option value="GAGAL">WA: Gagal Kirim</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Table Peserta (Tanpa Kolom Kategori) */}
+      {/* Table Peserta */}
       <div className="bg-white border-2 border-[#D5C4B4] rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -544,17 +580,19 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                     className="rounded text-[#8C6A47] focus:ring-[#8C6A47]"
                   />
                 </th>
-                <th className="p-3 w-12 text-center">No</th>
+                <th className="p-3 w-10 text-center">No</th>
+                <th className="p-3 w-28">Kode Presensi</th>
                 <th className="p-3">Nama Penerima</th>
                 <th className="p-3">No. WhatsApp</th>
-                <th className="p-3">Status Kirim</th>
-                <th className="p-3 text-center w-36">Aksi</th>
+                <th className="p-3 w-28">Status WA</th>
+                <th className="p-3 w-28">Presensi</th>
+                <th className="p-3 text-center w-32">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EFE8E1] text-[#422F21]">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={8} className="p-8 text-center text-xs text-[#735334]">
                     <div className="inline-flex items-center gap-2">
                       <RefreshCw className="w-4 h-4 animate-spin text-[#8C6A47]" />
                       Memuat daftar peserta...
@@ -563,7 +601,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 </tr>
               ) : filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={8} className="p-8 text-center text-xs text-[#735334]">
                     {pesertaList.length === 0
                       ? 'Belum ada peserta dalam persidangan ini. Klik "+ Tambah Peserta" atau "Import Excel" di atas.'
                       : 'Tidak ada data peserta yang cocok dengan kriteria pencarian/filter.'}
@@ -590,6 +628,11 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                         />
                       </td>
                       <td className="p-3 text-center text-[#735334] font-semibold">{idx + 1}</td>
+                      <td className="p-3">
+                        <span className="inline-block px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-[#8C6A47]/10 text-[#8C6A47] border border-[#8C6A47]/25">
+                          {item.kode_peserta || '-'}
+                        </span>
+                      </td>
                       <td className="p-3 font-bold text-xs">{item.nama}</td>
                       <td className="p-3 font-mono text-[11px] text-[#735334]">
                         <span className="flex items-center gap-1.5">
@@ -617,6 +660,30 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
                             <Clock className="w-3 h-3" />
+                            Belum
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {item.status_kehadiran === 'HADIR' ? (
+                          <span
+                            title={
+                              item.waktu_hadir
+                                ? `Waktu hadir: ${new Date(item.waktu_hadir).toLocaleString('id-ID')}`
+                                : 'Sudah Hadir'
+                            }
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"
+                          >
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            Hadir
+                            {item.waktu_hadir && (
+                              <span className="text-[9px] font-normal opacity-80">
+                                ({new Date(item.waktu_hadir).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })})
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
                             Belum
                           </span>
                         )}

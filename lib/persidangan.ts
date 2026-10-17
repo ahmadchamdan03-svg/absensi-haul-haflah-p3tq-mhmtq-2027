@@ -6,6 +6,7 @@ export interface Persidangan {
   id: string;
   slug: string;
   token: string;
+  prefix_kode?: string | null;
   judul: string;
   deskripsi?: string | null;
   tanggal?: string | null; // YYYY-MM-DD
@@ -21,10 +22,14 @@ export interface Persidangan {
 }
 
 export type StatusKirimWa = 'BELUM' | 'TERKIRIM' | 'GAGAL';
+export type StatusKehadiran = 'BELUM' | 'HADIR';
 
 export interface PersidanganPeserta {
   id: string;
   persidangan_id: string;
+  kode_peserta?: string | null;
+  status_kehadiran?: StatusKehadiran | null;
+  waktu_hadir?: string | null;
   nama: string;
   no_wa: string;
   kategori?: string | null;
@@ -164,20 +169,28 @@ export function getLiveBaseUrl(): string {
 
 /**
  * Dapatkan URL publik resmi persidangan: https://haflahp3tq.site/persidangan/[slug]
- * Selalu prioritaskan domain resmi https://haflahp3tq.site agar link WA selalu valid
+ * Jika memiliki kode peserta unik, tambahkan query parameter ?to=[kode_peserta]
  */
-export function getPublicPersidanganUrl(slug: string, customBaseUrl?: string): string {
+export function getPublicPersidanganUrl(
+  slug: string,
+  customBaseUrl?: string,
+  kodePeserta?: string | null
+): string {
   const base = customBaseUrl || 'https://haflahp3tq.site';
-  return `${base}/persidangan/${slug}`;
+  const url = `${base}/persidangan/${slug}`;
+  if (kodePeserta) {
+    return `${url}?to=${encodeURIComponent(kodePeserta)}`;
+  }
+  return url;
 }
 
 /**
  * Replace placeholder template WA dengan data aktual
- * Menghubungkan [LINK_UNDANGAN] ke halaman resmi https://haflahp3tq.site/persidangan/{slug}
+ * Menghubungkan [LINK_UNDANGAN] ke halaman resmi https://haflahp3tq.site/persidangan/{slug}?to={kode_peserta}
  */
 export function buildMessageFromTemplate(
   template: string,
-  peserta: { nama: string; no_wa?: string },
+  peserta: { nama: string; no_wa?: string; kode_peserta?: string | null },
   persidangan: {
     judul: string;
     slug: string;
@@ -185,7 +198,7 @@ export function buildMessageFromTemplate(
   },
   baseUrl?: string
 ): string {
-  const publicUrl = getPublicPersidanganUrl(persidangan.slug, baseUrl);
+  const publicUrl = getPublicPersidanganUrl(persidangan.slug, baseUrl, peserta.kode_peserta);
 
   let msg = template || DEFAULT_TEMPLATE_WA;
   msg = msg.replace(/\[NAMA_PESERTA\]/g, peserta.nama || '');
@@ -294,6 +307,82 @@ export async function getPersidanganBySlug(slug: string): Promise<Persidangan | 
   return data as Persidangan;
 }
 
+/**
+ * Generate sequential participant code with persidangan prefix:
+ * Example: SD30001, SD30002, SN0001
+ */
+export async function generateKodePeserta(
+  persidanganId: string,
+  prefixKode?: string | null
+): Promise<string> {
+  const prefix = (prefixKode || 'SD').trim().toUpperCase();
+  const { data, error } = await supabase
+    .from('persidangan_peserta')
+    .select('kode_peserta')
+    .eq('persidangan_id', persidanganId);
+
+  if (error || !data || data.length === 0) {
+    return `${prefix}0001`;
+  }
+
+  let maxSeq = 0;
+  const regex = new RegExp(`^${prefix}(\\d+)$`, 'i');
+
+  for (const row of data) {
+    if (!row.kode_peserta) continue;
+    const match = row.kode_peserta.match(regex);
+    if (match && match[1]) {
+      const num = parseInt(match[1], 10);
+      if (!isNaN(num) && num > maxSeq) {
+        maxSeq = num;
+      }
+    }
+  }
+
+  const nextSeq = maxSeq + 1;
+  return `${prefix}${String(nextSeq).padStart(4, '0')}`;
+}
+
+/**
+ * Generate a sequential batch of participant codes with persidangan prefix:
+ * Example for 3 participants: [SD30001, SD30002, SD30003]
+ */
+export async function generateBatchKodePeserta(
+  persidanganId: string,
+  prefixKode: string | null | undefined,
+  count: number
+): Promise<string[]> {
+  if (count <= 0) return [];
+  const prefix = (prefixKode || 'SD').trim().toUpperCase();
+  const { data } = await supabase
+    .from('persidangan_peserta')
+    .select('kode_peserta')
+    .eq('persidangan_id', persidanganId);
+
+  let maxSeq = 0;
+  const regex = new RegExp(`^${prefix}(\\d+)$`, 'i');
+
+  if (data && data.length > 0) {
+    for (const row of data) {
+      if (!row.kode_peserta) continue;
+      const match = row.kode_peserta.match(regex);
+      if (match && match[1]) {
+        const num = parseInt(match[1], 10);
+        if (!isNaN(num) && num > maxSeq) {
+          maxSeq = num;
+        }
+      }
+    }
+  }
+
+  const codes: string[] = [];
+  for (let i = 1; i <= count; i++) {
+    const nextSeq = maxSeq + i;
+    codes.push(`${prefix}${String(nextSeq).padStart(4, '0')}`);
+  }
+  return codes;
+}
+
 export async function createPersidangan(
   data: Partial<Persidangan> & { judul: string }
 ): Promise<{ data: Persidangan | null; error: any }> {
@@ -302,10 +391,12 @@ export async function createPersidangan(
   const template_wa = data.template_wa || DEFAULT_TEMPLATE_WA;
   const status: PersidanganStatus = data.status || 'AKTIF';
   const tanggal = data.tanggal || new Date().toISOString().split('T')[0];
+  const prefix_kode = data.prefix_kode ? data.prefix_kode.trim().toUpperCase() : null;
 
   const insertPayload = {
     slug,
     token,
+    prefix_kode,
     judul: data.judul,
     deskripsi: data.deskripsi || null,
     tanggal,
@@ -336,10 +427,14 @@ export async function updatePersidangan(
   id: string,
   updates: Partial<Persidangan>
 ): Promise<{ data: Persidangan | null; error: any }> {
-  const updatePayload = {
+  const updatePayload: any = {
     ...updates,
     updated_at: new Date().toISOString(),
   };
+
+  if (updates.prefix_kode !== undefined) {
+    updatePayload.prefix_kode = updates.prefix_kode ? updates.prefix_kode.trim().toUpperCase() : null;
+  }
 
   const { data, error } = await supabase
     .from('persidangan')
@@ -387,6 +482,9 @@ export async function addPeserta(
 ): Promise<{ data: PersidanganPeserta | null; error: any }> {
   const payload = {
     persidangan_id: data.persidangan_id,
+    kode_peserta: data.kode_peserta || null,
+    status_kehadiran: data.status_kehadiran || 'BELUM',
+    waktu_hadir: data.waktu_hadir || null,
     nama: data.nama,
     no_wa: normalizePhoneNumber(data.no_wa),
     kategori: data.kategori || null,
@@ -416,6 +514,9 @@ export async function addPesertaBatch(
 
   const payload = items.map((item) => ({
     persidangan_id: item.persidangan_id,
+    kode_peserta: item.kode_peserta || null,
+    status_kehadiran: item.status_kehadiran || 'BELUM',
+    waktu_hadir: item.waktu_hadir || null,
     nama: item.nama,
     no_wa: normalizePhoneNumber(item.no_wa),
     kategori: item.kategori || null,

@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Sparkles,
   ShieldAlert,
+  Camera,
 } from 'lucide-react';
 import {
   Persidangan,
@@ -23,17 +24,20 @@ import {
   deletePersidangan,
 } from '@/lib/persidangan';
 import { supabase } from '@/lib/supabase';
+import PersidanganScanModal from '@/components/PersidanganScanModal';
 
 export default function PersidanganDashboardPage() {
   const router = useRouter();
 
   const [persidanganList, setPersidanganList] = useState<Persidangan[]>([]);
   const [pesertaCounts, setPesertaCounts] = useState<Record<string, number>>({});
+  const [hadirCounts, setHadirCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteModalTarget, setDeleteModalTarget] = useState<Persidangan | null>(null);
+  const [activeScanPersidangan, setActiveScanPersidangan] = useState<Persidangan | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -41,19 +45,24 @@ export default function PersidanganDashboardPage() {
       const list = await getPersidanganList();
       setPersidanganList(list);
 
-      // Hitung peserta per persidangan
+      // Hitung peserta & kehadiran per persidangan
       if (list.length > 0) {
         const { data: pesertaData } = await supabase
           .from('persidangan_peserta')
-          .select('persidangan_id');
+          .select('persidangan_id, status_kehadiran');
 
         if (pesertaData) {
           const counts: Record<string, number> = {};
+          const hadirs: Record<string, number> = {};
           pesertaData.forEach((row: any) => {
             const pId = row.persidangan_id;
             counts[pId] = (counts[pId] || 0) + 1;
+            if (row.status_kehadiran === 'HADIR') {
+              hadirs[pId] = (hadirs[pId] || 0) + 1;
+            }
           });
           setPesertaCounts(counts);
+          setHadirCounts(hadirs);
         }
       }
     } catch (err: any) {
@@ -198,6 +207,7 @@ export default function PersidanganDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredList.map((item) => {
             const countPeserta = pesertaCounts[item.id] || 0;
+            const countHadir = hadirCounts[item.id] || 0;
             const hasPdf = Boolean(item.pdf_url);
 
             return (
@@ -208,9 +218,19 @@ export default function PersidanganDashboardPage() {
                 {/* Header Card */}
                 <div className="space-y-2.5">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-100 text-emerald-800 border-emerald-300">
-                      Aktif
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-100 text-emerald-800 border-emerald-300">
+                        Aktif
+                      </span>
+                      {item.prefix_kode && (
+                        <span
+                          title={`Awalan Kode: ${item.prefix_kode}`}
+                          className="inline-block px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-wider bg-[#8C6A47]/10 text-[#8C6A47] border border-[#8C6A47]/25"
+                        >
+                          {item.prefix_kode}
+                        </span>
+                      )}
+                    </div>
 
                     {hasPdf ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
@@ -232,16 +252,32 @@ export default function PersidanganDashboardPage() {
 
                 {/* Details info */}
                 <div className="space-y-2 py-2 border-y border-[#E5D7C8] text-xs text-[#735334]">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
-                    <span>
-                      <strong>{countPeserta}</strong> Peserta Terdaftar
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
+                      <span>
+                        <strong>{countPeserta}</strong> Peserta
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      <strong>{countHadir}</strong> Hadir
                     </span>
                   </div>
                 </div>
 
                 {/* Action Footer */}
-                <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  {/* Tombol Scan Kehadiran */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveScanPersidangan(item)}
+                    title="Scan QR Code Kehadiran"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#D5C4B4] hover:bg-[#FAF7F3] hover:border-[#8C6A47] text-xs font-bold text-[#8C6A47] shadow-2xs transition-colors"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-[#8C6A47]" />
+                    <span>Scan Kehadiran</span>
+                  </button>
+
                   <div className="flex items-center gap-1">
                     {hasPdf && (
                       <a
@@ -249,7 +285,7 @@ export default function PersidanganDashboardPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Buka Halaman Undangan Resmi"
-                        className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+                        className="p-1.5 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
                       >
                         <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
                       </a>
@@ -258,19 +294,19 @@ export default function PersidanganDashboardPage() {
                       type="button"
                       onClick={() => setDeleteModalTarget(item)}
                       title="Hapus persidangan"
-                      className="p-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
-                  </div>
 
-                  <Link
-                    href={`/admin/persidangan/${item.id}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
-                  >
-                    <span>Kelola</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+                    <Link
+                      href={`/admin/persidangan/${item.id}`}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
+                    >
+                      <span>Kelola</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
@@ -329,6 +365,15 @@ export default function PersidanganDashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Persidangan Scan Attendance Modal */}
+      {activeScanPersidangan && (
+        <PersidanganScanModal
+          persidangan={activeScanPersidangan}
+          onClose={() => setActiveScanPersidangan(null)}
+          onScanSuccess={() => fetchDashboardData()}
+        />
       )}
     </div>
   );

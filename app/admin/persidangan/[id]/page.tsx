@@ -13,6 +13,7 @@ import {
   FileCheck,
   Copy,
   Check,
+  Camera,
 } from 'lucide-react';
 import {
   Persidangan,
@@ -22,6 +23,7 @@ import {
 import PersidanganForm from '@/components/PersidanganForm';
 import PersidanganPDFUploader from '@/components/PersidanganPDFUploader';
 import PersidanganPesertaTable from '@/components/PersidanganPesertaTable';
+import PersidanganScanModal from '@/components/PersidanganScanModal';
 
 export default function PersidanganDetailPage() {
   const params = useParams();
@@ -37,6 +39,7 @@ export default function PersidanganDetailPage() {
   const [persidangan, setPersidangan] = useState<Persidangan | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
 
   const handleCopyOfficialLink = async () => {
     if (!persidangan) return;
@@ -111,6 +114,15 @@ export default function PersidanganDetailPage() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
+              onClick={() => setShowScanModal(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-[#D5C4B4] hover:bg-[#FAF7F3] hover:border-[#8C6A47] text-xs font-bold text-[#8C6A47] shadow-xs transition-colors"
+            >
+              <Camera className="w-3.5 h-3.5 text-[#8C6A47]" />
+              Scan Kehadiran
+            </button>
+
+            <button
+              type="button"
               onClick={handleCopyOfficialLink}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
             >
@@ -140,9 +152,16 @@ export default function PersidanganDetailPage() {
         </div>
 
         <div>
-          <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
-            {persidangan.judul}
-          </h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
+              {persidangan.judul}
+            </h1>
+            {persidangan.prefix_kode && (
+              <span className="px-2.5 py-0.5 rounded-md font-mono font-bold text-xs bg-[#8C6A47]/10 text-[#8C6A47] border border-[#8C6A47]/25">
+                Prefix: {persidangan.prefix_kode}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-[#735334] pt-1">
             Kelola persidangan, unggah berkas PDF resmi, dan distribusikan tautan langsung ke peserta via WhatsApp.
           </p>
@@ -215,6 +234,15 @@ export default function PersidanganDetailPage() {
           <PersidanganPesertaTable persidangan={persidangan} />
         )}
       </div>
+
+      {/* Modal Scanner Kehadiran */}
+      {showScanModal && (
+        <PersidanganScanModal
+          persidangan={persidangan}
+          onClose={() => setShowScanModal(false)}
+          onScanSuccess={() => fetchDetail()}
+        />
+      )}
     </div>
   );
 }
