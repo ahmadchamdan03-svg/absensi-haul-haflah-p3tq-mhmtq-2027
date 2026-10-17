@@ -211,25 +211,12 @@ export default function ScanPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scanBufferRef = useRef('');
   const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastCharTimeRef = useRef(0);
+  const scanQueueRef = useRef<string[]>([]);
+  const handleScanCodeRef = useRef<(code: string) => Promise<void>>();
 
   // Handler memproses kode QR (100% Query Langsung ke Supabase peserta_santri & tamu_undangan)
   const handleScanCode = useCallback(async (scannedRaw: string) => {
-    // 1. Guard pemrosesan simultan (Concurrency Lock)
-    if (isProcessingScanRef.current) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Scan Debug] Ignored scan: sistem sedang memproses kode sebelumnya');
-      }
-      return;
-    }
-
-    // 2. Guard anti-double-scan (lock 1000ms)
-    if (scanLockRef.current) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Ignored scan during 1000ms lock: ${scannedRaw}`);
-      }
-      return;
-    }
-
     let cleanCode = scannedRaw.trim();
     // Tangani jika format QR adalah URL web (e.g. https://domain.com/u/SH0001)
     if (cleanCode.includes('/u/')) {
@@ -245,7 +232,47 @@ export default function ScanPage() {
 
     const now = Date.now();
 
-    // 3. Rate-Limiting: Maksimal 10 scan dalam rentang 10 detik
+    // 1. Anti-Duplicate (FIX 4): Abaikan jika kode yang SAMA PERSIS di-scan dalam kurun waktu 2000ms
+    if (lastScannedCodeRef.current === cleanCode && now - lastScannedTimeRef.current < 2000) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scan Debug] Ignored duplicate scan within 2s for ${cleanCode}`);
+      }
+      return;
+    }
+
+    // 2. Guard Lock 400ms (FIX 4): Mencegah double-trigger hardware simultan untuk kode yang sama
+    // (Diturunkan dari 1000ms ke 400ms; kode yang berbeda tetap diizinkan berurutan)
+    if (scanLockRef.current && lastScannedCodeRef.current === cleanCode) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scan Debug] Ignored scan during 400ms lock: ${cleanCode}`);
+      }
+      return;
+    }
+
+    // Pasang lock 400ms untuk anti-bounce hardware
+    scanLockRef.current = true;
+    setTimeout(() => {
+      scanLockRef.current = false;
+    }, 400);
+
+    // 3. Concurrency Lock & Antrean Cepat (FIX 5):
+    // Jika sistem sedang memproses query Supabase untuk kode sebelumnya, masukkan ke antrean
+    // agar scan antrean cepat (<1 detik antar scan) tidak dibuang/di-ignore!
+    if (isProcessingScanRef.current) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Scan Debug] Sistem sedang memproses query, masukkan ${cleanCode} ke antrean`);
+      }
+      if (!scanQueueRef.current.includes(cleanCode)) {
+        scanQueueRef.current.push(cleanCode);
+      }
+      return;
+    }
+
+    // Update tracking kode & waktu terakhir
+    lastScannedCodeRef.current = cleanCode;
+    lastScannedTimeRef.current = now;
+
+    // 4. Rate-Limiting: Maksimal 10 scan dalam rentang 10 detik
     scanTimestampsRef.current = scanTimestampsRef.current.filter((t) => now - t < 10000);
     if (scanTimestampsRef.current.length >= 10) {
       setErrorMsg('Peringatan: Terlalu banyak scan berturut-turut dalam 10 detik. Mohon jeda 1 detik.');
@@ -254,22 +281,7 @@ export default function ScanPage() {
     }
     scanTimestampsRef.current.push(now);
 
-    // 4. Anti-Duplicate: Abaikan jika kode yang sama persis di-scan dalam 2 detik
-    if (lastScannedCodeRef.current === cleanCode && now - lastScannedTimeRef.current < 2000) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Ignored duplicate scan within 2s for ${cleanCode}`);
-      }
-      return;
-    }
-    lastScannedCodeRef.current = cleanCode;
-    lastScannedTimeRef.current = now;
-
-    // Pasang lock 1000ms
-    scanLockRef.current = true;
-    setTimeout(() => {
-      scanLockRef.current = false;
-    }, 1000);
-
+    // FIX 5: Set isProcessingScanRef.current = true tepat saat proses query dimulai
     isProcessingScanRef.current = true;
     setErrorMsg(null);
     setCheckinResult(null);
@@ -457,9 +469,22 @@ export default function ScanPage() {
         console.log('[Scan Debug] Hasil: FAILED with exception for', cleanCode, err);
       }
     } finally {
+      // FIX 5: Pastikan isProcessingScanRef.current SELALU dimatikan apapun hasilnya (sukses/gagal)
       isProcessingScanRef.current = false;
+
+      // Jalankan scan berikutnya dari antrean jika ada (antrean cepat <1s)
+      if (scanQueueRef.current.length > 0) {
+        const nextCode = scanQueueRef.current.shift();
+        if (nextCode && handleScanCodeRef.current) {
+          setTimeout(() => {
+            handleScanCodeRef.current?.(nextCode);
+          }, 50);
+        }
+      }
     }
   }, []);
+
+  handleScanCodeRef.current = handleScanCode;
 
   // Global USB Barcode Scanner Listener (Hanya aktif jika scanMode === 'USB')
   useEffect(() => {
@@ -467,13 +492,20 @@ export default function ScanPage() {
 
     const handleKeyPress = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      // Jangan intersep jika user sedang mengetik di textarea atau select
-      if (target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+      // FIX 2: Kembalikan filter tag INPUT, TEXTAREA, dan SELECT
+      // Jangan intersep jika user sedang mengetik di input manual, textarea, atau select
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        return;
+      }
 
+      // Abaikan tombol modifier (Ctrl, Alt, Meta)
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
+      const now = Date.now();
+      const diff = lastCharTimeRef.current ? now - lastCharTimeRef.current : 0;
+
       if (process.env.NODE_ENV !== 'production') {
-        console.log(`[Scan Debug] Char masuk: "${e.key}" Timestamp: ${Date.now()}`);
+        console.log(`[Scan Debug] Char masuk: "${e.key}" Diff: ${diff}ms Timestamp: ${now}`);
       }
 
       // Deteksi Terminator: Enter, \r, atau \n
@@ -481,6 +513,7 @@ export default function ScanPage() {
         e.preventDefault();
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
         setIsReceivingInput(false);
+        lastCharTimeRef.current = 0;
 
         const bufferedCode = scanBufferRef.current.trim();
         if (process.env.NODE_ENV !== 'production') {
@@ -493,29 +526,40 @@ export default function ScanPage() {
         return;
       }
 
-      // Akumulasi karakter ke buffer
+      // FIX 1 & FIX 3: Akumulasi karakter ke buffer tanpa memicu re-render loop
       if (e.key.length === 1) {
-        setIsReceivingInput(true);
+        // Typing Velocity Detection & Buffer Management (FIX 3):
+        // - Scanner USB ultra-fast mengirim karakter sangat cepat (<25ms).
+        // - Scanner USB jeda lambat (misal jeda 200ms antar karakter) tetap diakomodasi utuh tanpa terpotong.
+        // - Jika jeda antar karakter > 500ms (idle) atau buffer kosong, reset buffer untuk barcode baru.
+        if (diff > 500 || scanBufferRef.current === '') {
+          scanBufferRef.current = '';
+        }
+        lastCharTimeRef.current = now;
+
+        // Cukup simpan di buffer ref murni (Hapus setIsReceivingInput per-karakter agar tidak drop character)
         scanBufferRef.current += e.key;
 
         if (process.env.NODE_ENV !== 'production') {
-          console.log('[Scan Debug] Buffer saat ini:', scanBufferRef.current);
+          const isFast = diff > 0 && diff < 25;
+          console.log(`[Scan Debug] Buffer saat ini: "${scanBufferRef.current}" (Diff: ${diff}ms, FastUSB: ${isFast})`);
         }
 
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
 
-        // Buffer Timeout 500ms dengan Fallback Auto-Submit jika scanner tidak mengirim Enter
+        // FIX 3: Buffer Timeout dilonggarkan menjadi 500ms untuk fallback scanner tanpa Enter
         scanTimerRef.current = setTimeout(() => {
           const bufferedCode = scanBufferRef.current.trim();
           if (bufferedCode.length >= 3) {
             if (process.env.NODE_ENV !== 'production') {
-              console.log('[Scan Debug] Auto-submit buffer setelah jeda 350ms (scanner tanpa Enter):', bufferedCode);
+              console.log('[Scan Debug] Auto-submit buffer setelah jeda fallback 500ms (scanner tanpa Enter):', bufferedCode);
             }
             handleScanCode(bufferedCode);
           }
           scanBufferRef.current = '';
+          lastCharTimeRef.current = 0;
           setIsReceivingInput(false);
-        }, 350);
+        }, 500);
       }
     };
 
