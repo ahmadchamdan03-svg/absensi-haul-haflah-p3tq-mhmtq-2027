@@ -83,18 +83,28 @@ export default function ImportExportPage() {
           : filterKat === 'BIN_NADZOR'
           ? 'Bin Nadzor'
           : 'Tamatan';
-      const ws = wb.addWorksheet(`Peserta ${katLabel}`);
+      const ws = wb.addWorksheet(`Santri ${katLabel}`);
 
-      // 7 Kolom Baku Sederhana
-      ws.columns = [
-        { header: 'NAMA SANTRI', key: 'nama_santri', width: 34 },
-        { header: 'NAMA WALI', key: 'nama_wali', width: 30 },
-        { header: 'KELAS', key: 'kelas', width: 20 },
-        { header: 'KAMAR', key: 'kamar', width: 24 },
-        { header: 'ALAMAT', key: 'alamat', width: 26 },
-        { header: 'NO HP', key: 'no_hp', width: 20 },
-        { header: 'KUOTA DASAR', key: 'kuota_dasar', width: 16 },
-      ];
+      if (filterKat === 'TAMATAN') {
+        // Kolom Tamatan (6 Kolom): NAMA LENGKAP SANTRIWATI, KAMAR PONDOK, NAMA WALI SANTRI, NO WHATSAPP WALI, ALAMAT / ASAL KOTA, BAGIAN TAMATAN
+        ws.columns = [
+          { header: 'NAMA LENGKAP SANTRIWATI', key: 'nama_santri', width: 34 },
+          { header: 'KAMAR PONDOK', key: 'kamar', width: 22 },
+          { header: 'NAMA WALI SANTRI', key: 'nama_wali', width: 28 },
+          { header: 'NO WHATSAPP WALI', key: 'no_hp', width: 22 },
+          { header: 'ALAMAT / ASAL KOTA', key: 'alamat', width: 28 },
+          { header: 'BAGIAN TAMATAN', key: 'bagian_tamatan', width: 22 },
+        ];
+      } else {
+        // Kolom Bil Ghoib & Bin Nadzor (5 Kolom): NAMA LENGKAP SANTRIWATI, KAMAR PONDOK, NAMA WALI SANTRI, NO WHATSAPP WALI, ALAMAT / ASAL KOTA
+        ws.columns = [
+          { header: 'NAMA LENGKAP SANTRIWATI', key: 'nama_santri', width: 34 },
+          { header: 'KAMAR PONDOK', key: 'kamar', width: 22 },
+          { header: 'NAMA WALI SANTRI', key: 'nama_wali', width: 28 },
+          { header: 'NO WHATSAPP WALI', key: 'no_hp', width: 22 },
+          { header: 'ALAMAT / ASAL KOTA', key: 'alamat', width: 28 },
+        ];
+      }
 
       // Styling Header: Background Coklat #8C6A47, Font Putih Bold, Alignment Center
       const headerRow = ws.getRow(1);
@@ -115,36 +125,31 @@ export default function ImportExportPage() {
         };
       });
 
-      // 1 Baris Contoh Data Dummy
-      let sampleData = {
-        nama_santri: 'AHMAD FAUZI',
-        nama_wali: 'H. MAHMUDI',
-        kelas: '3 Aliyah',
-        kamar: 'Kamar Al-Falah 02',
-        alamat: 'Kediri',
+      // 1 Baris Contoh Data Dummy Sesuai Kategori
+      let sampleData: any = {
+        nama_santri: 'FATIMAH AZ-ZAHRA',
+        kamar: 'A-02',
+        nama_wali: 'H. AHMAD SYUKRI',
         no_hp: '081234567890',
-        kuota_dasar: 4,
+        alamat: 'KEDIRI',
       };
 
       if (filterKat === 'BIN_NADZOR') {
         sampleData = {
-          nama_santri: 'MUHAMMAD ZAINAL',
-          nama_wali: 'H. ABDULLAH',
-          kelas: '2 Tsanawiyah',
-          kamar: 'Kamar An-Nur 05',
-          alamat: 'Nganjuk',
-          no_hp: '081298765432',
-          kuota_dasar: 2,
+          nama_santri: 'ZAHRA ALYA',
+          kamar: 'B-05',
+          nama_wali: 'H. MUHAMMAD',
+          no_hp: '085712345678',
+          alamat: 'SURABAYA',
         };
       } else if (filterKat === 'TAMATAN') {
         sampleData = {
           nama_santri: 'ZULFA RAHMAWATI',
+          kamar: 'C-12',
           nama_wali: 'K.H. IMRON',
-          kelas: '3 Aliyah',
-          kamar: 'Kamar Fatimah 01',
-          alamat: 'Jombang',
-          no_hp: '085612345678',
-          kuota_dasar: 2,
+          no_hp: '081398765432',
+          alamat: 'JOMBANG',
+          bagian_tamatan: 'A.01',
         };
       }
 
@@ -154,9 +159,24 @@ export default function ImportExportPage() {
         cell.font = { name: 'Calibri', size: 10 };
         cell.alignment = { vertical: 'middle', horizontal: 'left' };
       });
-      ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
-      ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
-      ws.getCell('G2').alignment = { vertical: 'middle', horizontal: 'center' };
+      ws.getCell('B2').alignment = { vertical: 'middle', horizontal: 'center' };
+      ws.getCell('D2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // Khusus Tamatan: Tambahkan Dropdown Data Validation pada kolom BAGIAN TAMATAN (F2:F500)
+      if (filterKat === 'TAMATAN') {
+        ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+        const tamatanOptions = '"A.01,A.02,A.03,A.04,B.01,B.02,B.03"';
+        for (let r = 2; r <= 500; r++) {
+          ws.getCell(`F${r}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [tamatanOptions],
+            showErrorMessage: true,
+            errorTitle: 'Pilihan Tidak Valid',
+            error: 'Silakan pilih bagian tamatan dari daftar opsi (A.01 s/d B.03).',
+          };
+        }
+      }
 
       const buffer = await wb.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
@@ -193,15 +213,37 @@ export default function ImportExportPage() {
           : 'Umum';
       const ws = wb.addWorksheet(`Tamu ${katLabel}`);
 
-      // 6 Kolom Baku Sederhana
-      ws.columns = [
-        { header: 'NAMA TAMU', key: 'nama_tamu', width: 34 },
-        { header: 'NAMA PUTRA', key: 'nama_putra', width: 28 },
-        { header: 'NAMA PUTRI', key: 'nama_putri', width: 28 },
-        { header: 'INSTANSI', key: 'instansi', width: 32 },
-        { header: 'ALAMAT', key: 'alamat', width: 24 },
-        { header: 'NO HP', key: 'no_hp', width: 20 },
-      ];
+      if (filterKat === 'ISTIMEWA') {
+        // Kolom Istimewa (6 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, KATEGORI UNDANGAN, ALAMAT, NO WHATSAPP / HP, JALUR MASUK
+        ws.columns = [
+          { header: 'NAMA TAMU PUTRA', key: 'nama_putra', width: 30 },
+          { header: 'NAMA TAMU PUTRI', key: 'nama_putri', width: 30 },
+          { header: 'KATEGORI UNDANGAN', key: 'kategori', width: 24 },
+          { header: 'ALAMAT', key: 'alamat', width: 26 },
+          { header: 'NO WHATSAPP / HP', key: 'no_hp', width: 22 },
+          { header: 'JALUR MASUK', key: 'jalur_masuk', width: 24 },
+        ];
+      } else if (filterKat === 'KEHORMATAN') {
+        // Kolom Kehormatan (5 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, ALAMAT, NO WHATSAPP / HP, JALUR MASUK
+        ws.columns = [
+          { header: 'NAMA TAMU PUTRA', key: 'nama_putra', width: 30 },
+          { header: 'NAMA TAMU PUTRI', key: 'nama_putri', width: 30 },
+          { header: 'ALAMAT', key: 'alamat', width: 26 },
+          { header: 'NO WHATSAPP / HP', key: 'no_hp', width: 22 },
+          { header: 'JALUR MASUK', key: 'jalur_masuk', width: 24 },
+        ];
+      } else {
+        // Kolom Umum (7 Kolom): NAMA TAMU PUTRA, NAMA TAMU PUTRI, KATEGORI UNDANGAN, INSTANSI / ASAL LEMBAGA, ALAMAT, NO WHATSAPP / HP, JALUR MASUK
+        ws.columns = [
+          { header: 'NAMA TAMU PUTRA', key: 'nama_putra', width: 30 },
+          { header: 'NAMA TAMU PUTRI', key: 'nama_putri', width: 30 },
+          { header: 'KATEGORI UNDANGAN', key: 'kategori', width: 26 },
+          { header: 'INSTANSI / ASAL LEMBAGA', key: 'instansi', width: 32 },
+          { header: 'ALAMAT', key: 'alamat', width: 26 },
+          { header: 'NO WHATSAPP / HP', key: 'no_hp', width: 22 },
+          { header: 'JALUR MASUK', key: 'jalur_masuk', width: 32 },
+        ];
+      }
 
       // Styling Header: Background Coklat #8C6A47, Font Putih Bold, Alignment Center
       const headerRow = ws.getRow(1);
@@ -223,32 +265,32 @@ export default function ImportExportPage() {
       });
 
       // 1 Baris Contoh Data Dummy
-      let sampleData = {
-        nama_tamu: 'KH. ANWAR MANSHUR & IBU NYAI',
+      let sampleData: any = {
         nama_putra: 'KH. ANWAR MANSHUR',
         nama_putri: 'IBU NYAI HJ. MAHMUDAH',
-        instansi: 'Pon. Pes. Lirboyo Kediri',
+        kategori: 'VVIP',
         alamat: 'Kediri',
         no_hp: '081234567890',
+        jalur_masuk: 'Jalur VIP',
       };
 
       if (filterKat === 'KEHORMATAN') {
         sampleData = {
-          nama_tamu: 'BAPAK H. BAMBANG IRAWAN',
-          nama_putra: 'BAPAK H. BAMBANG IRAWAN',
-          nama_putri: '',
-          instansi: 'Kemenag Kab. Kediri',
+          nama_putra: 'K.H. ABDULLAH KAFABIHI MAHRUS',
+          nama_putri: 'NYAI HJ. AZIZAH',
           alamat: 'Kediri',
-          no_hp: '081345678901',
+          no_hp: '081298765432',
+          jalur_masuk: 'Jalur VIP',
         };
       } else if (filterKat === 'UMUM') {
         sampleData = {
-          nama_tamu: 'AL-USTADZ ZAINUDDIN',
           nama_putra: 'AL-USTADZ ZAINUDDIN',
           nama_putri: '',
+          kategori: 'Asatidz MHMTQ',
           instansi: 'Asatidz MHMTQ Sekalian',
           alamat: 'Kediri',
           no_hp: '085712345678',
+          jalur_masuk: 'Gerbang Selatan (Bola Dunia)',
         };
       }
 
@@ -258,7 +300,45 @@ export default function ImportExportPage() {
         cell.font = { name: 'Calibri', size: 10 };
         cell.alignment = { vertical: 'middle', horizontal: 'left' };
       });
-      ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+      if (filterKat === 'ISTIMEWA') {
+        ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
+        ws.getCell('E2').alignment = { vertical: 'middle', horizontal: 'center' };
+        ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // Dropdown Data Validation pada kolom C (KATEGORI UNDANGAN): VVIP, VIP
+        const istimewaOptions = '"VVIP,VIP"';
+        for (let r = 2; r <= 500; r++) {
+          ws.getCell(`C${r}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [istimewaOptions],
+            showErrorMessage: true,
+            errorTitle: 'Kategori Tidak Valid',
+            error: 'Silakan pilih antara VVIP atau VIP.',
+          };
+        }
+      } else if (filterKat === 'KEHORMATAN') {
+        ws.getCell('D2').alignment = { vertical: 'middle', horizontal: 'center' };
+        ws.getCell('E2').alignment = { vertical: 'middle', horizontal: 'center' };
+      } else {
+        // UMUM
+        ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
+        ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // Dropdown Data Validation pada kolom C (KATEGORI UNDANGAN): Asatidz MHMTQ, Penguji Al-Quran, Perwakilan Pondok, Umum
+        const umumOptions = '"Asatidz MHMTQ,Penguji Al-Quran,Perwakilan Pondok,Umum"';
+        for (let r = 2; r <= 500; r++) {
+          ws.getCell(`C${r}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [umumOptions],
+            showErrorMessage: true,
+            errorTitle: 'Kategori Tidak Valid',
+            error: 'Silakan pilih kategori dari daftar pilihan yang tersedia.',
+          };
+        }
+      }
 
       const buffer = await wb.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
@@ -453,13 +533,19 @@ export default function ImportExportPage() {
       };
 
       if (activeTab === 'SANTRI') {
-        const namaSantri = getVal('NAMA SANTRI', 'NAMA', 'nama_santri', 'nama');
-        const namaWali = getVal('NAMA WALI', 'WALI', 'nama_wali') || '-';
-        const kelas = getVal('KELAS', 'kelas') || '-';
-        const kamar = getVal('KAMAR', 'kamar') || '-';
-        const alamat = getVal('ALAMAT', 'alamat') || 'Kediri';
-        const noHp = getVal('NO HP', 'HP', 'no_hp') || '-';
-        const kuotaDasarRaw = getVal('KUOTA DASAR', 'KUOTA', 'kuota_dasar');
+        const namaSantri = getVal(
+          'NAMA LENGKAP SANTRIWATI',
+          'NAMA LENGKAP',
+          'NAMA SANTRI',
+          'NAMA',
+          'nama_santri',
+          'nama'
+        );
+        const kamar = getVal('KAMAR PONDOK', 'KAMAR', 'kamar_pondok', 'kamar') || null;
+        const namaWali = getVal('NAMA WALI SANTRI', 'NAMA WALI', 'WALI', 'nama_wali') || null;
+        const noHp = getVal('NO WHATSAPP WALI', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
+        const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'ASAL KOTA', 'alamat') || null;
+        const bagianTamatan = getVal('BAGIAN TAMATAN', 'BAGIAN', 'bagian_tamatan') || null;
 
         if (!namaSantri) {
           skippedCount++;
@@ -488,23 +574,26 @@ export default function ImportExportPage() {
 
         // Auto-generate berdasarkan Kategori yang dipilih User di UI
         const kategoriUtama = selectedKategoriUpload; // BIL_GHOIB | BIN_NADZOR | TAMATAN
-        const subKategori =
-          kategoriUtama === 'BIL_GHOIB'
-            ? 'Bil Ghoib 30 Juz'
-            : kategoriUtama === 'BIN_NADZOR'
-            ? 'Bin Nadzor'
-            : 'Tamatan Alfiyah';
+        let subKategori = 'Bil Ghoib 30 Juz';
+        if (kategoriUtama === 'TAMATAN') {
+          subKategori = bagianTamatan || 'A.01';
+        } else if (kategoriUtama === 'BIN_NADZOR') {
+          subKategori = 'Bin Nadzori';
+        } else {
+          subKategori = 'Bil Ghoib 30 Juz';
+        }
+
         const warnaTiket = kategoriUtama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold';
         const jalurMasuk = 'Gerbang Selatan (Bola Dunia)';
         const defaultKuota = kategoriUtama === 'BIL_GHOIB' ? 4 : 2;
-        const kuotaDasar = Number(kuotaDasarRaw || defaultKuota);
+        const kuotaDasar = defaultKuota;
 
         try {
           const payload = {
             kode,
             nama: namaSantri.toUpperCase(),
             nama_wali: namaWali,
-            kelas,
+            kelas: kategoriUtama,
             kamar,
             alamat,
             no_hp: noHp,
@@ -533,41 +622,36 @@ export default function ImportExportPage() {
         }
       } else {
         // =======================================================================
-        // TAMU UNDANGAN (FORMAT SEDERHANA 6 KOLOM & AUTO-GENERATE)
+        // TAMU UNDANGAN (FORMAT PERSIS FORM TAMBAH PESERTA & AUTO-GENERATE)
         // =======================================================================
+        const p = getVal('NAMA TAMU PUTRA', 'NAMA PUTRA', 'PUTRA', 'nama_putra');
+        const w = getVal('NAMA TAMU PUTRI', 'NAMA PUTRI', 'PUTRI', 'nama_putri');
         const rawNama = getVal('NAMA TAMU', 'NAMA', 'nama_tamu', 'nama');
-        let p = getVal('NAMA PUTRA', 'nama_putra', 'NAMA_PUTRA');
-        let w = getVal('NAMA PUTRI', 'nama_putri', 'NAMA_PUTRI');
-        const instansi = getVal('INSTANSI', 'instansi') || '-';
-        const alamat = getVal('ALAMAT', 'alamat') || '-';
-        const noHp = getVal('NO HP', 'HP', 'no_hp') || '-';
 
-        let finalNama = rawNama;
-        if (!finalNama && (p || w)) {
-          finalNama = p && w ? `${p} & ${w}` : p || w;
+        let finalNama = '';
+        if (p && w) {
+          finalNama = `${p} & ${w}`;
+        } else if (p) {
+          finalNama = p;
+        } else if (w) {
+          finalNama = w;
+        } else if (rawNama) {
+          finalNama = rawNama;
         }
 
         if (!finalNama) {
           skippedCount++;
-          errorLogs.push(`Baris #${i + 1}: Dilewati karena NAMA TAMU kosong.`);
+          errorLogs.push(`Baris #${i + 1}: Dilewati karena Nama Tamu (Putra/Putri) kosong.`);
           const percent = Math.round(((i + 1) / totalRows) * 100);
           setProgressPercent(percent);
           continue;
         }
 
-        if (!p && !w) {
-          const upper = finalNama.toUpperCase();
-          if (
-            upper.startsWith('NYAI') ||
-            upper.startsWith('NING') ||
-            upper.startsWith('IBU NYAI') ||
-            upper.startsWith('USTADZAH')
-          ) {
-            w = finalNama;
-          } else {
-            p = finalNama;
-          }
-        }
+        const kategoriUndangan = getVal('KATEGORI UNDANGAN', 'KATEGORI', 'kategori_undangan', 'kategori') || null;
+        const instansi = getVal('INSTANSI / ASAL LEMBAGA', 'INSTANSI', 'ASAL LEMBAGA', 'instansi') || null;
+        const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'alamat') || null;
+        const noHp = getVal('NO WHATSAPP / HP', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
+        const jalurMasukInput = getVal('JALUR MASUK', 'JALUR', 'jalur_masuk') || null;
 
         // Tentukan Kode: Dari file jika ada, atau Auto-Generate UND0001+ sekuensial
         let kode = getVal('KODE', 'kode').toUpperCase();
@@ -586,23 +670,32 @@ export default function ImportExportPage() {
           continue;
         }
 
-        // Auto-generate berdasarkan Kategori yang dipilih User di UI
+        // Tentukan Jalur Masuk: jika kosong, auto-generate (Istimewa/Kehormatan: "Jalur VIP", Umum: "Gerbang Selatan (Bola Dunia)")
+        let defaultJalur = 'Gerbang Selatan (Bola Dunia)';
+        if (selectedKategoriUpload === 'ISTIMEWA' || selectedKategoriUpload === 'KEHORMATAN') {
+          defaultJalur = 'Jalur VIP';
+        } else {
+          defaultJalur = 'Gerbang Selatan (Bola Dunia)';
+        }
+        const jalurMasuk = jalurMasukInput || defaultJalur;
+
+        // Auto-generate kategori & sub_kategori berdasarkan Kategori UI & Input Excel
         let kategori = 'UMUM';
-        let subKategori = 'UMUM';
-        let jalurMasuk = 'Gerbang';
+        let subKategori = 'Umum';
 
         if (selectedKategoriUpload === 'ISTIMEWA') {
-          kategori = 'VVIP';
-          subKategori = 'ISTIMEWA';
-          jalurMasuk = 'Jalur VIP';
+          subKategori = kategoriUndangan || 'VVIP';
+          kategori =
+            subKategori.toUpperCase().includes('VIP') && !subKategori.toUpperCase().includes('VVIP')
+              ? 'VIP'
+              : 'VVIP';
         } else if (selectedKategoriUpload === 'KEHORMATAN') {
           kategori = 'KEHORMATAN';
           subKategori = 'KEHORMATAN';
-          jalurMasuk = 'Jalur VIP';
         } else {
+          // UMUM
           kategori = 'UMUM';
-          subKategori = 'UMUM';
-          jalurMasuk = 'Gerbang';
+          subKategori = kategoriUndangan || 'Umum';
         }
 
         try {
@@ -611,9 +704,9 @@ export default function ImportExportPage() {
             nama: finalNama,
             nama_putra: p || null,
             nama_putri: w || null,
-            instansi,
-            alamat,
-            no_hp: noHp,
+            instansi: instansi || null,
+            alamat: alamat || null,
+            no_hp: noHp || null,
             kategori,
             sub_kategori: subKategori,
             warna_tiket: 'Merah Gold',
