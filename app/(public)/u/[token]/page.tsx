@@ -267,6 +267,11 @@ export default function UndanganWaliPage() {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
+  // State interaktif Clock Picker Desktop (Pointer Click & Drag)
+  const [isClockOpen, setIsClockOpen] = useState(true);
+  const [clockMode, setClockMode] = useState<'hours' | 'minutes'>('hours');
+  const clockWrapperRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setIsMounted(true);
     const checkIsMobile = () => {
@@ -278,6 +283,107 @@ export default function UndanganWaliPage() {
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
+
+  // Event listener interaktif klik & drag untuk lingkaran jam analog Desktop
+  useEffect(() => {
+    if (!isMounted || isMobileDevice || !isClockOpen) return;
+
+    const wrapper = clockWrapperRef.current;
+    if (!wrapper) return;
+
+    const clockEl = wrapper.querySelector('.react-clock') as HTMLElement | null;
+    if (!clockEl) return;
+
+    let isDragging = false;
+
+    const handlePointerAction = (e: PointerEvent) => {
+      const rect = clockEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy);
+      const radius = rect.width / 2;
+
+      // Hitung sudut dari posisi jam 12 (0 derajat di atas, searah jarum jam)
+      let rad = Math.atan2(dy, dx) + Math.PI / 2;
+      if (rad < 0) rad += 2 * Math.PI;
+      const deg = rad * (180 / Math.PI);
+
+      // Parse jam dan menit yang saat ini dipilih
+      const currentVal = jamKonfirmasi && jamKonfirmasi.includes(':') ? jamKonfirmasi : '08:00';
+      const parts = currentVal.split(':');
+      let currentH = parseInt(parts[0], 10);
+      if (isNaN(currentH)) currentH = 8;
+      let currentM = parseInt(parts[1], 10);
+      if (isNaN(currentM)) currentM = 0;
+
+      const isPm = currentH >= 12;
+
+      // Deteksi mode: Jika klik di lingkar luar (>75% radius), otomatis atur menit
+      // Jika di lingkar dalam atau clockMode === 'hours', atur jam
+      const isMinute = clockMode === 'minutes' || (dist > radius * 0.75);
+
+      if (isMinute) {
+        // 60 menit dalam 360 derajat (6 derajat per menit)
+        let m = Math.round(deg / 6) % 60;
+        currentM = m;
+      } else {
+        // 12 jam dalam 360 derajat (30 derajat per jam)
+        let h12 = Math.round(deg / 30) % 12;
+        if (h12 === 0) h12 = 12;
+
+        if (isPm) {
+          currentH = h12 === 12 ? 12 : h12 + 12;
+        } else {
+          currentH = h12 === 12 ? 0 : h12;
+        }
+      }
+
+      const formatted = `${String(currentH).padStart(2, '0')}:${String(currentM).padStart(2, '0')}`;
+      setJamKonfirmasi(formatted);
+      setRsvpValidationErr(null);
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      isDragging = true;
+      try {
+        clockEl.setPointerCapture(e.pointerId);
+      } catch (_) {}
+      handlePointerAction(e);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (isDragging) {
+        handlePointerAction(e);
+      }
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      if (isDragging) {
+        handlePointerAction(e);
+        isDragging = false;
+        try {
+          clockEl.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+        if (clockMode === 'hours') {
+          setClockMode('minutes');
+        }
+      }
+    };
+
+    clockEl.addEventListener('pointerdown', onPointerDown);
+    clockEl.addEventListener('pointermove', onPointerMove);
+    clockEl.addEventListener('pointerup', onPointerUp);
+    clockEl.addEventListener('pointercancel', onPointerUp);
+
+    return () => {
+      clockEl.removeEventListener('pointerdown', onPointerDown);
+      clockEl.removeEventListener('pointermove', onPointerMove);
+      clockEl.removeEventListener('pointerup', onPointerUp);
+      clockEl.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [isMounted, isMobileDevice, isClockOpen, clockMode, jamKonfirmasi]);
 
   // State RSVP Khusus Tamu Undangan (2 Tombol: HADIR / BERHALANGAN)
   const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
@@ -1514,49 +1620,134 @@ export default function UndanganWaliPage() {
                       <label className="block text-xs font-serif font-black text-[#422F21] uppercase tracking-wide">
                         ⏰ Jam Kedatangan:
                       </label>
-                      <span className="text-[10px] text-[#8C6A47] font-semibold">24 Jam</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {isMounted && !isMobileDevice ? (
-                        <div className="relative flex-1">
-                          <TimePicker
-                            value={jamKonfirmasi || null}
-                            onChange={(val) => {
-                              setJamKonfirmasi(val || '');
-                              setRsvpValidationErr(null);
-                            }}
-                            format="HH:mm"
-                            disableClock={false}
-                            clearIcon={null}
-                            clockIcon={<Clock className="w-4 h-4 text-[#8C6A47]" />}
-                            className={`custom-time-picker w-full ${
-                              !jamKonfirmasi && rsvpValidationErr ? 'has-error' : ''
-                            }`}
-                            locale="id-ID"
-                            hourPlaceholder="00"
-                            minutePlaceholder="00"
-                          />
-                        </div>
-                      ) : (
-                        <div className="relative flex-1">
-                          <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <input
-                            type="time"
-                            value={jamKonfirmasi}
-                            onChange={(e) => {
-                              setJamKonfirmasi(e.target.value);
-                              setRsvpValidationErr(null);
-                            }}
-                            className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#422F21] focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47] ${
-                              !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#D5C4B4]'
-                            }`}
-                          />
-                        </div>
-                      )}
-                      <div className="text-xs font-bold text-[#8C6A47] px-2.5 py-2 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4] shrink-0 font-mono">
+                      <div className="text-xs font-bold text-[#8C6A47] px-2.5 py-1 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4] shrink-0 font-mono shadow-2xs">
                         {jamKonfirmasi ? `${jamKonfirmasi} WIB` : 'Belum dipilih'}
                       </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="w-full">
+                        {isMounted && !isMobileDevice ? (
+                          <div ref={clockWrapperRef} className="relative z-50 w-full">
+                            <TimePicker
+                              value={jamKonfirmasi || null}
+                              onChange={(val) => {
+                                if (val) {
+                                  setJamKonfirmasi(String(val));
+                                  setRsvpValidationErr(null);
+                                }
+                              }}
+                              format="HH:mm"
+                              disableClock={false}
+                              clearIcon={null}
+                              isOpen={isClockOpen}
+                              onClockOpen={() => setIsClockOpen(true)}
+                              onClockClose={() => setIsClockOpen(false)}
+                              clockIcon={<Clock className="w-4 h-4 text-[#8C6A47]" />}
+                              className={`custom-time-picker z-50 w-full ${
+                                !jamKonfirmasi && rsvpValidationErr ? 'has-error' : ''
+                              }`}
+                              locale="id-ID"
+                              hourPlaceholder="00"
+                              minutePlaceholder="00"
+                              clockProps={{ renderNumbers: true }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="relative w-full">
+                            <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <input
+                              type="time"
+                              value={jamKonfirmasi}
+                              onChange={(e) => {
+                                setJamKonfirmasi(e.target.value);
+                                setRsvpValidationErr(null);
+                              }}
+                              className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#422F21] focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47] ${
+                                !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#D5C4B4]'
+                              }`}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Toolbar Kontrol Clock Picker Interaktif (Desktop) */}
+                      {isMounted && !isMobileDevice && isClockOpen && (
+                        <div className="flex items-center justify-between w-full pt-1 px-1 text-xs">
+                          <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#D5C4B4]">
+                            <button
+                              type="button"
+                              onClick={() => setClockMode('hours')}
+                              className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
+                                clockMode === 'hours'
+                                  ? 'bg-[#8C6A47] text-white shadow-xs'
+                                  : 'text-[#7A624E] hover:bg-stone-200/60'
+                              }`}
+                            >
+                              🕒 Jam
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setClockMode('minutes')}
+                              className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
+                                clockMode === 'minutes'
+                                  ? 'bg-[#8C6A47] text-white shadow-xs'
+                                  : 'text-[#7A624E] hover:bg-stone-200/60'
+                              }`}
+                            >
+                              ⏱️ Menit
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#D5C4B4]">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const parts = (jamKonfirmasi || '08:00').split(':');
+                                let h = parseInt(parts[0], 10);
+                                if (isNaN(h)) h = 8;
+                                if (h >= 12) h = h - 12;
+                                const m = parts[1] || '00';
+                                setJamKonfirmasi(`${String(h).padStart(2, '0')}:${m}`);
+                                setRsvpValidationErr(null);
+                              }}
+                              className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                                parseInt((jamKonfirmasi || '08:00').split(':')[0], 10) < 12
+                                  ? 'bg-[#8C6A47] text-white shadow-xs'
+                                  : 'text-[#7A624E] hover:bg-stone-200/60'
+                              }`}
+                            >
+                              Pagi (00-11)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const parts = (jamKonfirmasi || '08:00').split(':');
+                                let h = parseInt(parts[0], 10);
+                                if (isNaN(h)) h = 8;
+                                if (h < 12) h = h + 12;
+                                const m = parts[1] || '00';
+                                setJamKonfirmasi(`${String(h).padStart(2, '0')}:${m}`);
+                                setRsvpValidationErr(null);
+                              }}
+                              className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                                parseInt((jamKonfirmasi || '08:00').split(':')[0], 10) >= 12
+                                  ? 'bg-[#8C6A47] text-white shadow-xs'
+                                  : 'text-[#7A624E] hover:bg-stone-200/60'
+                              }`}
+                            >
+                              Siang/Malam (12-23)
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Hint Interaksi Desktop */}
+                      {isMounted && !isMobileDevice && isClockOpen && (
+                        <p className="text-[10px] text-[#8C6A47] italic text-center -mt-1">
+                          *Klik atau geser/drag lingkaran jam analog untuk memutar jarum waktu
+                        </p>
+                      )}
                     </div>
                   </div>
 
