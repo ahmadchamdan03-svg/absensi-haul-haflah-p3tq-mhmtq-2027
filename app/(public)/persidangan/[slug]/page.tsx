@@ -12,7 +12,6 @@ import {
   FileText,
   Home,
   RefreshCw,
-  QrCode as QrCodeIcon,
 } from 'lucide-react';
 import { Persidangan, getPersidanganBySlug } from '@/lib/persidangan';
 
@@ -261,38 +260,18 @@ function PublicPersidanganContent() {
           </div>
         )}
 
-        {/* Card QR Code Akses Presensi Kehadiran (Hanya tampil jika parameter ?to= ada) */}
+        {/* Card QR Code Akses Presensi (Hanya tampil jika parameter ?to= ada) */}
         {toCode && (
-          <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 text-center shadow-xl space-y-4 my-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF7F3] border border-[#D5C4B4] text-[#8C6A47] text-xs font-bold uppercase tracking-wider">
-              <QrCodeIcon className="w-4 h-4 text-[#8C6A47]" />
-              Kode Akses Presensi
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
-                QR Code Kehadiran Persidangan
-              </h3>
-              <p className="text-xs text-[#735334] max-w-md mx-auto leading-relaxed">
-                Tunjukkan QR Code ini kepada petugas persidangan untuk mencatat kehadiran Anda.
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col items-center justify-center">
-              <div className="p-4 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[240px] w-full aspect-square flex items-center justify-center">
-                <QRCode
-                  value={toCode}
-                  size={200}
-                  bgColor="#FAF7F3"
-                  fgColor="#422F21"
-                  level="M"
-                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                />
-              </div>
-
-              <p className="text-[11px] text-[#A89887] mt-3">
-                Pastikan kecerahan layar perangkat Anda cukup saat dipindai oleh panitia.
-              </p>
+          <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 shadow-xl my-6 flex items-center justify-center">
+            <div className="p-4 sm:p-5 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+              <QRCode
+                value={toCode}
+                size={220}
+                bgColor="#FAF7F3"
+                fgColor="#422F21"
+                level="M"
+                style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+              />
             </div>
           </div>
         )}
