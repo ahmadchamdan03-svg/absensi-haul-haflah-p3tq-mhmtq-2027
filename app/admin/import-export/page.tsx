@@ -33,8 +33,26 @@ export default function ImportExportPage() {
   const [parsedData, setParsedData] = useState<any[]>([]);
   const [previewRows, setPreviewRows] = useState<any[]>([]);
   const [columnHeaders, setColumnHeaders] = useState<string[]>([]);
-  const [uploadMode, setUploadMode] = useState<'SKIP' | 'UPDATE'>('SKIP');
-  const [filterKategoriUpload, setFilterKategoriUpload] = useState<string>('ALL');
+  const [selectedKategoriUpload, setSelectedKategoriUpload] = useState<string>('');
+
+  const getKategoriLabel = (cat: string) => {
+    switch (cat) {
+      case 'BIL_GHOIB':
+        return 'Bil Ghoib';
+      case 'BIN_NADZOR':
+        return 'Bin Nadzor';
+      case 'TAMATAN':
+        return 'Tamatan';
+      case 'ISTIMEWA':
+        return 'Istimewa';
+      case 'KEHORMATAN':
+        return 'Kehormatan';
+      case 'UMUM':
+        return 'Umum';
+      default:
+        return cat;
+    }
+  };
 
   // State Processing & Result
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -52,158 +70,33 @@ export default function ImportExportPage() {
   // ---------------------------------------------------------------------------
   // 1. DOWNLOAD TEMPLATE EXCEL (PESERTA SANTRI & TAMU UNDANGAN)
   // ---------------------------------------------------------------------------
-  const handleDownloadTemplateSantri = (filterKat?: string) => {
-    const headers = [
-      'kode',
-      'nama',
-      'nama_wali',
-      'alamat',
-      'no_hp',
-      'kategori_utama',
-      'sub_kategori',
-      'kelas',
-      'kamar',
-      'kuota_dasar',
-      'kuota_tambahan',
-      'warna_tiket',
-      'jalur_masuk',
-    ];
-
-    let sampleRows: any[] = [];
-    if (!filterKat || filterKat === 'ALL') {
-      sampleRows = [
-        [
-          'SH0001',
-          'AHMAD FAUZI',
-          'H. MAHMUDI',
-          'Kediri',
-          '081234567890',
-          'BIL_GHOIB',
-          'Bil Ghoib 30 Juz',
-          '3 Aliyah',
-          'Kamar Al-Falah 02',
-          4,
-          0,
-          'Hitam Gold',
-          'Gerbang Selatan (Bola Dunia)',
-        ],
-        [
-          'SH0002',
-          'MUHAMMAD ZAINAL',
-          'H. ABDULLAH',
-          'Nganjuk',
-          '081298765432',
-          'BIN_NADZOR',
-          'Bin Nadzor',
-          '2 Tsanawiyah',
-          'Kamar An-Nur 05',
-          2,
-          0,
-          'Merah Gold',
-          'Gerbang Selatan (Bola Dunia)',
-        ],
-        [
-          'SH0003',
-          'ZULFA RAHMAWATI',
-          'K.H. IMRON',
-          'Jombang',
-          '085612345678',
-          'TAMATAN',
-          'Tamatan Alfiyah',
-          '3 Aliyah',
-          'Kamar Fatimah 01',
-          2,
-          0,
-          'Merah Gold',
-          'Gerbang Selatan (Bola Dunia)',
-        ],
-      ];
-    } else if (filterKat === 'BIL_GHOIB') {
-      sampleRows = [
-        [
-          'SH0101',
-          'CONTOH SANTRI BIL GHOIB',
-          'NAMA WALI',
-          'Kediri',
-          '081234567890',
-          'BIL_GHOIB',
-          'Bil Ghoib 30 Juz',
-          '3 Aliyah',
-          'Kamar 01',
-          4,
-          0,
-          'Hitam Gold',
-          'Gerbang Selatan (Bola Dunia)',
-        ],
-      ];
-    } else if (filterKat === 'BIN_NADZOR') {
-      sampleRows = [
-        [
-          'SH0201',
-          'CONTOH SANTRI BIN NADZOR',
-          'NAMA WALI',
-          'Blitar',
-          '081234567891',
-          'BIN_NADZOR',
-          'Bin Nadzor',
-          '2 Tsanawiyah',
-          'Kamar 02',
-          2,
-          0,
-          'Merah Gold',
-          'Gerbang Selatan (Bola Dunia)',
-        ],
-      ];
-    } else if (filterKat === 'TAMATAN') {
-      sampleRows = [
-        [
-          'SH0301',
-          'CONTOH SANTRI TAMATAN',
-          'NAMA WALI',
-          'Tulungagung',
-          '081234567892',
-          'TAMATAN',
-          'Tamatan Al-Miftah',
-          '3 Aliyah',
-          'Kamar 03',
-          2,
-          0,
-          'Merah Gold',
-          'Gerbang Selatan (Bola Dunia)',
-        ],
-      ];
-    }
-
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Template Peserta Santri');
-    const fileName = filterKat && filterKat !== 'ALL'
-      ? `Template_Peserta_Santri_${filterKat}.xlsx`
-      : 'Template_Format_Peserta_Santri.xlsx';
-    XLSX.writeFile(wb, fileName);
-  };
-
-  const handleDownloadTemplateTamu = async (filterKat?: string) => {
+  const handleDownloadTemplateSantri = async (filterKat: 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN') => {
     try {
       const ExcelJS = (await import('exceljs')).default || (await import('exceljs'));
       const wb = new ExcelJS.Workbook();
       wb.creator = 'Panitia Haflah 2027';
       wb.created = new Date();
 
-      const ws = wb.addWorksheet('Format Tamu Undangan');
+      const katLabel =
+        filterKat === 'BIL_GHOIB'
+          ? 'Bil Ghoib'
+          : filterKat === 'BIN_NADZOR'
+          ? 'Bin Nadzor'
+          : 'Tamatan';
+      const ws = wb.addWorksheet(`Peserta ${katLabel}`);
 
-      // 1. Definisi 7 Kolom Baku Sederhana
+      // 7 Kolom Baku Sederhana
       ws.columns = [
-        { header: 'NAMA', key: 'nama', width: 34 },
-        { header: 'NAMA PUTRA', key: 'nama_putra', width: 28 },
-        { header: 'NAMA PUTRI', key: 'nama_putri', width: 28 },
-        { header: 'INSTANSI', key: 'instansi', width: 32 },
-        { header: 'ALAMAT', key: 'alamat', width: 24 },
+        { header: 'NAMA SANTRI', key: 'nama_santri', width: 34 },
+        { header: 'NAMA WALI', key: 'nama_wali', width: 30 },
+        { header: 'KELAS', key: 'kelas', width: 20 },
+        { header: 'KAMAR', key: 'kamar', width: 24 },
+        { header: 'ALAMAT', key: 'alamat', width: 26 },
         { header: 'NO HP', key: 'no_hp', width: 20 },
-        { header: 'KATEGORI', key: 'kategori', width: 22 },
+        { header: 'KUOTA DASAR', key: 'kuota_dasar', width: 16 },
       ];
 
-      // 2. Styling Header: Background Coklat #8C6A47, Font Putih Bold, Alignment Center
+      // Styling Header: Background Coklat #8C6A47, Font Putih Bold, Alignment Center
       const headerRow = ws.getRow(1);
       headerRow.height = 28;
       headerRow.eachCell((cell) => {
@@ -222,48 +115,156 @@ export default function ImportExportPage() {
         };
       });
 
-      // 3. Baris Contoh Data Dummy (Baris 2)
-      let sampleKat = 'VVIP';
-      if (filterKat === 'KEHORMATAN') sampleKat = 'Kehormatan';
-      else if (filterKat === 'UMUM') sampleKat = 'Umum';
-
-      const sampleRow = ws.addRow({
-        nama: 'KH. ANWAR MANSHUR & IBU NYAI',
-        nama_putra: 'KH. ANWAR MANSHUR',
-        nama_putri: 'IBU NYAI HJ. MAHMUDAH',
-        instansi: 'Pon. Pes. Lirboyo Kediri',
+      // 1 Baris Contoh Data Dummy
+      let sampleData = {
+        nama_santri: 'AHMAD FAUZI',
+        nama_wali: 'H. MAHMUDI',
+        kelas: '3 Aliyah',
+        kamar: 'Kamar Al-Falah 02',
         alamat: 'Kediri',
         no_hp: '081234567890',
-        kategori: sampleKat,
-      });
+        kuota_dasar: 4,
+      };
+
+      if (filterKat === 'BIN_NADZOR') {
+        sampleData = {
+          nama_santri: 'MUHAMMAD ZAINAL',
+          nama_wali: 'H. ABDULLAH',
+          kelas: '2 Tsanawiyah',
+          kamar: 'Kamar An-Nur 05',
+          alamat: 'Nganjuk',
+          no_hp: '081298765432',
+          kuota_dasar: 2,
+        };
+      } else if (filterKat === 'TAMATAN') {
+        sampleData = {
+          nama_santri: 'ZULFA RAHMAWATI',
+          nama_wali: 'K.H. IMRON',
+          kelas: '3 Aliyah',
+          kamar: 'Kamar Fatimah 01',
+          alamat: 'Jombang',
+          no_hp: '085612345678',
+          kuota_dasar: 2,
+        };
+      }
+
+      const sampleRow = ws.addRow(sampleData);
       sampleRow.height = 22;
       sampleRow.eachCell((cell) => {
         cell.font = { name: 'Calibri', size: 10 };
         cell.alignment = { vertical: 'middle', horizontal: 'left' };
       });
-      // Center alignment khusus NO HP & KATEGORI
+      ws.getCell('C2').alignment = { vertical: 'middle', horizontal: 'center' };
       ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
       ws.getCell('G2').alignment = { vertical: 'middle', horizontal: 'center' };
 
-      // 4. Data Validation (Dropdown) Kolom KATEGORI (G2 s.d. G500)
-      const kategoriOptions = '"VVIP,VIP,Kehormatan,Istimewa,Penguji,Asatidz,Perwakilan,Umum"';
-      for (let r = 2; r <= 500; r++) {
-        ws.getCell(`G${r}`).dataValidation = {
-          type: 'list',
-          allowBlank: true,
-          formulae: [kategoriOptions],
-          showErrorMessage: true,
-          errorTitle: 'Kategori Tidak Valid',
-          error: 'Silakan pilih kategori dari daftar pilihan dropdown yang tersedia.',
-        };
-      }
-
-      // 5. Generate Buffer & Trigger Browser Download
       const buffer = await wb.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-      const fileName = 'Format_Import_Tamu_Undangan.xlsx';
+      const fileName = `Template_Peserta_Santri_${filterKat}.xlsx`;
+
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error('Error downloading template santri:', err);
+      alert(`Gagal membuat template Excel: ${err.message || err}`);
+    }
+  };
+
+  const handleDownloadTemplateTamu = async (filterKat: 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM') => {
+    try {
+      const ExcelJS = (await import('exceljs')).default || (await import('exceljs'));
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Panitia Haflah 2027';
+      wb.created = new Date();
+
+      const katLabel =
+        filterKat === 'ISTIMEWA'
+          ? 'Istimewa'
+          : filterKat === 'KEHORMATAN'
+          ? 'Kehormatan'
+          : 'Umum';
+      const ws = wb.addWorksheet(`Tamu ${katLabel}`);
+
+      // 6 Kolom Baku Sederhana
+      ws.columns = [
+        { header: 'NAMA TAMU', key: 'nama_tamu', width: 34 },
+        { header: 'NAMA PUTRA', key: 'nama_putra', width: 28 },
+        { header: 'NAMA PUTRI', key: 'nama_putri', width: 28 },
+        { header: 'INSTANSI', key: 'instansi', width: 32 },
+        { header: 'ALAMAT', key: 'alamat', width: 24 },
+        { header: 'NO HP', key: 'no_hp', width: 20 },
+      ];
+
+      // Styling Header: Background Coklat #8C6A47, Font Putih Bold, Alignment Center
+      const headerRow = ws.getRow(1);
+      headerRow.height = 28;
+      headerRow.eachCell((cell) => {
+        cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF8C6A47' }, // Coklat resmi Haflah
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+          left: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+          bottom: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+          right: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+        };
+      });
+
+      // 1 Baris Contoh Data Dummy
+      let sampleData = {
+        nama_tamu: 'KH. ANWAR MANSHUR & IBU NYAI',
+        nama_putra: 'KH. ANWAR MANSHUR',
+        nama_putri: 'IBU NYAI HJ. MAHMUDAH',
+        instansi: 'Pon. Pes. Lirboyo Kediri',
+        alamat: 'Kediri',
+        no_hp: '081234567890',
+      };
+
+      if (filterKat === 'KEHORMATAN') {
+        sampleData = {
+          nama_tamu: 'BAPAK H. BAMBANG IRAWAN',
+          nama_putra: 'BAPAK H. BAMBANG IRAWAN',
+          nama_putri: '',
+          instansi: 'Kemenag Kab. Kediri',
+          alamat: 'Kediri',
+          no_hp: '081345678901',
+        };
+      } else if (filterKat === 'UMUM') {
+        sampleData = {
+          nama_tamu: 'AL-USTADZ ZAINUDDIN',
+          nama_putra: 'AL-USTADZ ZAINUDDIN',
+          nama_putri: '',
+          instansi: 'Asatidz MHMTQ Sekalian',
+          alamat: 'Kediri',
+          no_hp: '085712345678',
+        };
+      }
+
+      const sampleRow = ws.addRow(sampleData);
+      sampleRow.height = 22;
+      sampleRow.eachCell((cell) => {
+        cell.font = { name: 'Calibri', size: 10 };
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+      });
+      ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const fileName = `Template_Tamu_Undangan_${filterKat}.xlsx`;
 
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement('a');
@@ -376,58 +377,19 @@ export default function ImportExportPage() {
   // 4. EKSEKUSI PROSES IMPORT KE SUPABASE (SKIP VS UPDATE)
   // ---------------------------------------------------------------------------
   const handleExecuteImport = async () => {
+    if (!selectedKategoriUpload) {
+      alert('Silakan pilih Kategori Data terlebih dahulu sebelum memulai impor.');
+      return;
+    }
+
     if (!parsedData || parsedData.length === 0) {
-      alert('Tidak ada data untuk diimpor.');
+      alert('Tidak ada data dalam berkas yang dapat diimpor.');
       return;
     }
 
-    // Filter baris berdasar kategori jika dipilih
-    let rowsToImport = [...parsedData];
-    if (filterKategoriUpload !== 'ALL') {
-      if (activeTab === 'SANTRI') {
-        rowsToImport = rowsToImport.filter((r) => {
-          const cat = `${r.kategori_utama || ''} ${r.sub_kategori || ''}`.toUpperCase();
-          if (filterKategoriUpload === 'BIL_GHOIB') return cat.includes('GHOIB');
-          if (filterKategoriUpload === 'BIN_NADZOR') return cat.includes('NADZOR');
-          if (filterKategoriUpload === 'TAMATAN') return cat.includes('TAMATAN');
-          return true;
-        });
-      } else {
-        rowsToImport = rowsToImport.filter((r) => {
-          const kat = String(
-            r.KATEGORI ||
-            r.kategori ||
-            r['SUB KATEGORI'] ||
-            r.sub_kategori ||
-            r.golongan ||
-            ''
-          ).toUpperCase();
-          if (filterKategoriUpload === 'ISTIMEWA') {
-            return kat.includes('ISTIMEWA') || kat.includes('VVIP') || kat.includes('VIP');
-          }
-          if (filterKategoriUpload === 'KEHORMATAN') {
-            return kat.includes('KEHORMATAN');
-          }
-          if (filterKategoriUpload === 'UMUM') {
-            return (
-              kat.includes('UMUM') ||
-              kat.includes('ASATIDZ') ||
-              kat.includes('PENGUJI') ||
-              kat.includes('PERWAKILAN')
-            );
-          }
-          return kat.includes(filterKategoriUpload);
-        });
-      }
-    }
-
-    if (rowsToImport.length === 0) {
-      alert(`Tidak ada baris yang cocok dengan filter kategori: ${filterKategoriUpload}`);
-      return;
-    }
-
+    const catLabel = getKategoriLabel(selectedKategoriUpload);
     const confirmRun = confirm(
-      `Mulai impor ${rowsToImport.length} data ${activeTab === 'SANTRI' ? 'Peserta Santri' : 'Tamu Undangan'}?\nMode: ${uploadMode === 'SKIP' ? 'LEWATI yang sudah ada (SKIP)' : 'PERBARUI data jika ada (UPDATE/UPSERT)'}`
+      `Mulai impor ${parsedData.length} baris data ${activeTab === 'SANTRI' ? 'Peserta Santri' : 'Tamu Undangan'} (${catLabel}) ke database Supabase?`
     );
     if (!confirmRun) return;
 
@@ -440,7 +402,7 @@ export default function ImportExportPage() {
     let failedCount = 0;
     const errorLogs: string[] = [];
 
-    // Ambil data existing untuk cek SKIP vs UPDATE
+    // Ambil data existing untuk cek duplikasi kode
     const { data: existingRecords } = await supabase
       .from(targetTable)
       .select('kode');
@@ -449,25 +411,37 @@ export default function ImportExportPage() {
       (existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim())
     );
 
-    // Hitung max kode numerik untuk auto-generate kode tamu (UNDxxxx)
+    // Hitung max kode numerik untuk santri (SH8001...) dan tamu (UND0001...)
+    let maxSantriKodeNum = 8000;
     let maxTamuKodeNum = 0;
-    if (activeTab === 'TAMU' && existingRecords) {
+
+    if (existingRecords) {
       for (const item of existingRecords) {
         const k = String(item.kode || '').trim().toUpperCase();
-        const m = k.match(/^UND(\d+)$/);
-        if (m) {
-          const num = parseInt(m[1], 10);
-          if (!isNaN(num) && num > maxTamuKodeNum) {
-            maxTamuKodeNum = num;
+        if (activeTab === 'SANTRI') {
+          const m = k.match(/^SH(\d+)$/);
+          if (m) {
+            const num = parseInt(m[1], 10);
+            if (!isNaN(num) && num > maxSantriKodeNum) {
+              maxSantriKodeNum = num;
+            }
+          }
+        } else {
+          const m = k.match(/^UND(\d+)$/);
+          if (m) {
+            const num = parseInt(m[1], 10);
+            if (!isNaN(num) && num > maxTamuKodeNum) {
+              maxTamuKodeNum = num;
+            }
           }
         }
       }
     }
 
-    const totalRows = rowsToImport.length;
+    const totalRows = parsedData.length;
 
     for (let i = 0; i < totalRows; i++) {
-      const row = rowsToImport[i];
+      const row = parsedData[i];
 
       const getVal = (...keys: string[]) => {
         for (const k of keys) {
@@ -479,40 +453,70 @@ export default function ImportExportPage() {
       };
 
       if (activeTab === 'SANTRI') {
-        const kode = String(row.kode || '').toUpperCase().trim();
+        const namaSantri = getVal('NAMA SANTRI', 'NAMA', 'nama_santri', 'nama');
+        const namaWali = getVal('NAMA WALI', 'WALI', 'nama_wali') || '-';
+        const kelas = getVal('KELAS', 'kelas') || '-';
+        const kamar = getVal('KAMAR', 'kamar') || '-';
+        const alamat = getVal('ALAMAT', 'alamat') || 'Kediri';
+        const noHp = getVal('NO HP', 'HP', 'no_hp') || '-';
+        const kuotaDasarRaw = getVal('KUOTA DASAR', 'KUOTA', 'kuota_dasar');
 
-        if (!kode) {
-          failedCount++;
-          errorLogs.push(`Baris #${i + 1}: Kode kosong.`);
-          continue;
-        }
-
-        const isExist = existingKodeSet.has(kode);
-
-        if (isExist && uploadMode === 'SKIP') {
+        if (!namaSantri) {
           skippedCount++;
+          errorLogs.push(`Baris #${i + 1}: Dilewati karena NAMA SANTRI kosong.`);
+          const percent = Math.round(((i + 1) / totalRows) * 100);
+          setProgressPercent(percent);
           continue;
         }
+
+        // Tentukan Kode: Dari file jika ada, atau Auto-Generate SH8001+ sekuensial
+        let kode = getVal('KODE', 'kode').toUpperCase();
+        if (!kode) {
+          maxSantriKodeNum++;
+          kode = `SH${String(maxSantriKodeNum).padStart(4, '0')}`;
+          while (existingKodeSet.has(kode)) {
+            maxSantriKodeNum++;
+            kode = `SH${String(maxSantriKodeNum).padStart(4, '0')}`;
+          }
+        } else if (existingKodeSet.has(kode)) {
+          // Bentrok kode -> otomatis skip baris tersebut
+          skippedCount++;
+          const percent = Math.round(((i + 1) / totalRows) * 100);
+          setProgressPercent(percent);
+          continue;
+        }
+
+        // Auto-generate berdasarkan Kategori yang dipilih User di UI
+        const kategoriUtama = selectedKategoriUpload; // BIL_GHOIB | BIN_NADZOR | TAMATAN
+        const subKategori =
+          kategoriUtama === 'BIL_GHOIB'
+            ? 'Bil Ghoib 30 Juz'
+            : kategoriUtama === 'BIN_NADZOR'
+            ? 'Bin Nadzor'
+            : 'Tamatan Alfiyah';
+        const warnaTiket = kategoriUtama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold';
+        const jalurMasuk = 'Gerbang Selatan (Bola Dunia)';
+        const defaultKuota = kategoriUtama === 'BIL_GHOIB' ? 4 : 2;
+        const kuotaDasar = Number(kuotaDasarRaw || defaultKuota);
 
         try {
           const payload = {
             kode,
-            nama: String(row.nama || '').trim().toUpperCase(),
-            nama_wali: String(row.nama_wali || '-').trim(),
-            alamat: String(row.alamat || 'Kediri').trim(),
-            no_hp: String(row.no_hp || '-').trim(),
-            kategori_utama: String(row.kategori_utama || 'BIL_GHOIB').trim().toUpperCase(),
-            sub_kategori: String(row.sub_kategori || 'Bil Ghoib').trim(),
-            kelas: String(row.kelas || '-').trim(),
-            kamar: String(row.kamar || '-').trim(),
-            kuota_dasar: Number(
-              row.kuota_dasar || (String(row.kategori_utama).toUpperCase().includes('GHOIB') ? 4 : 2)
-            ),
-            kuota_tambahan: Number(row.kuota_tambahan || 0),
-            warna_tiket: String(
-              row.warna_tiket || (String(row.kategori_utama).toUpperCase().includes('GHOIB') ? 'Hitam Gold' : 'Merah Gold')
-            ),
-            jalur_masuk: String(row.jalur_masuk || 'Gerbang Selatan (Bola Dunia)'),
+            nama: namaSantri.toUpperCase(),
+            nama_wali: namaWali,
+            kelas,
+            kamar,
+            alamat,
+            no_hp: noHp,
+            kategori_utama: kategoriUtama,
+            sub_kategori: subKategori,
+            warna_tiket: warnaTiket,
+            jalur_masuk: jalurMasuk,
+            kuota_dasar: kuotaDasar,
+            kuota_tambahan: 0,
+            kuota_terpakai: 0,
+            status_konfirmasi: 'BELUM',
+            created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
 
@@ -529,33 +533,28 @@ export default function ImportExportPage() {
         }
       } else {
         // =======================================================================
-        // TAMU UNDANGAN (FORMAT SEDERHANA 7 KOLOM & AUTO-GENERATE)
+        // TAMU UNDANGAN (FORMAT SEDERHANA 6 KOLOM & AUTO-GENERATE)
         // =======================================================================
-        const rawNama = getVal('NAMA', 'nama');
+        const rawNama = getVal('NAMA TAMU', 'NAMA', 'nama_tamu', 'nama');
         let p = getVal('NAMA PUTRA', 'nama_putra', 'NAMA_PUTRA');
         let w = getVal('NAMA PUTRI', 'nama_putri', 'NAMA_PUTRI');
         const instansi = getVal('INSTANSI', 'instansi') || '-';
         const alamat = getVal('ALAMAT', 'alamat') || '-';
-        const noHp = getVal('NO HP', 'no_hp', 'NO_HP') || '-';
-        const kategori = getVal('KATEGORI', 'kategori');
+        const noHp = getVal('NO HP', 'HP', 'no_hp') || '-';
 
         let finalNama = rawNama;
         if (!finalNama && (p || w)) {
           finalNama = p && w ? `${p} & ${w}` : p || w;
         }
 
-        // Validasi: Jika NAMA atau KATEGORI kosong, lewati (skip) baris tersebut
-        if (!finalNama || !kategori) {
+        if (!finalNama) {
           skippedCount++;
-          errorLogs.push(
-            `Baris #${i + 1}: Dilewati karena ${!finalNama ? 'NAMA' : 'KATEGORI'} tidak boleh kosong.`
-          );
+          errorLogs.push(`Baris #${i + 1}: Dilewati karena NAMA TAMU kosong.`);
           const percent = Math.round(((i + 1) / totalRows) * 100);
           setProgressPercent(percent);
           continue;
         }
 
-        // Jika p dan w kosong, isi otomatis dari finalNama agar kuota dasar terhitung minimal 1
         if (!p && !w) {
           const upper = finalNama.toUpperCase();
           if (
@@ -570,7 +569,7 @@ export default function ImportExportPage() {
           }
         }
 
-        // Tentukan Kode: Ambil dari file jika ada, atau Auto-Generate UNDxxxx (max + 1)
+        // Tentukan Kode: Dari file jika ada, atau Auto-Generate UND0001+ sekuensial
         let kode = getVal('KODE', 'kode').toUpperCase();
         if (!kode) {
           maxTamuKodeNum++;
@@ -579,40 +578,31 @@ export default function ImportExportPage() {
             maxTamuKodeNum++;
             kode = `UND${String(maxTamuKodeNum).padStart(4, '0')}`;
           }
-        }
-
-        const isExist = existingKodeSet.has(kode);
-        if (isExist && uploadMode === 'SKIP') {
+        } else if (existingKodeSet.has(kode)) {
+          // Bentrok kode -> otomatis skip baris tersebut
           skippedCount++;
           const percent = Math.round(((i + 1) / totalRows) * 100);
           setProgressPercent(percent);
           continue;
         }
 
-        // Auto-generate kategori & sub_kategori
-        const katUpper = kategori.toUpperCase();
-        let subKategori = katUpper;
-        if (['VVIP', 'VIP', 'ISTIMEWA'].some((k) => katUpper.includes(k))) {
-          subKategori = 'ISTIMEWA';
-        } else if (katUpper.includes('KEHORMATAN')) {
-          subKategori = 'KEHORMATAN';
-        } else if (['UMUM', 'ASATIDZ', 'PENGUJI', 'PERWAKILAN'].some((k) => katUpper.includes(k))) {
-          subKategori = 'UMUM';
-        }
+        // Auto-generate berdasarkan Kategori yang dipilih User di UI
+        let kategori = 'UMUM';
+        let subKategori = 'UMUM';
+        let jalurMasuk = 'Gerbang';
 
-        // Auto-generate jalur_masuk
-        let jalurMasuk = 'Jalur VIP';
-        if (katUpper === 'UMUM') {
-          jalurMasuk = 'Gerbang Timur';
-        } else if (
-          katUpper.includes('VVIP') ||
-          katUpper.includes('VIP') ||
-          katUpper.includes('KEHORMATAN') ||
-          katUpper.includes('ISTIMEWA')
-        ) {
+        if (selectedKategoriUpload === 'ISTIMEWA') {
+          kategori = 'VVIP';
+          subKategori = 'ISTIMEWA';
+          jalurMasuk = 'Jalur VIP';
+        } else if (selectedKategoriUpload === 'KEHORMATAN') {
+          kategori = 'KEHORMATAN';
+          subKategori = 'KEHORMATAN';
           jalurMasuk = 'Jalur VIP';
         } else {
-          jalurMasuk = 'Gerbang Timur';
+          kategori = 'UMUM';
+          subKategori = 'UMUM';
+          jalurMasuk = 'Gerbang';
         }
 
         try {
@@ -624,7 +614,7 @@ export default function ImportExportPage() {
             instansi,
             alamat,
             no_hp: noHp,
-            kategori: katUpper,
+            kategori,
             sub_kategori: subKategori,
             warna_tiket: 'Merah Gold',
             jalur_masuk: jalurMasuk,
@@ -661,9 +651,9 @@ export default function ImportExportPage() {
       kode: 'EXCEL_BATCH',
       nama: `Batch Import ${activeTab}`,
       field: 'bulk_import',
-      nilai_lama: `Mode: ${uploadMode}`,
+      nilai_lama: `Kategori: ${selectedKategoriUpload}`,
       nilai_baru: `Berhasil: ${successCount}, Dilewati: ${skippedCount}, Gagal: ${failedCount}`,
-      catatan: `Import data excel ${activeTab} (${rowsToImport.length} baris)`,
+      catatan: `Import data excel ${activeTab} (${totalRows} baris)`,
     });
 
     setUploadResult({
@@ -714,6 +704,7 @@ export default function ImportExportPage() {
             type="button"
             onClick={() => {
               setActiveTab('SANTRI');
+              setSelectedKategoriUpload('');
               handleResetUpload();
             }}
             className={`px-5 py-2.5 rounded-2xl font-serif font-bold text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer ${
@@ -729,6 +720,7 @@ export default function ImportExportPage() {
             type="button"
             onClick={() => {
               setActiveTab('TAMU');
+              setSelectedKategoriUpload('');
               handleResetUpload();
             }}
             className={`px-5 py-2.5 rounded-2xl font-serif font-bold text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer ${
@@ -742,9 +734,9 @@ export default function ImportExportPage() {
           </button>
         </div>
 
-        {/* 4 TOMBOL UTAMA & KARTU KATEGORI */}
+        {/* 2 KARTU UTAMA: DOWNLOAD TEMPLATE & UPLOAD DATA */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* KARTU 1: DOWNLOAD TEMPLATE & FORMAT STANDAR */}
+          {/* KARTU 1: DOWNLOAD TEMPLATE PER KATEGORI */}
           <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-4">
             <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
               <Download className="w-5 h-5 text-[#8C6A47]" />
@@ -753,62 +745,40 @@ export default function ImportExportPage() {
               </h2>
             </div>
             <p className="text-xs text-stone-600 leading-relaxed">
-              {activeTab === 'SANTRI' ? (
-                <>
-                  Unduh format resmi yang telah disesuaikan dengan struktur tabel database{' '}
-                  <strong>peserta_santri</strong>. Format ini berisi kolom baku dan contoh data siap isi.
-                </>
-              ) : (
-                <>
-                  Format sederhana <strong>7 kolom esensial</strong> (NAMA, NAMA PUTRA, NAMA PUTRI, INSTANSI, ALAMAT, NO HP, KATEGORI)
-                  dilengkapi dropdown pilihan otomatis pada kolom kategori. Kode (UNDxxxx), warna tiket, dan jalur masuk diisi otomatis oleh sistem saat import.
-                </>
-              )}
+              Pilih kategori di bawah untuk mengunduh template resmi. Format telah disederhanakan
+              hanya memuat data esensial yang perlu diisi panitia.
             </p>
 
-            <button
-              type="button"
-              onClick={() =>
-                activeTab === 'SANTRI'
-                  ? handleDownloadTemplateSantri()
-                  : handleDownloadTemplateTamu()
-              }
-              className="w-full py-3 px-4 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] text-[#5C3E28] border-2 border-[#D5C4B4] font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
-              <span>
-                Unduh Format Lengkap {activeTab === 'SANTRI' ? 'Peserta Santri' : 'Tamu Undangan'} (.xlsx)
-              </span>
-            </button>
-
-            {/* KARTU TEMPLATE PER KATEGORI (FIX 13) */}
-            <div className="pt-2 border-t border-stone-100 space-y-2">
+            <div className="space-y-2 pt-1">
               <span className="text-[11px] font-bold text-[#8C6A47] uppercase tracking-wider block">
-                Unduh Format Terfilter Per Kategori:
+                Pilih Kategori untuk Mengunduh Template ({activeTab === 'SANTRI' ? 'Peserta Santri' : 'Tamu Undangan'}):
               </span>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2.5">
                 {activeTab === 'SANTRI' ? (
                   <>
                     <button
                       type="button"
                       onClick={() => handleDownloadTemplateSantri('BIL_GHOIB')}
-                      className="p-2.5 rounded-xl bg-[#FAF7F3] hover:bg-stone-100 border border-[#D5C4B4] text-center text-xs font-bold text-[#422F21] transition-all cursor-pointer"
+                      className="p-3.5 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] border-2 border-[#D5C4B4] text-center text-xs font-serif font-black text-[#422F21] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                     >
-                      Bil Ghoib
+                      <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                      <span>Bil Ghoib</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDownloadTemplateSantri('BIN_NADZOR')}
-                      className="p-2.5 rounded-xl bg-[#FAF7F3] hover:bg-stone-100 border border-[#D5C4B4] text-center text-xs font-bold text-[#422F21] transition-all cursor-pointer"
+                      className="p-3.5 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] border-2 border-[#D5C4B4] text-center text-xs font-serif font-black text-[#422F21] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                     >
-                      Bin Nadzor
+                      <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                      <span>Bin Nadzor</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDownloadTemplateSantri('TAMATAN')}
-                      className="p-2.5 rounded-xl bg-[#FAF7F3] hover:bg-stone-100 border border-[#D5C4B4] text-center text-xs font-bold text-[#422F21] transition-all cursor-pointer"
+                      className="p-3.5 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] border-2 border-[#D5C4B4] text-center text-xs font-serif font-black text-[#422F21] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                     >
-                      Tamatan
+                      <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                      <span>Tamatan</span>
                     </button>
                   </>
                 ) : (
@@ -816,23 +786,26 @@ export default function ImportExportPage() {
                     <button
                       type="button"
                       onClick={() => handleDownloadTemplateTamu('ISTIMEWA')}
-                      className="p-2.5 rounded-xl bg-[#FAF7F3] hover:bg-stone-100 border border-[#D5C4B4] text-center text-xs font-bold text-[#422F21] transition-all cursor-pointer"
+                      className="p-3.5 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] border-2 border-[#D5C4B4] text-center text-xs font-serif font-black text-[#422F21] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                     >
-                      Istimewa
+                      <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                      <span>Istimewa</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDownloadTemplateTamu('KEHORMATAN')}
-                      className="p-2.5 rounded-xl bg-[#FAF7F3] hover:bg-stone-100 border border-[#D5C4B4] text-center text-xs font-bold text-[#422F21] transition-all cursor-pointer"
+                      className="p-3.5 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] border-2 border-[#D5C4B4] text-center text-xs font-serif font-black text-[#422F21] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                     >
-                      Kehormatan
+                      <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                      <span>Kehormatan</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDownloadTemplateTamu('UMUM')}
-                      className="p-2.5 rounded-xl bg-[#FAF7F3] hover:bg-stone-100 border border-[#D5C4B4] text-center text-xs font-bold text-[#422F21] transition-all cursor-pointer"
+                      className="p-3.5 rounded-2xl bg-[#FAF0E6] hover:bg-[#EFE8E1] border-2 border-[#D5C4B4] text-center text-xs font-serif font-black text-[#422F21] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                     >
-                      Umum
+                      <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                      <span>Umum</span>
                     </button>
                   </>
                 )}
@@ -845,75 +818,93 @@ export default function ImportExportPage() {
             <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
               <Upload className="w-5 h-5 text-[#8C6A47]" />
               <h2 className="font-serif font-black text-base text-[#422F21]">
-                2. Unggah Berkas Excel / CSV
+                2. Unggah Berkas Excel Sesuai Kategori
               </h2>
             </div>
 
-            {/* DROPZONE / FILE SELECTOR */}
-            <div className="p-4 rounded-2xl bg-[#FAF7F3] border-2 border-dashed border-[#D5C4B4] text-center space-y-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileChange}
-                className="hidden"
-                id="excel-file-input"
-              />
-              <label
-                htmlFor="excel-file-input"
-                className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#5C3E28] hover:bg-stone-100 cursor-pointer shadow-2xs"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
-                <span>Pilih Berkas Excel/CSV...</span>
+            {/* STEP A: DROPDOWN PILIH KATEGORI WAJIB */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#422F21]">
+                Langkah 1 — Pilih Kategori Data <span className="text-rose-600">*</span>:
               </label>
-
-              {selectedFile ? (
-                <div className="text-xs font-bold text-emerald-800 pt-1">
-                  ✓ Berkas terpilih: <strong>{selectedFile.name}</strong> ({parsedData.length} baris data)
-                </div>
-              ) : (
-                <p className="text-[11px] text-stone-500">
-                  Dukung format .xlsx, .xls, atau .csv (maksimal 10MB)
+              <select
+                value={selectedKategoriUpload}
+                onChange={(e) => {
+                  setSelectedKategoriUpload(e.target.value);
+                  if (selectedFile) handleResetUpload();
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#D5C4B4] bg-white font-serif font-semibold text-xs text-[#322116] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+              >
+                <option value="">
+                  {activeTab === 'SANTRI'
+                    ? '-- Pilih Kategori Peserta Santri --'
+                    : '-- Pilih Kategori Tamu Undangan --'}
+                </option>
+                {activeTab === 'SANTRI' ? (
+                  <>
+                    <option value="BIL_GHOIB">Bil Ghoib</option>
+                    <option value="BIN_NADZOR">Bin Nadzor</option>
+                    <option value="TAMATAN">Tamatan</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="ISTIMEWA">Istimewa (VVIP/VIP)</option>
+                    <option value="KEHORMATAN">Kehormatan</option>
+                    <option value="UMUM">Umum</option>
+                  </>
+                )}
+              </select>
+              {!selectedKategoriUpload && (
+                <p className="text-[11px] text-amber-800 font-medium">
+                  ⚠️ Wajib pilih kategori data di atas sebelum memilih berkas Excel.
                 </p>
               )}
             </div>
 
-            {/* PILIHAN MODE & FILTER KATEGORI UPLOAD */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label className="block font-bold text-[#422F21] mb-1">Mode Duplikasi Kode:</label>
-                <select
-                  value={uploadMode}
-                  onChange={(e) => setUploadMode(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-medium"
+            {/* STEP B: DROPZONE / FILE SELECTOR */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#422F21]">
+                Langkah 2 — Unggah File Excel:
+              </label>
+              <div
+                className={`p-4 rounded-2xl border-2 border-dashed text-center space-y-2 transition-all ${
+                  selectedKategoriUpload
+                    ? 'bg-[#FAF7F3] border-[#D5C4B4]'
+                    : 'bg-stone-50 border-stone-200 opacity-60'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileChange}
+                  disabled={!selectedKategoriUpload}
+                  className="hidden"
+                  id="excel-file-input"
+                />
+                <label
+                  htmlFor={selectedKategoriUpload ? 'excel-file-input' : undefined}
+                  className={`inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xs transition-all ${
+                    selectedKategoriUpload
+                      ? 'bg-white border border-[#D5C4B4] text-[#5C3E28] hover:bg-stone-100 cursor-pointer'
+                      : 'bg-stone-200 border border-stone-300 text-stone-400 cursor-not-allowed opacity-50'
+                  }`}
                 >
-                  <option value="SKIP">Lewati yang sudah ada (SKIP)</option>
-                  <option value="UPDATE">Perbarui data yang ada (UPDATE)</option>
-                </select>
-              </div>
+                  <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                  <span>Pilih Berkas Excel/CSV...</span>
+                </label>
 
-              <div>
-                <label className="block font-bold text-[#422F21] mb-1">Filter Baris Kategori:</label>
-                <select
-                  value={filterKategoriUpload}
-                  onChange={(e) => setFilterKategoriUpload(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-medium"
-                >
-                  <option value="ALL">Semua Baris dalam File</option>
-                  {activeTab === 'SANTRI' ? (
-                    <>
-                      <option value="BIL_GHOIB">Hanya Bil Ghoib</option>
-                      <option value="BIN_NADZOR">Hanya Bin Nadzor</option>
-                      <option value="TAMATAN">Hanya Tamatan</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="ISTIMEWA">Hanya Istimewa</option>
-                      <option value="KEHORMATAN">Hanya Kehormatan</option>
-                      <option value="UMUM">Hanya Umum</option>
-                    </>
-                  )}
-                </select>
+                {selectedFile ? (
+                  <div className="text-xs font-bold text-emerald-800 pt-1">
+                    ✓ Berkas terpilih: <strong>{selectedFile.name}</strong> ({parsedData.length} baris data)
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-stone-500">
+                    {selectedKategoriUpload
+                      ? `Silakan unggah format Excel untuk kategori ${getKategoriLabel(selectedKategoriUpload)}`
+                      : 'Pilih kategori terlebih dahulu untuk membuka tombol unggah'}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -922,8 +913,8 @@ export default function ImportExportPage() {
               <button
                 type="button"
                 onClick={handleExecuteImport}
-                disabled={!selectedFile || parsedData.length === 0 || isProcessing}
-                className="flex-1 py-3 px-4 rounded-2xl bg-emerald-800 hover:bg-emerald-900 disabled:opacity-50 text-white font-serif font-black text-xs shadow-md transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                disabled={!selectedKategoriUpload || !selectedFile || parsedData.length === 0 || isProcessing}
+                className="flex-1 py-3 px-4 rounded-2xl bg-emerald-800 hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed text-white font-serif font-black text-xs shadow-md transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
               >
                 {isProcessing ? (
                   <>
@@ -933,7 +924,11 @@ export default function ImportExportPage() {
                 ) : (
                   <>
                     <Upload className="w-4 h-4 text-emerald-200" />
-                    <span>Mulai Impor ke Database</span>
+                    <span>
+                      {selectedKategoriUpload
+                        ? `Import Data ${getKategoriLabel(selectedKategoriUpload)} ke Database`
+                        : 'Import Data ke Database'}
+                    </span>
                   </>
                 )}
               </button>
