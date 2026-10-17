@@ -183,121 +183,100 @@ export default function ImportExportPage() {
     XLSX.writeFile(wb, fileName);
   };
 
-  const handleDownloadTemplateTamu = (filterKat?: string) => {
-    const headers = [
-      'kode',
-      'nama',
-      'nama_putra',
-      'nama_putri',
-      'instansi',
-      'alamat',
-      'no_hp',
-      'kategori',
-      'sub_kategori',
-      'warna_tiket',
-      'jalur_masuk',
-    ];
+  const handleDownloadTemplateTamu = async (filterKat?: string) => {
+    try {
+      const ExcelJS = (await import('exceljs')).default || (await import('exceljs'));
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Panitia Haflah 2027';
+      wb.created = new Date();
 
-    let sampleRows: any[] = [];
-    if (!filterKat || filterKat === 'ALL') {
-      sampleRows = [
-        [
-          'UND0001',
-          'KH. ANWAR MANSUR & IBU NYAI',
-          'KH. ANWAR MANSUR',
-          'IBU NYAI HJ. MAHMUDAH',
-          'Pon. Pes. Lirboyo Kediri',
-          'Kediri',
-          '081234567890',
-          'VVIP',
-          'ISTIMEWA',
-          'Hitam Gold',
-          'Jalur VIP (Pintu Utama)',
-        ],
-        [
-          'UND0002',
-          'BAPAK H. BAMBANG IRAWAN',
-          'BAPAK H. BAMBANG IRAWAN',
-          '',
-          'Kemenag Kab. Kediri',
-          'Kediri',
-          '081345678901',
-          'Tamu Kehormatan',
-          'KEHORMATAN',
-          'Merah Gold',
-          'Jalur VIP',
-        ],
-        [
-          'UND0003',
-          'AL-USTADZ ZAINUDDIN',
-          'AL-USTADZ ZAINUDDIN',
-          '',
-          'Asatidz MHMTQ Sekalian',
-          'Kediri',
-          '085712345678',
-          'Umum',
-          'UMUM',
-          'Merah Gold',
-          'Gerbang Timur',
-        ],
+      const ws = wb.addWorksheet('Format Tamu Undangan');
+
+      // 1. Definisi 7 Kolom Baku Sederhana
+      ws.columns = [
+        { header: 'NAMA', key: 'nama', width: 34 },
+        { header: 'NAMA PUTRA', key: 'nama_putra', width: 28 },
+        { header: 'NAMA PUTRI', key: 'nama_putri', width: 28 },
+        { header: 'INSTANSI', key: 'instansi', width: 32 },
+        { header: 'ALAMAT', key: 'alamat', width: 24 },
+        { header: 'NO HP', key: 'no_hp', width: 20 },
+        { header: 'KATEGORI', key: 'kategori', width: 22 },
       ];
-    } else if (filterKat === 'ISTIMEWA') {
-      sampleRows = [
-        [
-          'UND0101',
-          'CONTOH TAMU ISTIMEWA',
-          'NAMA PUTRA',
-          'NAMA PUTRI',
-          'Instansi / Pesantren',
-          'Kediri',
-          '081234567890',
-          'VVIP',
-          'ISTIMEWA',
-          'Hitam Gold',
-          'Jalur VIP (Pintu Utama)',
-        ],
-      ];
-    } else if (filterKat === 'KEHORMATAN') {
-      sampleRows = [
-        [
-          'UND0201',
-          'CONTOH TAMU KEHORMATAN',
-          'NAMA TAMU',
-          '',
-          'Instansi Pemerintahan',
-          'Kediri',
-          '081234567891',
-          'Tamu Kehormatan',
-          'KEHORMATAN',
-          'Merah Gold',
-          'Jalur VIP',
-        ],
-      ];
-    } else if (filterKat === 'UMUM') {
-      sampleRows = [
-        [
-          'UND0301',
-          'CONTOH TAMU UMUM',
-          'NAMA TAMU',
-          '',
-          'Alumni / Asatidz',
-          'Kediri',
-          '081234567892',
-          'Umum',
-          'UMUM',
-          'Merah Gold',
-          'Gerbang Timur',
-        ],
-      ];
+
+      // 2. Styling Header: Background Coklat #8C6A47, Font Putih Bold, Alignment Center
+      const headerRow = ws.getRow(1);
+      headerRow.height = 28;
+      headerRow.eachCell((cell) => {
+        cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF8C6A47' }, // Coklat resmi Haflah
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+          left: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+          bottom: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+          right: { style: 'thin', color: { argb: 'FFD5C4B4' } },
+        };
+      });
+
+      // 3. Baris Contoh Data Dummy (Baris 2)
+      let sampleKat = 'VVIP';
+      if (filterKat === 'KEHORMATAN') sampleKat = 'Kehormatan';
+      else if (filterKat === 'UMUM') sampleKat = 'Umum';
+
+      const sampleRow = ws.addRow({
+        nama: 'KH. ANWAR MANSHUR & IBU NYAI',
+        nama_putra: 'KH. ANWAR MANSHUR',
+        nama_putri: 'IBU NYAI HJ. MAHMUDAH',
+        instansi: 'Pon. Pes. Lirboyo Kediri',
+        alamat: 'Kediri',
+        no_hp: '081234567890',
+        kategori: sampleKat,
+      });
+      sampleRow.height = 22;
+      sampleRow.eachCell((cell) => {
+        cell.font = { name: 'Calibri', size: 10 };
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+      });
+      // Center alignment khusus NO HP & KATEGORI
+      ws.getCell('F2').alignment = { vertical: 'middle', horizontal: 'center' };
+      ws.getCell('G2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // 4. Data Validation (Dropdown) Kolom KATEGORI (G2 s.d. G500)
+      const kategoriOptions = '"VVIP,VIP,Kehormatan,Istimewa,Penguji,Asatidz,Perwakilan,Umum"';
+      for (let r = 2; r <= 500; r++) {
+        ws.getCell(`G${r}`).dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: [kategoriOptions],
+          showErrorMessage: true,
+          errorTitle: 'Kategori Tidak Valid',
+          error: 'Silakan pilih kategori dari daftar pilihan dropdown yang tersedia.',
+        };
+      }
+
+      // 5. Generate Buffer & Trigger Browser Download
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const fileName = 'Format_Import_Tamu_Undangan.xlsx';
+
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error('Error downloading template tamu:', err);
+      alert(`Gagal membuat template Excel: ${err.message || err}`);
     }
-
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Template Tamu Undangan');
-    const fileName = filterKat && filterKat !== 'ALL'
-      ? `Template_Tamu_Undangan_${filterKat}.xlsx`
-      : 'Template_Format_Tamu_Undangan.xlsx';
-    XLSX.writeFile(wb, fileName);
   };
 
   // ---------------------------------------------------------------------------
@@ -415,8 +394,29 @@ export default function ImportExportPage() {
         });
       } else {
         rowsToImport = rowsToImport.filter((r) => {
-          const sub = String(r.sub_kategori || r.golongan || '').toUpperCase();
-          return sub.includes(filterKategoriUpload);
+          const kat = String(
+            r.KATEGORI ||
+            r.kategori ||
+            r['SUB KATEGORI'] ||
+            r.sub_kategori ||
+            r.golongan ||
+            ''
+          ).toUpperCase();
+          if (filterKategoriUpload === 'ISTIMEWA') {
+            return kat.includes('ISTIMEWA') || kat.includes('VVIP') || kat.includes('VIP');
+          }
+          if (filterKategoriUpload === 'KEHORMATAN') {
+            return kat.includes('KEHORMATAN');
+          }
+          if (filterKategoriUpload === 'UMUM') {
+            return (
+              kat.includes('UMUM') ||
+              kat.includes('ASATIDZ') ||
+              kat.includes('PENGUJI') ||
+              kat.includes('PERWAKILAN')
+            );
+          }
+          return kat.includes(filterKategoriUpload);
         });
       }
     }
@@ -445,29 +445,56 @@ export default function ImportExportPage() {
       .from(targetTable)
       .select('kode');
 
-    const existingKodeSet = new Set((existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim()));
+    const existingKodeSet = new Set(
+      (existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim())
+    );
+
+    // Hitung max kode numerik untuk auto-generate kode tamu (UNDxxxx)
+    let maxTamuKodeNum = 0;
+    if (activeTab === 'TAMU' && existingRecords) {
+      for (const item of existingRecords) {
+        const k = String(item.kode || '').trim().toUpperCase();
+        const m = k.match(/^UND(\d+)$/);
+        if (m) {
+          const num = parseInt(m[1], 10);
+          if (!isNaN(num) && num > maxTamuKodeNum) {
+            maxTamuKodeNum = num;
+          }
+        }
+      }
+    }
 
     const totalRows = rowsToImport.length;
 
     for (let i = 0; i < totalRows; i++) {
       const row = rowsToImport[i];
-      const kode = String(row.kode || '').toUpperCase().trim();
 
-      if (!kode) {
-        failedCount++;
-        errorLogs.push(`Baris #${i + 1}: Kode kosong.`);
-        continue;
-      }
+      const getVal = (...keys: string[]) => {
+        for (const k of keys) {
+          if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
+            return String(row[k]).trim();
+          }
+        }
+        return '';
+      };
 
-      const isExist = existingKodeSet.has(kode);
+      if (activeTab === 'SANTRI') {
+        const kode = String(row.kode || '').toUpperCase().trim();
 
-      if (isExist && uploadMode === 'SKIP') {
-        skippedCount++;
-        continue;
-      }
+        if (!kode) {
+          failedCount++;
+          errorLogs.push(`Baris #${i + 1}: Kode kosong.`);
+          continue;
+        }
 
-      try {
-        if (activeTab === 'SANTRI') {
+        const isExist = existingKodeSet.has(kode);
+
+        if (isExist && uploadMode === 'SKIP') {
+          skippedCount++;
+          continue;
+        }
+
+        try {
           const payload = {
             kode,
             nama: String(row.nama || '').trim().toUpperCase(),
@@ -478,9 +505,13 @@ export default function ImportExportPage() {
             sub_kategori: String(row.sub_kategori || 'Bil Ghoib').trim(),
             kelas: String(row.kelas || '-').trim(),
             kamar: String(row.kamar || '-').trim(),
-            kuota_dasar: Number(row.kuota_dasar || (String(row.kategori_utama).toUpperCase().includes('GHOIB') ? 4 : 2)),
+            kuota_dasar: Number(
+              row.kuota_dasar || (String(row.kategori_utama).toUpperCase().includes('GHOIB') ? 4 : 2)
+            ),
             kuota_tambahan: Number(row.kuota_tambahan || 0),
-            warna_tiket: String(row.warna_tiket || (String(row.kategori_utama).toUpperCase().includes('GHOIB') ? 'Hitam Gold' : 'Merah Gold')),
+            warna_tiket: String(
+              row.warna_tiket || (String(row.kategori_utama).toUpperCase().includes('GHOIB') ? 'Hitam Gold' : 'Merah Gold')
+            ),
             jalur_masuk: String(row.jalur_masuk || 'Gerbang Selatan (Bola Dunia)'),
             updated_at: new Date().toISOString(),
           };
@@ -492,27 +523,114 @@ export default function ImportExportPage() {
           if (error) throw error;
           successCount++;
           existingKodeSet.add(kode);
-        } else {
-          // TAMU UNDANGAN
-          const p = String(row.nama_putra || '').trim();
-          const w = String(row.nama_putri || '').trim();
-          let finalNama = String(row.nama || '').trim();
-          if (!finalNama && (p || w)) {
-            finalNama = p && w ? `${p} & ${w}` : p || w;
-          }
+        } catch (err: any) {
+          failedCount++;
+          errorLogs.push(`Kode ${kode}: ${err.message || err}`);
+        }
+      } else {
+        // =======================================================================
+        // TAMU UNDANGAN (FORMAT SEDERHANA 7 KOLOM & AUTO-GENERATE)
+        // =======================================================================
+        const rawNama = getVal('NAMA', 'nama');
+        let p = getVal('NAMA PUTRA', 'nama_putra', 'NAMA_PUTRA');
+        let w = getVal('NAMA PUTRI', 'nama_putri', 'NAMA_PUTRI');
+        const instansi = getVal('INSTANSI', 'instansi') || '-';
+        const alamat = getVal('ALAMAT', 'alamat') || '-';
+        const noHp = getVal('NO HP', 'no_hp', 'NO_HP') || '-';
+        const kategori = getVal('KATEGORI', 'kategori');
 
+        let finalNama = rawNama;
+        if (!finalNama && (p || w)) {
+          finalNama = p && w ? `${p} & ${w}` : p || w;
+        }
+
+        // Validasi: Jika NAMA atau KATEGORI kosong, lewati (skip) baris tersebut
+        if (!finalNama || !kategori) {
+          skippedCount++;
+          errorLogs.push(
+            `Baris #${i + 1}: Dilewati karena ${!finalNama ? 'NAMA' : 'KATEGORI'} tidak boleh kosong.`
+          );
+          const percent = Math.round(((i + 1) / totalRows) * 100);
+          setProgressPercent(percent);
+          continue;
+        }
+
+        // Jika p dan w kosong, isi otomatis dari finalNama agar kuota dasar terhitung minimal 1
+        if (!p && !w) {
+          const upper = finalNama.toUpperCase();
+          if (
+            upper.startsWith('NYAI') ||
+            upper.startsWith('NING') ||
+            upper.startsWith('IBU NYAI') ||
+            upper.startsWith('USTADZAH')
+          ) {
+            w = finalNama;
+          } else {
+            p = finalNama;
+          }
+        }
+
+        // Tentukan Kode: Ambil dari file jika ada, atau Auto-Generate UNDxxxx (max + 1)
+        let kode = getVal('KODE', 'kode').toUpperCase();
+        if (!kode) {
+          maxTamuKodeNum++;
+          kode = `UND${String(maxTamuKodeNum).padStart(4, '0')}`;
+          while (existingKodeSet.has(kode)) {
+            maxTamuKodeNum++;
+            kode = `UND${String(maxTamuKodeNum).padStart(4, '0')}`;
+          }
+        }
+
+        const isExist = existingKodeSet.has(kode);
+        if (isExist && uploadMode === 'SKIP') {
+          skippedCount++;
+          const percent = Math.round(((i + 1) / totalRows) * 100);
+          setProgressPercent(percent);
+          continue;
+        }
+
+        // Auto-generate kategori & sub_kategori
+        const katUpper = kategori.toUpperCase();
+        let subKategori = katUpper;
+        if (['VVIP', 'VIP', 'ISTIMEWA'].some((k) => katUpper.includes(k))) {
+          subKategori = 'ISTIMEWA';
+        } else if (katUpper.includes('KEHORMATAN')) {
+          subKategori = 'KEHORMATAN';
+        } else if (['UMUM', 'ASATIDZ', 'PENGUJI', 'PERWAKILAN'].some((k) => katUpper.includes(k))) {
+          subKategori = 'UMUM';
+        }
+
+        // Auto-generate jalur_masuk
+        let jalurMasuk = 'Jalur VIP';
+        if (katUpper === 'UMUM') {
+          jalurMasuk = 'Gerbang Timur';
+        } else if (
+          katUpper.includes('VVIP') ||
+          katUpper.includes('VIP') ||
+          katUpper.includes('KEHORMATAN') ||
+          katUpper.includes('ISTIMEWA')
+        ) {
+          jalurMasuk = 'Jalur VIP';
+        } else {
+          jalurMasuk = 'Gerbang Timur';
+        }
+
+        try {
           const payload = {
             kode,
-            nama: finalNama || 'Tamu Undangan',
+            nama: finalNama,
             nama_putra: p || null,
             nama_putri: w || null,
-            instansi: String(row.instansi || '-').trim(),
-            alamat: String(row.alamat || '-').trim(),
-            no_hp: String(row.no_hp || '-').trim(),
-            kategori: String(row.kategori || 'Tamu Undangan').trim(),
-            sub_kategori: String(row.sub_kategori || 'ISTIMEWA').trim().toUpperCase(),
-            warna_tiket: String(row.warna_tiket || 'Merah Gold'),
-            jalur_masuk: String(row.jalur_masuk || 'Jalur VIP'),
+            instansi,
+            alamat,
+            no_hp: noHp,
+            kategori: katUpper,
+            sub_kategori: subKategori,
+            warna_tiket: 'Merah Gold',
+            jalur_masuk: jalurMasuk,
+            status_konfirmasi: 'BELUM',
+            kuota_terpakai: 0,
+            created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
 
@@ -523,10 +641,10 @@ export default function ImportExportPage() {
           if (error) throw error;
           successCount++;
           existingKodeSet.add(kode);
+        } catch (err: any) {
+          failedCount++;
+          errorLogs.push(`Kode ${kode}: ${err.message || err}`);
         }
-      } catch (err: any) {
-        failedCount++;
-        errorLogs.push(`Kode ${kode}: ${err.message || err}`);
       }
 
       // Update progress
@@ -635,9 +753,17 @@ export default function ImportExportPage() {
               </h2>
             </div>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Unduh format resmi yang telah disesuaikan dengan struktur tabel database{' '}
-              <strong>{activeTab === 'SANTRI' ? 'peserta_santri' : 'tamu_undangan'}</strong>. Format ini
-              berisi kolom baku dan contoh data siap isi.
+              {activeTab === 'SANTRI' ? (
+                <>
+                  Unduh format resmi yang telah disesuaikan dengan struktur tabel database{' '}
+                  <strong>peserta_santri</strong>. Format ini berisi kolom baku dan contoh data siap isi.
+                </>
+              ) : (
+                <>
+                  Format sederhana <strong>7 kolom esensial</strong> (NAMA, NAMA PUTRA, NAMA PUTRI, INSTANSI, ALAMAT, NO HP, KATEGORI)
+                  dilengkapi dropdown pilihan otomatis pada kolom kategori. Kode (UNDxxxx), warna tiket, dan jalur masuk diisi otomatis oleh sistem saat import.
+                </>
+              )}
             </p>
 
             <button
@@ -848,9 +974,16 @@ export default function ImportExportPage() {
           <div className="bg-white rounded-3xl p-6 border-2 border-emerald-400 shadow-md space-y-4 animate-in fade-in">
             <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <h3 className="font-serif font-black text-base text-emerald-950">
-                Laporan Hasil Impor Data Excel
-              </h3>
+              <div>
+                <h3 className="font-serif font-black text-base text-emerald-950">
+                  Laporan Hasil Impor Data Excel
+                </h3>
+                <p className="text-xs text-emerald-700 font-bold">
+                  {activeTab === 'TAMU'
+                    ? `Berhasil import ${uploadResult.success} data tamu undangan.`
+                    : `Berhasil import ${uploadResult.success} data peserta santri.`}
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
