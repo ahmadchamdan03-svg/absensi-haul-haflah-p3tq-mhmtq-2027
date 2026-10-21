@@ -51,32 +51,6 @@ import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
 import DaftarShohibulHajatModal from '@/components/DaftarShohibulHajatModal';
 
-// Helper Kategori Tamu Undangan
-function getTamuCategoryLabel(item: any): string {
-  const gol = (item?.subKategori || item?.golongan || item?.entitas?.golongan || '').toUpperCase();
-  const kat = (item?.kategori || item?.entitas?.kategori || '').toUpperCase();
-
-  if (
-    gol === 'ISTIMEWA' ||
-    kat.includes('VVIP') ||
-    kat.includes('VIP') ||
-    kat.includes('BANI') ||
-    kat.includes('MAHRUS') ||
-    kat.includes('KUNIR') ||
-    kat.includes('BANDAR')
-  ) {
-    return 'TAMU UNDANGAN ISTIMEWA';
-  } else if (
-    gol === 'KEHORMATAN' ||
-    kat.includes('MASYAYIKH') ||
-    kat.includes('HABAIB') ||
-    kat.includes('PEJABAT') ||
-    kat.includes('ULAMA')
-  ) {
-    return 'TAMU UNDANGAN KEHORMATAN';
-  }
-  return 'TAMU UNDANGAN UMUM';
-}
 
 // Helper Ambil Nama Penerima Tamu Undangan
 function getNamaPenerima(item: any): string {
@@ -118,28 +92,12 @@ function renderTamuName(item: any) {
   );
 }
 
-// Helper Render Instansi & Alamat Tanpa Duplikasi
-function renderInstansiDanAlamat(item: any) {
-  const instansi = item?.instansi && item.instansi !== '-' ? item.instansi.trim() : '';
+// Helper Render Asal / Kota Tamu Undangan (Hanya Alamat/Kota, tanpa Instansi & Kategori)
+function renderAlamatTamu(item: any) {
   const alamat = item?.alamat && item.alamat !== '-' ? item.alamat.trim() : '';
-
-  if (instansi && alamat) {
-    if (instansi.toLowerCase() === alamat.toLowerCase()) {
-      return <p className="text-xs text-[#7A624E] font-medium pt-0.5">{instansi}</p>;
-    }
-    return (
-      <>
-        <p className="text-xs text-[#7A624E] font-medium pt-0.5">{instansi}</p>
-        <p className="text-xs text-stone-500 font-medium pt-0.5">{alamat}</p>
-      </>
-    );
+  if (alamat) {
+    return <p className="text-xs text-stone-500 font-medium pt-0.5">{alamat}</p>;
   }
-
-  const single = instansi || alamat;
-  if (single) {
-    return <p className="text-xs text-[#7A624E] font-medium pt-0.5">{single}</p>;
-  }
-
   return null;
 }
 
@@ -972,13 +930,13 @@ export default function UndanganWaliPage() {
                   <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
                 </div>
 
-                <div className="space-y-2 py-1">
+                <div className="space-y-1.5 py-1">
                   <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
                     Kepada Yth. Bapak/Ibu/Saudara:
                   </span>
                   {renderTamuName(item)}
 
-                  {renderInstansiDanAlamat(item)}
+                  {renderAlamatTamu(item)}
                 </div>
 
                 <div className="pt-2 space-y-3">
@@ -1024,20 +982,13 @@ export default function UndanganWaliPage() {
                   <div className="h-px bg-gradient-to-r from-transparent via-[#8C6A47]/40 to-transparent flex-1" />
                 </div>
 
-                <div className="text-center space-y-2">
+                <div className="text-center space-y-1.5">
                   <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold block">
                     Kepada Yth. Bapak/Ibu/Saudara:
                   </span>
                   {renderTamuName(item)}
 
-                  {/* Kategori Badge (e.g. VVIP / ISTIMEWA) */}
-                  <div className="flex items-center justify-center gap-1.5 pt-0.5">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-serif font-black bg-gradient-to-r from-amber-100 to-amber-200 text-[#5C3E28] border border-amber-300 shadow-2xs">
-                      ✦ {item?.kategori ? `${item.kategori} ${item.subKategori ? `(${item.subKategori})` : ''}` : getTamuCategoryLabel(item)} ✦
-                    </span>
-                  </div>
-
-                  {renderInstansiDanAlamat(item)}
+                  {renderAlamatTamu(item)}
                 </div>
 
                 <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
