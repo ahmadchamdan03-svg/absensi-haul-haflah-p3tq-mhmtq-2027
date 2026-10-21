@@ -392,7 +392,7 @@ export default function VerifikasiPage() {
       const now = new Date();
       const orderId = `KT-M${Math.floor(10000 + Math.random() * 90000)}`;
       const statusAwal = manualLangsungVerifikasi ? 'DIVERIFIKASI' : 'MENUNGGU_VERIFIKASI';
-      const totalBayar = manualJumlah * 80000;
+      const totalBayar = manualJumlah * 75000;
       const namaWali = selectedSantri.nama_wali || selectedSantri.nama;
 
       const newOrder = {
@@ -712,7 +712,7 @@ export default function VerifikasiPage() {
                     const santri = santriMap.get((order.kode_santri || '').toUpperCase());
                     const orderId = order.id_pesanan || order.id || 'KT-0000';
                     const numKursi = Number(order.jumlah_kursi || order.jumlah || 1);
-                    const totalBayar = Number(order.total_bayar || order.totalBayar || numKursi * 80000);
+                    const totalBayar = Number(order.total_bayar || order.totalBayar || numKursi * 75000);
                     const isMenunggu = order.status === 'MENUNGGU_VERIFIKASI' || order.status === 'MENUNGGU_PEMBAYARAN';
                     const isDiverifikasi = order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA';
 
@@ -774,7 +774,7 @@ export default function VerifikasiPage() {
                           <div className="font-serif font-black text-[#322116]">
                             Rp {totalBayar.toLocaleString('id-ID')}
                           </div>
-                          <div className="text-[10px] text-stone-400">@ Rp 80.000</div>
+                          <div className="text-[10px] text-stone-400">@ Rp 75.000</div>
                         </td>
 
                         {/* BUKTI / METODE */}
@@ -1041,7 +1041,7 @@ export default function VerifikasiPage() {
                     <div className="flex-1 text-right text-xs">
                       <span className="text-stone-500">Total:</span>{' '}
                       <strong className="text-emerald-700 font-serif font-black text-sm">
-                        Rp {(manualJumlah * 80000).toLocaleString('id-ID')}
+                        Rp {(manualJumlah * 75000).toLocaleString('id-ID')}
                       </strong>
                     </div>
                   </div>

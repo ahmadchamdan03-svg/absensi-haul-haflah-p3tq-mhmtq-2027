@@ -147,7 +147,7 @@ create table if not exists pagu_kuota_tambahan (
   event_id uuid primary key references events(id) on delete cascade,
   pagu_total int not null default 300,
   terjual int not null default 0,
-  harga_per_unit int not null default 80000,
+  harga_per_unit int not null default 75000,
   rekening text default 'BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin',
   dibuka boolean not null default false,
   constraint tidak_oversold check (terjual <= pagu_total)

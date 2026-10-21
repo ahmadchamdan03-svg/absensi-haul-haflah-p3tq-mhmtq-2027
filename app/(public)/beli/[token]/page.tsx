@@ -310,7 +310,7 @@ export default function BeliKuotaPage() {
       const lockedUntil = new Date(now.getTime() + 6 * 60 * 60 * 1000);
       const randomDigits = Math.floor(10000 + Math.random() * 90000);
       const orderId = `KT-${randomDigits}`;
-      const totalBayar = jumlahBeli * 80000;
+      const totalBayar = jumlahBeli * 75000;
       const namaWali = santri.nama_wali || santri.nama_wali_santri || santri.nama || 'Wali Santri';
 
       const newOrder = {
@@ -697,7 +697,7 @@ export default function BeliKuotaPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-stone-600">Harga per Kursi:</span>
-                <span>Rp 80.000</span>
+                <span>Rp 75.000</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-[#D5C4B4] text-sm font-bold text-[#422F21]">
                 <span>Total Wajib Transfer:</span>
@@ -908,7 +908,7 @@ export default function BeliKuotaPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-[#422F21]">Jumlah Kuota Tambahan:</div>
-                  <div className="text-[10px] text-stone-500">Harga Rp 80.000 / kursi</div>
+                  <div className="text-[10px] text-stone-500">Harga Rp 75.000 / kursi</div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <button
@@ -937,7 +937,7 @@ export default function BeliKuotaPage() {
               <div className="pt-3 border-t border-[#D5C4B4] flex items-center justify-between text-xs">
                 <span className="text-stone-600 font-semibold">Total Pembayaran:</span>
                 <span className="font-serif font-black text-lg text-emerald-700">
-                  Rp {(jumlahBeli * 80000).toLocaleString('id-ID')}
+                  Rp {(jumlahBeli * 75000).toLocaleString('id-ID')}
                 </span>
               </div>
             </div>

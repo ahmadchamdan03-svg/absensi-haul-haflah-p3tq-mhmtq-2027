@@ -118,13 +118,13 @@ ALTER TABLE presensi_log
 CREATE INDEX IF NOT EXISTS idx_presensi_log_kuota ON presensi_log (kuota_id);
 CREATE INDEX IF NOT EXISTS idx_presensi_log_time ON presensi_log (created_at);
 
--- 6. TABEL PEMESANAN KUOTA TAMBAHAN (PAGU 300 KURSI @ Rp 80.000)
+-- 6. TABEL PEMESANAN KUOTA TAMBAHAN (PAGU 300 KURSI @ Rp 75.000)
 CREATE TABLE IF NOT EXISTS pemesanan_kuota (
   id VARCHAR(50) PRIMARY KEY,
   kode_peserta VARCHAR(50) NOT NULL,
   nama_wali VARCHAR(255),
   jumlah SMALLINT NOT NULL DEFAULT 1,
-  total_bayar INT NOT NULL DEFAULT 80000,
+  total_bayar INT NOT NULL DEFAULT 75000,
   status VARCHAR(50) NOT NULL DEFAULT 'DIPESAN', -- DIPESAN, MENUNGGU_VERIFIKASI, DIVERIFIKASI, DITOLAK, KEDALUWARSA
   bukti_url TEXT,
   kedaluwarsa_at TIMESTAMPTZ,
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS konfigurasi_acara (
   kunci_hmac TEXT,
   pagu_total INT DEFAULT 300,
   pagu_terjual INT DEFAULT 0,
-  harga_per_unit INT DEFAULT 80000,
+  harga_per_unit INT DEFAULT 75000,
   rekening_tujuan TEXT,
   kuota_tambahan_buka BOOLEAN DEFAULT FALSE,
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -162,7 +162,7 @@ INSERT INTO konfigurasi_acara (
   'p3tq_secret_hmac_key_2027',
   300,
   0,
-  80000,
+  75000,
   'BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin',
   false
 ) ON CONFLICT (slug) DO UPDATE SET

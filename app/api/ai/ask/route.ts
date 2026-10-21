@@ -195,7 +195,7 @@ BIAYA PEMBAYARAN SHOHIBUL HAJAT & SANTRI (USTH AL):
    - Santri Nduduk           : Rp 30.000 per santri
 
 3. BIAYA KUOTA TAMBAHAN (WALISANTRI):
-   - Rp 80.000 per kursi (pagu total 300 kursi).
+   - Rp 75.000 per kursi (pagu total 300 kursi).
 
 4. KETENTUAN TAMU UNDANGAN:
    - Tamu undangan TIDAK dikenakan biaya masuk (GRATIS / 0 Rupiah).
@@ -1722,7 +1722,7 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 
   // 15. KUOTA TAMBAHAN
   if (q.includes('kuota tambahan') || q.includes('harga kuota tambahan')) {
-    return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 80.000 per kursi** (pagu total 300 kursi, maksimal 2 kursi per santri). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
+    return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 75.000 per kursi** (pagu total 300 kursi, maksimal 2 kursi per santri). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
   }
 
   // 16. LIVE QUERIES FROM DATABASE SUPABASE
@@ -2036,7 +2036,7 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 
   // KUOTA TAMBAHAN
   if (q.includes('kuota tambahan') || q.includes('harga kuota tambahan')) {
-    return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 80.000 per kursi** (pagu total 300 kursi, maksimal 2 kursi per santri). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
+    return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 75.000 per kursi** (pagu total 300 kursi, maksimal 2 kursi per santri). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
   }
 
   // KAPAN / DIMANA / PANITIA
@@ -2201,7 +2201,7 @@ function detectExpression(
     c.includes('verifikasi') ||
     c.includes('sla') ||
     c.includes('mutasi') ||
-    c.includes('80.000') ||
+    c.includes('75.000') ||
     c.includes('hitung') ||
     c.includes('langkah')
   ) {

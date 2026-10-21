@@ -667,7 +667,7 @@ class DataStore {
       paguTotal: this.paguTotal,
       terjual: this.paguTerjual,
       sisa: Math.max(0, this.paguTotal - this.paguTerjual),
-      hargaPerUnit: 80000,
+      hargaPerUnit: 75000,
       rekening: 'BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin',
       bisaBeli: this.kuotaTambahanBuka,
     };
@@ -867,7 +867,7 @@ class DataStore {
       eventId: INITIAL_EVENT.id,
       keluargaId,
       jumlah,
-      totalBayar: jumlah * 80000,
+      totalBayar: jumlah * 75000,
       status: 'DIPESAN',
       kedaluwarsaAt: batas,
       createdAt: new Date().toISOString(),
@@ -1011,7 +1011,7 @@ class DataStore {
       eventId: INITIAL_EVENT.id,
       keluargaId,
       jumlah,
-      totalBayar: jumlah * 80000,
+      totalBayar: jumlah * 75000,
       status: langsungVerifikasi ? 'DIVERIFIKASI' : 'MENUNGGU_VERIFIKASI',
       kedaluwarsaAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
       catatanPanitia:

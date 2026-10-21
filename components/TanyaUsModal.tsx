@@ -100,7 +100,7 @@ function getExpressionFromContent(
     c.includes('verifikasi') ||
     c.includes('sla') ||
     c.includes('mutasi') ||
-    c.includes('80.000') ||
+    c.includes('75.000') ||
     c.includes('hitung') ||
     c.includes('langkah')
   ) {

@@ -2040,7 +2040,7 @@ export default function UndanganWaliPage() {
                       <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
                     </Link>
                     <p className="text-[11px] text-stone-500 font-semibold">
-                      Harga Rp 80.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
+                      Harga Rp 75.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
                     </p>
                   </div>
                 ) : !kuotaSwitchAktif ? (
