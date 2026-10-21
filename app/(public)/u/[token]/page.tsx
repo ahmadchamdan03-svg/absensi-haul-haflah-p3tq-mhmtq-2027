@@ -1319,7 +1319,11 @@ export default function UndanganWaliPage() {
                     {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
                   </h2>
                   <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
-                    {santri ? `${santri.subKategori} · Kamar ${santri.kamar || '-'}` : 'Wali Santri'}
+                    {santri
+                      ? santri.kamar && santri.kamar !== '-'
+                        ? `${santri.subKategori || 'Santri'} · ${santri.kamar}`
+                        : (santri.subKategori || 'Santri')
+                      : 'Wali Santri'}
                   </div>
                 </div>
 
@@ -1367,7 +1371,13 @@ export default function UndanganWaliPage() {
                     {santri?.nama || item?.entitas?.nama}
                   </h2>
                   <p className="text-xs text-stone-600 font-medium">
-                    {santri?.subKategori} · Kamar: <strong>{santri?.kamar || '-'}</strong>
+                    {santri?.kamar && santri.kamar !== '-' ? (
+                      <>
+                        {santri.subKategori || 'Santri'} · <strong>{santri.kamar}</strong>
+                      </>
+                    ) : (
+                      santri?.subKategori || 'Santri'
+                    )}
                   </p>
                 </div>
 
