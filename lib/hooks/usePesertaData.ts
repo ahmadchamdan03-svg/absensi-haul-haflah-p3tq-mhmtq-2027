@@ -29,6 +29,8 @@ export type TabKategori =
 export function usePesertaData() {
   const [keluargaList, setKeluargaList] = useState<any[]>([]);
   const [undanganList, setUndanganList] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKategori>('SEMUA');
   const [searchTerm, setSearchTerm] = useState('');
   const [bagianFilter, setBagianFilter] = useState<string>('SEMUA');
@@ -62,6 +64,8 @@ export function usePesertaData() {
 
   const refreshData = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const { data: santriData, error: sErr } = await supabase
         .from('peserta_santri')
         .select('*')
@@ -69,6 +73,7 @@ export function usePesertaData() {
 
       if (sErr) {
         console.error('Error fetching peserta_santri:', sErr);
+        setError(sErr.message);
       } else if (santriData) {
         const mappedKeluarga = santriData.map((d: any) => ({
           id: d.id,
@@ -82,6 +87,7 @@ export function usePesertaData() {
               id: d.id,
               nis: d.kode,
               nama: d.nama,
+              kamar: d.kamar || '-',
               kelas: d.kelas || '-',
               kategoriUtama: d.kategori_utama || 'BIL_GHOIB',
               subKategori: d.sub_kategori || 'Bil Ghoib',
@@ -94,7 +100,7 @@ export function usePesertaData() {
             kuotaDasar: d.kuota_dasar || 2,
             kuotaTambahan: d.kuota_tambahan || 0,
             terpakai: d.kuota_terpakai || 0,
-            tiketPanggungJatah: d.tiket_panggung_jatah || 0,
+            tiketPanggungJatah: d.tiket_panggung_jatah ?? (d.kategori_utama === 'BIL_GHOIB' ? 1 : 0),
             warnaTiket: d.warna_tiket || getWarnaTiketSantri(d.kategori_utama, d.sub_kategori),
           },
         }));
@@ -108,38 +114,59 @@ export function usePesertaData() {
 
       if (uErr) {
         console.error('Error fetching tamu_undangan:', uErr);
+        setError(uErr.message);
       } else if (uData) {
-        const mappedUndangan = uData.map((u: any) => ({
-          id: u.id,
-          kode: u.kode,
-          nama: u.nama,
-          namaPutra: u.nama_putra || '',
-          namaPutri: u.nama_putri || '',
-          kategori: u.kategori || 'Tamu Kehormatan',
-          golongan: u.sub_kategori || 'ISTIMEWA',
-          instansi: u.instansi || u.alamat || '-',
-          alamat: u.alamat || '-',
-          noHp: u.no_hp || '-',
-          kuota: {
+        const mappedUndangan = uData.map((u: any) => {
+          const rawSub = String(u.sub_kategori || '').trim();
+          const rawKat = String(u.kategori || '').trim();
+          const isSubGolongan = ['ISTIMEWA', 'KEHORMATAN', 'UMUM'].includes(rawSub.toUpperCase());
+          const resolvedGolongan = isSubGolongan
+            ? (rawSub.toUpperCase() as GolonganUndangan)
+            : getGolonganUndangan(u);
+          const resolvedKategori = isSubGolongan
+            ? rawKat || 'Tamu Kehormatan'
+            : rawSub && !['ISTIMEWA', 'KEHORMATAN', 'UMUM'].includes(rawSub.toUpperCase())
+            ? rawSub
+            : rawKat || 'Tamu Kehormatan';
+
+          return {
             id: u.id,
-            kodeQr: u.kode,
-            kuotaDasar:
-              (u.nama_putra && String(u.nama_putra).trim() ? 1 : 0) +
-              (u.nama_putri && String(u.nama_putri).trim() ? 1 : 0),
-            kuotaTambahan: 0,
-            terpakai: u.kuota_terpakai || 0,
-            warnaTiket:
-              u.warna_tiket !== undefined && u.warna_tiket !== null && u.warna_tiket !== ''
-                ? u.warna_tiket
-                : getWarnaTiketUndangan(u.sub_kategori, u.kategori),
-          },
-        }));
+            kode: u.kode,
+            nama: u.nama,
+            namaPutra: u.nama_putra || '',
+            namaPutri: u.nama_putri || '',
+            kategori: resolvedKategori,
+            golongan: resolvedGolongan,
+            jalur_masuk: u.jalur_masuk || '',
+            jalurMasuk: u.jalur_masuk || '',
+            status_konfirmasi: u.status_konfirmasi || 'BELUM',
+            instansi: u.instansi || u.alamat || '-',
+            alamat: u.alamat || '-',
+            noHp: u.no_hp || '-',
+            kuota: {
+              id: u.id,
+              kodeQr: u.kode,
+              kuotaDasar:
+                (u.nama_putra && String(u.nama_putra).trim() ? 1 : 0) +
+                (u.nama_putri && String(u.nama_putri).trim() ? 1 : 0),
+              kuotaTambahan: 0,
+              terpakai: u.kuota_terpakai || 0,
+              warnaTiket:
+                u.warna_tiket !== undefined && u.warna_tiket !== null && u.warna_tiket !== ''
+                  ? u.warna_tiket
+                  : getWarnaTiketUndangan(resolvedGolongan, resolvedKategori),
+            },
+          };
+        });
         setUndanganList(mappedUndangan);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn('Error in refreshData:', e);
+      setError(e?.message || 'Gagal memuat data peserta');
       setKeluargaList([]);
       setUndanganList([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -385,7 +412,7 @@ export function usePesertaData() {
         kelas: santri?.kelas || '',
         subKategori: santri?.subKategori || '',
         nama: santri?.nama || '-',
-        kamar: santri?.kamar || '-',
+        kamar: santri?.kamar || k.kamar || '-',
         namaWali: k.namaWali,
         noHp: k.noHp,
         alamat: k.alamat,
@@ -422,6 +449,7 @@ export function usePesertaData() {
         alamat: (u as any).alamat || u.instansi || '-',
         kategori: u.kategori || 'Asatidz / Masyayikh',
         instansi: u.instansi || (u as any).alamat || '-',
+        jalurMasuk: (u as any).jalurMasuk || (u as any).jalur_masuk || '',
         kuotaDasar:
           kuota?.kuotaDasar !== undefined
             ? kuota.kuotaDasar
@@ -479,7 +507,10 @@ export function usePesertaData() {
     handleConfirmHapusSemua,
     handleOpenEdit,
     handleConfirmDelete,
+    loading,
+    error,
     refreshData,
+    refetch: refreshData,
     stats,
     allItems,
   };

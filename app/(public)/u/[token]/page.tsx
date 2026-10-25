@@ -692,7 +692,7 @@ export default function UndanganWaliPage() {
     setSavingRsvp(true);
     setRsvpError(null);
 
-    const targetKode = item.kodeQr || item.kode || kodeSH;
+    const targetKode = String(item.kodeQr || item.kode || kodeSH).toUpperCase().trim();
     const nowIso = new Date().toISOString();
 
     const payload = {
@@ -750,7 +750,7 @@ export default function UndanganWaliPage() {
     setSavingRsvp(true);
     setRsvpError(null);
 
-    const targetKode = item.kuota?.kodeQr || item.kode || kodeSH;
+    const targetKode = String(item.kuota?.kodeQr || item.kode || kodeSH).toUpperCase().trim();
     const nowIso = new Date().toISOString();
 
     const payload = {

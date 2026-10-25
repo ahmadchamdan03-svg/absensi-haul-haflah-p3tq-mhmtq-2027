@@ -12,10 +12,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Bersihkan format jika berformat HFL27.SH0042.xxxx
-    let cleanKode = kode_qr.trim();
+    let cleanKode = String(kode_qr).trim().toUpperCase();
     if (cleanKode.includes('.')) {
       const parts = cleanKode.split('.');
-      if (parts.length >= 2) cleanKode = parts[1];
+      if (parts.length >= 2) cleanKode = parts[1].trim().toUpperCase();
     }
 
     const res = store.checkin(

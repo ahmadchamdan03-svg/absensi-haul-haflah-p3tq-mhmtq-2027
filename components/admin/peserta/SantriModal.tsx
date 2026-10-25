@@ -112,6 +112,9 @@ export default function SantriModal({
           no_hp: formData.noHp.trim() || '-',
           alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
           kuota_dasar: kuotaVal,
+          kuota_tambahan: 0,
+          kuota_terpakai: 0,
+          status_konfirmasi: 'BELUM',
           warna_tiket: warna,
         },
       ]);
@@ -134,6 +137,7 @@ export default function SantriModal({
             id: kodeBaru,
             nis: kodeBaru,
             nama: formData.nama.trim().toUpperCase(),
+            kamar: formData.kamar.trim() || '-',
             kelas: formData.kategoriUtama || '-',
             kategoriUtama: formData.kategoriUtama || 'BIL_GHOIB',
             subKategori: subKat || 'Bil Ghoib',
@@ -146,7 +150,7 @@ export default function SantriModal({
           kuotaDasar: kuotaVal,
           kuotaTambahan: 0,
           terpakai: 0,
-          tiketPanggungJatah: 0,
+          tiketPanggungJatah: formData.kategoriUtama === 'BIL_GHOIB' ? 1 : 0,
           warnaTiket: warna,
         },
       };

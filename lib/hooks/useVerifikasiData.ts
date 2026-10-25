@@ -83,12 +83,19 @@ export function useVerifikasiData() {
   useEffect(() => {
     fetchData();
 
-    // Subscribe Realtime ke tabel 'pembelian_kuota'
+    // Subscribe Realtime ke tabel 'pembelian_kuota' & 'peserta_santri'
     const channel = supabase
       .channel('admin_verifikasi_realtime_channel')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'pembelian_kuota' },
+        () => {
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'peserta_santri' },
         () => {
           fetchData();
         }
@@ -487,7 +494,10 @@ export function useVerifikasiData() {
     manualKirimWa,
     setManualKirimWa,
     isSubmittingManual,
+    loading: loadingData,
+    error: errorMessage,
     fetchData,
+    refetch: fetchData,
     santriMap,
     paguTerjual,
     sisaPagu,

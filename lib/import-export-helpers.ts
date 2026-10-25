@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
+import { getWarnaTiketUndangan } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 
 export { generateRandomKode, generateUniqueKodeFromDb };
@@ -394,6 +395,7 @@ export async function executeBatchImportToSupabase({
           sub_kategori: subKategori,
           kuota_dasar: kuotaDasar,
           kuota_tambahan: 0,
+          kuota_terpakai: 0,
           warna_tiket: warnaTiket,
           status_konfirmasi: 'BELUM',
           created_at: new Date().toISOString(),
@@ -463,21 +465,20 @@ export async function executeBatchImportToSupabase({
       const jalurMasuk = jalurMasukInput || defaultJalur;
 
       let kategori = 'UMUM';
-      let subKategori = 'Umum';
+      let subKategori = selectedKategoriUpload || 'UMUM';
 
       if (selectedKategoriUpload === 'ISTIMEWA') {
-        subKategori = kategoriUndangan || 'VVIP';
-        kategori =
-          subKategori.toUpperCase().includes('VIP') && !subKategori.toUpperCase().includes('VVIP')
-            ? 'VIP'
-            : 'VVIP';
+        kategori = kategoriUndangan || 'VVIP';
+        subKategori = 'ISTIMEWA';
       } else if (selectedKategoriUpload === 'KEHORMATAN') {
-        kategori = 'KEHORMATAN';
+        kategori = 'Tamu Kehormatan';
         subKategori = 'KEHORMATAN';
       } else {
-        kategori = 'UMUM';
-        subKategori = kategoriUndangan || 'Umum';
+        kategori = kategoriUndangan || 'Pengajar Unit';
+        subKategori = 'UMUM';
       }
+
+      const warnaTiketUnd = getWarnaTiketUndangan(subKategori, kategori);
 
       try {
         const payload = {
@@ -490,7 +491,7 @@ export async function executeBatchImportToSupabase({
           no_hp: noHp || null,
           kategori,
           sub_kategori: subKategori,
-          warna_tiket: 'Merah Gold',
+          warna_tiket: warnaTiketUnd,
           jalur_masuk: jalurMasuk,
           status_konfirmasi: 'BELUM',
           kuota_terpakai: 0,

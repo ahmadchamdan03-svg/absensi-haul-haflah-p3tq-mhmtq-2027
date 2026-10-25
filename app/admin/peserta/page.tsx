@@ -124,9 +124,10 @@ export default function ManajemenPesertaPage() {
         setShowAddModal={setShowAddModal}
         editingItem={editingItem}
         setEditingItem={setEditingItem}
-        onAddSuccess={(newSantriItem, msg) => {
+        onAddSuccess={async (newSantriItem, msg) => {
           setKeluargaList((prev) => [newSantriItem, ...prev]);
           showToast(msg);
+          await refreshData();
         }}
         onEditSuccess={async (msg) => {
           await refreshData();
@@ -141,9 +142,10 @@ export default function ManajemenPesertaPage() {
         setSelectedGolonganUndangan={setSelectedGolonganUndangan}
         editingItem={editingItem}
         setEditingItem={setEditingItem}
-        onAddSuccess={(newUndanganItem, msg) => {
+        onAddSuccess={async (newUndanganItem, msg) => {
           setUndanganList((prev) => [newUndanganItem, ...prev]);
           showToast(msg);
+          await refreshData();
         }}
         onEditSuccess={async (msg) => {
           await refreshData();

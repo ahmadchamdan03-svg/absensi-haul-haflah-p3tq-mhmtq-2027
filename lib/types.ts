@@ -89,13 +89,12 @@ export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
 export function getGolonganUndangan(u: any): GolonganUndangan {
   if (!u) return 'UMUM';
-  if (u.golongan) {
-    if (u.golongan === 'KEHORMATAN' || u.golongan === 'UNDANGAN_KEHORMATAN') return 'KEHORMATAN';
-    if (u.golongan === 'ISTIMEWA' || u.golongan === 'UNDANGAN_ISTIMEWA') return 'ISTIMEWA';
-    if (u.golongan === 'UMUM' || u.golongan === 'UNDANGAN_UMUM') return 'UMUM';
-  }
+  const rawGol = String(u.golongan || u.sub_kategori || u.subKategori || '').toUpperCase().trim();
+  if (rawGol === 'KEHORMATAN' || rawGol === 'UNDANGAN_KEHORMATAN') return 'KEHORMATAN';
+  if (rawGol === 'ISTIMEWA' || rawGol === 'UNDANGAN_ISTIMEWA') return 'ISTIMEWA';
+  if (rawGol === 'UMUM' || rawGol === 'UNDANGAN_UMUM') return 'UMUM';
 
-  const text = `${u.kategori || ''} ${u.nama || ''} ${u.instansi || ''} ${u.alamat || ''}`.toLowerCase();
+  const text = `${u.kategori || ''} ${u.sub_kategori || ''} ${u.subKategori || ''} ${u.nama || ''} ${u.instansi || ''} ${u.alamat || ''}`.toLowerCase();
 
   if (
     text.includes('kehormatan') ||
@@ -113,6 +112,7 @@ export function getGolonganUndangan(u: any): GolonganUndangan {
   if (
     text.includes('istimewa') ||
     text.includes('vvip') ||
+    text.includes('vip') ||
     text.includes('bani') ||
     text.includes('bandar') ||
     text.includes('kunir')

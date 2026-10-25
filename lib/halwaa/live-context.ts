@@ -236,8 +236,8 @@ export async function getGuestCategoryCountsLive() {
 export function detectIntent(pertanyaan: string) {
   const q = pertanyaan.toLowerCase();
   return {
-    tamu: /tamu|undangan|und\d|vvip|vip|kehormatan|umum|pengajar|asatidz/i.test(q),
-    santri: /santri|wali|sh\d|bil.ghoib|bin.nadzori|tamatan/i.test(q),
+    tamu: /tamu|undangan|und\d|\bund[a-z0-9]{4}\b|vvip|vip|kehormatan|umum|pengajar|asatidz/i.test(q),
+    santri: /santri|wali|sh\d|\bsh[a-z0-9]{4}\b|bil.ghoib|bin.nadzori|tamatan/i.test(q),
     statistik: /berapa|jumlah|total|persen|%|statistik|kehadiran|hadir/i.test(q),
     kehadiran: /hadir|datang|dateng|absen|presensi/i.test(q),
     pembelian: /beli|kuota.tambahan|pembelian|transfer|bukti/i.test(q),

@@ -354,7 +354,7 @@ export function getRandomMotivasiSatirDia(): string {
 export function detectDiaSiapaIntent(pertanyaan: string): boolean {
   const q = pertanyaan.toLowerCase().trim().replace(/[.,!?;:]/g, '');
 
-  if (/sh\d|und\d|vvip|vip|kehormatan|penguji|asatidz|perwakilan|tamu|santri|wali|absen|presensi|panitia/i.test(q)) {
+  if (/sh\d|und\d|\b(sh|und)[a-z0-9]{4}\b|vvip|vip|kehormatan|penguji|asatidz|perwakilan|tamu|santri|wali|absen|presensi|panitia/i.test(q)) {
     return false;
   }
 

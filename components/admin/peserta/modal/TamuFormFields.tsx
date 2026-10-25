@@ -35,16 +35,17 @@ export const OPSI_UNDANGAN_UMUM = [
 ];
 
 export function getGolonganUndangan(u: any): GolonganUndangan {
-  if (u.golongan) {
-    if (u.golongan === 'ISTIMEWA' || u.golongan === 'UNDANGAN_ISTIMEWA') return 'ISTIMEWA';
-    if (u.golongan === 'KEHORMATAN' || u.golongan === 'UNDANGAN_KEHORMATAN') return 'KEHORMATAN';
-    if (u.golongan === 'UMUM' || u.golongan === 'UNDANGAN_UMUM') return 'UMUM';
-  }
+  if (!u) return 'UMUM';
+  const rawGol = String(u.golongan || u.sub_kategori || u.subKategori || '').toUpperCase().trim();
+  if (rawGol === 'ISTIMEWA' || rawGol === 'UNDANGAN_ISTIMEWA') return 'ISTIMEWA';
+  if (rawGol === 'KEHORMATAN' || rawGol === 'UNDANGAN_KEHORMATAN') return 'KEHORMATAN';
+  if (rawGol === 'UMUM' || rawGol === 'UNDANGAN_UMUM') return 'UMUM';
 
-  const text = `${u.kategori || ''} ${u.nama || ''} ${u.instansi || ''}`.toLowerCase();
+  const text = `${u.kategori || ''} ${u.sub_kategori || ''} ${u.subKategori || ''} ${u.nama || ''} ${u.instansi || ''}`.toLowerCase();
 
   if (
     text.includes('vvip') ||
+    text.includes('vip') ||
     text.includes('bani') ||
     text.includes('bandar') ||
     text.includes('kunir') ||
@@ -55,6 +56,7 @@ export function getGolonganUndangan(u: any): GolonganUndangan {
 
   if (
     text.includes('masyayikh') ||
+    text.includes('masyaikh') ||
     text.includes('habaib') ||
     text.includes('pejabat') ||
     text.includes('forkopimda') ||
