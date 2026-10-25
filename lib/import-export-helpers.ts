@@ -402,7 +402,6 @@ export async function executeBatchImportToSupabase({
       }
 
       const warnaTiket = kategoriUtama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold';
-      const jalurMasuk = 'Gerbang Selatan (Bola Dunia)';
       const defaultKuota = kategoriUtama === 'BIL_GHOIB' ? 4 : 2;
       const kuotaDasar = defaultKuota;
 
@@ -417,14 +416,11 @@ export async function executeBatchImportToSupabase({
           no_hp: noHp,
           kategori_utama: kategoriUtama,
           sub_kategori: subKategori,
-          warna_tiket: warnaTiket,
-          jalur_masuk: jalurMasuk,
           kuota_dasar: kuotaDasar,
           kuota_tambahan: 0,
-          kuota_terpakai: 0,
+          warna_tiket: warnaTiket,
           status_konfirmasi: 'BELUM',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         };
 
         const { error } = await supabase
