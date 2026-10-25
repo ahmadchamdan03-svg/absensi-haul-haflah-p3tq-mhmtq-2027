@@ -10,6 +10,7 @@ import {
   TambahPesananManualInput,
   IDataStoreContext,
 } from './types';
+import { generateRandomKode } from '../utils';
 
 export const SANTRI_EVENT_ID = 'e0000000-0000-0000-0000-000000000001';
 
@@ -19,14 +20,11 @@ export const INITIAL_KELUARGA: KeluargaWithKuota[] = [];
 export const INITIAL_PEMBELIAN_KUOTA: PembelianKuota[] = [];
 
 export function tambahPesertaHelper(ctx: IDataStoreContext, input: TambahPesertaInput) {
-  let maxNum = 0;
-  for (const k of ctx.keluargaList) {
-    if (k.kode.startsWith('SH')) {
-      const num = parseInt(k.kode.replace('SH', ''), 10);
-      if (!isNaN(num) && num > maxNum) maxNum = num;
-    }
+  let nextCode = generateRandomKode('SH');
+  for (let i = 0; i < 20; i++) {
+    if (!ctx.keluargaList.some(k => k.kode === nextCode)) break;
+    nextCode = generateRandomKode('SH');
   }
-  const nextCode = `SH${String(maxNum + 1).padStart(4, '0')}`;
   const kelId = `k_${nextCode}`;
   const santriId = `s_${nextCode}`;
   const kuotaId = `q_${nextCode}`;

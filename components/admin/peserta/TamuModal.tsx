@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Users, Sparkles, Building, Edit, X, History } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getDefaultJalurMasuk } from '@/lib/types';
+import { generateRandomKode } from '@/lib/utils';
 import TamuFormFields, {
   GolonganUndangan,
   OPSI_UNDANGAN_ISTIMEWA,
@@ -22,6 +23,7 @@ export {
   OPSI_UNDANGAN_UMUM,
   getGolonganUndangan,
   matchUndanganCategory,
+  generateRandomKode,
 };
 
 export interface TamuModalProps {

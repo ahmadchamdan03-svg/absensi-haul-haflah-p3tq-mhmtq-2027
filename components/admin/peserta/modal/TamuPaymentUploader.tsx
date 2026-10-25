@@ -6,6 +6,7 @@ import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import { GolonganUndangan, OPSI_UNDANGAN_ISTIMEWA } from './TamuFormFields';
 
 export interface TamuPaymentUploaderProps {
@@ -191,11 +192,21 @@ export async function submitTambahUndanganToSupabase(params: {
 
   if (res.ok) {
     try {
+      let kodeBaru = generateRandomKode('UND');
+      kodeBaru = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase);
+      res.code = kodeBaru;
+      if (res.undangan) {
+        res.undangan.kode = kodeBaru;
+        if (res.undangan.kuota) {
+          res.undangan.kuota.kodeQr = kodeBaru;
+        }
+      }
+
       const warnaTiketVal = getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori);
 
       const { data: uInsertData, error } = await supabase.from('tamu_undangan').insert([
         {
-          kode: res.code,
+          kode: kodeBaru,
           nama: finalNama,
           nama_putra: p || null,
           nama_putri: w || null,
@@ -217,8 +228,8 @@ export async function submitTambahUndanganToSupabase(params: {
       }
 
       const newUndanganItem = {
-        id: uInsertData && (uInsertData as any)[0]?.id ? (uInsertData as any)[0].id : res.code,
-        kode: res.code,
+        id: uInsertData && (uInsertData as any)[0]?.id ? (uInsertData as any)[0].id : kodeBaru,
+        kode: kodeBaru,
         nama: finalNama,
         namaPutra: p || '',
         namaPutri: w || '',
@@ -228,8 +239,8 @@ export async function submitTambahUndanganToSupabase(params: {
         alamat: finalAlamat || '-',
         noHp: undanganForm.noHp || '-',
         kuota: {
-          id: res.code,
-          kodeQr: res.code,
+          id: kodeBaru,
+          kodeQr: kodeBaru,
           kuotaDasar: kuotaBase,
           kuotaTambahan: 0,
           terpakai: 0,
@@ -240,7 +251,7 @@ export async function submitTambahUndanganToSupabase(params: {
       setShowAddUndanganModal(false);
       onAddSuccess(
         newUndanganItem,
-        `✓ Berhasil menambahkan Tamu Undangan ke database: ${finalNama} (Kode: ${res.code})`
+        `✓ Berhasil menambahkan Tamu Undangan ke database: ${finalNama} (Kode: ${kodeBaru})`
       );
 
       logAudit({
@@ -248,7 +259,7 @@ export async function submitTambahUndanganToSupabase(params: {
         panitia_role: 'ADMIN',
         aksi: 'TAMBAH_TAMU',
         tabel: 'tamu_undangan',
-        kode: res.code,
+        kode: kodeBaru,
         nama: finalNama,
         field: 'tambah_tamu_baru',
         nilai_baru: JSON.stringify(undanganForm),

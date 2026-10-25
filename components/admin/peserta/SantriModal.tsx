@@ -6,6 +6,7 @@ import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { BAGIAN_TAMATAN_LIST, getWarnaTiketSantri } from '@/lib/types';
+import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 
 export interface SantriModalProps {
   showAddModal: boolean;
@@ -85,7 +86,6 @@ export default function SantriModal({
     submitLockSantri.current = true;
     setIsSubmittingSantri(true);
 
-    const kodeBaru = 'SH' + Math.floor(1000 + Math.random() * 9000);
     const subKat =
       formData.kategoriUtama === 'TAMATAN'
         ? formData.bagianTamatan
@@ -97,6 +97,9 @@ export default function SantriModal({
     const warna = getWarnaTiketSantri(formData.kategoriUtama, subKat);
 
     try {
+      let kodeBaru = generateRandomKode('SH');
+      kodeBaru = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase);
+
       const { data, error } = await supabase.from('peserta_santri').insert([
         {
           kode: kodeBaru,

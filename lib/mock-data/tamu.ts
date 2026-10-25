@@ -9,19 +9,16 @@ import {
   IDataStoreContext,
 } from './types';
 import { SANTRI_EVENT_ID } from './santri';
+import { generateRandomKode } from '../utils';
 
 export const INITIAL_UNDANGAN: KeluargaWithKuota[] = [];
 
 export function tambahUndanganHelper(ctx: IDataStoreContext, input: TambahUndanganInput) {
-  let maxNum = 100;
-  for (const u of ctx.undanganList) {
-    const match = u.kode.match(/UND(\d+)/i);
-    if (match) {
-      const num = parseInt(match[1], 10);
-      if (num > maxNum) maxNum = num;
-    }
+  let nextCode = generateRandomKode('UND');
+  for (let i = 0; i < 20; i++) {
+    if (!ctx.undanganList.some(u => u.kode === nextCode)) break;
+    nextCode = generateRandomKode('UND');
   }
-  const nextCode = `UND${String(maxNum + 1).padStart(4, '0')}`;
   const undId = `u_${nextCode}`;
   const kuotaId = `qu_${nextCode}`;
 

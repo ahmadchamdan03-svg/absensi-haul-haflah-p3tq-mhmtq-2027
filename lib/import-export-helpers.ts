@@ -1,6 +1,9 @@
 import * as XLSX from 'xlsx';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
+import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
+
+export { generateRandomKode, generateUniqueKodeFromDb };
 
 export const getKategoriLabel = (cat: string) => {
   switch (cat) {
@@ -313,32 +316,6 @@ export async function executeBatchImportToSupabase({
     (existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim())
   );
 
-  let maxSantriKodeNum = 8000;
-  let maxTamuKodeNum = 0;
-
-  if (existingRecords) {
-    for (const item of existingRecords) {
-      const k = String(item.kode || '').trim().toUpperCase();
-      if (activeTab === 'SANTRI') {
-        const m = k.match(/^SH(\d+)$/);
-        if (m) {
-          const num = parseInt(m[1], 10);
-          if (!isNaN(num) && num > maxSantriKodeNum) {
-            maxSantriKodeNum = num;
-          }
-        }
-      } else {
-        const m = k.match(/^UND(\d+)$/);
-        if (m) {
-          const num = parseInt(m[1], 10);
-          if (!isNaN(num) && num > maxTamuKodeNum) {
-            maxTamuKodeNum = num;
-          }
-        }
-      }
-    }
-  }
-
   const totalRows = parsedData.length;
 
   for (let i = 0; i < totalRows; i++) {
@@ -378,12 +355,11 @@ export async function executeBatchImportToSupabase({
 
       let kode = getVal('KODE', 'kode').toUpperCase();
       if (!kode) {
-        maxSantriKodeNum++;
-        kode = `SH${String(maxSantriKodeNum).padStart(4, '0')}`;
+        kode = generateRandomKode('SH');
         while (existingKodeSet.has(kode)) {
-          maxSantriKodeNum++;
-          kode = `SH${String(maxSantriKodeNum).padStart(4, '0')}`;
+          kode = generateRandomKode('SH');
         }
+        kode = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase, existingKodeSet);
       } else if (existingKodeSet.has(kode)) {
         skippedCount++;
         const percent = Math.round(((i + 1) / totalRows) * 100);
@@ -466,12 +442,11 @@ export async function executeBatchImportToSupabase({
 
       let kode = getVal('KODE', 'kode').toUpperCase();
       if (!kode) {
-        maxTamuKodeNum++;
-        kode = `UND${String(maxTamuKodeNum).padStart(4, '0')}`;
+        kode = generateRandomKode('UND');
         while (existingKodeSet.has(kode)) {
-          maxTamuKodeNum++;
-          kode = `UND${String(maxTamuKodeNum).padStart(4, '0')}`;
+          kode = generateRandomKode('UND');
         }
+        kode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase, existingKodeSet);
       } else if (existingKodeSet.has(kode)) {
         skippedCount++;
         const percent = Math.round(((i + 1) / totalRows) * 100);
