@@ -390,19 +390,47 @@ async function getPresensiLive() {
   }
 }
 
-async function getSisaKuotaTambahanLive(): Promise<number> {
+export interface KuotaTambahanMetrics {
+  sisa: number;
+  terjual: number;
+  total: number;
+}
+
+async function getKuotaTambahanMetricsLive(): Promise<KuotaTambahanMetrics> {
   try {
     const { data, error } = await supabase
       .from('pembelian_kuota')
-      .select('jumlah_kuota, status')
+      .select('jumlah_kursi, status')
       .in('status', ['DIVERIFIKASI', 'DITERIMA', 'SETUJU', 'VERIFIED']);
 
-    if (error) throw error;
-    const verifiedSum = (data || []).reduce((acc: number, item: any) => acc + Number(item.jumlah_kuota || 0), 0);
-    return Math.max(0, 300 - verifiedSum);
-  } catch (err) {
-    return 300;
+    if (error) {
+      console.error('[Halwaa AI] Error query pembelian_kuota live:', error.message || error);
+      throw error;
+    }
+
+    const verifiedSum = (data || []).reduce(
+      (acc: number, item: any) => acc + Number(item.jumlah_kursi || item.jumlah || item.jumlah_kuota || 0),
+      0
+    );
+    const sisa = Math.max(0, 300 - verifiedSum);
+    return {
+      sisa,
+      terjual: verifiedSum,
+      total: 300,
+    };
+  } catch (err: any) {
+    console.error('[Halwaa AI] Exception getKuotaTambahanMetricsLive:', err?.message || err);
+    return {
+      sisa: 300,
+      terjual: 0,
+      total: 300,
+    };
   }
+}
+
+async function getSisaKuotaTambahanLive(): Promise<number> {
+  const metrics = await getKuotaTambahanMetricsLive();
+  return metrics.sisa;
 }
 
 async function getGuestCategoryCountsLive() {
@@ -754,11 +782,11 @@ async function handleLiveCategoryNameQueries(userQuery: string, isFirstTurn: boo
 }
 
 async function getLiveDatabaseContextPrompt(userQuery: string = ''): Promise<string> {
-  const [resTamu, resSantri, resPresensi, sisaKuota, guestCounts, wsMetrics, tamuMetrics] = await Promise.all([
+  const [resTamu, resSantri, resPresensi, kuotaMetrics, guestCounts, wsMetrics, tamuMetrics] = await Promise.all([
     getTamuUndanganLive(),
     getPesertaSantriLive(),
     getPresensiLive(),
-    getSisaKuotaTambahanLive(),
+    getKuotaTambahanMetricsLive(),
     getGuestCategoryCountsLive(),
     getWaliSantriMetrics().catch(() => null),
     getTamuUndanganMetrics().catch(() => null),
@@ -795,7 +823,7 @@ Timestamp: ${dateStr}, pukul ${timeStr} WIB
 - PENGUJI AL-QUR'AN (LIVE SUPA): ${pengujiText}
 - ASATIDZ MHMTQ (LIVE SUPA): ${asatidzText}
 - PERWAKILAN PONDOK (LIVE SUPA): ${perwakilanText}
-- SISA KUOTA TAMBAHAN (LIVE SUPA): ${sisaKuota} kursi dari 300 pagu
+- SISA KUOTA TAMBAHAN (LIVE SUPA): ${kuotaMetrics.sisa} kursi dari total pagu ${kuotaMetrics.total} kursi (pagu terjual: ${kuotaMetrics.terjual} kursi). Jika ditanya sisa kuota tambahan/pagu, sebutkan secara jelas sisa saat ini adalah ${kuotaMetrics.sisa} kursi!
 
 --- DAFTAR NAMA TAMU INDIVIDUAL RESMI DARI SUPABASE (LIVE & DETIL) ---
 • Tamu VVIP: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VVIP')).map((g: any) => `${g.nama||g.nama_putra||'VVIP'} (${g.kode})`).join(', ')) || 'Belum ada data'}
@@ -1720,12 +1748,26 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 10. Dilarang membawa HP di luar area sambangan.`;
   }
 
-  // 15. KUOTA TAMBAHAN
-  if (q.includes('kuota tambahan') || q.includes('harga kuota tambahan')) {
+  // 15. SISA KUOTA TAMBAHAN (LIVE SUPABASE)
+  const isSisaKuotaQuery =
+    q.includes('sisa kuota') ||
+    q.includes('kuota sisa') ||
+    q.includes('sisa pagu') ||
+    q.includes('pagu sisa') ||
+    (q.includes('sisa') && (q.includes('kuota') || q.includes('kursi') || q.includes('pagu'))) ||
+    ((q.includes('kuota') || q.includes('kursi')) && (q.includes('tersedia') || q.includes('tinggal berapa') || q.includes('masih ada berapa')));
+
+  if (isSisaKuotaQuery) {
+    const metrics = await getKuotaTambahanMetricsLive();
+    return `${headerIntro}Saat ini, sisa kuota tambahan yang tersedia di sistem adalah **${metrics.sisa} kursi** dari total pagu ${metrics.total} kursi (terjual: ${metrics.terjual} kursi).`;
+  }
+
+  // 16. KUOTA TAMBAHAN & HARGA
+  if ((q.includes('kuota tambahan') || q.includes('harga kuota') || q.includes('beli kuota')) && !q.includes('sisa')) {
     return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 75.000 per kursi** (pagu total 300 kursi). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
   }
 
-  // 16. LIVE QUERIES FROM DATABASE SUPABASE
+  // 17. LIVE QUERIES FROM DATABASE SUPABASE
   if (q.includes('total sh') || q.includes('shohibul hajat terdaftar') || q.includes('total shohibul hajat')) {
     try {
       const { count } = await supabase.from('peserta_santri').select('*', { count: 'exact', head: true });
@@ -1744,11 +1786,6 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
     } catch {
       return `${headerIntro}Total Tamu Undangan yang terdaftar di database Supabase saat ini: **Belum ada data di sistem**.`;
     }
-  }
-
-  if (q.includes('sisa kuota tambahan')) {
-    const sisa = await getSisaKuotaTambahanLive();
-    return `${headerIntro}Sisa kuota tambahan saat ini: **${sisa} kursi** dari total pagu 300 kursi.`;
   }
 
   if (q.includes('persen kehadiran') || q.includes('persentase kehadiran')) {
@@ -2034,8 +2071,22 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 10. Dilarang membawa HP di luar area sambangan.`;
   }
 
-  // KUOTA TAMBAHAN
-  if (q.includes('kuota tambahan') || q.includes('harga kuota tambahan')) {
+  // SISA KUOTA TAMBAHAN
+  const isSisaKuotaQuerySync =
+    q.includes('sisa kuota') ||
+    q.includes('kuota sisa') ||
+    q.includes('sisa pagu') ||
+    q.includes('pagu sisa') ||
+    (q.includes('sisa') && (q.includes('kuota') || q.includes('kursi') || q.includes('pagu'))) ||
+    ((q.includes('kuota') || q.includes('kursi')) && (q.includes('tersedia') || q.includes('tinggal berapa') || q.includes('masih ada berapa')));
+
+  if (isSisaKuotaQuerySync) {
+    // Fungsi sinkron tidak dapat query Supabase — jangan hardcode angka sisa kuota.
+    return `${headerIntro}Mohon maaf Us, data sisa kuota tambahan sedang tidak dapat dimuat secara live. Silakan tanyakan kembali beberapa saat lagi atau cek langsung di halaman pembelian kuota. Total pagu kuota tambahan adalah 300 kursi.`;
+  }
+
+  // KUOTA TAMBAHAN & HARGA
+  if ((q.includes('kuota tambahan') || q.includes('harga kuota') || q.includes('beli kuota')) && !q.includes('sisa')) {
     return `${headerIntro}Harga **Kuota Tambahan Walisantri**: **Rp 75.000 per kursi** (pagu total 300 kursi). Pembayaran via BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin.`;
   }
 
