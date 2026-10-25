@@ -128,9 +128,9 @@ export default function UndanganWaliPage() {
   const params = useParams();
   const rawToken = (params?.token as string) || '';
 
-  // 1. Validasi format token (izinkan SH dan UND dengan angka)
+  // 1. Validasi format token (izinkan SH dan UND dengan huruf kapital & angka, mis. SH80X7 / UNDGP04)
   const cleanToken = (rawToken.split('-')[0] || '').toUpperCase().trim();
-  const isValidFormat = /^(SH|UND)\d+$/i.test(cleanToken);
+  const isValidFormat = /^(SH|UND)[A-Z0-9]+$/i.test(cleanToken);
   const kodeSH = cleanToken;
   const isTamuUndangan = kodeSH.startsWith('UND');
 

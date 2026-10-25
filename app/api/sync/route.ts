@@ -157,7 +157,7 @@ export async function GET(req: NextRequest) {
     // FIX 1: Server-side direct lookup with service role key if requested for specific kode
     if (kodeParam) {
       const cleanKode = kodeParam.toUpperCase().trim();
-      if (!/^(SH|UND)\d+$/i.test(cleanKode)) {
+      if (!/^(SH|UND)[A-Z0-9]+$/i.test(cleanKode)) {
         return NextResponse.json({ ok: false, message: 'Format kode tidak valid' }, { status: 400 });
       }
 
