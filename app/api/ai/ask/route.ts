@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { geminiPool } from '@/lib/gemini-pool';
+import { aiClient, getAiClient } from '@/lib/ai-client';
 import {
   detectMotivasiIntent,
   detectDiaSiapaIntent,
@@ -321,84 +321,54 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
 
 [PANDUAN KEPANITIAAN & DATA RESMI: Jika user menanyakan tentang personil panitia, format WAJIB 3 paragraf: Paragraf 1 (jabatan), Paragraf 2 (kalimat sanjungan/fans), Paragraf 3 ("Ada lagi info kepanitiaan yang bisa saya bantu, Us?"). DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
-    const candidateGeminiKeys = geminiPool.getCandidateKeys(clientApiKey).slice(0, 3);
-    const candidateGeminiModels = geminiPool.getModelCandidates();
-    const proKeyClean = process.env.GEMINI_PRO_API_KEY?.trim().replace(/^["']|["']$/g, '');
+    const client = clientApiKey ? getAiClient(clientApiKey) : aiClient;
+    const modelName = process.env.AI_GATEWAY_MODEL || 'gpt-4o-mini';
 
-    if (candidateGeminiKeys.length > 0) {
-      for (const currentGeminiKey of candidateGeminiKeys) {
-        let keySucceeded = false;
-        const isProKey = proKeyClean && currentGeminiKey === proKeyClean;
-        const engineLabel = isProKey ? 'Gemini Pro (Primary)' : 'Gemini Pool';
+    try {
+      const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+        { role: 'system', content: dynamicSystemPrompt },
+      ];
 
-        for (const currentModel of candidateGeminiModels) {
-          try {
-            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${currentGeminiKey}`;
-
-            const contents: any[] = [];
-            if (Array.isArray(history) && history.length > 0) {
-              for (const item of history.slice(-6)) {
-                contents.push({
-                  role: item.role === 'assistant' ? 'model' : 'user',
-                  parts: [{ text: item.content }],
-                });
-              }
-            }
-            contents.push({
-              role: 'user',
-              parts: [{ text: prompt }],
+      if (Array.isArray(history) && history.length > 0) {
+        for (const item of history.slice(-6)) {
+          if (item && item.content) {
+            messages.push({
+              role: item.role === 'assistant' ? 'assistant' : 'user',
+              content: String(item.content),
             });
-
-            const geminiRes = await fetch(geminiUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-goog-api-key': currentGeminiKey,
-              },
-              signal: AbortSignal.timeout(4000),
-              body: JSON.stringify({
-                system_instruction: {
-                  parts: [{ text: dynamicSystemPrompt }],
-                },
-                contents,
-                generationConfig: {
-                  temperature: 0.35,
-                  maxOutputTokens: 800,
-                },
-              }),
-            });
-
-            if (geminiRes.ok) {
-              const geminiData = await geminiRes.json();
-              const replyText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (replyText) {
-                geminiPool.markSuccess(currentGeminiKey);
-                keySucceeded = true;
-                const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
-                const expr = detectExpression(cleanReply, prompt, isFirstTurn);
-                const durationMs = Date.now() - startTime;
-
-                return NextResponse.json({
-                  reply: cleanReply,
-                  expression: expr,
-                  avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
-                  source: 'gemini_api',
-                  model: `${engineLabel} (${currentModel})`,
-                  keyPreview: geminiPool.maskKey(currentGeminiKey),
-                  responseTimeMs: durationMs,
-                });
-              }
-            } else {
-              geminiPool.markFailure(currentGeminiKey, geminiRes.status, geminiRes.status === 429 ? 60 : 30);
-              break;
-            }
-          } catch (geminiError: any) {
-            geminiPool.markFailure(currentGeminiKey, 500, 30);
-            break;
           }
         }
-        if (keySucceeded) break;
       }
+
+      messages.push({
+        role: 'user',
+        content: prompt,
+      });
+
+      const response = await client.chat.completions.create({
+        model: modelName,
+        messages,
+        temperature: 0.35,
+        max_tokens: 800,
+      });
+
+      const replyText = response.choices?.[0]?.message?.content;
+      if (replyText && replyText.trim().length > 0) {
+        const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+        const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+        const durationMs = Date.now() - startTime;
+
+        return NextResponse.json({
+          reply: cleanReply,
+          expression: expr,
+          avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+          source: '9router_openai_api',
+          model: `9Router (${modelName})`,
+          responseTimeMs: durationMs,
+        });
+      }
+    } catch (apiError: any) {
+      console.warn('[9Router AI] Failed to fetch completion from 9Router proxy, falling back to local engine:', apiError?.message || apiError);
     }
 
     const localReply = await generateLocalSmartResponseAsync(prompt, isFirstTurn, currentRole);
@@ -409,7 +379,7 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
       expression: expr,
       avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
       source: 'smart_knowledge_engine',
-      model: 'Usth. Halwaa Knowledge Engine',
+      model: 'Usth. Halwaa Knowledge Engine (Fallback)',
     });
   } catch (err: any) {
     return NextResponse.json(
@@ -420,14 +390,17 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
 }
 
 export async function GET() {
-  const summary = geminiPool.getPoolSummary();
-  const models = geminiPool.getModelCandidates();
+  const baseURL = process.env.AI_GATEWAY_BASE_URL || 'http://localhost:20128/v1';
+  const model = process.env.AI_GATEWAY_MODEL || 'gpt-4o-mini';
+  const hasKey = Boolean(process.env.AI_GATEWAY_API_KEY || 'sk-b4de593a3a84834b-gs89m9-941a9ab8');
+
   return NextResponse.json({
     status: 'ok',
-    totalConfiguredKeys: summary.length,
-    activeKeys: summary.filter((s) => !s.isCoolingDown).length,
-    coolingDownKeys: summary.filter((s) => s.isCoolingDown).length,
-    candidateModels: models,
-    pool: summary,
+    engine: '9Router OpenAI Compatible Proxy',
+    gateway: {
+      baseURL,
+      model,
+      hasKey,
+    },
   });
 }
