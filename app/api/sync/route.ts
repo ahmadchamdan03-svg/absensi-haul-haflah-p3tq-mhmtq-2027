@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import {
+  normalizePortalToken,
+  isValidKodeUndangan,
+  getAmbiguousKodeVariants,
+} from '@/lib/utils';
 
 const DEFAULT_SUPABASE_URL = 'https://ibvttbwpnwjkwqmtrpzv.supabase.co';
 const DEFAULT_SERVICE_ROLE =
@@ -156,17 +161,29 @@ export async function GET(req: NextRequest) {
 
     // FIX 1: Server-side direct lookup with service role key if requested for specific kode
     if (kodeParam) {
-      const cleanKode = kodeParam.toUpperCase().trim();
-      if (!/^(SH|UND)[A-Z0-9]+$/i.test(cleanKode)) {
+      const cleanKode = normalizePortalToken(kodeParam);
+      if (!isValidKodeUndangan(cleanKode)) {
         return NextResponse.json({ ok: false, message: 'Format kode tidak valid' }, { status: 400 });
       }
 
+      const kodeVariants = getAmbiguousKodeVariants(cleanKode);
+
       if (cleanKode.startsWith('UND')) {
-        const { data: tamu, error: errTamu } = await supabase
+        let { data: tamu, error: errTamu } = await supabase
           .from('tamu_undangan')
-          .select('id, kode, nama, nama_putra, nama_putri, kategori, sub_kategori, instansi, alamat, no_hp, kuota_dasar, kuota_terpakai, status_konfirmasi, perkiraan_l, perkiraan_p, catatan_konfirmasi, warna_tiket, created_at, updated_at')
+          .select('*')
           .eq('kode', cleanKode)
           .maybeSingle();
+
+        if (!tamu && kodeVariants.length > 1) {
+          const fallbackRes = await supabase
+            .from('tamu_undangan')
+            .select('*')
+            .in('kode', kodeVariants)
+            .limit(1)
+            .maybeSingle();
+          if (fallbackRes.data) tamu = fallbackRes.data;
+        }
 
         if (errTamu && process.env.NODE_ENV !== 'production') {
           console.error('[API Sync] Error querying tamu_undangan:', errTamu);
@@ -176,11 +193,21 @@ export async function GET(req: NextRequest) {
           return NextResponse.json({ ok: true, tamu });
         }
       } else {
-        const { data: santri, error: errSantri } = await supabase
+        let { data: santri, error: errSantri } = await supabase
           .from('peserta_santri')
           .select('*')
           .eq('kode', cleanKode)
           .maybeSingle();
+
+        if (!santri && kodeVariants.length > 1) {
+          const fallbackRes = await supabase
+            .from('peserta_santri')
+            .select('*')
+            .in('kode', kodeVariants)
+            .limit(1)
+            .maybeSingle();
+          if (fallbackRes.data) santri = fallbackRes.data;
+        }
 
         if (errSantri && process.env.NODE_ENV !== 'production') {
           console.error('[API Sync] Error querying peserta_santri:', errSantri);

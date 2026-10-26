@@ -1,39 +1,29 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  QrCode,
-  Users,
-  Check,
-  AlertCircle,
-  Clock,
-  ArrowRight,
-  Sparkles,
-  ChevronRight,
-  RotateCcw,
-  Camera,
-  CameraOff,
-  SwitchCamera,
-  Volume2,
-  HelpCircle,
-  Compass,
-  Info,
-  Usb,
-  Zap,
-  ShieldCheck,
-} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
 import { upsertPresensiLog, syncKuotaTerpakai } from '@/lib/presensi-helper';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
+import ScanCameraAndInputSection from '@/components/petugas/scan/ScanCameraAndInputSection';
+import ScanResultModals from '@/components/petugas/scan/ScanResultModals';
+import ScanRecentHistory from '@/components/petugas/scan/ScanRecentHistory';
+import {
+  ScanFeedback,
+  ScanActiveItem,
+  RecentScanLog,
+  playBeep,
+  playBuzzerError,
+  playSuccessChime,
+} from '@/components/petugas/scan/types';
 
 export default function ScanPage() {
   const [jalur, setJalur] = useState<JalurPemeriksaan>('TIMUR');
   const [isDenahOpen, setIsDenahOpen] = useState(false);
   const [kodeInput, setKodeInput] = useState('');
-  const [activeItem, setActiveItem] = useState<any>(null);
+  const [activeItem, setActiveItem] = useState<ScanActiveItem | null>(null);
 
   // Form input kehadiran
   const [jumlahL, setJumlahL] = useState(0);
@@ -47,19 +37,13 @@ export default function ScanPage() {
   // Result state
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [checkinResult, setCheckinResult] = useState<CheckinResult | null>(null);
-  const [buzzerTested, setBuzzerTested] = useState(false);
 
   // Riwayat & Submitting state
-  const [recentScans, setRecentScans] = useState<any[]>([]);
+  const [recentScans, setRecentScans] = useState<RecentScanLog[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Visual feedback overlay
-  const [scanFeedback, setScanFeedback] = useState<{
-    type: 'success' | 'error';
-    message: string;
-    name?: string;
-    kategori?: string;
-  } | null>(null);
+  const [scanFeedback, setScanFeedback] = useState<ScanFeedback | null>(null);
 
   // Camera scanner state
   const [cameraActive, setCameraActive] = useState(false);
@@ -103,112 +87,27 @@ export default function ScanPage() {
     };
   }, [fetchRecentScans]);
 
-  // Audio synthesizer beep saat scan QR berhasil dideteksi
-  const playBeep = () => {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(784, ctx.currentTime); // G5
-      osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.12); // C6
-
-      gain.gain.setValueAtTime(0.35, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start();
-      osc.stop(ctx.currentTime + 0.18);
-    } catch (e) {
-      // Audio safety
-    }
-  };
-
-  // Audio synthesizer buzzer error
-  const playBuzzerError = () => {
-    try {
-      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-        navigator.vibrate([280, 100, 280, 100, 350]);
-      }
-
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-
-      const playBuzzPulse = (delaySec: number, durationSec: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(175, ctx.currentTime + delaySec);
-        osc.frequency.linearRampToValueAtTime(115, ctx.currentTime + delaySec + durationSec);
-
-        gain.gain.setValueAtTime(0.85, ctx.currentTime + delaySec);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delaySec + durationSec);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(ctx.currentTime + delaySec);
-        osc.stop(ctx.currentTime + delaySec + durationSec);
-      };
-
-      playBuzzPulse(0, 0.22);
-      playBuzzPulse(0.26, 0.32);
-    } catch (e) {
-      // Audio safety
-    }
-  };
-
-  // Suara konfirmasi sukses merdu
-  const playSuccessChime = () => {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-
-      const playTone = (freq: number, start: number, dur: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-        gain.gain.setValueAtTime(0.35, ctx.currentTime + start);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + start);
-        osc.stop(ctx.currentTime + start + dur);
-      };
-
-      playTone(523.25, 0, 0.12);     // C5
-      playTone(659.25, 0.1, 0.12);    // E5
-      playTone(783.99, 0.2, 0.25);    // G5
-    } catch (e) {}
-  };
-
-  const handleTestBuzzer = () => {
-    playBuzzerError();
-    setBuzzerTested(true);
-    setTimeout(() => setBuzzerTested(false), 3500);
-  };
-
   const inputRef = useRef<HTMLInputElement>(null);
   const scanBufferRef = useRef('');
   const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handler memproses kode QR (100% Query Langsung ke Supabase peserta_santri & tamu_undangan - Gen 2)
+  // Stop Kamera
+  const stopCamera = useCallback(async () => {
+    if (scannerRef.current && isScanningRef.current) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current.clear();
+      } catch (err) {
+        console.warn('Error stopping scanner:', err);
+      }
+      isScanningRef.current = false;
+      setCameraActive(false);
+    }
+  }, []);
+
+  // Handler memproses kode QR
   const handleScanCode = useCallback(async (scannedRaw: string) => {
     let cleanCode = scannedRaw.trim();
-    // Tangani jika format QR adalah URL web (e.g. https://domain.com/u/SH0001)
     if (cleanCode.includes('/u/')) {
       const parts = cleanCode.split('/u/');
       if (parts.length >= 2) cleanCode = parts[1].split('?')[0].split('#')[0];
@@ -218,7 +117,6 @@ export default function ScanPage() {
     }
 
     cleanCode = cleanCode.toUpperCase().trim();
-    // Batasi input maksimal 50 karakter agar aman dari memory leak (FIX 4)
     if (cleanCode.length > 50) cleanCode = cleanCode.substring(0, 50);
     if (!cleanCode || cleanCode.length < 2) return;
 
@@ -230,7 +128,7 @@ export default function ScanPage() {
     }
 
     try {
-      // 1. Cek Peserta Santri (cocokkan dengan kolom 'kode' ATAU 'nis')
+      // 1. Cek Peserta Santri
       let { data: santri } = await supabase
         .from('peserta_santri')
         .select('*')
@@ -259,9 +157,6 @@ export default function ScanPage() {
           message: errMsg,
         });
         setTimeout(() => setScanFeedback(null), 3000);
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('[Scan Debug] Hasil: FAILED (Tidak terdaftar) for', cleanCode);
-        }
         return;
       }
 
@@ -269,7 +164,7 @@ export default function ScanPage() {
       const entity = santri || tamu;
       const targetKode = entity.kode || entity.nis || cleanCode;
 
-      // Single Source of Truth: Fetch live terpakai & pre-fill existing values from presensi_log
+      // Single Source of Truth: Fetch live terpakai from presensi_log
       const { data: presensiLogs } = await supabase
         .from('presensi_log')
         .select('jumlah_l, jumlah_p')
@@ -303,7 +198,7 @@ export default function ScanPage() {
       setKartuHitamGoldDiberi(isAlreadyGiven || sisa === 0);
       setSerahkanTiketEmas(isAlreadyGiven || sisa === 0);
 
-      const itemObj = {
+      const itemObj: ScanActiveItem = {
         id: entity.id,
         kode: targetKode,
         tipe: isSantri ? 'KELUARGA' : 'UNDANGAN',
@@ -389,10 +284,6 @@ export default function ScanPage() {
       } else {
         setSerahkanTiketEmas(false);
       }
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Scan Debug] Hasil: SUCCESS for', cleanCode, itemObj.nama);
-      }
     } catch (err: any) {
       console.error('Error during scan verification:', err);
       const msg = `Terjadi kesalahan sistem saat memverifikasi kode: ${err.message || err}`;
@@ -403,35 +294,22 @@ export default function ScanPage() {
         message: msg,
       });
       setTimeout(() => setScanFeedback(null), 3000);
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Scan Debug] Hasil: FAILED with exception for', cleanCode, err);
-      }
-    } finally {
-      // Gen 2: Tanpa lock dan tanpa antrean
     }
-  }, []);
+  }, [stopCamera]);
 
-  // =========================================================================
-  // GLOBAL USB BARCODE SCANNER LISTENER (GEN 2 - bcaf486)
-  // Scanner USB HID mengetik karakter sangat cepat lalu mengirim Enter.
-  // Listener ini menangkap pola tersebut secara global tanpa perlu fokus ke input.
-  // =========================================================================
+  // Global USB barcode listener
   useEffect(() => {
-    // Auto-focus input field saat halaman dimuat
     if (inputRef.current) inputRef.current.focus();
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      // FIX 2: Abaikan jika user sedang mengetik di input field, textarea, atau select
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
         return;
       }
 
-      // Abaikan modifier keys
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
       if (e.key === 'Enter') {
-        // Enter = akhir input dari scanner USB
         const bufferedCode = scanBufferRef.current.trim();
         if (bufferedCode.length >= 3) {
           handleScanCode(bufferedCode);
@@ -442,7 +320,6 @@ export default function ScanPage() {
         return;
       }
 
-      // FIX 2: Hanya tangkap karakter printable, buffer timeout 100ms
       if (e.key.length === 1) {
         if (scanBufferRef.current.length < 50) {
           scanBufferRef.current += e.key;
@@ -514,20 +391,6 @@ export default function ScanPage() {
     }
   };
 
-  // Stop Kamera
-  const stopCamera = async () => {
-    if (scannerRef.current && isScanningRef.current) {
-      try {
-        await scannerRef.current.stop();
-        scannerRef.current.clear();
-      } catch (err) {
-        console.warn('Error stopping scanner:', err);
-      }
-      isScanningRef.current = false;
-      setCameraActive(false);
-    }
-  };
-
   // Switch Kamera (Depan / Belakang)
   const toggleFacingMode = () => {
     const nextMode = facingMode === 'environment' ? 'user' : 'environment';
@@ -543,18 +406,16 @@ export default function ScanPage() {
     return () => {
       stopCamera();
     };
-  }, [activeItem, checkinResult, facingMode]);
+  }, [activeItem, checkinResult, facingMode, stopCamera]);
 
-  // Handler Check / Uncheck Kartu Hitam Gold (dengan konfirmasi modal & audit log)
+  // Handler Check / Uncheck Kartu Hitam Gold
   const handleToggleKartuHitamGold = async () => {
     if (!activeItem || isUpdatingKartuGold) return;
     const isCurrentlyChecked = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || kartuHitamGoldDiberi || serahkanTiketEmas;
 
     if (isCurrentlyChecked) {
-      // Intent to uncheck -> trigger confirmation popup
       setShowResetConfirmModal(true);
     } else {
-      // Intent to check -> set to 1 immediately in Supabase + audit log
       setIsUpdatingKartuGold(true);
       try {
         const { error } = await supabase
@@ -579,7 +440,7 @@ export default function ScanPage() {
 
         setKartuHitamGoldDiberi(true);
         setSerahkanTiketEmas(true);
-        setActiveItem((prev: any) =>
+        setActiveItem((prev) =>
           prev
             ? {
                 ...prev,
@@ -626,17 +487,17 @@ export default function ScanPage() {
 
       setKartuHitamGoldDiberi(false);
       setSerahkanTiketEmas(false);
-      setActiveItem((prev: any) =>
+      setActiveItem((prev) =>
         prev
-            ? {
-                ...prev,
-                kartuHitamGoldDiberi: false,
-                kuota: {
-                  ...prev.kuota,
-                  tiketPanggungDiberi: 0,
-                },
-              }
-            : null
+          ? {
+              ...prev,
+              kartuHitamGoldDiberi: false,
+              kuota: {
+                ...prev.kuota,
+                tiketPanggungDiberi: 0,
+              },
+            }
+          : null
       );
       setShowResetConfirmModal(false);
     } catch (err: any) {
@@ -647,7 +508,7 @@ export default function ScanPage() {
     }
   };
 
-  // Handler Konfirmasi Checkin (Update Kuota & Simpan Log ke Tabel 'presensi_log' Supabase)
+  // Handler Konfirmasi Checkin
   const handleConfirmCheckin = async () => {
     if (!activeItem || isSubmitting) return;
     setIsSubmitting(true);
@@ -668,17 +529,6 @@ export default function ScanPage() {
     }
 
     try {
-      // 1. Fetch live existing terpakai from presensi_log BEFORE input
-      const { data: existingLogs } = await supabase
-        .from('presensi_log')
-        .select('jumlah_l, jumlah_p')
-        .eq('kode_qr', activeItem.kode);
-
-      const totalExisting = (existingLogs || []).reduce(
-        (sum, r) => sum + Number(r.jumlah_l || 0) + Number(r.jumlah_p || 0),
-        0
-      );
-
       const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
 
       if (inputTotal > totalKuota) {
@@ -688,7 +538,7 @@ export default function ScanPage() {
         return;
       }
 
-      // Anti Race-Condition: Cek apakah kode ini baru saja dicatat dalam 3 detik terakhir
+      // Anti Race-Condition: 3 detik
       const threeSecAgo = new Date(Date.now() - 3000).toISOString();
       const { data: recentDup } = await supabase
         .from('presensi_log')
@@ -704,7 +554,7 @@ export default function ScanPage() {
         return;
       }
 
-      // 2. Upsert riwayat presensi ke tabel 'presensi_log' di Supabase
+      // 2. Upsert ke presensi_log
       try {
         await upsertPresensiLog({
           kode_qr: activeItem.kode || String(activeItem.id),
@@ -745,7 +595,7 @@ export default function ScanPage() {
         kode: activeItem.kode || String(activeItem.id),
         nama: activeItem.nama || activeItem.namaSantri || 'Peserta',
         field: 'kuota_terpakai',
-        nilai_lama: String(totalExisting),
+        nilai_lama: String(activeItem.kuota.terpakai),
         nilai_baru: String(totalTerpakai),
         detail: {
           jumlah_l: jumlahL,
@@ -767,7 +617,7 @@ export default function ScanPage() {
         colors: ['#F5C26B', '#4A7BB0', '#F4EFE6', '#ffffff'],
       });
 
-      const updatedItem = {
+      const updatedItem: ScanActiveItem = {
         ...activeItem,
         kuota: {
           ...activeItem.kuota,
@@ -807,690 +657,54 @@ export default function ScanPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-20">
-      {/* Header Jalur Pemeriksaan */}
-      <div className="relative z-10 mb-4 bg-[#FAF7F3] rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        {/* Baris 1 (Mobile) / Sisi Kiri (Desktop): Info Gerbang & Tombol Denah */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-3 flex-wrap">
-          <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm shrink-0">
-              <QrCode className="w-5 h-5 text-[#8C6A47]" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-serif font-black text-[#422F21] text-xs sm:text-base leading-tight">
-                Gerbang Selatan (Bola Dunia)
-              </h1>
-              <p className="text-[11px] sm:text-xs text-[#7A624E] font-medium leading-tight">
-                PWA Scanner &amp; Penyerahan Tiket
-              </p>
-            </div>
-          </div>
+      {/* SECTION KAMERA DAN INPUT KODE QR */}
+      <ScanCameraAndInputSection
+        jalur={jalur}
+        setJalur={setJalur}
+        onOpenDenah={() => setIsDenahOpen(true)}
+        scanFeedback={scanFeedback}
+        showScannerViewport={!activeItem && !checkinResult}
+        cameraActive={cameraActive}
+        isInitializing={isInitializing}
+        facingMode={facingMode}
+        cameraError={cameraError}
+        onToggleFacingMode={toggleFacingMode}
+        onStopCamera={stopCamera}
+        onStartCamera={() => startCamera(facingMode)}
+        inputRef={inputRef}
+        kodeInput={kodeInput}
+        setKodeInput={setKodeInput}
+        onSubmitCode={handleScanCode}
+        errorMsg={errorMsg}
+      />
 
-          <button
-            type="button"
-            onClick={() => setIsDenahOpen(true)}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
-            title="Buka Denah Lapangan Interaktif"
-          >
-            <Compass className="w-4 h-4 text-[#8C6A47]" />
-            <span className="hidden sm:inline">Denah Lokasi</span>
-          </button>
-        </div>
-
-        {/* Baris 2 (Mobile) / Sisi Kanan (Desktop): Pemilih Jalur Barat vs Timur */}
-        <div className="flex w-full md:w-auto bg-[#EFE8E1] p-1 rounded-xl border border-[#D5C4B4] gap-1.5 flex-wrap sm:flex-nowrap">
-          <button
-            type="button"
-            onClick={() => setJalur('BARAT')}
-            className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-bold leading-tight text-center rounded-lg transition-all ${
-              jalur === 'BARAT'
-                ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
-                : 'text-[#422F21] hover:text-[#8C6A47]'
-            }`}
-          >
-            <span>Jalur Barat</span>
-            <span className="block text-[10px] font-medium opacity-90 sm:inline sm:ml-1">(Putra)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setJalur('TIMUR')}
-            className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-bold leading-tight text-center rounded-lg transition-all ${
-              jalur === 'TIMUR'
-                ? 'bg-[#735334] text-[#FAF7F3] border border-[#D49B5B]/60 shadow-sm'
-                : 'text-[#422F21] hover:text-[#8C6A47]'
-            }`}
-          >
-            <span>Jalur Timur</span>
-            <span className="block text-[10px] font-medium opacity-90 sm:inline sm:ml-1">(Putri)</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* OVERLAY VISUAL FEEDBACK (HASIL PINDAI KILAT)                              */}
-      {/* ========================================================================= */}
-      {scanFeedback && (
-        <div
-          className={`p-4 rounded-3xl border-2 shadow-xl animate-in zoom-in-95 duration-150 flex items-center justify-between gap-3 ${
-            scanFeedback.type === 'success'
-              ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
-              : 'bg-rose-50 border-rose-400 text-rose-950'
-          }`}
-        >
-          <div className="flex items-center space-x-3">
-            <div
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shrink-0 ${
-                scanFeedback.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
-              }`}
-            >
-              {scanFeedback.type === 'success' ? (
-                <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
-              ) : (
-                <AlertCircle className="w-6 h-6 stroke-[2.5]" />
-              )}
-            </div>
-            <div>
-              <div className="font-serif font-black text-sm sm:text-base leading-tight">
-                {scanFeedback.name ? `${scanFeedback.name} (${scanFeedback.kategori})` : scanFeedback.message}
-              </div>
-              <div
-                className={`text-xs font-semibold ${
-                  scanFeedback.type === 'success' ? 'text-emerald-800' : 'text-rose-800'
-                }`}
-              >
-                {scanFeedback.message}
-              </div>
-            </div>
-          </div>
-          <span
-            className={`px-3 py-1 rounded-xl text-xs font-mono font-bold shrink-0 ${
-              scanFeedback.type === 'success'
-                ? 'bg-emerald-200 text-emerald-900'
-                : 'bg-rose-200 text-rose-900'
-            }`}
-          >
-            {scanFeedback.type === 'success' ? '✓ OK' : '✕ GAGAL'}
-          </span>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* TAMPILAN 1: SCANNER AKTIF (PILIHAN DUA JALUR: USB HARDWARE vs KAMERA HP)   */}
-      {/* ========================================================================= */}
-      {!activeItem && !checkinResult && (
-        <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-opera-200 space-y-5">
-          {/* Panel Kamera Live */}
-          <div className="space-y-3">
-              {/* Header Status Kamera */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      cameraActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
-                    }`}
-                  ></span>
-                  <span className="text-xs font-serif font-bold text-slate-800 tracking-wide">
-                    {cameraActive
-                      ? 'KAMERA AKTIF — BIDIK KODE QR (10 FPS)'
-                      : isInitializing
-                      ? 'MEMBUKA KAMERA...'
-                      : 'KAMERA NON-AKTIF'}
-                  </span>
-                </div>
-
-                {/* Tombol Kontrol Kamera */}
-                <div className="flex items-center space-x-1.5 flex-wrap">
-                  {cameraActive ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={toggleFacingMode}
-                        title="Ganti Kamera Depan/Belakang"
-                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs flex items-center space-x-1 transition-colors"
-                      >
-                        <SwitchCamera className="w-3.5 h-3.5" />
-                        <span className="text-[10px] font-semibold hidden sm:inline">
-                          {facingMode === 'environment' ? 'Kamera Belakang' : 'Kamera Depan'}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={stopCamera}
-                        title="Matikan Kamera"
-                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors"
-                      >
-                        <CameraOff className="w-3.5 h-3.5" />
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => startCamera(facingMode)}
-                      className="px-3 py-1.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 text-xs font-bold border border-gold-500/40 flex items-center space-x-1 shadow-sm"
-                    >
-                      <Camera className="w-3.5 h-3.5" />
-                      <span>Nyalakan Kamera</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* FRAME KAMERA LIVE */}
-              <div className="relative rounded-3xl overflow-hidden bg-opera-950 border-2 border-opera-800 shadow-inner flex flex-col items-center justify-center min-h-[280px] aspect-video w-full">
-                {/* Viewfinder Overlay */}
-                <div className="absolute inset-0 pointer-events-none z-10 p-6 flex flex-col justify-between">
-                  <div className="flex justify-between">
-                    <div className="w-8 h-8 border-t-4 border-l-4 border-[#F5C26B] rounded-tl-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
-                    <div className="w-8 h-8 border-t-4 border-r-4 border-[#F5C26B] rounded-tr-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
-                  </div>
-
-                  {cameraActive && (
-                    <div className="w-full flex items-center justify-center">
-                      <div className="w-3/4 h-0.5 bg-gradient-to-r from-transparent via-[#F5C26B] to-transparent shadow-[0_0_15px_#F5C26B] animate-pulse"></div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between">
-                    <div className="w-8 h-8 border-b-4 border-l-4 border-[#F5C26B] rounded-bl-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
-                    <div className="w-8 h-8 border-b-4 border-r-4 border-[#F5C26B] rounded-br-xl drop-shadow-[0_0_8px_rgba(245,194,107,0.7)]"></div>
-                  </div>
-                </div>
-
-                <div
-                  id="qr-camera-reader"
-                  className="w-full h-full max-w-full aspect-video rounded-2xl overflow-hidden [&_video]:rounded-2xl [&_video]:object-cover"
-                ></div>
-
-                {!cameraActive && !isInitializing && (
-                  <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-6 text-center text-[#E4EDF5] space-y-3 bg-gradient-to-b from-[#142234] via-[#1F3450] to-[#0C1622]">
-                    <div className="w-16 h-16 rounded-2xl bg-[#0C1622] border-2 border-[#4A7BB0]/50 flex items-center justify-center text-[#F5C26B]">
-                      <Camera className="w-8 h-8 text-[#F5C26B]" />
-                    </div>
-                    <div className="space-y-1 max-w-xs">
-                      <p className="font-serif font-bold text-white text-sm">
-                        Kamera Siap Dinyalakan
-                      </p>
-                      <p className="text-[11px] text-[#C8DBEC]">
-                        Arahkan kamera ke QR Code undangan (contoh: SH2943 atau UND0103).
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => startCamera(facingMode)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F5C26B] via-[#E5A845] to-[#F5C26B] hover:brightness-105 text-[#142234] font-black text-xs shadow-lg transition-all border border-[#FDF4E4]"
-                    >
-                      Buka Kamera Sekarang
-                    </button>
-                  </div>
-                )}
-
-                {isInitializing && (
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-opera-950/90 text-gold-300 space-y-2">
-                    <div className="w-8 h-8 border-2 border-gold-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-xs font-mono">Menyiapkan Kamera...</span>
-                  </div>
-                )}
-              </div>
-
-              {cameraError && (
-                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start space-x-2.5">
-                  <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <div className="font-bold">Info Perangkat &amp; Izin Kamera:</div>
-                    <div className="text-[11px] text-amber-800 leading-relaxed">
-                      {cameraError}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-          {/* Form Input Barcode / Manual USB Scanner */}
-          <div className="space-y-2 pt-2 border-t border-stone-200">
-            <div className="flex items-center justify-between text-xs text-stone-500">
-              <span className="font-semibold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                Scanner USB Aktif / Input Kode Manual:
-              </span>
-              <span className="text-[11px] font-mono text-[#8C6A47]">Auto-detect USB HID</span>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (kodeInput) handleScanCode(kodeInput);
-              }}
-              className="flex gap-2"
-            >
-              <input
-                ref={inputRef}
-                type="text"
-                value={kodeInput}
-                onChange={(e) => setKodeInput(e.target.value)}
-                placeholder="Ketik kode manual jika scanner tidak tersambung (contoh: SH2943)..."
-                className="flex-1 px-4 py-3 text-sm rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-2xl bg-opera-850 hover:bg-opera-900 text-gold-300 text-sm font-bold shadow border border-gold-500/40 transition-colors cursor-pointer"
-              >
-                Proses
-              </button>
-            </form>
-          </div>
-
-          {errorMsg && (
-            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* TAMPILAN 2: DETAIL PESERTA DARI SUPABASE SAAT QR TERPINDAI */}
-      {/* ========================================================================= */}
-      {activeItem && !checkinResult && (
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-opera-700 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-w-md mx-auto">
-          {/* Header Compact */}
-          <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-3.5 py-2.5 flex items-center justify-between border-b border-gold-500/30">
-            <div className="flex items-center space-x-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-gold-400 animate-ping"></span>
-              <span className="text-[11px] font-serif font-bold tracking-wider text-gold-300">
-                ✓ QR SUPABASE TERVERIFIKASI
-              </span>
-            </div>
-            <span className="text-[11px] text-opera-200 font-mono font-bold">KODE: {activeItem.kode}</span>
-          </div>
-
-          <div className="p-4 space-y-3">
-            <div>
-              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">
-                {activeItem.tipe === 'KELUARGA' ? 'SHOHIBUL HAJAT (SANTRI)' : 'TAMU UNDANGAN'}
-              </div>
-              <h2 className="text-base sm:text-lg font-serif font-black text-slate-900 leading-snug mt-0.5">
-                {activeItem.nama}
-              </h2>
-              <p className="text-[11px] text-slate-600 font-medium leading-tight mt-0.5">
-                {activeItem.tipe === 'KELUARGA'
-                  ? `${activeItem.subKategori} · Kelas: ${activeItem.kelas} · Wali: ${activeItem.namaWali}`
-                  : `${activeItem.kategori} · ${activeItem.namaWali}`}
-              </p>
-            </div>
-
-            {/* Kotak Indikator Kuota Ringkas */}
-            {(() => {
-              const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
-              const terpakai = activeItem.kuota.terpakai;
-              const sisa = Math.max(0, totalKuota - terpakai);
-              return (
-                <div className="grid grid-cols-3 gap-1.5 text-center bg-stone-50 p-2.5 rounded-2xl border border-stone-200">
-                  <div className="border-r border-stone-200 pr-1">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase">KUOTA</div>
-                    <div className="text-xl font-serif font-black text-slate-800">
-                      {totalKuota}
-                    </div>
-                  </div>
-                  <div className="border-r border-stone-200 pr-1">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase">TERPAKAI</div>
-                    <div className="text-xl font-serif font-black text-slate-800">
-                      {terpakai}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold text-slate-500 uppercase">SISA</div>
-                    <div
-                      className={`text-xl font-serif font-black ${
-                        sisa > 0 ? 'text-emerald-700' : 'text-rose-600'
-                      }`}
-                    >
-                      {sisa}
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB */}
-            {activeItem.isBilGhoib && (() => {
-              const isChecked = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || kartuHitamGoldDiberi || serahkanTiketEmas;
-
-              return (
-                <div
-                  onClick={handleToggleKartuHitamGold}
-                  className={`p-3 rounded-2xl border-2 transition-all select-none cursor-pointer ${
-                    isChecked
-                      ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs hover:border-amber-400'
-                      : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21]'
-                  }`}
-                  title={isChecked ? 'Klik untuk membatalkan/uncheck Kartu Hitam Gold' : 'Klik untuk memberikan Kartu Hitam Gold'}
-                >
-                  <div className="flex items-start space-x-2.5">
-                    <input
-                      type="checkbox"
-                      id="checkbox-hitam-gold"
-                      checked={isChecked}
-                      onChange={handleToggleKartuHitamGold}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 accent-amber-600 mt-0.5 cursor-pointer"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <label
-                          htmlFor="checkbox-hitam-gold"
-                          className="text-xs font-bold leading-tight flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <span>Kartu Hitam Gold</span>
-                          <span className="text-[10px] text-amber-300 font-normal">(Maju Panggung)</span>
-                        </label>
-
-                        {isChecked ? (
-                          <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full bg-[#D49B5B] text-white ml-1 shrink-0 flex items-center gap-1 shadow-xs">
-                            <Check className="w-3 h-3 text-white" />
-                            SUDAH
-                          </span>
-                        ) : (
-                          <span className="text-[9px] font-semibold text-stone-500 px-2 py-0.5 rounded-full bg-stone-100 ml-1 shrink-0">
-                            BELUM
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="text-[10px] text-stone-500 mt-1 leading-tight flex items-center gap-1">
-                        <span className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${isChecked ? 'bg-amber-400' : 'bg-stone-300'}`}></span>
-                        {isChecked
-                          ? 'Status: SUDAH DIBERIKAN (1 kuota panggung). Klik untuk mereset/uncheck.'
-                          : 'Status: BELUM DIBERIKAN. Centang jika kartu diserahkan.'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Input Form Jumlah Kehadiran (L / P) */}
-            {(() => {
-              const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
-              const terpakai = activeItem.kuota.terpakai;
-              const sisa = Math.max(0, totalKuota - terpakai);
-              const totalInput = jumlahL + jumlahP;
-              const isNewlyGivingGold = activeItem.isBilGhoib && (kartuHitamGoldDiberi || serahkanTiketEmas);
-              const isExceeded = totalInput > totalKuota;
-              const isPlusDisabled = totalInput >= totalKuota;
-
-              return (
-                <div className="space-y-3 pt-2 border-t border-slate-100">
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
-                      <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                        JUMLAH PRIA (L)
-                      </label>
-                      <div className="flex items-center space-x-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setJumlahL(Math.max(0, jumlahL - 1))}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
-                        >
-                          -
-                        </button>
-                        <input
-                          type="number"
-                          min={0}
-                          value={jumlahL}
-                          onChange={(e) => setJumlahL(parseInt(e.target.value, 10) || 0)}
-                          className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setJumlahL(jumlahL + 1)}
-                          disabled={isPlusDisabled}
-                          title={isPlusDisabled ? `Total input (${totalInput}) sudah mencapai kuota (${totalKuota})` : undefined}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
-                      <label className="block text-[10px] font-bold text-slate-600 mb-1">
-                        JUMLAH WANITA (P)
-                      </label>
-                      <div className="flex items-center space-x-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setJumlahP(Math.max(0, jumlahP - 1))}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
-                        >
-                          -
-                        </button>
-                        <input
-                          type="number"
-                          min={0}
-                          value={jumlahP}
-                          onChange={(e) => setJumlahP(parseInt(e.target.value, 10) || 0)}
-                          className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setJumlahP(jumlahP + 1)}
-                          disabled={isPlusDisabled}
-                          title={isPlusDisabled ? `Total input (${totalInput}) sudah mencapai kuota (${totalKuota})` : undefined}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* INFO TEKS SISA KUOTA & STATUS AUTOMATIS */}
-                  <div className="text-[11px] font-semibold text-center py-1">
-                    {terpakai >= totalKuota || isPlusDisabled ? (
-                      <span className="text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-300 inline-block font-bold">
-                        ⚠️ KUOTA PENUH — Total saat ini: {terpakai}/{totalKuota} orang · Sisa kuota: {sisa} orang
-                      </span>
-                    ) : (
-                      <span className="text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
-                        Total saat ini: <strong>{terpakai} orang</strong> · Sisa kuota: <strong>{sisa} orang</strong> (Input total: {totalInput} orang)
-                      </span>
-                    )}
-                  </div>
-
-                  {isExceeded && (
-                    <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
-                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span>Total input ({totalInput} orang) melebihi total kuota ({totalKuota} kursi). Mohon kurangi jumlahnya.</span>
-                    </div>
-                  )}
-
-                  {errorMsg && (
-                    <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
-                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span>{errorMsg}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center space-x-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={handleResetForNext}
-                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleConfirmCheckin}
-                      disabled={isExceeded || (totalInput <= 0 && !isNewlyGivingGold)}
-                      className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 disabled:opacity-40 disabled:cursor-not-allowed text-white font-serif font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
-                    >
-                      <Check className="w-4 h-4 text-emerald-200" />
-                      <span>Konfirmasi Presensi / Masuk</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* TAMPILAN 3: HASIL PRESENSI SUKSES */}
-      {/* ========================================================================= */}
-      {checkinResult && checkinResult.ok && (
-        <div className="bg-white rounded-3xl p-6 shadow-2xl border-2 border-emerald-500 text-center space-y-4 animate-in fade-in zoom-in-95">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto font-bold border-2 border-emerald-300">
-            <Check className="w-10 h-10" />
-          </div>
-
-          <div>
-            <h2 className="text-xl font-serif font-black text-emerald-950">
-              PRESENSI BERHASIL DICATAT!
-            </h2>
-            <p className="text-xs text-emerald-800 mt-1">{checkinResult.pesan}</p>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1 text-left">
-            <p><strong>Nama:</strong> {checkinResult.detail?.nama}</p>
-            <p><strong>Kode:</strong> {checkinResult.detail?.kode}</p>
-            <p><strong>Jalur Gerbang:</strong> {jalur === 'BARAT' ? 'Jalur Barat (Putra)' : 'Jalur Timur (Putri)'}</p>
-            <p><strong>Sisa Kuota:</strong> {checkinResult.sisa} Kursi</p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleResetForNext}
-            className="w-full py-3.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-serif font-black text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Scan Kode QR Berikutnya</span>
-          </button>
-        </div>
-      )}
+      {/* DETAIL PESERTA & HASIL PRESENSI MODALS */}
+      <ScanResultModals
+        activeItem={activeItem}
+        checkinResult={checkinResult}
+        jalur={jalur}
+        jumlahL={jumlahL}
+        setJumlahL={setJumlahL}
+        jumlahP={jumlahP}
+        setJumlahP={setJumlahP}
+        kartuHitamGoldDiberi={kartuHitamGoldDiberi}
+        serahkanTiketEmas={serahkanTiketEmas}
+        errorMsg={errorMsg}
+        showResetConfirmModal={showResetConfirmModal}
+        setShowResetConfirmModal={setShowResetConfirmModal}
+        isUpdatingKartuGold={isUpdatingKartuGold}
+        onToggleKartuHitamGold={handleToggleKartuHitamGold}
+        onConfirmResetKartuHitamGold={handleConfirmResetKartuHitamGold}
+        onConfirmCheckin={handleConfirmCheckin}
+        onResetForNext={handleResetForNext}
+      />
 
       {/* RIWAYAT SCAN TERAKHIR HARI INI */}
-      <div className="bg-white rounded-3xl p-5 shadow-xs border border-stone-200 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-[#8C6A47]" />
-            <h3 className="font-serif font-black text-xs sm:text-sm text-[#422F21]">
-              Scan Terakhir Hari Ini
-            </h3>
-          </div>
-          <span className="text-[10px] font-bold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
-            5 Terakhir
-          </span>
-        </div>
-
-        {recentScans.length === 0 ? (
-          <p className="text-xs text-stone-400 font-medium text-center py-3">
-            Belum ada riwayat scan presensi hari ini.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {recentScans.map((log) => {
-              const totalOrang = (Number(log.jumlah_l) || 0) + (Number(log.jumlah_p) || 0);
-              const timeStr = log.created_at
-                ? new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                : '-';
-
-              return (
-                <div
-                  key={log.id}
-                  className="flex items-center justify-between p-2.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-xs"
-                >
-                  <div className="flex items-center space-x-2.5 min-w-0">
-                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
-                      ✓
-                    </span>
-                    <div className="min-w-0">
-                      <span className="font-mono font-bold text-[#422F21] block truncate">
-                        {log.kode_qr} — <span className="font-sans font-semibold text-stone-700">{log.nama_peserta || 'Peserta'}</span>
-                      </span>
-                      <span className="text-[10px] text-stone-500">
-                        {timeStr} WIB · Jalur {log.jalur || 'Gerbang'}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs font-serif font-black text-amber-900 bg-amber-100 px-2.5 py-1 rounded-xl border border-amber-200 shrink-0">
-                    {totalOrang} orang
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <ScanRecentHistory recentScans={recentScans} />
 
       {/* DENAH MODAL */}
       {isDenahOpen && (
         <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
-      )}
-
-      {/* MODAL KONFIRMASI RESET KARTU HITAM GOLD */}
-      {showResetConfirmModal && activeItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="relative flex flex-col items-center w-full max-w-sm">
-            {/* FOTO USTH. HALWAA — POP-OUT DARI BELAKANG KOTAK (HANYA BANTAN BAWAH 5% TERTUTUP) */}
-            <div className="relative z-0 -mb-2 sm:-mb-2.5 w-36 sm:w-44 h-36 sm:h-44 pointer-events-none flex justify-center items-end">
-              <img
-                src="/images/halwaa/peringatan.webp"
-                alt="Usth. Halwaa Warning"
-                className="w-full h-full object-contain drop-shadow-2xl"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                  const fallbackEl = document.getElementById('halwaa-fallback-icon');
-                  if (fallbackEl) fallbackEl.style.display = 'flex';
-                }}
-              />
-              <div
-                id="halwaa-fallback-icon"
-                className="hidden w-20 h-20 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-700 flex-col items-center justify-center shadow-lg"
-              >
-                <AlertCircle className="w-10 h-10" />
-              </div>
-            </div>
-
-            {/* KOTAK POP-UP — DI DEPAN FOTO (HANYA TEKS + TOMBOL) */}
-            <div className="relative z-10 bg-white rounded-3xl w-full p-6 space-y-4 shadow-2xl border-2 border-amber-300 text-center animate-in zoom-in-95 duration-200">
-              {/* Teks Peringatan */}
-              <div className="space-y-2">
-                <h3 className="font-serif font-black text-amber-950 text-base sm:text-lg leading-tight">
-                  Peringatan Pembatalan Kartu Gold
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
-                  Us, apakah Us yakin ingin mereset status <strong className="text-amber-950">&quot;Kartu Hitam Gold&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <strong className="text-rose-600 font-bold">BELUM</strong>?
-                </p>
-              </div>
-
-              {/* Tombol */}
-              <div className="flex items-center space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowResetConfirmModal(false)}
-                  disabled={isUpdatingKartuGold}
-                  className="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmResetKartuHitamGold}
-                  disabled={isUpdatingKartuGold}
-                  className="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-serif font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-1.5 disabled:opacity-50"
-                >
-                  {isUpdatingKartuGold ? (
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  ) : (
-                    <span>Ya, Reset</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

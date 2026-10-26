@@ -41,12 +41,7 @@ export async function getTamuUndanganLive() {
   try {
     const { data, error } = await supabase
       .from('tamu_undangan')
-      .select(`
-        kode, nama, nama_putra, nama_putri,
-        kategori, sub_kategori, instansi, alamat,
-        no_hp, kuota_terpakai, warna_tiket, jalur_masuk,
-        status_konfirmasi, status_wa
-      `)
+      .select('*')
       .like('kode', 'UND%')
       .not('kode', 'is', null);
 
@@ -81,14 +76,7 @@ export async function getPesertaSantriLive() {
   try {
     const { data, error } = await supabase
       .from('peserta_santri')
-      .select(`
-        kode, nama, nama_wali, kategori_utama, sub_kategori,
-        kelas, kamar, alamat, no_hp,
-        kuota_dasar, kuota_tambahan, kuota_terpakai,
-        tiket_panggung_jatah, tiket_panggung_diberi,
-        perkiraan_l, perkiraan_p,
-        status_konfirmasi, warna_tiket, status_wa
-      `);
+      .select('*');
 
     if (error) throw error;
 
