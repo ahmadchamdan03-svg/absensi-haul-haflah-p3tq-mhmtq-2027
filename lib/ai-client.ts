@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
-export const AI_GATEWAY_DEFAULT_KEY = 'sk-b4de593a3a84834b-gs89m9-941a9ab8';
-export const AI_GATEWAY_DEFAULT_URL = 'http://localhost:20128/v1';
+export const AI_GATEWAY_DEFAULT_KEY = 'vk-2e03aab0-64d7-4069-869c-d706172c2232';
+export const AI_GATEWAY_DEFAULT_URL = 'https://api.vikey.ai/v1';
 export const AI_GATEWAY_DEFAULT_MODEL = 'gpt-4o-mini';
 
 export const aiClient = new OpenAI({

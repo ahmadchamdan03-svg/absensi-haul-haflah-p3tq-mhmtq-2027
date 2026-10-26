@@ -362,13 +362,13 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
           reply: cleanReply,
           expression: expr,
           avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
-          source: '9router_openai_api',
-          model: `9Router (${modelName})`,
+          source: 'vikey_cloud_api',
+          model: `Vikey (${modelName})`,
           responseTimeMs: durationMs,
         });
       }
     } catch (apiError: any) {
-      console.warn('[9Router AI] Failed to fetch completion from 9Router proxy, falling back to local engine:', apiError?.message || apiError);
+      console.warn('[Vikey Cloud AI] Failed to fetch completion from Vikey API, falling back to local engine:', apiError?.message || apiError);
     }
 
     const localReply = await generateLocalSmartResponseAsync(prompt, isFirstTurn, currentRole);
@@ -390,13 +390,13 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
 }
 
 export async function GET() {
-  const baseURL = process.env.AI_GATEWAY_BASE_URL || 'http://localhost:20128/v1';
+  const baseURL = process.env.AI_GATEWAY_BASE_URL || 'https://api.vikey.ai/v1';
   const model = process.env.AI_GATEWAY_MODEL || 'gpt-4o-mini';
-  const hasKey = Boolean(process.env.AI_GATEWAY_API_KEY || 'sk-b4de593a3a84834b-gs89m9-941a9ab8');
+  const hasKey = Boolean(process.env.AI_GATEWAY_API_KEY || 'vk-2e03aab0-64d7-4069-869c-d706172c2232');
 
   return NextResponse.json({
     status: 'ok',
-    engine: '9Router OpenAI Compatible Proxy',
+    engine: 'Vikey Cloud OpenAI Compatible API',
     gateway: {
       baseURL,
       model,
