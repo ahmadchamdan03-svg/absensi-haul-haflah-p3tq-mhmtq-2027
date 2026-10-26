@@ -32,6 +32,7 @@ import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
 import { syncKuotaTerpakai, upsertPresensiLog } from '@/lib/presensi-helper';
+import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import AuthGuard from '@/components/AuthGuard';
 
 type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
@@ -475,9 +476,9 @@ export default function RekonPage() {
       finalNama = walkinForm.nama.trim().toUpperCase() || (p && w ? `${p} & ${w}` : p || w);
     }
 
-    const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;
-
     try {
+      let newKode = generateRandomKode('UND');
+      newKode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase);
       // FIX 2: Payload HANYA kolom resmi tabel tamu_undangan (TANPA kuota_dasar / kuota_tambahan)
       const payload = {
         kode: newKode,

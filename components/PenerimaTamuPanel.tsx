@@ -28,6 +28,7 @@ import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
 import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import TanyaUsModal from '@/components/TanyaUsModal';
 
 type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
@@ -348,10 +349,11 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       return;
     }
 
-    const newKode = `UND-${Math.floor(10000 + Math.random() * 90000)}`;
     const finalJalur = (undanganForm.jalurMasuk || getDefaultJalurMasuk(selectedGolonganUndangan)).trim();
+    let newKode = generateRandomKode('UND');
 
     try {
+      newKode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase);
       const { error } = await supabase.from('tamu_undangan').insert([
         {
           kode: newKode,
