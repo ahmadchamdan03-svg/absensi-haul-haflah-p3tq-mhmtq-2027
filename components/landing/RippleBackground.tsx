@@ -34,7 +34,6 @@ void main() {
 
     vec2 totalDisplacement = vec2(0.0);
     float totalReveal = 0.0;
-    float totalSpec = 0.0;
 
     for (int i = 0; i < MAX_RIPPLES; i++) {
         if (i >= u_ripple_count) break;
@@ -44,41 +43,42 @@ void main() {
         float age = r.z;
         float intensity = r.w;
 
-        if (age < 0.0 || age > 2.0) continue;
+        if (age < 0.0 || age > 1.8) continue;
 
         // Jarak dalam koordinat yang dikoreksi aspek rasio
         vec2 diff = (uv - rPos) * aspect;
         float dist = length(diff);
 
         // Kecepatan & radius muka gelombang air
-        float speed = (u_mode == 0) ? 0.42 : 0.35;
+        float speed = (u_mode == 0) ? 0.40 : 0.35;
         float waveRadius = age * speed;
         float waveDist = dist - waveRadius;
 
         // Karakteristik fisik gelombang riak air
-        float waveFreq = 26.0;
-        float lifeProgress = age / 2.0;
-        float waveFalloff = exp(-dist * 3.5) * (1.0 - lifeProgress);
+        float waveFreq = 28.0;
+        float lifeProgress = age / 1.8;
+        float waveFalloff = (1.0 - lifeProgress) * exp(-dist * 2.2);
 
-        // Lingkaran riak terkonsentrasi di depan gelombang
+        // Lingkaran riak sinusoidal terfokus pada muka gelombang
         float ring = exp(-waveDist * waveDist * 140.0);
         float wave = sin(waveDist * waveFreq) * ring * waveFalloff * intensity;
 
         if (dist > 0.0001) {
             vec2 dir = normalize(diff);
-            totalDisplacement += dir * wave * 0.028;
+            totalDisplacement += dir * wave * 0.035;
         }
 
-        // Pantulan kilau cahaya air (specular water highlight)
-        float spec = ring * waveFalloff * 0.35 * intensity;
-        totalSpec += spec;
+        // LOGIKA EFEK REVEAL (MENYINGKAP GAMBAR):
+        // Di sekitar kursor mouse atau tetesan air, warna krem tersingkap dan menampakkan foto Aula di baliknya
+        // 1. Sapuan melingkar di area kursor / titik riak
+        float poolRadius = waveRadius * 1.35 + 0.08;
+        float poolMask = smoothstep(poolRadius, 0.0, dist) * (1.0 - lifeProgress) * intensity;
+        
+        // 2. Muka gelombang riak air yang menyapu keluar
+        float waveMask = ring * waveFalloff * 1.25 * intensity;
 
-        // Mobile High-End Reveal Mask: tetesan air menyingkap gambar panggung di baliknya
-        if (u_mode == 1) {
-            float revealRadius = waveRadius * 1.35;
-            float mask = smoothstep(revealRadius, 0.0, dist) * (1.0 - lifeProgress) * intensity;
-            totalReveal = max(totalReveal, mask);
-        }
+        float rippleStrength = max(poolMask, waveMask);
+        totalReveal = max(totalReveal, rippleStrength);
     }
 
     // Warna dasar solid krem khas tema pesantren (#F5E6D3 ke #EAD8C3)
@@ -86,23 +86,17 @@ void main() {
     vec3 creamBottom = vec3(0.918, 0.847, 0.765); // #EAD8C3
     vec3 baseCream = mix(creamTop, creamBottom, uv.y);
 
-    // Pengambilan tekstur gambar panggung aula dengan distorsi riak
+    // Pengambilan tekstur gambar panggung aula dengan distorsi riak air
     vec2 displacedUV = clamp(uv + totalDisplacement, 0.0, 1.0);
     vec4 stageTex = texture2D(u_texture, displacedUV);
 
-    vec3 finalColor;
-
-    if (u_mode == 0) {
-        // DESKTOP: Gambar panggung penuh dipadukan warna krem hangat dengan riak transparan interaktif
-        vec3 tintedStage = mix(stageTex.rgb, baseCream, 0.28);
-        // Tambahkan kilau emas lembut pada puncak riak air
-        tintedStage += vec3(totalSpec * 0.95, totalSpec * 0.80, totalSpec * 0.55);
-        finalColor = tintedStage;
-    } else {
-        // MOBILE HIGH-END: Warna krem dasar menutupi panggung; tetesan hujan membuka jendela (reveal) gambar aula
-        vec3 revealedStage = stageTex.rgb + vec3(totalSpec * 0.7, totalSpec * 0.55, totalSpec * 0.4);
-        finalColor = mix(baseCream, revealedStage, clamp(totalReveal * 1.15, 0.0, 0.92));
-    }
+    // EFEK REVEAL MURNI: mix(creamColor, aulaTexture, rippleStrength)
+    // - Saat awal (mouse belum bergerak / ripple_count == 0): totalReveal = 0 -> 100% solid krem
+    // - Saat kursor bergerak: rippleStrength mendekati 1.0 -> gambar aula tersingkap dengan distorsi riak
+    // - Jauh dari kursor / setelah riak memudar: rippleStrength = 0 -> kembali tertutup warna krem
+    // - Tanpa efek glow atau cahaya tambahan
+    float revealFactor = clamp(totalReveal, 0.0, 1.0);
+    vec3 finalColor = mix(baseCream, stageTex.rgb, revealFactor);
 
     gl_FragColor = vec4(finalColor, 1.0);
 }
@@ -265,21 +259,11 @@ export default function RippleBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas, { passive: true });
 
-    // State Riak Air
+    // State Riak Air (Awalnya kosong agar halaman pertama kali dibuka murni polos krem)
     let activeRipples: ActiveRipple[] = [];
     let lastMousePos = { x: -1, y: -1, time: 0 };
     let lastRainDropTime = 0;
     let nextRainDropInterval = 0.6; // Detik interval tetesan mobile
-
-    // Inisialisasi riak lembut di awal agar efek air langsung tampak hidup saat halaman dibuka
-    if (isDesktop) {
-      activeRipples.push({
-        x: 0.5,
-        y: 0.5,
-        startTime: performance.now() / 1000,
-        intensity: 0.9,
-      });
-    }
 
     // Event listener mousemove di tingkat window (canvas tetap pointer-events-none)
     const handleMouseMove = (e: MouseEvent) => {
@@ -292,13 +276,13 @@ export default function RippleBackground() {
       const dy = normY - lastMousePos.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      // Throttling halus: buat riak responsif pada setiap gerakan mouse
-      if (dist > 0.015 || (now - lastMousePos.time > 0.04 && dist > 0.003)) {
+      // Buat riak responsif pada setiap gerakan mouse
+      if (dist > 0.012 || (now - lastMousePos.time > 0.035 && dist > 0.002)) {
         activeRipples.push({
           x: normX,
           y: normY,
           startTime: now,
-          intensity: Math.min(1.3, 0.7 + dist * 9.0),
+          intensity: Math.min(1.2, 0.85 + dist * 6.0),
         });
 
         if (activeRipples.length > 12) {
@@ -323,8 +307,8 @@ export default function RippleBackground() {
 
       const now = performance.now() / 1000;
 
-      // Hapus riak yang sudah usang (> 2.0 detik)
-      activeRipples = activeRipples.filter((r) => now - r.startTime < 2.0);
+      // Hapus riak yang sudah usang (> 1.8 detik)
+      activeRipples = activeRipples.filter((r) => now - r.startTime < 1.8);
 
       // Logika Mobile High-End: Munculkan tetesan hujan acak berkala
       if (!isDesktop) {

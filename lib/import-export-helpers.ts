@@ -323,8 +323,8 @@ export async function executeBatchImportToSupabase({
     (existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim())
   );
 
-  // Ambil cache data santri yang ada untuk pengecekan Kategori Dobel berdasarkan nama (case-insensitive)
-  const santriByName = new Map<string, any>();
+  // Ambil cache data santri yang ada untuk pengecekan Kategori Dobel berdasarkan Nama Santri & Nama Wali (case-insensitive)
+  const santriByNameAndWali = new Map<string, any>();
   if (activeTab === 'SANTRI') {
     const { data: existingSantriData } = await supabase
       .from('peserta_santri')
@@ -332,8 +332,9 @@ export async function executeBatchImportToSupabase({
 
     if (existingSantriData) {
       for (const s of existingSantriData) {
-        if (s.nama) {
-          santriByName.set(String(s.nama).trim().toUpperCase(), s);
+        if (s.nama && s.nama_wali) {
+          const key = `${String(s.nama).trim().toUpperCase()}||${String(s.nama_wali).trim().toUpperCase()}`;
+          santriByNameAndWali.set(key, s);
         }
       }
     }
@@ -377,6 +378,8 @@ export async function executeBatchImportToSupabase({
       }
 
       const cleanNamaSantri = namaSantri.trim().toUpperCase();
+      const cleanNamaWali = (namaWali || '').trim().toUpperCase();
+      const santriKey = `${cleanNamaSantri}||${cleanNamaWali}`;
 
       // Tentukan representasi kategori yang di-upload
       const incomingKategoriUtama = selectedKategoriUpload;
@@ -390,11 +393,12 @@ export async function executeBatchImportToSupabase({
         incomingSubKategori = 'Bil Ghoib';
       }
 
-      // CEK JIKA NAMA SUDAH ADA DI DATABASE (KATEGORI DOBEL)
-      const existingSantri = santriByName.get(cleanNamaSantri);
+      // CEK JIKA NAMA SANTRI DAN NAMA WALI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
+      // Jika nama santri sama tapi nama wali berbeda, dianggap orang yang berbeda (lakukan INSERT)
+      const existingSantri = cleanNamaWali ? santriByNameAndWali.get(santriKey) : null;
 
       if (existingSantri) {
-        // SANTRI SUDAH ADA: LAKUKAN UPDATE (GABUNG KATEGORI, MAX KUOTA, TETAPKAN 1 KODE QR)
+        // SANTRI SUDAH ADA DENGAN NAMA & WALI COCOK: LAKUKAN UPDATE (GABUNG KATEGORI, MAX KUOTA, TETAPKAN 1 KODE QR)
         const mergedSub = mergeSubKategori(existingSantri.sub_kategori || '', incomingSubKategori);
         const resolvedKatUtama = resolvePriorityKategoriUtama(
           existingSantri.kategori_utama,
@@ -416,9 +420,6 @@ export async function executeBatchImportToSupabase({
         };
 
         // Lengkapi field jika sebelumnya masih kosong atau default
-        if ((!existingSantri.nama_wali || existingSantri.nama_wali === '-') && namaWali) {
-          updatePayload.nama_wali = namaWali;
-        }
         if ((!existingSantri.no_hp || existingSantri.no_hp === '-') && noHp) {
           updatePayload.no_hp = noHp;
         }
@@ -440,8 +441,8 @@ export async function executeBatchImportToSupabase({
 
           if (updateError) throw updateError;
 
-          // Perbarui memori cache agar baris upload berikutnya jika ada nama yang sama tetap sinkron
-          santriByName.set(cleanNamaSantri, {
+          // Perbarui memori cache agar baris upload berikutnya jika ada nama & wali yang sama tetap sinkron
+          santriByNameAndWali.set(santriKey, {
             ...existingSantri,
             ...updatePayload,
           });
@@ -449,7 +450,7 @@ export async function executeBatchImportToSupabase({
           successCount++;
         } catch (err: any) {
           failedCount++;
-          errorLogs.push(`Update Santri Dobel ${cleanNamaSantri} (${existingSantri.kode}): ${err.message || err}`);
+          errorLogs.push(`Update Santri Dobel ${cleanNamaSantri} - Wali ${cleanNamaWali} (${existingSantri.kode}): ${err.message || err}`);
         }
 
         const percent = Math.round(((i + 1) / totalRows) * 100);
@@ -506,10 +507,12 @@ export async function executeBatchImportToSupabase({
         successCount++;
         existingKodeSet.add(kode);
 
-        if (insertedData && insertedData[0]) {
-          santriByName.set(cleanNamaSantri, insertedData[0]);
-        } else {
-          santriByName.set(cleanNamaSantri, { ...payload, id: kode });
+        if (cleanNamaWali) {
+          if (insertedData && insertedData[0]) {
+            santriByNameAndWali.set(santriKey, insertedData[0]);
+          } else {
+            santriByNameAndWali.set(santriKey, { ...payload, id: kode });
+          }
         }
       } catch (err: any) {
         failedCount++;

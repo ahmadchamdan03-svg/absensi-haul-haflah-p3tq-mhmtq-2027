@@ -93,6 +93,7 @@ export default function SantriModal({
     setIsSubmittingSantri(true);
 
     const cleanNama = formData.nama.trim().toUpperCase();
+    const cleanWali = formData.namaWali.trim().toUpperCase();
 
     const incomingSubKat =
       formData.kategoriUtama === 'TAMATAN'
@@ -102,26 +103,33 @@ export default function SantriModal({
         : 'Bin Nadzori';
 
     try {
-      // 1. CEK APAKAH NAMA SANTRI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
-      // Cukup cek berdasarkan nama saja (case-insensitive, ilike('nama', cleanNama)).
-      // Abaikan perbedaan nama_wali, kamar, atau kolom lainnya.
+      // 1. CEK APAKAH NAMA SANTRI DAN NAMA WALI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
+      // Pengecekan duplikat HARUS berdasarkan Nama Santri DAN Nama Wali (case-insensitive & trimmed)
       const { data: existingList, error: checkError } = await supabase
         .from('peserta_santri')
         .select('*')
-        .ilike('nama', cleanNama);
+        .ilike('nama', cleanNama)
+        .ilike('nama_wali', cleanWali);
 
       if (checkError) {
         console.warn('Error checking existing santri:', checkError);
       }
 
+      // Pastikan kedua field (nama & nama_wali) cocok persis setelah trim & uppercase
       let existing =
         existingList?.find(
-          (item) => item.nama && item.nama.trim().toUpperCase() === cleanNama
+          (item) =>
+            item.nama &&
+            item.nama.trim().toUpperCase() === cleanNama &&
+            item.nama_wali &&
+            item.nama_wali.trim().toUpperCase() === cleanWali
         ) || (existingList && existingList.length > 0 ? existingList[0] : null);
 
       // Fallback cek memori lokal jika query Supabase belum mengembalikan data
       if (!existing) {
         const localMatch = store.getKeluargaList().find((k) =>
+          k.namaWali &&
+          k.namaWali.trim().toUpperCase() === cleanWali &&
           k.santri?.some((s) => s.nama && s.nama.trim().toUpperCase() === cleanNama)
         );
         if (localMatch) {
@@ -135,7 +143,7 @@ export default function SantriModal({
       }
 
       if (existing) {
-        // 2. TAMPILKAN POP-UP KONFIRMASI PERSIS SESUAI INSTRUKSI USER:
+        // 2. TAMPILKAN POP-UP KONFIRMASI: KARENA NAMA DAN WALI COCOK
         const confirmed = window.confirm(
           `Santri dengan nama ${existing.nama} sudah ada. Apakah Anda ingin memperbarui datanya dan menggabungkan kategorinya?`
         );
@@ -166,9 +174,6 @@ export default function SantriModal({
           updated_at: new Date().toISOString(),
         };
 
-        if (formData.namaWali.trim()) {
-          updatePayload.nama_wali = formData.namaWali.trim().toUpperCase();
-        }
         if (formData.noHp.trim()) {
           updatePayload.no_hp = formData.noHp.trim();
         }
@@ -194,7 +199,7 @@ export default function SantriModal({
           kategoriUtama: resolvedKatUtama,
           subKategori: mergedSub,
           kuotaDasar: resolvedKuota,
-          namaWali: updatePayload.nama_wali || existing.nama_wali,
+          namaWali: existing.nama_wali,
           noHp: updatePayload.no_hp || existing.no_hp,
           kamar: updatePayload.kamar || existing.kamar,
           alamat: updatePayload.alamat || existing.alamat,
@@ -230,7 +235,7 @@ export default function SantriModal({
         return;
       }
 
-      // 2. SANTRI BELUM ADA: LAKUKAN INSERT BARU
+      // 2. SANTRI BELUM ADA ATAU NAMA WALI BEDA: LAKUKAN INSERT BARU
       const kuotaVal = calculateKuotaDasarSantri(formData.kategoriUtama, incomingSubKat);
       const warna = getWarnaTiketSantri(formData.kategoriUtama, incomingSubKat);
 
@@ -245,7 +250,7 @@ export default function SantriModal({
           sub_kategori: incomingSubKat,
           kelas: formData.kategoriUtama || '-',
           kamar: formData.kamar.trim() || '-',
-          nama_wali: formData.namaWali.trim().toUpperCase() || '-',
+          nama_wali: cleanWali || '-',
           no_hp: formData.noHp.trim() || '-',
           alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
           kuota_dasar: kuotaVal,
