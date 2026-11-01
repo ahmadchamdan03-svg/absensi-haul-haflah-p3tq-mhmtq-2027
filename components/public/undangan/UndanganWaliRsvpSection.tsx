@@ -71,7 +71,7 @@ export default function UndanganWaliRsvpSection({
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-1">
             <h3 className="font-serif font-black text-base text-[#422F21]">
-              Konfirmasi Kehadiran (RSVP)
+              Konfirmasi Kehadiran
             </h3>
             <p className="text-xs md:text-sm text-[#7A624E] text-left">
               Bantu panitia menyiapkan kursi Anda dengan mengisi perkiraan jumlah kehadiran di bawah ini.
