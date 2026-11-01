@@ -1,3 +1,55 @@
+export interface ZoneCoordinate {
+  /** Posisi horizontal pada gambar denah (0.0 = tepi kiri, 0.5 = tengah, 1.0 = tepi kanan) */
+  pctX: number;
+  /** Posisi vertikal pada gambar denah (0.0 = tepi atas, 0.5 = tengah, 1.0 = tepi bawah) */
+  pctY: number;
+  /** Skala perbesaran (zoom) saat kartu lokasi dipilih */
+  scale: number;
+}
+
+export const DENAH_COORDINATES: Record<string, ZoneCoordinate> = {
+  // Area Dalam Aula
+  'panggung-utama': { pctX: 0.415, pctY: 0.355, scale: 2.3 },
+  'vvip-putra-sofa': { pctX: 0.32, pctY: 0.465, scale: 2.6 },
+  'vip-putra': { pctX: 0.32, pctY: 0.465, scale: 2.6 },
+  'vvip-putri-sofa': { pctX: 0.485, pctY: 0.458, scale: 2.6 },
+  'vip-putri': { pctX: 0.485, pctY: 0.458, scale: 2.6 },
+  'vip-kursi-elephant': { pctX: 0.41, pctY: 0.495, scale: 2.4 },
+  'takhtiman-bil-ghoibi': { pctX: 0.475, pctY: 0.528, scale: 2.6 },
+  'wali-santri-bil-ghoibi': { pctX: 0.485, pctY: 0.55, scale: 2.6 },
+  'takhtiman-bin-nazhri': { pctX: 0.465, pctY: 0.60, scale: 2.4 },
+  'tamatan-aliyah': { pctX: 0.465, pctY: 0.685, scale: 2.4 },
+  'wali-santri-sh-putra': { pctX: 0.285, pctY: 0.625, scale: 2.4 },
+  'wali-santri-sh-putri': { pctX: 0.69, pctY: 0.69, scale: 2.2 },
+  'tamu-umum-pa': { pctX: 0.165, pctY: 0.53, scale: 2.4 },
+  'tamu-umum-pi': { pctX: 0.69, pctY: 0.53, scale: 2.4 },
+  'santri-aula': { pctX: 0.32, pctY: 0.88, scale: 2.2 },
+  'operator-center': { pctX: 0.52, pctY: 0.775, scale: 2.7 },
+  'booking-shooting-center': { pctX: 0.415, pctY: 0.568, scale: 2.8 },
+  'berkatan-dz-pa': { pctX: 0.425, pctY: 0.305, scale: 2.3 },
+  'pos-peladen-dz-pa': { pctX: 0.162, pctY: 0.36, scale: 2.5 },
+
+  // Fasilitas & Area Luar
+  'parkir-vvip': { pctX: 0.195, pctY: 0.14, scale: 2.5 },
+  'parkiran-vip': { pctX: 0.825, pctY: 0.22, scale: 2.2 },
+  'prasmanan-lobi': { pctX: 0.415, pctY: 0.14, scale: 2.2 },
+  'kamar-vvip': { pctX: 0.41, pctY: 0.175, scale: 2.1 },
+  'prasmanan-sh-pa': { pctX: 0.165, pctY: 0.73, scale: 2.4 },
+  'prasmanan-sh-pi': { pctX: 0.695, pctY: 0.375, scale: 2.4 },
+  'mck-tamu': { pctX: 0.065, pctY: 0.345, scale: 2.5 },
+  'markas-plp': { pctX: 0.065, pctY: 0.585, scale: 2.3 },
+  'basecamp-pel-pi': { pctX: 0.675, pctY: 0.135, scale: 2.5 },
+  'basecamp-pel-pa': { pctX: 0.145, pctY: 0.88, scale: 2.5 },
+  'kantin-dekorasi': { pctX: 0.67, pctY: 0.135, scale: 2.2 },
+  'pos-keamanan': { pctX: 0.85, pctY: 0.15, scale: 2.2 },
+
+  // Jalur Akses
+  'jalur-masuk-pi': { pctX: 0.815, pctY: 0.255, scale: 2.4 },
+  'jalur-masuk-pa': { pctX: 0.88, pctY: 0.855, scale: 2.2 },
+  'jalur-vvip-vip': { pctX: 0.92, pctY: 0.52, scale: 2.0 },
+  'jalur-keluar-undangan': { pctX: 0.065, pctY: 0.85, scale: 2.4 },
+};
+
 export interface ZoneInfo {
   id: string;
   nama: string;

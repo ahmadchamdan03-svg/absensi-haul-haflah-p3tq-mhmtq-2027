@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, MapPin, Download, ExternalLink, Search, Compass, Info, X } from 'lucide-react';
-import { DENAH_HAFLAH_2027, ZoneInfo } from '@/lib/denah-data';
+import { ZoomIn, ZoomOut, RotateCcw, MapPin, Download, ExternalLink, Search, Compass, X } from 'lucide-react';
+import { DENAH_HAFLAH_2027, DENAH_COORDINATES, ZoneInfo } from '@/lib/denah-data';
 
 export interface LokasiDenah {
   id: string;
@@ -27,10 +27,42 @@ export default function InteractiveDenah({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'semua' | 'dalam' | 'luar' | 'jalur'>('semua');
   const [selectedZone, setSelectedZone] = useState<ZoneInfo | null>(null);
+  const [imageReady, setImageReady] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const touchStartDistRef = useRef<number | null>(null);
   const touchStartScaleRef = useRef<number>(1);
+
+  const focusZoneOnMap = useCallback((zoneId: string, scrollMapIntoView: boolean = false) => {
+    const coord = DENAH_COORDINATES[zoneId];
+    const imgEl = imgRef.current;
+    if (!coord || !imgEl) return;
+
+    const imgW = imgEl.offsetWidth;
+    const imgH = imgEl.offsetHeight;
+    if (!imgW || !imgH) return;
+
+    const targetScale = Math.min(3.0, Math.max(0.5, coord.scale));
+    const isNarrowViewport = (containerRef.current?.clientWidth || 800) < 640;
+    const mobilePopupOffsetY = isNarrowViewport ? 36 : 0;
+
+    // Dengan origin-center dan transform: translate(tx, ty) scale(S),
+    // titik (pctX, pctY) pada gambar bergeser tepat ke pusat viewport ketika:
+    // tx = (0.5 - pctX) * imgW * S, ty = (0.5 - pctY) * imgH * S
+    const nextX = Math.round((0.5 - coord.pctX) * imgW * targetScale);
+    const nextY = Math.round((0.5 - coord.pctY) * imgH * targetScale + mobilePopupOffsetY);
+
+    setScale(Number(targetScale.toFixed(2)));
+    setPosition({ x: nextX, y: nextY });
+
+    if (scrollMapIntoView && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight * 0.95) {
+        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, []);
 
   // Set initial selected location if provided
   useEffect(() => {
@@ -43,9 +75,12 @@ export default function InteractiveDenah({
       const found = allZones.find((z) => z.id === initialLocationId);
       if (found) {
         setSelectedZone(found);
+        if (imageReady || imgRef.current?.complete) {
+          focusZoneOnMap(found.id, false);
+        }
       }
     }
-  }, [initialLocationId]);
+  }, [initialLocationId, imageReady, focusZoneOnMap]);
 
   // Zoom controls with clamped range 0.5x - 3.0x
   const handleZoomIn = () => setScale((prev) => Math.min(Number((prev + 0.25).toFixed(2)), 3.0));
@@ -53,6 +88,7 @@ export default function InteractiveDenah({
   const handleReset = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
+    setSelectedZone(null);
   };
 
   // Mouse wheel zoom on container
@@ -125,8 +161,11 @@ export default function InteractiveDenah({
   const handleSelectZone = (zone: ZoneInfo) => {
     if (selectedZone?.id === zone.id) {
       setSelectedZone(null);
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
     } else {
       setSelectedZone(zone);
+      focusZoneOnMap(zone.id, true);
       if (onSelectLocation) {
         onSelectLocation({ id: zone.id, nama: zone.nama });
       }
@@ -229,17 +268,22 @@ export default function InteractiveDenah({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className={`relative flex-1 min-h-[380px] sm:min-h-[480px] md:min-h-[540px] bg-stone-900 overflow-hidden flex items-center justify-center p-4 ${
+        className={`relative flex-1 min-h-[380px] sm:min-h-[480px] md:min-h-[540px] bg-stone-900 overflow-hidden flex items-center justify-center p-4 touch-none ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
         <div
-          className="transition-transform duration-75 ease-out origin-center flex items-center justify-center pointer-events-none"
+          className="origin-center flex items-center justify-center pointer-events-none"
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transitionProperty: 'transform',
+            transitionDuration: isDragging ? '0ms' : '500ms',
+            transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
           <img
+            ref={imgRef}
+            onLoad={() => setImageReady(true)}
             src={DENAH_HAFLAH_2027.gambarUrl}
             alt="Peta Denah Lapangan Haflah 2027"
             className="max-w-full max-h-[700px] w-auto h-auto rounded-xl shadow-2xl object-contain border border-stone-700/50"
@@ -357,17 +401,33 @@ export default function InteractiveDenah({
               return (
                 <div
                   key={zone.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleSelectZone(zone)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelectZone(zone);
+                    }
+                  }}
                   className={`p-2.5 rounded-xl border transition-all shadow-2xs cursor-pointer ${
                     isSelected
-                      ? 'bg-amber-50/90 border-[#8C6A47] ring-2 ring-[#8C6A47]/40 scale-[1.01]'
+                      ? 'bg-gradient-to-br from-amber-50 to-[#FAF0E0] border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
                       : 'bg-white border-[#EFE8E1] hover:border-[#8C6A47] hover:bg-[#FAF7F3]'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-[#422F21] line-clamp-1">{zone.nama}</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#FAF7F3] text-[#8C6A47] font-semibold border border-[#D5C4B4]">
-                      Dalam
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className={`font-bold text-xs line-clamp-1 ${isSelected ? 'text-[#5C3E28]' : 'text-[#422F21]'}`}>
+                      {zone.nama}
+                    </span>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.5 rounded font-semibold border shrink-0 ${
+                        isSelected
+                          ? 'bg-[#8C6A47] text-white border-[#725436]'
+                          : 'bg-[#FAF7F3] text-[#8C6A47] border-[#D5C4B4]'
+                      }`}
+                    >
+                      {isSelected ? 'Fokus' : 'Dalam'}
                     </span>
                   </div>
                   <p className="text-[10px] text-[#7A624E] mt-1 line-clamp-2">{zone.deskripsi}</p>
@@ -382,17 +442,33 @@ export default function InteractiveDenah({
               return (
                 <div
                   key={zone.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleSelectZone(zone)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelectZone(zone);
+                    }
+                  }}
                   className={`p-2.5 rounded-xl border transition-all shadow-2xs cursor-pointer ${
                     isSelected
-                      ? 'bg-amber-50/90 border-[#8C6A47] ring-2 ring-[#8C6A47]/40 scale-[1.01]'
+                      ? 'bg-gradient-to-br from-amber-50 to-[#FAF0E0] border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
                       : 'bg-white border-[#EFE8E1] hover:border-[#8C6A47] hover:bg-[#FAF7F3]'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-[#422F21] line-clamp-1">{zone.nama}</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#FAF7F3] text-[#422F21] font-semibold border border-[#D5C4B4]">
-                      Luar / MCK
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className={`font-bold text-xs line-clamp-1 ${isSelected ? 'text-[#5C3E28]' : 'text-[#422F21]'}`}>
+                      {zone.nama}
+                    </span>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.5 rounded font-semibold border shrink-0 ${
+                        isSelected
+                          ? 'bg-[#8C6A47] text-white border-[#725436]'
+                          : 'bg-[#FAF7F3] text-[#422F21] border-[#D5C4B4]'
+                      }`}
+                    >
+                      {isSelected ? 'Fokus' : 'Luar / MCK'}
                     </span>
                   </div>
                   <p className="text-[10px] text-[#7A624E] mt-1 line-clamp-2">{zone.deskripsi}</p>
@@ -407,17 +483,33 @@ export default function InteractiveDenah({
               return (
                 <div
                   key={zone.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleSelectZone(zone)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelectZone(zone);
+                    }
+                  }}
                   className={`p-2.5 rounded-xl border transition-all shadow-2xs cursor-pointer ${
                     isSelected
-                      ? 'bg-emerald-50 border-emerald-600 ring-2 ring-emerald-500/40 scale-[1.01]'
+                      ? 'bg-gradient-to-br from-amber-50 to-[#FAF0E0] border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
                       : 'bg-white border-[#EFE8E1] hover:border-emerald-500 hover:bg-emerald-50/30'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-[#422F21] line-clamp-1">{zone.nama}</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200">
-                      Jalur Alur
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className={`font-bold text-xs line-clamp-1 ${isSelected ? 'text-[#5C3E28]' : 'text-[#422F21]'}`}>
+                      {zone.nama}
+                    </span>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.5 rounded font-semibold border shrink-0 ${
+                        isSelected
+                          ? 'bg-[#8C6A47] text-white border-[#725436]'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      }`}
+                    >
+                      {isSelected ? 'Fokus' : 'Jalur Alur'}
                     </span>
                   </div>
                   <p className="text-[10px] text-[#7A624E] mt-1 line-clamp-2">{zone.deskripsi}</p>
