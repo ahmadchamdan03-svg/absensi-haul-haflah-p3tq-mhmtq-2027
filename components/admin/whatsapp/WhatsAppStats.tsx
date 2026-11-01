@@ -347,7 +347,7 @@ export default function WhatsAppStats({
                 kuota: { kuotaDasar: 2, kuotaTambahan: 0 },
               },
               gelombang,
-              linkGrupWa
+              gelombang === 1 ? linkGrupWa : undefined
             )}
           </div>
         </div>
@@ -372,65 +372,67 @@ export default function WhatsAppStats({
           </div>
         )}
 
-        {/* Pengaturan Link Grup WA */}
-        <div
-          className={`mt-4 p-4 rounded-2xl border transition-all ${
-            !linkGrupWa.trim()
-              ? 'bg-[#FAF7F3] border-[#D5C4B4]'
-              : 'bg-emerald-50/40 border-emerald-300 ring-2 ring-emerald-300/30'
-          } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
-        >
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block font-bold text-[#422F21]">
-                Link Grup WhatsApp Resmi Wali Santri:
-              </label>
-              {savingLinkGrup ? (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
-                  Menyimpan...
-                </span>
-              ) : linkGrupSavedNotice ? (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  ✓ Tersimpan di Database
-                </span>
-              ) : !linkGrupWa.trim() ? (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-300">
-                  Opsional (Dihapus dari pesan jika kosong)
-                </span>
-              ) : (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  ✓ Link Terisi & Aktif
-                </span>
-              )}
+        {/* Pengaturan Link Grup WA - Khusus Tab 1 Undangan & QR */}
+        {gelombang === 1 && (
+          <div
+            className={`mt-4 p-4 rounded-2xl border transition-all ${
+              !linkGrupWa.trim()
+                ? 'bg-[#FAF7F3] border-[#D5C4B4]'
+                : 'bg-emerald-50/40 border-emerald-300 ring-2 ring-emerald-300/30'
+            } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-bold text-[#422F21]">
+                  Link Grup WhatsApp Resmi Wali Santri:
+                </label>
+                {savingLinkGrup ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                    Menyimpan...
+                  </span>
+                ) : linkGrupSavedNotice ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    ✓ Tersimpan di Database
+                  </span>
+                ) : !linkGrupWa.trim() ? (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-300">
+                    Opsional (Dihapus dari pesan jika kosong)
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    ✓ Link Terisi &amp; Aktif
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={linkGrupWa}
+                  onChange={(e) => setLinkGrupWa(e.target.value)}
+                  onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
+                  placeholder="https://chat.whatsapp.com/... (kosongkan jika tanpa grup)"
+                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none text-xs font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleSaveLinkGrupWa?.(linkGrupWa)}
+                  disabled={savingLinkGrup}
+                  className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5"
+                >
+                  {savingLinkGrup ? '...' : 'Simpan'}
+                </button>
+              </div>
+              <p className="text-[10px] text-stone-500 mt-1.5 leading-relaxed">
+                Link ini tersimpan di tabel <code className="text-[#8C6A47] font-semibold">konfigurasi_sistem</code>. Jika diisi, link disisipkan pada undangan wali. Jika dikosongkan, paragraf grup WA ditiadakan.
+              </p>
             </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={linkGrupWa}
-                onChange={(e) => setLinkGrupWa(e.target.value)}
-                onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
-                placeholder="https://chat.whatsapp.com/... (kosongkan jika tanpa grup)"
-                className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none text-xs font-mono"
-              />
-              <button
-                type="button"
-                onClick={() => handleSaveLinkGrupWa?.(linkGrupWa)}
-                disabled={savingLinkGrup}
-                className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5"
-              >
-                {savingLinkGrup ? '...' : 'Simpan'}
-              </button>
+            <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
+              <div className="text-[11px] text-[#7A624E] leading-relaxed">
+                <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup dibaca secara dinamis dari database tanpa hardcode.
+              </div>
             </div>
-            <p className="text-[10px] text-stone-500 mt-1.5 leading-relaxed">
-              Link ini tersimpan di tabel <code className="text-[#8C6A47] font-semibold">konfigurasi_sistem</code>. Jika diisi, link disisipkan pada undangan wali. Jika dikosongkan, paragraf grup WA ditiadakan.
-            </p>
           </div>
-          <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
-            <div className="text-[11px] text-[#7A624E] leading-relaxed">
-              <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup dibaca secara dinamis dari database tanpa hardcode.
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     );
   }

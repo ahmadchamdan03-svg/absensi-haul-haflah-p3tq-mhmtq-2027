@@ -424,10 +424,10 @@ export default function WhatsAppPage() {
   };
 
   const handleKirimFonnte = (kel: any) =>
-    kirimFonnteWali(kel, gelombang, linkGrupWa, setSendingKode, setKeluargaList);
+    kirimFonnteWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setSendingKode, setKeluargaList);
 
   const handleKirimManualWA = (kel: any) =>
-    kirimManualWAWali(kel, gelombang, linkGrupWa, setKeluargaList);
+    kirimManualWAWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setKeluargaList);
 
   const filteredList = useMemo(() => {
     return keluargaList.filter((kel) => {
