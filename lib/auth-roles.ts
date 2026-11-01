@@ -58,7 +58,7 @@ export const ROLES_CONFIG: Record<AppRole, RoleConfig> = {
     badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
     route: '/pimpinan',
     requirePassword: true,
-    password: 'pimpinan_haflah',
+    password: 'pp_haflah',
     hasAI: true,
     aiMode: 'Ringkasan Eksekutif & Tanya Jawab Rekapitulasi',
   },
@@ -141,23 +141,31 @@ export async function verifyRolePasswordAsync(role: AppRole, inputPassword: stri
   if (!config.requirePassword) return true;
 
   const trimmedInput = inputPassword.trim();
+  const roleLower = role.toLowerCase();
+  const roleWithSpaces = roleLower.replace(/_/g, ' ');
+  const candidatePeran = Array.from(new Set([roleLower, roleWithSpaces, role]));
 
-  // Buat AbortController dengan timeout 1500ms agar login tidak pernah hanging lama
+  // Buat AbortController dengan timeout 2500ms agar Supabase menjadi source of truth tanpa membuat login hanging
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1500);
+  const timeoutId = setTimeout(() => controller.abort(), 2500);
 
   try {
     const { data, error } = await supabase
       .from('akun_otoritas')
       .select('peran, password, hak_akses')
-      .eq('peran', role)
+      .in('peran', candidatePeran)
+      .limit(1)
       .abortSignal(controller.signal)
       .maybeSingle();
 
     clearTimeout(timeoutId);
 
-    if (!error && data && data.password) {
-      return data.password === trimmedInput;
+    if (!error && data && typeof data.password === 'string' && data.password.trim().length > 0) {
+      return data.password.trim() === trimmedInput;
+    }
+
+    if (error) {
+      console.warn('Fallback to local role password due to Supabase query error:', error.message);
     }
   } catch (e) {
     clearTimeout(timeoutId);

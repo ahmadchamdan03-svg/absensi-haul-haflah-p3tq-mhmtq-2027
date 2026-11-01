@@ -14,7 +14,7 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { AppRole, ROLES_CONFIG, verifyRolePassword, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
+import { AppRole, ROLES_CONFIG, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import { TOS_FOTOS } from '@/lib/tos-fotos';
 
@@ -230,26 +230,12 @@ export default function LandingPortalPage() {
     setIsSubmitting(true);
     setPasswordError(false);
 
-    // 1. Verifikasi Lokal Instan (0ms)
-    const isLocalValid = verifyRolePassword(role, pass);
-    if (isLocalValid) {
-      setActiveRole(role);
-      const targetRoute = ROLES_CONFIG[role].route;
-      setSelectedRole(null);
-      setInputPassword('');
-      setIsSubmitting(false);
-      router.push(targetRoute);
-
-      // Sinkronisasi background (fire-and-forget) ke Supabase akun_otoritas
-      verifyRolePasswordAsync(role, pass).catch((e) => console.warn('Background sync error:', e));
-      return;
-    }
-
-    // 2. Jika password lokal tidak cocok (misal password sudah diubah di DB Supabase), cek async Supabase
+    // Prioritaskan verifikasi password utama ke tabel akun_otoritas Supabase (source of truth),
+    // dengan fallback lokal otomatis di dalam verifyRolePasswordAsync apabila Supabase timeout/error.
     (async () => {
       try {
-        const isAsyncValid = await verifyRolePasswordAsync(role, pass);
-        if (isAsyncValid) {
+        const isValid = await verifyRolePasswordAsync(role, pass);
+        if (isValid) {
           setActiveRole(role);
           const targetRoute = ROLES_CONFIG[role].route;
           setSelectedRole(null);
