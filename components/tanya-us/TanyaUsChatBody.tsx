@@ -57,14 +57,10 @@ export function TanyaUsHeaderAndSettings({
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center space-x-1.5 sm:space-x-2">
+            <div className="flex items-center">
               <h2 className="font-serif font-black text-sm sm:text-lg text-[#422F21] leading-tight truncate">
                 Tanya Usth. Halwaa
               </h2>
-              <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-gradient-to-r from-[#8C6A47] to-[#D49B5B] text-white text-[9px] sm:text-[10px] font-black tracking-wide shadow-xs shrink-0 flex items-center space-x-1">
-                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-200 animate-pulse" />
-                <span>Multi-AI</span>
-              </span>
             </div>
             <p className="text-[10px] sm:text-[11px] text-[#7A624E] truncate font-medium">
               Asisten Resmi Haul &amp; Haflah P3TQ dan MHMTQ
@@ -421,9 +417,8 @@ export function TanyaUsInputBar({
         </button>
       </form>
 
-      <div className="flex items-center justify-between text-[10px] text-[#7A624E] mt-1 px-1 font-medium gap-2">
-        <span className="truncate">Didukung 6-Tier Multi-AI Engine P3TQ</span>
-        <span className="hidden sm:inline shrink-0">Tekan Shift + Enter untuk baris baru</span>
+      <div className="hidden sm:flex items-center justify-end text-[10px] text-[#7A624E] mt-1 px-1 font-medium">
+        <span className="shrink-0">Tekan Shift + Enter untuk baris baru</span>
       </div>
     </div>
   );
