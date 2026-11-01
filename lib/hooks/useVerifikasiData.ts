@@ -417,7 +417,7 @@ export function useVerifikasiData() {
         const origin = getLiveBaseUrl();
         const pesanWa = manualLangsungVerifikasi
           ? `Assalamu'alaikum Wr. Wb.\n\n` +
-            `Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
+            `Kepada Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
             `Panitia Haul & Haflah P3TQ - MHMTQ telah menambahkan *${manualJumlah} Kuota Tambahan* secara langsung untuk santri *${selectedSantri.nama}* (${selectedSantri.kelas || '-'}).\n\n` +
             `📋 *Rincian Status*:\n` +
             `• ID Pesanan: ${orderId}\n` +
@@ -430,7 +430,7 @@ export function useVerifikasiData() {
             `🔗 ${origin}/u/${selectedSantri.kode}\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`
           : `Assalamu'alaikum Wr. Wb.\n\n` +
-            `Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
+            `Kepada Yth. Bapak/Ibu *${selectedSantri.nama_wali}*,\n` +
             `Pesanan *${manualJumlah} Kuota Tambahan* (ID: ${orderId}) untuk santri *${selectedSantri.nama}* telah dicatat oleh Panitia.\n` +
             `Total Tagihan: Rp ${totalBayar.toLocaleString('id-ID')}.\n` +
             `Mohon lakukan pelunasan agar kuota segera diaktifkan pada QR Code.\n\n` +

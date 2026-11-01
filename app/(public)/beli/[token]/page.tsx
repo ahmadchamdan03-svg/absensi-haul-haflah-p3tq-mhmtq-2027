@@ -331,7 +331,7 @@ export default function BeliKuotaPage() {
           const pesanWali =
             `*PEMESANAN KUOTA TAMBAHAN*\n` +
             `*HAUL & HAFLAH P3TQ - MHMTQ 2027*\n\n` +
-            `Yth. Bapak/Ibu ${namaWali},\n\n` +
+            `Kepada Yth. Bapak/Ibu ${namaWali},\n\n` +
             `Pesanan kuota tambahan Anda telah DIKUNCI dengan detail:\n` +
             `  • ID Pesanan : ${orderId}\n` +
             `  • Santri     : ${santri.nama} (${santri.kode})\n` +

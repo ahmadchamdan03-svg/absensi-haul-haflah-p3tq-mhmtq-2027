@@ -466,7 +466,7 @@ export function PesertaUtilityModals({
                     const link = `${origin}/u/${qrDetailItem.kode}`;
                     const waText = `Assalamu'alaikum Wr. Wb.
 
-Yth. *${qrDetailItem.nama}* (${qrDetailItem.instansi || qrDetailItem.kategori || 'Tamu Undangan'})
+Kepada Yth. *${qrDetailItem.nama}* (${qrDetailItem.instansi || qrDetailItem.kategori || 'Tamu Undangan'})
 
 Pondok Pesantren Putri Tahfizhil Qur'an (P3TQ) & MHMTQ Lirboyo Kediri mengharapkan kehadiran Bapak/Ibu/Saudara/i dalam acara *Haul & Haflah Akhirussanah 1448 H / 2027 M*.
 

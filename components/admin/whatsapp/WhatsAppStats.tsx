@@ -36,7 +36,7 @@ export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa: string) {
       : 'Shohibul Hajat';
 
   if (gel === 1) {
-    return `Yth. Bapak/Ibu Wali Santri
+    return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
@@ -69,7 +69,7 @@ Jazakumullahu khairan katsiran.
 Wassalamu'alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
   } else if (gel === 2) {
-    return `Yth. Bapak/Ibu Wali Santri
+    return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
 
 Menindaklanjuti undangan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., kami membuka kesempatan penambahan kuota kehadiran bagi keluarga yang ingin mengajak lebih banyak sanak saudara.
@@ -100,7 +100,7 @@ export function getTeksPesanTamu(tamu: any) {
   const linkPortal = `${baseUrl}/u/${tamu.kode || 'UNDxxxx'}`;
   const jalur = (tamu.jalurMasuk || '').trim();
 
-  return `Yth. Bapak/Ibu 
+  return `Kepada Yth. Bapak/Ibu 
 *${tamu.nama}*
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
