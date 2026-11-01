@@ -349,7 +349,7 @@ export default function ScanResultModals({
         </div>
       )}
 
-      {/* MODAL KONFIRMASI RESET KARTU HITAM GOLD */}
+      {/* MODAL KONFIRMASI RESET KARTU CREAM */}
       {showResetConfirmModal && activeItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="relative flex flex-col items-center w-full max-w-sm">

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS peserta_santri (
   kuota_terpakai SMALLINT NOT NULL DEFAULT 0,
   tiket_panggung_jatah SMALLINT NOT NULL DEFAULT 0, -- 1 untuk Bil Ghoib (Wali Maju Panggung)
   tiket_panggung_diberi SMALLINT NOT NULL DEFAULT 0,
-  warna_tiket VARCHAR(50) DEFAULT 'Merah Gold', -- 'Hitam Gold' (Maju Panggung) / 'Merah Gold' (Reguler)
+  warna_tiket VARCHAR(50) DEFAULT 'Biru', -- 'Cream' (Maju Panggung) / 'Biru' (Reguler)
   status_konfirmasi VARCHAR(20) DEFAULT 'BELUM',
   perkiraan_l SMALLINT DEFAULT 0,
   perkiraan_p SMALLINT DEFAULT 0,
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS tamu_undangan (
   kuota_dasar SMALLINT NOT NULL DEFAULT 2,
   kuota_tambahan SMALLINT NOT NULL DEFAULT 0,
   kuota_terpakai SMALLINT NOT NULL DEFAULT 0,
-  warna_tiket VARCHAR(50) DEFAULT 'Merah Gold',
+  warna_tiket VARCHAR(50) DEFAULT 'Biru',
   status_wa VARCHAR(20) DEFAULT 'BELUM',
   jalur_masuk VARCHAR(100) DEFAULT 'Gerbang Selatan (Bola Dunia)',
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -181,8 +181,8 @@ SELECT
 FROM peserta_santri;
 
 -- 9. UPDATE WARNA TIKET KHUSUS (MIGRASI WARNA TIKET RESMI)
-UPDATE peserta_santri SET warna_tiket = 'Hitam Gold' WHERE kategori_utama = 'BIL_GHOIB';
-UPDATE peserta_santri SET warna_tiket = 'Merah Gold' WHERE kategori_utama IN ('BIN_NADZOR', 'BIN_NADZORI', 'TAMATAN');
+UPDATE peserta_santri SET warna_tiket = 'Cream' WHERE kategori_utama = 'BIL_GHOIB';
+UPDATE peserta_santri SET warna_tiket = 'Biru' WHERE kategori_utama IN ('BIN_NADZOR', 'BIN_NADZORI', 'TAMATAN');
 
 -- 10. KONFIGURASI SISTEM
 CREATE TABLE IF NOT EXISTS konfigurasi_sistem (

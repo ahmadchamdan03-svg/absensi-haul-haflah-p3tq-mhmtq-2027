@@ -581,6 +581,22 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 10. Dilarang membawa HP di luar area sambangan.`;
   }
 
+  // 14B. WARNA TIKET / KARTU MASUK
+  if (
+    q.includes('warna tiket') ||
+    q.includes('warna kartu') ||
+    q.includes('warna tiketnya') ||
+    q.includes('tiket warna') ||
+    q.includes('kartu masuk warna') ||
+    (q.includes('warna') && (q.includes('tiket') || q.includes('kartu')))
+  ) {
+    return `${headerIntro}Warna tiket masuk resmi Haul & Haflah P3TQ & MHMTQ 2027 terdiri dari **Cream** dan **Biru**:
+1. **Tiket Cream**: Khusus untuk Walisantri yang Maju Panggung Utama (**Takhtiman Bil Ghoib**).
+2. **Tiket Biru**: Untuk Walisantri Shohibul Hajat Reguler (**Takhtiman Bin Nadzori** dan **Tamatan Aliyah**) serta **Tamu Undangan Umum**.
+
+Ada lagi info yang bisa saya bantu, Us?`;
+  }
+
   // 15. SISA KUOTA TAMBAHAN (LIVE SUPABASE)
   const isSisaKuotaQuery =
     q.includes('sisa kuota') ||
@@ -901,6 +917,22 @@ Ada lagi info kepanitiaan yang bisa saya bantu, Us?`;
 8. Dilarang sambangan di seluruh area santri putra / selain tempat yang disediakan.
 9. Dilarang pulang ke pondok timur bersama penyambang.
 10. Dilarang membawa HP di luar area sambangan.`;
+  }
+
+  // WARNA TIKET / KARTU MASUK
+  if (
+    q.includes('warna tiket') ||
+    q.includes('warna kartu') ||
+    q.includes('warna tiketnya') ||
+    q.includes('tiket warna') ||
+    q.includes('kartu masuk warna') ||
+    (q.includes('warna') && (q.includes('tiket') || q.includes('kartu')))
+  ) {
+    return `${headerIntro}Warna tiket masuk resmi Haul & Haflah P3TQ & MHMTQ 2027 terdiri dari **Cream** dan **Biru**:
+1. **Tiket Cream**: Khusus untuk Walisantri yang Maju Panggung Utama (**Takhtiman Bil Ghoib**).
+2. **Tiket Biru**: Untuk Walisantri Shohibul Hajat Reguler (**Takhtiman Bin Nadzori** dan **Tamatan Aliyah**) serta **Tamu Undangan Umum**.
+
+Ada lagi info yang bisa saya bantu, Us?`;
   }
 
   // SISA KUOTA TAMBAHAN
