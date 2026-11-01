@@ -66,7 +66,7 @@ export const ROLES_CONFIG: Record<AppRole, RoleConfig> = {
     key: 'PENJAGA_GERBANG',
     title: 'Penjaga Gerbang',
     subtitle: 'Seksi Keamanan & Petugas Gerbang',
-    description: 'PWA scanner kamera & USB barcode, verifikasi kartu masuk (Hitam Gold vs Merah Gold), buzzer error keras, dan cek kuota peserta (hanya melihat).',
+    description: 'PWA scanner kamera & USB barcode, verifikasi kartu masuk (Cream vs Biru), buzzer error keras, dan cek kuota peserta (hanya melihat).',
     badge: 'Scanner & Cek Peserta',
     badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
     route: '/scan',

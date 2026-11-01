@@ -45,6 +45,28 @@ export default function UndanganTamuRsvpAndFooter({
             <p className="text-[11px] text-stone-500">
               Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
             </p>
+
+            {/* BADGE TIKET MASUK TAMU */}
+            {(() => {
+              const rawWarna = item?.warnaTiket || item?.warna_tiket || '';
+              const isCream =
+                String(rawWarna).toLowerCase().includes('cream') ||
+                (item?.subKategori && String(item.subKategori).toUpperCase().includes('ISTIMEWA'));
+
+              return isCream ? (
+                <div className="pt-2">
+                  <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold bg-[#F5E6D3] text-[#5C3E28] border border-[#D49B5B] shadow-xs">
+                    Tiket Masuk: Cream
+                  </span>
+                </div>
+              ) : (
+                <div className="pt-2">
+                  <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-300 shadow-xs">
+                    Tiket Masuk: Biru
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="flex flex-col items-center justify-center">

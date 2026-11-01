@@ -146,7 +146,7 @@ export function buildEditingItemState(item: any, pLogs: any[] | null): EditingIt
     tiketPanggungJatah: d.tiket_panggung_jatah || 0,
     tiketPanggungDiberi: d.tiket_panggung_diberi || 0,
     kartuHitamGoldDiberi: Boolean(d.kartu_hitam_gold_diberi),
-    warnaTiket: d.warna_tiket || (isSantri ? (d.kategori_utama === 'BIL_GHOIB' ? 'Hitam Gold' : 'Merah Gold') : 'Merah Gold'),
+    warnaTiket: d.warna_tiket || (isSantri ? (d.kategori_utama === 'BIL_GHOIB' ? 'Cream' : 'Biru') : 'Biru'),
     statusKonfirmasi: d.status_konfirmasi || 'BELUM',
     perkiraanL: d.perkiraan_l || 0,
     perkiraanP: d.perkiraan_p || 0,

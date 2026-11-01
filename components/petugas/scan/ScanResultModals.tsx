@@ -64,8 +64,27 @@ export default function ScanResultModals({
 
           <div className="p-4 space-y-3">
             <div>
-              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">
-                {activeItem.tipe === 'KELUARGA' ? 'SHOHIBUL HAJAT (SANTRI)' : 'TAMU UNDANGAN'}
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">
+                  {activeItem.tipe === 'KELUARGA' ? 'SHOHIBUL HAJAT (SANTRI)' : 'TAMU UNDANGAN'}
+                </div>
+                {/* Badge Tiket & Instruksi Petugas */}
+                {activeItem.isBilGhoib || (activeItem.warnaTiket && String(activeItem.warnaTiket).toLowerCase().includes('cream')) ? (
+                  <div className="text-right">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#F5E6D3] text-[#5C3E28] border border-[#D49B5B]">
+                      Tiket Cream
+                    </span>
+                    <span className="block text-[9px] text-[#5C3E28] font-bold">
+                      Wali Maju Panggung
+                    </span>
+                  </div>
+                ) : (
+                  <div className="text-right">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-900 border border-blue-300">
+                      Tiket Biru
+                    </span>
+                  </div>
+                )}
               </div>
               <h2 className="text-base sm:text-lg font-serif font-black text-slate-900 leading-snug mt-0.5">
                 {activeItem.nama}
@@ -110,7 +129,7 @@ export default function ScanResultModals({
               );
             })()}
 
-            {/* Checkbox "Hitam Gold" KHUSUS BIL GHOIB */}
+            {/* Checkbox "Kartu Cream" KHUSUS BIL GHOIB */}
             {activeItem.isBilGhoib && (() => {
               const isChecked = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || kartuHitamGoldDiberi || serahkanTiketEmas;
 
@@ -119,15 +138,15 @@ export default function ScanResultModals({
                   onClick={onToggleKartuHitamGold}
                   className={`p-3 rounded-2xl border-2 transition-all select-none cursor-pointer ${
                     isChecked
-                      ? 'bg-[#2A1D0F] border-[#D49B5B] text-amber-200 shadow-xs hover:border-amber-400'
+                      ? 'bg-[#F5E6D3] border-[#D49B5B] text-[#5C3E28] shadow-xs hover:border-amber-600'
                       : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21]'
                   }`}
-                  title={isChecked ? 'Klik untuk membatalkan/uncheck Kartu Hitam Gold' : 'Klik untuk memberikan Kartu Hitam Gold'}
+                  title={isChecked ? 'Klik untuk membatalkan/uncheck Kartu Cream' : 'Klik untuk memberikan Kartu Cream'}
                 >
                   <div className="flex items-start space-x-2.5">
                     <input
                       type="checkbox"
-                      id="checkbox-hitam-gold"
+                      id="checkbox-cream"
                       checked={isChecked}
                       onChange={onToggleKartuHitamGold}
                       onClick={(e) => e.stopPropagation()}
@@ -136,11 +155,11 @@ export default function ScanResultModals({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <label
-                          htmlFor="checkbox-hitam-gold"
+                          htmlFor="checkbox-cream"
                           className="text-xs font-bold leading-tight flex items-center gap-1.5 cursor-pointer"
                         >
-                          <span>Kartu Hitam Gold</span>
-                          <span className="text-[10px] text-amber-300 font-normal">(Maju Panggung)</span>
+                          <span className="text-[#5C3E28]">Kartu Cream</span>
+                          <span className="text-[10px] text-amber-800 font-semibold">(Maju Panggung)</span>
                         </label>
 
                         {isChecked ? (
@@ -155,8 +174,8 @@ export default function ScanResultModals({
                         )}
                       </div>
 
-                      <p className="text-[10px] text-stone-500 mt-1 leading-tight flex items-center gap-1">
-                        <span className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${isChecked ? 'bg-amber-400' : 'bg-stone-300'}`}></span>
+                      <p className="text-[10px] text-stone-600 mt-1 leading-tight flex items-center gap-1">
+                        <span className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${isChecked ? 'bg-amber-600' : 'bg-stone-300'}`}></span>
                         {isChecked
                           ? 'Status: SUDAH DIBERIKAN (1 kuota panggung). Klik untuk mereset/uncheck.'
                           : 'Status: BELUM DIBERIKAN. Centang jika kartu diserahkan.'}
@@ -359,10 +378,10 @@ export default function ScanResultModals({
               {/* Teks Peringatan */}
               <div className="space-y-2">
                 <h3 className="font-serif font-black text-amber-950 text-base sm:text-lg leading-tight">
-                  Peringatan Pembatalan Kartu Gold
+                  Peringatan Pembatalan Kartu Cream
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
-                  Us, apakah Us yakin ingin mereset status <strong className="text-amber-950">&quot;Kartu Hitam Gold&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <strong className="text-rose-600 font-bold">BELUM</strong>?
+                  Us, apakah Us yakin ingin mereset status <strong className="text-amber-950">&quot;Kartu Cream&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <strong className="text-rose-600 font-bold">BELUM</strong>?
                 </p>
               </div>
 

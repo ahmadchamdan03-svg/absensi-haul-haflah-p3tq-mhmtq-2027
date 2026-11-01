@@ -21,7 +21,7 @@ Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) dan Madrasah Hidayatul Mubtadi-aa
 
 Tantangan utama operasional meliputi:
 1. **Antrean Gerbang & Titik Kemacetan**: Proses registrasi manual berisiko memperlambat pergerakan ribuan tamu di Gerbang Bola Dunia.
-2. **Kesesuaian Hak Akses & Kursi (Kuota)**: Pengendalian kapasitas kursi Aula Al-Muktamar dan segregasi jenis tiket fisik (Hitam Gold vs Merah Gold).
+2. **Kesesuaian Hak Akses & Kursi (Kuota)**: Pengendalian kapasitas kursi Aula Al-Muktamar dan segregasi jenis tiket fisik (Cream vs Biru).
 3. **Privasi & Keamanan Informasi**: Perlindungan data nomor telepon dan alamat santri dari konsumsi publik tanpa otorisasi.
 4. **Layanan Informasi Terpadu (FAQ & Adicara)**: Kebutuhan panduan instan seputar tata tertib, denah lokasi, jadwal, dan susunan kepanitiaan tanpa membebani panitia secara fisik.
 
@@ -78,8 +78,8 @@ graph TD
   - Pemindaian kamera perangkat (ZXing Engine) dengan rasio pandang responsif `aspect-video`.
   - Dukungan USB/Bluetooth Barcode Hardware Scanner (Keyboard Emulation).
 - **Indikator Golongan Tiket**:
-  - **Hitam Gold**: Khusus Wali Santri Takhtiman Bil Ghoib (Maju Panggung Utama).
-  - **Merah Gold**: Tamu Undangan Umum & Shohibul Hajat Reguler.
+  - **Cream**: Khusus Wali Santri Takhtiman Bil Ghoib (Maju Panggung Utama).
+  - **Biru**: Tamu Undangan Umum & Shohibul Hajat Reguler.
 - **Pencegahan Double-Checkin**: Kuota terpakai dikunci per pemindaian. Apabila kuota telah habis, sistem membunyikan buzzer error dan memunculkan modal peringatan kuota penuh.
 
 ### 3.3. Asisten Virtual Cerdas: Usth. Halwaa AI (`/api/ai/ask`)

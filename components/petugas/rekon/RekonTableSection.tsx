@@ -67,15 +67,21 @@ export default function RekonTableSection({
                     >
                       {isSantri ? 'PESERTA SANTRI' : 'TAMU UNDANGAN'}
                     </span>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
-                        d.warna_tiket === 'Hitam Gold'
-                          ? 'bg-stone-900 text-amber-300 border-stone-800'
-                          : 'bg-amber-100 text-amber-900 border-amber-300'
-                      }`}
-                    >
-                      {d.warna_tiket || 'Merah Gold'}
-                    </span>
+                    {(() => {
+                      const rawWarna = d.warna_tiket || (isSantri ? (d.kategori_utama === 'BIL_GHOIB' ? 'Cream' : 'Biru') : 'Biru');
+                      const isCream = rawWarna === 'Cream' || rawWarna === 'Hitam Gold';
+                      return (
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                            isCream
+                              ? 'bg-[#F5E6D3] text-[#5C3E28] border-[#D49B5B]'
+                              : 'bg-blue-100 text-blue-900 border-blue-300'
+                          }`}
+                        >
+                          {isCream ? 'Cream' : (rawWarna === 'Merah Gold' ? 'Biru' : rawWarna)}
+                        </span>
+                      );
+                    })()}
                     {isHadir ? (
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-emerald-950 border border-emerald-300 flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3 text-emerald-700" />

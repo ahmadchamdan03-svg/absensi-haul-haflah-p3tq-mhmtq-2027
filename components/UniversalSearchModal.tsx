@@ -138,7 +138,7 @@ const DAFTAR_LOKASI: SearchItem[] = [
     id: 'loc-panggung',
     tipe: 'LOKASI',
     title: 'Panggung Utama Kehormatan',
-    subtitle: 'Panggung prosesi wisudawati Bil Ghoib 30 Juz & Ibu Pendamping (Hitam Gold)',
+    subtitle: 'Panggung prosesi wisudawati Bil Ghoib 30 Juz & Ibu Pendamping (Cream)',
     badge: 'Panggung Khusus',
     badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
   },

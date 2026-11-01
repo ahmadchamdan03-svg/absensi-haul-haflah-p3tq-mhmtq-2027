@@ -158,22 +158,22 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                         <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5">
                           {isBilGhoib && (
                             <>
-                              <span className="inline-block font-bold text-slate-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded text-[10px]">
-                                Hitam Gold
+                              <span className="inline-block font-bold text-[#5C3E28] bg-[#F5E6D3] border border-[#D49B5B] px-1.5 py-0.5 rounded text-[10px]">
+                                Cream
                               </span>
-                              <span className="text-[9px] text-amber-800 font-bold block">
+                              <span className="text-[9px] text-[#5C3E28] font-bold block">
                                 Wali Maju Panggung
                               </span>
                             </>
                           )}
                           {isBinNadzor && (
-                            <span className="inline-block font-bold text-rose-900 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded text-[10px]">
-                              Merah Gold
+                            <span className="inline-block font-bold text-blue-900 bg-blue-100 border border-blue-300 px-1.5 py-0.5 rounded text-[10px]">
+                              Biru
                             </span>
                           )}
                           {isTamatan && (
-                            <span className="inline-block font-bold text-rose-900 bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded text-[10px]">
-                              Merah Gold
+                            <span className="inline-block font-bold text-blue-900 bg-blue-100 border border-blue-300 px-1.5 py-0.5 rounded text-[10px]">
+                              Biru
                             </span>
                           )}
                           {(kel.kuota?.kuotaTambahan || 0) > 0 && (
@@ -388,9 +388,19 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                     </td>
 
                     <td className="py-3 px-3 text-center whitespace-nowrap">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
-                        {tamu.warnaTiket || 'Merah Gold'}
-                      </span>
+                      {(() => {
+                        const rawWarna = tamu.warnaTiket || 'Biru';
+                        const isCream = String(rawWarna).toLowerCase().includes('cream');
+                        return (
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            isCream
+                              ? 'bg-[#F5E6D3] text-[#5C3E28] border-[#D49B5B]'
+                              : 'bg-blue-100 text-blue-900 border-blue-300'
+                          }`}>
+                            {rawWarna}
+                          </span>
+                        );
+                      })()}
                     </td>
 
                     {/* Status WA */}

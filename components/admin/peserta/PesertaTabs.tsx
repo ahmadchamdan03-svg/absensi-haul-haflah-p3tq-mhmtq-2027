@@ -75,7 +75,7 @@ export default function PesertaTabs({
           {stats.bilGhoibCount}
         </div>
         <div className="text-[10px] text-emerald-700 mt-0.5 truncate">
-          4 Kursi · Hitam Gold
+          4 Kursi · Cream
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export default function PesertaTabs({
         <div className="text-xl font-serif font-black text-blue-950 mt-1">
           {stats.binNadzorCount}
         </div>
-        <div className="text-[10px] text-blue-700 mt-0.5 truncate">2 Kursi · Merah Gold</div>
+        <div className="text-[10px] text-blue-700 mt-0.5 truncate">2 Kursi · Biru</div>
       </div>
 
       <div
@@ -120,7 +120,7 @@ export default function PesertaTabs({
         <div className="text-xl font-serif font-black text-amber-950 mt-1">
           {stats.tamatanCount}
         </div>
-        <div className="text-[10px] text-amber-800 mt-0.5 truncate">2 Kursi · Merah Gold</div>
+        <div className="text-[10px] text-amber-800 mt-0.5 truncate">2 Kursi · Biru</div>
       </div>
 
       <div

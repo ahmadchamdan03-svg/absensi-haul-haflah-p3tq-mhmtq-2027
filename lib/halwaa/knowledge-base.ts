@@ -210,8 +210,8 @@ TATA TERTIB, TEKNIS & KECEPATAN REGISTRASI:
 - Pos Kesekretariatan Registrasi Putri: Sebelah timur jalan luar Gerbang Bola Dunia.
 - Penginapan Walisantri: Rusunawa.
 - Warna Kartu Masuk / Tiket Fisik:
-  * Hitam Gold: Tamu Undangan Walisantri yang Maju Panggung (Takhtiman Bil Ghoib).
-  * Merah Gold: Tamu Undangan Umum dan Walisantri Shohibul Hajat Reguler.
+  * Cream: Tamu Undangan Walisantri yang Maju Panggung (Takhtiman Bil Ghoib).
+  * Biru: Tamu Undangan Umum dan Walisantri Shohibul Hajat Reguler (Bin Nadzori, Tamatan, dan Tamu Undangan Umum).
 - 10 Poin Larangan Shohibul Hajat:
   1. Dilarang membawa / mengoperasikan alat elektronik selama acara berlangsung.
   2. Dilarang membawa Buket.

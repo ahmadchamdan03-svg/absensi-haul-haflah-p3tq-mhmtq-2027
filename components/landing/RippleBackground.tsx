@@ -43,38 +43,38 @@ void main() {
         float age = r.z;
         float intensity = r.w;
 
-        float maxLifetime = (u_mode == 0) ? 0.85 : 1.1;
+        float maxLifetime = (u_mode == 0) ? 0.95 : 1.2;
         if (age < 0.0 || age > maxLifetime) continue;
 
         // Jarak dalam koordinat yang dikoreksi aspek rasio
         vec2 diff = (uv - rPos) * aspect;
         float dist = length(diff);
 
-        // Radius area riak diperkecil (hanya di dekat kursor mouse, ~60px-90px)
-        float maxRadius = (u_mode == 0) ? 0.085 : 0.11;
-        if (dist > maxRadius * 1.4) continue;
+        // Radius area singkap diperbesar (~160px - 220px) sesuai instruksi User
+        float maxRadius = (u_mode == 0) ? 0.22 : 0.26;
+        if (dist > maxRadius * 1.3) continue;
 
         float lifeProgress = age / maxLifetime;
-        // Fade out kuadratik halus dan cepat agar tidak berputar-putar (mumet)
+        // Fade out kuadratik halus dan cepat
         float fade = (1.0 - lifeProgress) * (1.0 - lifeProgress);
 
         // Kecepatan gelombang air lembut tenang
-        float waveRadius = age * 0.10;
+        float waveRadius = age * 0.15;
         float waveDist = dist - waveRadius;
 
         // Karakteristik fisik gelombang tenang
-        float waveFreq = 36.0;
-        float ring = exp(-waveDist * waveDist * 420.0);
+        float waveFreq = 28.0;
+        float ring = exp(-waveDist * waveDist * 160.0);
         float wave = sin(waveDist * waveFreq) * ring * fade * intensity;
 
-        // Distorsi air sangat tipis, halus, dan elegan (0.007 — lekukan air tenang tanpa pusaran)
+        // Distorsi air sangat tipis, halus, dan elegan (0.0025 — lekukan sangat lembut tanpa pusing)
         if (dist > 0.001) {
             vec2 dir = normalize(diff);
-            totalDisplacement += dir * wave * 0.007;
+            totalDisplacement += dir * wave * 0.0025;
         }
 
-        // Singkap gambar aula hanya di sekitar kursor dengan batas lembut
-        float revealMask = smoothstep(maxRadius, 0.01, dist) * fade * intensity;
+        // Singkap gambar aula dengan radius luas dan transisi lembut
+        float revealMask = smoothstep(maxRadius, 0.02, dist) * fade * intensity;
         totalReveal = max(totalReveal, revealMask);
     }
 
@@ -89,7 +89,7 @@ void main() {
 
     // EFEK REVEAL MURNI & ELEGAN:
     // - Saat diam / awal: totalReveal = 0 -> 100% solid krem
-    // - Saat kursor bergerak: tersingkap tipis di radius kursor (~70px-90px)
+    // - Saat kursor bergerak: tersingkap luas di radius kursor (~160px-220px) dengan lekukan sangat lembut
     // - Menjauh / diam: cepat dan halus tertutup kembali tanpa pusing
     // - Tanpa efek glow atau cahaya berlebihan
     float revealFactor = clamp(totalReveal, 0.0, 1.0);
@@ -304,8 +304,8 @@ export default function RippleBackground() {
 
       const now = performance.now() / 1000;
 
-      // Hapus riak yang sudah usang (0.85 detik pada desktop agar fade out cepat & elegan)
-      const maxAge = isDesktop ? 0.85 : 1.1;
+      // Hapus riak yang sudah usang (0.95 detik pada desktop agar fade out alami & elegan)
+      const maxAge = isDesktop ? 0.95 : 1.2;
       activeRipples = activeRipples.filter((r) => now - r.startTime < maxAge);
 
       // Logika Mobile High-End: Munculkan tetesan hujan acak berkala

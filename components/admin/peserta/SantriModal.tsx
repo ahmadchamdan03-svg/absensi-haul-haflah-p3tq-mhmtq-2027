@@ -487,7 +487,7 @@ export default function SantriModal({
                   >
                     Bil Ghoib
                     <span className="block text-[10px] font-normal opacity-80">
-                      4 Kursi · Hitam Gold
+                      4 Kursi · Cream
                     </span>
                   </button>
 
@@ -507,7 +507,7 @@ export default function SantriModal({
                   >
                     Bin Nadzori
                     <span className="block text-[10px] font-normal opacity-80">
-                      2 Kursi · Merah Gold
+                      2 Kursi · Biru
                     </span>
                   </button>
 
@@ -527,7 +527,7 @@ export default function SantriModal({
                   >
                     Tamatan
                     <span className="block text-[10px] font-normal opacity-80">
-                      2 Kursi · Merah Gold
+                      2 Kursi · Biru
                     </span>
                   </button>
                 </div>

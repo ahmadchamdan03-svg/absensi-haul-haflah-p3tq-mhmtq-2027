@@ -13,40 +13,40 @@ export const BLOK_3_SUBKATEGORI_DEFINITIONS = [
   { no: 21, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: '' },
   { no: 22, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bandar', matchers: ['bandar'], warna: '' },
   { no: 23, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: '' },
-  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Merah Gold' },
+  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Biru' },
 
   // ── KATEGORI UTAMA 2: TAMU KEHORMATAN ──
   { no: 25, kategoriUtama: 'Tamu Kehormatan', kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: '' },
 
   // ── KATEGORI UTAMA 3: TAMU UMUM ──
-  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Merah Gold' },
-  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Merah Gold' },
-  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Merah Gold' },
-  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Merah Gold' },
-  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Merah Gold' },
-  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Merah Gold' },
-  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Merah Gold' },
-  { no: 33, kategoriUtama: 'Tamu Umum', kategori: "Penguji Al-Qur'an", matchers: ['penguji'], warna: 'Merah Gold' },
-  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Merah Gold' },
-  { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Merah Gold' },
+  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Biru' },
+  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Biru' },
+  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Biru' },
+  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Biru' },
+  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Biru' },
+  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Biru' },
+  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Biru' },
+  { no: 33, kategoriUtama: 'Tamu Umum', kategori: "Penguji Al-Qur'an", matchers: ['penguji'], warna: 'Biru' },
+  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Biru' },
+  { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Biru' },
 ];
 
 // Template 14 Kategori Santri
 export const templateBlokSantri = [
-  { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Hitam Gold' },
-  { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Merah Gold' },
-  { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', warna: 'Merah Gold' },
-  { no: 4, kategori: 'Bin Nadzori 1 Aliyah', warna: 'Merah Gold' },
-  { no: 5, kategori: 'Bin Nadzori 2 Aliyah', warna: 'Merah Gold' },
-  { no: 6, kategori: 'Bin Nadzori 3 Aliyah', warna: 'Merah Gold' },
-  { no: 7, kategori: 'Bin Nadzori Mutakhorijat', warna: 'Merah Gold' },
-  { no: 8, kategori: 'Tamatan Bagian A.01', warna: 'Merah Gold' },
-  { no: 9, kategori: 'Tamatan Bagian A.02', warna: 'Merah Gold' },
-  { no: 10, kategori: 'Tamatan Bagian A.03', warna: 'Merah Gold' },
-  { no: 11, kategori: 'Tamatan Bagian A.04', warna: 'Merah Gold' },
-  { no: 12, kategori: 'Tamatan Bagian B.01', warna: 'Merah Gold' },
-  { no: 13, kategori: 'Tamatan Bagian B.02', warna: 'Merah Gold' },
-  { no: 14, kategori: 'Tamatan Bagian B.03', warna: 'Merah Gold' },
+  { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Cream' },
+  { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Biru' },
+  { no: 3, kategori: 'Bin Nadzori 3 Tsanawiyah', warna: 'Biru' },
+  { no: 4, kategori: 'Bin Nadzori 1 Aliyah', warna: 'Biru' },
+  { no: 5, kategori: 'Bin Nadzori 2 Aliyah', warna: 'Biru' },
+  { no: 6, kategori: 'Bin Nadzori 3 Aliyah', warna: 'Biru' },
+  { no: 7, kategori: 'Bin Nadzori Mutakhorijat', warna: 'Biru' },
+  { no: 8, kategori: 'Tamatan Bagian A.01', warna: 'Biru' },
+  { no: 9, kategori: 'Tamatan Bagian A.02', warna: 'Biru' },
+  { no: 10, kategori: 'Tamatan Bagian A.03', warna: 'Biru' },
+  { no: 11, kategori: 'Tamatan Bagian A.04', warna: 'Biru' },
+  { no: 12, kategori: 'Tamatan Bagian B.01', warna: 'Biru' },
+  { no: 13, kategori: 'Tamatan Bagian B.02', warna: 'Biru' },
+  { no: 14, kategori: 'Tamatan Bagian B.03', warna: 'Biru' },
 ];
 
 export const getSantriIndex = (s: any) => {
@@ -115,16 +115,16 @@ export async function fetchLaporanDataFromSupabase() {
   const rawSantri = resSantri.data || [];
   const rawTamu = resTamu.data || [];
 
-  // Auto update massal di Supabase jika ada Tamu Umum yang di database warna_tiket-nya belum 'Merah Gold'
+  // Auto update massal di Supabase jika ada Tamu Umum yang di database warna_tiket-nya belum 'Biru'
   const unassignedUmumInDb = rawTamu.filter((u: any) => {
     const gol = (u.sub_kategori || u.golongan || '').toUpperCase();
-    return (gol === 'UMUM' || gol === 'UNDANGAN_UMUM' || gol === 'TAMU_UMUM') && u.warna_tiket !== 'Merah Gold';
+    return (gol === 'UMUM' || gol === 'UNDANGAN_UMUM' || gol === 'TAMU_UMUM') && u.warna_tiket !== 'Biru';
   });
 
   if (unassignedUmumInDb.length > 0) {
     supabase
       .from('tamu_undangan')
-      .update({ warna_tiket: 'Merah Gold' })
+      .update({ warna_tiket: 'Biru' })
       .or('sub_kategori.eq.UMUM,sub_kategori.eq.UNDANGAN_UMUM,sub_kategori.eq.TAMU_UMUM')
       .then(
         () => {},
@@ -132,21 +132,21 @@ export async function fetchLaporanDataFromSupabase() {
       );
   }
 
-  // Auto update massal di Supabase jika ada peserta_santri non-Bil Ghoib yang di database warna_tiket-nya belum 'Merah Gold'
+  // Auto update massal di Supabase jika ada peserta_santri non-Bil Ghoib yang di database warna_tiket-nya belum 'Biru'
   const unassignedSantriInDb = rawSantri.filter((s: any) => {
     const kat = (s.kategori_utama || '').toUpperCase();
     const sub = (s.sub_kategori || '').toLowerCase();
     const isBilGhoib = kat === 'BIL_GHOIB' || sub.includes('bil ghoib');
     if (isBilGhoib) {
-      return s.warna_tiket !== 'Hitam Gold';
+      return s.warna_tiket !== 'Cream';
     }
-    return s.warna_tiket !== 'Merah Gold';
+    return s.warna_tiket !== 'Biru';
   });
 
   if (unassignedSantriInDb.length > 0) {
     supabase
       .from('peserta_santri')
-      .update({ warna_tiket: 'Hitam Gold' })
+      .update({ warna_tiket: 'Cream' })
       .or('kategori_utama.eq.BIL_GHOIB,sub_kategori.ilike.%bil ghoib%')
       .then(
         () => {},
@@ -155,7 +155,7 @@ export async function fetchLaporanDataFromSupabase() {
 
     supabase
       .from('peserta_santri')
-      .update({ warna_tiket: 'Merah Gold' })
+      .update({ warna_tiket: 'Biru' })
       .not('kategori_utama', 'eq', 'BIL_GHOIB')
       .then(
         () => {},
@@ -173,7 +173,7 @@ export async function fetchLaporanDataFromSupabase() {
     const isUmum = gol === 'UMUM' || gol === 'UNDANGAN_UMUM' || gol === 'TAMU_UMUM';
     return {
       ...u,
-      warna_tiket: isUmum ? 'Merah Gold' : (u.warna_tiket || getWarnaTiketUndangan(u.sub_kategori, u.kategori)),
+      warna_tiket: isUmum ? 'Biru' : (u.warna_tiket || getWarnaTiketUndangan(u.sub_kategori, u.kategori)),
     };
   });
 
@@ -284,7 +284,7 @@ export function computeLaporanThreeBlocks(
         (tambahanKuota > 0 ? tambahanKuota : 300) > 0
           ? Math.round((tambahanHadirTotal / (tambahanKuota > 0 ? tambahanKuota : 300)) * 1000) / 10
           : 0,
-      warna: 'Merah Gold',
+      warna: 'Biru',
     },
   ];
 

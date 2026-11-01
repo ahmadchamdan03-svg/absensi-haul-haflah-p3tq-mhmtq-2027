@@ -544,9 +544,19 @@ export default function TamuTable({
                           {item.kuotaDasar + item.kuotaTambahan} Kursi
                         </div>
                         <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5">
-                          <span className="inline-block font-bold text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded text-[10px]">
-                            {item.warnaTiket || getWarnaTiketUndangan(item.golonganUndangan, item.kategori) || (item.golonganUndangan === 'ISTIMEWA' ? 'Hitam Gold' : 'Merah Gold')}
-                          </span>
+                          {(() => {
+                            const rawWarna = item.warnaTiket || getWarnaTiketUndangan(item.golonganUndangan, item.kategori) || (item.golonganUndangan === 'ISTIMEWA' ? 'Cream' : 'Biru');
+                            const isCream = String(rawWarna).toLowerCase().includes('cream');
+                            return (
+                              <span className={`inline-block font-bold px-1.5 py-0.5 rounded text-[10px] border ${
+                                isCream
+                                  ? 'text-[#5C3E28] bg-[#F5E6D3] border-[#D49B5B]'
+                                  : 'text-blue-900 bg-blue-100 border-blue-300'
+                              }`}>
+                                {rawWarna}
+                              </span>
+                            );
+                          })()}
                           {item.kuotaTambahan > 0 && (
                             <span className="text-rose-600 block font-semibold">+ {item.kuotaTambahan} Tambahan</span>
                           )}

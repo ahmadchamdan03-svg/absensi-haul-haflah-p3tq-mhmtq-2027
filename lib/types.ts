@@ -12,7 +12,7 @@ export function extractBagianTamatan(text?: string): string {
   return match ? match[0].toUpperCase() : '';
 }
 
-export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold' | '';
+export type WarnaTiket = 'Cream' | 'Biru' | 'Hijau' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold' | '';
 
 /**
  * Menggabungkan dua string sub_kategori tanpa duplikasi kata kunci.
@@ -63,9 +63,9 @@ export function mergeSubKategori(existingSub?: string, incomingSub?: string): st
 
 /**
  * Menyelesaikan Kategori Utama berdasarkan hierarki prioritas tertinggi:
- * 1. BIL_GHOIB (Kuota 4, Hitam Gold)
- * 2. BIN_NADZOR (Kuota 2, Merah Gold)
- * 3. TAMATAN (Kuota 2, Merah Gold)
+ * 1. BIL_GHOIB (Kuota 4, Cream)
+ * 2. BIN_NADZOR (Kuota 2, Biru)
+ * 3. TAMATAN (Kuota 2, Biru)
  */
 export function resolvePriorityKategoriUtama(
   ...kats: (string | undefined | null)[]
@@ -89,9 +89,9 @@ export function getWarnaTiketSantri(kategoriUtama?: string, subKategori?: string
     sub.includes('bil ghoib') ||
     sub.includes('ghoib')
   ) {
-    return 'Hitam Gold';
+    return 'Cream';
   }
-  return 'Merah Gold';
+  return 'Biru';
 }
 
 /**
@@ -114,12 +114,12 @@ export function getWarnaTiketUndangan(golongan?: string, kategori?: string): str
   const kat = (kategori || '').toLowerCase();
 
   if (gol === 'UMUM' || gol === 'UNDANGAN_UMUM') {
-    return 'Merah Gold';
+    return 'Biru';
   }
 
   if (gol === 'ISTIMEWA' || gol === 'UNDANGAN_ISTIMEWA') {
     if (kat.includes('ids')) {
-      return 'Merah Gold';
+      return 'Biru';
     }
     return '';
   }
@@ -128,7 +128,7 @@ export function getWarnaTiketUndangan(golongan?: string, kategori?: string): str
     return '';
   }
 
-  if (kat.includes('ids')) return 'Merah Gold';
+  if (kat.includes('ids')) return 'Biru';
   if (
     kat.includes('vvip') ||
     kat.includes('marzuqi') ||
@@ -145,7 +145,7 @@ export function getWarnaTiketUndangan(golongan?: string, kategori?: string): str
     return '';
   }
 
-  return 'Merah Gold';
+  return 'Biru';
 }
 
 export function getDefaultJalurMasuk(golongan?: string): string {

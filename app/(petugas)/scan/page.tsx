@@ -412,7 +412,7 @@ export default function ScanPage() {
     };
   }, [activeItem, checkinResult, facingMode, stopCamera]);
 
-  // Handler Check / Uncheck Kartu Hitam Gold
+  // Handler Check / Uncheck Kartu Cream
   const handleToggleKartuHitamGold = async () => {
     if (!activeItem || isUpdatingKartuGold) return;
     const isCurrentlyChecked = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 || kartuHitamGoldDiberi || serahkanTiketEmas;
@@ -432,14 +432,14 @@ export default function ScanPage() {
         await logAudit({
           panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
           panitia_role: 'PENJAGA_GERBANG',
-          aksi: 'CHECK_KARTU_HITAM_GOLD',
+          aksi: 'CHECK_KARTU_CREAM',
           tabel: 'peserta_santri',
           kode: activeItem.kode,
           nama: activeItem.nama,
           field: 'tiket_panggung_diberi',
           nilai_lama: '0',
           nilai_baru: '1',
-          catatan: 'Diberikan Kartu Hitam Gold via Scanner Gerbang',
+          catatan: 'Diberikan Kartu Cream via Scanner Gerbang',
         });
 
         setKartuHitamGoldDiberi(true);
@@ -457,8 +457,8 @@ export default function ScanPage() {
             : null
         );
       } catch (err: any) {
-        console.error('Error checking Kartu Hitam Gold:', err);
-        setErrorMsg(`Gagal mengupdate Kartu Hitam Gold: ${err.message || err}`);
+        console.error('Error checking Kartu Cream:', err);
+        setErrorMsg(`Gagal mengupdate Kartu Cream: ${err.message || err}`);
       } finally {
         setIsUpdatingKartuGold(false);
       }
@@ -479,14 +479,14 @@ export default function ScanPage() {
       await logAudit({
         panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
         panitia_role: 'PENJAGA_GERBANG',
-        aksi: 'UNCHECK_KARTU_HITAM_GOLD',
+        aksi: 'UNCHECK_KARTU_CREAM',
         tabel: 'peserta_santri',
         kode: activeItem.kode,
         nama: activeItem.nama,
         field: 'tiket_panggung_diberi',
         nilai_lama: '1',
         nilai_baru: '0',
-        catatan: 'Reset/Uncheck Kartu Hitam Gold via Scanner Gerbang',
+        catatan: 'Reset/Uncheck Kartu Cream via Scanner Gerbang',
       });
 
       setKartuHitamGoldDiberi(false);
@@ -505,8 +505,8 @@ export default function ScanPage() {
       );
       setShowResetConfirmModal(false);
     } catch (err: any) {
-      console.error('Error resetting Kartu Hitam Gold:', err);
-      setErrorMsg(`Gagal mereset Kartu Hitam Gold: ${err.message || err}`);
+      console.error('Error resetting Kartu Cream:', err);
+      setErrorMsg(`Gagal mereset Kartu Cream: ${err.message || err}`);
     } finally {
       setIsUpdatingKartuGold(false);
     }
@@ -527,7 +527,7 @@ export default function ScanPage() {
       : 0;
 
     if (inputTotal <= 0 && !isNewlyGivingGold) {
-      setErrorMsg('Masukkan jumlah orang yang hadir (L/P) atau centang Kartu Hitam Gold.');
+      setErrorMsg('Masukkan jumlah orang yang hadir (L/P) atau centang Kartu Cream.');
       setIsSubmitting(false);
       return;
     }

@@ -212,10 +212,10 @@ export function checkinHelper(
 
   ctx.saveToStorage();
 
-  // Standar Resmi Materi Koordinasi 2: Hitam Gold untuk Maju Panggung (Bil Ghoib), Merah Gold untuk Reguler & Tamu
-  let warna = 'Merah Gold';
+  // Standar Resmi: Cream untuk Maju Panggung (Bil Ghoib), Biru untuk Reguler & Tamu
+  let warna = 'Biru';
   if (santri?.kategoriUtama === 'BIL_GHOIB' || isPanggung) {
-    warna = 'Hitam Gold';
+    warna = 'Cream';
   }
 
   return {
@@ -350,8 +350,8 @@ export function getStatistikLiveHelper(ctx: IDataStoreContext): StatistikLive {
     kategoriStats: {
       bilGhoib: {
         nama: 'Bil Ghoib (64 Khadimatul Qur-an)',
-        subLabel: `${bgSantriTotal} Santri · ${bgKuota} Kuota Dasar (Tiket Hitam Gold + Wali Maju Panggung)`,
-        warnaTiket: 'Hitam Gold',
+        subLabel: `${bgSantriTotal} Santri · ${bgKuota} Kuota Dasar (Tiket Cream + Wali Maju Panggung)`,
+        warnaTiket: 'Cream',
         badgeWarna: 'bg-emerald-100 text-emerald-900 border-emerald-300',
         totalPeserta: bgSantriTotal,
         hadirPeserta: bgSantriHadir,
@@ -361,8 +361,8 @@ export function getStatistikLiveHelper(ctx: IDataStoreContext): StatistikLive {
       },
       binNadzor: {
         nama: 'Bin Nadzori (6 Jenjang Kelas)',
-        subLabel: `${bnSantriTotal} Santri · ${bnKuota} Kuota Dasar (Tiket Merah Gold)`,
-        warnaTiket: 'Merah Gold',
+        subLabel: `${bnSantriTotal} Santri · ${bnKuota} Kuota Dasar (Tiket Biru)`,
+        warnaTiket: 'Biru',
         badgeWarna: 'bg-blue-100 text-blue-900 border-blue-300',
         totalPeserta: bnSantriTotal,
         hadirPeserta: bnSantriHadir,
@@ -372,8 +372,8 @@ export function getStatistikLiveHelper(ctx: IDataStoreContext): StatistikLive {
       },
       tamatan: {
         nama: 'Tamatan III Aliyah (7 Bagian)',
-        subLabel: `${tmSantriTotal} Santri · ${tmKuota} Kuota Dasar (Tiket Merah Gold)`,
-        warnaTiket: 'Merah Gold',
+        subLabel: `${tmSantriTotal} Santri · ${tmKuota} Kuota Dasar (Tiket Biru)`,
+        warnaTiket: 'Biru',
         badgeWarna: 'bg-amber-100 text-amber-900 border-amber-300',
         totalPeserta: tmSantriTotal,
         hadirPeserta: tmSantriHadir,
@@ -508,9 +508,9 @@ export function getDaftarHadirRealtimeHelper(ctx: IDataStoreContext): DaftarHadi
         jumlahP = 1;
       }
 
-      let warna = 'Merah Gold';
-      if (katUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
-      else if (katUtama === 'TAMATAN') warna = 'Merah Gold';
+      let warna = 'Biru';
+      if (katUtama === 'BIL_GHOIB') warna = 'Cream';
+      else if (katUtama === 'TAMATAN') warna = 'Biru';
 
       const totalK = kel.kuota.kuotaDasar + kel.kuota.kuotaTambahan;
       const statusHadir = kel.kuota.terpakai >= totalK ? 'HADIR' : 'SEBAGIAN';
@@ -552,7 +552,7 @@ export function getLogKedatanganDetailHelper(ctx: IDataStoreContext) {
     let kategori = '-';
     let kategoriUtama: 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN' | 'UNDANGAN' = 'BIN_NADZOR';
     let kode = '-';
-    let warna = 'Merah Gold';
+    let warna = 'Biru';
 
     const kel = ctx.keluargaList.find((k) => k.kuota.id === log.kuotaId || `q_${k.kode}` === log.kuotaId);
     if (kel) {
@@ -563,9 +563,9 @@ export function getLogKedatanganDetailHelper(ctx: IDataStoreContext) {
       kategori = santri?.subKategori || santri?.kelas || 'SANTRI';
       kategoriUtama = (santri?.kategoriUtama || 'BIN_NADZOR') as any;
       kode = kel.kode;
-      if (kategoriUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
-      else if (kategoriUtama === 'TAMATAN') warna = 'Merah Gold';
-      else warna = 'Merah Gold';
+      if (kategoriUtama === 'BIL_GHOIB') warna = 'Cream';
+      else if (kategoriUtama === 'TAMATAN') warna = 'Biru';
+      else warna = 'Biru';
     } else {
       const und = ctx.undanganList.find(
         (u) => u.kuota.id === log.kuotaId || `qu_${u.kode}` === log.kuotaId || u.id === log.kuotaId
@@ -620,9 +620,9 @@ export function getDaftarBelumHadirHelper(
         katLabel = `Bin Nadzori ${santri.kelas}`;
       }
 
-      let warna = 'Merah Gold';
-      if (katUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
-      else if (katUtama === 'TAMATAN') warna = 'Merah Gold';
+      let warna = 'Biru';
+      if (katUtama === 'BIL_GHOIB') warna = 'Cream';
+      else if (katUtama === 'TAMATAN') warna = 'Biru';
 
       const isConfirmed = kel.estimasi?.statusKonfirmasi === 'SUDAH';
       const estL = isConfirmed ? kel.estimasi?.perkiraanL || 0 : 0;
@@ -722,9 +722,9 @@ export function getDaftarHadirSantriDanTamuHelper(
         katLabel = `Bin Nadzori ${santri.kelas}`;
       }
 
-      let warna = 'Merah Gold';
-      if (santri?.kategoriUtama === 'TAMATAN') warna = 'Merah Gold';
-      else if (santri?.kategoriUtama === 'BIL_GHOIB') warna = 'Hitam Gold';
+      let warna = 'Biru';
+      if (santri?.kategoriUtama === 'TAMATAN') warna = 'Biru';
+      else if (santri?.kategoriUtama === 'BIL_GHOIB') warna = 'Cream';
 
       list.push({
         id: kel.id,

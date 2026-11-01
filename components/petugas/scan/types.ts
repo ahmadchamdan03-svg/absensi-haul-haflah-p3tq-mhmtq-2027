@@ -47,6 +47,7 @@ export interface ScanActiveItem {
   alamat: string;
   noHp: string;
   isBilGhoib: boolean;
+  warnaTiket?: string;
   kartuHitamGoldDiberi: boolean;
   santri: ScanSantriSubItem[] | null;
   entitas: ScanEntitasInfo;
@@ -247,6 +248,7 @@ export const lookupAndBuildScanItem = async (cleanCode: string) => {
     alamat: entity.alamat || 'Kediri',
     noHp: entity.no_hp || '-',
     isBilGhoib,
+    warnaTiket: entity.warna_tiket || (isBilGhoib ? 'Cream' : 'Biru'),
     kartuHitamGoldDiberi: isAlreadyGiven,
     santri: isSantri
       ? [
@@ -287,7 +289,7 @@ export const lookupAndBuildScanItem = async (cleanCode: string) => {
   };
 };
 
-// Update status Kartu Hitam Gold di Supabase beserta pencatatan Audit Log
+// Update status Kartu Cream (Maju Panggung) di Supabase beserta pencatatan Audit Log
 export const updateKartuHitamGoldInDb = async (
   activeItem: ScanActiveItem,
   jalur: JalurPemeriksaan,
@@ -304,7 +306,7 @@ export const updateKartuHitamGoldInDb = async (
   await logAudit({
     panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
     panitia_role: 'PENJAGA_GERBANG',
-    aksi: giveCard ? 'CHECK_KARTU_HITAM_GOLD' : 'UNCHECK_KARTU_HITAM_GOLD',
+    aksi: giveCard ? 'CHECK_KARTU_CREAM' : 'UNCHECK_KARTU_CREAM',
     tabel: 'peserta_santri',
     kode: activeItem.kode,
     nama: activeItem.nama,
@@ -312,7 +314,7 @@ export const updateKartuHitamGoldInDb = async (
     nilai_lama: giveCard ? '0' : '1',
     nilai_baru: giveCard ? '1' : '0',
     catatan: giveCard
-      ? 'Diberikan Kartu Hitam Gold via Scanner Gerbang'
-      : 'Reset/Uncheck Kartu Hitam Gold via Scanner Gerbang',
+      ? 'Diberikan Kartu Cream via Scanner Gerbang'
+      : 'Reset/Uncheck Kartu Cream via Scanner Gerbang',
   });
 };

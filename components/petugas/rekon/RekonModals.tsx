@@ -135,9 +135,9 @@ export default function RekonModals({
                           onChange={(e) => setEditingItem({ ...editingItem, kategoriUtama: e.target.value })}
                           className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-semibold"
                         >
-                          <option value="BIL_GHOIB">BIL_GHOIB (Hitam Gold)</option>
-                          <option value="BIN_NADZOR">BIN_NADZOR (Merah Gold)</option>
-                          <option value="TAMATAN">TAMATAN (Merah Gold)</option>
+                          <option value="BIL_GHOIB">BIL_GHOIB (Cream)</option>
+                          <option value="BIN_NADZOR">BIN_NADZOR (Biru)</option>
+                          <option value="TAMATAN">TAMATAN (Biru)</option>
                         </select>
                       </div>
                       <div>
@@ -233,8 +233,8 @@ export default function RekonModals({
                       onChange={(e) => setEditingItem({ ...editingItem, warnaTiket: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs"
                     >
-                      <option value="Hitam Gold">Hitam Gold</option>
-                      <option value="Merah Gold">Merah Gold</option>
+                      <option value="Cream">Cream</option>
+                      <option value="Biru">Biru</option>
                     </select>
                   </div>
                 </div>

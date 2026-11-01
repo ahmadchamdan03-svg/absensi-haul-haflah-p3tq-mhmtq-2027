@@ -401,8 +401,8 @@ export function PesertaUtilityModals({
                           qrDetailItem.kategori
                         ) ||
                         (qrDetailItem.golonganUndangan === 'ISTIMEWA'
-                          ? 'Hitam Gold'
-                          : 'Merah Gold')
+                          ? 'Cream'
+                          : 'Biru')
                       : getWarnaTiketSantri(
                           qrDetailItem.kategoriUtama,
                           qrDetailItem.subKategori

@@ -135,36 +135,11 @@ const ROLE_BUTTONS: {
 
 // Konfigurasi 5 Foto Galeri Dokumentasi Panggung & Haflah
 const GALERI_FOTOS = [
-  {
-    src: '/images/galeri/galeri-1.jpg',
-    title: 'Panggung Aula Al-Muktamar',
-    category: 'Panggung Utama',
-    desc: 'Desain megah bernuansa biru langit dan ukiran emas bertema Haflah P3TQ & MHMTQ Lirboyo',
-  },
-  {
-    src: '/images/galeri/galeri-2.jpg',
-    title: 'Khotimat & Dewan Asatidz',
-    category: 'Wisuda Akbar',
-    desc: 'Santriwati khotimat Al-Qur-an bersama dewan asatidz dan pembimbing',
-  },
-  {
-    src: '/images/galeri/galeri-3.jpg',
-    title: 'Suasana Haflah Akbar',
-    category: 'Aula Al-Muktamar',
-    desc: 'Ribuan hadirin, wali santri, dan dewan masyayikh memadati Aula Al-Muktamar',
-  },
-  {
-    src: '/images/galeri/galeri-4.jpg',
-    title: 'Prosesi Khidmah Khotimat',
-    category: 'Rangkaian Khidmah',
-    desc: 'Khidmah prosesi wisuda santriwati dengan khusyuk dan tertib',
-  },
-  {
-    src: '/images/galeri/galeri-5.jpg',
-    title: 'Penyerahan Syahadah',
-    category: 'Syahadah Tahfizh',
-    desc: 'Momen penganugerahan syahadah kelulusan santriwati berprestasi',
-  },
+  '/images/galeri/galeri-1.jpg',
+  '/images/galeri/galeri-2.jpg',
+  '/images/galeri/galeri-3.jpg',
+  '/images/galeri/galeri-4.jpg',
+  '/images/galeri/galeri-5.jpg',
 ];
 
 export default function LandingPortalPage() {
@@ -175,14 +150,6 @@ export default function LandingPortalPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // State Lightbox Modal Preview Galeri Foto
-  const [selectedGaleri, setSelectedGaleri] = useState<{
-    src: string;
-    title: string;
-    category: string;
-    desc: string;
-  } | null>(null);
 
   // State Multi-Tos Interaktif Usth. Halwaa (Bisa Di-spam Instan)
   const [tosList, setTosList] = useState<
@@ -331,7 +298,7 @@ export default function LandingPortalPage() {
     <div
       className="min-h-screen text-[#422F21] flex flex-col justify-between items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-x-hidden cursor-pointer"
       onClick={(e) => {
-        if (selectedRole || selectedGaleri) return;
+        if (selectedRole) return;
         const cardEl = document.getElementById('login-card');
         if (cardEl && !cardEl.contains(e.target as Node)) {
           triggerTos(e.clientX, e.clientY);
@@ -430,61 +397,25 @@ export default function LandingPortalPage() {
           </div>
         </div>
 
-        {/* INDIKATOR SCROLL KE GALERI */}
-        <div className="mt-6 flex flex-col items-center gap-1 text-[#8C6A47]/80 animate-bounce pointer-events-none select-none">
-          <span className="text-[10px] font-bold tracking-widest uppercase font-mono">
-            Dokumentasi &amp; Galeri Panggung
-          </span>
-          <span className="text-sm font-black">↓</span>
-        </div>
       </div>
 
       {/* ================================================================= */}
-      {/* SECTION GALERI 5 FOTO RESMI (PANGGUNG & MOMEN HAFLAH)             */}
+      {/* SECTION GALERI 5 FOTO RESMI VERTIKAL (BESAR, TANPA TEKS & MODAL) */}
       {/* ================================================================= */}
-      <section className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8C6A47]/10 text-[#8C6A47] text-[11px] font-bold tracking-wider uppercase border border-[#8C6A47]/20">
-            <span>Dokumentasi Resmi</span>
+      <section className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-4 pb-16 flex flex-col gap-6 sm:gap-8">
+        {GALERI_FOTOS.map((src, idx) => (
+          <div
+            key={idx}
+            className="w-full rounded-2xl overflow-hidden shadow-lg border border-[#D5C4B4]/70 bg-transparent transition-all duration-300"
+          >
+            <img
+              src={src}
+              alt={`Dokumentasi Haflah P3TQ ${idx + 1}`}
+              className="w-full h-auto object-cover block"
+              loading="lazy"
+            />
           </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-black text-[#422F21]">
-            Momen Haflah Akhirussanah
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
-            Panggung megah Aula Al-Muktamar dan kebersamaan santriwati penghafal Al-Qur'an P3TQ &amp; MHMTQ Lirboyo Kediri.
-          </p>
-        </div>
-
-        {/* Grid 5 Foto Galeri */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          {GALERI_FOTOS.map((item, idx) => (
-            <div
-              key={idx}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedGaleri(item);
-              }}
-              className="group relative rounded-2xl overflow-hidden border border-[#D5C4B4] bg-white/90 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-            >
-              <div className="aspect-[4/3] sm:aspect-[3/2] lg:aspect-[4/5] w-full overflow-hidden bg-stone-100">
-                <img
-                  src={item.src}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-3 bg-white/95 border-t border-[#E8DFD5] text-left">
-                <p className="text-[10px] font-bold tracking-wider text-[#8C6A47] uppercase font-mono">
-                  {item.category}
-                </p>
-                <h4 className="text-xs font-bold text-[#422F21] truncate">
-                  {item.title}
-                </h4>
-              </div>
-            </div>
-          ))}
-        </div>
+        ))}
       </section>
 
       {/* FOOTER BAWAH */}
@@ -493,45 +424,6 @@ export default function LandingPortalPage() {
           Haflah Akhirussanah 1448 H. · Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) &amp; MHMTQ Lirboyo
         </p>
       </footer>
-
-      {/* LIGHTBOX MODAL PREVIEW FOTO GALERI */}
-      {selectedGaleri && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
-          onClick={() => setSelectedGaleri(null)}
-        >
-          <div
-            className="relative max-w-4xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-[#D5C4B4] animate-in zoom-in-95 duration-150"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setSelectedGaleri(null)}
-              className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
-            >
-              ✕
-            </button>
-            <div className="max-h-[75vh] overflow-hidden bg-black flex items-center justify-center">
-              <img
-                src={selectedGaleri.src}
-                alt={selectedGaleri.title}
-                className="w-full h-auto max-h-[75vh] object-contain"
-              />
-            </div>
-            <div className="p-4 sm:p-5 bg-white space-y-1">
-              <span className="text-[11px] font-bold text-[#8C6A47] tracking-wider uppercase font-mono">
-                {selectedGaleri.category}
-              </span>
-              <h3 className="text-base sm:text-lg font-serif font-black text-[#422F21]">
-                {selectedGaleri.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-stone-600">
-                {selectedGaleri.desc}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ================================================================= */}
       {/* MODAL INPUT PASSWORD                                              */}
