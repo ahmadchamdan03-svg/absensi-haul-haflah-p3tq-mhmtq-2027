@@ -45,6 +45,23 @@ import { searchPersonInSupabase } from '@/lib/halwaa/search-person';
 // Beri ruang 60 dtk agar fungsi Vercel tidak diputus sebelum fallback selesai.
 export const maxDuration = 60;
 
+const PRONOUN_VARIATION_ANGLES = [
+  'ketulusan khidmah di balik layar dan keberkahan setiap tetes perjuangan',
+  'ketangguhan mental, kepemimpinan diri, dan daya juang yang tak tergoyahkan',
+  'nilai diri yang istimewa sebagai penggerak utama keberhasilan tim besar',
+  'energi positif, ketelitian kerja, dan cahaya inspirasi bagi rekan-rekan sekitar',
+  'keyakinan penuh pada potensi besar, fokus meraih puncak kesuksesan, dan langkah penuh arti',
+  'kesabaran, keikhlasan pengabdian, serta buah manis yang menanti setiap usaha tulus',
+];
+let lastAngleIdx = -1;
+
+function pickNextVariationAngle(): string {
+  const candidates = PRONOUN_VARIATION_ANGLES.map((_, i) => i).filter((i) => i !== lastAngleIdx);
+  const idx = candidates[Math.floor(Math.random() * candidates.length)];
+  lastAngleIdx = idx;
+  return PRONOUN_VARIATION_ANGLES[idx];
+}
+
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
@@ -73,64 +90,34 @@ export async function POST(req: NextRequest) {
     // FIX 1 & 3: PERSIAPAN SYSTEM PROMPT & PRIMARY HANDLER (AI FIRST)
     // =========================================================================
     const sessionPromptDirective = isFirstTurn
-      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jika pengguna mengucapkan salam, jawab dengan \"Wa'alaikum Salam Wr. Wb.\" (khusus pertanyaan profil personil panitia 'siapa [nama]', langsung mulai dari Paragraf 1 dengan **Nama Lengkap** tanpa membuat paragraf salam terpisah agar jumlah paragraf tepat 4). PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]"
+      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jika pengguna mengucapkan salam, jawab dengan \"Wa'alaikum Salam Wr. Wb.\" (khusus pertanyaan kata ganti 'siapa saya'/'kamu siapa'/'siapa dia' dan profil personil panitia 'siapa [nama]', JANGAN membuat paragraf salam terpisah agar jumlah paragraf persis sesuai aturan: 2 paragraf untuk 'siapa saya', 1 paragraf untuk 'siapa dia', 4 paragraf untuk personil panitia). PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]";
-
-    // =========================================================================
-    // INTERCEPTOR LOKAL KATA GANTI (SEBELUM MEMANGGIL AI CLOUD)
-    // =========================================================================
-    // 1. Cek Saya Siapa (Motivasi Positif — 2 Paragraf)
-    if (isSayaSiapaQuery(prompt)) {
-      return NextResponse.json({
-        reply: getRandomMotivasiPositifSaya(),
-        expression: 'happy',
-        avatar: '/images/avatar/ustadzah-avatar-happy.png',
-        source: 'smart_knowledge_engine',
-        model: 'Local Motivasi Engine',
-      });
-    }
-
-    // 2. Cek Kamu Siapa (Perkenalan Diri)
-    if (isKamuSiapaQuery(prompt) || prompt.toLowerCase().includes('halwa siapa')) {
-      return NextResponse.json({
-        reply: getRandomPerkenalanDiri(),
-        expression: 'wave',
-        avatar: '/images/avatar/ustadzah-avatar-wave.png',
-        source: 'smart_knowledge_engine',
-        model: 'Local Perkenalan Engine',
-      });
-    }
-
-    // 3. Cek Dia Siapa (Motivasi Satir — 1 Paragraf)
-    if (isThirdPersonPronounQuery(prompt)) {
-      return NextResponse.json({
-        reply: getRandomMotivasiSatirDia(),
-        expression: 'happy',
-        avatar: '/images/avatar/ustadzah-avatar-happy.png',
-        source: 'smart_knowledge_engine',
-        model: 'Local Satir Engine',
-      });
-    }
 
     const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const randomPujianTurn = getRandomPujian();
     const randomPengandaianTurn = getRandomPengandaian();
+    const pronounAngleTurn = pickNextVariationAngle();
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
 
-[PANDUAN KEPANITIAAN & DATA RESMI:
-1. Jika user menanyakan profil/identitas seorang personil panitia (misal "siapa asep", "siapa revi", "[nama] siapa") — selain aturan bercanda khusus Ahmad Chamdan dan klarifikasi nama ganda — format jawaban WAJIB TEPAT 4 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 3 paragraf, dan DILARANG menyalin kalimat pujian/pengandaian dari riwayat chat sebelumnya):
+[PANDUAN KEPANITIAAN, KATA GANTI & DATA RESMI:
+1. Jika user bertanya kata ganti ('siapa saya'/'saya siapa', 'kamu siapa'/'siapa kamu', atau 'siapa dia'/'dia siapa'), patuhi ATURAN KHUSUS UNTUK KATA GANTI secara mutlak (2 paragraf untuk 'siapa saya', perkenalan bangga **Usth. Halwaa** untuk 'kamu siapa', 1 paragraf motivasi satir untuk 'siapa dia'). Gunakan nuansa sudut pandang segar giliran ini: "${pronounAngleTurn}" agar diksi & susunan kalimat SELALU BERBEDA TOTAL dari jawaban sebelumnya di riwayat chat!
+2. Jika user menanyakan profil/identitas seorang personil panitia (misal "siapa asep", "siapa revi", "[nama] siapa") — selain aturan bercanda khusus Ahmad Chamdan dan klarifikasi nama ganda — format jawaban WAJIB TEPAT 4 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 3 paragraf, dan DILARANG menyalin kalimat pujian/pengandaian dari riwayat chat sebelumnya):
    - Paragraf 1: Jabatan dan tugas resmi di kepanitiaan (WAJIB awali dengan **Nama Lengkap** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung sistem).
    - Paragraf 2 (WAJIB gunakan kalimat pujian acak giliran ini): "${randomPujianTurn}" (kutip kalimat ini; hanya jika bidang tugas personil tersebut bukan administrasi/kesekretariatan, sesuaikan istilah bidangnya saja dengan seksi personil tersebut tanpa mengubah gaya kalimatnya).
    - Paragraf 3 (WAJIB gunakan kalimat pengandaian/fans acak giliran ini): "${randomPengandaianTurn}"
    - Paragraf 4 (Penutup Wajib): "Ada lagi info kepanitiaan yang bisa saya bantu, Us?"
-2. DILARANG MENYEBUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
+3. DILARANG MENYEBUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
-    // 4. UTAMAKAN PEMANGGILAN AI UNTUK PERTANYAAN LAINNYA (3-Tier Failover: Clouvia -> Vikey -> Gemini)
+    // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
       const aiResponse = await askAI(prompt, history, dynamicSystemPrompt);
       if (aiResponse && aiResponse.text && aiResponse.text.trim().length > 0) {
         const cleanReply = cleanReplyForSession(aiResponse.text, isFirstTurn, prompt);
-        const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+        const expr = isSayaSiapaQuery(prompt) || isThirdPersonPronounQuery(prompt)
+          ? 'happy'
+          : isKamuSiapaQuery(prompt) || prompt.toLowerCase().includes('halwa siapa')
+            ? 'wave'
+            : detectExpression(cleanReply, prompt, isFirstTurn);
         const durationMs = Date.now() - startTime;
 
         let chartData: any = undefined;
@@ -151,6 +138,35 @@ export async function POST(req: NextRequest) {
       }
     } catch (aiError: any) {
       console.warn('[AI Ask Route] Seluruh tier AI gagal/offline. Berpindah ke Local Smart Fallback:', aiError.message || aiError);
+
+      // Cadangan (Fallback Lokal) Kata Ganti — hanya dipakai saat seluruh AI gagal/timeout
+      if (isSayaSiapaQuery(prompt)) {
+        return NextResponse.json({
+          reply: getRandomMotivasiPositifSaya(),
+          expression: 'happy',
+          avatar: '/images/avatar/ustadzah-avatar-happy.png',
+          source: 'smart_knowledge_engine',
+          model: 'Local Smart Assistant',
+        });
+      }
+      if (isKamuSiapaQuery(prompt) || prompt.toLowerCase().includes('halwa siapa')) {
+        return NextResponse.json({
+          reply: getRandomPerkenalanDiri(),
+          expression: 'wave',
+          avatar: '/images/avatar/ustadzah-avatar-wave.png',
+          source: 'smart_knowledge_engine',
+          model: 'Local Smart Assistant',
+        });
+      }
+      if (isThirdPersonPronounQuery(prompt)) {
+        return NextResponse.json({
+          reply: getRandomMotivasiSatirDia(),
+          expression: 'happy',
+          avatar: '/images/avatar/ustadzah-avatar-happy.png',
+          source: 'smart_knowledge_engine',
+          model: 'Local Smart Assistant',
+        });
+      }
     }
 
     // =========================================================================

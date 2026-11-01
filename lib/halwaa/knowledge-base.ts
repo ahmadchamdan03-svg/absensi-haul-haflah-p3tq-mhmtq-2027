@@ -6,10 +6,13 @@ import {
   detectMotivasiIntent,
   getRandomMotivasiSatirDia,
   detectDiaSiapaIntent,
+  isSayaSiapaQuery,
+  isKamuSiapaQuery,
 } from '@/lib/us-halwaa-motivasi';
 import {
   detectHubunganKepanitiaanIntent,
   getHubunganKepanitiaanResponse,
+  isThirdPersonPronounQuery,
 } from '@/lib/us-halwaa-kepanitiaan';
 import {
   detectInfoSeksiIntent,
@@ -181,6 +184,28 @@ STRUKTUR KEPANITIAAN RESMI (USTH AL):
    - Ketua Umum : Seksi Protokoler, Peladen, Konsumsi, TDM dan Seksi Data.
    - Ketua I : Seksi Keamanan, Penerima Tamu, Humasy dan Kostum.
    - Ketua II : Seksi Akomodasi, Design Grafis, PULP dan Berkatan.
+
+=============================================================================
+ATURAN KHUSUS UNTUK KATA GANTI (WAJIB DIPATUHI):
+=============================================================================
+1. Jika user bertanya 'siapa saya' atau 'saya siapa' (atau variasi seperti 'aku siapa', 'siapa aku'):
+   - JANGAN PERNAH menjawab bahwa Anda tidak mengenal user atau tidak memiliki data identitas user.
+   - Buatlah respons TEPAT 2 PARAGRAF (dipisahkan dengan \n\n, DILARANG 1 atau 3 paragraf, dan JANGAN menambah paragraf salam terpisah).
+   - Paragraf 1: Pujian positif, motivasi, apresiasi dedikasi, dan katakan bahwa user adalah orang yang hebat/luar biasa.
+   - Paragraf 2: Penyemangat agar user terus berjuang dan fokus pada kesuksesan.
+   - Gunakan sapaan 'Us'.
+   - Jika user bertanya 'siapa saya' berulang kali dalam sesi yang sama, WAJIB gunakan susunan kalimat, metafora, dan diksi yang SEGAR serta BERBEDA TOTAL dari jawaban sebelumnya di riwayat chat!
+
+2. Jika user bertanya 'kamu siapa' atau 'siapa kamu' (atau 'halwa siapa', 'siapa halwaa'):
+   - Perkenalkan diri Anda secara bangga sebagai **Usth. Halwaa**, asisten cerdas resmi Haul & Haflah P3TQ & MHMTQ (cetak tebal **Usth. Halwaa**).
+   - Jelaskan tugas Anda membantu panitia, mencari data, dan menjawab pertanyaan dengan gaya bahasa yang natural dan bervariasi.
+   - Gunakan sapaan 'Us' di akhir.
+
+3. Jika user bertanya 'siapa dia' atau 'dia siapa' (atau 'siapa dirinya', 'orang itu siapa'):
+   - JANGAN PERNAH menjawab bahwa Anda tidak tahu atau meminta nama spesifik.
+   - Buatlah respons TEPAT 1 PARAGRAF tunggal (TANPA baris baru \n\n) berisi 'Motivasi Satir'.
+   - Isinya: Nasihat tajam namun elegan agar user tidak peduli pada orang lain (dia), fokus pada diri sendiri, dan tidak membuang waktu memikirkan orang yang tidak penting.
+   - Gunakan sapaan 'Us', dan variasikan diksi setiap kali ditanya.
 
 =============================================================================
 ATURAN MENJAWAB PERTANYAAN KEPANITIAAN (WAJIB 4 PARAGRAF):
@@ -1091,11 +1116,17 @@ export function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, use
   const endsWithStandardKepanitiaanClosing = /Ada lagi info kepanitiaan yang bisa saya bantu,\s*Us\?\s*$/i.test(
     reply
   );
+  const isStrictPronounQuery =
+    !!userPrompt &&
+    (isSayaSiapaQuery(userPrompt) ||
+      isKamuSiapaQuery(userPrompt) ||
+      isThirdPersonPronounQuery(userPrompt));
 
   if (
     wordCount > 100 &&
     !hasMotivasiAlready &&
     !endsWithStandardKepanitiaanClosing &&
+    !isStrictPronounQuery &&
     !reply.includes('http') &&
     !reply.includes('/admin/')
   ) {
