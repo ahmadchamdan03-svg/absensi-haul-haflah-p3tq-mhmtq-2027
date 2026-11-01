@@ -418,7 +418,13 @@ export default function UndanganWaliPage() {
               id: s.id,
               nama: s.nama,
               kategoriUtama: s.kategori_utama || 'BIL_GHOIB',
-              subKategori: cleanKategoriTamatan(s.sub_kategori) || 'Bil Ghoib',
+              subKategori:
+                cleanKategoriTamatan(s.sub_kategori) ||
+                (s.kategori_utama === 'TAMATAN'
+                  ? 'Tamatan'
+                  : s.kategori_utama === 'BIN_NADZOR'
+                  ? 'Bin Nadzori'
+                  : 'Bil Ghoib'),
               kelas: s.kelas || '-',
               kamar: s.kamar || '-',
             },

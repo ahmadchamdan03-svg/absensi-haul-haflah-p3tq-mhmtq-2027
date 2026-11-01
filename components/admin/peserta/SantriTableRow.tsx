@@ -11,7 +11,36 @@ import {
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
-import { getWarnaTiketUndangan } from '@/lib/types';
+import { extractBagianTamatan, getWarnaTiketUndangan } from '@/lib/types';
+
+function formatAdminKategoriSantri(item: any): string {
+  const rawSub = String(item.subKategori || '').trim();
+
+  // 1. Kategori dobel (contoh: "Tamatan (A.01) & Bil Ghoib") — tampilkan utuh dari database
+  if (rawSub.includes('&')) {
+    return rawSub;
+  }
+
+  // 2. Kategori Tamatan — tampilkan bagian/sub-kategori secara utuh bila ada di database
+  if (item.kategoriUtama === 'TAMATAN' || /^tamatan\b/i.test(rawSub)) {
+    if (/^tamatan\s*\([^)]+\)/i.test(rawSub)) {
+      return rawSub;
+    }
+    const bagian = extractBagianTamatan(rawSub) || String(item.bagianTamatan || '').trim();
+    if (bagian) {
+      return `Tamatan (${bagian})`;
+    }
+    if (rawSub && rawSub.toLowerCase() !== 'tamatan') {
+      return `Tamatan (${rawSub})`;
+    }
+    return 'Tamatan';
+  }
+
+  // 3. Kategori tunggal lainnya
+  if (item.kategoriUtama === 'BIL_GHOIB') return 'Bil Ghoib';
+  if (item.kategoriUtama === 'BIN_NADZOR') return 'Bin Nadzori';
+  return rawSub || 'Santri';
+}
 
 export async function executeFastTrackVipHelper(params: {
   item: any;
@@ -161,14 +190,8 @@ export default function SantriTableRow({
             }`}
           ></span>
           <span className="font-bold text-slate-800 break-words leading-tight">
-            {!isUndangan && item.subKategori && item.subKategori.includes('&')
-              ? item.subKategori
-              : isBilGhoib
-              ? 'Bil Ghoib'
-              : isBinNadzor
-              ? 'Bin Nadzori'
-              : isTamatan
-              ? 'Tamatan'
+            {!isUndangan
+              ? formatAdminKategoriSantri(item)
               : item.golonganUndangan === 'ISTIMEWA'
               ? 'Undangan Istimewa'
               : item.golonganUndangan === 'KEHORMATAN'
@@ -176,11 +199,6 @@ export default function SantriTableRow({
               : 'Undangan Umum'}
           </span>
         </div>
-        {!isUndangan && !item.subKategori?.includes('&') && isTamatan && item.bagianTamatan && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 mt-0.5">
-            Bagian {item.bagianTamatan}
-          </span>
-        )}
         {!isUndangan && item.subKategori?.includes('&') && (
           <div className="mt-1 flex flex-wrap gap-1">
             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-gradient-to-r from-emerald-100 to-amber-100 text-slate-800 border border-emerald-300/80 shadow-xs">

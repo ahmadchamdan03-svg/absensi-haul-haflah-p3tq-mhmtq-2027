@@ -19,7 +19,9 @@ export function extractBagianTamatan(text?: string): string {
  */
 export function cleanKategoriTamatan(kategori?: string): string {
   if (!kategori) return '';
-  return kategori.replace(/Tamatan\s*\([^)]*\)/gi, 'Tamatan');
+  const trimmed = kategori.trim();
+  if (/^[AB]\.0[1-4]$/i.test(trimmed)) return 'Tamatan';
+  return trimmed.replace(/Tamatan\s*\([^)]*\)/gi, 'Tamatan');
 }
 
 export type WarnaTiket = 'Cream' | 'Biru' | 'Hijau' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold' | '';

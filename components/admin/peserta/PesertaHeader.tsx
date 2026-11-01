@@ -349,7 +349,9 @@ export function PesertaUtilityModals({
                     : qrDetailItem.kategoriUtama === 'BIN_NADZOR'
                     ? 'Bin Nadzori'
                     : qrDetailItem.kategoriUtama === 'TAMATAN'
-                    ? `Tamatan (Bagian ${qrDetailItem.bagianTamatan})`
+                    ? qrDetailItem.bagianTamatan
+                      ? `Tamatan (${qrDetailItem.bagianTamatan})`
+                      : 'Tamatan'
                     : qrDetailItem.golonganUndangan === 'ISTIMEWA'
                     ? `Undangan Istimewa · ${qrDetailItem.kategori}`
                     : qrDetailItem.golonganUndangan === 'KEHORMATAN'

@@ -89,8 +89,14 @@ export function usePesertaData() {
               kamar: d.kamar || '-',
               kelas: d.kelas || '-',
               kategoriUtama: d.kategori_utama || 'BIL_GHOIB',
-              subKategori: d.sub_kategori || 'Bil Ghoib',
-              bagianTamatan: d.sub_kategori || 'A.01',
+              subKategori:
+                d.sub_kategori ||
+                (d.kategori_utama === 'TAMATAN'
+                  ? ''
+                  : d.kategori_utama === 'BIN_NADZOR'
+                  ? 'Bin Nadzori'
+                  : 'Bil Ghoib'),
+              bagianTamatan: extractBagianTamatan(d.sub_kategori) || extractBagianTamatan(d.kelas) || '',
             },
           ],
           kuota: {
@@ -394,9 +400,9 @@ export function usePesertaData() {
       const sisa = Math.max(0, totalKuota - terpakai);
       const kat = santri?.kategoriUtama || 'BIN_NADZOR';
       const bagian =
-        kat === 'TAMATAN'
-          ? extractBagianTamatan(santri?.kelas || santri?.subKategori)
-          : '';
+        extractBagianTamatan(santri?.subKategori) ||
+        extractBagianTamatan(santri?.kelas) ||
+        '';
 
       list.push({
         id: k.id,
