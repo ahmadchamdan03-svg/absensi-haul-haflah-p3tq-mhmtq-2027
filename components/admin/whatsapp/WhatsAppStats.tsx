@@ -14,9 +14,13 @@ import {
 import { buatPesanPengingatKonfirmasi } from '@/lib/hmac';
 import { extractBagianTamatan } from '@/lib/types';
 
-export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa: string) {
+export function formatWhatsAppMarkdown(text: string): string {
+  // Pastikan penulisan Markdown **bold** di WA terkonversi menjadi format bold resmi WhatsApp (*bold*)
+  return text.replace(/\*\*(.*?)\*\*/g, '*$1*');
+}
+
+export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa?: string) {
   const santri = kel.santri?.[0];
-  const totalKuota = (kel.kuota?.kuotaDasar || 0) + (kel.kuota?.kuotaTambahan || 0);
   const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
   const origin =
     typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
@@ -25,48 +29,38 @@ export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa: string) {
   const linkPortal = `${origin}/u/${kel.kode}`;
   const linkPembelian = `${origin}/beli/${kel.kode}`;
 
-  const katText =
-    santri?.kategoriUtama === 'BIL_GHOIB'
-      ? 'Bil Ghoib'
-      : santri?.kategoriUtama === 'BIN_NADZOR'
-      ? 'Bin Nadzori'
-      : santri?.kategoriUtama === 'TAMATAN'
-      ? `Tamatan (Bagian ${extractBagianTamatan(santri?.kelas || santri?.subKategori)})`
-      : 'Shohibul Hajat';
+  const namaWali = (kel.namaWali || kel.nama_wali || 'Wali Santri').trim();
+  const namaSantri = (santri?.nama || kel.namaSantri || kel.nama || '-').trim();
 
   if (gel === 1) {
-    return `Kepada Yth. Bapak/Ibu Wali Santri
-*${kel.namaWali}*
+    const grupWaBlock =
+      linkGrupWa && linkGrupWa.trim()
+        ? `\n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrupWa.trim()}*`
+        : '';
+
+    const rawTemplate = `Kepada Yth. *Bapak/Ibu Wali Santri ${namaWali}*
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
 
 *HAUL & HAFLAH AKHIRUSSANAH*
-*Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
-*dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)*
-*1448 H./ 2027 M.*
+Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ) 1448 H./2027 M.
 
-Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-Waktu : 06.30 WIB - Selesai
-Tempat : Aula Muktamar Pondok Pesantren Lirboyo Kediri
+- *Hari/Tanggal:* Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+- *Waktu:* 06.30 WIB – selesai
+- *Tempat:* Aula Muktamar Pondok Pesantren Lirboyo Kediri
+- *Shohibul Hajat:* ${namaSantri}
 
-Shohibul Hajat : *${santri?.nama || '-'}*
-Kategori : ${katText}
-Kamar : ${santri?.kamar || '-'}
-Hak Kuota Masuk : *${totalKuota} orang*
+Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk:
+*${linkPortal}*
 
-Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk dapat diakses pada tautan berikut:
-${linkPortal}
+Mohon *QR Code disimpan dan ditunjukkan kepada petugas* saat memasuki lokasi acara.${grupWaBlock}
 
-_Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara._
+Atas perhatian dan kehadirannya, kami sampaikan terima kasih. Jazakumullahu khairan katsiran.
 
-Untuk informasi dan pengumuman terbaru, silakan bergabung di grup WhatsApp resmi wali santri:
-${linkGrupWa}
+Wassalamu’alaikum warahmatullahi wabarakatuh
+*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
 
-Atas perhatian dan kehadirannya kami sampaikan terima kasih.
-Jazakumullahu khairan katsiran.
-
-Wassalamu'alaikum warahmatullahi wabarakatuh
-*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
+    return formatWhatsAppMarkdown(rawTemplate);
   } else if (gel === 2) {
     return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
@@ -150,6 +144,9 @@ export interface WhatsAppStatsProps {
   handleStopBatchBlast: () => void;
   linkGrupWa: string;
   setLinkGrupWa: (val: string) => void;
+  handleSaveLinkGrupWa?: (val: string) => Promise<void>;
+  savingLinkGrup?: boolean;
+  linkGrupSavedNotice?: boolean;
   // Tamu Undangan Props
   tamuList: any[];
   filteredTamuList: any[];
@@ -179,6 +176,9 @@ export default function WhatsAppStats({
   handleStopBatchBlast,
   linkGrupWa,
   setLinkGrupWa,
+  handleSaveLinkGrupWa,
+  savingLinkGrup,
+  linkGrupSavedNotice,
   tamuList,
   filteredTamuList,
   loadingTamuData,
@@ -401,8 +401,8 @@ export default function WhatsAppStats({
         <div
           className={`mt-4 p-4 rounded-2xl border transition-all ${
             !linkGrupWa.trim()
-              ? 'bg-amber-50/70 border-amber-300 ring-2 ring-amber-300/40'
-              : 'bg-[#FAF7F3] border-[#D5C4B4]'
+              ? 'bg-[#FAF7F3] border-[#D5C4B4]'
+              : 'bg-emerald-50/40 border-emerald-300 ring-2 ring-emerald-300/30'
           } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
         >
           <div>
@@ -410,31 +410,49 @@ export default function WhatsAppStats({
               <label className="block font-bold text-[#422F21]">
                 Link Grup WhatsApp Resmi Wali Santri:
               </label>
-              {!linkGrupWa.trim() ? (
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">
-                  ⚠️ Belum Diisi (Wajib Update)
+              {savingLinkGrup ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                  Menyimpan...
+                </span>
+              ) : linkGrupSavedNotice ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  ✓ Tersimpan di Database
+                </span>
+              ) : !linkGrupWa.trim() ? (
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-300">
+                  Opsional (Dihapus dari pesan jika kosong)
                 </span>
               ) : (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  ✓ Link Terisi
+                  ✓ Link Terisi & Aktif
                 </span>
               )}
             </div>
-            <input
-              type="text"
-              value={linkGrupWa}
-              onChange={(e) => setLinkGrupWa(e.target.value)}
-              placeholder="Wajib selalu diisi setiap mau kirim: https://chat.whatsapp.com/..."
-              className={`w-full px-3 py-2 rounded-xl border text-xs font-mono transition-all ${
-                !linkGrupWa.trim()
-                  ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-2 focus:ring-rose-400 focus:outline-none placeholder:text-rose-400'
-                  : 'border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none'
-              }`}
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={linkGrupWa}
+                onChange={(e) => setLinkGrupWa(e.target.value)}
+                onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
+                placeholder="https://chat.whatsapp.com/... (kosongkan jika tanpa grup)"
+                className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none text-xs font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => handleSaveLinkGrupWa?.(linkGrupWa)}
+                disabled={savingLinkGrup}
+                className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5"
+              >
+                {savingLinkGrup ? '...' : 'Simpan'}
+              </button>
+            </div>
+            <p className="text-[10px] text-stone-500 mt-1.5 leading-relaxed">
+              Link ini tersimpan di tabel <code className="text-[#8C6A47] font-semibold">konfigurasi_sistem</code>. Jika diisi, link disisipkan pada undangan wali. Jika dikosongkan, paragraf grup WA ditiadakan.
+            </p>
           </div>
           <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
             <div className="text-[11px] text-[#7A624E] leading-relaxed">
-              <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`.
+              <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup dibaca secara dinamis dari database tanpa hardcode.
             </div>
           </div>
         </div>

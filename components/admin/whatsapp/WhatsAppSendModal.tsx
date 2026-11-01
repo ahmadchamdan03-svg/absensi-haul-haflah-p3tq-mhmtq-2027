@@ -58,11 +58,24 @@ export async function kirimFonnteWali(
   setSendingKode: (val: string | null) => void,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
-    alert(
-      '⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!\n\nSesuai SOP, link grup WA harus selalu diisi dan diperbarui setiap kali mau mengirim pesan undangan.'
-    );
-    return false;
+  let activeLinkGrup = (linkGrupWa || '').trim();
+  if (!activeLinkGrup && gelombang === 1) {
+    try {
+      const { data } = await supabase
+        .from('konfigurasi_sistem')
+        .select('key, value')
+        .in('key', ['link_grup_wa', 'wa_group_link']);
+      if (data && data.length > 0) {
+        const row = data.find((r) => r.key === 'link_grup_wa') || data[0];
+        if (typeof row.value === 'object' && row.value !== null) {
+          activeLinkGrup = (row.value.url || row.value.link || row.value.value || '').trim();
+        } else if (typeof row.value === 'string') {
+          activeLinkGrup = row.value.trim();
+        }
+      }
+    } catch (e) {
+      console.warn('Fallback fetch link_grup_wa error:', e);
+    }
   }
 
   const rawHp = kel.noHp;
@@ -75,7 +88,7 @@ export async function kirimFonnteWali(
   setSendingKode(kel.kode);
 
   try {
-    const teks = getTeksPesan(kel, gelombang, linkGrupWa);
+    const teks = getTeksPesan(kel, gelombang, activeLinkGrup);
     const res = await fetch('/api/whatsapp/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -114,9 +127,24 @@ export async function kirimManualWAWali(
   linkGrupWa: string,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  if (gelombang === 1 && (!linkGrupWa || linkGrupWa.trim() === '')) {
-    alert('⚠️ PERINGATAN WAJIB:\nLink Grup WhatsApp Resmi Wali Santri masih KOSONG!');
-    return;
+  let activeLinkGrup = (linkGrupWa || '').trim();
+  if (!activeLinkGrup && gelombang === 1) {
+    try {
+      const { data } = await supabase
+        .from('konfigurasi_sistem')
+        .select('key, value')
+        .in('key', ['link_grup_wa', 'wa_group_link']);
+      if (data && data.length > 0) {
+        const row = data.find((r) => r.key === 'link_grup_wa') || data[0];
+        if (typeof row.value === 'object' && row.value !== null) {
+          activeLinkGrup = (row.value.url || row.value.link || row.value.value || '').trim();
+        } else if (typeof row.value === 'string') {
+          activeLinkGrup = row.value.trim();
+        }
+      }
+    } catch (e) {
+      console.warn('Fallback fetch link_grup_wa error:', e);
+    }
   }
 
   const rawHp = kel.noHp;
@@ -127,7 +155,7 @@ export async function kirimManualWAWali(
   }
 
   const nomorBersih = normalkanNomorHp(rawHp);
-  const teks = getTeksPesan(kel, gelombang, linkGrupWa);
+  const teks = getTeksPesan(kel, gelombang, activeLinkGrup);
   const url = `https://wa.me/${nomorBersih}?text=${encodeURIComponent(teks)}`;
 
   window.open(url, '_blank');
