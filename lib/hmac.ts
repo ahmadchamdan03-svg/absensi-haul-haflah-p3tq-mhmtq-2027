@@ -144,25 +144,29 @@ export function buatPesanPengingatKonfirmasi(
 ): string {
   const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
   const origin =
-    baseUrl ||
-    (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
+    baseUrl && !baseUrl.includes('localhost') && !baseUrl.includes('127.0.0.1')
+      ? baseUrl
+      : typeof window !== 'undefined' &&
+        !window.location.hostname.includes('localhost') &&
+        !window.location.hostname.includes('127.0.0.1')
       ? window.location.origin
-      : liveDomain);
+      : liveDomain;
   const linkPortal = `${origin}/u/${kodeSantri}`;
-  return `Assalamu’alaikum Warahmatullahi Wabarakatuh.
+  const cleanNamaSantri = (namaSantri || '-').trim();
 
-Kepada Yth. Bapak/Ibu Wali Santri dari ananda *${namaSantri}*,
+  const raw = `*Ringkasan*
 
-Sehubungan dengan pelaksanaan acara Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., kami dari pihak panitia memohon konfirmasi kehadiran Bapak/Ibu beserta rombongan.
+Assalamu’alaikum Warahmatullahi Wabarakatuh.
 
-Guna keperluan pendataan dan persiapan akomodasi, mohon kesediaan Bapak/Ibu untuk mengisi formulir kehadiran melalui tautan berikut:
-👉 ${linkPortal}
+Kepada Yth. *Bapak/Ibu Wali Santri dari ananda ${cleanNamaSantri}*,
 
-Atau melalui tautan yang telah kami kirimkan sebelumnya
+Terkait acara *Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*, panitia memohon *konfirmasi kehadiran Bapak/Ibu beserta rombongan* dengan mengisi formulir melalui:
+👉 *${linkPortal}*
 
-Atas perhatian, kerja sama, dan kehadiran Bapak/Ibu, kami haturkan terima kasih. Jazakumullah khairan katsiran.
+Atas perhatian, kerja sama, dan kehadirannya, kami ucapkan terima kasih. Jazakumullah khairan katsiran.
 
 Wassalamu’alaikum Warahmatullahi Wabarakatuh.
+*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
 
-*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
+  return raw.replace(/\*\*(.*?)\*\*/g, '*$1*');
 }

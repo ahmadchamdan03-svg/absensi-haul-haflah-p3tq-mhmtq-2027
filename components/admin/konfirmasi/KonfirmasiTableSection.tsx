@@ -296,10 +296,7 @@ export default function KonfirmasiTableSection({
                           href={`https://wa.me/${normalkanNomorHp(item.noHp)}?text=${encodeURIComponent(
                             buatPesanPengingatKonfirmasi(
                               item.namaSantri !== '-' ? item.namaSantri : item.namaWali,
-                              item.kode,
-                              typeof window !== 'undefined'
-                                ? window.location.origin
-                                : 'https://haflah.p3tq.id'
+                              item.kode
                             )
                           )}`}
                           target="_blank"

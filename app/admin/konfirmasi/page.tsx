@@ -256,7 +256,12 @@ export default function KonfirmasiPage() {
 
     setSendingFonnteKode(item.kode);
     try {
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://haflah.p3tq.id';
+      const origin =
+        typeof window !== 'undefined' &&
+        !window.location.hostname.includes('localhost') &&
+        !window.location.hostname.includes('127.0.0.1')
+          ? window.location.origin
+          : process.env.NEXT_PUBLIC_BASE_URL || 'https://haflahp3tq.site';
       const teks = buatPesanPengingatKonfirmasi(item.namaSantri !== '-' ? item.namaSantri : item.namaWali, item.kode, origin);
 
       const res = await fetch('/api/whatsapp/send', {
