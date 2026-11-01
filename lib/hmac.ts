@@ -154,9 +154,7 @@ export function buatPesanPengingatKonfirmasi(
   const linkPortal = `${origin}/u/${kodeSantri}`;
   const cleanNamaSantri = (namaSantri || '-').trim();
 
-  const raw = `*Ringkasan*
-
-Assalamu’alaikum Warahmatullahi Wabarakatuh.
+  const raw = `Assalamu’alaikum Warahmatullahi Wabarakatuh.
 
 Kepada Yth. *Bapak/Ibu Wali Santri dari ananda ${cleanNamaSantri}*,
 
