@@ -15,7 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
-import RippleBackground from '@/components/landing/RippleBackground';
+import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import { TOS_FOTOS } from '@/lib/tos-fotos';
 
 const playTosSound = () => {
@@ -296,7 +296,7 @@ export default function LandingPortalPage() {
 
   return (
     <div
-      className="min-h-screen text-[#422F21] flex flex-col justify-between items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-x-hidden cursor-pointer"
+      className="isolate min-h-screen text-[#422F21] flex flex-col justify-between items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-x-hidden cursor-pointer"
       onClick={(e) => {
         if (selectedRole) return;
         const cardEl = document.getElementById('login-card');
@@ -305,8 +305,8 @@ export default function LandingPortalPage() {
         }
       }}
     >
-      {/* EFEK INTERAKTIF WEBGL RIPPLE REVEAL DISTORTION (LAYER TERBAWAH) */}
-      <RippleBackground />
+      {/* EFEK ORGANIC REVEAL MASK 2D (XIAOMI MIMO TECHNIQUE - LAYER TERBAWAH) */}
+      <CanvasRevealMask />
 
       {/* ================================================================= */}
       {/* HERO SECTION: AKSES LOGIN KEPANITIAAN MELAYANG (FLOATING)         */}
