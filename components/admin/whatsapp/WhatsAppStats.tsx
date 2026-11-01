@@ -41,9 +41,10 @@ export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa: string) {
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
 
-*HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.*
+*HAUL & HAFLAH AKHIRUSSANAH*
 *Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
-*Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ)*
+*dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)*
+*1448 H./ 2027 M.*
 
 Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
 Waktu : 06.30 WIB - Selesai
@@ -105,9 +106,10 @@ export function getTeksPesanTamu(tamu: any) {
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
 
-*HAUL & HAFLAH P3TQ DAN MHMTQ 1448 H./ 2027 M.*
+*HAUL & HAFLAH AKHIRUSSANAH*
 *Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
-*Madrasah Hidayatul Mubtadi-aat Fittahfizhi wal Qiro-at (MHMTQ)*
+*dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)*
+*1448 H./ 2027 M.*
 
 Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
 Waktu        : 06.30 WIB - Selesai
