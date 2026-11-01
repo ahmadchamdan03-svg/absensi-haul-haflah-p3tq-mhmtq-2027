@@ -43,42 +43,39 @@ void main() {
         float age = r.z;
         float intensity = r.w;
 
-        if (age < 0.0 || age > 1.8) continue;
+        float maxLifetime = (u_mode == 0) ? 0.85 : 1.1;
+        if (age < 0.0 || age > maxLifetime) continue;
 
         // Jarak dalam koordinat yang dikoreksi aspek rasio
         vec2 diff = (uv - rPos) * aspect;
         float dist = length(diff);
 
-        // Kecepatan & radius muka gelombang air
-        float speed = (u_mode == 0) ? 0.40 : 0.35;
-        float waveRadius = age * speed;
+        // Radius area riak diperkecil (hanya di dekat kursor mouse, ~60px-90px)
+        float maxRadius = (u_mode == 0) ? 0.085 : 0.11;
+        if (dist > maxRadius * 1.4) continue;
+
+        float lifeProgress = age / maxLifetime;
+        // Fade out kuadratik halus dan cepat agar tidak berputar-putar (mumet)
+        float fade = (1.0 - lifeProgress) * (1.0 - lifeProgress);
+
+        // Kecepatan gelombang air lembut tenang
+        float waveRadius = age * 0.10;
         float waveDist = dist - waveRadius;
 
-        // Karakteristik fisik gelombang riak air
-        float waveFreq = 28.0;
-        float lifeProgress = age / 1.8;
-        float waveFalloff = (1.0 - lifeProgress) * exp(-dist * 2.2);
+        // Karakteristik fisik gelombang tenang
+        float waveFreq = 36.0;
+        float ring = exp(-waveDist * waveDist * 420.0);
+        float wave = sin(waveDist * waveFreq) * ring * fade * intensity;
 
-        // Lingkaran riak sinusoidal terfokus pada muka gelombang
-        float ring = exp(-waveDist * waveDist * 140.0);
-        float wave = sin(waveDist * waveFreq) * ring * waveFalloff * intensity;
-
-        if (dist > 0.0001) {
+        // Distorsi air sangat tipis, halus, dan elegan (0.007 — lekukan air tenang tanpa pusaran)
+        if (dist > 0.001) {
             vec2 dir = normalize(diff);
-            totalDisplacement += dir * wave * 0.035;
+            totalDisplacement += dir * wave * 0.007;
         }
 
-        // LOGIKA EFEK REVEAL (MENYINGKAP GAMBAR):
-        // Di sekitar kursor mouse atau tetesan air, warna krem tersingkap dan menampakkan foto Aula di baliknya
-        // 1. Sapuan melingkar di area kursor / titik riak
-        float poolRadius = waveRadius * 1.35 + 0.08;
-        float poolMask = smoothstep(poolRadius, 0.0, dist) * (1.0 - lifeProgress) * intensity;
-        
-        // 2. Muka gelombang riak air yang menyapu keluar
-        float waveMask = ring * waveFalloff * 1.25 * intensity;
-
-        float rippleStrength = max(poolMask, waveMask);
-        totalReveal = max(totalReveal, rippleStrength);
+        // Singkap gambar aula hanya di sekitar kursor dengan batas lembut
+        float revealMask = smoothstep(maxRadius, 0.01, dist) * fade * intensity;
+        totalReveal = max(totalReveal, revealMask);
     }
 
     // Warna dasar solid krem khas tema pesantren (#F5E6D3 ke #EAD8C3)
@@ -86,15 +83,15 @@ void main() {
     vec3 creamBottom = vec3(0.918, 0.847, 0.765); // #EAD8C3
     vec3 baseCream = mix(creamTop, creamBottom, uv.y);
 
-    // Pengambilan tekstur gambar panggung aula dengan distorsi riak air
+    // Pengambilan tekstur gambar panggung aula dengan distorsi riak air sangat halus
     vec2 displacedUV = clamp(uv + totalDisplacement, 0.0, 1.0);
     vec4 stageTex = texture2D(u_texture, displacedUV);
 
-    // EFEK REVEAL MURNI: mix(creamColor, aulaTexture, rippleStrength)
-    // - Saat awal (mouse belum bergerak / ripple_count == 0): totalReveal = 0 -> 100% solid krem
-    // - Saat kursor bergerak: rippleStrength mendekati 1.0 -> gambar aula tersingkap dengan distorsi riak
-    // - Jauh dari kursor / setelah riak memudar: rippleStrength = 0 -> kembali tertutup warna krem
-    // - Tanpa efek glow atau cahaya tambahan
+    // EFEK REVEAL MURNI & ELEGAN:
+    // - Saat diam / awal: totalReveal = 0 -> 100% solid krem
+    // - Saat kursor bergerak: tersingkap tipis di radius kursor (~70px-90px)
+    // - Menjauh / diam: cepat dan halus tertutup kembali tanpa pusing
+    // - Tanpa efek glow atau cahaya berlebihan
     float revealFactor = clamp(totalReveal, 0.0, 1.0);
     vec3 finalColor = mix(baseCream, stageTex.rgb, revealFactor);
 
@@ -307,8 +304,9 @@ export default function RippleBackground() {
 
       const now = performance.now() / 1000;
 
-      // Hapus riak yang sudah usang (> 1.8 detik)
-      activeRipples = activeRipples.filter((r) => now - r.startTime < 1.8);
+      // Hapus riak yang sudah usang (0.85 detik pada desktop agar fade out cepat & elegan)
+      const maxAge = isDesktop ? 0.85 : 1.1;
+      activeRipples = activeRipples.filter((r) => now - r.startTime < maxAge);
 
       // Logika Mobile High-End: Munculkan tetesan hujan acak berkala
       if (!isDesktop) {

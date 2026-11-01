@@ -65,7 +65,7 @@ const playTosSound = () => {
   }
 };
 
-// Konfigurasi visual 4 tombol role (URUTAN BARU: ADMIN -> PIMPINAN -> PENERIMA_TAMU -> PENJAGA_GERBANG)
+// Konfigurasi visual 4 tombol role (URUTAN: ADMIN -> PIMPINAN -> PENERIMA_TAMU -> PENJAGA_GERBANG)
 const ROLE_BUTTONS: {
   key: AppRole;
   icon: React.ComponentType<{ className?: string }>;
@@ -84,7 +84,7 @@ const ROLE_BUTTONS: {
     icon: ShieldCheck,
     image: '/images/halwaa/admin.webp',
     color: {
-      bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
+      bg: 'bg-white/95 hover:bg-white backdrop-blur-sm shadow-sm hover:shadow-md',
       border: 'border-[#E8DFD5]',
       hoverBorder: 'hover:border-rose-400',
       iconBg: 'bg-rose-50',
@@ -97,7 +97,7 @@ const ROLE_BUTTONS: {
     icon: LayoutDashboard,
     image: '/images/halwaa/pimpinan.webp',
     color: {
-      bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
+      bg: 'bg-white/95 hover:bg-white backdrop-blur-sm shadow-sm hover:shadow-md',
       border: 'border-[#E8DFD5]',
       hoverBorder: 'hover:border-amber-500',
       iconBg: 'bg-amber-50',
@@ -110,7 +110,7 @@ const ROLE_BUTTONS: {
     icon: Users,
     image: '/images/halwaa/penerima-tamu.webp',
     color: {
-      bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
+      bg: 'bg-white/95 hover:bg-white backdrop-blur-sm shadow-sm hover:shadow-md',
       border: 'border-[#E8DFD5]',
       hoverBorder: 'hover:border-emerald-500',
       iconBg: 'bg-emerald-50',
@@ -123,13 +123,47 @@ const ROLE_BUTTONS: {
     icon: QrCode,
     image: '/images/halwaa/penjaga-gerbang.webp',
     color: {
-      bg: 'bg-white/90 hover:bg-white backdrop-blur-sm',
+      bg: 'bg-white/95 hover:bg-white backdrop-blur-sm shadow-sm hover:shadow-md',
       border: 'border-[#E8DFD5]',
       hoverBorder: 'hover:border-blue-500',
       iconBg: 'bg-blue-50',
       iconText: 'text-blue-700',
       hoverAccent: 'group-hover:text-blue-700',
     },
+  },
+];
+
+// Konfigurasi 5 Foto Galeri Dokumentasi Panggung & Haflah
+const GALERI_FOTOS = [
+  {
+    src: '/images/galeri/galeri-1.jpg',
+    title: 'Panggung Aula Al-Muktamar',
+    category: 'Panggung Utama',
+    desc: 'Desain megah bernuansa biru langit dan ukiran emas bertema Haflah P3TQ & MHMTQ Lirboyo',
+  },
+  {
+    src: '/images/galeri/galeri-2.jpg',
+    title: 'Khotimat & Dewan Asatidz',
+    category: 'Wisuda Akbar',
+    desc: 'Santriwati khotimat Al-Qur-an bersama dewan asatidz dan pembimbing',
+  },
+  {
+    src: '/images/galeri/galeri-3.jpg',
+    title: 'Suasana Haflah Akbar',
+    category: 'Aula Al-Muktamar',
+    desc: 'Ribuan hadirin, wali santri, dan dewan masyayikh memadati Aula Al-Muktamar',
+  },
+  {
+    src: '/images/galeri/galeri-4.jpg',
+    title: 'Prosesi Khidmah Khotimat',
+    category: 'Rangkaian Khidmah',
+    desc: 'Khidmah prosesi wisuda santriwati dengan khusyuk dan tertib',
+  },
+  {
+    src: '/images/galeri/galeri-5.jpg',
+    title: 'Penyerahan Syahadah',
+    category: 'Syahadah Tahfizh',
+    desc: 'Momen penganugerahan syahadah kelulusan santriwati berprestasi',
   },
 ];
 
@@ -141,6 +175,14 @@ export default function LandingPortalPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // State Lightbox Modal Preview Galeri Foto
+  const [selectedGaleri, setSelectedGaleri] = useState<{
+    src: string;
+    title: string;
+    category: string;
+    desc: string;
+  } | null>(null);
 
   // State Multi-Tos Interaktif Usth. Halwaa (Bisa Di-spam Instan)
   const [tosList, setTosList] = useState<
@@ -287,102 +329,209 @@ export default function LandingPortalPage() {
 
   return (
     <div
-      className="min-h-screen text-[#422F21] flex flex-col justify-center items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-hidden py-8 px-4 sm:px-6 cursor-pointer"
+      className="min-h-screen text-[#422F21] flex flex-col justify-between items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-x-hidden cursor-pointer"
       onClick={(e) => {
-        if (selectedRole) return;
+        if (selectedRole || selectedGaleri) return;
         const cardEl = document.getElementById('login-card');
         if (cardEl && !cardEl.contains(e.target as Node)) {
           triggerTos(e.clientX, e.clientY);
         }
       }}
     >
-      {/* EFEK INTERAKTIF WEBGL RIPPLE DISTORTION ADAPTIF (LAYER TERBAWAH) */}
+      {/* EFEK INTERAKTIF WEBGL RIPPLE REVEAL DISTORTION (LAYER TERBAWAH) */}
       <RippleBackground />
 
-      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH SOLID TANPA BLUR, SHADOW ELEGAN) */}
-      <div id="login-card" className="relative z-10 w-full max-w-sm md:max-w-md p-5 md:p-6 space-y-4 bg-white/90 border border-[#D5C4B4] shadow-2xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
-        {/* LOGO BERJAJAR */}
-        <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
-          <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
-          <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
-          <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
-        </div>
+      {/* ================================================================= */}
+      {/* HERO SECTION: AKSES LOGIN KEPANITIAAN MELAYANG (FLOATING)         */}
+      {/* ================================================================= */}
+      <div className="min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 w-full relative z-10">
+        {/* KONTEN UTAMA: KARTU PEMBUNGKUS PUTIH DIHAPUS, TOMBOL MELAYANG MURNI */}
+        <div id="login-card" className="w-full max-w-sm md:max-w-md p-2 sm:p-4 space-y-4 text-center my-auto animate-in fade-in zoom-in-95 duration-300">
+          {/* LOGO BERJAJAR */}
+          <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
+            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
+            <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
+            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
+          </div>
 
-        {/* JUDUL & DESKRIPSI IDENTITAS */}
-        <div>
-          <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.15em] text-[#8C6A47] uppercase mb-2">
-            HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
-          </p>
+          {/* JUDUL & DESKRIPSI IDENTITAS */}
+          <div>
+            <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.18em] text-[#8C6A47] uppercase mb-2 drop-shadow-xs">
+              HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
+            </p>
 
-          <h1 className="text-sm md:text-base font-bold text-[#422F21] leading-relaxed">
-            Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
-          </h1>
-          <h1 className="text-sm md:text-base font-bold text-[#422F21] leading-relaxed">
-            Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
-          </h1>
+            <h1 className="text-sm md:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs">
+              Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
+            </h1>
+            <h1 className="text-sm md:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs">
+              Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
+            </h1>
 
-          <p className="text-[10px] md:text-xs italic text-[#8C6A47] mt-1.5 font-medium">
-            Lirboyo Kediri
-          </p>
+            <p className="text-[10px] md:text-xs italic text-[#8C6A47] mt-1.5 font-bold">
+              Lirboyo Kediri
+            </p>
 
-          <p className="text-[11px] md:text-xs text-stone-600 mt-2 mb-4 font-medium leading-relaxed max-w-md mx-auto">
-            Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
-          </p>
-        </div>
+            <p className="text-[11px] md:text-xs text-stone-700 mt-2 mb-4 font-medium leading-relaxed max-w-md mx-auto">
+              Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
+            </p>
+          </div>
 
-        {/* 4 TOMBOL AKSES ROLE - POP-OUT HOVER USTH. HALWAA */}
-        <div className="grid grid-cols-2 gap-2.5 md:gap-3 items-stretch">
-          {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
-            const config = ROLES_CONFIG[key];
-            const isAdmin = key === 'ADMIN';
+          {/* 4 TOMBOL AKSES ROLE - MELAYANG LANGSUNG DI ATAS BACKGROUND DENGAN HOVER USTH. HALWAA */}
+          <div className="grid grid-cols-2 gap-2.5 md:gap-3 items-stretch">
+            {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
+              const config = ROLES_CONFIG[key];
+              const isAdmin = key === 'ADMIN';
 
-            return (
-              <div key={key} className="role-card-wrapper relative group hover:z-30 z-10 h-full flex flex-col">
-                {/* FOTO USTH. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER (3/4 BADAN DILUAR, 1/4 TERTUTUP KARTU) */}
-                <div
-                  className={`absolute left-1/2 -translate-x-1/2 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none overflow-hidden z-0 flex items-end justify-center ${
-                    isAdmin
-                      ? 'bottom-[65%] md:bottom-[70%] mb-[-12px] md:mb-[-16px] w-36 md:w-48 h-36 md:h-48'
-                      : 'bottom-[65%] md:bottom-[70%] mb-[-12px] md:mb-[-16px] w-32 md:w-44 h-32 md:h-44'
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`Usth. Halwaa - ${config.title}`}
-                    className="w-full h-full object-contain object-bottom drop-shadow-2xl select-none"
-                    draggable={false}
-                  />
-                </div>
-
-                {/* KARTU ROLE UTAMA */}
-                <button
-                  type="button"
-                  onClick={() => handleOpenRoleModal(key)}
-                  className={`relative z-10 flex items-center h-full gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-xs hover:shadow-lg transition-all text-left w-full cursor-pointer active:scale-[0.98] min-w-0`}
-                >
-                  <div className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0`}>
-                    <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
+              return (
+                <div key={key} className="role-card-wrapper relative group hover:z-30 z-10 h-full flex flex-col">
+                  {/* FOTO USTH. HALWAA — MUNCUL DARI BALIK KARTU SAAT HOVER */}
+                  <div
+                    className={`absolute left-1/2 -translate-x-1/2 opacity-0 translate-y-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none overflow-hidden z-0 flex items-end justify-center ${
+                      isAdmin
+                        ? 'bottom-[65%] md:bottom-[70%] mb-[-12px] md:mb-[-16px] w-36 md:w-48 h-36 md:h-48'
+                        : 'bottom-[65%] md:bottom-[70%] mb-[-12px] md:mb-[-16px] w-32 md:w-44 h-32 md:h-44'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`Usth. Halwaa - ${config.title}`}
+                      className="w-full h-full object-contain object-bottom drop-shadow-2xl select-none"
+                      draggable={false}
+                    />
                   </div>
-                  <span className={`font-serif font-black text-xs sm:text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight break-words min-w-0 flex-1 pr-2.5`}>
-                    {config.title}
-                  </span>
-                  <Lock className="absolute top-2 sm:top-2.5 right-2 sm:right-2.5 w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
-                </button>
-              </div>
-            );
-          })}
+
+                  {/* KARTU ROLE UTAMA (MEMILIKI BACKGROUND PUTIH & SHADOW MASING-MASING) */}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenRoleModal(key)}
+                    className={`relative z-10 flex items-center h-full gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl border ${color.border} ${color.hoverBorder} shadow-sm hover:shadow-xl transition-all text-left w-full cursor-pointer active:scale-[0.98] min-w-0`}
+                  >
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0 shadow-xs`}>
+                      <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
+                    </div>
+                    <span className={`font-serif font-black text-xs sm:text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight break-words min-w-0 flex-1 pr-2.5`}>
+                      {config.title}
+                    </span>
+                    <Lock className="absolute top-2 sm:top-2.5 right-2 sm:right-2.5 w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* FOOTER INFO KEPANITIAAN */}
+          <div className="text-center space-y-1 pt-3 border-t border-[#8C6A47]/20 mt-4">
+            <p className="text-[10px] md:text-[11px] text-[#8C6A47] font-bold">
+              Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
+            </p>
+            <p className="text-[10px] md:text-[11px] text-stone-600 font-medium">
+              Sistem Web Murni · Dibuka langsung melalui browser
+            </p>
+          </div>
         </div>
 
-        {/* FOOTER KECIL */}
-        <div className="text-center space-y-1 pt-3 border-t border-[#D5C4B4]/60 mt-4">
-          <p className="text-[10px] md:text-[11px] text-[#8C6A47] font-semibold">
-            Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
-          </p>
-          <p className="text-[10px] md:text-[11px] text-stone-500 font-medium">
-            Sistem Web Murni · Dibuka langsung melalui browser
-          </p>
+        {/* INDIKATOR SCROLL KE GALERI */}
+        <div className="mt-6 flex flex-col items-center gap-1 text-[#8C6A47]/80 animate-bounce pointer-events-none select-none">
+          <span className="text-[10px] font-bold tracking-widest uppercase font-mono">
+            Dokumentasi &amp; Galeri Panggung
+          </span>
+          <span className="text-sm font-black">↓</span>
         </div>
       </div>
+
+      {/* ================================================================= */}
+      {/* SECTION GALERI 5 FOTO RESMI (PANGGUNG & MOMEN HAFLAH)             */}
+      {/* ================================================================= */}
+      <section className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8C6A47]/10 text-[#8C6A47] text-[11px] font-bold tracking-wider uppercase border border-[#8C6A47]/20">
+            <span>Dokumentasi Resmi</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-black text-[#422F21]">
+            Momen Haflah Akhirussanah
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
+            Panggung megah Aula Al-Muktamar dan kebersamaan santriwati penghafal Al-Qur'an P3TQ &amp; MHMTQ Lirboyo Kediri.
+          </p>
+        </div>
+
+        {/* Grid 5 Foto Galeri */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {GALERI_FOTOS.map((item, idx) => (
+            <div
+              key={idx}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedGaleri(item);
+              }}
+              className="group relative rounded-2xl overflow-hidden border border-[#D5C4B4] bg-white/90 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+            >
+              <div className="aspect-[4/3] sm:aspect-[3/2] lg:aspect-[4/5] w-full overflow-hidden bg-stone-100">
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-3 bg-white/95 border-t border-[#E8DFD5] text-left">
+                <p className="text-[10px] font-bold tracking-wider text-[#8C6A47] uppercase font-mono">
+                  {item.category}
+                </p>
+                <h4 className="text-xs font-bold text-[#422F21] truncate">
+                  {item.title}
+                </h4>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FOOTER BAWAH */}
+      <footer className="relative z-10 w-full py-6 text-center text-xs text-[#8C6A47]/70 border-t border-[#8C6A47]/10 bg-white/40 backdrop-blur-xs">
+        <p className="font-semibold text-[#8C6A47]">
+          Haflah Akhirussanah 1448 H. · Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) &amp; MHMTQ Lirboyo
+        </p>
+      </footer>
+
+      {/* LIGHTBOX MODAL PREVIEW FOTO GALERI */}
+      {selectedGaleri && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={() => setSelectedGaleri(null)}
+        >
+          <div
+            className="relative max-w-4xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-[#D5C4B4] animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedGaleri(null)}
+              className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+            <div className="max-h-[75vh] overflow-hidden bg-black flex items-center justify-center">
+              <img
+                src={selectedGaleri.src}
+                alt={selectedGaleri.title}
+                className="w-full h-auto max-h-[75vh] object-contain"
+              />
+            </div>
+            <div className="p-4 sm:p-5 bg-white space-y-1">
+              <span className="text-[11px] font-bold text-[#8C6A47] tracking-wider uppercase font-mono">
+                {selectedGaleri.category}
+              </span>
+              <h3 className="text-base sm:text-lg font-serif font-black text-[#422F21]">
+                {selectedGaleri.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600">
+                {selectedGaleri.desc}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================================================================= */}
       {/* MODAL INPUT PASSWORD                                              */}
