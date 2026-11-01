@@ -26,6 +26,8 @@
 .font-arabic,
 .font-utsman {
   font-family: 'KFGQPC Utsman Taha Naskh', 'KFGQPC Uthmanic Script HAFS', 'Amiri', 'Traditional Arabic', serif;
+  letter-spacing: 0;
+  font-weight: normal;
 }
 
 :root {

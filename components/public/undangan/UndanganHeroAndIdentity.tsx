@@ -36,8 +36,12 @@ export function TamuHeroAndEventSections({
       {/* 2. KARTU IDENTITAS TAMU UNDANGAN & SAMBUTAN FORMAL ISLAMI */}
       <ScrollReveal delay={150}>
         <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#D5C4B4]/80 shadow-md space-y-4 relative overflow-hidden">
-          <div className="text-center text-base font-serif text-[#8C6A47] font-bold tracking-widest font-arabic">
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          <div
+            dir="rtl"
+            lang="ar"
+            className="text-center text-xl sm:text-2xl text-[#8C6A47] font-normal tracking-normal leading-loose font-arabic"
+          >
+            بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
           </div>
 
           <div className="flex items-center justify-center gap-3 my-1 text-[#8C6A47]/60">
@@ -270,8 +274,12 @@ export function WaliHeroAndIdentitySections({
       {/* 3. KALIMAT SAMBUTAN FORMAL ISLAMI & INFO MAHSYAYIKH */}
       <ScrollReveal delay={150}>
         <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#D5C4B4]/80 shadow-sm space-y-4 text-[#422F21]">
-          <div className="text-center text-base font-serif text-[#8C6A47] font-bold tracking-widest font-arabic">
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          <div
+            dir="rtl"
+            lang="ar"
+            className="text-center text-xl sm:text-2xl text-[#8C6A47] font-normal tracking-normal leading-loose font-arabic"
+          >
+            بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
           </div>
 
           <h3 className="font-serif font-bold text-center text-sm sm:text-base text-[#422F21]">
