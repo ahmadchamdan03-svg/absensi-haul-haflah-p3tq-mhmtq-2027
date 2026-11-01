@@ -400,18 +400,18 @@ export default function LandingPortalPage() {
       </div>
 
       {/* ================================================================= */}
-      {/* SECTION GALERI 5 FOTO RESMI VERTIKAL (BESAR, TANPA TEKS & MODAL) */}
+      {/* SECTION GALERI 5 FOTO RESMI VERTIKAL (BESAR, RASIO 16:9 SINEMATIK) */}
       {/* ================================================================= */}
       <section className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-4 pb-16 flex flex-col gap-6 sm:gap-8">
         {GALERI_FOTOS.map((src, idx) => (
           <div
             key={idx}
-            className="w-full rounded-2xl overflow-hidden shadow-lg border border-[#D5C4B4]/70 bg-transparent transition-all duration-300"
+            className="relative w-full aspect-video overflow-hidden rounded-2xl shadow-lg border border-[#D5C4B4]/70 bg-black/5 transition-all duration-300"
           >
             <img
               src={src}
               alt={`Dokumentasi Haflah P3TQ ${idx + 1}`}
-              className="w-full h-auto object-cover block"
+              className="w-full h-full object-cover block"
               loading="lazy"
             />
           </div>
