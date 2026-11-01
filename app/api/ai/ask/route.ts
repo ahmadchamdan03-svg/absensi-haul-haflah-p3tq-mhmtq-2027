@@ -5,6 +5,9 @@ import {
   detectDiaSiapaIntent,
   isKamuSiapaQuery,
   isSayaSiapaQuery,
+  getRandomMotivasiPositifSaya,
+  getRandomPerkenalanDiri,
+  getRandomMotivasiSatirDia,
 } from '@/lib/us-halwaa-motivasi';
 import {
   detectHubunganKepanitiaanIntent,
@@ -73,6 +76,42 @@ export async function POST(req: NextRequest) {
       ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jika pengguna mengucapkan salam, jawab dengan \"Wa'alaikum Salam Wr. Wb.\" (khusus pertanyaan profil personil panitia 'siapa [nama]', langsung mulai dari Paragraf 1 dengan **Nama Lengkap** tanpa membuat paragraf salam terpisah agar jumlah paragraf tepat 4). PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]";
 
+    // =========================================================================
+    // INTERCEPTOR LOKAL KATA GANTI (SEBELUM MEMANGGIL AI CLOUD)
+    // =========================================================================
+    // 1. Cek Saya Siapa (Motivasi Positif — 2 Paragraf)
+    if (isSayaSiapaQuery(prompt)) {
+      return NextResponse.json({
+        reply: getRandomMotivasiPositifSaya(),
+        expression: 'happy',
+        avatar: '/images/avatar/ustadzah-avatar-happy.png',
+        source: 'smart_knowledge_engine',
+        model: 'Local Motivasi Engine',
+      });
+    }
+
+    // 2. Cek Kamu Siapa (Perkenalan Diri)
+    if (isKamuSiapaQuery(prompt) || prompt.toLowerCase().includes('halwa siapa')) {
+      return NextResponse.json({
+        reply: getRandomPerkenalanDiri(),
+        expression: 'wave',
+        avatar: '/images/avatar/ustadzah-avatar-wave.png',
+        source: 'smart_knowledge_engine',
+        model: 'Local Perkenalan Engine',
+      });
+    }
+
+    // 3. Cek Dia Siapa (Motivasi Satir — 1 Paragraf)
+    if (isThirdPersonPronounQuery(prompt)) {
+      return NextResponse.json({
+        reply: getRandomMotivasiSatirDia(),
+        expression: 'happy',
+        avatar: '/images/avatar/ustadzah-avatar-happy.png',
+        source: 'smart_knowledge_engine',
+        model: 'Local Satir Engine',
+      });
+    }
+
     const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const randomPujianTurn = getRandomPujian();
     const randomPengandaianTurn = getRandomPengandaian();
@@ -86,7 +125,7 @@ export async function POST(req: NextRequest) {
    - Paragraf 4 (Penutup Wajib): "Ada lagi info kepanitiaan yang bisa saya bantu, Us?"
 2. DILARANG MENYEBUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
-    // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
+    // 4. UTAMAKAN PEMANGGILAN AI UNTUK PERTANYAAN LAINNYA (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
       const aiResponse = await askAI(prompt, history, dynamicSystemPrompt);
       if (aiResponse && aiResponse.text && aiResponse.text.trim().length > 0) {
