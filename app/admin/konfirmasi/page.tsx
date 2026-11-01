@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
-import { buatPesanPengingatKonfirmasi } from '@/lib/hmac';
+import { buatPesanPengingatKonfirmasi, buatPesanKonfirmasiTamu } from '@/lib/hmac';
 import { logAudit } from '@/lib/audit-log';
 import {
   MainTabType,
@@ -262,7 +262,11 @@ export default function KonfirmasiPage() {
         !window.location.hostname.includes('127.0.0.1')
           ? window.location.origin
           : process.env.NEXT_PUBLIC_BASE_URL || 'https://haflahp3tq.site';
-      const teks = buatPesanPengingatKonfirmasi(item.namaSantri !== '-' ? item.namaSantri : item.namaWali, item.kode, origin);
+      const isTamu = item.tipe === 'TAMU_UNDANGAN' || item.kode?.startsWith('UND');
+      const targetNama = item.namaSantri !== '-' ? item.namaSantri : item.namaWali;
+      const teks = isTamu
+        ? buatPesanKonfirmasiTamu(targetNama, item.kode, origin)
+        : buatPesanPengingatKonfirmasi(targetNama, item.kode, origin);
 
       const res = await fetch('/api/whatsapp/send', {
         method: 'POST',

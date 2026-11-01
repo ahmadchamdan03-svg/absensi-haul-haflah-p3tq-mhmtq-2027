@@ -252,22 +252,17 @@ export function useVerifikasiData() {
       if (targetHp && targetHp.length >= 9) {
         const origin = getLiveBaseUrl();
         const pesanWa =
-          `*VERIFIKASI PEMBELIAN KUOTA TAMBAHAN BERHASIL*\n\n` +
-          `Assalamu'alaikum Bpk/Ibu *${item.nama_wali || currentSantri?.nama_wali || 'Wali Santri'}*,\n` +
-          `Pembayaran pesanan kuota tambahan kursi Anda (ID Pesanan: *${targetId}*) sebanyak *${numKursi} Kursi* telah *BERHASIL DIVERIFIKASI RESMI* oleh panitia.\n\n` +
-          `📋 *Detail Terkini*:\n` +
-          `• ID Pesanan: ${targetId}\n` +
-          `• Tambahan: +${numKursi} Kursi\n` +
-          `• Status: *Aktif pada QR Code Santri*\n\n` +
-          `*Mohon Konfirmasi Ulang Kedatangan Anda*\n` +
-          `Bantu panitia menyiapkan kursi dan penginapan dengan mengisi perkiraan jumlah kehadiran Anda di link undangan digital. Silakan buka link di bawah, scroll ke bagian RSVP, dan konfirmasi ulang:\n` +
-          `• Hari kedatangan (Jum'at / Sabtu)\n` +
-          `• Jam kedatangan\n` +
-          `• Jumlah wali santri putra & putri\n\n` +
-          `Akses Kartu Presensi Digital & QR Code:\n` +
-          `🔗 ${origin}/u/${targetKode}\n\n` +
-          `Terima kasih atas kerja samanya.\n\n` +
-          `_Panitia Haul & Haflah P3TQ - MHMTQ 2027_`;
+          `Assalamu'alaikum Bpk/Ibu *${item.nama_wali || currentSantri?.nama_wali || 'Wali Santri'}*,\n\n` +
+          `Pembayaran kuota tambahan (ID: *${targetId}*) sebanyak *${numKursi} Kursi* telah *BERHASIL DIVERIFIKASI* dan kini *Aktif pada QR Code Santri*.\n\n` +
+          `*Mohon Konfirmasi Ulang Kedatangan*\n` +
+          `Guna persiapan kursi dan penginapan, silakan buka link di bawah, scroll ke bagian Konfirmasi Kehadiran, dan isi:\n` +
+          `- Hari kedatangan (Jum'at/Sabtu)\n` +
+          `- Jam kedatangan\n` +
+          `- Jumlah wali santri putra & putri\n\n` +
+          `Akses Kartu Presensi & QR Code:\n` +
+          `🔗 *${origin}/u/${targetKode}*\n\n` +
+          `Terima kasih atas kerja samanya.\n` +
+          `*Panitia Haul & Haflah P3TQ - MHMTQ 2027*`;
 
         fetch('/api/whatsapp/send', {
           method: 'POST',

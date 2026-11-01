@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
-import { calculateKuotaDasarSantri } from '@/lib/types';
+import { calculateKuotaDasarSantri, cleanKategoriTamatan } from '@/lib/types';
 import {
   normalizePortalToken,
   isValidKodeUndangan,
@@ -418,7 +418,7 @@ export default function UndanganWaliPage() {
               id: s.id,
               nama: s.nama,
               kategoriUtama: s.kategori_utama || 'BIL_GHOIB',
-              subKategori: s.sub_kategori || 'Bil Ghoib',
+              subKategori: cleanKategoriTamatan(s.sub_kategori) || 'Bil Ghoib',
               kelas: s.kelas || '-',
               kamar: s.kamar || '-',
             },

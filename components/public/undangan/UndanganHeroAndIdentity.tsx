@@ -6,6 +6,7 @@ import { formatQrPayloadSync } from '@/lib/hmac';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
 import HeaderUndangan from '@/components/HeaderUndangan';
+import { cleanKategoriTamatan } from '@/lib/types';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
 import {
@@ -245,10 +246,10 @@ export function WaliHeroAndIdentitySections({
             <p className="text-xs text-stone-600 font-medium max-w-full leading-relaxed break-words">
               {santri?.kamar && santri.kamar !== '-' ? (
                 <>
-                  {santri.subKategori || 'Santri'} · <strong>{santri.kamar}</strong>
+                  {cleanKategoriTamatan(santri.subKategori) || 'Santri'} · <strong>{santri.kamar}</strong>
                 </>
               ) : (
-                santri?.subKategori || 'Santri'
+                cleanKategoriTamatan(santri?.subKategori) || 'Santri'
               )}
             </p>
           </div>

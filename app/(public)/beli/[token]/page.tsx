@@ -329,24 +329,21 @@ export default function BeliKuotaPage() {
           const linkUpload = `${origin}/beli/${santri.kode}`;
 
           const pesanWali =
-            `*PEMESANAN KUOTA TAMBAHAN*\n` +
-            `*HAUL & HAFLAH P3TQ - MHMTQ 2027*\n\n` +
-            `Kepada Yth. Bapak/Ibu ${namaWali},\n\n` +
-            `Pesanan kuota tambahan Anda telah DIKUNCI dengan detail:\n` +
-            `  • ID Pesanan : ${orderId}\n` +
-            `  • Santri     : ${santri.nama} (${santri.kode})\n` +
-            `  • Jumlah     : ${jumlahBeli} kursi\n` +
-            `  • Total      : Rp ${totalBayar.toLocaleString('id-ID')}\n\n` +
-            `Mohon segera lakukan transfer ke:\n` +
-            `  Bank BRI\n` +
-            `  No. Rek: 320701010266508\n` +
-            `  a.n. Ahmad Chamdan Yuwafin\n\n` +
-            `*Batas waktu: 6 JAM dari sekarang.*\n\n` +
-            `⚠️ *PENTING:* Apabila dalam 6 jam Bapak/Ibu belum mengunggah bukti transfer, maka pesanan ini akan DIBATALKAN secara OTOMATIS oleh sistem dan kuota akan dilepas kembali. Silakan lakukan pemesanan ulang jika diperlukan.\n\n` +
-            `Upload bukti transfer di link berikut:\n` +
+            `Kepada Yth. *Bapak/Ibu ${namaWali}*,\n\n` +
+            `Pesanan kuota tambahan untuk santri *${santri.nama} (${santri.kode})* telah *DIKUNCI*:\n` +
+            `- *ID Pesanan:* ${orderId}\n` +
+            `- *Jumlah:* ${jumlahBeli} kursi\n` +
+            `- *Total:* Rp ${totalBayar.toLocaleString('id-ID')}\n\n` +
+            `*Transfer ke:*\n` +
+            `Bank BRI\n` +
+            `No. Rek: *320701010266508*\n` +
+            `a.n. Ahmad Chamdan Yuwafin\n\n` +
+            `*Batas Waktu: 6 JAM.*\n` +
+            `*(Jika belum unggah bukti transfer dalam 6 jam, pesanan otomatis DIBATALKAN).*\n\n` +
+            `*Upload bukti transfer di sini:*\n` +
             `${linkUpload}\n\n` +
             `Jazakumullahu khairan katsiran.\n` +
-            `_Panitia Haul & Haflah P3TQ dan MHMTQ 2027_`;
+            `*Panitia Haul & Haflah P3TQ dan MHMTQ 2027*`;
 
           await fetch('/api/whatsapp/send', {
             method: 'POST',

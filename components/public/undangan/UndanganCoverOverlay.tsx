@@ -7,6 +7,7 @@ import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
 import HeaderUndangan from '@/components/HeaderUndangan';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
+import { cleanKategoriTamatan } from '@/lib/types';
 import { renderTamuName, renderAlamatTamu } from './UndanganEffects';
 
 export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
@@ -147,8 +148,8 @@ export function UndanganCoverWali({
             <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] max-w-full leading-normal break-words text-center">
               {santri
                 ? santri.kamar && santri.kamar !== '-'
-                  ? `${santri.subKategori || 'Santri'} · ${santri.kamar}`
-                  : (santri.subKategori || 'Santri')
+                  ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
+                  : (cleanKategoriTamatan(santri.subKategori) || 'Santri')
                 : 'Wali Santri'}
             </div>
           </div>

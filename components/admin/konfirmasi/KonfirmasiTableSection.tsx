@@ -15,7 +15,7 @@ import {
   Zap,
   XCircle,
 } from 'lucide-react';
-import { buatPesanPengingatKonfirmasi, normalkanNomorHp } from '@/lib/hmac';
+import { buatPesanPengingatKonfirmasi, buatPesanKonfirmasiTamu, normalkanNomorHp } from '@/lib/hmac';
 import { MainTabType, KonfirmasiItem } from './types';
 
 interface KonfirmasiTableSectionProps {
@@ -294,10 +294,15 @@ export default function KonfirmasiTableSection({
                       {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' && (
                         <a
                           href={`https://wa.me/${normalkanNomorHp(item.noHp)}?text=${encodeURIComponent(
-                            buatPesanPengingatKonfirmasi(
-                              item.namaSantri !== '-' ? item.namaSantri : item.namaWali,
-                              item.kode
-                            )
+                            (item.tipe === 'TAMU_UNDANGAN' || item.kode?.startsWith('UND'))
+                              ? buatPesanKonfirmasiTamu(
+                                  item.namaSantri !== '-' ? item.namaSantri : item.namaWali,
+                                  item.kode
+                                )
+                              : buatPesanPengingatKonfirmasi(
+                                  item.namaSantri !== '-' ? item.namaSantri : item.namaWali,
+                                  item.kode
+                                )
                           )}`}
                           target="_blank"
                           rel="noreferrer"

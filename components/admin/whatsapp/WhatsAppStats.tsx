@@ -87,31 +87,32 @@ export function getTeksPesanTamu(tamu: any) {
       ? window.location.origin
       : 'https://haflahp3tq.site');
   const linkPortal = `${baseUrl}/u/${tamu.kode || 'UNDxxxx'}`;
+  const namaTamu = (tamu.nama || [tamu.nama_putra, tamu.nama_putri].filter(Boolean).join(' & ') || 'Bapak/Ibu').trim();
 
-  return `Kepada Yth. Bapak/Ibu 
-*${tamu.nama}*
+  const rawTemplate = `*Ringkasan Undangan*
+
+Kepada Yth. *Bapak/Ibu ${namaTamu}*
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
 
 *HAUL & HAFLAH AKHIRUSSANAH*
-*Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)*
-*dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)*
-*1448 H./ 2027 M.*
+Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ) 1448 H./2027 M.
 
-Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-Waktu        : 06.30 WIB - Selesai
-Tempat       : Aula Muktamar Pondok Pesantren Lirboyo Kediri
+- *Hari/Tanggal:* Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
+- *Waktu:* 06.30 WIB – selesai
+- *Tempat:* Aula Muktamar Pondok Pesantren Lirboyo Kediri
 
-Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk dapat diakses pada tautan berikut:
-${linkPortal}
+Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk:
+*${linkPortal}*
 
-_Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara._
+Mohon *QR Code disimpan dan ditunjukkan kepada petugas* saat memasuki lokasi acara.
 
-Atas perhatian dan kehadirannya kami sampaikan terima kasih.
-Jazakumullahu khairan katsiran.
+Atas perhatian dan kehadirannya, kami sampaikan terima kasih. Jazakumullahu khairan katsiran.
 
-Wassalamu'alaikum warahmatullahi wabarakatuh
-*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
+Wassalamu’alaikum warahmatullahi wabarakatuh
+*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
+
+  return formatWhatsAppMarkdown(rawTemplate);
 }
 
 export interface WhatsAppStatsProps {

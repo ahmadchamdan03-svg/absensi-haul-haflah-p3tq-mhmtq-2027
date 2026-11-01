@@ -170,3 +170,38 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.
 
   return raw.replace(/\*\*(.*?)\*\*/g, '*$1*');
 }
+
+// Template Pesan Konfirmasi Kehadiran (RSVP) Resmi Tamu Undangan
+export function buatPesanKonfirmasiTamu(
+  namaTamu: string,
+  kodeTamu: string,
+  baseUrl?: string
+): string {
+  const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
+  const origin =
+    baseUrl && !baseUrl.includes('localhost') && !baseUrl.includes('127.0.0.1')
+      ? baseUrl
+      : typeof window !== 'undefined' &&
+        !window.location.hostname.includes('localhost') &&
+        !window.location.hostname.includes('127.0.0.1')
+      ? window.location.origin
+      : liveDomain;
+  const linkPortal = `${origin}/u/${kodeTamu}`;
+  const cleanNamaTamu = (namaTamu || 'Tamu Undangan').trim();
+
+  const raw = `Assalamu’alaikum Warahmatullahi Wabarakatuh.
+
+Kepada Yth. *Bapak/Ibu Wali ${cleanNamaTamu}*,
+
+Terkait acara *Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*, panitia memohon *konfirmasi kehadiran Bapak/Ibu* untuk keperluan pendataan dan persiapan akomodasi.
+
+Silakan mengisi formulir kehadiran melalui tautan berikut:
+👉 *${linkPortal}*
+
+Atas perhatian, kerja sama, dan kehadirannya, kami ucapkan terima kasih. Jazakumullah khairan katsiran.
+
+Wassalamu’alaikum Warahmatullahi Wabarakatuh.
+*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
+
+  return raw.replace(/\*\*(.*?)\*\*/g, '*$1*');
+}

@@ -205,7 +205,7 @@ export function TanyaUsMessageList({
                       <Sparkles className="w-3 h-3 text-[#D49B5B]" />
                       <span>Usth. Halwaa</span>
                       <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-md bg-[#EFE8E1] text-[#8C6A47] font-semibold">
-                        {msg.model || 'GPT-4o'}
+                        {msg.model || 'Clouvia'}
                       </span>
                       <span
                         className={`ml-1 text-[9px] px-1.5 py-0.5 rounded-full border font-medium ${

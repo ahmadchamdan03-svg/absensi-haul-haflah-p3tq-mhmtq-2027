@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
-import { JalurPemeriksaan, CheckinResult, calculateKuotaDasarSantri } from '@/lib/types';
+import { JalurPemeriksaan, CheckinResult, calculateKuotaDasarSantri, cleanKategoriTamatan } from '@/lib/types';
 import { upsertPresensiLog, syncKuotaTerpakai } from '@/lib/presensi-helper';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
@@ -209,7 +209,7 @@ export default function ScanPage() {
         nama: entity.nama,
         namaWali: isSantri ? (entity.nama_wali || '-') : (entity.instansi || entity.alamat || '-'),
         kategori: resolvedKategori,
-        subKategori: entity.sub_kategori || (isSantri ? 'Bil Ghoib' : entity.kategori || 'Tamu'),
+        subKategori: cleanKategoriTamatan(entity.sub_kategori) || (isSantri ? 'Bil Ghoib' : entity.kategori || 'Tamu'),
         kelas: entity.kelas || '-',
         kamar: entity.kamar || '-',
         alamat: entity.alamat || 'Kediri',
@@ -221,7 +221,7 @@ export default function ScanPage() {
               {
                 nama: entity.nama,
                 kategoriUtama: entity.kategori_utama || 'BIL_GHOIB',
-                subKategori: entity.sub_kategori || 'Bil Ghoib',
+                subKategori: cleanKategoriTamatan(entity.sub_kategori) || 'Bil Ghoib',
                 kelas: entity.kelas || '-',
                 kamar: entity.kamar || '-',
               },

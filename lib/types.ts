@@ -12,6 +12,16 @@ export function extractBagianTamatan(text?: string): string {
   return match ? match[0].toUpperCase() : '';
 }
 
+/**
+ * Membersihkan format sub-kategori bagian seperti (A.01), (B.02), dll khusus pada kata "Tamatan"
+ * Contoh: "Tamatan (A.01) & Bil Ghoib" -> "Tamatan & Bil Ghoib"
+ *         "Tamatan (A.02)" -> "Tamatan"
+ */
+export function cleanKategoriTamatan(kategori?: string): string {
+  if (!kategori) return '';
+  return kategori.replace(/Tamatan\s*\([^)]*\)/gi, 'Tamatan');
+}
+
 export type WarnaTiket = 'Cream' | 'Biru' | 'Hijau' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold' | '';
 
 /**

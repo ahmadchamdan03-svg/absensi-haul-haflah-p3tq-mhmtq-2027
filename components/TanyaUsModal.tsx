@@ -58,7 +58,7 @@ export default function TanyaUsModal({
 
 Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.? Kula siap mbantu informasi kuota, denah lokasi, tata tertib, jadwal acara, presensi, utawi rekapitulasi data. Silakan ketik pertanyaan di bawah ya! 😊`,
       timestamp: 'Baru saja',
-      model: 'Gemini 3.5 Pro',
+      model: 'Clouvia',
       expression: 'wave',
     },
   ]);
@@ -236,7 +236,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
               minute: '2-digit',
             }),
             source: data.source,
-            model: data.model || 'GPT-4o',
+            model: data.model || 'Clouvia',
             expression: assignedExpr,
             chart: data.chart,
           },
@@ -252,7 +252,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
               hour: '2-digit',
               minute: '2-digit',
             }),
-            model: 'GPT-4o Engine',
+            model: 'Local Assistant',
           },
         ]);
       }
@@ -267,7 +267,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
             hour: '2-digit',
             minute: '2-digit',
           }),
-          model: 'Gemini 3.5 Offline',
+          model: 'Local Assistant',
         },
       ]);
     } finally {
