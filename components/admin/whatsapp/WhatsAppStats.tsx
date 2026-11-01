@@ -3,7 +3,6 @@
 import React from 'react';
 import {
   MessageSquare,
-  Clock,
   Wifi,
   Zap,
   Pause,
@@ -11,7 +10,6 @@ import {
   RefreshCw,
   UserCheck,
 } from 'lucide-react';
-import { buatPesanPengingatKonfirmasi } from '@/lib/hmac';
 import { extractBagianTamatan } from '@/lib/types';
 
 export function formatWhatsAppMarkdown(text: string): string {
@@ -19,7 +17,7 @@ export function formatWhatsAppMarkdown(text: string): string {
   return text.replace(/\*\*(.*?)\*\*/g, '*$1*');
 }
 
-export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa?: string) {
+export function getTeksPesan(kel: any, gel: 1 | 2, linkGrupWa?: string) {
   const santri = kel.santri?.[0];
   const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
   const origin =
@@ -61,7 +59,7 @@ Wassalamu’alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
 
     return formatWhatsAppMarkdown(rawTemplate);
-  } else if (gel === 2) {
+  } else {
     return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
 
@@ -78,8 +76,6 @@ ${linkPembelian}
 
 Wassalamu'alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
-  } else {
-    return buatPesanPengingatKonfirmasi(santri?.nama || kel.namaWali, kel.kode, origin);
   }
 }
 
@@ -124,8 +120,8 @@ export interface WhatsAppStatsProps {
   keluargaList: any[];
   loadingData: boolean;
   fetchSantriWaData: () => void;
-  gelombang: 1 | 2 | 3;
-  setGelombang: (g: 1 | 2 | 3) => void;
+  gelombang: 1 | 2;
+  setGelombang: (g: 1 | 2) => void;
   setFilterKonfirmasi: (f: 'SEMUA' | 'BELUM' | 'SUDAH') => void;
   kuotaTambahanBuka: boolean;
   savingKuotaConfig: boolean;
@@ -246,21 +242,6 @@ export default function WhatsAppStats({
             >
               <span>2. Kuota Tambahan</span>
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setGelombang(3);
-                setFilterKonfirmasi('BELUM');
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
-                gelombang === 3
-                  ? 'bg-amber-800 text-white shadow-md border border-amber-900'
-                  : 'text-[#422F21] hover:text-amber-800 hover:bg-white/70'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>3. Pengingat Konfirmasi</span>
-            </button>
           </div>
 
           <div className="flex items-center justify-between sm:justify-start space-x-2.5 px-3.5 py-2 bg-white rounded-xl border border-[#D5C4B4] shadow-xs shrink-0">
@@ -328,11 +309,7 @@ export default function WhatsAppStats({
                 className="w-full md:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center justify-center space-x-1.5 transition-all border border-[#FAF7F3] cursor-pointer"
               >
                 <Zap className="w-4 h-4 fill-current" />
-                <span>
-                  {gelombang === 3
-                    ? 'Blast Pengingat (Fonnte)'
-                    : 'Kirim Massal Otomatis (Fonnte)'}
-                </span>
+                <span>Kirim Massal Otomatis (Fonnte)</span>
               </button>
             ) : (
               <button
@@ -356,9 +333,7 @@ export default function WhatsAppStats({
                 <span className="text-[#8C6A47]">
                   {gelombang === 1
                     ? 'Gelombang 1 - Undangan Resmi & QR'
-                    : gelombang === 2
-                    ? 'Gelombang 2 - Info Kuota Tambahan'
-                    : 'Pengingat Konfirmasi Kehadiran'}
+                    : 'Gelombang 2 - Info Kuota Tambahan'}
                 </span>
               </span>
             </div>

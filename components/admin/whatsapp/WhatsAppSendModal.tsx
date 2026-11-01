@@ -53,7 +53,7 @@ export async function updateTamuWaInSupabase(
 
 export async function kirimFonnteWali(
   kel: any,
-  gelombang: 1 | 2 | 3,
+  gelombang: 1 | 2,
   linkGrupWa: string,
   setSendingKode: (val: string | null) => void,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
@@ -123,7 +123,7 @@ export async function kirimFonnteWali(
 
 export async function kirimManualWAWali(
   kel: any,
-  gelombang: 1 | 2 | 3,
+  gelombang: 1 | 2,
   linkGrupWa: string,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {

@@ -7,7 +7,7 @@ import { BAGIAN_TAMATAN_LIST } from '@/lib/types';
 export interface WhatsAppFilterProps {
   activeTab: 'WALI_SANTRI' | 'TAMU_UNDANGAN';
   // Wali Santri Filter Props
-  gelombang: 1 | 2 | 3;
+  gelombang: 1 | 2;
   totalTerkirim: number;
   keluargaCount: number;
   pctTerkirim: number;
@@ -78,7 +78,7 @@ export default function WhatsAppFilter({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
           <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-            PROGRES PENGIRIMAN ({gelombang === 1 ? 'UNDANGAN MASUK' : gelombang === 2 ? 'KUOTA TAMBAHAN' : 'PENGINGAT KONFIRMASI'}):
+            PROGRES PENGIRIMAN ({gelombang === 1 ? 'UNDANGAN MASUK' : 'KUOTA TAMBAHAN'}):
           </div>
           <div className="text-lg font-black text-slate-900 mt-0.5">
             Terkirim {totalTerkirim} / {keluargaCount}{' '}
