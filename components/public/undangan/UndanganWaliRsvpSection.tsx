@@ -257,7 +257,7 @@ export default function UndanganWaliRsvpSection({
                       : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
                   }`}
                 >
-                  Jum'at (24 Rajab)
+                  Jum'at (23 Rajab)
                 </button>
                 <button
                   type="button"
@@ -271,7 +271,7 @@ export default function UndanganWaliRsvpSection({
                       : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
                   }`}
                 >
-                  Sabtu (25 Rajab)
+                  Sabtu (24 Rajab)
                 </button>
               </div>
             </div>
