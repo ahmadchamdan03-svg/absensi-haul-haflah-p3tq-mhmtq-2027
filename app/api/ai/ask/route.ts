@@ -322,7 +322,7 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
 [PANDUAN KEPANITIAAN & DATA RESMI: Jika user menanyakan tentang personil panitia, format WAJIB 3 paragraf: Paragraf 1 (jabatan), Paragraf 2 (kalimat sanjungan/fans), Paragraf 3 ("Ada lagi info kepanitiaan yang bisa saya bantu, Us?"). DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
     const client = clientApiKey ? getAiClient(clientApiKey) : aiClient;
-    const modelName = process.env.AI_GATEWAY_MODEL || 'gpt-4o-mini';
+    const modelName = process.env.AI_GATEWAY_MODEL || 'vikey/plan';
 
     try {
       const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
@@ -349,11 +349,11 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
         model: modelName,
         messages,
         temperature: 0.35,
-        max_tokens: 800,
+        max_tokens: 1500,
       });
 
       const replyText = response.choices?.[0]?.message?.content;
-      if (replyText && replyText.trim().length > 0) {
+      if (replyText && replyText.trim().length > 0 && !replyText.includes('[No answer:')) {
         const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
         const expr = detectExpression(cleanReply, prompt, isFirstTurn);
         const durationMs = Date.now() - startTime;
@@ -390,8 +390,8 @@ Total yang sudah hadir: **${ts.totalHadir.toLocaleString('id-ID')} orang** dari 
 }
 
 export async function GET() {
-  const baseURL = process.env.AI_GATEWAY_BASE_URL || 'https://api.vikey.ai/v1';
-  const model = process.env.AI_GATEWAY_MODEL || 'gpt-4o-mini';
+  const baseURL = process.env.AI_GATEWAY_BASE_URL || 'https://api-plan.vikey.ai/v1';
+  const model = process.env.AI_GATEWAY_MODEL || 'vikey/plan';
   const hasKey = Boolean(process.env.AI_GATEWAY_API_KEY || 'vk-2e03aab0-64d7-4069-869c-d706172c2232');
 
   return NextResponse.json({
