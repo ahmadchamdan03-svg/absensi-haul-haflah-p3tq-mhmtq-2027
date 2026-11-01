@@ -159,9 +159,9 @@ export async function askAI(
       tierLabel: 'Tier 1 Clouvia',
       apiKey: clouviaKey,
       baseURL: readEnv('CLOUVIA_BASE_URL') || 'https://router.clouvia.id/v1',
-      model: readEnv('CLOUVIA_MODEL') || 'gemini-2.5-flash',
+      model: readEnv('CLOUVIA_MODEL') || 'deepseek-v4.1-flash',
       timeoutMs: TIER_TIMEOUT_MS.Clouvia,
-      maxTokens: 1500,
+      maxTokens: 2500,
       messages: openAiMessages,
     });
     if (text) return { text, model: 'Clouvia' };
