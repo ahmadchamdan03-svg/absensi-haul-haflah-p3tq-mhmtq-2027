@@ -103,31 +103,49 @@ export default function SantriModal({
 
     try {
       // 1. CEK APAKAH NAMA SANTRI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
+      // Cukup cek berdasarkan nama saja (case-insensitive, ilike('nama', cleanNama)).
+      // Abaikan perbedaan nama_wali, kamar, atau kolom lainnya.
       const { data: existingList, error: checkError } = await supabase
         .from('peserta_santri')
         .select('*')
-        .ilike('nama', cleanNama)
-        .limit(1);
+        .ilike('nama', cleanNama);
 
       if (checkError) {
         console.warn('Error checking existing santri:', checkError);
       }
 
-      const existing = existingList && existingList.length > 0 ? existingList[0] : null;
+      let existing =
+        existingList?.find(
+          (item) => item.nama && item.nama.trim().toUpperCase() === cleanNama
+        ) || (existingList && existingList.length > 0 ? existingList[0] : null);
+
+      // Fallback cek memori lokal jika query Supabase belum mengembalikan data
+      if (!existing) {
+        const localMatch = store.getKeluargaList().find((k) =>
+          k.santri?.some((s) => s.nama && s.nama.trim().toUpperCase() === cleanNama)
+        );
+        if (localMatch) {
+          const { data: byKode } = await supabase
+            .from('peserta_santri')
+            .select('*')
+            .eq('kode', localMatch.kode)
+            .maybeSingle();
+          if (byKode) existing = byKode;
+        }
+      }
 
       if (existing) {
-        const existingSub = existing.sub_kategori || existing.kategori_utama || 'Santri';
+        // 2. TAMPILKAN POP-UP KONFIRMASI PERSIS SESUAI INSTRUKSI USER:
         const confirmed = window.confirm(
-          `Santri dengan nama "${existing.nama}" sudah ada di database (Kategori saat ini: ${existingSub}).\n\nApakah Anda ingin memperbarui datanya dan menggabungkan kategorinya menjadi "${existingSub} & ${incomingSubKat}"?`
+          `Santri dengan nama ${existing.nama} sudah ada. Apakah Anda ingin memperbarui datanya dan menggabungkan kategorinya?`
         );
 
+        // 4. Jika Konfirmasi BATAL: Batalkan simpan.
         if (!confirmed) {
-          submitLockSantri.current = false;
-          setIsSubmittingSantri(false);
           return;
         }
 
-        // LAKUKAN UPDATE KATEGORI GABUNGAN & KUOTA TERTINGGI (MAX)
+        // 3. Jika Konfirmasi YA: LAKUKAN UPDATE (gabungkan kategori, sesuaikan kuota ke MAX), JANGAN INSERT BARU.
         const mergedSub = mergeSubKategori(existing.sub_kategori || '', incomingSubKat);
         const resolvedKatUtama = resolvePriorityKategoriUtama(
           existing.kategori_utama,
@@ -148,19 +166,16 @@ export default function SantriModal({
           updated_at: new Date().toISOString(),
         };
 
-        if ((!existing.nama_wali || existing.nama_wali === '-') && formData.namaWali.trim()) {
+        if (formData.namaWali.trim()) {
           updatePayload.nama_wali = formData.namaWali.trim().toUpperCase();
         }
-        if ((!existing.no_hp || existing.no_hp === '-') && formData.noHp.trim()) {
+        if (formData.noHp.trim()) {
           updatePayload.no_hp = formData.noHp.trim();
         }
-        if ((!existing.kamar || existing.kamar === '-') && formData.kamar.trim()) {
+        if (formData.kamar.trim()) {
           updatePayload.kamar = formData.kamar.trim();
         }
-        if (
-          (!existing.alamat || existing.alamat === '-' || existing.alamat === 'Kediri') &&
-          formData.alamat.trim()
-        ) {
+        if (formData.alamat.trim()) {
           updatePayload.alamat = formData.alamat.trim().toUpperCase();
         }
 
@@ -171,8 +186,6 @@ export default function SantriModal({
 
         if (updateError) {
           alert(`Gagal memperbarui data santri di Supabase: ${updateError.message}`);
-          submitLockSantri.current = false;
-          setIsSubmittingSantri(false);
           return;
         }
 
@@ -202,7 +215,7 @@ export default function SantriModal({
 
         setShowAddModal(false);
         await onEditSuccess(
-          `✓ Berhasil menggabungkan kategori santri ${existing.nama}: ${mergedSub} (Kuota: ${resolvedKuota} Kursi, Tiket: ${resolvedWarna})`
+          `✓ Berhasil memperbarui & menggabungkan kategori santri ${existing.nama}: ${mergedSub} (Kuota: ${resolvedKuota} Kursi, Tiket: ${resolvedWarna})`
         );
 
         setFormData({

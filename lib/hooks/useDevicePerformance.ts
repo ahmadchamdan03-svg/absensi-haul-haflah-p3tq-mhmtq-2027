@@ -44,15 +44,16 @@ export function useDevicePerformance(): DevicePerformance {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // 3. Deteksi Mobile / Tablet vs Desktop
+    // Longgarkan deteksi: setiap perangkat dengan lebar layar >= 1024 atau tanpa ontouchstart adalah Desktop
     const ua = navigator.userAgent || '';
     const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
-    const isSmallScreen = window.innerWidth < 1024;
-    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const hasTouch = 'ontouchstart' in window || (navigator && navigator.maxTouchPoints > 0);
+    const isWideScreen = window.innerWidth >= 1024;
 
-    const isDesktop = !isMobileUA && !isSmallScreen && hasFinePointer;
+    const isDesktop = !isMobileUA && (isWideScreen || !hasTouch);
 
-    // 4. Deteksi Hardware Capability (Core CPU & Memory)
-    const cores = navigator.hardwareConcurrency || 2;
+    // 4. Deteksi Hardware Capability (Core CPU & Memory) untuk Mobile
+    const cores = navigator.hardwareConcurrency || 4;
     const memory = (navigator as any).deviceMemory || 4;
 
     // Cek versi modern OS (Android 9+ atau iOS 13+)
@@ -72,21 +73,22 @@ export function useDevicePerformance(): DevicePerformance {
       }
     }
 
+    // High-End Mobile: mobile dengan WebGL dan hardware cukup
     const isHighEndMobile =
       !isDesktop &&
       hasWebGL &&
       !prefersReducedMotion &&
-      cores >= 4 &&
-      memory >= 3 &&
+      cores >= 2 &&
+      memory >= 2 &&
       isModernOS;
 
+    // Low-End: WebGL tidak didukung atau mobile dengan spec sangat rendah
     const isLowEnd =
       !hasWebGL ||
-      prefersReducedMotion ||
       (!isDesktop && !isHighEndMobile);
 
     setDeviceInfo({
-      isDesktop: isDesktop && hasWebGL && !prefersReducedMotion,
+      isDesktop: isDesktop && hasWebGL,
       isHighEndMobile,
       isLowEnd,
       isReady: true,

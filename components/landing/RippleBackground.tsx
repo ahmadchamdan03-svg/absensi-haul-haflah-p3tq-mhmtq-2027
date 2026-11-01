@@ -221,13 +221,23 @@ export default function RippleBackground() {
     let isTextureLoaded = false;
     const stageImg = new Image();
     stageImg.crossOrigin = 'anonymous';
-    stageImg.src = '/images/panggung-haul-haflah.jpg';
-    stageImg.onload = () => {
+
+    const uploadTexture = () => {
       if (!gl || gl.isContextLost()) return;
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, stageImg);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       isTextureLoaded = true;
     };
+
+    stageImg.onload = uploadTexture;
+    stageImg.src = '/images/panggung-haul-haflah.jpg';
+    if (stageImg.complete) {
+      uploadTexture();
+    }
 
     if (uTextureLoc) gl.uniform1i(uTextureLoc, 0);
 
@@ -261,6 +271,16 @@ export default function RippleBackground() {
     let lastRainDropTime = 0;
     let nextRainDropInterval = 0.6; // Detik interval tetesan mobile
 
+    // Inisialisasi riak lembut di awal agar efek air langsung tampak hidup saat halaman dibuka
+    if (isDesktop) {
+      activeRipples.push({
+        x: 0.5,
+        y: 0.5,
+        startTime: performance.now() / 1000,
+        intensity: 0.9,
+      });
+    }
+
     // Event listener mousemove di tingkat window (canvas tetap pointer-events-none)
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDesktop) return;
@@ -272,13 +292,13 @@ export default function RippleBackground() {
       const dy = normY - lastMousePos.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      // Throttling halus: buat riak hanya jika ada gerakan signifikan atau jeda waktu
-      if (dist > 0.02 || (now - lastMousePos.time > 0.05 && dist > 0.005)) {
+      // Throttling halus: buat riak responsif pada setiap gerakan mouse
+      if (dist > 0.015 || (now - lastMousePos.time > 0.04 && dist > 0.003)) {
         activeRipples.push({
           x: normX,
           y: normY,
           startTime: now,
-          intensity: Math.min(1.2, 0.6 + dist * 8.0),
+          intensity: Math.min(1.3, 0.7 + dist * 9.0),
         });
 
         if (activeRipples.length > 12) {
@@ -296,11 +316,10 @@ export default function RippleBackground() {
     // Loop Animasi Sadar Performa (requestAnimationFrame + Visibility Pause)
     let animationFrameId: number;
     let isTabVisible = true;
-    let isIntersecting = true;
     const rippleUniformData = new Float32Array(12 * 4);
 
     const render = () => {
-      if (!isTabVisible || !isIntersecting) return;
+      if (!isTabVisible) return;
 
       const now = performance.now() / 1000;
 
@@ -346,7 +365,7 @@ export default function RippleBackground() {
       animationFrameId = requestAnimationFrame(render);
     };
 
-    // Mulai animasi
+    // Mulai loop animasi
     animationFrameId = requestAnimationFrame(render);
 
     // Listener pause tab visibility
@@ -361,29 +380,12 @@ export default function RippleBackground() {
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // IntersectionObserver agar efek berhenti jika canvas di luar layar
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        isIntersecting = entry.isIntersecting;
-        if (isIntersecting && isTabVisible) {
-          cancelAnimationFrame(animationFrameId);
-          animationFrameId = requestAnimationFrame(render);
-        } else {
-          cancelAnimationFrame(animationFrameId);
-        }
-      },
-      { threshold: 0.05 }
-    );
-    observer.observe(canvas);
-
     // Pembersihan resource WebGL saat unmount
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      observer.disconnect();
 
       if (gl && !gl.isContextLost()) {
         gl.deleteBuffer(quadBuffer);
@@ -399,7 +401,7 @@ export default function RippleBackground() {
   if (!isReady || isLowEnd || !hasWebGL) {
     return (
       <div
-        className="fixed inset-0 -z-10 bg-[#F5E6D3] select-none pointer-events-none transition-colors duration-300"
+        className="fixed inset-0 z-0 bg-[#F5E6D3] select-none pointer-events-none transition-colors duration-300"
         aria-hidden="true"
       />
     );
@@ -408,7 +410,7 @@ export default function RippleBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 -z-10 w-full h-full pointer-events-none select-none"
+      className="fixed inset-0 z-0 w-full h-full pointer-events-none select-none"
       aria-hidden="true"
     />
   );
