@@ -151,33 +151,6 @@ export function UndanganCoverWali({
                   : (santri.subKategori || 'Santri')
                 : 'Wali Santri'}
             </div>
-
-            {/* BADGE WARNA TIKET WALI SANTRI */}
-            {(() => {
-              const rawWarna = santri?.warnaTiket || santri?.warna_tiket || item?.warnaTiket || '';
-              const isCream =
-                String(rawWarna).toLowerCase().includes('cream') ||
-                santri?.isBilGhoib ||
-                (santri?.kategoriUtama && String(santri.kategoriUtama).includes('BIL_GHOIB')) ||
-                (santri?.subKategori && String(santri.subKategori).toLowerCase().includes('ghoib'));
-
-              return isCream ? (
-                <div className="pt-1">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#F5E6D3] text-[#5C3E28] border border-[#D49B5B] shadow-xs">
-                    Tiket Cream
-                  </span>
-                  <span className="block text-[10px] text-[#5C3E28] font-bold mt-0.5">
-                    Wali Maju Panggung
-                  </span>
-                </div>
-              ) : (
-                <div className="pt-1">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-300 shadow-xs">
-                    Tiket Biru
-                  </span>
-                </div>
-              );
-            })()}
           </div>
 
           <div className="pt-2 space-y-3">
