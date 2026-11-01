@@ -180,12 +180,13 @@ const testCases: TestCase[] = [
     run: () => getHubunganKepanitiaanResponse('ikfi ulit taufiqoh', false),
     validate: (res) => {
       const parts = res.split('\n\n');
-      const hasName = res.includes('**Ikfi Ulit Taufiqoh**');
-      const hasFans = /penggemar|fans|kagum|mengidolakan|nge-fans|mendampingi|ikut/i.test(parts[1] || '');
-      const hasPenutup = (parts[2] || '').trim() === 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
+      const hasName = (parts[0] || '').includes('**Ikfi Ulit Taufiqoh**');
+      const hasPujian = (parts[1] || '').trim().length > 20;
+      const hasFans = /penggemar|fans|kagum|mengidolakan|nge-fans|mendampingi|ikut|andaikan|seandainya|andai/i.test(parts[2] || '');
+      const hasPenutup = (parts[3] || '').trim() === 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
       return {
-        passed: parts.length === 3 && hasName && hasFans && hasPenutup,
-        message: `Expected 3 paragraphs with fans text and standard closing.`,
+        passed: parts.length === 4 && hasName && hasPujian && hasFans && hasPenutup,
+        message: `Expected 4 paragraphs with pujian, fans/pengandaian text, and standard closing.`,
       };
     },
   },
@@ -229,11 +230,13 @@ const testCases: TestCase[] = [
     run: () => getHubunganKepanitiaanResponse('asep', false),
     validate: (res) => {
       const parts = res.split('\n\n');
-      const hasAsep = res.includes('**Asep Darajat**');
-      const hasClosing = (parts[2] || '').trim() === 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
+      const hasAsep = (parts[0] || '').includes('**Asep Darajat**');
+      const hasPujian = (parts[1] || '').trim().length > 20;
+      const hasFans = /penggemar|fans|kagum|mengidolakan|nge-fans|mendampingi|ikut|andaikan|seandainya|andai/i.test(parts[2] || '');
+      const hasClosing = (parts[3] || '').trim() === 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
       return {
-        passed: parts.length === 3 && hasAsep && hasClosing,
-        message: `Expected 3 paragraphs for Asep Darajat.`,
+        passed: parts.length === 4 && hasAsep && hasPujian && hasFans && hasClosing,
+        message: `Expected 4 paragraphs for Asep Darajat.`,
       };
     },
   },
@@ -311,7 +314,7 @@ const testCases: TestCase[] = [
       };
     },
   },
-  // 20. Konsistensi: abha (Locked 3 Paragraf & Standard Penutup)
+  // 20. Konsistensi: abha (Locked 4 Paragraf & Standard Penutup)
   {
     no: 20,
     category: 'Kunci Template & Penutup',
@@ -319,13 +322,14 @@ const testCases: TestCase[] = [
     run: () => getHubunganKepanitiaanResponse('abha', false),
     validate: (res) => {
       const parts = res.split('\n\n');
-      const hasAbha = res.includes('**Abhaa Muhammad Kafaa Bihi**');
-      const hasFans = /penggemar|fans|kagum|mengidolakan|nge-fans|mendampingi|ikut/i.test(parts[1] || '');
-      const hasClosing = (parts[2] || '').trim() === 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
+      const hasAbha = (parts[0] || '').includes('**Abhaa Muhammad Kafaa Bihi**');
+      const hasPujian = (parts[1] || '').trim().length > 20;
+      const hasFans = /penggemar|fans|kagum|mengidolakan|nge-fans|mendampingi|ikut|andaikan|seandainya|andai/i.test(parts[2] || '');
+      const hasClosing = (parts[3] || '').trim() === 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
       const noJavanese = !res.includes('Wonten ingkang saget dibantu');
       return {
-        passed: parts.length === 3 && hasAbha && hasFans && hasClosing && noJavanese,
-        message: `Expected locked 3 paragraphs, fans text, and standard Indonesian closing.`,
+        passed: parts.length === 4 && hasAbha && hasPujian && hasFans && hasClosing && noJavanese,
+        message: `Expected locked 4 paragraphs, pujian, fans text, and standard Indonesian closing.`,
       };
     },
   },
@@ -340,8 +344,8 @@ const testCases: TestCase[] = [
       const hasName = res.includes("**Reza Fadhilul 'Ulum**");
       const noBeliau = !/\bbeliau\b/i.test(res);
       return {
-        passed: parts.length === 3 && hasName && noBeliau,
-        message: `Expected Reza Fadhilul 'Ulum with 3 paragraphs and no 'beliau'.`,
+        passed: parts.length === 4 && hasName && noBeliau,
+        message: `Expected Reza Fadhilul 'Ulum with 4 paragraphs and no 'beliau'.`,
       };
     },
   },
@@ -355,8 +359,8 @@ const testCases: TestCase[] = [
       const parts = res.split('\n\n');
       const hasName = res.includes('**Sa\'dun Musthofa**');
       return {
-        passed: parts.length === 3 && hasName,
-        message: `Expected Sa'dun Musthofa with 3 paragraphs.`,
+        passed: parts.length === 4 && hasName,
+        message: `Expected Sa'dun Musthofa with 4 paragraphs.`,
       };
     },
   },

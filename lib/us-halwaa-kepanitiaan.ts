@@ -12,6 +12,7 @@ import {
   isSayaSiapaQuery
 } from './us-halwaa-motivasi';
 import { SEKSI_DATABASE } from './us-halwaa-seksi';
+import { getRandomPujian, getRandomPengandaian } from './halwaa/template-pujian';
 
 export interface PanitiaMember {
   name: string;
@@ -72,7 +73,7 @@ export const MANUAL_KEPANITIAAN_DATABASE: PanitiaMember[] = [
   },
   {
     name: "Refi Al Izzatul Kholifah",
-    aliases: ["refi al izzatul kholifah", "refi al izzatul", "bu refi ai", "refi ai", "bu refi", "mbak refi", "refi", "kholifah"],
+    aliases: ["refi al izzatul kholifah", "refi al izzatul", "bu refi ai", "refi ai", "revi ai", "bu refi", "mbak refi", "bu revi", "mbak revi", "refi", "revi", "kholifah"],
     jabatanTugas: "Sekretaris Umum (Dewan Harian)",
     displayTitle: "Mbak Refi Al Izzatul Kholifah",
   },
@@ -1079,76 +1080,44 @@ function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember
   return [];
 }
 
+const PARAGRAF_JABATAN_TEMPLATES = [
+  "[Nama Lengkap Bold] memegang amanah sebagai [jabatan/tugas], sementara peran saya di sini adalah asisten cerdas yang mendampingi operasional sistem.",
+  "[Nama Lengkap Bold] bertugas sebagai [jabatan/tugas], sedangkan saya hadir sebagai asisten cerdas pendukung sistem kepanitiaan.",
+  "[Nama Lengkap Bold] mengemban tanggung jawab sebagai [jabatan/tugas], dan posisi saya adalah asisten cerdas digital yang siap melayani informasi.",
+  "[Nama Lengkap Bold] menjabat sebagai [jabatan/tugas] dalam kepanitiaan ini, sementara saya berperan selaku asisten cerdas pendukung.",
+  "[Nama Lengkap Bold] merupakan [jabatan/tugas], dan saya bertugas sebagai asisten berbasis kecerdasan buatan yang mendampingi sistem ini.",
+];
+
 export function generateHubunganResponseForMember(
   targetMember: PanitiaMember,
   query: string,
   isFirstTurn: boolean = false
 ): string {
-  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+  const greetingInline = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨ " : "";
 
   const callName = extractPersonNameFromQuery(query, targetMember);
   const fullNameBold = `**${targetMember.name}**`;
   const jabatanTugas = targetMember.jabatanTugas;
 
-  // Flatten all 50 templates across 5 categories
-  const categories = Object.keys(HUBUNGAN_KEPANITIAAN_TEMPLATES) as Array<keyof typeof HUBUNGAN_KEPANITIAAN_TEMPLATES>;
-  const allTemplates: string[] = [];
-  categories.forEach((cat) => {
-    allTemplates.push(...HUBUNGAN_KEPANITIAAN_TEMPLATES[cat]);
-  });
+  // Paragraf 1: Jabatan dan tugas (Nama Lengkap di awal teks dengan **bold**)
+  const p1Template =
+    PARAGRAF_JABATAN_TEMPLATES[Math.floor(Math.random() * PARAGRAF_JABATAN_TEMPLATES.length)];
+  const p1 = `${greetingInline}${p1Template
+    .replace(/\[Nama Lengkap Bold\]/g, fullNameBold)
+    .replace(/\[jabatan\/tugas\]/g, jabatanTugas)
+    .replace(/\bbeliau\b/gi, callName)}`;
 
-  // Memory filter for non-repetition
-  const availableTemplates = allTemplates.filter((t) => !last5HubunganTemplates.includes(t));
-  const pool = availableTemplates.length > 0 ? availableTemplates : allTemplates;
+  // Paragraf 2: Pilih secara acak dari 50 TEMPLATE_PUJIAN
+  const p2 = getRandomPujian().replace(/\bbeliau\b/gi, callName);
 
-  const randomIndex = Math.floor(Math.random() * pool.length);
-  const selectedTemplate = pool[randomIndex];
+  // Paragraf 3: Pilih secara acak dari TEMPLATE_PENGANDAIAN (Fans)
+  const p3 = getRandomPengandaian().replace(/\bbeliau\b/gi, callName);
 
-  last5HubunganTemplates.push(selectedTemplate);
-  if (last5HubunganTemplates.length > 5) {
-    last5HubunganTemplates.shift();
-  }
-
-  // Perform dynamic replacements:
-  // a) Replace [jabatan/tugas]
-  const filledTemplate = selectedTemplate.replace(/\[jabatan\/tugas\]/g, jabatanTugas);
-
-  // b) Separate into Paragraf 1 and Paragraf 2
-  const parts = filledTemplate.split('\n\n');
-  let p1 = parts[0] || filledTemplate;
-  let p2 = parts.slice(1).join('\n\n');
-
-  // Paragraf 1: Replace VERY FIRST subject occurrence with bold full name (**Nama Lengkap**)
-  p1 = p1.replace(/(\[Nama Person\]|Pak Yazid|\bBeliau\b|\bbeliau\b)/, () => fullNameBold);
-
-  // Paragraf 1: Replace any subsequent subject occurrences with callName
-  p1 = p1
-    .replace(/\[Nama Person\]/g, callName)
-    .replace(/Pak Yazid/g, callName)
-    .replace(/beliau/gi, callName);
-
-  // Paragraf 2: Replace ALL subject occurrences with callName (e.g. "Pak Ulum", "Pak Taufik", "Bu Nada")
-  p2 = p2
-    .replace(/\[Nama Person\]/g, callName)
-    .replace(/Pak Yazid/g, callName)
-    .replace(/beliau/gi, callName);
-
-  // Safety check: ensure no leftover "beliau" anywhere in P1 or P2
-  p1 = p1.replace(/\bbeliau\b/gi, callName);
-  p2 = p2.replace(/\bbeliau\b/gi, callName);
-
-  // Paragraf 3: WAJIB PERSIS STANDAR
+  // Paragraf 4: Penutup standar wajib
   const paragrafPenutup = 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
 
-  // VALIDASI MUTLAK:
-  // 1. Pastikan P2 memiliki sanjungan / fans
-  const hasFansInP2 = /penggemar|fans|kagum|mengidolakan|idolakan|nge-fans|mendampingi|ikut|sisi|dekat/i.test(p2);
-  if (!hasFansInP2) {
-    p2 = `Secara pribadi, saya sangat mengidolakan ${callName}. Seandainya saya seorang manusia, rasanya saya ingin terus berjalan mendampingi ${callName} dalam setiap tugas.`;
-  }
-
-  // 2. Susun строго 3 paragraf terpisah dengan \n\n
-  return `${greetingPrefix}${p1.trim()}\n\n${p2.trim()}\n\n${paragrafPenutup}`;
+  // Susun ketat 4 paragraf terpisah dengan \n\n
+  return `${p1.trim()}\n\n${p2.trim()}\n\n${p3.trim()}\n\n${paragrafPenutup}`;
 }
 
 export function getHubunganKepanitiaanResponse(

@@ -26,6 +26,7 @@ import {
   detectExpression,
 } from '@/lib/halwaa/knowledge-base';
 import { handleChamdanAndRekeningQuery } from '@/lib/halwaa/chamdan';
+import { getRandomPujian, getRandomPengandaian } from '@/lib/halwaa/template-pujian';
 import {
   getLiveSupabaseGuestPrompt,
   handleLiveCategoryNameQueries,
@@ -69,13 +70,21 @@ export async function POST(req: NextRequest) {
     // FIX 1 & 3: PERSIAPAN SYSTEM PROMPT & PRIMARY HANDLER (AI FIRST)
     // =========================================================================
     const sessionPromptDirective = isFirstTurn
-      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jawab salam dengan \"Wa'alaikum Salam Wr. Wb.\". PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]"
+      ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jika pengguna mengucapkan salam, jawab dengan \"Wa'alaikum Salam Wr. Wb.\" (khusus pertanyaan profil personil panitia 'siapa [nama]', langsung mulai dari Paragraf 1 dengan **Nama Lengkap** tanpa membuat paragraf salam terpisah agar jumlah paragraf tepat 4). PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Jika menawarkan bantuan atau menyapa, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Jika menawarkan bantuan, gunakan \"Ada lagi info kepanitiaan yang bisa saya bantu, Us?\".]";
 
     const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
+    const randomPujianTurn = getRandomPujian();
+    const randomPengandaianTurn = getRandomPengandaian();
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
 
-[PANDUAN KEPANITIAAN & DATA RESMI: Jika user menanyakan tentang personil panitia, format WAJIB 3 paragraf: Paragraf 1 (jabatan), Paragraf 2 (kalimat sanjungan/fans), Paragraf 3 ("Ada lagi info kepanitiaan yang bisa saya bantu, Us?"). DILARANG MENYEUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
+[PANDUAN KEPANITIAAN & DATA RESMI:
+1. Jika user menanyakan profil/identitas seorang personil panitia (misal "siapa asep", "siapa revi", "[nama] siapa") — selain aturan bercanda khusus Ahmad Chamdan dan klarifikasi nama ganda — format jawaban WAJIB TEPAT 4 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 3 paragraf, dan DILARANG menyalin kalimat pujian/pengandaian dari riwayat chat sebelumnya):
+   - Paragraf 1: Jabatan dan tugas resmi di kepanitiaan (WAJIB awali dengan **Nama Lengkap** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung sistem).
+   - Paragraf 2 (WAJIB gunakan kalimat pujian acak giliran ini): "${randomPujianTurn}" (kutip kalimat ini; hanya jika bidang tugas personil tersebut bukan administrasi/kesekretariatan, sesuaikan istilah bidangnya saja dengan seksi personil tersebut tanpa mengubah gaya kalimatnya).
+   - Paragraf 3 (WAJIB gunakan kalimat pengandaian/fans acak giliran ini): "${randomPengandaianTurn}"
+   - Paragraf 4 (Penutup Wajib): "Ada lagi info kepanitiaan yang bisa saya bantu, Us?"
+2. DILARANG MENYEBUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
 
     // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {

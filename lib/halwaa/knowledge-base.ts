@@ -143,7 +143,7 @@ STRUKTUR KEPANITIAAN RESMI (USTH AL):
    - Ketua Umum: Sinta Maelani
    - Ketua I: Arju Naylal Husna
    - Ketua II: Zakia
-   - Sekretaris Umum: Refi Al Izzatul Kholifah
+   - Sekretaris Umum: Refi Al Izzatul Kholifah (biasa dipanggil Refi / Revi)
    - Sekretaris I: Najma Syarifa Faza
    - Sekretaris II: Inarotud Duja
    - Bendahara Umum: Aida Nur Laila (No. Rek BRI 320701010266508 a.n. Ahmad Chamdan Yuwafin)
@@ -181,6 +181,16 @@ STRUKTUR KEPANITIAAN RESMI (USTH AL):
    - Ketua Umum : Seksi Protokoler, Peladen, Konsumsi, TDM dan Seksi Data.
    - Ketua I : Seksi Keamanan, Penerima Tamu, Humasy dan Kostum.
    - Ketua II : Seksi Akomodasi, Design Grafis, PULP dan Berkatan.
+
+=============================================================================
+ATURAN MENJAWAB PERTANYAAN KEPANITIAAN (WAJIB 4 PARAGRAF):
+=============================================================================
+Setiap kali pengguna menanyakan profil/identitas seorang personil panitia (contoh: "siapa [nama]", "[nama] siapa", "siapa asep", "siapa revi") — KECUALI aturan bercanda khusus Ahmad Chamdan tanpa kata rekening dan klarifikasi nama ganda — ikuti format ketat 4 paragraf berikut:
+Paragraf 1: Jabatan dan tugas (Gunakan Nama Lengkap di awal teks dengan **bold**, serta sebutkan bahwa peran Anda adalah asisten cerdas pendukung sistem).
+Paragraf 2: Kutip SATU kalimat pujian secara acak (bisa dari nuansa formal, santun, apresiatif, dinamis, atau ringkas yang disuplai pada panduan giliran ini) yang menceritakan dedikasi beliau.
+Paragraf 3: Tuliskan kalimat pengandaian/fans secara acak (contoh: 'Andaikan saya berwujud manusia, saya pasti akan selalu ikut...', 'Saya sangat nge-fans dan mengidolakan beliau...', 'Seandainya saya punya raga...').
+Paragraf 4: 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?'
+Pisahkan setiap paragraf dengan \n\n. DILARANG meringkas menjadi 3 paragraf, DILARANG melewatkan Paragraf 3 (Pengandaian/Fans), dan DILARANG mengulang kalimat pujian/pengandaian yang sama dengan pesan sebelumnya!
 
 =============================================================================
 BIAYA PEMBAYARAN SHOHIBUL HAJAT & SANTRI (USTH AL):
@@ -1073,12 +1083,22 @@ export function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, use
   reply = reply.replace(/\.\.+/g, '.');
 
   // CLOSING PANJANG (> 100 kata): Tambahkan 1 motivasi singkat jika belum ada motivasi di dalam respon
+  // (Jangan tambahkan jika respon sudah diakhiri kalimat penutup standar 4-paragraf kepanitiaan)
   const wordCount = reply.split(/\s+/).length;
   const hasMotivasiAlready = Object.values(MOTIVASI).some((categoryList) =>
     categoryList.some((m) => reply.includes(m.slice(0, 20)))
   );
+  const endsWithStandardKepanitiaanClosing = /Ada lagi info kepanitiaan yang bisa saya bantu,\s*Us\?\s*$/i.test(
+    reply
+  );
 
-  if (wordCount > 100 && !hasMotivasiAlready && !reply.includes('http') && !reply.includes('/admin/')) {
+  if (
+    wordCount > 100 &&
+    !hasMotivasiAlready &&
+    !endsWithStandardKepanitiaanClosing &&
+    !reply.includes('http') &&
+    !reply.includes('/admin/')
+  ) {
     const closingMotivasi = getRandomMotivasi('energi_positif');
     reply += `\n\n${closingMotivasi}`;
   }
