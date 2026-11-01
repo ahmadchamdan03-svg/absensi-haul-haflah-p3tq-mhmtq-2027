@@ -242,7 +242,7 @@ export function WaliHeroAndIdentitySections({
             <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
               {santri?.nama || item?.entitas?.nama}
             </h2>
-            <p className="text-xs text-stone-600 font-medium">
+            <p className="text-xs text-stone-600 font-medium max-w-full leading-relaxed break-words">
               {santri?.kamar && santri.kamar !== '-' ? (
                 <>
                   {santri.subKategori || 'Santri'} · <strong>{santri.kamar}</strong>

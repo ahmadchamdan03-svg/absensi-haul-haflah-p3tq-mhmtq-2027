@@ -124,10 +124,25 @@ export function filterSantriTableItems(params: {
   const { allItems, activeTab, bagianFilter, statusHadirFilter, searchTerm } = params;
 
   return allItems.filter((item) => {
-    // 1. Tab filter
-    if (activeTab === 'BIL_GHOIB' && item.kategoriUtama !== 'BIL_GHOIB') return false;
-    if (activeTab === 'BIN_NADZOR' && item.kategoriUtama !== 'BIN_NADZOR') return false;
-    if (activeTab === 'TAMATAN' && item.kategoriUtama !== 'TAMATAN') return false;
+    // 1. Tab filter (Mendukung Kategori Dobel)
+    if (activeTab === 'BIL_GHOIB') {
+      const match =
+        item.kategoriUtama === 'BIL_GHOIB' ||
+        (item.subKategori || '').toLowerCase().includes('ghoib');
+      if (!match) return false;
+    }
+    if (activeTab === 'BIN_NADZOR') {
+      const match =
+        item.kategoriUtama === 'BIN_NADZOR' ||
+        (item.subKategori || '').toLowerCase().includes('nadzor');
+      if (!match) return false;
+    }
+    if (activeTab === 'TAMATAN') {
+      const match =
+        item.kategoriUtama === 'TAMATAN' ||
+        (item.subKategori || '').toLowerCase().includes('tamatan');
+      if (!match) return false;
+    }
 
     // 2. Sub Filter dinamis (bagianFilter)
     if (bagianFilter && bagianFilter !== 'SEMUA') {

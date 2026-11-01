@@ -70,7 +70,7 @@ export default function ScanResultModals({
               <h2 className="text-base sm:text-lg font-serif font-black text-slate-900 leading-snug mt-0.5">
                 {activeItem.nama}
               </h2>
-              <p className="text-[11px] text-slate-600 font-medium leading-tight mt-0.5">
+              <p className="text-[11px] text-slate-600 font-medium leading-tight mt-0.5 break-words">
                 {activeItem.tipe === 'KELUARGA'
                   ? `${activeItem.subKategori} · Kelas: ${activeItem.kelas} · Wali: ${activeItem.namaWali}`
                   : `${activeItem.kategori} · ${activeItem.namaWali}`}
@@ -314,6 +314,7 @@ export default function ScanResultModals({
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1 text-left">
             <p><strong>Nama:</strong> {checkinResult.detail?.nama}</p>
             <p><strong>Kode:</strong> {checkinResult.detail?.kode}</p>
+            <p><strong>Kategori:</strong> {checkinResult.detail?.subKategori || checkinResult.detail?.kategori || '-'}</p>
             <p><strong>Jalur Gerbang:</strong> {jalur === 'BARAT' ? 'Jalur Barat (Putra)' : 'Jalur Timur (Putri)'}</p>
             <p><strong>Sisa Kuota:</strong> {checkinResult.sisa} Kursi</p>
           </div>

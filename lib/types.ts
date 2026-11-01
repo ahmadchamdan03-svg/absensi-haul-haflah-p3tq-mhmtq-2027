@@ -14,10 +14,81 @@ export function extractBagianTamatan(text?: string): string {
 
 export type WarnaTiket = 'Hijau' | 'Biru' | 'Kuning' | 'Merah muda' | 'Putih' | 'Emas' | 'Hitam Gold' | 'Merah Gold' | '';
 
+/**
+ * Menggabungkan dua string sub_kategori tanpa duplikasi kata kunci.
+ * Contoh: "Tamatan (A.01)" + "Bil Ghoib" -> "Tamatan (A.01) & Bil Ghoib"
+ */
+export function mergeSubKategori(existingSub?: string, incomingSub?: string): string {
+  const ex = (existingSub || '').trim();
+  const inc = (incomingSub || '').trim();
+
+  if (!ex) return inc;
+  if (!inc) return ex;
+
+  const exLower = ex.toLowerCase();
+  const incLower = inc.toLowerCase();
+
+  // Format bila hanya berupa kode Tamatan seperti "A.01" atau "B.02"
+  let formattedEx = ex;
+  if (/^[AB]\.0[1-4]$/i.test(formattedEx)) {
+    formattedEx = `Tamatan (${formattedEx.toUpperCase()})`;
+  }
+  let formattedInc = inc;
+  if (/^[AB]\.0[1-4]$/i.test(formattedInc)) {
+    formattedInc = `Tamatan (${formattedInc.toUpperCase()})`;
+  }
+
+  // Jika persis sama
+  if (formattedEx.toLowerCase() === formattedInc.toLowerCase()) {
+    return formattedEx;
+  }
+
+  // Periksa apakah incoming sudah tercakup dalam existing
+  const isBilGhoib = incLower.includes('bil ghoib') || incLower.includes('ghoib');
+  const isBinNadzor = incLower.includes('bin nadzor') || incLower.includes('nadzor');
+  const isTamatan = incLower.includes('tamatan');
+
+  if (isBilGhoib && (exLower.includes('bil ghoib') || exLower.includes('ghoib'))) {
+    return formattedEx;
+  }
+  if (isBinNadzor && (exLower.includes('bin nadzor') || exLower.includes('nadzor'))) {
+    return formattedEx;
+  }
+  if (isTamatan && exLower.includes('tamatan')) {
+    return formattedEx;
+  }
+
+  return `${formattedEx} & ${formattedInc}`;
+}
+
+/**
+ * Menyelesaikan Kategori Utama berdasarkan hierarki prioritas tertinggi:
+ * 1. BIL_GHOIB (Kuota 4, Hitam Gold)
+ * 2. BIN_NADZOR (Kuota 2, Merah Gold)
+ * 3. TAMATAN (Kuota 2, Merah Gold)
+ */
+export function resolvePriorityKategoriUtama(
+  ...kats: (string | undefined | null)[]
+): 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN' {
+  const allStr = kats.map((k) => (k || '').toUpperCase()).join(' ');
+  if (allStr.includes('BIL_GHOIB') || allStr.includes('BIL GHOIB') || allStr.includes('GHOIB')) {
+    return 'BIL_GHOIB';
+  }
+  if (allStr.includes('BIN_NADZOR') || allStr.includes('BIN NADZOR') || allStr.includes('NADZOR')) {
+    return 'BIN_NADZOR';
+  }
+  return 'TAMATAN';
+}
+
 export function getWarnaTiketSantri(kategoriUtama?: string, subKategori?: string): string {
   const kat = (kategoriUtama || '').toUpperCase();
   const sub = (subKategori || '').toLowerCase();
-  if (kat === 'BIL_GHOIB' || sub.includes('bil ghoib') || sub.includes('ghoib')) {
+  if (
+    kat.includes('BIL_GHOIB') ||
+    kat.includes('GHOIB') ||
+    sub.includes('bil ghoib') ||
+    sub.includes('ghoib')
+  ) {
     return 'Hitam Gold';
   }
   return 'Merah Gold';

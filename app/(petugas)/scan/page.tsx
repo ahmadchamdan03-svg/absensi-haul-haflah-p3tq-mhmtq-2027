@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
-import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
+import { JalurPemeriksaan, CheckinResult, calculateKuotaDasarSantri } from '@/lib/types';
 import { upsertPresensiLog, syncKuotaTerpakai } from '@/lib/presensi-helper';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
@@ -181,7 +181,7 @@ export default function ScanPage() {
       const terpakai = existingL + existingP;
 
       const kuotaDasar = isSantri
-        ? Number(entity.kuota_dasar || 2)
+        ? Math.max(Number(entity.kuota_dasar || 0), calculateKuotaDasarSantri(entity.kategori_utama, entity.sub_kategori))
         : ((entity.nama_putra && String(entity.nama_putra).trim() !== '') ? 1 : 0) +
           ((entity.nama_putri && String(entity.nama_putri).trim() !== '') ? 1 : 0);
       const kuotaTambahan = isSantri ? Number(entity.kuota_tambahan || 0) : 0;
@@ -198,14 +198,18 @@ export default function ScanPage() {
       setKartuHitamGoldDiberi(isAlreadyGiven || sisa === 0);
       setSerahkanTiketEmas(isAlreadyGiven || sisa === 0);
 
+      const resolvedKategori = isSantri
+        ? (entity.sub_kategori || entity.kategori_utama || 'Bil Ghoib')
+        : (entity.kategori || 'Tamu Undangan');
+
       const itemObj: ScanActiveItem = {
         id: entity.id,
         kode: targetKode,
         tipe: isSantri ? 'KELUARGA' : 'UNDANGAN',
         nama: entity.nama,
         namaWali: isSantri ? (entity.nama_wali || '-') : (entity.instansi || entity.alamat || '-'),
-        kategori: isSantri ? (entity.kategori_utama || 'BIL_GHOIB') : (entity.kategori || 'Tamu Undangan'),
-        subKategori: entity.sub_kategori || 'Bil Ghoib',
+        kategori: resolvedKategori,
+        subKategori: entity.sub_kategori || (isSantri ? 'Bil Ghoib' : entity.kategori || 'Tamu'),
         kelas: entity.kelas || '-',
         kamar: entity.kamar || '-',
         alamat: entity.alamat || 'Kediri',

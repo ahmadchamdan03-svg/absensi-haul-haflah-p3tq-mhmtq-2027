@@ -146,10 +146,10 @@ export default function SantriTableRow({
       <td className="py-3 px-4">
         <div className="flex items-center space-x-1.5">
           <span
-            className={`inline-block w-2.5 h-2.5 rounded-full ${
-              isBilGhoib
+            className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${
+              isBilGhoib || (item.subKategori && item.subKategori.toLowerCase().includes('ghoib'))
                 ? 'bg-emerald-500'
-                : isBinNadzor
+                : isBinNadzor || (item.subKategori && item.subKategori.toLowerCase().includes('nadzor'))
                 ? 'bg-blue-500'
                 : isTamatan
                 ? 'bg-amber-500'
@@ -160,8 +160,10 @@ export default function SantriTableRow({
                 : 'bg-cyan-600'
             }`}
           ></span>
-          <span className="font-bold text-slate-800">
-            {isBilGhoib
+          <span className="font-bold text-slate-800 break-words leading-tight">
+            {!isUndangan && item.subKategori && item.subKategori.includes('&')
+              ? item.subKategori
+              : isBilGhoib
               ? 'Bil Ghoib'
               : isBinNadzor
               ? 'Bin Nadzori'
@@ -174,10 +176,17 @@ export default function SantriTableRow({
               : 'Undangan Umum'}
           </span>
         </div>
-        {isTamatan && item.bagianTamatan && (
+        {!isUndangan && !item.subKategori?.includes('&') && isTamatan && item.bagianTamatan && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 mt-0.5">
             Bagian {item.bagianTamatan}
           </span>
+        )}
+        {!isUndangan && item.subKategori?.includes('&') && (
+          <div className="mt-1 flex flex-wrap gap-1">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-gradient-to-r from-emerald-100 to-amber-100 text-slate-800 border border-emerald-300/80 shadow-xs">
+              ⭐ Kategori Dobel
+            </span>
+          </div>
         )}
         {isUndangan && (
           <span

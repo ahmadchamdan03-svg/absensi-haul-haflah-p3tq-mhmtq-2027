@@ -5,7 +5,13 @@ import { Plus, Edit, X, History, Loader2 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
-import { BAGIAN_TAMATAN_LIST, getWarnaTiketSantri } from '@/lib/types';
+import {
+  BAGIAN_TAMATAN_LIST,
+  getWarnaTiketSantri,
+  calculateKuotaDasarSantri,
+  mergeSubKategori,
+  resolvePriorityKategoriUtama,
+} from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 
 export interface SantriModalProps {
@@ -69,7 +75,7 @@ export default function SantriModal({
     }
   }, [isEditingSantri, editingItem?.kode]);
 
-  // Handler Tambah Santri Baru (Direct Supabase .insert() + Optimistic UI)
+  // Handler Tambah Santri Baru (Cek Kategori Dobel + Direct Supabase + Optimistic UI)
   const handleTambahPeserta = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitLockSantri.current || isSubmittingSantri) return;
@@ -86,26 +92,144 @@ export default function SantriModal({
     submitLockSantri.current = true;
     setIsSubmittingSantri(true);
 
-    const subKat =
+    const cleanNama = formData.nama.trim().toUpperCase();
+
+    const incomingSubKat =
       formData.kategoriUtama === 'TAMATAN'
-        ? formData.bagianTamatan
+        ? `Tamatan (${formData.bagianTamatan || 'A.01'})`
         : formData.kategoriUtama === 'BIL_GHOIB'
         ? 'Bil Ghoib'
         : 'Bin Nadzori';
 
-    const kuotaVal = Number(formData.kategoriUtama === 'BIL_GHOIB' ? 4 : 2);
-    const warna = getWarnaTiketSantri(formData.kategoriUtama, subKat);
-
     try {
+      // 1. CEK APAKAH NAMA SANTRI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
+      const { data: existingList, error: checkError } = await supabase
+        .from('peserta_santri')
+        .select('*')
+        .ilike('nama', cleanNama)
+        .limit(1);
+
+      if (checkError) {
+        console.warn('Error checking existing santri:', checkError);
+      }
+
+      const existing = existingList && existingList.length > 0 ? existingList[0] : null;
+
+      if (existing) {
+        const existingSub = existing.sub_kategori || existing.kategori_utama || 'Santri';
+        const confirmed = window.confirm(
+          `Santri dengan nama "${existing.nama}" sudah ada di database (Kategori saat ini: ${existingSub}).\n\nApakah Anda ingin memperbarui datanya dan menggabungkan kategorinya menjadi "${existingSub} & ${incomingSubKat}"?`
+        );
+
+        if (!confirmed) {
+          submitLockSantri.current = false;
+          setIsSubmittingSantri(false);
+          return;
+        }
+
+        // LAKUKAN UPDATE KATEGORI GABUNGAN & KUOTA TERTINGGI (MAX)
+        const mergedSub = mergeSubKategori(existing.sub_kategori || '', incomingSubKat);
+        const resolvedKatUtama = resolvePriorityKategoriUtama(
+          existing.kategori_utama,
+          formData.kategoriUtama,
+          mergedSub
+        );
+        const resolvedKuota = Math.max(
+          Number(existing.kuota_dasar || 0),
+          calculateKuotaDasarSantri(resolvedKatUtama, mergedSub)
+        );
+        const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, mergedSub);
+
+        const updatePayload: any = {
+          kategori_utama: resolvedKatUtama,
+          sub_kategori: mergedSub,
+          kuota_dasar: resolvedKuota,
+          warna_tiket: resolvedWarna,
+          updated_at: new Date().toISOString(),
+        };
+
+        if ((!existing.nama_wali || existing.nama_wali === '-') && formData.namaWali.trim()) {
+          updatePayload.nama_wali = formData.namaWali.trim().toUpperCase();
+        }
+        if ((!existing.no_hp || existing.no_hp === '-') && formData.noHp.trim()) {
+          updatePayload.no_hp = formData.noHp.trim();
+        }
+        if ((!existing.kamar || existing.kamar === '-') && formData.kamar.trim()) {
+          updatePayload.kamar = formData.kamar.trim();
+        }
+        if (
+          (!existing.alamat || existing.alamat === '-' || existing.alamat === 'Kediri') &&
+          formData.alamat.trim()
+        ) {
+          updatePayload.alamat = formData.alamat.trim().toUpperCase();
+        }
+
+        const { error: updateError } = await supabase
+          .from('peserta_santri')
+          .update(updatePayload)
+          .eq('id', existing.id);
+
+        if (updateError) {
+          alert(`Gagal memperbarui data santri di Supabase: ${updateError.message}`);
+          submitLockSantri.current = false;
+          setIsSubmittingSantri(false);
+          return;
+        }
+
+        store.editPeserta(existing.kode, {
+          nama: existing.nama,
+          kategoriUtama: resolvedKatUtama,
+          subKategori: mergedSub,
+          kuotaDasar: resolvedKuota,
+          namaWali: updatePayload.nama_wali || existing.nama_wali,
+          noHp: updatePayload.no_hp || existing.no_hp,
+          kamar: updatePayload.kamar || existing.kamar,
+          alamat: updatePayload.alamat || existing.alamat,
+        });
+
+        await logAudit({
+          panitia_id: 'ADMIN_SEKRETARIAT',
+          panitia_role: 'ADMIN',
+          aksi: 'UPDATE_PESERTA',
+          tabel: 'peserta_santri',
+          kode: existing.kode,
+          nama: existing.nama,
+          field: 'gabung_kategori_manual',
+          nilai_lama: existing.sub_kategori,
+          nilai_baru: mergedSub,
+          catatan: `Penggabungan Kategori Santri Manual (${existing.kode}): ${mergedSub}`,
+        }).catch((err) => console.warn('Audit log error:', err));
+
+        setShowAddModal(false);
+        await onEditSuccess(
+          `✓ Berhasil menggabungkan kategori santri ${existing.nama}: ${mergedSub} (Kuota: ${resolvedKuota} Kursi, Tiket: ${resolvedWarna})`
+        );
+
+        setFormData({
+          nama: '',
+          kategoriUtama: 'BIL_GHOIB',
+          bagianTamatan: 'A.01',
+          kamar: '',
+          namaWali: '',
+          noHp: '',
+          alamat: '',
+        });
+        return;
+      }
+
+      // 2. SANTRI BELUM ADA: LAKUKAN INSERT BARU
+      const kuotaVal = calculateKuotaDasarSantri(formData.kategoriUtama, incomingSubKat);
+      const warna = getWarnaTiketSantri(formData.kategoriUtama, incomingSubKat);
+
       let kodeBaru = generateRandomKode('SH');
       kodeBaru = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase);
 
       const { data, error } = await supabase.from('peserta_santri').insert([
         {
           kode: kodeBaru,
-          nama: formData.nama.trim().toUpperCase(),
+          nama: cleanNama,
           kategori_utama: formData.kategoriUtama || 'BIL_GHOIB',
-          sub_kategori: subKat || 'Bil Ghoib',
+          sub_kategori: incomingSubKat,
           kelas: formData.kategoriUtama || '-',
           kamar: formData.kamar.trim() || '-',
           nama_wali: formData.namaWali.trim().toUpperCase() || '-',
@@ -136,12 +260,12 @@ export default function SantriModal({
           {
             id: kodeBaru,
             nis: kodeBaru,
-            nama: formData.nama.trim().toUpperCase(),
+            nama: cleanNama,
             kamar: formData.kamar.trim() || '-',
             kelas: formData.kategoriUtama || '-',
             kategoriUtama: formData.kategoriUtama || 'BIL_GHOIB',
-            subKategori: subKat || 'Bil Ghoib',
-            bagianTamatan: subKat || 'A.01',
+            subKategori: incomingSubKat,
+            bagianTamatan: incomingSubKat,
           },
         ],
         kuota: {
@@ -156,7 +280,7 @@ export default function SantriModal({
       };
 
       store.tambahPeserta({
-        nama: formData.nama.trim().toUpperCase(),
+        nama: cleanNama,
         kategoriUtama: formData.kategoriUtama,
         bagianTamatan: formData.kategoriUtama === 'TAMATAN' ? formData.bagianTamatan : undefined,
         kamar: formData.kamar.trim(),
@@ -172,14 +296,14 @@ export default function SantriModal({
         `✓ Berhasil menambahkan santri baru ke database: ${formData.nama} (Kode: ${kodeBaru})`
       );
 
-      // logAudit fire-and-forget (tanpa await yang memblokir UI)
+      // logAudit fire-and-forget
       logAudit({
         panitia_id: 'ADMIN_SEKRETARIAT',
         panitia_role: 'ADMIN',
         aksi: 'TAMBAH_PESERTA',
         tabel: 'peserta_santri',
         kode: kodeBaru,
-        nama: formData.nama.trim().toUpperCase(),
+        nama: cleanNama,
         field: 'tambah_santri_baru',
         nilai_baru: JSON.stringify(formData),
         detail: formData,
@@ -210,30 +334,44 @@ export default function SantriModal({
 
     const targetKode = editingItem.kode;
 
-    let subKat = 'Bin Nadzori';
-    let kls = 'Bin Nadzori';
-    if (editingItem.kategoriUtama === 'BIL_GHOIB') {
-      subKat = 'Bil Ghoib';
-      kls = 'Bil Ghoib';
-    } else if (editingItem.kategoriUtama === 'TAMATAN') {
-      subKat = `3 ALY ${editingItem.bagianTamatan || 'A.01'}`;
-      kls = `3 ALY ${editingItem.bagianTamatan || 'A.01'}`;
+    let subKat = editingItem.subKategori || 'Bin Nadzori';
+    let kls = editingItem.kelas || 'Bin Nadzori';
+
+    // Jika belum merupakan kategori gabungan, tentukan secara standar
+    if (!subKat.includes('&')) {
+      if (editingItem.kategoriUtama === 'BIL_GHOIB') {
+        subKat = 'Bil Ghoib';
+        kls = 'Bil Ghoib';
+      } else if (editingItem.kategoriUtama === 'TAMATAN') {
+        subKat = `Tamatan (${editingItem.bagianTamatan || 'A.01'})`;
+        kls = `3 ALY ${editingItem.bagianTamatan || 'A.01'}`;
+      } else {
+        subKat = 'Bin Nadzori';
+        kls = 'Bin Nadzori';
+      }
     }
+
+    const resolvedKatUtama = resolvePriorityKategoriUtama(editingItem.kategoriUtama, subKat);
+    const resolvedKuota = Math.max(
+      Number(editingItem.kuotaDasar || 0),
+      calculateKuotaDasarSantri(resolvedKatUtama, subKat)
+    );
+    const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, subKat);
 
     try {
       const { error } = await supabase
         .from('peserta_santri')
         .update({
           nama: (editingItem.nama || '').trim().toUpperCase(),
-          kategori_utama: editingItem.kategoriUtama || 'BIL_GHOIB',
+          kategori_utama: resolvedKatUtama,
           sub_kategori: subKat,
           kelas: kls,
           nama_wali: (editingItem.namaWali || '').trim().toUpperCase() || '-',
           no_hp: (editingItem.noHp || '').trim() || '-',
           alamat: (editingItem.alamat || '').trim().toUpperCase() || 'KEDIRI',
           kamar: (editingItem.kamar || '').trim() || '-',
-          kuota_dasar: Number(editingItem.kuotaDasar || 4),
-          warna_tiket: getWarnaTiketSantri(editingItem.kategoriUtama, subKat),
+          kuota_dasar: resolvedKuota,
+          warna_tiket: resolvedWarna,
         })
         .eq('kode', targetKode);
 

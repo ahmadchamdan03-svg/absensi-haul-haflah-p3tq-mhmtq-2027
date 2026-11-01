@@ -144,7 +144,7 @@ export function UndanganCoverWali({
             <h2 className="text-lg sm:text-xl font-serif font-black text-[#422F21]">
               {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
             </h2>
-            <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
+            <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] max-w-full leading-normal break-words text-center">
               {santri
                 ? santri.kamar && santri.kamar !== '-'
                   ? `${santri.subKategori || 'Santri'} · ${santri.kamar}`

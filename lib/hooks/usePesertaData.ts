@@ -100,7 +100,7 @@ export function usePesertaData() {
             kuotaDasar: d.kuota_dasar || 2,
             kuotaTambahan: d.kuota_tambahan || 0,
             terpakai: d.kuota_terpakai || 0,
-            tiketPanggungJatah: d.tiket_panggung_jatah ?? (d.kategori_utama === 'BIL_GHOIB' ? 1 : 0),
+            tiketPanggungJatah: d.tiket_panggung_jatah ?? (d.kategori_utama === 'BIL_GHOIB' || (d.sub_kategori && d.sub_kategori.toLowerCase().includes('ghoib')) ? 1 : 0),
             warnaTiket: d.warna_tiket || getWarnaTiketSantri(d.kategori_utama, d.sub_kategori),
           },
         }));
