@@ -393,7 +393,7 @@ export default function WhatsAppStats({
                   </span>
                 ) : linkGrupSavedNotice ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    ✓ Tersimpan di Database
+                    {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : '✓ Dikosongkan untuk Sesi Ini'}
                   </span>
                 ) : !linkGrupWa.trim() ? (
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-300">
@@ -408,6 +408,7 @@ export default function WhatsAppStats({
               <div className="flex gap-2">
                 <input
                   type="text"
+                  autoComplete="off"
                   value={linkGrupWa}
                   onChange={(e) => setLinkGrupWa(e.target.value)}
                   onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
@@ -424,12 +425,12 @@ export default function WhatsAppStats({
                 </button>
               </div>
               <p className="text-[10px] text-stone-500 mt-1.5 leading-relaxed">
-                Link ini tersimpan di tabel <code className="text-[#8C6A47] font-semibold">konfigurasi_sistem</code>. Jika diisi, link disisipkan pada undangan wali. Jika dikosongkan, paragraf grup WA ditiadakan.
+                Input ini selalu kosong setiap halaman dibuka (per sesi pengiriman). Tempelkan link grup terbaru sebelum mengirim; jika dikosongkan, paragraf ajakan grup WA otomatis ditiadakan.
               </p>
             </div>
             <div className="flex items-center p-3 rounded-xl bg-white border border-[#D5C4B4]">
               <div className="text-[11px] text-[#7A624E] leading-relaxed">
-                <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup dibaca secara dinamis dari database tanpa hardcode.
+                <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup bersifat sementara per sesi agar panitia selalu menempelkan link grup terbaru.
               </div>
             </div>
           </div>

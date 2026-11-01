@@ -271,59 +271,13 @@ export default function WhatsAppPage() {
     }
   };
 
-  const fetchLinkGrupWa = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('konfigurasi_sistem')
-        .select('key, value')
-        .in('key', ['link_grup_wa', 'wa_group_link']);
-
-      if (error) {
-        console.warn('Error reading link_grup_wa from Supabase:', error);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        const row = data.find((r) => r.key === 'link_grup_wa') || data[0];
-        let val = '';
-        if (typeof row.value === 'object' && row.value !== null) {
-          val = row.value.url || row.value.link || row.value.value || '';
-        } else if (typeof row.value === 'string') {
-          val = row.value;
-        }
-        setLinkGrupWa(val || '');
-      }
-    } catch (err) {
-      console.warn('Error fetching link_grup_wa:', err);
-    }
-  };
-
   const handleSaveLinkGrupWa = async (newVal: string) => {
     setSavingLinkGrup(true);
     try {
-      const nowIso = new Date().toISOString();
       const trimmed = newVal.trim();
-      const { error } = await supabase
-        .from('konfigurasi_sistem')
-        .upsert(
-          {
-            key: 'link_grup_wa',
-            value: { link: trimmed, url: trimmed },
-            updated_at: nowIso,
-          },
-          { onConflict: 'key' }
-        );
-
-      if (error) {
-        console.error('Error saving link_grup_wa to Supabase:', error);
-        alert(`⚠️ Gagal menyimpan Link Grup WA ke Supabase: ${error.message}`);
-      } else {
-        setLinkGrupSavedNotice(true);
-        setTimeout(() => setLinkGrupSavedNotice(false), 3000);
-      }
-    } catch (e: any) {
-      console.error('Exception saving link_grup_wa:', e);
-      alert(`⚠️ Terjadi kesalahan sistem: ${e.message || e}`);
+      setLinkGrupWa(trimmed);
+      setLinkGrupSavedNotice(true);
+      setTimeout(() => setLinkGrupSavedNotice(false), 2500);
     } finally {
       setSavingLinkGrup(false);
     }
@@ -333,13 +287,11 @@ export default function WhatsAppPage() {
     fetchSantriWaData();
     fetchTamuWaData();
     fetchKuotaConfigStatus();
-    fetchLinkGrupWa();
 
     const channel = supabase
       .channel('konfigurasi_sistem_wa_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
         fetchKuotaConfigStatus();
-        fetchLinkGrupWa();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, () => fetchSantriWaData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, () => fetchTamuWaData())

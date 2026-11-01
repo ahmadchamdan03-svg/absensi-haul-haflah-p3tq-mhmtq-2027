@@ -58,25 +58,7 @@ export async function kirimFonnteWali(
   setSendingKode: (val: string | null) => void,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  let activeLinkGrup = (linkGrupWa || '').trim();
-  if (!activeLinkGrup && gelombang === 1) {
-    try {
-      const { data } = await supabase
-        .from('konfigurasi_sistem')
-        .select('key, value')
-        .in('key', ['link_grup_wa', 'wa_group_link']);
-      if (data && data.length > 0) {
-        const row = data.find((r) => r.key === 'link_grup_wa') || data[0];
-        if (typeof row.value === 'object' && row.value !== null) {
-          activeLinkGrup = (row.value.url || row.value.link || row.value.value || '').trim();
-        } else if (typeof row.value === 'string') {
-          activeLinkGrup = row.value.trim();
-        }
-      }
-    } catch (e) {
-      console.warn('Fallback fetch link_grup_wa error:', e);
-    }
-  }
+  const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
 
   const rawHp = kel.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
@@ -127,25 +109,7 @@ export async function kirimManualWAWali(
   linkGrupWa: string,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  let activeLinkGrup = (linkGrupWa || '').trim();
-  if (!activeLinkGrup && gelombang === 1) {
-    try {
-      const { data } = await supabase
-        .from('konfigurasi_sistem')
-        .select('key, value')
-        .in('key', ['link_grup_wa', 'wa_group_link']);
-      if (data && data.length > 0) {
-        const row = data.find((r) => r.key === 'link_grup_wa') || data[0];
-        if (typeof row.value === 'object' && row.value !== null) {
-          activeLinkGrup = (row.value.url || row.value.link || row.value.value || '').trim();
-        } else if (typeof row.value === 'string') {
-          activeLinkGrup = row.value.trim();
-        }
-      }
-    } catch (e) {
-      console.warn('Fallback fetch link_grup_wa error:', e);
-    }
-  }
+  const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
 
   const rawHp = kel.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
