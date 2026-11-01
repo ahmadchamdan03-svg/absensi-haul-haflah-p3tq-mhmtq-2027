@@ -25,29 +25,41 @@ export function normalizeApostrophes(str: string): string {
   return str.replace(/[''ʼ`]/g, '');
 }
 
+export const DEWAN_PENGASUH_NAMES = new Set([
+  "Agus H. Muhammad Hasyim",
+  "Agus H. Muhammad Kafabihi",
+  "Ning Hj. Tu'ti Amanah Nafisah",
+  "Ning Hj. Jihan Zainab",
+]);
+
+export function isDewanPengasuhMember(member: PanitiaMember): boolean {
+  if (DEWAN_PENGASUH_NAMES.has(member.name)) return true;
+  return /\b(pengasuh|pelindung)\b/i.test(member.jabatanTugas);
+}
+
 export const MANUAL_KEPANITIAAN_DATABASE: PanitiaMember[] = [
   // DEWAN PENGASUH & PELINDUNG
   {
     name: "Agus H. Muhammad Hasyim",
-    aliases: ["gus hasyim", "muhammad hasyim", "hasyim", "bapak hasyim"],
+    aliases: ["gus hasyim", "agus hasyim", "muhammad hasyim", "hasyim", "bapak hasyim"],
     jabatanTugas: "Pengasuh & Pelindung Utama Haflah Akhirussanah P3TQ",
     displayTitle: "Gus Hasyim",
   },
   {
     name: "Agus H. Muhammad Kafabihi",
-    aliases: ["gus kafabihi", "muhammad kafabihi", "kafa", "kafabihi", "bapak kafabihi"],
+    aliases: ["gus muh", "agus muh", "gus muhammad", "agus muhammad", "gus kafabihi", "agus kafabihi", "muhammad kafabihi", "kafa", "kafabihi", "bapak kafabihi"],
     jabatanTugas: "Pengasuh & Pelindung Utama Haflah Akhirussanah P3TQ",
     displayTitle: "Gus Kafabihi",
   },
   {
     name: "Ning Hj. Tu'ti Amanah Nafisah",
-    aliases: ["ning tuti", "tu'ti amanah", "ning tuti amanah", "ibu tuti", "bu tuti"],
+    aliases: ["ning ima", "neng ima", "ning tuti", "tu'ti amanah", "ning tuti amanah", "ibu tuti", "bu tuti"],
     jabatanTugas: "Pengasuh & Pembimbing Putri Haflah Akhirussanah P3TQ",
     displayTitle: "Ning Hj. Tu'ti Amanah",
   },
   {
     name: "Ning Hj. Jihan Zainab",
-    aliases: ["ning jihan", "jihan zainab", "ning jihan zainab", "ibu jihan", "bu jihan"],
+    aliases: ["ning jihan", "neng jihan", "jihan zainab", "ning jihan zainab", "ibu jihan", "bu jihan"],
     jabatanTugas: "Pengasuh & Pembimbing Putri Haflah Akhirussanah P3TQ",
     displayTitle: "Ning Hj. Jihan Zainab",
   },
@@ -537,7 +549,7 @@ const STOP_WORDS = new Set([
   "apa", "hubungan", "mu", "kamu", "dengan", "sama", "siapa", "siapakah", "siapanya",
   "tugas", "jabatan", "posisi", "peran", "jobdesk", "amanah", "sih", "itu", "di",
   "kepanitiaan", "us", "usth", "tolong", "info", "ya", "kan",
-  "pak", "bapak", "bu", "ibu", "mas", "mbak", "saudara", "ning", "agus", "kh", "ust", "usth", "ustadz", "ustdz", "kiai", "kyai",
+  "pak", "bapak", "bu", "ibu", "mas", "mbak", "saudara", "ning", "neng", "agus", "kh", "ust", "usth", "ustadz", "ustdz", "kiai", "kyai",
   "al", "el", "bin", "binti", "saya", "aku", "anda", "dia", "beliau", "mereka", "kami", "kita", "kalian",
   "rekap", "kehadiran", "presensi", "hari", "ini", "laporan", "statistik", "total", "jumlah", "kuota", "scan", "rsvp",
   // Stop-words Bahasa Jawa
@@ -545,6 +557,8 @@ const STOP_WORDS = new Set([
   "inggih", "nggih", "injih", "monggo", "mangga", "dalem", "kulo", "kula",
   "panjenengan", "njenengan", "sampeyan", "piyambakipun", "piyambak", "pun", "kang"
 ]);
+
+const DZURIYYAH_TITLES = new Set(["gus", "agus", "ning", "neng"]);
 
 export function isThirdPersonPronounQuery(query: string): boolean {
   if (detectDiaSiapaIntent(query)) return true;
@@ -670,7 +684,7 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: an
   }
 
   if (/\b(siapa|sinten)\b/i.test(q)) {
-    if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|saudara|sdr|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
+    if (/(pak|bapak|bu|ibu|ning|neng|gus|agus|mbak|mas|saudara|sdr|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
       return true;
     }
     const qNorm = normalizeApostrophes(q);
@@ -685,7 +699,7 @@ export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: an
     }
   }
 
-  if (/(pak|bapak|bu|ibu|ning|gus|mbak|mas|saudara|sdr|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
+  if (/(pak|bapak|bu|ibu|ning|neng|gus|agus|mbak|mas|saudara|sdr|ustadz|ustdz|usth|kh|kyai|kiai)\s+[a-z]+/i.test(q)) {
     return true;
   }
 
@@ -761,43 +775,46 @@ function extractPersonNameFromQuery(query: string, targetMember: PanitiaMember):
   const { honorific, gender } = determineMemberTitlePrefix(targetMember);
 
   // 1. Explicit title typed by user
-  const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Ning|Mbak|Mas|Saudara|Sdr|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
+  const salMatch = q.match(/(Pak|Bapak|Bu|Ibu|Gus|Agus|Ning|Neng|Mbak|Mas|Saudara|Sdr|Ustadz|Ustz|Usth|Ust\.|KH\.|Kiai)\s+([A-Za-z]+(?:\s+[A-Za-z]+)*)/i);
   if (salMatch) {
     const rawSal = salMatch[1].toLowerCase();
-    let sal = honorific;
-    if (["bu", "ibu"].includes(rawSal)) sal = "Bu";
-    else if (["pak", "bapak"].includes(rawSal)) sal = "Pak";
-    else if (["ning"].includes(rawSal)) sal = "Ning";
-    else if (["gus"].includes(rawSal)) sal = "Gus";
-    else if (["mbak"].includes(rawSal)) sal = "Mbak";
-    else if (["mas"].includes(rawSal)) sal = "Mas";
-    else if (["saudara", "sdr"].includes(rawSal)) sal = "Saudara";
+    // Hanya perlakukan "agus" sebagai gelar sapaan jika targetMember memang bergelar Gus (bukan nama depan seperti Pak Agus Ismanto)
+    if (rawSal !== "agus" || honorific === "Gus") {
+      let sal = honorific;
+      if (["bu", "ibu"].includes(rawSal)) sal = "Bu";
+      else if (["pak", "bapak"].includes(rawSal)) sal = "Pak";
+      else if (["ning", "neng"].includes(rawSal)) sal = "Ning";
+      else if (["gus", "agus"].includes(rawSal)) sal = "Gus";
+      else if (["mbak"].includes(rawSal)) sal = "Mbak";
+      else if (["mas"].includes(rawSal)) sal = "Mas";
+      else if (["saudara", "sdr"].includes(rawSal)) sal = "Saudara";
 
-    // Enforce gender consistency
-    if (gender === "female" && ["pak", "bapak", "mas", "gus", "saudara", "sdr"].includes(rawSal)) {
-      sal = "Bu";
-    } else if (gender === "male" && ["bu", "ibu", "mbak", "ning"].includes(rawSal)) {
-      sal = "Pak";
-    }
+      // Enforce gender consistency
+      if (gender === "female" && ["pak", "bapak", "mas", "gus", "agus", "saudara", "sdr"].includes(rawSal)) {
+        sal = "Bu";
+      } else if (gender === "male" && ["bu", "ibu", "mbak", "ning", "neng"].includes(rawSal)) {
+        sal = "Pak";
+      }
 
-    const namePart = salMatch[2]
-      .replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan|sinten|niku|meniko)\b/gi, '')
-      .trim();
+      const namePart = salMatch[2]
+        .replace(/\b(siapa|siapakah|apa|dengan|kamu|posisi|jabatan|tugas|hubungan|sih|itu|ya|kan|sinten|niku|meniko)\b/gi, '')
+        .trim();
 
-    if (namePart.length >= 2) {
-      const words = namePart.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w.toLowerCase()));
-      // If 1 or 2 words, check if they match targetMember
-      if (words.length >= 1 && words.length <= 2) {
-        const memberWords = [
-          ...targetMember.name.toLowerCase().split(/\s+/),
-          ...targetMember.aliases.flatMap(a => a.toLowerCase().split(/\s+/))
-        ];
-        const allWordsMatch = words.every(w =>
-          memberWords.some(mw => mw === w.toLowerCase() || mw.startsWith(w.toLowerCase()) || levenshteinDistance(w.toLowerCase(), mw) <= 1)
-        );
-        if (allWordsMatch) {
-          const formatted = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-          return `${sal} ${formatted}`;
+      if (namePart.length >= 2) {
+        const words = namePart.split(/\s+/).filter(w => w.length >= 2 && !STOP_WORDS.has(w.toLowerCase()));
+        // If 1 or 2 words, check if they match targetMember
+        if (words.length >= 1 && words.length <= 2) {
+          const memberWords = [
+            ...targetMember.name.toLowerCase().split(/\s+/),
+            ...targetMember.aliases.flatMap(a => a.toLowerCase().split(/\s+/))
+          ];
+          const allWordsMatch = words.every(w =>
+            memberWords.some(mw => mw === w.toLowerCase() || mw.startsWith(w.toLowerCase()) || levenshteinDistance(w.toLowerCase(), mw) <= 1)
+          );
+          if (allWordsMatch) {
+            const formatted = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+            return `${sal} ${formatted}`;
+          }
         }
       }
     }
@@ -867,7 +884,40 @@ interface ScoredMember {
 
 function findMatchedMembers(queryTerm: string, fullQuery: string): PanitiaMember[] {
   const term = queryTerm.toLowerCase().trim();
-  const fullQ = fullQuery.toLowerCase().trim();
+  const fullQ = fullQuery.toLowerCase().trim().replace(/[.,!?;:]/g, ' ');
+
+  // =========================================================================
+  // TAHAP 0 — EXACT ALIAS MATCH DENGAN GELAR DZURIYYAH (Gus / Agus / Ning / Neng)
+  // Menjamin panggilan spesifik seperti "Gus Muh", "Agus Muhammad", "Gus Hasyim",
+  // "Ning Ima", "Neng Ima", "Ning Jihan", "Neng Jihan" cocok tepat sebelum
+  // gelar "agus" / "ning" / "neng" dihapus oleh STOP_WORDS.
+  // =========================================================================
+  const tokensWithTitles = fullQ
+    .split(/\s+/)
+    .filter((w) => w.length >= 2 && (!STOP_WORDS.has(w) || DZURIYYAH_TITLES.has(w)));
+
+  if (tokensWithTitles.length >= 2 && tokensWithTitles.some((w) => DZURIYYAH_TITLES.has(w))) {
+    const phraseWithTitles = tokensWithTitles.join(' ');
+    const phraseWithTitlesNorm = normalizeApostrophes(phraseWithTitles);
+    const tahap0Candidates: PanitiaMember[] = [];
+
+    for (const member of KEPANITIAAN_DATABASE) {
+      const aliasesLower = member.aliases.map((a) => a.toLowerCase());
+      const aliasesNorm = aliasesLower.map(normalizeApostrophes);
+      if (
+        aliasesLower.includes(phraseWithTitles) ||
+        aliasesNorm.includes(phraseWithTitlesNorm)
+      ) {
+        if (!tahap0Candidates.some((m) => m.name === member.name)) {
+          tahap0Candidates.push(member);
+        }
+      }
+    }
+
+    if (tahap0Candidates.length > 0) {
+      return tahap0Candidates;
+    }
+  }
 
   // Extract non-stop query tokens
   let queryTokens = term
@@ -1088,6 +1138,21 @@ const PARAGRAF_JABATAN_TEMPLATES = [
   "[Nama Lengkap Bold] merupakan [jabatan/tugas], dan saya bertugas sebagai asisten berbasis kecerdasan buatan yang mendampingi sistem ini.",
 ];
 
+const PARAGRAF_JABATAN_PENGASUH_TEMPLATES = [
+  "[Nama Lengkap Bold] merupakan [jabatan/tugas] yang senantiasa menaungi dan membimbing pelaksanaan Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M., sementara saya hadir sebagai asisten cerdas pendukung informasi kepanitiaan.",
+  "[Nama Lengkap Bold] mengemban peran mulia sebagai [jabatan/tugas] dalam perhelatan Haul & Haflah P3TQ & MHMTQ ini, sedangkan posisi saya adalah asisten cerdas digital yang membantu kelancaran informasi sistem.",
+  "[Nama Lengkap Bold] adalah [jabatan/tugas] yang mengayomi seluruh jajaran kepanitiaan Haul & Haflah P3TQ & MHMTQ, sementara saya bertugas sebagai asisten cerdas pendukung operasional sistem.",
+];
+
+const PARAGRAF_PUJIAN_PENGASUH_TEMPLATES = [
+  "Bimbingan, doa restu, serta keteladanan beliau sebagai Pengasuh senantiasa menjadi sumber keberkahan dan penuntun utama bagi seluruh panitia dalam berkhidmah menyukseskan acara ini.",
+  "Ketulusan pengayoman serta kebijaksanaan beliau dalam membimbing keluarga besar P3TQ & MHMTQ menjadi fondasi spiritual yang menguatkan langkah seluruh jajaran kepanitiaan.",
+  "Sosok beliau yang penuh ketawadhuan, keilmuan, dan perhatian tulus senantiasa menghadirkan keteduhan sekaligus semangat khidmah yang mendalam bagi seluruh panitia dan santri.",
+  "Arahan serta doa restu beliau merupakan penopang utama kelancaran seluruh rangkaian Haul & Haflah, menghadirkan teladan mulia dalam pengabdian dan penjagaan Al-Qur'an.",
+  "Dedikasi dan kasih sayang beliau dalam mengasuh serta mengarahkan jalannya kegiatan ini menjadi lentera penuntun yang sangat dihormati dan ditakzimi oleh seluruh keluarga besar pesantren.",
+  "Kehadiran dan pengayoman beliau sebagai Pengasuh memberikan kekuatan batin serta arah yang jelas bagi seluruh panitia agar senantiasa tertib, ikhlas, dan beradab dalam menjalankan amanah.",
+];
+
 export function generateHubunganResponseForMember(
   targetMember: PanitiaMember,
   query: string,
@@ -1095,9 +1160,30 @@ export function generateHubunganResponseForMember(
 ): string {
   const greetingInline = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨ " : "";
 
-  const callName = extractPersonNameFromQuery(query, targetMember);
   const fullNameBold = `**${targetMember.name}**`;
   const jabatanTugas = targetMember.jabatanTugas;
+  const paragrafPenutup = 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
+
+  // ATURAN KHUSUS DEWAN PENGASUH / PELINDUNG:
+  // TEPAT 3 PARAGRAF penuh takzim TANPA kalimat pengandaian / fans / satir.
+  if (isDewanPengasuhMember(targetMember)) {
+    const p1PengasuhTpl =
+      PARAGRAF_JABATAN_PENGASUH_TEMPLATES[
+        Math.floor(Math.random() * PARAGRAF_JABATAN_PENGASUH_TEMPLATES.length)
+      ];
+    const p1Pengasuh = `${greetingInline}${p1PengasuhTpl
+      .replace(/\[Nama Lengkap Bold\]/g, fullNameBold)
+      .replace(/\[jabatan\/tugas\]/g, jabatanTugas)}`;
+
+    const p2Pengasuh =
+      PARAGRAF_PUJIAN_PENGASUH_TEMPLATES[
+        Math.floor(Math.random() * PARAGRAF_PUJIAN_PENGASUH_TEMPLATES.length)
+      ];
+
+    return `${p1Pengasuh.trim()}\n\n${p2Pengasuh.trim()}\n\n${paragrafPenutup}`;
+  }
+
+  const callName = extractPersonNameFromQuery(query, targetMember);
 
   // Paragraf 1: Jabatan dan tugas (Nama Lengkap di awal teks dengan **bold**)
   const p1Template =
@@ -1113,11 +1199,23 @@ export function generateHubunganResponseForMember(
   // Paragraf 3: Pilih secara acak dari TEMPLATE_PENGANDAIAN (Fans)
   const p3 = getRandomPengandaian().replace(/\bbeliau\b/gi, callName);
 
-  // Paragraf 4: Penutup standar wajib
-  const paragrafPenutup = 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?';
-
-  // Susun ketat 4 paragraf terpisah dengan \n\n
+  // Susun ketat 4 paragraf terpisah dengan \n\n untuk panitia biasa
   return `${p1.trim()}\n\n${p2.trim()}\n\n${p3.trim()}\n\n${paragrafPenutup}`;
+}
+
+export function findMatchedDewanPengasuh(query: string): PanitiaMember | null {
+  if (isKamuSiapaQuery(query) || isSayaSiapaQuery(query) || isPronounQuery(query)) {
+    return null;
+  }
+  if (!detectHubunganKepanitiaanIntent(query)) {
+    return null;
+  }
+  const queryTerm = extractNameQueryTerm(query);
+  const matched = findMatchedMembers(queryTerm, query);
+  if (matched.length === 1 && isDewanPengasuhMember(matched[0])) {
+    return matched[0];
+  }
+  return null;
 }
 
 export function getHubunganKepanitiaanResponse(
