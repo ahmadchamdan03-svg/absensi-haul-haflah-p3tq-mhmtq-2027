@@ -6,28 +6,127 @@ export interface AiResponse {
   model: 'Clouvia' | 'Vikey' | 'Gemini';
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number, tierName: string): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error(`Timeout ${tierName} setelah ${ms / 1000} detik`));
-    }, ms);
-    promise
-      .then((val) => {
-        clearTimeout(timer);
-        resolve(val);
-      })
-      .catch((err) => {
-        clearTimeout(timer);
-        reject(err);
-      });
-  });
+type ProviderName = AiResponse['model'];
+
+type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+
+// Timeout ketat per tier: tepat 15 detik. Lewat batas → controller.abort() memutus request.
+const TIER_TIMEOUT_MS: Record<ProviderName, number> = {
+  Clouvia: 15000,
+  Vikey: 15000,
+  Gemini: 15000,
+};
+
+/**
+ * Membaca env var secara aman. API Key TIDAK PERNAH di-hardcode di kode;
+ * seluruh kredensial wajib disuplai melalui Environment Variables (.env.local / Vercel).
+ */
+function readEnv(...names: string[]): string {
+  for (const name of names) {
+    const value = process.env[name];
+    if (value && value.trim().length > 0) return value.trim();
+  }
+  return '';
+}
+
+/**
+ * Membuat AbortController yang otomatis memanggil abort() setelah `ms`.
+ * abort() memutus koneksi HTTP sehingga server provider berhenti memproses
+ * (mencegah token terbuang untuk jawaban yang sudah tidak ditunggu).
+ */
+function createTimeoutController(ms: number) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { controller, clear: () => clearTimeout(timer) };
+}
+
+/**
+ * Log error terperinci: status code, kode error, dan response body dari provider.
+ */
+function logTierError(tierLabel: string, err: any, startedAt: number, aborted: boolean) {
+  const elapsedMs = Date.now() - startedAt;
+  if (aborted) {
+    console.warn(`[AI-Router] ${tierLabel} TIMEOUT setelah ${elapsedMs} ms (>15s) — request dibatalkan via AbortController.`);
+    return;
+  }
+  if (err instanceof OpenAI.APIError) {
+    let body: string;
+    try {
+      body = JSON.stringify(err.error ?? err.message);
+    } catch {
+      body = String(err.error ?? err.message);
+    }
+    console.warn(
+      `[AI-Router] ${tierLabel} GAGAL (${elapsedMs} ms) | status=${err.status ?? 'n/a'} | code=${err.code ?? 'n/a'} | type=${err.type ?? 'n/a'} | body=${body}`
+    );
+    return;
+  }
+  const status = err?.status ?? err?.response?.status ?? 'n/a';
+  const rawBody = err?.errorDetails ?? err?.response?.data ?? err?.message ?? String(err);
+  let bodyStr: string;
+  try {
+    bodyStr = typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody);
+  } catch {
+    bodyStr = String(rawBody);
+  }
+  console.warn(
+    `[AI-Router] ${tierLabel} GAGAL (${elapsedMs} ms) | status=${status} | body=${bodyStr}`
+  );
+}
+
+/**
+ * Pemanggil generik untuk provider OpenAI-compatible (Clouvia & Vikey).
+ * - maxRetries: 0 → tidak ada retry tersembunyi; gagal langsung pindah tier.
+ * - signal: AbortController → request benar-benar diputus saat timeout.
+ */
+async function callOpenAiCompatible(params: {
+  tierLabel: string;
+  apiKey: string;
+  baseURL: string;
+  model: string;
+  timeoutMs: number;
+  maxTokens: number;
+  messages: ChatMessage[];
+  isValidReply?: (text: string) => boolean;
+}): Promise<string | null> {
+  const { tierLabel, apiKey, baseURL, model, timeoutMs, maxTokens, messages, isValidReply } = params;
+  const startedAt = Date.now();
+  const { controller, clear } = createTimeoutController(timeoutMs);
+
+  try {
+    console.log(`[AI-Router] Mencoba ${tierLabel} (model: ${model}, timeout: ${timeoutMs / 1000}s)...`);
+    const client = new OpenAI({ apiKey, baseURL, maxRetries: 0, timeout: timeoutMs + 1000 });
+
+    const response = await client.chat.completions.create(
+      {
+        model,
+        messages,
+        temperature: 0.35,
+        max_tokens: maxTokens,
+      },
+      { signal: controller.signal }
+    );
+
+    const replyText = response.choices?.[0]?.message?.content?.trim() || '';
+    if (replyText.length > 0 && (!isValidReply || isValidReply(replyText))) {
+      console.log(`[AI-Router] Sukses dijawab oleh ${tierLabel} dalam ${Date.now() - startedAt} ms`);
+      return replyText;
+    }
+    console.warn(`[AI-Router] ${tierLabel} mengembalikan jawaban kosong/tidak valid (${Date.now() - startedAt} ms).`);
+    return null;
+  } catch (err: any) {
+    logTierError(tierLabel, err, startedAt, controller.signal.aborted);
+    return null;
+  } finally {
+    clear();
+  }
 }
 
 /**
  * 3-Tier Failover Engine for Usth. Halwaa AI Assistant:
- * Tier 1 (Utama)     : Clouvia (deepseek-4.1-flash-1017)
- * Tier 2 (Cadangan 1): Vikey (vikey/plan)
- * Tier 3 (Cadangan 2): Google Gemini (gemini-1.5-flash)
+ * Tier 1 (Utama)     : Clouvia (model ringan via CLOUVIA_MODEL, timeout 15 dtk)
+ * Tier 2 (Cadangan 1): Vikey (vikey/plan, timeout 15 dtk)
+ * Tier 3 (Cadangan 2): Google Gemini (gemini-1.5-flash, timeout 15 dtk)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
  */
 export async function askAI(
@@ -35,12 +134,8 @@ export async function askAI(
   history: any[] = [],
   systemPrompt: string
 ): Promise<AiResponse> {
-  const TIMEOUT_MS = 15000; // 15 detik timeout per tier
-
   // Format message array untuk OpenAI Compatible API (Clouvia & Vikey)
-  const openAiMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-    { role: 'system', content: systemPrompt },
-  ];
+  const openAiMessages: ChatMessage[] = [{ role: 'system', content: systemPrompt }];
 
   if (Array.isArray(history) && history.length > 0) {
     for (const item of history.slice(-6)) {
@@ -53,115 +148,62 @@ export async function askAI(
     }
   }
 
-  openAiMessages.push({
-    role: 'user',
-    content: prompt,
-  });
+  openAiMessages.push({ role: 'user', content: prompt });
 
   // =========================================================================
   // TIER 1 — CLOUVIA (UTAMA)
   // =========================================================================
-  const clouviaKey =
-    process.env.CLOUVIA_API_KEY ||
-    'clv_live_F8gFYq4SZMZ8Hont2U4EiWICQmpMqn03NQG78mcPmIM';
-  const clouviaBaseUrl = process.env.CLOUVIA_BASE_URL || 'https://router.clouvia.id/v1';
-  const clouviaModel = process.env.CLOUVIA_MODEL || 'deepseek-4.1-flash-1017';
-
-  if (clouviaKey && clouviaKey.trim().length > 10) {
-    try {
-      console.log('[AI-Router] Mencoba Tier 1: Clouvia...');
-      const clouviaClient = new OpenAI({
-        apiKey: clouviaKey,
-        baseURL: clouviaBaseUrl,
-      });
-
-      const response = await withTimeout(
-        clouviaClient.chat.completions.create({
-          model: clouviaModel,
-          messages: openAiMessages,
-          temperature: 0.35,
-          max_tokens: 1500,
-        }),
-        TIMEOUT_MS,
-        'Tier 1 Clouvia'
-      );
-
-      const replyText = response.choices?.[0]?.message?.content;
-      if (replyText && replyText.trim().length > 0) {
-        console.log('[AI-Router] Sukses dijawab oleh Tier 1: Clouvia');
-        return {
-          text: replyText.trim(),
-          model: 'Clouvia',
-        };
-      }
-    } catch (err: any) {
-      console.warn('[AI-Router] Tier 1 (Clouvia) gagal/timeout:', err.message || err);
-    }
+  const clouviaKey = readEnv('CLOUVIA_API_KEY');
+  if (clouviaKey) {
+    const text = await callOpenAiCompatible({
+      tierLabel: 'Tier 1 Clouvia',
+      apiKey: clouviaKey,
+      baseURL: readEnv('CLOUVIA_BASE_URL') || 'https://router.clouvia.id/v1',
+      model: readEnv('CLOUVIA_MODEL') || 'gemini-2.5-flash',
+      timeoutMs: TIER_TIMEOUT_MS.Clouvia,
+      maxTokens: 1500,
+      messages: openAiMessages,
+    });
+    if (text) return { text, model: 'Clouvia' };
+  } else {
+    console.warn('[AI-Router] Tier 1 Clouvia dilewati: CLOUVIA_API_KEY belum diset.');
   }
 
   // =========================================================================
   // TIER 2 — VIKEY PLAN (CADANGAN 1)
   // =========================================================================
-  const vikeyKey =
-    process.env.VIKEY_API_KEY ||
-    process.env.AI_GATEWAY_API_KEY ||
-    'vk-2e03aab0-64d7-4069-869c-d706172c2232';
-  const vikeyBaseUrl =
-    process.env.VIKEY_BASE_URL ||
-    process.env.AI_GATEWAY_BASE_URL ||
-    'https://api-plan.vikey.ai/v1';
-  const vikeyModel =
-    process.env.VIKEY_MODEL || process.env.AI_GATEWAY_MODEL || 'vikey/plan';
-
-  if (vikeyKey && vikeyKey.trim().length > 8) {
-    try {
-      console.log('[AI-Router] Mencoba Tier 2: Vikey Plan...');
-      const vikeyClient = new OpenAI({
-        apiKey: vikeyKey,
-        baseURL: vikeyBaseUrl,
-      });
-
-      const response = await withTimeout(
-        vikeyClient.chat.completions.create({
-          model: vikeyModel,
-          messages: openAiMessages,
-          temperature: 0.35,
-          max_tokens: 2500,
-        }),
-        TIMEOUT_MS,
-        'Tier 2 Vikey'
-      );
-
-      const replyText = response.choices?.[0]?.message?.content;
-      if (
-        replyText &&
-        replyText.trim().length > 0 &&
-        !replyText.includes('[No answer:')
-      ) {
-        console.log('[AI-Router] Sukses dijawab oleh Tier 2: Vikey');
-        return {
-          text: replyText.trim(),
-          model: 'Vikey',
-        };
-      }
-    } catch (err: any) {
-      console.warn('[AI-Router] Tier 2 (Vikey) gagal/timeout:', err.message || err);
-    }
+  const vikeyKey = readEnv('VIKEY_API_KEY', 'AI_GATEWAY_API_KEY');
+  if (vikeyKey) {
+    const text = await callOpenAiCompatible({
+      tierLabel: 'Tier 2 Vikey',
+      apiKey: vikeyKey,
+      baseURL: readEnv('VIKEY_BASE_URL', 'AI_GATEWAY_BASE_URL') || 'https://api-plan.vikey.ai/v1',
+      model: readEnv('VIKEY_MODEL', 'AI_GATEWAY_MODEL') || 'vikey/plan',
+      timeoutMs: TIER_TIMEOUT_MS.Vikey,
+      // vikey/plan membutuhkan headroom token karena reasoning internal
+      maxTokens: 2500,
+      messages: openAiMessages,
+      isValidReply: (t) => !t.includes('[No answer:'),
+    });
+    if (text) return { text, model: 'Vikey' };
+  } else {
+    console.warn('[AI-Router] Tier 2 Vikey dilewati: VIKEY_API_KEY belum diset.');
   }
 
   // =========================================================================
   // TIER 3 — GOOGLE GEMINI (CADANGAN 2)
   // =========================================================================
-  const geminiKey =
-    process.env.GEMINI_API_KEY ||
-    process.env.GEMINI_PRO_API_KEY ||
-    process.env.GEMINI_API_KEYS;
-  const geminiModelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const geminiKey = readEnv('GEMINI_API_KEY', 'GEMINI_PRO_API_KEY', 'GEMINI_API_KEYS');
+  if (geminiKey) {
+    const tierLabel = 'Tier 3 Gemini';
+    const geminiModelName = readEnv('GEMINI_MODEL') || 'gemini-1.5-flash';
+    const startedAt = Date.now();
+    const { controller, clear } = createTimeoutController(TIER_TIMEOUT_MS.Gemini);
 
-  if (geminiKey && geminiKey.trim().length > 10) {
     try {
-      console.log('[AI-Router] Mencoba Tier 3: Google Gemini...');
-      const genAI = new GoogleGenerativeAI(geminiKey.trim());
+      console.log(`[AI-Router] Mencoba ${tierLabel} (model: ${geminiModelName})...`);
+      // GEMINI_API_KEYS bisa berisi beberapa key dipisah koma — ambil yang pertama
+      const genAI = new GoogleGenerativeAI(geminiKey.split(',')[0].trim());
       const model = genAI.getGenerativeModel({
         model: geminiModelName,
         systemInstruction: systemPrompt,
@@ -180,27 +222,22 @@ export async function askAI(
         }
       }
 
-      const chat = model.startChat({
-        history: geminiHistory,
-      });
+      const chat = model.startChat({ history: geminiHistory });
+      const result = await chat.sendMessage(prompt, { signal: controller.signal });
 
-      const result = await withTimeout(
-        chat.sendMessage(prompt),
-        TIMEOUT_MS,
-        'Tier 3 Gemini'
-      );
-
-      const replyText = result.response.text();
-      if (replyText && replyText.trim().length > 0) {
-        console.log('[AI-Router] Sukses dijawab oleh Tier 3: Gemini');
-        return {
-          text: replyText.trim(),
-          model: 'Gemini',
-        };
+      const replyText = result.response.text()?.trim() || '';
+      if (replyText.length > 0) {
+        console.log(`[AI-Router] Sukses dijawab oleh ${tierLabel} dalam ${Date.now() - startedAt} ms`);
+        return { text: replyText, model: 'Gemini' };
       }
+      console.warn(`[AI-Router] ${tierLabel} mengembalikan jawaban kosong.`);
     } catch (err: any) {
-      console.warn('[AI-Router] Tier 3 (Gemini) gagal/timeout:', err.message || err);
+      logTierError(tierLabel, err, startedAt, controller.signal.aborted);
+    } finally {
+      clear();
     }
+  } else {
+    console.warn('[AI-Router] Tier 3 Gemini dilewati: GEMINI_API_KEY belum diset.');
   }
 
   // Jika ketiga tier AI gagal, lemparkan error agar ditangkap oleh route handler

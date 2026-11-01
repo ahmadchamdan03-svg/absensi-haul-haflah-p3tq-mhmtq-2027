@@ -37,6 +37,10 @@ import {
 } from '@/lib/halwaa/live-context';
 import { searchPersonInSupabase } from '@/lib/halwaa/search-person';
 
+// 3-Tier failover worst-case: 3 × 15 dtk = 45 dtk (+ query Supabase).
+// Beri ruang 60 dtk agar fungsi Vercel tidak diputus sebelum fallback selesai.
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
