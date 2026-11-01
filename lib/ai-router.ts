@@ -46,7 +46,7 @@ function createTimeoutController(ms: number) {
 function logTierError(tierLabel: string, err: any, startedAt: number, aborted: boolean) {
   const elapsedMs = Date.now() - startedAt;
   if (aborted) {
-    console.warn(`[AI-Router] ${tierLabel} TIMEOUT setelah ${elapsedMs} ms (>15s) — request dibatalkan via AbortController.`);
+    console.error(`[AI-Router] ${tierLabel} TIMEOUT setelah ${elapsedMs} ms (>15s) — request dibatalkan via AbortController.`);
     return;
   }
   if (err instanceof OpenAI.APIError) {
@@ -56,7 +56,7 @@ function logTierError(tierLabel: string, err: any, startedAt: number, aborted: b
     } catch {
       body = String(err.error ?? err.message);
     }
-    console.warn(
+    console.error(
       `[AI-Router] ${tierLabel} GAGAL (${elapsedMs} ms) | status=${err.status ?? 'n/a'} | code=${err.code ?? 'n/a'} | type=${err.type ?? 'n/a'} | body=${body}`
     );
     return;
@@ -69,7 +69,7 @@ function logTierError(tierLabel: string, err: any, startedAt: number, aborted: b
   } catch {
     bodyStr = String(rawBody);
   }
-  console.warn(
+  console.error(
     `[AI-Router] ${tierLabel} GAGAL (${elapsedMs} ms) | status=${status} | body=${bodyStr}`
   );
 }
@@ -126,7 +126,7 @@ async function callOpenAiCompatible(params: {
  * 3-Tier Failover Engine for Usth. Halwaa AI Assistant:
  * Tier 1 (Utama)     : Clouvia (model ringan via CLOUVIA_MODEL, timeout 15 dtk)
  * Tier 2 (Cadangan 1): Vikey (vikey/plan, timeout 15 dtk)
- * Tier 3 (Cadangan 2): Google Gemini (gemini-1.5-flash, timeout 15 dtk)
+ * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash, timeout 15 dtk)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
  */
 export async function askAI(
@@ -166,7 +166,7 @@ export async function askAI(
     });
     if (text) return { text, model: 'Clouvia' };
   } else {
-    console.warn('[AI-Router] Tier 1 Clouvia dilewati: CLOUVIA_API_KEY belum diset.');
+    console.error('[AI-Router] Tier 1 Clouvia dilewati: CLOUVIA_API_KEY belum diset.');
   }
 
   // =========================================================================
@@ -187,27 +187,23 @@ export async function askAI(
     });
     if (text) return { text, model: 'Vikey' };
   } else {
-    console.warn('[AI-Router] Tier 2 Vikey dilewati: VIKEY_API_KEY belum diset.');
+    console.error('[AI-Router] Tier 2 Vikey dilewati: VIKEY_API_KEY belum diset.');
   }
 
   // =========================================================================
   // TIER 3 — GOOGLE GEMINI (CADANGAN 2)
   // =========================================================================
-  const geminiKey = readEnv('GEMINI_API_KEY', 'GEMINI_PRO_API_KEY', 'GEMINI_API_KEYS');
+  const geminiKey = (process.env.GEMINI_API_KEY || readEnv('GEMINI_PRO_API_KEY', 'GEMINI_API_KEYS')).trim();
   if (geminiKey) {
     const tierLabel = 'Tier 3 Gemini';
-    const geminiModelName = readEnv('GEMINI_MODEL') || 'gemini-1.5-flash';
+    const primaryGeminiModel = readEnv('GEMINI_MODEL') || 'gemini-2.5-flash';
+    const candidateGeminiModels = Array.from(new Set([primaryGeminiModel, 'gemini-3.5-flash-lite']));
     const startedAt = Date.now();
     const { controller, clear } = createTimeoutController(TIER_TIMEOUT_MS.Gemini);
 
     try {
-      console.log(`[AI-Router] Mencoba ${tierLabel} (model: ${geminiModelName})...`);
       // GEMINI_API_KEYS bisa berisi beberapa key dipisah koma — ambil yang pertama
       const genAI = new GoogleGenerativeAI(geminiKey.split(',')[0].trim());
-      const model = genAI.getGenerativeModel({
-        model: geminiModelName,
-        systemInstruction: systemPrompt,
-      });
 
       // Format riwayat pesan untuk Google Generative AI
       const geminiHistory: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }> = [];
@@ -222,22 +218,39 @@ export async function askAI(
         }
       }
 
-      const chat = model.startChat({ history: geminiHistory });
-      const result = await chat.sendMessage(prompt, { signal: controller.signal });
-
-      const replyText = result.response.text()?.trim() || '';
-      if (replyText.length > 0) {
-        console.log(`[AI-Router] Sukses dijawab oleh ${tierLabel} dalam ${Date.now() - startedAt} ms`);
-        return { text: replyText, model: 'Gemini' };
+      for (const geminiModelName of candidateGeminiModels) {
+        if (controller.signal.aborted) break;
+        try {
+          console.log(`[AI-Router] Mencoba ${tierLabel} (model: ${geminiModelName})...`);
+          const model = genAI.getGenerativeModel({
+            model: geminiModelName,
+            systemInstruction: systemPrompt,
+          });
+          const chat = model.startChat({ history: geminiHistory });
+          const result = await chat.sendMessage(prompt, { signal: controller.signal });
+          const replyText = result.response.text()?.trim() || '';
+          if (replyText.length > 0) {
+            console.log(`[AI-Router] Sukses dijawab oleh ${tierLabel} (${geminiModelName}) dalam ${Date.now() - startedAt} ms`);
+            return { text: replyText, model: 'Gemini' };
+          }
+        } catch (innerErr: any) {
+          const msg = String(innerErr?.message || innerErr);
+          const isModelNotFound = innerErr?.status === 404 || msg.includes('404 Not Found');
+          if (isModelNotFound && geminiModelName !== candidateGeminiModels[candidateGeminiModels.length - 1]) {
+            console.error(`[AI-Router] ${tierLabel} model ${geminiModelName} 404 — mencoba fallback model berikutnya...`);
+            continue;
+          }
+          throw innerErr;
+        }
       }
-      console.warn(`[AI-Router] ${tierLabel} mengembalikan jawaban kosong.`);
+      console.error(`[AI-Router] ${tierLabel} mengembalikan jawaban kosong.`);
     } catch (err: any) {
       logTierError(tierLabel, err, startedAt, controller.signal.aborted);
     } finally {
       clear();
     }
   } else {
-    console.warn('[AI-Router] Tier 3 Gemini dilewati: GEMINI_API_KEY belum diset.');
+    console.error('[AI-Router] Tier 3 Gemini dilewati: GEMINI_API_KEY belum diset.');
   }
 
   // Jika ketiga tier AI gagal, lemparkan error agar ditangkap oleh route handler

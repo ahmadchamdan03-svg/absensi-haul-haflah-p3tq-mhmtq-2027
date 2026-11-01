@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 2. Fallback Rekap Kehadiran
+    // 2. Fallback Rekap Kehadiran & Daftar Tamu/Wali Hadir
     if (detectRekapKehadiranIntent(prompt)) {
       const replyText = await getLiveRekapKehadiran(isFirstTurn);
       const expr = detectExpression(replyText, prompt, isFirstTurn);
@@ -136,6 +136,71 @@ export async function POST(req: NextRequest) {
         source: 'supabase_live_stats',
         model: 'Local Smart Assistant',
       });
+    }
+
+    const qLower = prompt.toLowerCase();
+    const hasPresenceOrRekapKeyword =
+      qLower.includes('hadir') ||
+      qLower.includes('datang') ||
+      qLower.includes('tiba') ||
+      qLower.includes('masuk') ||
+      qLower.includes('presensi') ||
+      qLower.includes('rekap');
+
+    const isAskingWhoArrived =
+      hasPresenceOrRekapKeyword &&
+      (qLower.includes('tamu') ||
+        qLower.includes('undangan') ||
+        qLower.includes('masyayikh') ||
+        qLower.includes('penguji') ||
+        qLower.includes('vip')) &&
+      !qLower.includes('wali') &&
+      (qLower.includes('siapa') ||
+        qLower.includes('siapakah') ||
+        qLower.includes('daftar') ||
+        qLower.includes('sebutkan') ||
+        qLower.includes('mana') ||
+        qLower.includes('rekap'));
+
+    if (isAskingWhoArrived) {
+      const arrivedGuestsReply = await getLiveArrivedGuestsResponse(prompt, isFirstTurn);
+      if (arrivedGuestsReply) {
+        const cleanReply = cleanReplyForSession(arrivedGuestsReply, isFirstTurn, prompt);
+        const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+        return NextResponse.json({
+          reply: cleanReply,
+          expression: expr,
+          avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+          source: 'supabase_live_query',
+          model: 'Local Smart Assistant',
+        });
+      }
+    }
+
+    const isAskingWaliArrived =
+      hasPresenceOrRekapKeyword &&
+      (qLower.includes('wali') || qLower.includes('orang tua') || qLower.includes('pendamping')) &&
+      (qLower.includes('siapa') ||
+        qLower.includes('siapakah') ||
+        qLower.includes('daftar') ||
+        qLower.includes('sebutkan') ||
+        qLower.includes('mana') ||
+        qLower.includes('yang sudah hadir') ||
+        qLower.includes('rekap'));
+
+    if (isAskingWaliArrived) {
+      const arrivedWaliReply = await getLiveArrivedWaliResponse(prompt, isFirstTurn);
+      if (arrivedWaliReply) {
+        const cleanReply = cleanReplyForSession(arrivedWaliReply, isFirstTurn, prompt);
+        const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+        return NextResponse.json({
+          reply: cleanReply,
+          expression: expr,
+          avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+          source: 'supabase_live_query',
+          model: 'Local Smart Assistant',
+        });
+      }
     }
 
     // 3. Fallback Info Seksi
@@ -178,36 +243,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 6. Fallback Live Category & Arrived Guests
+    // 6. Fallback Live Category & Wali Santri Queries
     const liveCatReply = await handleLiveCategoryNameQueries(prompt, isFirstTurn);
     if (liveCatReply) {
       const cleanReply = cleanReplyForSession(liveCatReply, isFirstTurn, prompt);
-      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
-      return NextResponse.json({
-        reply: cleanReply,
-        expression: expr,
-        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
-        source: 'supabase_live_query',
-        model: 'Local Smart Assistant',
-      });
-    }
-
-    const arrivedGuestsReply = await getLiveArrivedGuestsResponse(prompt, isFirstTurn);
-    if (arrivedGuestsReply) {
-      const cleanReply = cleanReplyForSession(arrivedGuestsReply, isFirstTurn, prompt);
-      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
-      return NextResponse.json({
-        reply: cleanReply,
-        expression: expr,
-        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
-        source: 'supabase_live_query',
-        model: 'Local Smart Assistant',
-      });
-    }
-
-    const arrivedWaliReply = await getLiveArrivedWaliResponse(prompt, isFirstTurn);
-    if (arrivedWaliReply) {
-      const cleanReply = cleanReplyForSession(arrivedWaliReply, isFirstTurn, prompt);
       const expr = detectExpression(cleanReply, prompt, isFirstTurn);
       return NextResponse.json({
         reply: cleanReply,
