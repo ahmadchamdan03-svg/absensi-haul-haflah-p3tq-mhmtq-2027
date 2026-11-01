@@ -36,6 +36,7 @@ export interface PersidanganPeserta {
   status_kirim: StatusKirimWa;
   waktu_kirim?: string | null;
   error_msg?: string | null;
+  dapat_qr?: boolean;
   created_at?: string;
 }
 
@@ -195,11 +196,12 @@ export function getShortPersidanganUrl(kodePeserta: string, customBaseUrl?: stri
 
 /**
  * Replace placeholder template WA dengan data aktual
- * Menggunakan URL pendek https://haflahp3tq.site/s/{kode_peserta} jika peserta memiliki kode presensi
+ * - JIKA dapat_qr !== false (default true) & memiliki kode: gunakan URL pendek https://haflahp3tq.site/s/{kode_peserta} (memuat QR Code)
+ * - JIKA dapat_qr === false: gunakan URL publik langsung https://haflahp3tq.site/persidangan/{slug} (tanpa parameter ?to=, tanpa QR Code)
  */
 export function buildMessageFromTemplate(
   template: string,
-  peserta: { nama: string; no_wa?: string; kode_peserta?: string | null },
+  peserta: { nama: string; no_wa?: string; kode_peserta?: string | null; dapat_qr?: boolean | null },
   persidangan: {
     judul: string;
     slug: string;
@@ -207,7 +209,8 @@ export function buildMessageFromTemplate(
   },
   baseUrl?: string
 ): string {
-  const targetUrl = peserta.kode_peserta
+  const dapatQr = peserta.dapat_qr !== false;
+  const targetUrl = dapatQr && peserta.kode_peserta
     ? getShortPersidanganUrl(peserta.kode_peserta, baseUrl)
     : getPublicPersidanganUrl(persidangan.slug, baseUrl);
 
@@ -514,6 +517,7 @@ export async function addPeserta(
     status_kirim: data.status_kirim || 'BELUM',
     waktu_kirim: data.waktu_kirim || null,
     error_msg: data.error_msg || null,
+    dapat_qr: data.dapat_qr !== undefined ? data.dapat_qr : true,
     created_at: new Date().toISOString(),
   };
 
@@ -546,6 +550,7 @@ export async function addPesertaBatch(
     status_kirim: item.status_kirim || 'BELUM',
     waktu_kirim: item.waktu_kirim || null,
     error_msg: item.error_msg || null,
+    dapat_qr: item.dapat_qr !== undefined ? item.dapat_qr : true,
     created_at: new Date().toISOString(),
   }));
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import * as XLSX from 'xlsx';
+import { supabase } from '@/lib/supabase';
 import {
   Send,
   Trash2,
@@ -191,6 +192,37 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
     setInputNoWa(peserta.no_wa);
   };
 
+  // Toggle Dapat QR
+  const handleToggleDapatQr = async (peserta: PersidanganPeserta) => {
+    const currentVal = peserta.dapat_qr !== false;
+    const newVal = !currentVal;
+
+    // Optimistic UI update
+    setPesertaList((prev) =>
+      prev.map((p) => (p.id === peserta.id ? { ...p, dapat_qr: newVal } : p))
+    );
+
+    try {
+      const { error } = await supabase
+        .from('persidangan_peserta')
+        .update({ dapat_qr: newVal })
+        .eq('id', peserta.id);
+
+      if (error) {
+        // Rollback on error
+        setPesertaList((prev) =>
+          prev.map((p) => (p.id === peserta.id ? { ...p, dapat_qr: currentVal } : p))
+        );
+        showToast('error', `Gagal mengubah opsi QR: ${error.message}`);
+      }
+    } catch (err: any) {
+      setPesertaList((prev) =>
+        prev.map((p) => (p.id === peserta.id ? { ...p, dapat_qr: currentVal } : p))
+      );
+      showToast('error', `Terjadi kesalahan: ${err?.message || err}`);
+    }
+  };
+
   // Submit Add Manual
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,6 +246,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         status_kirim: 'BELUM',
         waktu_kirim: null,
         error_msg: null,
+        dapat_qr: true,
       });
 
       if (error || !data) {
@@ -365,6 +398,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
         status_kirim: 'BELUM' as const,
         waktu_kirim: null,
         error_msg: null,
+        dapat_qr: true,
       }));
 
       const { count, error } = await addPesertaBatch(itemsForBatch);
@@ -400,6 +434,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
           nama: peserta.nama,
           no_wa: peserta.no_wa,
           kode_peserta: peserta.kode_peserta,
+          dapat_qr: peserta.dapat_qr,
         },
         persidangan
       );
@@ -468,6 +503,9 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 </th>
                 <th className="p-3 w-10 text-center">No</th>
                 <th className="p-3 w-28">Kode Presensi</th>
+                <th className="p-3 w-12 text-center" title="Sertakan QR Code di Link Undangan">
+                  QR
+                </th>
                 <th className="p-3">Nama Penerima</th>
                 <th className="p-3">No. WhatsApp</th>
                 <th className="p-3 w-28">Status WA</th>
@@ -478,7 +516,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
             <tbody className="divide-y divide-[#EFE8E1] text-[#422F21]">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={9} className="p-8 text-center text-xs text-[#735334]">
                     <div className="inline-flex items-center gap-2">
                       <RefreshCw className="w-4 h-4 animate-spin text-[#8C6A47]" />
                       Memuat daftar peserta...
@@ -487,7 +525,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 </tr>
               ) : filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={9} className="p-8 text-center text-xs text-[#735334]">
                     {pesertaList.length === 0
                       ? 'Belum ada peserta dalam persidangan ini. Klik "+ Tambah Peserta" atau "Import Excel" di atas.'
                       : 'Tidak ada data peserta yang cocok dengan kriteria pencarian/filter.'}
@@ -518,6 +556,19 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                         <span className="inline-block px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-[#8C6A47]/10 text-[#8C6A47] border border-[#8C6A47]/25">
                           {item.kode_peserta || '-'}
                         </span>
+                      </td>
+                      <td className="p-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={item.dapat_qr !== false}
+                          onChange={() => handleToggleDapatQr(item)}
+                          className="rounded text-[#8C6A47] focus:ring-[#8C6A47] cursor-pointer w-4 h-4"
+                          title={
+                            item.dapat_qr !== false
+                              ? 'QR Code aktif di undangan - Klik untuk nonaktifkan'
+                              : 'QR Code dinonaktifkan (hanya PDF) - Klik untuk aktifkan'
+                          }
+                        />
                       </td>
                       <td className="p-3 font-bold text-xs">{item.nama}</td>
                       <td className="p-3 font-mono text-[11px] text-[#735334]">
