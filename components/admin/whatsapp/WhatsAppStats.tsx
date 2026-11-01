@@ -63,11 +63,11 @@ Wassalamu’alaikum warahmatullahi wabarakatuh
     return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
 
-Menindaklanjuti undangan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., kami membuka kesempatan penambahan kuota kehadiran bagi keluarga yang ingin mengajak lebih banyak sanak saudara.
+Menindaklanjuti undangan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., kami membuka kesempatan pembelian kuota tambahan.
 
 Ketentuan:
 • Rincian biaya dan rekening tujuan transfer tersedia lengkap pada portal digital di bawah
-• Bila dalam 6 jam belum upload bukti transfer, maka pemesanan otomatis dibatalkan
+• *Bila dalam 6 jam belum upload bukti transfer, maka pemesanan otomatis dibatalkan*
 • Pendaftaran ditutup otomatis bila kuota habis
 • Kuota otomatis ditambahkan ke QR Code Anda
 
