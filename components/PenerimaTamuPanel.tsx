@@ -27,7 +27,7 @@ import {
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { clearActiveRole } from '@/lib/auth-roles';
-import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { getWarnaTiketUndangan } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import TanyaUsModal from '@/components/TanyaUsModal';
 
@@ -79,7 +79,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
     alamat: '',
     noHp: '',
     kuotaDasar: 2,
-    jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
   });
   const [undanganKategoriDropdown, setUndanganKategoriDropdown] = useState<string>(OPSI_UNDANGAN_ISTIMEWA[0]);
   const [customKategoriInput, setCustomKategoriInput] = useState<string>('');
@@ -99,7 +98,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       alamat: '',
       noHp: '',
       kuotaDasar: gol === 'ISTIMEWA' ? 2 : gol === 'KEHORMATAN' ? 4 : 2,
-      jalurMasuk: getDefaultJalurMasuk(gol),
     });
     setCustomKategoriInput('');
     setShowAddModal(true);
@@ -349,7 +347,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       return;
     }
 
-    const finalJalur = (undanganForm.jalurMasuk || getDefaultJalurMasuk(selectedGolonganUndangan)).trim();
     let newKode = generateRandomKode('UND');
 
     try {
@@ -367,7 +364,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           no_hp: undanganForm.noHp || '-',
           kuota_terpakai: 0,
           warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
-          jalur_masuk: finalJalur,
         },
       ]);
       if (error) {
@@ -390,7 +386,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       alamat: finalAlamat,
       kuotaDasar: kuotaBase,
       golongan: selectedGolonganUndangan,
-      jalurMasuk: finalJalur,
     });
 
     await fetchTamuData();
@@ -406,7 +401,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
       alamat: '',
       noHp: '',
       kuotaDasar: 1,
-      jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
     });
     setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
     setCustomKategoriInput('');
@@ -842,17 +836,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                   value={undanganForm.noHp}
                   onChange={(e) => setUndanganForm({ ...undanganForm, noHp: e.target.value })}
                   placeholder="08xxxxxxxxxx"
-                  className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#422F21] mb-1.5 text-xs md:text-sm">Masuk Melalui (Jalur Masuk):</label>
-                <input
-                  type="text"
-                  value={undanganForm.jalurMasuk}
-                  onChange={(e) => setUndanganForm({ ...undanganForm, jalurMasuk: e.target.value })}
-                  placeholder="Contoh: Jalur VIP / Gerbang Selatan (Bola Dunia)"
                   className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
                 />
               </div>

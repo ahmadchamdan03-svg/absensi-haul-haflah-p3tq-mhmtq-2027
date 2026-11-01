@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Users, Sparkles, Building, Loader2 } from 'lucide-react';
-import { getDefaultJalurMasuk } from '@/lib/types';
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
@@ -174,7 +173,6 @@ export default function TamuFormFields({
                   instansi: '',
                   alamat: '',
                   kuotaDasar: 2,
-                  jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
                 });
                 setCustomKategoriInput('');
               }}
@@ -198,7 +196,6 @@ export default function TamuFormFields({
                   instansi: '',
                   alamat: '',
                   kuotaDasar: 4,
-                  jalurMasuk: getDefaultJalurMasuk('KEHORMATAN'),
                 });
                 setCustomKategoriInput('');
               }}
@@ -223,7 +220,6 @@ export default function TamuFormFields({
                   instansi: '',
                   alamat: '',
                   kuotaDasar: 1,
-                  jalurMasuk: getDefaultJalurMasuk('UMUM'),
                 });
                 setCustomKategoriInput('');
               }}
@@ -415,22 +411,6 @@ export default function TamuFormFields({
           />
         </div>
 
-        <div>
-          <label className="block font-bold text-slate-700 mb-1">
-            Masuk Melalui (Jalur Masuk) *
-          </label>
-          <input
-            type="text"
-            value={undanganForm.jalurMasuk}
-            onChange={(e) => setUndanganForm({ ...undanganForm, jalurMasuk: e.target.value })}
-            placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium text-slate-800"
-          />
-          <p className="text-[10px] text-slate-400 mt-1">
-            Otomatis terisi berdasarkan golongan (Istimewa/Kehormatan: &quot;Jalur VIP&quot;, Umum: &quot;Gerbang Selatan (Bola Dunia)&quot;), tetap dapat di-edit manual.
-          </p>
-        </div>
-
         <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
           <button
             type="button"
@@ -474,10 +454,6 @@ export default function TamuFormFields({
               setEditGolonganUndangan('ISTIMEWA');
               setEditUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
               setEditCustomKategoriInput('');
-              setEditingItem({
-                ...editingItem,
-                jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
-              });
             }}
             className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
               editGolonganUndangan === 'ISTIMEWA'
@@ -494,10 +470,6 @@ export default function TamuFormFields({
             onClick={() => {
               setEditGolonganUndangan('KEHORMATAN');
               setEditCustomKategoriInput('');
-              setEditingItem({
-                ...editingItem,
-                jalurMasuk: getDefaultJalurMasuk('KEHORMATAN'),
-              });
             }}
             className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
               editGolonganUndangan === 'KEHORMATAN'
@@ -515,10 +487,6 @@ export default function TamuFormFields({
               setEditGolonganUndangan('UMUM');
               setEditUndanganKategoriDropdown(OPSI_UNDANGAN_UMUM[0]);
               setEditCustomKategoriInput('');
-              setEditingItem({
-                ...editingItem,
-                jalurMasuk: getDefaultJalurMasuk('UMUM'),
-              });
             }}
             className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
               editGolonganUndangan === 'UMUM'
@@ -731,27 +699,6 @@ export default function TamuFormFields({
             />
             <p className="text-[10px] text-slate-400 mt-1">
               Alamat domisili atau tempat tinggal
-            </p>
-          </div>
-
-          <div>
-            <label className="block font-bold text-slate-700 mb-1">
-              Masuk Melalui (Jalur Masuk) *
-            </label>
-            <input
-              type="text"
-              value={editingItem.jalurMasuk || ''}
-              onChange={(e) =>
-                setEditingItem({
-                  ...editingItem,
-                  jalurMasuk: e.target.value,
-                })
-              }
-              placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium text-slate-800"
-            />
-            <p className="text-[10px] text-slate-400 mt-1">
-              Otomatis terisi berdasarkan golongan (Istimewa/Kehormatan: &quot;Jalur VIP&quot;, Umum: &quot;Gerbang Selatan (Bola Dunia)&quot;), tetap dapat di-edit manual.
             </p>
           </div>
 

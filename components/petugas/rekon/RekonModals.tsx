@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Edit3, X, Save } from 'lucide-react';
-import { getDefaultJalurMasuk } from '@/lib/types';
 import { GolonganUndangan, WalkinFormState } from './types';
 
 interface RekonModalsProps {
@@ -179,15 +178,6 @@ export default function RekonModals({
                           type="text"
                           value={editingItem.kategori}
                           onChange={(e) => setEditingItem({ ...editingItem, kategori: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-bold text-[#422F21] mb-1">Jalur Masuk:</label>
-                        <input
-                          type="text"
-                          value={editingItem.jalurMasuk}
-                          onChange={(e) => setEditingItem({ ...editingItem, jalurMasuk: e.target.value })}
                           className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
                         />
                       </div>
@@ -449,7 +439,6 @@ export default function RekonModals({
                           ...walkinForm,
                           golongan: gol,
                           kategori: gol === 'ISTIMEWA' ? 'VVIP' : gol === 'KEHORMATAN' ? 'Tamu Kehormatan' : 'Asatidz Mhmtq Sekalian',
-                          jalurMasuk: getDefaultJalurMasuk(gol),
                         })
                       }
                       className={`py-2 px-1 rounded-xl font-bold border transition-all text-center text-[11px] ${
@@ -508,16 +497,6 @@ export default function RekonModals({
                   value={walkinForm.instansi}
                   onChange={(e) => setWalkinForm({ ...walkinForm, instansi: e.target.value, alamat: e.target.value })}
                   placeholder="Contoh: PP. Lirboyo Kediri"
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#422F21] mb-1">Masuk Melalui (Jalur):</label>
-                <input
-                  type="text"
-                  value={walkinForm.jalurMasuk}
-                  onChange={(e) => setWalkinForm({ ...walkinForm, jalurMasuk: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
                 />
               </div>

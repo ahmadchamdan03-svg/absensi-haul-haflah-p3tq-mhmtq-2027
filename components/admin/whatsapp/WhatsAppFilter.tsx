@@ -33,14 +33,11 @@ export interface WhatsAppFilterProps {
   setTamuFilterGolongan: (val: string) => void;
   tamuFilterStatus: string;
   setTamuFilterStatus: (val: string) => void;
-  tamuFilterJalurStatus: string;
-  setTamuFilterJalurStatus: (val: string) => void;
   tamuSearch: string;
   setTamuSearch: (val: string) => void;
   countTamuIstimewa: number;
   countTamuKehormatan: number;
   countTamuUmum: number;
-  countJalurKosong: number;
 }
 
 export default function WhatsAppFilter({
@@ -70,14 +67,11 @@ export default function WhatsAppFilter({
   setTamuFilterGolongan,
   tamuFilterStatus,
   setTamuFilterStatus,
-  tamuFilterJalurStatus,
-  setTamuFilterJalurStatus,
   tamuSearch,
   setTamuSearch,
   countTamuIstimewa,
   countTamuKehormatan,
   countTamuUmum,
-  countJalurKosong,
 }: WhatsAppFilterProps) {
   if (activeTab === 'WALI_SANTRI') {
     return (
@@ -203,23 +197,12 @@ export default function WhatsAppFilter({
           <option value="BERMASALAH">Nomor Bermasalah / Kosong / Tidak Terdaftar</option>
         </select>
 
-        {/* Filter Status Jalur Masuk */}
-        <select
-          value={tamuFilterJalurStatus}
-          onChange={(e) => setTamuFilterJalurStatus(e.target.value)}
-          className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none bg-slate-50"
-        >
-          <option value="SEMUA">Semua Jalur Masuk</option>
-          <option value="TERISI">Jalur Masuk Terisi</option>
-          <option value="KOSONG">Jalur Masuk Kosong ({countJalurKosong})</option>
-        </select>
-
         {/* Search Tamu */}
         <div className="relative">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Cari tamu / instansi / jalur / kode..."
+            placeholder="Cari tamu / instansi / kode..."
             value={tamuSearch}
             onChange={(e) => setTamuSearch(e.target.value)}
             className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-48"

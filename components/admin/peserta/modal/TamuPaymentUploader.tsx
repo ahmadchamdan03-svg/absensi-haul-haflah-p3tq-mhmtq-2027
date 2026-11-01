@@ -5,7 +5,7 @@ import { History } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
-import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { getWarnaTiketUndangan } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import { GolonganUndangan, OPSI_UNDANGAN_ISTIMEWA } from './TamuFormFields';
 
@@ -174,10 +174,6 @@ export async function submitTambahUndanganToSupabase(params: {
     finalAlamat = (undanganForm.alamat || '').trim();
   }
 
-  const finalJalur = (
-    undanganForm.jalurMasuk || getDefaultJalurMasuk(selectedGolonganUndangan)
-  ).trim();
-
   const res = store.tambahUndangan({
     nama: finalNama,
     namaPutra: p,
@@ -187,7 +183,6 @@ export async function submitTambahUndanganToSupabase(params: {
     alamat: finalAlamat,
     kuotaDasar: kuotaBase,
     golongan: selectedGolonganUndangan,
-    jalurMasuk: finalJalur,
   });
 
   if (res.ok) {
@@ -218,7 +213,6 @@ export async function submitTambahUndanganToSupabase(params: {
           kuota_terpakai: 0,
           status_konfirmasi: 'BELUM',
           warna_tiket: warnaTiketVal,
-          jalur_masuk: finalJalur,
         },
       ]);
       if (error) {
@@ -276,7 +270,6 @@ export async function submitTambahUndanganToSupabase(params: {
         alamat: '',
         noHp: '',
         kuotaDasar: 1,
-        jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
       });
       setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
       setCustomKategoriInput('');
@@ -379,9 +372,6 @@ export async function submitEditUndanganToSupabase(params: {
   }
 
   try {
-    const finalJalurEdit = (
-      editingItem.jalurMasuk || getDefaultJalurMasuk(editGolonganUndangan)
-    ).trim();
     const { error } = await supabase
       .from('tamu_undangan')
       .update({
@@ -394,7 +384,6 @@ export async function submitEditUndanganToSupabase(params: {
         alamat: finalAlamat || '-',
         no_hp: (editingItem.noHp || '').trim() || '-',
         warna_tiket: getWarnaTiketUndangan(editGolonganUndangan, finalKat),
-        jalur_masuk: finalJalurEdit,
       })
       .eq('kode', targetKode);
 

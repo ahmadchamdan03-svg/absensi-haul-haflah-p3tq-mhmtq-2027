@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Users, UserCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
-import { extractBagianTamatan, getGolonganUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import WhatsAppStats from '@/components/admin/whatsapp/WhatsAppStats';
 import WhatsAppTable from '@/components/admin/whatsapp/WhatsAppTable';
@@ -59,9 +59,7 @@ export default function WhatsAppPage() {
   const [loadingTamuData, setLoadingTamuData] = useState(true);
   const [tamuFilterGolongan, setTamuFilterGolongan] = useState<string>('SEMUA');
   const [tamuFilterStatus, setTamuFilterStatus] = useState<string>('SEMUA');
-  const [tamuFilterJalurStatus, setTamuFilterJalurStatus] = useState<string>('SEMUA');
   const [tamuSearch, setTamuSearch] = useState('');
-  const [massJalurInputText, setMassJalurInputText] = useState('');
 
   // Edit Phone Modal State (Tamu)
   const [editingTamuItem, setEditingTamuItem] = useState<any | null>(null);
@@ -180,7 +178,6 @@ export default function WhatsAppPage() {
             statusKonfirmasi: t.status_konfirmasi || null,
             warnaTiket: t.warna_tiket || 'Biru',
             statusWa: t.status_wa || 'BELUM',
-            jalurMasuk: t.jalur_masuk || '',
             golongan: getGolonganUndangan(t),
           }))
         );
@@ -499,43 +496,6 @@ export default function WhatsAppPage() {
   // HANDLERS TAMU UNDANGAN
   // =========================================================================
 
-  const handleUpdateJalurMasuk = async (tamuId: string | number, newJalur: string) => {
-    const target = tamuList.find((t) => t.id === tamuId);
-    const currentStatus = target?.statusWa || 'BELUM';
-    await updateTamuWaInSupabase(tamuId, currentStatus, setTamuList, newJalur);
-  };
-
-  const handleApplyMassJalurMasuk = async (customInput: string) => {
-    const emptyList = tamuList.filter((t) => !t.jalurMasuk || !t.jalurMasuk.trim());
-    if (emptyList.length === 0) {
-      alert('Seluruh tamu sudah memiliki Jalur Masuk!');
-      return;
-    }
-
-    const customVal = (customInput || '').trim();
-
-    setTamuList((prev) =>
-      prev.map((t) => {
-        if (!t.jalurMasuk || !t.jalurMasuk.trim()) {
-          const targetVal = customVal || getDefaultJalurMasuk(t.golongan);
-          return { ...t, jalurMasuk: targetVal };
-        }
-        return t;
-      })
-    );
-
-    for (const t of emptyList) {
-      const targetVal = customVal || getDefaultJalurMasuk(t.golongan);
-      await updateTamuWaInSupabase(t.id, t.statusWa, setTamuList, targetVal);
-    }
-
-    if (customVal) {
-      alert(`✓ Berhasil menerapkan Jalur Masuk "${customVal}" ke ${emptyList.length} tamu!`);
-    } else {
-      alert(`✓ Berhasil menerapkan Jalur Masuk default per golongan (Istimewa/Kehormatan: "Jalur VIP", Umum: "Gerbang Selatan") ke ${emptyList.length} tamu yang kosong!`);
-    }
-  };
-
   const handleSaveEditNoHpTamu = async () => {
     if (!editingTamuItem || !newHpInputTamu.trim()) return;
     try {
@@ -570,16 +530,12 @@ export default function WhatsAppPage() {
     return tamuList.filter((tamu) => {
       const isSent = tamu.statusWa === 'TERKIRIM';
       const isProblem = tamu.statusWa === 'NOMOR_TIDAK_TERDAFTAR' || tamu.statusWa === 'GAGAL' || !tamu.noHp || tamu.noHp.trim().length < 8;
-      const isJalurKosong = !tamu.jalurMasuk || !tamu.jalurMasuk.trim();
 
       if (tamuFilterStatus === 'BELUM' && isSent) return false;
       if (tamuFilterStatus === 'TERKIRIM' && !isSent) return false;
       if (tamuFilterStatus === 'BERMASALAH' && !isProblem) return false;
 
       if (tamuFilterGolongan !== 'SEMUA' && tamu.golongan !== tamuFilterGolongan) return false;
-
-      if (tamuFilterJalurStatus === 'TERISI' && isJalurKosong) return false;
-      if (tamuFilterJalurStatus === 'KOSONG' && !isJalurKosong) return false;
 
       if (tamuSearch.trim()) {
         const q = tamuSearch.toLowerCase();
@@ -589,35 +545,24 @@ export default function WhatsAppPage() {
           tamu.kode.toLowerCase().includes(q) ||
           (tamu.alamat && tamu.alamat.toLowerCase().includes(q)) ||
           tamu.noHp.includes(q) ||
-          tamu.kategori.toLowerCase().includes(q) ||
-          (tamu.jalurMasuk && tamu.jalurMasuk.toLowerCase().includes(q))
+          tamu.kategori.toLowerCase().includes(q)
         );
       }
       return true;
     });
-  }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuFilterJalurStatus, tamuSearch]);
+  }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuSearch]);
 
   const handleStartBatchBlastTamu = async () => {
     const validList = filteredTamuList.filter(
-      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8 && t.jalurMasuk && t.jalurMasuk.trim()
+      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8
     );
 
-    const skippedJalurKosongCount = filteredTamuList.filter(
-      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8 && (!t.jalurMasuk || !t.jalurMasuk.trim())
-    ).length;
-
     if (validList.length === 0) {
-      if (skippedJalurKosongCount > 0) {
-        alert(`⚠️ Terdapat ${skippedJalurKosongCount} tamu yang belum terkirim, namun DILEWATI (SKIP) karena kolom "Masuk Melalui" (Jalur Masuk) masih KOSONG.\n\nHarap isi kolom Jalur Masuk untuk tamu-tamu tersebut terlebih dahulu.`);
-      } else {
-        alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
-      }
+      alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
       return;
     }
 
-    const promptMsg = skippedJalurKosongCount > 0
-      ? `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu via Fonnte?\n\n⚠️ CATATAN: ${skippedJalurKosongCount} tamu akan DILEWATI (SKIP) karena Jalur Masuk belum diisi.`
-      : `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu undangan via Fonnte?`;
+    const promptMsg = `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu undangan via Fonnte?`;
 
     if (!window.confirm(promptMsg)) {
       return;
@@ -649,7 +594,7 @@ export default function WhatsAppPage() {
     }
 
     setIsTamuBlasting(false);
-    alert(`✓ Pengiriman Massal Selesai!\n• Terkirim: ${successCount} tamu\n• Gagal: ${failedCount} tamu\n• Dilewati (Jalur Kosong): ${skippedJalurKosongCount} tamu`);
+    alert(`✓ Pengiriman Massal Selesai!\n• Terkirim: ${successCount} tamu\n• Gagal: ${failedCount} tamu`);
   };
 
   const handleStopBatchBlastTamu = () => {
@@ -663,7 +608,6 @@ export default function WhatsAppPage() {
   const countTamuIstimewa = tamuList.filter((t) => t.golongan === 'ISTIMEWA').length;
   const countTamuKehormatan = tamuList.filter((t) => t.golongan === 'KEHORMATAN').length;
   const countTamuUmum = tamuList.filter((t) => t.golongan === 'UMUM').length;
-  const countJalurKosong = tamuList.filter((t) => !t.jalurMasuk || !t.jalurMasuk.trim()).length;
 
   return (
     <AuthGuard allowedRoles={['ADMIN', 'PENERIMA_TAMU', 'PIMPINAN']}>
@@ -729,10 +673,6 @@ export default function WhatsAppPage() {
             tamuBlastProgress={tamuBlastProgress}
             handleStartBatchBlastTamu={handleStartBatchBlastTamu}
             handleStopBatchBlastTamu={handleStopBatchBlastTamu}
-            countJalurKosong={countJalurKosong}
-            massJalurInputText={massJalurInputText}
-            setMassJalurInputText={setMassJalurInputText}
-            handleApplyMassJalurMasuk={handleApplyMassJalurMasuk}
           />
 
           <WhatsAppTable
@@ -762,14 +702,11 @@ export default function WhatsAppPage() {
             setTamuFilterGolongan={setTamuFilterGolongan}
             tamuFilterStatus={tamuFilterStatus}
             setTamuFilterStatus={setTamuFilterStatus}
-            tamuFilterJalurStatus={tamuFilterJalurStatus}
-            setTamuFilterJalurStatus={setTamuFilterJalurStatus}
             tamuSearch={tamuSearch}
             setTamuSearch={setTamuSearch}
             countTamuIstimewa={countTamuIstimewa}
             countTamuKehormatan={countTamuKehormatan}
             countTamuUmum={countTamuUmum}
-            countJalurKosong={countJalurKosong}
             loadingData={loadingData}
             filteredList={filteredList}
             sendingKode={sendingKode}
@@ -783,7 +720,6 @@ export default function WhatsAppPage() {
             tamuSendingKode={tamuSendingKode}
             isTamuBlasting={isTamuBlasting}
             setTamuList={setTamuList}
-            handleUpdateJalurMasuk={handleUpdateJalurMasuk}
             handleKirimFonnteTamu={handleKirimFonnteTamu}
             handleKirimManualWATamu={handleKirimManualWATamu}
             setEditingTamuItem={setEditingTamuItem}

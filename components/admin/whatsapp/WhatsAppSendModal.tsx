@@ -28,24 +28,13 @@ export async function updateStatusWaInSupabase(
 export async function updateTamuWaInSupabase(
   id: string | number,
   status: string,
-  setTamuList: React.Dispatch<React.SetStateAction<any[]>>,
-  jalurMasuk?: string
+  setTamuList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
   try {
-    const payload: any = { status_wa: status };
-    if (jalurMasuk !== undefined) {
-      payload.jalur_masuk = jalurMasuk;
-    }
-
-    const { error } = await supabase
+    await supabase
       .from('tamu_undangan')
-      .update(payload)
+      .update({ status_wa: status })
       .eq('id', id);
-
-    if (error && (error.code === '42703' || error.code === 'PGRST204') && payload.jalur_masuk !== undefined) {
-      delete payload.jalur_masuk;
-      await supabase.from('tamu_undangan').update(payload).eq('id', id);
-    }
 
     setTamuList((prev) =>
       prev.map((item) =>
@@ -53,13 +42,12 @@ export async function updateTamuWaInSupabase(
           ? {
               ...item,
               statusWa: status,
-              ...(jalurMasuk !== undefined ? { jalurMasuk } : {}),
             }
           : item
       )
     );
   } catch (e) {
-    console.warn('Error updating status_wa / jalur_masuk in Supabase:', e);
+    console.warn('Error updating status_wa in Supabase:', e);
   }
 }
 
@@ -151,13 +139,6 @@ export async function kirimFonnteTamu(
   setTamuSendingKode: (val: string | null) => void,
   setTamuList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  if (!tamu.jalurMasuk || !tamu.jalurMasuk.trim()) {
-    alert(
-      `⚠️ PERINGATAN WAJIB:\nJalur masuk untuk ${tamu.nama} masih KOSONG!\n\nHarap isi kolom "Masuk Melalui" (contoh: Gerbang Selatan (Bola Dunia)) sebelum mengirim pesan undangan.`
-    );
-    return false;
-  }
-
   const rawHp = tamu.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
     await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR', setTamuList);
@@ -205,13 +186,6 @@ export async function kirimManualWATamu(
   tamu: any,
   setTamuList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  if (!tamu.jalurMasuk || !tamu.jalurMasuk.trim()) {
-    alert(
-      `⚠️ PERINGATAN WAJIB:\nJalur masuk untuk ${tamu.nama} masih KOSONG!\n\nHarap isi kolom "Masuk Melalui" sebelum mengirim pesan.`
-    );
-    return;
-  }
-
   const rawHp = tamu.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
     await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR', setTamuList);

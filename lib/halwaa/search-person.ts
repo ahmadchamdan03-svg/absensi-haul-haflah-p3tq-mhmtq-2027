@@ -157,7 +157,7 @@ export async function searchPersonInSupabase(userQuery: string): Promise<PersonS
         hasArrived,
         phone: g.no_hp || 'Tersedia di database',
         seating: 'Baris Kehormatan VIP Depan Panggung Sayap Barat Aula Muktamar',
-        extraInfo: firstLog ? `pada 02 Januari 2027 pukul ${jamHadir} melalui ${firstLog.jalur || g.jalur_masuk || 'Jalur VIP'}` : undefined,
+        extraInfo: firstLog ? `pada 02 Januari 2027 pukul ${jamHadir} melalui ${firstLog.jalur || 'Meja Pemeriksaan'}` : undefined,
       };
     } else if (namaMatch && namaQuery) {
       return {

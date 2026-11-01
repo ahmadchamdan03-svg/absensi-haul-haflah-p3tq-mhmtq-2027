@@ -111,7 +111,6 @@ export default function RekonTableSection({
                       </>
                     )}
                     <div>Alamat: <strong>{d.alamat || 'Kediri'}</strong></div>
-                    <div>Jalur: <strong>{d.jalur_masuk || (isSantri ? 'Gerbang Selatan' : 'Jalur VIP')}</strong></div>
                   </div>
                 </div>
 

@@ -148,14 +148,6 @@ export function getWarnaTiketUndangan(golongan?: string, kategori?: string): str
   return 'Biru';
 }
 
-export function getDefaultJalurMasuk(golongan?: string): string {
-  const g = String(golongan || '').toUpperCase();
-  if (g.includes('ISTIMEWA') || g.includes('KEHORMATAN')) {
-    return 'Jalur VIP';
-  }
-  return 'Gerbang Selatan (Bola Dunia)';
-}
-
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
 export function getGolonganUndangan(u: any): GolonganUndangan {

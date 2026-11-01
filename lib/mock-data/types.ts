@@ -74,7 +74,6 @@ export interface EditPesertaInput {
   kategori?: string;
   instansi?: string;
   golongan?: 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
-  jalurMasuk?: string;
 }
 
 export interface RekonsiliasiKoreksiInput {
@@ -101,7 +100,6 @@ export interface TambahUndanganInput {
   kuotaDasar: number;
   subKategori?: 'PENGUJI' | 'ASATIDZ_MASYAIKH';
   golongan?: 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
-  jalurMasuk?: string;
 }
 
 export interface TambahPesananManualInput {

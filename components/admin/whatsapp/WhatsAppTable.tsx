@@ -28,7 +28,6 @@ export interface WhatsAppTableProps extends WhatsAppFilterProps {
   tamuSendingKode: string | null;
   isTamuBlasting: boolean;
   setTamuList: React.Dispatch<React.SetStateAction<any[]>>;
-  handleUpdateJalurMasuk: (tamuId: string | number, newJalur: string) => void;
   handleKirimFonnteTamu: (tamu: any) => void;
   handleKirimManualWATamu: (tamu: any) => void;
   setEditingTamuItem: (tamu: any | null) => void;
@@ -51,7 +50,6 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
     tamuSendingKode,
     isTamuBlasting,
     setTamuList,
-    handleUpdateJalurMasuk,
     handleKirimFonnteTamu,
     handleKirimManualWATamu,
     setEditingTamuItem,
@@ -280,7 +278,6 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
               <th className="py-3 px-3">Kode</th>
               <th className="py-3 px-4">Nama Penerima &amp; HP</th>
               <th className="py-3 px-4">Kategori &amp; Instansi</th>
-              <th className="py-3 px-4 text-center">Masuk Melalui (Jalur Wajib Input)</th>
               <th className="py-3 px-3 text-center">Warna Tiket</th>
               <th className="py-3 px-3 text-center">Status WA</th>
               <th className="py-3 px-4 text-center">Aksi Kirim</th>
@@ -289,25 +286,24 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
           <tbody className="divide-y divide-slate-100 font-medium">
             {loadingTamuData ? (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-slate-400">
+                <td colSpan={6} className="py-8 text-center text-slate-400">
                   Memuat data tamu undangan dari database Supabase...
                 </td>
               </tr>
             ) : filteredTamuList.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-slate-400">
+                <td colSpan={6} className="py-8 text-center text-slate-400">
                   Tidak ada data tamu undangan yang cocok di Supabase DB.
                 </td>
               </tr>
             ) : (
               filteredTamuList.map((tamu) => {
-                const isJalurKosong = !tamu.jalurMasuk || !tamu.jalurMasuk.trim();
                 const isInvalidNum = !tamu.noHp || tamu.noHp.trim().length < 8;
                 const isNoWaNotRegistered = tamu.statusWa === 'NOMOR_TIDAK_TERDAFTAR';
                 const isFailed = tamu.statusWa === 'GAGAL';
                 const isTerkirim = tamu.statusWa === 'TERKIRIM';
                 const isSendingThis = tamuSendingKode === tamu.kode;
-                const isSendDisabled = isInvalidNum || isJalurKosong || isSendingThis || isTamuBlasting;
+                const isSendDisabled = isInvalidNum || isSendingThis || isTamuBlasting;
 
                 const isIstimewa = tamu.golongan === 'ISTIMEWA';
                 const isKehormatan = tamu.golongan === 'KEHORMATAN';
@@ -351,39 +347,6 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                           {tamu.golongan}
                         </span>
                         <span className="text-slate-400">· {tamu.instansi}</span>
-                      </div>
-                    </td>
-
-                    {/* Kolom MASUK MELALUI (TEXT INPUT MANUAL WAJIB) */}
-                    <td className="py-3 px-4 text-center">
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <input
-                          type="text"
-                          value={tamu.jalurMasuk || ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setTamuList((prev) =>
-                              prev.map((item) =>
-                                item.id === tamu.id ? { ...item, jalurMasuk: val } : item
-                              )
-                            );
-                          }}
-                          onBlur={(e) => {
-                            handleUpdateJalurMasuk(tamu.id, e.target.value.trim());
-                          }}
-                          placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
-                          className={`w-56 px-3 py-1.5 rounded-xl border text-xs focus:outline-none transition-all ${
-                            isJalurKosong
-                              ? 'border-amber-400 bg-amber-50/80 text-amber-950 placeholder:text-amber-400 focus:ring-2 focus:ring-amber-500'
-                              : 'border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-[#8C6A47]'
-                          }`}
-                        />
-                        {isJalurKosong && (
-                          <span className="text-[10px] font-bold text-amber-700 flex items-center gap-0.5">
-                            <AlertTriangle className="w-3 h-3" />
-                            Jalur Wajib Diisi
-                          </span>
-                        )}
                       </div>
                     </td>
 
@@ -439,11 +402,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                               ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
                               : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
                           } disabled:opacity-40 disabled:pointer-events-none`}
-                          title={
-                            isJalurKosong
-                              ? 'Isi kolom "Masuk Melalui" terlebih dahulu'
-                              : 'Kirim otomatis lewat WhatsApp Fonnte'
-                          }
+                          title="Kirim otomatis lewat WhatsApp Fonnte"
                         >
                           <Zap className="w-3 h-3 fill-current text-amber-300" />
                           <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
@@ -451,8 +410,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
 
                         <button
                           onClick={() => handleKirimManualWATamu(tamu)}
-                          disabled={isJalurKosong}
-                          className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
+                          className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
                           title="Kirim Manual via WhatsApp Web / App"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />

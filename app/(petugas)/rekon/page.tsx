@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
-import { getWarnaTiketUndangan, getDefaultJalurMasuk } from '@/lib/types';
+import { getWarnaTiketUndangan } from '@/lib/types';
 import { syncKuotaTerpakai, upsertPresensiLog } from '@/lib/presensi-helper';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import AuthGuard from '@/components/AuthGuard';
@@ -135,7 +135,7 @@ export default function RekonPage() {
           kode_qr: d.kode,
           nama_peserta: d.nama,
           tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
-          jalur: d.jalur_masuk || 'MEJA_REKONSILIASI',
+          jalur: 'MEJA_REKONSILIASI',
           panitia_id: 'panitia-rekonsiliasi',
           jumlah_l: 1,
           jumlah_p: 0,
@@ -222,7 +222,7 @@ export default function RekonPage() {
           kode_qr: editingItem.kode,
           nama_peserta: editingItem.nama,
           tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
-          jalur: editingItem.jalurMasuk || 'MEJA_REKONSILIASI',
+          jalur: 'MEJA_REKONSILIASI',
           panitia_id: 'panitia-rekonsiliasi',
           jumlah_l: Number(editingItem.presensiL || 0),
           jumlah_p: Number(editingItem.presensiP || 0),
@@ -340,7 +340,6 @@ export default function RekonPage() {
         kuota_terpakai: walkinForm.langsungCheckin ? 1 : 0,
         status_konfirmasi: 'BELUM',
         warna_tiket: getWarnaTiketUndangan(walkinForm.golongan, walkinForm.kategori),
-        jalur_masuk: walkinForm.jalurMasuk.trim() || getDefaultJalurMasuk(walkinForm.golongan),
         created_at: new Date().toISOString(),
       };
 
@@ -355,7 +354,7 @@ export default function RekonPage() {
           kode_qr: newKode,
           nama_peserta: finalNama,
           tipe_peserta: 'UNDANGAN',
-          jalur: walkinForm.jalurMasuk,
+          jalur: 'MEJA_REKONSILIASI',
           panitia_id: 'panitia-rekonsiliasi',
           jumlah_l: 1,
           jumlah_p: 0,

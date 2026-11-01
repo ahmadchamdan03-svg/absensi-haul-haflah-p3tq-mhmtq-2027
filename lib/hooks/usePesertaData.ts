@@ -8,7 +8,6 @@ import {
   extractBagianTamatan,
   getWarnaTiketSantri,
   getWarnaTiketUndangan,
-  getDefaultJalurMasuk,
 } from '@/lib/types';
 import QRCode from 'qrcode';
 import {
@@ -137,8 +136,6 @@ export function usePesertaData() {
             namaPutri: u.nama_putri || '',
             kategori: resolvedKategori,
             golongan: resolvedGolongan,
-            jalur_masuk: u.jalur_masuk || '',
-            jalurMasuk: u.jalur_masuk || '',
             status_konfirmasi: u.status_konfirmasi || 'BELUM',
             instansi: u.instansi || u.alamat || '-',
             alamat: u.alamat || '-',
@@ -281,14 +278,12 @@ export function usePesertaData() {
       }
     }
 
-    const jalurVal = raw.jalur_masuk || item.jalurMasuk || getDefaultJalurMasuk(gol);
     setEditingItem({
       ...item,
       namaPutra: p,
       namaPutri: w,
       alamat: raw.alamat || item.alamat || raw.instansi || item.instansi || '',
       instansi: raw.instansi || item.instansi || raw.alamat || item.alamat || '',
-      jalurMasuk: jalurVal,
     });
   };
 
@@ -449,7 +444,6 @@ export function usePesertaData() {
         alamat: (u as any).alamat || u.instansi || '-',
         kategori: u.kategori || 'Asatidz / Masyayikh',
         instansi: u.instansi || (u as any).alamat || '-',
-        jalurMasuk: (u as any).jalurMasuk || (u as any).jalur_masuk || '',
         kuotaDasar:
           kuota?.kuotaDasar !== undefined
             ? kuota.kuotaDasar

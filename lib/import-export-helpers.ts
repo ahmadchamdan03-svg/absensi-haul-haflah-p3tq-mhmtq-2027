@@ -546,7 +546,6 @@ export async function executeBatchImportToSupabase({
       const instansi = getVal('INSTANSI / ASAL LEMBAGA', 'INSTANSI', 'ASAL LEMBAGA', 'instansi') || null;
       const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'alamat') || null;
       const noHp = getVal('NO WHATSAPP / HP', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
-      const jalurMasukInput = getVal('JALUR MASUK', 'JALUR', 'jalur_masuk') || null;
 
       let kode = getVal('KODE', 'kode').toUpperCase();
       if (!kode) {
@@ -561,14 +560,6 @@ export async function executeBatchImportToSupabase({
         setProgressPercent(percent);
         continue;
       }
-
-      let defaultJalur = 'Gerbang Selatan (Bola Dunia)';
-      if (selectedKategoriUpload === 'ISTIMEWA' || selectedKategoriUpload === 'KEHORMATAN') {
-        defaultJalur = 'Jalur VIP';
-      } else {
-        defaultJalur = 'Gerbang Selatan (Bola Dunia)';
-      }
-      const jalurMasuk = jalurMasukInput || defaultJalur;
 
       let kategori = 'UMUM';
       let subKategori = selectedKategoriUpload || 'UMUM';
@@ -598,7 +589,6 @@ export async function executeBatchImportToSupabase({
           kategori,
           sub_kategori: subKategori,
           warna_tiket: warnaTiketUnd,
-          jalur_masuk: jalurMasuk,
           status_konfirmasi: 'BELUM',
           kuota_terpakai: 0,
           created_at: new Date().toISOString(),

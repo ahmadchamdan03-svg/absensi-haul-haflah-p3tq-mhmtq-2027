@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Users, Sparkles, Building, Edit, X, History } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { getDefaultJalurMasuk } from '@/lib/types';
 import { generateRandomKode } from '@/lib/utils';
 import TamuFormFields, {
   GolonganUndangan,
@@ -60,7 +59,6 @@ export default function TamuModal({
     alamat: '',
     noHp: '',
     kuotaDasar: 2,
-    jalurMasuk: getDefaultJalurMasuk('ISTIMEWA'),
   });
 
   // State dropdown kategori undangan
@@ -100,7 +98,6 @@ export default function TamuModal({
             : selectedGolonganUndangan === 'KEHORMATAN'
             ? 4
             : 2,
-        jalurMasuk: getDefaultJalurMasuk(selectedGolonganUndangan),
       });
       setCustomKategoriInput('');
     }

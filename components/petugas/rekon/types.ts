@@ -15,7 +15,6 @@ export interface WalkinFormState {
   alamat: string;
   noHp: string;
   kuotaDasar: number;
-  jalurMasuk: string;
   langsungCheckin: boolean;
 }
 
@@ -29,7 +28,6 @@ export const INITIAL_WALKIN_FORM: WalkinFormState = {
   alamat: '',
   noHp: '',
   kuotaDasar: 2,
-  jalurMasuk: 'Jalur VIP',
   langsungCheckin: true,
 };
 
@@ -67,7 +65,6 @@ export interface EditingItemState {
   perkiraanL: number | string;
   perkiraanP: number | string;
   statusWa: string;
-  jalurMasuk: string;
   catatanKonfirmasi: string;
 }
 
@@ -151,7 +148,6 @@ export function buildEditingItemState(item: any, pLogs: any[] | null): EditingIt
     perkiraanL: d.perkiraan_l || 0,
     perkiraanP: d.perkiraan_p || 0,
     statusWa: d.status_wa || 'BELUM',
-    jalurMasuk: d.jalur_masuk || (isSantri ? 'Gerbang Selatan (Bola Dunia)' : 'Jalur VIP'),
     catatanKonfirmasi: d.catatan_konfirmasi || '',
   };
 }
@@ -199,7 +195,6 @@ export function buildEditPayload(editingItem: any): {
       sub_kategori: editingItem.subKategori || 'ISTIMEWA',
       kuota_terpakai: totalPresensiInput,
       warna_tiket: editingItem.warnaTiket,
-      jalur_masuk: editingItem.jalurMasuk.trim() || 'Jalur VIP',
       status_konfirmasi: editingItem.statusKonfirmasi,
       perkiraan_l: Math.max(0, Number(editingItem.perkiraanL)),
       perkiraan_p: Math.max(0, Number(editingItem.perkiraanP)),

@@ -43,7 +43,6 @@ export function tambahUndanganHelper(ctx: IDataStoreContext, input: TambahUndang
     kategori: input.kategori || 'VIP / Tokoh Masyarakat',
     subKategori: subKat,
     golongan: input.golongan,
-    jalurMasuk: input.jalurMasuk || '',
     nama: finalNama,
     namaPutra: p,
     namaPutri: w,

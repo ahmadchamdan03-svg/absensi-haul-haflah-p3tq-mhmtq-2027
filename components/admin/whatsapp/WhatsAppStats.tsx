@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   RefreshCw,
   UserCheck,
-  MapPin,
 } from 'lucide-react';
 import { buatPesanPengingatKonfirmasi } from '@/lib/hmac';
 import { extractBagianTamatan } from '@/lib/types';
@@ -49,7 +48,6 @@ Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk mengh
 Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
 Waktu : 06.30 WIB - Selesai
 Tempat : Aula Muktamar Pondok Pesantren Lirboyo Kediri
-Masuk melalui: Gerbang Selatan (Bola Dunia)
 
 Shohibul Hajat : *${santri?.nama || '-'}*
 Kategori : ${katText}
@@ -99,7 +97,6 @@ export function getTeksPesanTamu(tamu: any) {
       ? window.location.origin
       : 'https://haflahp3tq.site');
   const linkPortal = `${baseUrl}/u/${tamu.kode || 'UNDxxxx'}`;
-  const jalur = (tamu.jalurMasuk || '').trim();
 
   return `Kepada Yth. Bapak/Ibu 
 *${tamu.nama}*
@@ -114,7 +111,6 @@ Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk mengh
 Hari/Tanggal : Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
 Waktu        : 06.30 WIB - Selesai
 Tempat       : Aula Muktamar Pondok Pesantren Lirboyo Kediri
-Masuk melalui: ${jalur || '[JALUR MASUK - MANUAL INPUT]'}
 
 Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk dapat diakses pada tautan berikut:
 ${linkPortal}
@@ -163,10 +159,6 @@ export interface WhatsAppStatsProps {
   tamuBlastProgress: { current: number; total: number; success: number; failed: number };
   handleStartBatchBlastTamu: () => void;
   handleStopBatchBlastTamu: () => void;
-  countJalurKosong: number;
-  massJalurInputText: string;
-  setMassJalurInputText: (val: string) => void;
-  handleApplyMassJalurMasuk: (customInput: string) => void;
 }
 
 export default function WhatsAppStats({
@@ -195,10 +187,6 @@ export default function WhatsAppStats({
   tamuBlastProgress,
   handleStartBatchBlastTamu,
   handleStopBatchBlastTamu,
-  countJalurKosong,
-  massJalurInputText,
-  setMassJalurInputText,
-  handleApplyMassJalurMasuk,
 }: WhatsAppStatsProps) {
   if (activeTab === 'WALI_SANTRI') {
     return (
@@ -542,7 +530,6 @@ export default function WhatsAppStats({
               filteredTamuList[0] || tamuList[0] || {
                 kode: 'UND0107',
                 nama: 'KH. Abdullah Kafabihi Mahrus',
-                jalurMasuk: 'Gerbang Selatan (Bola Dunia)',
               }
             )}
           </div>
@@ -567,35 +554,6 @@ export default function WhatsAppStats({
             </div>
           </div>
         )}
-      </div>
-
-      {/* BAR ISI MASSAL JALUR MASUK UNTUK BARIS KOSONG */}
-      <div className="bg-[#FAF7F3] rounded-3xl p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center space-x-2">
-          <MapPin className="w-4.5 h-4.5 text-[#8C6A47]" />
-          <div>
-            <span className="font-bold text-[#422F21]">Isi Jalur Masuk Massal untuk Baris Kosong:</span>
-            <span className="text-[11px] text-amber-800 font-medium block sm:inline sm:ml-2">
-              ({countJalurKosong} tamu belum memiliki jalur masuk)
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2 w-full sm:w-auto">
-          <input
-            type="text"
-            placeholder="Contoh: Gerbang Selatan (Bola Dunia)"
-            value={massJalurInputText}
-            onChange={(e) => setMassJalurInputText(e.target.value)}
-            className="px-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
-          />
-          <button
-            type="button"
-            onClick={() => handleApplyMassJalurMasuk(massJalurInputText)}
-            className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow-sm cursor-pointer whitespace-nowrap"
-          >
-            Terapkan ke Baris Kosong
-          </button>
-        </div>
       </div>
     </>
   );
