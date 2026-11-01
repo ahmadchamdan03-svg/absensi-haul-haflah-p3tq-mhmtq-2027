@@ -89,9 +89,7 @@ export function getTeksPesanTamu(tamu: any) {
   const linkPortal = `${baseUrl}/u/${tamu.kode || 'UNDxxxx'}`;
   const namaTamu = (tamu.nama || [tamu.nama_putra, tamu.nama_putri].filter(Boolean).join(' & ') || 'Bapak/Ibu').trim();
 
-  const rawTemplate = `*Ringkasan Undangan*
-
-Kepada Yth. *Bapak/Ibu ${namaTamu}*
+  const rawTemplate = `Kepada Yth. *Bapak/Ibu ${namaTamu}*,
 
 Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
 
