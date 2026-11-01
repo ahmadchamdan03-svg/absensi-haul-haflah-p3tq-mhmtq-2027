@@ -63,7 +63,7 @@ export default function PesertaHeader({
             </div>
             <p className="text-xs sm:text-sm text-[#7A624E] font-normal max-w-2xl">
               Pembagian 3 kategori utama: <strong>Bil Ghoib</strong>,{' '}
-              <strong>Bin Nadzori</strong>, dan <strong>Tamatan</strong> (Bagian A.01–A.04 &amp; B.01–B.03), serta Tamu Undangan VIP.
+              <strong>Bin Nadzori</strong>, dan <strong>Tamatan</strong>, serta Tamu Undangan VIP.
             </p>
           </div>
 
