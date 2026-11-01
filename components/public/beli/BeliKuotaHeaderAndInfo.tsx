@@ -10,6 +10,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import NamaLembaga from '@/components/NamaLembaga';
+import { cleanKategoriTamatan } from '@/lib/types';
 import { BeliStatusMsg } from './types';
 
 interface BeliKuotaHeaderAndInfoProps {
@@ -69,9 +70,6 @@ export default function BeliKuotaHeaderAndInfo({
           <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-10 object-contain" />
         </div>
         <NamaLembaga align="center" size="xs" weight="bold" color="text-[#422F21]" />
-        <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-[11px] font-bold border border-[#D5C4B4]">
-          Pembelian Kuota Tambahan Kursi Wali
-        </div>
       </div>
 
       {/* KARTU PROFIL SANTRI & WALI */}
@@ -84,7 +82,7 @@ export default function BeliKuotaHeaderAndInfo({
             <h2 className="font-serif font-black text-lg text-[#322116]">{santri.nama}</h2>
           </div>
           <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold shrink-0">
-            {santri.sub_kategori || santri.kategori_utama || 'Santri'}
+            {cleanKategoriTamatan(santri.sub_kategori || santri.kategori_utama) || 'Santri'}
           </span>
         </div>
 
