@@ -15,7 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePassword, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
-import StageBackground from '@/components/StageBackground';
+import RippleBackground from '@/components/landing/RippleBackground';
 import { TOS_FOTOS } from '@/lib/tos-fotos';
 
 const playTosSound = () => {
@@ -296,11 +296,11 @@ export default function LandingPortalPage() {
         }
       }}
     >
-      {/* BACKGROUND PANGGUNG RESMI & ANIMASI DEBU EMAS */}
-      <StageBackground />
+      {/* EFEK INTERAKTIF WEBGL RIPPLE DISTORTION ADAPTIF (LAYER TERBAWAH) */}
+      <RippleBackground />
 
-      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH TRANSPARAN DENGAN MAX-WIDTH TERKONTROL COMPACT) */}
-      <div id="login-card" className="relative z-10 w-full max-w-sm md:max-w-md p-5 md:p-6 space-y-4 bg-white/30 backdrop-blur-md border border-[#D5C4B4]/70 shadow-xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
+      {/* KONTEN UTAMA TERPUSAT (KARTU KREM CERAH SOLID TANPA BLUR, SHADOW ELEGAN) */}
+      <div id="login-card" className="relative z-10 w-full max-w-sm md:max-w-md p-5 md:p-6 space-y-4 bg-white/90 border border-[#D5C4B4] shadow-2xl rounded-2xl text-center my-auto animate-in fade-in zoom-in-95 duration-300">
         {/* LOGO BERJAJAR */}
         <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
           <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-8 md:h-11 w-auto object-contain drop-shadow-xs" />
