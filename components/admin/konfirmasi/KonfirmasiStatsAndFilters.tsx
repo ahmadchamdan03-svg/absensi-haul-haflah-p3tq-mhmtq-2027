@@ -61,7 +61,7 @@ export default function KonfirmasiStatsAndFilters({
   return (
     <>
       {/* Header Halaman */}
-      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#8C6A47]/40 space-y-4">
+      <div className="bg-gradient-to-r from-white/75 via-[#FAF7F3]/75 to-white/75 backdrop-blur-md text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border border-white/60 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="space-y-1">
             <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
@@ -75,7 +75,7 @@ export default function KonfirmasiStatsAndFilters({
           </div>
 
           {/* TOGGLE WALI SANTRI / TAMU UNDANGAN */}
-          <div className="flex items-center space-x-2 bg-[#FAF7F3] p-1.5 rounded-2xl border-2 border-[#8C6A47]/30 shrink-0">
+          <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-xs p-1.5 rounded-2xl border border-white/60 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -133,8 +133,8 @@ export default function KonfirmasiStatsAndFilters({
             }}
             className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
               filterStatus === 'SEMUA'
-                ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
+                ? 'bg-white/90 backdrop-blur-md border-[#8C6A47] ring-2 ring-[#8C6A47]/25 shadow-md'
+                : 'bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/60 hover:border-[#8C6A47]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk menampilkan seluruh data wali santri"
           >
@@ -166,8 +166,8 @@ export default function KonfirmasiStatsAndFilters({
             }}
             className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
               filterStatus === 'SUDAH'
-                ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
+                ? 'bg-emerald-50/85 backdrop-blur-md border-emerald-600 ring-2 ring-emerald-500/25 shadow-md'
+                : 'bg-white/60 hover:bg-emerald-50/60 backdrop-blur-md border border-white/60 hover:border-emerald-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk memfilter data yang SUDAH konfirmasi"
           >
@@ -204,8 +204,8 @@ export default function KonfirmasiStatsAndFilters({
             }}
             className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
               filterStatus === 'BELUM'
-                ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
+                ? 'bg-amber-50/85 backdrop-blur-md border-amber-600 ring-2 ring-amber-500/25 shadow-md'
+                : 'bg-white/60 hover:bg-amber-50/60 backdrop-blur-md border border-white/60 hover:border-amber-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk memfilter data yang BELUM konfirmasi"
           >
@@ -235,7 +235,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('SUDAH');
               scrollToTable();
             }}
-            className="rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between border-[#D5C4B4] hover:border-[#8C6A47] bg-[#FAF7F3] hover:bg-[#F5EFE6]"
+            className="rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between border border-white/60 hover:border-[#8C6A47]/60 bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]"
             title="Klik untuk melihat rincian alokasi kursi hadir"
           >
             <div className="flex items-center justify-between">
@@ -301,8 +301,8 @@ export default function KonfirmasiStatsAndFilters({
             }}
             className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
               filterStatus === 'HADIR'
-                ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-emerald-500 hover:bg-emerald-50/50'
+                ? 'bg-emerald-50/85 backdrop-blur-md border-emerald-600 ring-2 ring-emerald-500/25 shadow-md'
+                : 'bg-white/60 hover:bg-emerald-50/60 backdrop-blur-md border border-white/60 hover:border-emerald-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk memfilter tamu yang KONFIRMASI HADIR"
           >
@@ -337,8 +337,8 @@ export default function KonfirmasiStatsAndFilters({
             }}
             className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
               filterStatus === 'BERHALANGAN'
-                ? 'bg-rose-50/90 border-rose-600 ring-2 ring-rose-500/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-rose-500 hover:bg-rose-50/50'
+                ? 'bg-rose-50/85 backdrop-blur-md border-rose-600 ring-2 ring-rose-500/25 shadow-md'
+                : 'bg-white/60 hover:bg-rose-50/60 backdrop-blur-md border border-white/60 hover:border-rose-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk memfilter tamu yang BERHALANGAN HADIR"
           >
@@ -402,7 +402,7 @@ export default function KonfirmasiStatsAndFilters({
       {/* FILTER & PENCARIAN + TABEL SECTION */}
       <div
         id="tabel-konfirmasi"
-        className="bg-[#FAF7F3] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4 scroll-mt-6"
+        className="bg-white/70 backdrop-blur-md rounded-3xl p-4 sm:p-6 shadow-sm border border-white/60 space-y-4 scroll-mt-6"
       >
         {/* Toggle Switch Status Konfirmasi dengan Scroll Horizontal di Mobile */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2 bg-[#EFE8E1]/70 rounded-2xl border border-[#D5C4B4]">

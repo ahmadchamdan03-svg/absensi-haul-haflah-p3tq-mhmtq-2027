@@ -228,7 +228,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={() => setIsDenahOpen(true)}
-            className="p-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] border-2 border-[#D5C4B4] shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#5C3E28] border border-white/70 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <Compass className="w-4 h-4 text-[#8C6A47]" />
             <span>Denah Lapangan</span>
@@ -236,7 +236,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={fetchLiveDasborData}
-            className="p-2.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border-2 border-[#8C6A47] shadow-sm flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#8C6A47] border border-[#8C6A47]/40 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Refresh</span>
@@ -247,7 +247,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       {/* 2 KARTU METRIK UTAMA */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* KARTU 1: TOTAL WALI SANTRI */}
-        <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3 card-transition">
+        <div className="p-6 rounded-3xl bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] space-y-3 card-transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
               <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
@@ -271,7 +271,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
         </div>
 
         {/* KARTU 2: TOTAL TAMU UNDANGAN */}
-        <div className="p-6 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-3 card-transition">
+        <div className="p-6 rounded-3xl bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] space-y-3 card-transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
               <Award className="w-4.5 h-4.5 text-emerald-700" />
@@ -296,7 +296,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       </div>
 
       {/* FILTER & PENCARIAN REAL-TIME */}
-      <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E8DFD5] shadow-sm space-y-4">
+      <div className="bg-white/70 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-4">
         {/* SECTION HEADER & TABS HANYA MUNCUL DI AKUN PETUGAS (TIDAK DI PIMPINAN) */}
         {!isPimpinanView && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
@@ -364,7 +364,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                   statusFilter === 'SEMUA'
                     ? 'bg-stone-800 text-white border-stone-800 shadow-xs'
-                    : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
+                    : 'bg-white/60 backdrop-blur-xs text-stone-700 border-stone-300/80 hover:bg-white/80'
                 }`}
               >
                 Semua Status
@@ -375,7 +375,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                   statusFilter === 'SUDAH'
                     ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                    : 'bg-white text-emerald-800 border-emerald-300 hover:bg-emerald-50'
+                    : 'bg-white/60 backdrop-blur-xs text-emerald-800 border-emerald-300/80 hover:bg-white/80'
                 }`}
               >
                 ✓ Sudah Hadir
@@ -386,7 +386,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                   statusFilter === 'BELUM'
                     ? 'bg-amber-800 text-white border-amber-800 shadow-xs'
-                    : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50'
+                    : 'bg-white/60 backdrop-blur-xs text-amber-800 border-amber-300/80 hover:bg-white/80'
                 }`}
               >
                 ⏱ Belum Hadir

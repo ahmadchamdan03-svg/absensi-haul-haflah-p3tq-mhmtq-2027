@@ -198,7 +198,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     : allNavGroups;
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#FAF7F3] border-r-2 border-[#D5C4B4] text-[#422F21]">
+    <div className="flex flex-col h-full bg-[#FAF7F3]/90 backdrop-blur-md border-r border-[#D5C4B4]/60 text-[#422F21]">
       {/* Header Sidebar: Identitas Resmi Kompak & Sejajar Lurus dengan TopHeader (h-[72px]) */}
       <div className="h-[72px] px-3 border-b-2 border-[#D5C4B4] bg-[#EFE8E1]/60 relative select-none flex items-center justify-center shrink-0">
         <Link

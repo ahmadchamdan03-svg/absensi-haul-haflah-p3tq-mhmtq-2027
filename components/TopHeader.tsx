@@ -20,12 +20,12 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const router = useRouter();
 
   return (
-    <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3] border-b-2 border-[#D5C4B4] text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none">
+    <header className="h-16 sm:h-[72px] sticky top-0 z-20 bg-[#FAF7F3]/80 backdrop-blur-md border-b border-[#D5C4B4]/60 text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none shadow-xs">
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         {/* Tombol Hamburger di HP/Tablet */}
         <button
           onClick={onOpenMobile}
-          className="lg:hidden p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] hover:bg-[#EFE8E1] transition-colors shrink-0"
+          className="lg:hidden p-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] transition-colors shrink-0"
           aria-label="Buka Menu Navigasi"
         >
           <Menu className="w-5 h-5" />
@@ -62,7 +62,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Live Dasbor */}
         <Link
           href="/admin/dasbor"
-          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] text-xs font-bold shadow-2xs border-2 border-[#D5C4B4]"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#8C6A47] text-xs font-bold shadow-2xs border border-white/70"
           title="Buka Live Dasbor Kedatangan"
         >
           <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#8C6A47]" />
