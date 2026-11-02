@@ -104,10 +104,13 @@ export default function RekonPage() {
     try {
       if (isHadir) {
         // Batalkan Hadir (Hapus SEMUA baris presensi_log untuk kode_qr ini tanpa limit 1)
-        const { error: delErr } = await supabase
-          .from('presensi_log')
-          .delete()
-          .eq('kode_qr', d.kode);
+        let delQuery = supabase.from('presensi_log').delete();
+        if (d.nis && d.nis !== d.kode) {
+          delQuery = delQuery.or(`kode_qr.eq.${d.kode},kode_qr.eq.${d.nis}`);
+        } else {
+          delQuery = delQuery.eq('kode_qr', d.kode);
+        }
+        const { error: delErr } = await delQuery;
 
         if (delErr) throw delErr;
 
@@ -171,10 +174,13 @@ export default function RekonPage() {
     const d = item.data;
 
     // Fetch existing presensi_log untuk hitung awal L & P
-    const { data: pLogs } = await supabase
-      .from('presensi_log')
-      .select('jumlah_l, jumlah_p')
-      .eq('kode_qr', d.kode);
+    let query = supabase.from('presensi_log').select('jumlah_l, jumlah_p');
+    if (d.nis && d.nis !== d.kode) {
+      query = query.or(`kode_qr.eq.${d.kode},kode_qr.eq.${d.nis}`);
+    } else {
+      query = query.eq('kode_qr', d.kode);
+    }
+    const { data: pLogs } = await query;
 
     setEditingItem(buildEditingItemState(item, pLogs));
   };
@@ -203,14 +209,38 @@ export default function RekonPage() {
         .single();
 
       const { payload, totalPresensiInput } = buildEditPayload(editingItem);
-      const nextL = Math.max(0, Number(editingItem.presensiL || 0));
-      const nextP = Math.max(0, Number(editingItem.presensiP || 0));
+      let nextL = Math.max(0, Number(editingItem.presensiL || 0));
+      let nextP = Math.max(0, Number(editingItem.presensiP || 0));
+
+      // Pastikan nextL + nextP sinkron sempurna dengan totalPresensiInput
+      if (nextL + nextP !== totalPresensiInput) {
+        if (totalPresensiInput === 0) {
+          nextL = 0;
+          nextP = 0;
+        } else if (nextL + nextP === 0) {
+          nextL = totalPresensiInput;
+          nextP = 0;
+        } else if (totalPresensiInput < nextL + nextP) {
+          const diff = (nextL + nextP) - totalPresensiInput;
+          if (nextP >= diff) {
+            nextP -= diff;
+          } else {
+            nextL = Math.max(0, nextL - (diff - nextP));
+            nextP = 0;
+          }
+        } else {
+          nextP += (totalPresensiInput - (nextL + nextP));
+        }
+      }
 
       // 1b. Ambil presensi_log LAMA untuk perbandingan & audit
-      const { data: prevLogs, error: prevLogsErr } = await supabase
-        .from('presensi_log')
-        .select('id, jumlah_l, jumlah_p')
-        .eq('kode_qr', editingItem.kode);
+      let prevQuery = supabase.from('presensi_log').select('id, jumlah_l, jumlah_p');
+      if (editingItem.nis && editingItem.nis !== editingItem.kode) {
+        prevQuery = prevQuery.or(`kode_qr.eq.${editingItem.kode},kode_qr.eq.${editingItem.nis}`);
+      } else {
+        prevQuery = prevQuery.eq('kode_qr', editingItem.kode);
+      }
+      const { data: prevLogs, error: prevLogsErr } = await prevQuery;
 
       if (prevLogsErr) {
         throw new Error(`Gagal membaca presensi_log: ${prevLogsErr.message}`);
@@ -263,10 +293,13 @@ export default function RekonPage() {
         }
       } else {
         // Jumlah L & P = 0 -> HAPUS kehadiran dari presensi_log lalu kembalikan kuota
-        const { error: delErr } = await supabase
-          .from('presensi_log')
-          .delete()
-          .eq('kode_qr', editingItem.kode);
+        let delQuery = supabase.from('presensi_log').delete();
+        if (editingItem.nis && editingItem.nis !== editingItem.kode) {
+          delQuery = delQuery.or(`kode_qr.eq.${editingItem.kode},kode_qr.eq.${editingItem.nis}`);
+        } else {
+          delQuery = delQuery.eq('kode_qr', editingItem.kode);
+        }
+        const { error: delErr } = await delQuery;
 
         if (delErr) {
           throw new Error(`Gagal menghapus presensi_log: ${delErr.message}`);

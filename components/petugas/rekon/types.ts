@@ -40,6 +40,7 @@ export interface EditingItemState {
   tipe: 'SANTRI' | 'UNDANGAN' | string;
   id: any;
   kode: string;
+  nis?: string;
   nama: string;
   namaPutra: string;
   namaPutri: string;
@@ -115,11 +116,16 @@ export function buildEditingItemState(item: any, pLogs: any[] | null): EditingIt
 
   const initL = (pLogs || []).reduce((acc: number, curr: any) => acc + (Number(curr.jumlah_l) || 0), 0);
   const initP = (pLogs || []).reduce((acc: number, curr: any) => acc + (Number(curr.jumlah_p) || 0), 0);
+  const logTotal = initL + initP;
+  const initialTerpakai = (pLogs && pLogs.length > 0) ? logTotal : (Number(d.kuota_terpakai) || 0);
+  const finalL = (pLogs && pLogs.length > 0) ? initL : initialTerpakai;
+  const finalP = (pLogs && pLogs.length > 0) ? initP : 0;
 
   return {
     tipe: item.tipe,
     id: d.id,
     kode: d.kode,
+    nis: d.nis || '',
     nama: d.nama || '',
     namaPutra: d.nama_putra || '',
     namaPutri: d.nama_putri || '',
@@ -137,9 +143,9 @@ export function buildEditingItemState(item: any, pLogs: any[] | null): EditingIt
       : ((d.nama_putra && String(d.nama_putra).trim() !== '') ? 1 : 0) +
         ((d.nama_putri && String(d.nama_putri).trim() !== '') ? 1 : 0),
     kuotaTambahan: d.kuota_tambahan || 0,
-    kuotaTerpakai: d.kuota_terpakai || 0,
-    presensiL: initL,
-    presensiP: initP,
+    kuotaTerpakai: initialTerpakai,
+    presensiL: finalL,
+    presensiP: finalP,
     tiketPanggungJatah: d.tiket_panggung_jatah || 0,
     tiketPanggungDiberi: d.tiket_panggung_diberi || 0,
     kartuHitamGoldDiberi: Boolean(d.kartu_hitam_gold_diberi),
@@ -157,7 +163,10 @@ export function buildEditPayload(editingItem: any): {
   totalPresensiInput: number;
 } {
   const isSantri = editingItem.tipe === 'SANTRI';
-  const totalPresensiInput = Math.max(0, Number(editingItem.presensiL || 0) + Number(editingItem.presensiP || 0));
+  const sumLP = Math.max(0, Number(editingItem.presensiL || 0) + Number(editingItem.presensiP || 0));
+  const totalPresensiInput = (editingItem.kuotaTerpakai !== undefined && editingItem.kuotaTerpakai !== null && String(editingItem.kuotaTerpakai).trim() !== '')
+    ? Math.max(0, Number(editingItem.kuotaTerpakai))
+    : sumLP;
 
   let payload: Record<string, any> = {};
 

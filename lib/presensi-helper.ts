@@ -27,7 +27,7 @@ export async function syncKuotaTerpakai(kode: string): Promise<number> {
       supabase
         .from('peserta_santri')
         .update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() })
-        .eq('kode', kode),
+        .or(`kode.eq.${kode},nis.eq.${kode}`),
       supabase
         .from('tamu_undangan')
         .update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() })

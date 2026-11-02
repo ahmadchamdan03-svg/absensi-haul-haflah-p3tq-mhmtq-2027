@@ -212,7 +212,37 @@ export default function RekonModals({
                       type="number"
                       min="0"
                       value={editingItem.kuotaTerpakai}
-                      onChange={(e) => setEditingItem({ ...editingItem, kuotaTerpakai: e.target.value })}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const val = Math.max(0, parseInt(raw, 10) || 0);
+                        const currL = Number(editingItem.presensiL || 0);
+                        const currP = Number(editingItem.presensiP || 0);
+                        let nextL = currL;
+                        let nextP = currP;
+                        if (val === 0) {
+                          nextL = 0;
+                          nextP = 0;
+                        } else if (currL + currP === 0) {
+                          nextL = val;
+                          nextP = 0;
+                        } else if (val < currL + currP) {
+                          const diff = (currL + currP) - val;
+                          if (currP >= diff) {
+                            nextP = currP - diff;
+                          } else {
+                            nextL = Math.max(0, currL - (diff - currP));
+                            nextP = 0;
+                          }
+                        } else {
+                          nextP = currP + (val - (currL + currP));
+                        }
+                        setEditingItem({
+                          ...editingItem,
+                          kuotaTerpakai: raw,
+                          presensiL: nextL,
+                          presensiP: nextP,
+                        });
+                      }}
                       className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs text-blue-900"
                     />
                   </div>
@@ -244,7 +274,7 @@ export default function RekonModals({
                 {(() => {
                   const maxKuota = Number(editingItem.kuotaDasar || 0) + Number(editingItem.kuotaTambahan || 0);
                   const currentTotal = Number(editingItem.presensiL || 0) + Number(editingItem.presensiP || 0);
-                  const isMaxReached = currentTotal >= maxKuota;
+                  const isMaxReached = maxKuota > 0 ? currentTotal >= maxKuota : false;
 
                   return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -258,10 +288,15 @@ export default function RekonModals({
                           <button
                             type="button"
                             onClick={() =>
-                              setEditingItem((prev: any) => ({
-                                ...prev,
-                                presensiL: Math.max(0, Number(prev.presensiL || 0) - 1),
-                              }))
+                              setEditingItem((prev: any) => {
+                                const nextL = Math.max(0, Number(prev.presensiL || 0) - 1);
+                                const nextP = Number(prev.presensiP || 0);
+                                return {
+                                  ...prev,
+                                  presensiL: nextL,
+                                  kuotaTerpakai: nextL + nextP,
+                                };
+                              })
                             }
                             disabled={Number(editingItem.presensiL || 0) <= 0}
                             className="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer border border-stone-300 transition-all"
@@ -272,10 +307,15 @@ export default function RekonModals({
                           <button
                             type="button"
                             onClick={() =>
-                              setEditingItem((prev: any) => ({
-                                ...prev,
-                                presensiL: Number(prev.presensiL || 0) + 1,
-                              }))
+                              setEditingItem((prev: any) => {
+                                const nextL = Number(prev.presensiL || 0) + 1;
+                                const nextP = Number(prev.presensiP || 0);
+                                return {
+                                  ...prev,
+                                  presensiL: nextL,
+                                  kuotaTerpakai: nextL + nextP,
+                                };
+                              })
                             }
                             disabled={isMaxReached}
                             className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-amber-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
@@ -295,10 +335,15 @@ export default function RekonModals({
                           <button
                             type="button"
                             onClick={() =>
-                              setEditingItem((prev: any) => ({
-                                ...prev,
-                                presensiP: Math.max(0, Number(prev.presensiP || 0) - 1),
-                              }))
+                              setEditingItem((prev: any) => {
+                                const nextL = Number(prev.presensiL || 0);
+                                const nextP = Math.max(0, Number(prev.presensiP || 0) - 1);
+                                return {
+                                  ...prev,
+                                  presensiP: nextP,
+                                  kuotaTerpakai: nextL + nextP,
+                                };
+                              })
                             }
                             disabled={Number(editingItem.presensiP || 0) <= 0}
                             className="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer border border-stone-300 transition-all"
@@ -309,10 +354,15 @@ export default function RekonModals({
                           <button
                             type="button"
                             onClick={() =>
-                              setEditingItem((prev: any) => ({
-                                ...prev,
-                                presensiP: Number(prev.presensiP || 0) + 1,
-                              }))
+                              setEditingItem((prev: any) => {
+                                const nextL = Number(prev.presensiL || 0);
+                                const nextP = Number(prev.presensiP || 0) + 1;
+                                return {
+                                  ...prev,
+                                  presensiP: nextP,
+                                  kuotaTerpakai: nextL + nextP,
+                                };
+                              })
                             }
                             disabled={isMaxReached}
                             className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-amber-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
