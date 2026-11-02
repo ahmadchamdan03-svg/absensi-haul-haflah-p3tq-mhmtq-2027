@@ -23,7 +23,7 @@ export async function syncKuotaTerpakai(kode: string): Promise<number> {
     );
 
     // Update peserta_santri & tamu_undangan
-    await Promise.all([
+    const [resSantri, resTamu] = await Promise.all([
       supabase
         .from('peserta_santri')
         .update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() })
@@ -33,6 +33,13 @@ export async function syncKuotaTerpakai(kode: string): Promise<number> {
         .update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() })
         .eq('kode', kode),
     ]);
+
+    if (resSantri.error) {
+      console.error('Error updating kuota_terpakai peserta_santri:', resSantri.error);
+    }
+    if (resTamu.error) {
+      console.error('Error updating kuota_terpakai tamu_undangan:', resTamu.error);
+    }
 
     return totalTerpakai;
   } catch (err) {
@@ -61,10 +68,12 @@ export async function upsertPresensiLog(payload: {
   if (!kode_qr) throw new Error('kode_qr required for upsertPresensiLog');
 
   // Check existing log
-  const { data: existingLogs } = await supabase
+  const { data: existingLogs, error: existingErr } = await supabase
     .from('presensi_log')
     .select('id')
     .eq('kode_qr', kode_qr);
+
+  if (existingErr) throw existingErr;
 
   if (existingLogs && existingLogs.length > 0) {
     const primaryId = existingLogs[0].id;

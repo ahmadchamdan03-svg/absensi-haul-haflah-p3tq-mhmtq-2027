@@ -193,8 +193,11 @@ export default function ScanResultModals({
               const sisa = Math.max(0, totalKuota - terpakai);
               const totalInput = jumlahL + jumlahP;
               const isNewlyGivingGold = activeItem.isBilGhoib && (kartuHitamGoldDiberi || serahkanTiketEmas);
-              const isExceeded = totalInput > totalKuota;
-              const isPlusDisabled = totalInput >= totalKuota;
+              // Input L/P = jumlah orang yang BARU datang; ditambahkan ke total kumulatif yang sudah tercatat
+              const totalSetelahInput = terpakai + totalInput;
+              const sisaSetelahInput = Math.max(0, totalKuota - totalSetelahInput);
+              const isExceeded = totalSetelahInput > totalKuota;
+              const isPlusDisabled = totalSetelahInput >= totalKuota;
 
               return (
                 <div className="space-y-3 pt-2 border-t border-slate-100">
@@ -266,11 +269,11 @@ export default function ScanResultModals({
                   <div className="text-[11px] font-semibold text-center py-1">
                     {terpakai >= totalKuota || isPlusDisabled ? (
                       <span className="text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-300 inline-block font-bold">
-                        ⚠️ KUOTA PENUH — Total saat ini: {terpakai}/{totalKuota} orang · Sisa kuota: {sisa} orang
+                        ⚠️ KUOTA PENUH — Total saat ini: {totalSetelahInput}/{totalKuota} orang · Sisa kuota: {sisaSetelahInput} orang
                       </span>
                     ) : (
                       <span className="text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
-                        Total saat ini: <strong>{terpakai} orang</strong> · Sisa kuota: <strong>{sisa} orang</strong> (Input total: {totalInput} orang)
+                        Total saat ini: <strong>{totalSetelahInput} orang</strong> · Sisa kuota: <strong>{sisaSetelahInput} orang</strong> (Tambahan baru: {totalInput} orang)
                       </span>
                     )}
                   </div>
@@ -278,7 +281,7 @@ export default function ScanResultModals({
                   {isExceeded && (
                     <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2">
                       <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span>Total input ({totalInput} orang) melebihi total kuota ({totalKuota} kursi). Mohon kurangi jumlahnya.</span>
+                      <span>Total kehadiran ({totalSetelahInput} orang) melebihi total kuota ({totalKuota} kursi). Mohon kurangi jumlah tambahan.</span>
                     </div>
                   )}
 

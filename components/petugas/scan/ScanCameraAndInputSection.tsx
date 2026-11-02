@@ -304,7 +304,9 @@ export default function ScanCameraAndInputSection({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (kodeInput) onSubmitCode(kodeInput);
+                // Baca langsung dari DOM agar tidak terkena delay state React saat burst alat scan USB
+                const liveValue = (inputRef.current?.value ?? kodeInput).trim();
+                onSubmitCode(liveValue);
               }}
               className="flex gap-2"
             >

@@ -203,6 +203,22 @@ export default function RekonPage() {
         .single();
 
       const { payload, totalPresensiInput } = buildEditPayload(editingItem);
+      const nextL = Math.max(0, Number(editingItem.presensiL || 0));
+      const nextP = Math.max(0, Number(editingItem.presensiP || 0));
+
+      // 1b. Ambil presensi_log LAMA untuk perbandingan & audit
+      const { data: prevLogs, error: prevLogsErr } = await supabase
+        .from('presensi_log')
+        .select('id, jumlah_l, jumlah_p')
+        .eq('kode_qr', editingItem.kode);
+
+      if (prevLogsErr) {
+        throw new Error(`Gagal membaca presensi_log: ${prevLogsErr.message}`);
+      }
+
+      const prevL = (prevLogs || []).reduce((s, r: any) => s + Number(r.jumlah_l || 0), 0);
+      const prevP = (prevLogs || []).reduce((s, r: any) => s + Number(r.jumlah_p || 0), 0);
+      const prevTotal = prevL + prevP;
 
       // 2. Perform update ke Supabase
       const { error } = await supabase
@@ -216,22 +232,67 @@ export default function RekonPage() {
         return;
       }
 
-      // FIX 6: Upsert presensi_log berdasar Section 3 stepper (L & P)
+      // 3. Sinkronisasi presensi_log berdasarkan stepper Jumlah Kehadiran (L & P)
       if (totalPresensiInput > 0) {
+        // UPDATE (atau INSERT jika belum ada) presensi_log + sync kuota_terpakai
         await upsertPresensiLog({
           kode_qr: editingItem.kode,
           nama_peserta: editingItem.nama,
           tipe_peserta: isSantri ? 'KELUARGA' : 'UNDANGAN',
           jalur: 'MEJA_REKONSILIASI',
           panitia_id: 'panitia-rekonsiliasi',
-          jumlah_l: Number(editingItem.presensiL || 0),
-          jumlah_p: Number(editingItem.presensiP || 0),
+          jumlah_l: nextL,
+          jumlah_p: nextP,
           catatan: 'Update via Modal Edit Rekonsiliasi',
         });
+
+        if (nextL !== prevL || nextP !== prevP) {
+          await logAudit({
+            panitia_id: 'PANITIA_REKONSILIASI',
+            panitia_role: 'PENERIMA_TAMU',
+            aksi: prevTotal > 0 ? 'EDIT_KUOTA' : 'TANDAI_HADIR',
+            tabel: 'presensi_log',
+            kode: editingItem.kode,
+            nama: editingItem.nama,
+            field: 'jumlah_kehadiran',
+            nilai_lama: `${prevL} L / ${prevP} P (total ${prevTotal})`,
+            nilai_baru: `${nextL} L / ${nextP} P (total ${totalPresensiInput})`,
+            detail: { prev_l: prevL, prev_p: prevP, next_l: nextL, next_p: nextP },
+            catatan: 'Koreksi jumlah kehadiran via Meja Rekonsiliasi',
+          });
+        }
       } else {
-        // Jika diset 0, hapus presensi_log dan sync
-        await supabase.from('presensi_log').delete().eq('kode_qr', editingItem.kode);
+        // Jumlah L & P = 0 -> HAPUS kehadiran dari presensi_log lalu kembalikan kuota
+        const { error: delErr } = await supabase
+          .from('presensi_log')
+          .delete()
+          .eq('kode_qr', editingItem.kode);
+
+        if (delErr) {
+          throw new Error(`Gagal menghapus presensi_log: ${delErr.message}`);
+        }
+
         await syncKuotaTerpakai(editingItem.kode);
+
+        if ((prevLogs || []).length > 0) {
+          await logAudit({
+            panitia_id: 'PANITIA_REKONSILIASI',
+            panitia_role: 'PENERIMA_TAMU',
+            aksi: 'BATALKAN_HADIR',
+            tabel: 'presensi_log',
+            kode: editingItem.kode,
+            nama: editingItem.nama,
+            field: 'kuota_terpakai',
+            nilai_lama: String(prevTotal),
+            nilai_baru: '0',
+            detail: {
+              prev_l: prevL,
+              prev_p: prevP,
+              deleted_rows: (prevLogs || []).length,
+            },
+            catatan: 'Hapus kehadiran (jumlah L & P diubah menjadi 0) via Modal Edit Rekonsiliasi',
+          });
+        }
       }
 
       // Fix 7 & 14: Sinkronisasi pengurangan kuota_tambahan ke pembelian_kuota & audit_log
