@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { logAudit } from '@/lib/audit-log';
 import { JalurPemeriksaan, CheckinResult, calculateKuotaDasarSantri, cleanKategoriTamatan } from '@/lib/types';
-import { getAmbiguousKodeVariants } from '@/lib/utils';
 import { upsertPresensiLog, syncKuotaTerpakai } from '@/lib/presensi-helper';
 import confetti from 'canvas-confetti';
 import DenahModal from '@/components/DenahModal';
@@ -90,60 +89,7 @@ export default function ScanPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scanBufferRef = useRef('');
-  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastKeyTimeRef = useRef(0);
-  const inputBurstCountRef = useRef(0);
-  const lastUsbSubmitTimeRef = useRef(0);
-  const lastSubmittedScanRef = useRef<{ code: string; time: number }>({ code: '', time: 0 });
-
-  // Helper ekstraksi kode peserta bersih dari berbagai format QR (Raw, HMAC HFL27.KODE.SIG, URL /u/KODE-SIG, AIM prefix ]Q1)
-  const extractCleanScanCode = useCallback((scannedRaw: string): string => {
-    let raw = (scannedRaw || '')
-      .replace(/[\x00-\x1F\x7F]+/g, '')
-      .replace(/^\][A-Za-z][0-9]/, '')
-      .trim();
-
-    if (!raw) return '';
-
-    const urlPathMatch = raw.match(/\/(?:u|beli|s)\/([^/?#\s]+)/i);
-    if (urlPathMatch && urlPathMatch[1]) {
-      try {
-        raw = decodeURIComponent(urlPathMatch[1]).trim();
-      } catch {
-        raw = urlPathMatch[1].trim();
-      }
-    } else if (raw.includes('.')) {
-      const dotParts = raw.split('.').map((p) => p.trim()).filter(Boolean);
-      if (dotParts.length >= 2 && !/^https?:/i.test(dotParts[0])) {
-        raw = dotParts[1];
-      }
-    }
-
-    // Bersihkan suffix tanda tangan portal 8-hex (misal SHFV1Y-9a3f1c7e atau UND-0012-9a3f1c7e)
-    const signedPortalMatch = raw.match(/^(.+?)-[0-9a-f]{8}$/i);
-    if (signedPortalMatch && signedPortalMatch[1]) {
-      raw = signedPortalMatch[1];
-    }
-
-    return raw.toUpperCase().trim();
-  }, []);
-
-  // Helper menampilkan feedback & notifikasi error merah di UI (tanpa silent error)
-  const showScanError = useCallback((errMsg: string) => {
-    setErrorMsg(errMsg);
-    setActiveItem(null);
-    setCheckinResult(null);
-    playBuzzerError();
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    setScanFeedback({
-      type: 'error',
-      message: errMsg,
-    });
-    feedbackTimerRef.current = setTimeout(() => {
-      setScanFeedback(null);
-    }, 4500);
-  }, []);
+  const scanTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Stop Kamera
   const stopCamera = useCallback(async () => {
@@ -159,54 +105,35 @@ export default function ScanPage() {
     }
   }, []);
 
-  // Handler memproses kode QR (Kamera, USB Barcode Scanner, maupun Input Manual)
-  const handleScanCode = useCallback(async (scannedRaw: string, source: string = 'manual') => {
+  // Handler memproses kode QR
+  const handleScanCode = useCallback(async (scannedRaw: string) => {
+    let cleanCode = scannedRaw.trim();
+    if (cleanCode.includes('/u/')) {
+      const parts = cleanCode.split('/u/');
+      if (parts.length >= 2) cleanCode = parts[1].split('?')[0].split('#')[0];
+    } else if (cleanCode.includes('.')) {
+      const parts = cleanCode.split('.');
+      if (parts.length >= 2) cleanCode = parts[1];
+    }
+
+    cleanCode = cleanCode.toUpperCase().trim();
+    if (cleanCode.length > 50) cleanCode = cleanCode.substring(0, 50);
+    if (!cleanCode || cleanCode.length < 2) return;
+
+    setErrorMsg(null);
+    setCheckinResult(null);
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[Scan Debug] Submit: "${cleanCode}" Timestamp: ${Date.now()}`);
+    }
+
     try {
-      const rawTrimmed = (scannedRaw || '').replace(/[\r\n\t]+/g, '').trim();
-      console.log(`[Scan Submit] Source=${source} | Raw="${rawTrimmed}" | Timestamp=${Date.now()}`);
-
-      if (!rawTrimmed) {
-        showScanError('Format QR tidak dikenali: data hasil pindai kosong.');
-        return;
-      }
-
-      const cleanCode = extractCleanScanCode(rawTrimmed);
-
-      // Validasi format kode hasil ekstraksi (jangan pernah silent return)
-      if (!cleanCode || cleanCode.length < 2 || cleanCode.length > 50 || !/^[A-Z0-9_-]+$/.test(cleanCode)) {
-        const preview = rawTrimmed.length > 40 ? `${rawTrimmed.slice(0, 40)}...` : rawTrimmed;
-        showScanError(`Format QR tidak dikenali: "${preview}". Gunakan QR Code resmi undangan Haflah P3TQ.`);
-        return;
-      }
-
-      // Guard anti-double-submit simultan (<350ms untuk kode identik, misal bentrok Enter keydown & form submit)
-      const now = Date.now();
-      if (
-        lastSubmittedScanRef.current.code === cleanCode &&
-        now - lastSubmittedScanRef.current.time < 350
-      ) {
-        console.log(`[Scan Submit] Abaikan duplikasi simultan (<350ms) untuk kode "${cleanCode}"`);
-        return;
-      }
-      lastSubmittedScanRef.current = { code: cleanCode, time: now };
-
-      setErrorMsg(null);
-      setCheckinResult(null);
-      setKodeInput('');
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-
       // 1. Cek Peserta Santri
-      let { data: santri, error: santriError } = await supabase
+      let { data: santri } = await supabase
         .from('peserta_santri')
         .select('*')
         .or(`kode.eq.${cleanCode},nis.eq.${cleanCode}`)
         .maybeSingle();
-
-      if (santriError) {
-        throw new Error(`Gagal memeriksa data peserta santri (${santriError.message})`);
-      }
 
       // 2. Jika tidak ada di santri, cek ke Tamu Undangan
       let tamu = null;
@@ -216,41 +143,20 @@ export default function ScanPage() {
           .select('*')
           .eq('kode', cleanCode)
           .maybeSingle();
-        if (resTamu.error) {
-          throw new Error(`Gagal memeriksa data tamu undangan (${resTamu.error.message})`);
-        }
         tamu = resTamu.data;
-      }
-
-      // 2b. Fallback toleransi karakter ambigu (0<->O, 1<->I) seperti pada portal /u/[token]
-      if (!santri && !tamu) {
-        const variants = getAmbiguousKodeVariants(cleanCode);
-        if (variants.length > 1) {
-          const altSantri = await supabase
-            .from('peserta_santri')
-            .select('*')
-            .in('kode', variants)
-            .limit(1)
-            .maybeSingle();
-          if (altSantri.data) {
-            santri = altSantri.data;
-          } else {
-            const altTamu = await supabase
-              .from('tamu_undangan')
-              .select('*')
-              .in('kode', variants)
-              .limit(1)
-              .maybeSingle();
-            if (altTamu.data) {
-              tamu = altTamu.data;
-            }
-          }
-        }
       }
 
       // 3. Jika kode tidak terdaftar di Supabase
       if (!santri && !tamu) {
-        showScanError(`Kode QR "${cleanCode}" TIDAK TERDAFTAR dalam basis data!`);
+        const errMsg = `Kode QR "${cleanCode}" TIDAK TERDAFTAR dalam basis data!`;
+        setErrorMsg(errMsg);
+        playBuzzerError();
+        setActiveItem(null);
+        setScanFeedback({
+          type: 'error',
+          message: errMsg,
+        });
+        setTimeout(() => setScanFeedback(null), 3000);
         return;
       }
 
@@ -259,14 +165,10 @@ export default function ScanPage() {
       const targetKode = entity.kode || entity.nis || cleanCode;
 
       // Single Source of Truth: Fetch live terpakai from presensi_log
-      const { data: presensiLogs, error: presensiError } = await supabase
+      const { data: presensiLogs } = await supabase
         .from('presensi_log')
         .select('jumlah_l, jumlah_p')
         .eq('kode_qr', targetKode);
-
-      if (presensiError) {
-        throw new Error(`Gagal membaca log presensi (${presensiError.message})`);
-      }
 
       const existingL = (presensiLogs || []).reduce(
         (sum, r) => sum + Number(r.jumlah_l || 0),
@@ -341,7 +243,6 @@ export default function ScanPage() {
         },
       };
 
-      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
       if (terpakai >= totalKuota) {
         playBuzzerError();
         const warnMsg = `PERINGATAN KUOTA HABIS: Seluruh tiket untuk "${itemObj.nama}" sudah terpakai (${terpakai}/${totalKuota})!`;
@@ -356,14 +257,15 @@ export default function ScanPage() {
         playBeep();
         setScanFeedback({
           type: 'success',
-          message: `QR ${targetKode} Berhasil Terverifikasi`,
+          message: `QR ${cleanCode} Berhasil Terverifikasi`,
           name: itemObj.nama,
           kategori: itemObj.kategori,
         });
       }
-      feedbackTimerRef.current = setTimeout(() => setScanFeedback(null), 2800);
+      setTimeout(() => setScanFeedback(null), 2500);
 
       setActiveItem(itemObj);
+      setKodeInput(cleanCode);
 
       // Stop kamera saat item berhasil diproses
       stopCamera();
@@ -388,172 +290,57 @@ export default function ScanPage() {
       }
     } catch (err: any) {
       console.error('Error during scan verification:', err);
-      showScanError(`Gagal memproses scan: ${err?.message || String(err)}`);
-    }
-  }, [extractCleanScanCode, showScanError, stopCamera]);
-
-  const handleScanCodeRef = useRef(handleScanCode);
-  handleScanCodeRef.current = handleScanCode;
-
-  // Global USB Barcode Scanner Listener (bebas bentrokan fokus input/button & mendukung scanner dengan/tanpa Enter)
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const tagName = target?.tagName || '';
-      const isManualCodeInput = Boolean(inputRef.current && target === inputRef.current);
-      const isOtherFormField =
-        !isManualCodeInput &&
-        (tagName === 'INPUT' ||
-          tagName === 'TEXTAREA' ||
-          tagName === 'SELECT' ||
-          Boolean(target?.isContentEditable));
-
-      console.log('Keydown:', e.key, {
-        code: e.code,
-        target: tagName,
-        isManualCodeInput,
-        buffer: scanBufferRef.current,
+      const msg = `Terjadi kesalahan sistem saat memverifikasi kode: ${err.message || err}`;
+      setErrorMsg(msg);
+      playBuzzerError();
+      setScanFeedback({
+        type: 'error',
+        message: msg,
       });
+      setTimeout(() => setScanFeedback(null), 3000);
+    }
+  }, [stopCamera]);
 
-      // Jangan intersep jika petugas sedang mengetik angka jumlah L/P di modal atau kolom chat lain
-      if (isOtherFormField) {
-        return;
-      }
+  // Global USB barcode listener
+  useEffect(() => {
+    if (inputRef.current) inputRef.current.focus();
 
-      const isEnterTerminator =
-        e.key === 'Enter' ||
-        e.code === 'NumpadEnter' ||
-        e.key === '\r' ||
-        e.key === '\n' ||
-        (e.ctrlKey && e.key.toLowerCase() === 'j');
-      const isTabTerminator = e.key === 'Tab';
-
-      // JALUR A: Kursor sedang berada di kolom input kode manual (tetap tangani tembakan USB Scanner & tekan Enter!)
-      if (isManualCodeInput) {
-        if (isEnterTerminator || (isTabTerminator && inputBurstCountRef.current >= 3)) {
-          if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-          const domValue = (inputRef.current?.value || scanBufferRef.current || '').trim();
-          scanBufferRef.current = '';
-          inputBurstCountRef.current = 0;
-          lastKeyTimeRef.current = 0;
-
-          // Abaikan LF susulan (<200ms) setelah CR pada scanner berformat CR+LF
-          if (!domValue && Date.now() - lastUsbSubmitTimeRef.current < 200) {
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-          }
-
-          if (domValue.length > 0) {
-            e.preventDefault();
-            e.stopPropagation();
-            lastUsbSubmitTimeRef.current = Date.now();
-            console.log('[USB/Input Scanner] Terminator terdeteksi di kolom input, submit:', domValue);
-            handleScanCodeRef.current(domValue, 'input-keydown');
-          }
-          return;
-        }
-
-        if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-        if (e.key.length === 1) {
-          const now = Date.now();
-          const diff = lastKeyTimeRef.current ? now - lastKeyTimeRef.current : 0;
-          lastKeyTimeRef.current = now;
-
-          if (diff > 0 && diff < 75) {
-            inputBurstCountRef.current += 1;
-          } else if (diff > 250) {
-            inputBurstCountRef.current = 0;
-          }
-
-          // Fallback auto-submit jika USB Scanner menembak ke dalam <input> namun hardware tidak mengirim Enter
-          if (inputBurstCountRef.current >= 4) {
-            if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-            scanTimerRef.current = setTimeout(() => {
-              const burstValue = (inputRef.current?.value || '').trim();
-              inputBurstCountRef.current = 0;
-              scanBufferRef.current = '';
-              lastKeyTimeRef.current = 0;
-              if (burstValue.length > 0) {
-                lastUsbSubmitTimeRef.current = Date.now();
-                console.log('[USB/Input Scanner] Auto-submit burst USB di kolom input (tanpa Enter):', burstValue);
-                handleScanCodeRef.current(burstValue, 'input-usb-burst');
-              }
-            }, 300);
-          }
-        }
-        return;
-      }
-
-      // JALUR B: Fokus global (BODY, BUTTON, DIV, maupun saat modal hasil sebelumnya terbuka)
-      if (isEnterTerminator || (isTabTerminator && scanBufferRef.current.trim().length > 0)) {
-        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-        const bufferedCode = scanBufferRef.current.trim();
-        scanBufferRef.current = '';
-        lastKeyTimeRef.current = 0;
-        inputBurstCountRef.current = 0;
-
-        if (bufferedCode.length > 0) {
-          e.preventDefault();
-          e.stopPropagation();
-          lastUsbSubmitTimeRef.current = Date.now();
-          console.log('[USB Scanner] Terminator terdeteksi, memproses buffer:', bufferedCode);
-          handleScanCodeRef.current(bufferedCode, 'usb-keydown');
-        } else if (Date.now() - lastUsbSubmitTimeRef.current < 200) {
-          // Cegah LF susulan menekan tombol yang sedang fokus
-          e.preventDefault();
-          e.stopPropagation();
-        }
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
         return;
       }
 
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
-      let printableChar = e.key.length === 1 ? e.key : '';
-      if (!printableChar && e.key === 'Unidentified' && e.keyCode >= 48 && e.keyCode <= 90) {
-        printableChar = String.fromCharCode(e.keyCode);
+      if (e.key === 'Enter') {
+        const bufferedCode = scanBufferRef.current.trim();
+        if (bufferedCode.length >= 3) {
+          handleScanCode(bufferedCode);
+        }
+        scanBufferRef.current = '';
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+        e.preventDefault();
+        return;
       }
 
-      if (printableChar) {
-        const now = Date.now();
-        const diff = lastKeyTimeRef.current ? now - lastKeyTimeRef.current : 0;
-        if (diff > 800) {
-          scanBufferRef.current = '';
+      if (e.key.length === 1) {
+        if (scanBufferRef.current.length < 50) {
+          scanBufferRef.current += e.key;
         }
-        lastKeyTimeRef.current = now;
-
-        if (scanBufferRef.current.length < 512) {
-          scanBufferRef.current += printableChar;
-        }
-
-        if (tagName === 'BUTTON' && printableChar === ' ') {
-          e.preventDefault();
-        }
-
-        console.log('[USB Scanner] Buffer terakumulasi:', scanBufferRef.current, `(+${diff}ms)`);
-
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
         scanTimerRef.current = setTimeout(() => {
-          const bufferedCode = scanBufferRef.current.trim();
           scanBufferRef.current = '';
-          lastKeyTimeRef.current = 0;
-          if (bufferedCode.length >= 2) {
-            lastUsbSubmitTimeRef.current = Date.now();
-            console.log('[USB Scanner] Auto-submit buffer setelah jeda 350ms (scanner tanpa Enter):', bufferedCode);
-            handleScanCodeRef.current(bufferedCode, 'usb-auto-timeout');
-          }
-        }, 350);
+        }, 100);
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress, true);
+    window.addEventListener('keydown', handleKeyPress);
     return () => {
-      window.removeEventListener('keydown', handleKeyPress, true);
+      window.removeEventListener('keydown', handleKeyPress);
       if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
     };
-  }, []);
+  }, [handleScanCode]);
 
   // Inisialisasi & Start Kamera
   const startCamera = async (mode: 'environment' | 'user' = facingMode) => {
@@ -587,21 +374,10 @@ export default function ScanPage() {
           aspectRatio: 1.0,
         },
         (decodedText) => {
-          handleScanCodeRef.current(decodedText, 'camera');
+          handleScanCode(decodedText);
         },
         () => {}
       );
-
-      // Jika saat kamera masih inisialisasi ternyata USB scanner sudah lebih dulu membuka pop-up absen, segera matikan kamera
-      if (!document.getElementById('qr-camera-reader')) {
-        try {
-          await scanner.stop();
-          scanner.clear();
-        } catch {}
-        isScanningRef.current = false;
-        setCameraActive(false);
-        return;
-      }
 
       isScanningRef.current = true;
       setCameraActive(true);
