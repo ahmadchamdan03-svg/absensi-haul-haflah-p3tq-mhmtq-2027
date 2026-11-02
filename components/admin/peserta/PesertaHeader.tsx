@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Users,
   Plus,
@@ -10,6 +10,7 @@ import {
   ExternalLink,
   X,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 import { getWarnaTiketSantri, getWarnaTiketUndangan } from '@/lib/types';
 import { GolonganUndangan } from './TamuModal';
@@ -123,6 +124,17 @@ export function PesertaUtilityModals({
   qrDataUrl,
   showToast,
 }: PesertaUtilityModalsProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const onConfirmDeleteClick = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await handleConfirmDelete();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   return (
     <>
       {/* MODAL 4: KONFIRMASI HAPUS PESERTA */}
@@ -162,16 +174,25 @@ export function PesertaUtilityModals({
                 <button
                   type="button"
                   onClick={() => setDeletingItem(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold"
+                  disabled={isDeleting}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
-                  onClick={handleConfirmDelete}
-                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow"
+                  onClick={onConfirmDeleteClick}
+                  disabled={isDeleting}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Hapus Permanen
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
+                      <span>Memproses...</span>
+                    </>
+                  ) : (
+                    <span>Hapus Permanen</span>
+                  )}
                 </button>
               </div>
             </div>

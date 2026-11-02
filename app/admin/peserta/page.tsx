@@ -124,14 +124,14 @@ export default function ManajemenPesertaPage() {
         setShowAddModal={setShowAddModal}
         editingItem={editingItem}
         setEditingItem={setEditingItem}
-        onAddSuccess={async (newSantriItem, msg) => {
+        onAddSuccess={(newSantriItem, msg) => {
           setKeluargaList((prev) => [newSantriItem, ...prev]);
           showToast(msg);
-          await refreshData();
+          refreshData().catch((err) => console.warn('Background refresh error:', err));
         }}
-        onEditSuccess={async (msg) => {
-          await refreshData();
+        onEditSuccess={(msg) => {
           showToast(msg);
+          refreshData().catch((err) => console.warn('Background refresh error:', err));
         }}
       />
 
@@ -142,14 +142,14 @@ export default function ManajemenPesertaPage() {
         setSelectedGolonganUndangan={setSelectedGolonganUndangan}
         editingItem={editingItem}
         setEditingItem={setEditingItem}
-        onAddSuccess={async (newUndanganItem, msg) => {
+        onAddSuccess={(newUndanganItem, msg) => {
           setUndanganList((prev) => [newUndanganItem, ...prev]);
           showToast(msg);
-          await refreshData();
+          refreshData().catch((err) => console.warn('Background refresh error:', err));
         }}
-        onEditSuccess={async (msg) => {
-          await refreshData();
+        onEditSuccess={(msg) => {
           showToast(msg);
+          refreshData().catch((err) => console.warn('Background refresh error:', err));
         }}
       />
 

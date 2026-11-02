@@ -295,12 +295,17 @@ export function usePesertaData() {
 
   const handleConfirmDelete = async () => {
     if (!deletingItem) return;
+    const itemToDelete = deletingItem;
+    const deletedKode = itemToDelete.kode;
+    const deletedId = itemToDelete.id;
+    const isUndangan = itemToDelete.tipe === 'UNDANGAN';
+
     try {
-      if (deletingItem.tipe === 'UNDANGAN') {
+      if (isUndangan) {
         const { error } = await supabase
           .from('tamu_undangan')
           .delete()
-          .eq('kode', deletingItem.kode);
+          .eq('kode', deletedKode);
         if (error) {
           alert(`Gagal menghapus tamu dari Supabase DB: ${error.message}`);
           return;
@@ -309,38 +314,52 @@ export function usePesertaData() {
         const { error } = await supabase
           .from('peserta_santri')
           .delete()
-          .eq('kode', deletingItem.kode);
+          .eq('kode', deletedKode);
         if (error) {
           alert(`Gagal menghapus santri dari Supabase DB: ${error.message}`);
           return;
         }
       }
 
-      await logAudit({
+      // 1. Optimistic UI: langsung update state tabel seketika
+      if (isUndangan) {
+        setUndanganList((prev) =>
+          prev.filter((item) => item.kode !== deletedKode && item.id !== deletedId)
+        );
+      } else {
+        setKeluargaList((prev) =>
+          prev.filter((item) => item.kode !== deletedKode && item.id !== deletedId)
+        );
+      }
+      store.hapusPeserta(deletedKode);
+
+      // 2. Langsung tutup modal seketika & tampilkan notifikasi toast sukses
+      setDeletingItem(null);
+      showToast(
+        `✓ Berhasil menghapus peserta ${itemToDelete.nama} (${deletedKode})`
+      );
+
+      // 3. Fire-and-forget: logAudit di background tanpa await
+      logAudit({
         panitia_id: 'ADMIN_SEKRETARIAT',
         panitia_role: 'ADMIN',
-        aksi: deletingItem.tipe === 'UNDANGAN' ? 'HAPUS_TAMU' : 'HAPUS_PESERTA',
-        tabel: deletingItem.tipe === 'UNDANGAN' ? 'tamu_undangan' : 'peserta_santri',
-        kode: deletingItem.kode,
-        nama: deletingItem.nama,
+        aksi: isUndangan ? 'HAPUS_TAMU' : 'HAPUS_PESERTA',
+        tabel: isUndangan ? 'tamu_undangan' : 'peserta_santri',
+        kode: deletedKode,
+        nama: itemToDelete.nama,
         field: 'hapus_peserta',
-        nilai_lama: JSON.stringify(deletingItem),
-        detail: deletingItem,
+        nilai_lama: JSON.stringify(itemToDelete),
+        detail: itemToDelete,
         catatan: `Penghapusan Data ${
-          deletingItem.tipe === 'UNDANGAN' ? 'Tamu' : 'Santri'
-        } (${deletingItem.kode}) - Backup di detail`,
-      });
+          isUndangan ? 'Tamu' : 'Santri'
+        } (${deletedKode}) - Backup di detail`,
+      }).catch((err) => console.warn('Audit log error:', err));
+
+      // 4. Background refresh tanpa await
+      refreshData().catch((err) => console.warn('Background refresh error:', err));
     } catch (err: any) {
       alert(`Terjadi kesalahan saat menghapus data: ${err?.message || err}`);
-      return;
     }
-
-    store.hapusPeserta(deletingItem.kode);
-    await refreshData();
-    showToast(
-      `✓ Peserta ${deletingItem.nama} (${deletingItem.kode}) telah berhasil dihapus dari database.`
-    );
-    setDeletingItem(null);
   };
 
   const stats = useMemo(() => {

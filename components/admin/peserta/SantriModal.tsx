@@ -205,7 +205,7 @@ export default function SantriModal({
           alamat: updatePayload.alamat || existing.alamat,
         });
 
-        await logAudit({
+        logAudit({
           panitia_id: 'ADMIN_SEKRETARIAT',
           panitia_role: 'ADMIN',
           aksi: 'UPDATE_PESERTA',
@@ -219,7 +219,7 @@ export default function SantriModal({
         }).catch((err) => console.warn('Audit log error:', err));
 
         setShowAddModal(false);
-        await onEditSuccess(
+        onEditSuccess(
           `✓ Berhasil memperbarui & menggabungkan kategori santri ${existing.nama}: ${mergedSub} (Kuota: ${resolvedKuota} Kursi, Tiket: ${resolvedWarna})`
         );
 
@@ -348,7 +348,10 @@ export default function SantriModal({
   // Handler Edit Santri (Direct Supabase Update by Kode)
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingItem || editingItem.tipe !== 'SANTRI') return;
+    if (!editingItem || editingItem.tipe !== 'SANTRI' || submitLockSantri.current || isSubmittingSantri) return;
+
+    submitLockSantri.current = true;
+    setIsSubmittingSantri(true);
 
     const targetKode = editingItem.kode;
 
@@ -401,6 +404,8 @@ export default function SantriModal({
     } catch (err: any) {
       console.error('Exception updating peserta_santri:', err);
       alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
+      submitLockSantri.current = false;
+      setIsSubmittingSantri(false);
       return;
     }
 
@@ -417,7 +422,7 @@ export default function SantriModal({
       kuotaDasar: Number(editingItem.kuotaDasar || 4),
     });
 
-    await logAudit({
+    logAudit({
       panitia_id: 'ADMIN_SEKRETARIAT',
       panitia_role: 'ADMIN',
       aksi: 'EDIT_PESERTA',
@@ -428,10 +433,12 @@ export default function SantriModal({
       nilai_baru: JSON.stringify(editingItem),
       detail: editingItem,
       catatan: `Perubahan Data Santri (${targetKode})`,
-    });
+    }).catch((err) => console.warn('Audit log error:', err));
 
-    await onEditSuccess(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
+    onEditSuccess(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
     setEditingItem(null);
+    submitLockSantri.current = false;
+    setIsSubmittingSantri(false);
   };
 
   return (
@@ -819,15 +826,24 @@ export default function SantriModal({
                   <button
                     type="button"
                     onClick={() => setEditingItem(null)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold"
+                    disabled={isSubmittingSantri}
+                    className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow"
+                    disabled={isSubmittingSantri}
+                    className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Simpan Perubahan
+                    {isSubmittingSantri ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin shrink-0 text-white" />
+                        <span>Menyimpan...</span>
+                      </>
+                    ) : (
+                      'Simpan Perubahan'
+                    )}
                   </button>
                 </div>
               </form>
