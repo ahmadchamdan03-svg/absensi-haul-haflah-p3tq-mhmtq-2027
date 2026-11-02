@@ -304,7 +304,8 @@ export default function ScanCameraAndInputSection({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (kodeInput) onSubmitCode(kodeInput);
+                const liveValue = (inputRef.current?.value ?? kodeInput).trim();
+                onSubmitCode(liveValue);
               }}
               className="flex gap-2"
             >
