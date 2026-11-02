@@ -4,7 +4,10 @@ import { supabase } from './supabase';
  * Sinkronisasi kuota_terpakai pada tabel `peserta_santri` dan `tamu_undangan`
  * berdasarkan total (jumlah_l + jumlah_p) dari seluruh catatan `presensi_log` untuk kode_qr tertentu.
  */
-export async function syncKuotaTerpakai(kode: string): Promise<number> {
+export async function syncKuotaTerpakai(
+  kode: string,
+  extraSantriData?: Record<string, any>
+): Promise<number> {
   if (!kode) return 0;
 
   try {
@@ -23,10 +26,16 @@ export async function syncKuotaTerpakai(kode: string): Promise<number> {
     );
 
     // Update peserta_santri & tamu_undangan
+    const santriPayload: Record<string, any> = {
+      kuota_terpakai: totalTerpakai,
+      updated_at: new Date().toISOString(),
+      ...(extraSantriData || {}),
+    };
+
     const [resSantri, resTamu] = await Promise.all([
       supabase
         .from('peserta_santri')
-        .update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() })
+        .update(santriPayload)
         .or(`kode.eq.${kode},nis.eq.${kode}`),
       supabase
         .from('tamu_undangan')
@@ -63,20 +72,35 @@ export async function upsertPresensiLog(payload: {
   jumlah_balita?: number;
   tiket_panggung?: number;
   catatan?: string;
+  extraSantriData?: Record<string, any>;
+  existingId?: string;
 }) {
-  const { kode_qr } = payload;
+  const { kode_qr, existingId } = payload;
   if (!kode_qr) throw new Error('kode_qr required for upsertPresensiLog');
 
-  // Check existing log
-  const { data: existingLogs, error: existingErr } = await supabase
-    .from('presensi_log')
-    .select('id')
-    .eq('kode_qr', kode_qr);
+  let primaryId = existingId;
 
-  if (existingErr) throw existingErr;
+  // Jika existingId belum diketahui, cek ke database
+  if (!primaryId) {
+    const { data: existingLogs, error: existingErr } = await supabase
+      .from('presensi_log')
+      .select('id')
+      .eq('kode_qr', kode_qr);
 
-  if (existingLogs && existingLogs.length > 0) {
-    const primaryId = existingLogs[0].id;
+    if (existingErr) throw existingErr;
+
+    if (existingLogs && existingLogs.length > 0) {
+      primaryId = existingLogs[0].id;
+
+      // Clean up any duplicate legacy rows if more than 1 row exists
+      if (existingLogs.length > 1) {
+        const extraIds = existingLogs.slice(1).map((r) => r.id);
+        await supabase.from('presensi_log').delete().in('id', extraIds);
+      }
+    }
+  }
+
+  if (primaryId) {
     // Update the existing row
     const { error: updateErr } = await supabase
       .from('presensi_log')
@@ -95,12 +119,6 @@ export async function upsertPresensiLog(payload: {
       .eq('id', primaryId);
 
     if (updateErr) throw updateErr;
-
-    // Clean up any duplicate legacy rows if more than 1 row exists
-    if (existingLogs.length > 1) {
-      const extraIds = existingLogs.slice(1).map((r) => r.id);
-      await supabase.from('presensi_log').delete().in('id', extraIds);
-    }
   } else {
     // Insert new row
     const { error: insertErr } = await supabase.from('presensi_log').insert([
@@ -121,6 +139,6 @@ export async function upsertPresensiLog(payload: {
     if (insertErr) throw insertErr;
   }
 
-  // Sync kuota terpakai
-  await syncKuotaTerpakai(kode_qr);
+  // Sync kuota terpakai (dan satukan update extraSantriData jika ada)
+  await syncKuotaTerpakai(kode_qr, payload.extraSantriData);
 }

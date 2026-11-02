@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Check, AlertCircle, RotateCcw } from 'lucide-react';
+import { Check, AlertCircle, RotateCcw, Loader2 } from 'lucide-react';
 import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
 import { ScanActiveItem } from './types';
 
@@ -19,6 +19,7 @@ interface ScanResultModalsProps {
   showResetConfirmModal: boolean;
   setShowResetConfirmModal: (val: boolean) => void;
   isUpdatingKartuGold: boolean;
+  isSubmitting?: boolean;
   onToggleKartuHitamGold: () => void;
   onConfirmResetKartuHitamGold: () => void;
   onConfirmCheckin: () => void;
@@ -39,6 +40,7 @@ export default function ScanResultModals({
   showResetConfirmModal,
   setShowResetConfirmModal,
   isUpdatingKartuGold,
+  isSubmitting = false,
   onToggleKartuHitamGold,
   onConfirmResetKartuHitamGold,
   onConfirmCheckin,
@@ -296,18 +298,28 @@ export default function ScanResultModals({
                     <button
                       type="button"
                       onClick={onResetForNext}
-                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+                      disabled={isSubmitting}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Batal
                     </button>
                     <button
                       type="button"
                       onClick={onConfirmCheckin}
-                      disabled={isExceeded || (totalInput <= 0 && !isNewlyGivingGold)}
+                      disabled={isSubmitting || isExceeded || (totalInput <= 0 && !isNewlyGivingGold)}
                       className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:brightness-105 disabled:opacity-40 disabled:cursor-not-allowed text-white font-serif font-black text-xs sm:text-sm shadow-md flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
                     >
-                      <Check className="w-4 h-4 text-emerald-200" />
-                      <span>Konfirmasi Presensi / Masuk</span>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 text-emerald-200 animate-spin" />
+                          <span>Menyimpan...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 text-emerald-200" />
+                          <span>Konfirmasi Presensi / Masuk</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

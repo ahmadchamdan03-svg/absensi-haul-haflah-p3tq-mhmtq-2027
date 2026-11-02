@@ -718,14 +718,29 @@ export default function ScanPage() {
       const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
       const kodeTarget = activeItem.kode || String(activeItem.id);
 
-      // Ambil total kumulatif TERKINI dari presensi_log (bukan dari cache pop-up) agar scan bertahap akurat
+      // 1. Ambil total kumulatif TERKINI dari presensi_log untuk hitung akumulasi dan anti-duplicate guard
       const { data: currentLogs, error: currentLogsErr } = await supabase
         .from('presensi_log')
-        .select('jumlah_l, jumlah_p, jumlah_balita, tiket_panggung')
+        .select('id, jumlah_l, jumlah_p, jumlah_balita, tiket_panggung, created_at')
         .eq('kode_qr', kodeTarget);
 
       if (currentLogsErr) {
         throw new Error(`Gagal membaca presensi terkini (${currentLogsErr.message})`);
+      }
+
+      // FIX 3: Anti-Duplicate Guard 3 detik (dihitung langsung dari currentLogs, tanpa query round-trip ke-2!)
+      const now = Date.now();
+      const isRecentlySubmitted = (currentLogs || []).some((r: any) => {
+        if (!r.created_at) return false;
+        const diff = now - new Date(r.created_at).getTime();
+        return diff >= 0 && diff < 3000;
+      });
+
+      if (isRecentlySubmitted) {
+        setErrorMsg('Peringatan: Presensi untuk kode ini baru saja dicatat dalam 3 detik terakhir (Anti-Duplicate Guard).');
+        playBuzzerError();
+        setIsSubmitting(false);
+        return;
       }
 
       const prevL = (currentLogs || []).reduce((s, r: any) => s + Number(r.jumlah_l || 0), 0);
@@ -745,23 +760,12 @@ export default function ScanPage() {
         return;
       }
 
-      // Anti Race-Condition: 3 detik
-      const threeSecAgo = new Date(Date.now() - 3000).toISOString();
-      const { data: recentDup } = await supabase
-        .from('presensi_log')
-        .select('id, created_at')
-        .eq('kode_qr', kodeTarget)
-        .gte('created_at', threeSecAgo)
-        .limit(1);
+      // FIX 3: Satukan update tiket_panggung_diberi ke dalam satu panggilan update() lewat extraSantriData
+      const extraSantriData = (activeItem.tipe === 'KELUARGA' && nextTiketPanggung > 0)
+        ? { tiket_panggung_diberi: nextTiketPanggung }
+        : undefined;
 
-      if (recentDup && recentDup.length > 0) {
-        setErrorMsg('Peringatan: Presensi untuk kode ini baru saja dicatat dalam 3 detik terakhir (Anti-Duplicate Guard).');
-        playBuzzerError();
-        setIsSubmitting(false);
-        return;
-      }
-
-      // 2. Upsert ke presensi_log (INSERT jika belum ada, UPDATE nilai kumulatif jika sudah ada)
+      // 2. Upsert ke presensi_log + sync kuota_terpakai (dan satukan update peserta_santri)
       try {
         await upsertPresensiLog({
           kode_qr: kodeTarget,
@@ -774,6 +778,8 @@ export default function ScanPage() {
           jumlah_balita: prevBalita + jumlahBalita,
           tiket_panggung: prevTiketPanggung || (isNewlyGivingGold ? 1 : 0),
           catatan: `Scan Pintu ${jalur}`,
+          extraSantriData,
+          existingId: currentLogs && currentLogs.length > 0 ? currentLogs[0].id : undefined,
         });
       } catch (logErr: any) {
         setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message || logErr}`);
@@ -782,42 +788,9 @@ export default function ScanPage() {
         return;
       }
 
-      // 3. Update tiket_panggung_diberi bila perlu
-      if (activeItem.tipe === 'KELUARGA' && nextTiketPanggung > 0) {
-        await supabase
-          .from('peserta_santri')
-          .update({
-            tiket_panggung_diberi: nextTiketPanggung,
-          })
-          .eq('id', activeItem.id);
-      }
-
-      // kuota_terpakai sudah disinkronkan di dalam upsertPresensiLog (syncKuotaTerpakai)
       const totalTerpakai = nextTotal;
 
-      await logAudit({
-        panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
-        panitia_role: 'PENJAGA_GERBANG',
-        aksi: 'TANDAI_HADIR',
-        tabel: activeItem.tipe === 'KELUARGA' ? 'peserta_santri' : 'tamu_undangan',
-        kode: kodeTarget,
-        nama: activeItem.nama || activeItem.namaSantri || 'Peserta',
-        field: 'kuota_terpakai',
-        nilai_lama: String(prevL + prevP),
-        nilai_baru: String(totalTerpakai),
-        detail: {
-          tambahan_l: jumlahL,
-          tambahan_p: jumlahP,
-          total_l: nextL,
-          total_p: nextP,
-          jumlah_balita: jumlahBalita,
-          jalur,
-          tiket_panggung: isNewlyGivingGold,
-        },
-        catatan: `Scan Presensi Pintu ${jalur} (+${jumlahL} L / +${jumlahP} P → total ${nextL} L / ${nextP} P)`,
-      });
-
-      await fetchRecentScans();
+      // FIX 2: Tampilkan hasil sukses SEGERA (Optimistic & Super Fast Response < 1 detik)
       playSuccessChime();
 
       confetti({
@@ -844,10 +817,36 @@ export default function ScanPage() {
       });
 
       setActiveItem(updatedItem);
+      setIsSubmitting(false);
+
+      // FIX 4: Asinkronkan proses non-kritis (fire-and-forget di background tanpa menahan tampilan sukses)
+      logAudit({
+        panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
+        panitia_role: 'PENJAGA_GERBANG',
+        aksi: 'TANDAI_HADIR',
+        tabel: activeItem.tipe === 'KELUARGA' ? 'peserta_santri' : 'tamu_undangan',
+        kode: kodeTarget,
+        nama: activeItem.nama || activeItem.namaSantri || 'Peserta',
+        field: 'kuota_terpakai',
+        nilai_lama: String(prevL + prevP),
+        nilai_baru: String(totalTerpakai),
+        detail: {
+          tambahan_l: jumlahL,
+          tambahan_p: jumlahP,
+          total_l: nextL,
+          total_p: nextP,
+          jumlah_balita: jumlahBalita,
+          jalur,
+          tiket_panggung: isNewlyGivingGold,
+        },
+        catatan: `Scan Presensi Pintu ${jalur} (+${jumlahL} L / +${jumlahP} P → total ${nextL} L / ${nextP} P)`,
+      }).catch((auditErr) => console.error('[Non-blocking logAudit error]', auditErr));
+
+      // fetchRecentScans dipanggil non-blocking (Realtime subscription juga mengupdate secara otomatis)
+      fetchRecentScans().catch((err) => console.error('[Non-blocking fetchRecentScans error]', err));
     } catch (e: any) {
       console.error('Error during checkin confirmation:', e);
       setErrorMsg(`Gagal memproses presensi: ${e.message || e}`);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -905,6 +904,7 @@ export default function ScanPage() {
         showResetConfirmModal={showResetConfirmModal}
         setShowResetConfirmModal={setShowResetConfirmModal}
         isUpdatingKartuGold={isUpdatingKartuGold}
+        isSubmitting={isSubmitting}
         onToggleKartuHitamGold={handleToggleKartuHitamGold}
         onConfirmResetKartuHitamGold={handleConfirmResetKartuHitamGold}
         onConfirmCheckin={handleConfirmCheckin}
