@@ -10,6 +10,9 @@ import {
   Check,
   User,
   Settings,
+  Download,
+  FileSpreadsheet,
+  FileText,
 } from 'lucide-react';
 import {
   EXPRESSION_AVATARS,
@@ -17,6 +20,7 @@ import {
   renderFormattedContent,
 } from './tanya-us-helpers';
 import { PieChartWidget } from './TanyaUsCharts';
+import { exportTextToPdf, exportTableToExcel, exportTextToDocx } from '@/lib/halwaa/file-exporter';
 
 export function TanyaUsHeaderAndSettings({
   isLoading,
@@ -155,8 +159,29 @@ export function TanyaUsMessageList({
 }) {
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
-      {messages.map((msg) => {
+      {messages.map((msg, msgIndex) => {
         const isUser = msg.role === 'user';
+        const prevUserMsg = msgIndex > 0 ? messages[msgIndex - 1] : null;
+        const userAskedPdf =
+          !isUser &&
+          prevUserMsg?.role === 'user' &&
+          /(buatkan|bikin|unduh|download|ekspor|jadikan).*?(pdf)|(\bpdf\b)/i.test(prevUserMsg.content);
+        const userAskedDocx =
+          !isUser &&
+          prevUserMsg?.role === 'user' &&
+          /(buatkan|bikin|unduh|download|ekspor|jadikan).*?(word|docx)|(\bdocx?\b|\bword\b)/i.test(prevUserMsg.content);
+        const userAskedExcel =
+          !isUser &&
+          prevUserMsg?.role === 'user' &&
+          /(buatkan|bikin|unduh|download|ekspor|jadikan).*?(excel|xlsx|spreadsheet)|(\bxlsx?\b|\bexcel\b)/i.test(prevUserMsg.content);
+
+        const hasPdfTag = /\[DOWNLOAD_PDF:/i.test(msg.content);
+        const hasDocxTag = /\[DOWNLOAD_DOCX:/i.test(msg.content);
+        const hasTable = /\|.*?\|.*?\|/.test(msg.content);
+
+        const showPdfButton = userAskedPdf && !hasPdfTag;
+        const showDocxButton = userAskedDocx && !hasDocxTag;
+        const showExcelButton = userAskedExcel && !hasTable;
         return (
           <div
             key={msg.id}
@@ -221,6 +246,50 @@ export function TanyaUsMessageList({
                 {renderFormattedContent(msg.content, handleNavigate, isUser)}
                 {!isUser && msg.chart && <PieChartWidget chart={msg.chart} />}
               </div>
+
+              {/* Tombol Unduhan File Tambahan HANYA jika diminta oleh pengguna di pertanyaan sebelumnya */}
+              {!isUser && (showPdfButton || showDocxButton || showExcelButton) && (
+                <div className="pt-2 border-t border-[#EFE8E1] flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-[#7A624E] font-medium flex items-center gap-1">
+                    <Download className="w-3 h-3 text-[#8C6A47]" />
+                    Unduh Berkas yang Diminta:
+                  </span>
+                  {showPdfButton && (
+                    <button
+                      type="button"
+                      onClick={() => exportTextToPdf('Dokumen Haflah P3TQ', msg.content)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
+                    >
+                      <FileText className="w-3 h-3" />
+                      <span>Unduh PDF</span>
+                    </button>
+                  )}
+                  {showDocxButton && (
+                    <button
+                      type="button"
+                      onClick={() => exportTextToDocx('Dokumen Haflah P3TQ', msg.content)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
+                    >
+                      <FileText className="w-3 h-3" />
+                      <span>Unduh Word (.docx)</span>
+                    </button>
+                  )}
+                  {showExcelButton && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const lines = msg.content.split('\n').filter((l) => l.trim().length > 0);
+                        const rows = lines.map((l, i) => [i + 1, l.replace(/^[\*\-\d\.\s]+/, '')]);
+                        exportTableToExcel(['No', 'Uraian'], rows, 'Ringkasan_Haflah');
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
+                    >
+                      <FileSpreadsheet className="w-3 h-3" />
+                      <span>Unduh Excel (.xlsx)</span>
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Tombol Copy untuk Assistant */}
               {!isUser && (

@@ -284,6 +284,19 @@ KALENDER KERJA UTAMA:
 - Gladikotor: Sabtu, 12 Desember 2026 (03 Rajab 1448 H)
 - Gladibersih: Rabu, 16 Desember 2026 (07 Rajab 1448 H)
 - HAUL HAFLAH AKHIRUSSANAH: Sabtu, 02 Januari 2027 (24 Rajab 1448 H)
+
+=============================================================================
+ATURAN MULTIMEDIA & FILE (SANGAT KETAT):
+=============================================================================
+1. JANGAN PERNAH menawarkan untuk membuat gambar, link, atau file (PDF/Excel/Word) di akhir jawaban. Cukup jawab pertanyaan user. Buat HANYA jika user memintanya secara eksplisit.
+2. JIKA DIMINTA MEMBUAT GAMBAR:
+   - Gunakan format Markdown: ![Deskripsi](https://image.pollinations.ai/prompt/deskripsi_gambar?width=600&height=400&nologo=true). Ganti spasi di deskripsi dengan %20.
+3. JIKA DIMINTA MEMBERIKAN LINK:
+   - Berikan link Markdown: [Nama Website](https://url.com). Pastikan link valid dan relevan.
+4. JIKA DIMINTA MEMBUAT FILE EXCEL/DATA TABEL:
+   - Gunakan format markdown tabel standar agar UI bisa mendeteksi dan menawarkan tombol download.
+5. JIKA DIMINTA MEMBUAT PDF/WORD:
+   - Berikan jawaban teks yang rapi. (Catatan untuk UI: Deteksi jika user meminta PDF/Word, lalu tampilkan tombol download di bawah pesan).
 `;
 
 export async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
@@ -292,6 +305,45 @@ export async function generateLocalSmartResponseAsync(userQuery: string, isFirst
   // 0. FITUR REKAP KEHADIRAN REALTIME
   if (detectRekapKehadiranIntent(userQuery)) {
     return await getLiveRekapKehadiran(isFirstTurn);
+  }
+
+  // 0. FITUR GENERASI GAMBAR (HANYA JIKA DIMINTA EKSPLISIT)
+  if (
+    q.includes('gambar') &&
+    (q.includes('buat') || q.includes('bikin') || q.includes('tampil') || q.includes('ilustrasi') || q.includes('foto') || q.includes('desain'))
+  ) {
+    const rawSubject = userQuery
+      .replace(/tolong\s+/gi, '')
+      .replace(/(buatkan|bikinkan|tampilkan|minta|generate)\s+gambar\s*(ilustrasi)?/gi, '')
+      .replace(/gambar\s*(ilustrasi)?/gi, '')
+      .trim() || 'panggung haflah pesantren lirboyo kediri';
+    const cleanSubject = encodeURIComponent(rawSubject);
+    return `Berikut ilustrasi gambar yang Anda minta, Us:\n\n![${rawSubject}](https://image.pollinations.ai/prompt/${cleanSubject}?width=600&height=400&nologo=true)`;
+  }
+
+  // 0. FITUR PENCARIAN LINK (HANYA JIKA DIMINTA EKSPLISIT)
+  if (q.includes('link') || q.includes('tautan') || q.includes('website') || q.includes('toko')) {
+    if (q.includes('shopee') || q.includes('seragam') || q.includes('beli')) {
+      return `Tentu Us, berikut link pencarian seragam dan perlengkapan santri di Shopee:\n\n[Toko Seragam Santri di Shopee](https://shopee.co.id/search?keyword=seragam%20santri)`;
+    }
+    if (q.includes('lirboyo') || q.includes('pondok') || q.includes('pesantren')) {
+      return `Tentu Us, berikut tautan resmi Pondok Pesantren Lirboyo Kediri:\n\n[Portal Resmi Pondok Pesantren Lirboyo](https://lirboyo.net)`;
+    }
+  }
+
+  // 0. FITUR FILE EXCEL / TABEL DATA (HANYA JIKA DIMINTA EKSPLISIT)
+  if (q.includes('excel') || q.includes('xlsx') || q.includes('tabel') || q.includes('table')) {
+    if (q.includes('pos')) {
+      return `Berikut daftar 8 Pos Penerima Tamu dalam format tabel data, Us:\n\n| No | Nama Pos | Tugas Utama | Lokasi |\n| --- | --- | --- | --- |\n| 1 | Pos 1 | Sambut Tamu VVIP & Masyayikh | Lobi Utama Aula |\n| 2 | Pos 2 | Meja Registrasi & Kartu Undangan | Sayap Barat Gerbang |\n| 3 | Pos 3 | Pemeriksaan Barcode Gerbang | Pintu Gerbang Bola Dunia |\n| 4 | Pos 4 | Meja Rekonsiliasi & Kuota | Samping Pos Registrasi |\n| 5 | Pos 5 | Distribusi Konsumsi & Souvenir | Selasar Aula Timur |\n| 6 | Pos 6 | Pengarah Zonasi Duduk | Pintu Masuk Aula |\n| 7 | Pos 7 | Pos Medis & Pertolongan Pertama | Samping Panggung Utama |\n| 8 | Pos 8 | Pusat Informasi & Pengaduan | Depan Kantor Sekretariat |`;
+    }
+    return `Berikut rekap data dalam format tabel excel yang siap diunduh, Us:\n\n| No | Kategori Peserta | Kuota Dasar | Tiket |\n| --- | --- | --- | --- |\n| 1 | Santri Bil Ghoib | 4 Kursi | Emas Panggung |\n| 2 | Santri Bin Nadzor | 2 Kursi | Reguler Biru |\n| 3 | Tamatan Aliyah | 2 Kursi | Reguler Biru |\n| 4 | Tamu Undangan VIP | 2 Kursi | VIP Istimewa |`;
+  }
+
+  // 0. FITUR FILE PDF / WORD (HANYA JIKA DIMINTA EKSPLISIT)
+  if (q.includes('pdf') || q.includes('word') || q.includes('docx')) {
+    const isDocx = q.includes('word') || q.includes('docx');
+    const tag = isDocx ? '[DOWNLOAD_DOCX: Dokumen_Ringkasan_Haflah]' : '[DOWNLOAD_PDF: Dokumen_Ringkasan_Haflah]';
+    return `Tentu Us, berikut dokumen ${isDocx ? 'Word' : 'PDF'} yang telah saya susun rapi:\n\n${tag}\n\n### Panduan Resmi Haul & Haflah P3TQ & MHMTQ\n* Acara: Haul & Haflah Akhirussanah 1448 H / 2027 M\n* Hari, Tanggal: Sabtu, 02 Januari 2027 (24 Rajab 1448 H)\n* Lokasi: Pondok Pesantren Putri Tahfizhil Qur-an Lirboyo Kediri\n* Kehadiran: Seluruh santri, wali santri, masyayikh, dan tamu undangan.`;
   }
 
   // 0. FITUR INFO BAGAN/SEKSI KEPANITIAAN
@@ -1018,6 +1070,15 @@ Ada lagi info yang bisa saya bantu, Us?`;
   return `${headerIntro}Wonten ingkang saget dibantu Us? Silakan sampaikan pertanyaan seputar pelaksanaan Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M., Usth. Halwaa siap membantu dengan senang hati! 😊`;
 }
 
+export function cleanAIResponse(
+  rawReply: string,
+  userPrompt?: string,
+  isFirstTurn: boolean = false,
+  role: string = 'WALI'
+): string {
+  return cleanReplyForSession(rawReply, isFirstTurn, userPrompt, role);
+}
+
 export function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, userPrompt?: string, role: string = 'WALI'): string {
   let reply = rawReply.trim();
 
@@ -1143,6 +1204,12 @@ export function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, use
   ) {
     const closingMotivasi = getRandomMotivasi('energi_positif');
     reply += `\n\n${closingMotivasi}`;
+  }
+
+  // ATURAN EMAS (NO UNSOLICITED OFFER): Hapus tawaran proaktif pembuatan file/gambar di akhir jawaban jika user tidak memintanya
+  const userAskedForMediaOrFile = !!userPrompt && /(gambar|foto|pdf|word|docx|excel|xlsx|tabel|unduh|download|link)/i.test(userPrompt);
+  if (!userAskedForMediaOrFile) {
+    reply = reply.replace(/(\n|^)[^\n]*?(apakah\s+(anda|kamu|us)\s+(ingin|mau|perlu|butuh)|jika\s+(anda|kamu|us)\s+(butuh|perlu|ingin)|beri\s+tahu\s+saya\s+jika)[^\n]*?(buatkan|bikin|unduh|ekspor|format|versi)?[^\n]*?(pdf|word|excel|docx|xlsx|file|gambar|dokumen)[^\n]*\??/gi, '');
   }
 
   return reply;

@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ExternalLink, FileSpreadsheet, FileText, Download } from 'lucide-react';
+import { exportTextToPdf, exportTableToExcel, exportTextToDocx } from '@/lib/halwaa/file-exporter';
 
 export type UstadzahExpression =
   | 'wave'
@@ -230,6 +231,7 @@ export function renderFormattedContent(
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let currentList: React.ReactNode[] = [];
+  let currentTableLines: string[] = [];
 
   const textColor = isUser ? 'text-[#2D1B0E]' : 'text-[#543C28]';
   const strongColor = isUser ? 'text-[#1A0E06]' : 'text-[#422F21]';
@@ -247,15 +249,117 @@ export function renderFormattedContent(
     }
   };
 
+  const flushTable = () => {
+    if (currentTableLines.length === 0) return;
+
+    // Parse markdown table rows
+    const rawRows = currentTableLines.map((line) =>
+      line
+        .split('|')
+        .map((c) => c.trim())
+        .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
+    );
+
+    const isSeparator = (cells: string[]) => cells.every((c) => /^[-:\s]+$/.test(c));
+    const headerRow = rawRows[0] || [];
+    const dataRows = rawRows.slice(1).filter((r) => !isSeparator(r));
+
+    const tableKey = `table-${elements.length}`;
+    elements.push(
+      <div
+        key={tableKey}
+        className="my-3 overflow-hidden rounded-2xl border border-[#D5C4B4] bg-[#FDFBF7] shadow-xs"
+      >
+        <div className="overflow-x-auto max-h-72">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-[#EFE8E1] border-b border-[#D5C4B4] text-[#543C28] font-bold">
+                {headerRow.map((h, i) => (
+                  <th key={i} className="p-2.5 border-r border-[#D5C4B4] last:border-r-0 whitespace-nowrap">
+                    {parseInline(h)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dataRows.map((row, rIdx) => (
+                <tr
+                  key={rIdx}
+                  className="border-b border-[#EFE8E1] last:border-b-0 hover:bg-[#F5EFE8] transition-colors"
+                >
+                  {row.map((cell, cIdx) => (
+                    <td
+                      key={cIdx}
+                      className="p-2.5 border-r border-[#EFE8E1] last:border-r-0 text-[#2D1B0E]"
+                    >
+                      {parseInline(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-2.5 bg-[#F7F2EC] border-t border-[#D5C4B4] flex items-center justify-between flex-wrap gap-2 text-[11px]">
+          <span className="text-[#735334] font-bold flex items-center gap-1.5">
+            <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+            <span>Tabel Data Haflah ({dataRows.length} baris)</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => exportTableToExcel(headerRow, dataRows, 'Tabel_Data_Haflah')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+            title="Unduh data tabel dalam format spreadsheet Excel"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Unduh Excel (.xlsx)</span>
+          </button>
+        </div>
+      </div>
+    );
+
+    currentTableLines = [];
+  };
+
   const hasArabic = (str: string) =>
     /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(str);
 
   const parseInline = (line: string): React.ReactNode => {
+    // Regex splits images (![...](...)), links ([...](...)), bold (**...**), and Arabic blocks
     const parts = line.split(
-      /(\[.*?\]\(.*?\)|\*\*.*?\*\*|[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\u0660-\u0669\s]{3,})/g
+      /(!\[.*?\\\]\(.*?\)|\b\[.*?\]\(.*?\)|\*\*.*?\*\*|[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\u0660-\u0669\s]{3,})/g
     );
     return parts.map((part, idx) => {
       if (!part) return null;
+
+      // Gambar Markdown inline: ![alt](url)
+      if (part.startsWith('![') && part.endsWith(')')) {
+        const imgMatch = part.match(/^!\[(.*?)\]\((.*?)\)$/);
+        if (imgMatch) {
+          const alt = imgMatch[1];
+          const url = imgMatch[2];
+          return (
+            <span
+              key={idx}
+              className="block my-2 rounded-xl overflow-hidden border border-[#D5C4B4] bg-[#FDFBF7] shadow-xs"
+            >
+              <img
+                src={url}
+                alt={alt || 'Ilustrasi Haflah'}
+                className="w-full max-h-64 object-cover"
+                loading="lazy"
+              />
+              {alt && (
+                <span className="block p-1.5 text-[10px] text-[#735334] bg-[#F7F2EC] text-center font-medium">
+                  {alt}
+                </span>
+              )}
+            </span>
+          );
+        }
+      }
+
+      // Bold text: **bold**
       if (part.startsWith('**') && part.endsWith('**')) {
         const boldText = part.slice(2, -2);
         if (hasArabic(boldText)) {
@@ -275,10 +379,30 @@ export function renderFormattedContent(
           </strong>
         );
       }
+
+      // Link Markdown [label](url)
       const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
       if (linkMatch) {
         const label = linkMatch[1];
         const url = linkMatch[2];
+        const isExternal = /^https?:\/\//i.test(url);
+
+        if (isExternal) {
+          return (
+            <a
+              key={idx}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 my-0.5 mx-0.5 rounded-lg bg-[#F5EFE8] hover:bg-[#EFE8E1] text-[#735334] hover:text-[#543C28] font-bold text-xs border border-[#D5C4B4] transition-all underline underline-offset-2 decoration-[#8C6A47]/40 hover:decoration-[#8C6A47] cursor-pointer"
+              title={`Kunjungi tautan eksternal: ${label}`}
+            >
+              <span>{label}</span>
+              <ExternalLink className="w-3 h-3 text-[#8C6A47] shrink-0" />
+            </a>
+          );
+        }
+
         return (
           <button
             key={idx}
@@ -292,6 +416,8 @@ export function renderFormattedContent(
           </button>
         );
       }
+
+      // Bahasa Arab
       if (hasArabic(part) && part.trim().length > 0) {
         return (
           <span
@@ -303,6 +429,7 @@ export function renderFormattedContent(
           </span>
         );
       }
+
       return part;
     });
   };
@@ -310,9 +437,122 @@ export function renderFormattedContent(
   lines.forEach((line, index) => {
     const trimmed = line.trim();
 
+    // Cek apakah baris ini bagian dari Markdown Table
+    if (trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.length > 2) {
+      flushList();
+      currentTableLines.push(trimmed);
+      return;
+    } else {
+      flushTable();
+    }
+
     if (!trimmed) {
       flushList();
       elements.push(<div key={`space-${index}`} className="h-1.5" />);
+      return;
+    }
+
+    // Single Markdown Image pada baris tersendiri: ![alt](url)
+    const singleImgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+    if (singleImgMatch) {
+      flushList();
+      const alt = singleImgMatch[1];
+      const url = singleImgMatch[2];
+      elements.push(
+        <div
+          key={`img-card-${index}`}
+          className="my-3 rounded-2xl overflow-hidden border border-[#D5C4B4] bg-[#FDFBF7] shadow-xs"
+        >
+          <div className="relative w-full aspect-video max-h-[300px] bg-stone-100 flex items-center justify-center overflow-hidden">
+            <img
+              src={url}
+              alt={alt || 'Ilustrasi Haflah'}
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              loading="lazy"
+            />
+          </div>
+          {alt && (
+            <div className="px-3 py-2 text-[11px] text-[#735334] font-medium flex items-center justify-between border-t border-[#EFE8E1] bg-[#F7F2EC]">
+              <span className="truncate pr-2 font-medium">{alt}</span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[10px] text-[#8C6A47] hover:underline font-bold shrink-0"
+              >
+                <span>Lihat Ukuran Penuh</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          )}
+        </div>
+      );
+      return;
+    }
+
+    // Unduhan PDF Card: [DOWNLOAD_PDF: Judul Dokumen]
+    const pdfMatch = trimmed.match(/^\[DOWNLOAD_PDF:\s*(.*?)\]$/i);
+    if (pdfMatch) {
+      flushList();
+      const title = pdfMatch[1] || 'Dokumen Haflah P3TQ & MHMTQ';
+      elements.push(
+        <div
+          key={`dl-pdf-${index}`}
+          className="my-3 p-3.5 rounded-2xl border border-red-200 bg-red-50/70 flex items-center justify-between gap-3 shadow-xs"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center text-red-700 shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-red-950 truncate">{title}</div>
+              <div className="text-[10px] text-red-700">Format Dokumen PDF Siap Cetak (.pdf)</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => exportTextToPdf(title, text.replace(/\[DOWNLOAD_.*?\]/gi, '').trim())}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+            title="Unduh dokumen PDF ke perangkat"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Unduh PDF</span>
+          </button>
+        </div>
+      );
+      return;
+    }
+
+    // Unduhan DOCX Card: [DOWNLOAD_DOCX: Judul Dokumen]
+    const docxMatch = trimmed.match(/^\[DOWNLOAD_DOCX:\s*(.*?)\]$/i);
+    if (docxMatch) {
+      flushList();
+      const title = docxMatch[1] || 'Dokumen Haflah P3TQ & MHMTQ';
+      elements.push(
+        <div
+          key={`dl-docx-${index}`}
+          className="my-3 p-3.5 rounded-2xl border border-blue-200 bg-blue-50/70 flex items-center justify-between gap-3 shadow-xs"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-blue-950 truncate">{title}</div>
+              <div className="text-[10px] text-blue-700">Format Microsoft Word (.docx)</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => exportTextToDocx(title, text.replace(/\[DOWNLOAD_.*?\]/gi, '').trim())}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+            title="Unduh dokumen Word ke perangkat"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Unduh Word (.docx)</span>
+          </button>
+        </div>
+      );
       return;
     }
 
@@ -418,5 +658,6 @@ export function renderFormattedContent(
   });
 
   flushList();
+  flushTable();
   return elements;
 }
