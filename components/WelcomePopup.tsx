@@ -51,9 +51,9 @@ export function WelcomePopup({ userName, onClose }: Props) {
             ✦ HAFLAH AKHIRUSSANAH ✦
           </p>
 
-          <div className="text-xs md:text-sm font-serif text-[#422F21] leading-relaxed space-y-1">
-            <p>Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)</p>
-            <p>Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)</p>
+          <div className="text-xs md:text-sm font-serif text-[#422F21] leading-relaxed space-y-1 overflow-hidden">
+            <p className="whitespace-nowrap text-[10px] sm:text-xs md:text-sm">Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)</p>
+            <p className="whitespace-nowrap text-[9px] sm:text-xs md:text-sm tracking-tight sm:tracking-normal">Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)</p>
           </div>
 
           <button

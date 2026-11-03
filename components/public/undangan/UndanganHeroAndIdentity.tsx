@@ -26,16 +26,16 @@ export function TamuHeroAndEventSections({
 }) {
   return (
     <>
-      {/* 1. HEADER KARTU UNDANGAN */}
+      {/* 1. HEADER RESMI MELAYANG (FLOATING) */}
       <ScrollReveal delay={50}>
-        <GlassCard className="p-4 sm:p-6 border-2 border-[#D5C4B4]/80 shadow-md">
+        <div className="p-2 sm:p-4 text-center">
           <HeaderUndangan titleType="UNDANGAN RESMI" />
-        </GlassCard>
+        </div>
       </ScrollReveal>
 
       {/* 2. KARTU IDENTITAS TAMU UNDANGAN & SAMBUTAN FORMAL ISLAMI */}
       <ScrollReveal delay={150}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#D5C4B4]/80 shadow-md space-y-4 relative overflow-hidden">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 relative overflow-hidden">
           <div
             dir="rtl"
             lang="ar"
@@ -92,7 +92,7 @@ export function TamuHeroAndEventSections({
 
       {/* 3. KARTU DETAIL PELAKSANAAN ACARA */}
       <ScrollReveal delay={200}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4">
           <div className="text-center space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
               Pelaksanaan Acara
@@ -227,19 +227,19 @@ export function WaliHeroAndIdentitySections({
 }) {
   return (
     <>
-      {/* 1. HEADER KARTU UNDANGAN WALI */}
+      {/* 1. HEADER RESMI WALI MELAYANG (FLOATING) */}
       <ScrollReveal delay={50}>
-        <GlassCard className="p-4 sm:p-6 border-2 border-[#D5C4B4]/80 shadow-md">
+        <div className="p-2 sm:p-4 text-center">
           <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
             UNDANGAN RESMI WALI SANTRI
           </div>
           <HeaderUndanganWali />
-        </GlassCard>
+        </div>
       </ScrollReveal>
 
       {/* 2. PROFIL SANTRIWATI & WALI SANTRI (PERBAIKAN 3 & 5: RAPIKAN GRID MOBILE) */}
       <ScrollReveal delay={100}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4">
           <div className="text-center space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
               Shohibul Hajat
@@ -273,7 +273,7 @@ export function WaliHeroAndIdentitySections({
 
       {/* 3. KALIMAT SAMBUTAN FORMAL ISLAMI & INFO MAHSYAYIKH */}
       <ScrollReveal delay={150}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#D5C4B4]/80 shadow-sm space-y-4 text-[#422F21]">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 text-[#422F21]">
           <div
             dir="rtl"
             lang="ar"
@@ -315,7 +315,7 @@ export function WaliHeroAndIdentitySections({
 
       {/* RANGKAIAN ADICARA UTAMA & TATA TERTIB SAMBANGAN */}
       <ScrollReveal delay={200}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5">
           <div className="space-y-3">
             <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
               Rangkaian Acara Haflah Akhirussanah P3TQ dan MHMTQ 1448 H. / 2027 M.

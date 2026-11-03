@@ -12,7 +12,7 @@ import {
   getAmbiguousKodeVariants,
 } from '@/lib/utils';
 import DenahModal from '@/components/DenahModal';
-import PortalBackground from '@/components/PortalBackground';
+import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import DaftarShohibulHajatModal from '@/components/DaftarShohibulHajatModal';
 import { getNamaPenerima } from '@/components/public/undangan/types';
 import {
@@ -735,7 +735,8 @@ export default function UndanganWaliPage() {
 
   return (
     <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
-      <PortalBackground />
+      {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR) */}
+      <CanvasRevealMask />
 
       {/* Audio Elemen Tersembunyi */}
       <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="none" />

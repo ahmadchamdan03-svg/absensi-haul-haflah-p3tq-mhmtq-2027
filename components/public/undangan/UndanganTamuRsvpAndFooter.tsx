@@ -31,7 +31,7 @@ export default function UndanganTamuRsvpAndFooter({
     <>
       {/* 6a. KARTU QR CODE GERBANG MASUK TAMU */}
       <ScrollReveal delay={350}>
-        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47]/70 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-5">
+        <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-5">
           <div className="space-y-1">
             <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
               KODE AKSES RESMI LOKASI ACARA
@@ -48,7 +48,7 @@ export default function UndanganTamuRsvpAndFooter({
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <div className="p-4 rounded-3xl bg-white/70 backdrop-blur-xs border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+            <div className="p-4 rounded-3xl bg-white/70 backdrop-blur-xs border border-white/80 shadow-xs max-w-[260px] w-full aspect-square flex items-center justify-center">
               {item?.kode || kodeSH ? (
                 <QRCode
                   value={fullQrPayload || formatQrPayloadSync(item?.kode || kodeSH)}

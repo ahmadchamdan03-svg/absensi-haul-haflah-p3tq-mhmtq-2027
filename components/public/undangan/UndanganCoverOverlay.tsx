@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { AlertCircle, MessageCircle, MailOpen, ChevronDown } from 'lucide-react';
-import PortalBackground from '@/components/PortalBackground';
+import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
 import HeaderUndangan from '@/components/HeaderUndangan';
@@ -13,8 +13,8 @@ import { renderTamuName, renderAlamatTamu } from './UndanganEffects';
 export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
   return (
     <div className="min-h-screen bg-[#FAF7F3] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10">
-      <PortalBackground />
-      <div className="max-w-md w-full bg-white/85 backdrop-blur-md border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 relative z-20">
+      <CanvasRevealMask />
+      <div className="max-w-md w-full p-6 sm:p-8 space-y-6 relative z-20">
         <div className="flex justify-center">
           <img
             src="/images/logo-haul-gold.png"
@@ -76,7 +76,7 @@ export function UndanganCoverTamu({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
       <ScrollReveal>
-        <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 relative overflow-hidden">
+        <div className="max-w-md w-full p-2 sm:p-4 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
           <HeaderUndangan titleType="UNDANGAN RESMI" />
 
           <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
@@ -86,7 +86,7 @@ export function UndanganCoverTamu({
           </div>
 
           <div className="space-y-1.5 py-1">
-            <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
+            <span className="text-xs text-stone-600 uppercase tracking-wider font-semibold">
               Kepada Yth. Bapak/Ibu/Saudara:
             </span>
             {renderTamuName(item)}
@@ -111,7 +111,7 @@ export function UndanganCoverTamu({
               <ChevronDown className="w-4 h-4 text-[#8C6A47]" />
             </div>
           </div>
-        </GlassCard>
+        </div>
       </ScrollReveal>
     </div>
   );
@@ -129,8 +129,8 @@ export function UndanganCoverWali({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
       <ScrollReveal>
-        <GlassCard className="max-w-md w-full p-6 sm:p-10 border-2 border-[#D5C4B4]/80 shadow-2xl space-y-6 relative overflow-hidden">
-          <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center">
+        <div className="max-w-md w-full p-2 sm:p-4 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
+          <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
             UNDANGAN RESMI WALI SANTRI
           </div>
 
@@ -139,13 +139,13 @@ export function UndanganCoverWali({
           <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
 
           <div className="space-y-2 py-1">
-            <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold">
+            <span className="text-xs text-stone-600 uppercase tracking-wider font-semibold">
               Kepada Yth. Bapak/Ibu Wali Santri dari:
             </span>
-            <h2 className="text-lg sm:text-xl font-serif font-black text-[#422F21]">
+            <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21] drop-shadow-xs">
               {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
             </h2>
-            <div className="inline-block px-3 py-1 rounded-full bg-[#FAF0E6]/90 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] max-w-full leading-normal break-words text-center">
+            <div className="inline-block px-3.5 py-1 rounded-full bg-white/70 backdrop-blur-xs text-[#8C6A47] text-xs font-bold border border-white/80 max-w-full leading-normal break-words text-center shadow-xs">
               {santri
                 ? santri.kamar && santri.kamar !== '-'
                   ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
@@ -171,7 +171,7 @@ export function UndanganCoverWali({
               <ChevronDown className="w-4 h-4 text-[#8C6A47]" />
             </div>
           </div>
-        </GlassCard>
+        </div>
       </ScrollReveal>
     </div>
   );
