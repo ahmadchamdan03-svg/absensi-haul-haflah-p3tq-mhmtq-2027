@@ -1,18 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Plus, Edit, X, History, Loader2 } from 'lucide-react';
-import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
-import { logAudit } from '@/lib/audit-log';
-import {
-  BAGIAN_TAMATAN_LIST,
-  getWarnaTiketSantri,
-  calculateKuotaDasarSantri,
-  mergeSubKategori,
-  resolvePriorityKategoriUtama,
-} from '@/lib/types';
-import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
+import { useSantriForm } from '@/lib/hooks/useSantriForm';
+import SantriBiodataTab from './modal/SantriBiodataTab';
+import SantriKuotaTab from './modal/SantriKuotaTab';
+import SantriAuditHistoryTab from './modal/SantriAuditHistoryTab';
 
 export interface SantriModalProps {
   showAddModal: boolean;
@@ -31,420 +24,29 @@ export default function SantriModal({
   onAddSuccess,
   onEditSuccess,
 }: SantriModalProps) {
-  // State & Ref Guard Anti-Duplikasi Submit
-  const [isSubmittingSantri, setIsSubmittingSantri] = useState(false);
-  const submitLockSantri = useRef(false);
-
-  // Form state tambah santri (tanpa Sub-Kategori / Juz / Tingkat)
-  const [formData, setFormData] = useState({
-    nama: '',
-    kategoriUtama: 'BIL_GHOIB' as 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN',
-    bagianTamatan: 'A.01',
-    kamar: '',
-    namaWali: '',
-    noHp: '',
-    alamat: '',
+  const {
+    formData,
+    setFormData,
+    isSubmittingSantri,
+    editModalTab,
+    setEditModalTab,
+    itemAuditHistory,
+    loadingAuditHistory,
+    isEditingSantri,
+    handleTambahPeserta,
+    handleSaveEdit,
+  } = useSantriForm({
+    editingItem,
+    setEditingItem,
+    setShowAddModal,
+    onAddSuccess,
+    onEditSuccess,
   });
-
-  // Edit Modal Audit History Tab State
-  const [editModalTab, setEditModalTab] = useState<'FORM' | 'RIWAYAT'>('FORM');
-  const [itemAuditHistory, setItemAuditHistory] = useState<any[]>([]);
-  const [loadingAuditHistory, setLoadingAuditHistory] = useState(false);
-
-  const isEditingSantri = editingItem && editingItem.tipe === 'SANTRI';
-
-  useEffect(() => {
-    if (isEditingSantri && editingItem?.kode) {
-      setLoadingAuditHistory(true);
-      supabase
-        .from('audit_log')
-        .select('*')
-        .eq('kode', editingItem.kode)
-        .order('created_at', { ascending: false })
-        .then(({ data, error }) => {
-          if (!error && data) {
-            setItemAuditHistory(data);
-          } else {
-            setItemAuditHistory([]);
-          }
-          setLoadingAuditHistory(false);
-        });
-    } else if (!isEditingSantri) {
-      setItemAuditHistory([]);
-      setEditModalTab('FORM');
-    }
-  }, [isEditingSantri, editingItem?.kode]);
-
-  // Handler Tambah Santri Baru (Cek Kategori Dobel + Direct Supabase + Optimistic UI)
-  const handleTambahPeserta = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (submitLockSantri.current || isSubmittingSantri) return;
-
-    if (!formData.nama.trim()) {
-      alert('Nama santri wajib diisi!');
-      return;
-    }
-    if (!formData.namaWali.trim()) {
-      alert('Nama wali wajib diisi!');
-      return;
-    }
-
-    submitLockSantri.current = true;
-    setIsSubmittingSantri(true);
-
-    const cleanNama = formData.nama.trim().toUpperCase();
-    const cleanWali = formData.namaWali.trim().toUpperCase();
-
-    const incomingSubKat =
-      formData.kategoriUtama === 'TAMATAN'
-        ? `Tamatan (${formData.bagianTamatan || 'A.01'})`
-        : formData.kategoriUtama === 'BIL_GHOIB'
-        ? 'Bil Ghoib'
-        : 'Bin Nadzori';
-
-    try {
-      // 1. CEK APAKAH NAMA SANTRI DAN NAMA WALI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
-      // Pengecekan duplikat HARUS berdasarkan Nama Santri DAN Nama Wali (case-insensitive & trimmed)
-      const { data: existingList, error: checkError } = await supabase
-        .from('peserta_santri')
-        .select('*')
-        .ilike('nama', cleanNama)
-        .ilike('nama_wali', cleanWali);
-
-      if (checkError) {
-        console.warn('Error checking existing santri:', checkError);
-      }
-
-      // Pastikan kedua field (nama & nama_wali) cocok persis setelah trim & uppercase
-      let existing =
-        existingList?.find(
-          (item) =>
-            item.nama &&
-            item.nama.trim().toUpperCase() === cleanNama &&
-            item.nama_wali &&
-            item.nama_wali.trim().toUpperCase() === cleanWali
-        ) || (existingList && existingList.length > 0 ? existingList[0] : null);
-
-      // Fallback cek memori lokal jika query Supabase belum mengembalikan data
-      if (!existing) {
-        const localMatch = store.getKeluargaList().find((k) =>
-          k.namaWali &&
-          k.namaWali.trim().toUpperCase() === cleanWali &&
-          k.santri?.some((s) => s.nama && s.nama.trim().toUpperCase() === cleanNama)
-        );
-        if (localMatch) {
-          const { data: byKode } = await supabase
-            .from('peserta_santri')
-            .select('*')
-            .eq('kode', localMatch.kode)
-            .maybeSingle();
-          if (byKode) existing = byKode;
-        }
-      }
-
-      if (existing) {
-        // 2. TAMPILKAN POP-UP KONFIRMASI: KARENA NAMA DAN WALI COCOK
-        const confirmed = window.confirm(
-          `Santri dengan nama ${existing.nama} sudah ada. Apakah Anda ingin memperbarui datanya dan menggabungkan kategorinya?`
-        );
-
-        // 4. Jika Konfirmasi BATAL: Batalkan simpan.
-        if (!confirmed) {
-          return;
-        }
-
-        // 3. Jika Konfirmasi YA: LAKUKAN UPDATE (gabungkan kategori, sesuaikan kuota ke MAX), JANGAN INSERT BARU.
-        const mergedSub = mergeSubKategori(existing.sub_kategori || '', incomingSubKat);
-        const resolvedKatUtama = resolvePriorityKategoriUtama(
-          existing.kategori_utama,
-          formData.kategoriUtama,
-          mergedSub
-        );
-        const resolvedKuota = Math.max(
-          Number(existing.kuota_dasar || 0),
-          calculateKuotaDasarSantri(resolvedKatUtama, mergedSub)
-        );
-        const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, mergedSub);
-
-        const updatePayload: any = {
-          kategori_utama: resolvedKatUtama,
-          sub_kategori: mergedSub,
-          kuota_dasar: resolvedKuota,
-          warna_tiket: resolvedWarna,
-          updated_at: new Date().toISOString(),
-        };
-
-        if (formData.noHp.trim()) {
-          updatePayload.no_hp = formData.noHp.trim();
-        }
-        if (formData.kamar.trim()) {
-          updatePayload.kamar = formData.kamar.trim();
-        }
-        if (formData.alamat.trim()) {
-          updatePayload.alamat = formData.alamat.trim().toUpperCase();
-        }
-
-        const { error: updateError } = await supabase
-          .from('peserta_santri')
-          .update(updatePayload)
-          .eq('id', existing.id);
-
-        if (updateError) {
-          alert(`Gagal memperbarui data santri di Supabase: ${updateError.message}`);
-          return;
-        }
-
-        store.editPeserta(existing.kode, {
-          nama: existing.nama,
-          kategoriUtama: resolvedKatUtama,
-          subKategori: mergedSub,
-          kuotaDasar: resolvedKuota,
-          namaWali: existing.nama_wali,
-          noHp: updatePayload.no_hp || existing.no_hp,
-          kamar: updatePayload.kamar || existing.kamar,
-          alamat: updatePayload.alamat || existing.alamat,
-        });
-
-        logAudit({
-          panitia_id: 'ADMIN_SEKRETARIAT',
-          panitia_role: 'ADMIN',
-          aksi: 'UPDATE_PESERTA',
-          tabel: 'peserta_santri',
-          kode: existing.kode,
-          nama: existing.nama,
-          field: 'gabung_kategori_manual',
-          nilai_lama: existing.sub_kategori,
-          nilai_baru: mergedSub,
-          catatan: `Penggabungan Kategori Santri Manual (${existing.kode}): ${mergedSub}`,
-        }).catch((err) => console.warn('Audit log error:', err));
-
-        setShowAddModal(false);
-        onEditSuccess(
-          `✓ Berhasil memperbarui & menggabungkan kategori santri ${existing.nama}: ${mergedSub} (Kuota: ${resolvedKuota} Kursi, Tiket: ${resolvedWarna})`
-        );
-
-        setFormData({
-          nama: '',
-          kategoriUtama: 'BIL_GHOIB',
-          bagianTamatan: 'A.01',
-          kamar: '',
-          namaWali: '',
-          noHp: '',
-          alamat: '',
-        });
-        return;
-      }
-
-      // 2. SANTRI BELUM ADA ATAU NAMA WALI BEDA: LAKUKAN INSERT BARU
-      const kuotaVal = calculateKuotaDasarSantri(formData.kategoriUtama, incomingSubKat);
-      const warna = getWarnaTiketSantri(formData.kategoriUtama, incomingSubKat);
-
-      let kodeBaru = generateRandomKode('SH');
-      kodeBaru = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase);
-
-      const { data, error } = await supabase.from('peserta_santri').insert([
-        {
-          kode: kodeBaru,
-          nama: cleanNama,
-          kategori_utama: formData.kategoriUtama || 'BIL_GHOIB',
-          sub_kategori: incomingSubKat,
-          kelas: formData.kategoriUtama || '-',
-          kamar: formData.kamar.trim() || '-',
-          nama_wali: cleanWali || '-',
-          no_hp: formData.noHp.trim() || '-',
-          alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
-          kuota_dasar: kuotaVal,
-          kuota_tambahan: 0,
-          kuota_terpakai: 0,
-          status_konfirmasi: 'BELUM',
-          warna_tiket: warna,
-        },
-      ]);
-
-      if (error) {
-        alert(`Gagal menambahkan data santri ke database Supabase: ${error.message}`);
-        return;
-      }
-
-      // Optimistic UI: Buat item baru dan sisipkan ke state keluargaList seketika
-      const newSantriItem = {
-        id: data && (data as any)[0]?.id ? (data as any)[0].id : kodeBaru,
-        kode: kodeBaru,
-        namaWali: formData.namaWali.trim().toUpperCase(),
-        noHp: formData.noHp.trim() || '-',
-        alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
-        kamar: formData.kamar.trim() || '-',
-        santri: [
-          {
-            id: kodeBaru,
-            nis: kodeBaru,
-            nama: cleanNama,
-            kamar: formData.kamar.trim() || '-',
-            kelas: formData.kategoriUtama || '-',
-            kategoriUtama: formData.kategoriUtama || 'BIL_GHOIB',
-            subKategori: incomingSubKat,
-            bagianTamatan: incomingSubKat,
-          },
-        ],
-        kuota: {
-          id: kodeBaru,
-          kodeQr: kodeBaru,
-          kuotaDasar: kuotaVal,
-          kuotaTambahan: 0,
-          terpakai: 0,
-          tiketPanggungJatah: formData.kategoriUtama === 'BIL_GHOIB' ? 1 : 0,
-          warnaTiket: warna,
-        },
-      };
-
-      store.tambahPeserta({
-        nama: cleanNama,
-        kategoriUtama: formData.kategoriUtama,
-        bagianTamatan: formData.kategoriUtama === 'TAMATAN' ? formData.bagianTamatan : undefined,
-        kamar: formData.kamar.trim(),
-        namaWali: formData.namaWali.trim().toUpperCase(),
-        noHp: formData.noHp.trim(),
-        alamat: formData.alamat.trim().toUpperCase(),
-      });
-
-      // Tutup modal SEGERA & tampilkan toast sukses (< 500ms)
-      setShowAddModal(false);
-      onAddSuccess(
-        newSantriItem,
-        `✓ Berhasil menambahkan santri baru ke database: ${formData.nama} (Kode: ${kodeBaru})`
-      );
-
-      // logAudit fire-and-forget
-      logAudit({
-        panitia_id: 'ADMIN_SEKRETARIAT',
-        panitia_role: 'ADMIN',
-        aksi: 'TAMBAH_PESERTA',
-        tabel: 'peserta_santri',
-        kode: kodeBaru,
-        nama: cleanNama,
-        field: 'tambah_santri_baru',
-        nilai_baru: JSON.stringify(formData),
-        detail: formData,
-        catatan: `Penambahan Data Santri Baru (${kodeBaru})`,
-      }).catch((err) => console.warn('Audit log error:', err));
-
-      setFormData({
-        nama: '',
-        kategoriUtama: 'BIL_GHOIB',
-        bagianTamatan: 'A.01',
-        kamar: '',
-        namaWali: '',
-        noHp: '',
-        alamat: '',
-      });
-    } catch (err: any) {
-      alert(`Terjadi kesalahan sistem saat menghubungi Supabase: ${err?.message || err}`);
-    } finally {
-      submitLockSantri.current = false;
-      setIsSubmittingSantri(false);
-    }
-  };
-
-  // Handler Edit Santri (Direct Supabase Update by Kode)
-  const handleSaveEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem || editingItem.tipe !== 'SANTRI' || submitLockSantri.current || isSubmittingSantri) return;
-
-    submitLockSantri.current = true;
-    setIsSubmittingSantri(true);
-
-    const targetKode = editingItem.kode;
-
-    let subKat = editingItem.subKategori || 'Bin Nadzori';
-    let kls = editingItem.kelas || 'Bin Nadzori';
-
-    // Jika belum merupakan kategori gabungan, tentukan secara standar
-    if (!subKat.includes('&')) {
-      if (editingItem.kategoriUtama === 'BIL_GHOIB') {
-        subKat = 'Bil Ghoib';
-        kls = 'Bil Ghoib';
-      } else if (editingItem.kategoriUtama === 'TAMATAN') {
-        subKat = `Tamatan (${editingItem.bagianTamatan || 'A.01'})`;
-        kls = `3 ALY ${editingItem.bagianTamatan || 'A.01'}`;
-      } else {
-        subKat = 'Bin Nadzori';
-        kls = 'Bin Nadzori';
-      }
-    }
-
-    const resolvedKatUtama = resolvePriorityKategoriUtama(editingItem.kategoriUtama, subKat);
-    const resolvedKuota = Math.max(
-      Number(editingItem.kuotaDasar || 0),
-      calculateKuotaDasarSantri(resolvedKatUtama, subKat)
-    );
-    const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, subKat);
-
-    try {
-      const { error } = await supabase
-        .from('peserta_santri')
-        .update({
-          nama: (editingItem.nama || '').trim().toUpperCase(),
-          kategori_utama: resolvedKatUtama,
-          sub_kategori: subKat,
-          kelas: kls,
-          nama_wali: (editingItem.namaWali || '').trim().toUpperCase() || '-',
-          no_hp: (editingItem.noHp || '').trim() || '-',
-          alamat: (editingItem.alamat || '').trim().toUpperCase() || 'KEDIRI',
-          kamar: (editingItem.kamar || '').trim() || '-',
-          kuota_dasar: resolvedKuota,
-          warna_tiket: resolvedWarna,
-        })
-        .eq('kode', targetKode);
-
-      if (error) {
-        console.error('Supabase update error (peserta_santri):', error);
-        alert(`Gagal memperbarui data santri di Supabase: ${error.message}`);
-        return;
-      }
-    } catch (err: any) {
-      console.error('Exception updating peserta_santri:', err);
-      alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
-      submitLockSantri.current = false;
-      setIsSubmittingSantri(false);
-      return;
-    }
-
-    // Sync store
-    store.editPeserta(targetKode, {
-      nama: editingItem.nama?.trim().toUpperCase(),
-      namaWali: editingItem.namaWali?.trim().toUpperCase(),
-      noHp: editingItem.noHp?.trim(),
-      alamat: editingItem.alamat?.trim().toUpperCase(),
-      kamar: editingItem.kamar?.trim(),
-      kategoriUtama: editingItem.kategoriUtama,
-      subKategori: subKat,
-      kelas: kls,
-      kuotaDasar: Number(editingItem.kuotaDasar || 4),
-    });
-
-    logAudit({
-      panitia_id: 'ADMIN_SEKRETARIAT',
-      panitia_role: 'ADMIN',
-      aksi: 'EDIT_PESERTA',
-      tabel: 'peserta_santri',
-      kode: targetKode,
-      nama: editingItem.nama,
-      field: 'edit_santri',
-      nilai_baru: JSON.stringify(editingItem),
-      detail: editingItem,
-      catatan: `Perubahan Data Santri (${targetKode})`,
-    }).catch((err) => console.warn('Audit log error:', err));
-
-    onEditSuccess(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
-    setEditingItem(null);
-    submitLockSantri.current = false;
-    setIsSubmittingSantri(false);
-  };
 
   return (
     <>
       {/* ========================================================================= */}
-      {/* MODAL 1: TAMBAH SANTRI BARU (Disesuaikan tanpa Sub-Kategori / Juz) */}
+      {/* MODAL 1: TAMBAH SANTRI BARU */}
       {/* ========================================================================= */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in">
@@ -472,162 +74,28 @@ export default function SantriModal({
             </div>
 
             <form onSubmit={handleTambahPeserta} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
-              {/* Kategori Utama */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Kategori Utama Santri *
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        kategoriUtama: 'BIL_GHOIB',
-                      })
-                    }
-                    className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
-                      formData.kategoriUtama === 'BIL_GHOIB'
-                        ? 'bg-emerald-700 text-white border-emerald-800 shadow'
-                        : 'bg-slate-50 text-slate-700 border-slate-300'
-                    }`}
-                  >
-                    Bil Ghoib
-                    <span className="block text-[10px] font-normal opacity-80">
-                      4 Kursi · Cream
-                    </span>
-                  </button>
+              {/* Kategori & Bagian Tamatan Tab */}
+              <SantriKuotaTab
+                kategoriUtama={formData.kategoriUtama}
+                onKategoriUtamaChange={(kat) => setFormData({ ...formData, kategoriUtama: kat })}
+                bagianTamatan={formData.bagianTamatan}
+                onBagianTamatanChange={(bg) => setFormData({ ...formData, bagianTamatan: bg })}
+                isEditMode={false}
+              />
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        kategoriUtama: 'BIN_NADZOR',
-                      })
-                    }
-                    className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
-                      formData.kategoriUtama === 'BIN_NADZOR'
-                        ? 'bg-blue-700 text-white border-blue-800 shadow'
-                        : 'bg-slate-50 text-slate-700 border-slate-300'
-                    }`}
-                  >
-                    Bin Nadzori
-                    <span className="block text-[10px] font-normal opacity-80">
-                      2 Kursi · Biru
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        kategoriUtama: 'TAMATAN',
-                      })
-                    }
-                    className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
-                      formData.kategoriUtama === 'TAMATAN'
-                        ? 'bg-amber-600 text-white border-amber-700 shadow'
-                        : 'bg-slate-50 text-slate-700 border-slate-300'
-                    }`}
-                  >
-                    Tamatan
-                    <span className="block text-[10px] font-normal opacity-80">
-                      2 Kursi · Biru
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Opsi Khusus Tamatan: Bagian A.01, A.02, A.03, A.04, B.01, B.02, B.03 */}
-              {formData.kategoriUtama === 'TAMATAN' && (
-                <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-300 space-y-1.5 animate-in fade-in">
-                  <label className="block font-bold text-amber-950">
-                    Pilih Bagian Tamatan *
-                  </label>
-                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
-                    {BAGIAN_TAMATAN_LIST.map((bg) => (
-                      <button
-                        key={bg}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, bagianTamatan: bg })}
-                        className={`py-1.5 px-2 rounded-lg font-bold text-center text-xs transition-all ${
-                          formData.bagianTamatan === bg
-                            ? 'bg-amber-600 text-white shadow'
-                            : 'bg-white text-amber-900 border border-amber-200 hover:bg-amber-100'
-                        }`}
-                      >
-                        {bg}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Nama Lengkap Santri */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Nama Lengkap Santriwati *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nama}
-                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                  placeholder=""
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
-                />
-              </div>
-
-              {/* Kamar Pondok */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Kamar Pondok</label>
-                <input
-                  type="text"
-                  value={formData.kamar}
-                  onChange={(e) => setFormData({ ...formData, kamar: e.target.value })}
-                  placeholder=""
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
-                />
-              </div>
-
-              {/* Nama Wali & No WhatsApp */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Nama Wali Santri *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.namaWali}
-                    onChange={(e) => setFormData({ ...formData, namaWali: e.target.value })}
-                    placeholder=""
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">No. WhatsApp Wali</label>
-                  <input
-                    type="text"
-                    value={formData.noHp}
-                    onChange={(e) => setFormData({ ...formData, noHp: e.target.value })}
-                    placeholder=""
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Alamat / Asal Kota */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
-                <input
-                  type="text"
-                  value={formData.alamat}
-                  onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
-                  placeholder=""
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
-                />
-              </div>
+              {/* Biodata Fields Tab */}
+              <SantriBiodataTab
+                nama={formData.nama}
+                onNamaChange={(val) => setFormData({ ...formData, nama: val })}
+                kamar={formData.kamar}
+                onKamarChange={(val) => setFormData({ ...formData, kamar: val })}
+                namaWali={formData.namaWali}
+                onNamaWaliChange={(val) => setFormData({ ...formData, namaWali: val })}
+                noHp={formData.noHp}
+                onNoHpChange={(val) => setFormData({ ...formData, noHp: val })}
+                alamat={formData.alamat}
+                onAlamatChange={(val) => setFormData({ ...formData, alamat: val })}
+              />
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
                 <button
@@ -712,6 +180,7 @@ export default function SantriModal({
 
             {editModalTab === 'FORM' ? (
               <form onSubmit={handleSaveEdit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+                {/* Biodata & Kuota Components for Edit */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Nama Lengkap Santri *</label>
                   <input
@@ -723,48 +192,15 @@ export default function SantriModal({
                   />
                 </div>
 
-                {/* Kategori Utama Switcher */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Kategori Santri</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['BIL_GHOIB', 'BIN_NADZOR', 'TAMATAN'] as const).map((kat) => (
-                      <button
-                        key={kat}
-                        type="button"
-                        onClick={() => setEditingItem({ ...editingItem, kategoriUtama: kat })}
-                        className={`py-2 px-2.5 rounded-xl font-bold text-xs border transition-all ${
-                          editingItem.kategoriUtama === kat
-                            ? kat === 'BIL_GHOIB'
-                              ? 'bg-emerald-700 text-white border-emerald-800'
-                              : kat === 'BIN_NADZOR'
-                              ? 'bg-blue-700 text-white border-blue-800'
-                              : 'bg-amber-600 text-white border-amber-700'
-                            : 'bg-slate-50 text-slate-700 border-slate-300'
-                        }`}
-                      >
-                        {kat === 'BIL_GHOIB' ? 'Bil Ghoib' : kat === 'BIN_NADZOR' ? 'Bin Nadzori' : 'Tamatan'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Jika Tamatan, Pilih Bagian */}
-                {editingItem.kategoriUtama === 'TAMATAN' && (
-                  <div>
-                    <label className="block font-bold text-amber-950 mb-1">Bagian Tamatan *</label>
-                    <select
-                      value={editingItem.bagianTamatan || 'A.01'}
-                      onChange={(e) => setEditingItem({ ...editingItem, bagianTamatan: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-950 font-bold focus:outline-none focus:ring-2 focus:ring-amber-600"
-                    >
-                      {BAGIAN_TAMATAN_LIST.map((bg) => (
-                        <option key={bg} value={bg}>
-                          Bagian {bg}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                <SantriKuotaTab
+                  kategoriUtama={editingItem.kategoriUtama}
+                  onKategoriUtamaChange={(kat) => setEditingItem({ ...editingItem, kategoriUtama: kat })}
+                  bagianTamatan={editingItem.bagianTamatan}
+                  onBagianTamatanChange={(bg) => setEditingItem({ ...editingItem, bagianTamatan: bg })}
+                  kuotaDasar={editingItem.kuotaDasar}
+                  onKuotaDasarChange={(val) => setEditingItem({ ...editingItem, kuotaDasar: val })}
+                  isEditMode={true}
+                />
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -777,22 +213,6 @@ export default function SantriModal({
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Kuota Dasar Kursi</label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={10}
-                      value={editingItem.kuotaDasar}
-                      onChange={(e) =>
-                        setEditingItem({ ...editingItem, kuotaDasar: Number(e.target.value) })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono font-bold"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
                     <label className="block font-bold text-slate-700 mb-1">Nama Wali</label>
                     <input
                       type="text"
@@ -801,6 +221,9 @@ export default function SantriModal({
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">No. WhatsApp</label>
                     <input
@@ -810,16 +233,15 @@ export default function SantriModal({
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
-                  <input
-                    type="text"
-                    value={editingItem.alamat}
-                    onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
-                  />
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
+                    <input
+                      type="text"
+                      value={editingItem.alamat}
+                      onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
+                    />
+                  </div>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
@@ -849,62 +271,10 @@ export default function SantriModal({
               </form>
             ) : (
               <div className="p-4 sm:p-6 space-y-3 text-xs overflow-y-auto flex-1 bg-stone-50">
-                {loadingAuditHistory ? (
-                  <div className="py-12 text-center text-stone-500 font-medium">
-                    Memuat riwayat audit...
-                  </div>
-                ) : itemAuditHistory.length === 0 ? (
-                  <div className="py-12 text-center text-stone-500">
-                    <History className="w-8 h-8 text-stone-300 mx-auto mb-2" />
-                    <p className="font-bold">Belum Ada Riwayat Audit</p>
-                    <p className="text-[11px] text-stone-400 mt-1">
-                      Setiap aksi perubahan data pada peserta ini akan otomatis tercatat di sini.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {itemAuditHistory.map((log) => {
-                      const dtStr = log.created_at
-                        ? new Date(log.created_at).toLocaleString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            timeZone: 'Asia/Jakarta',
-                          })
-                        : '-';
-                      return (
-                        <div
-                          key={log.id}
-                          className="p-3.5 rounded-xl bg-white border border-stone-200 shadow-2xs space-y-1.5"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="px-2 py-0.5 rounded-md font-mono font-bold text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
-                              {log.aksi}
-                            </span>
-                            <span className="text-[10px] text-stone-400 font-mono">{dtStr} WIB</span>
-                          </div>
-                          <div className="text-xs font-semibold text-[#422F21]">
-                            Oleh: <span className="font-bold text-[#8C6A47]">{log.panitia_id || 'SYSTEM'}</span> ({log.panitia_role || 'PANITIA'})
-                          </div>
-                          {log.catatan && (
-                            <div className="text-[11px] text-stone-600 italic">
-                              "{log.catatan}"
-                            </div>
-                          )}
-                          {(log.nilai_lama || log.nilai_baru) && (
-                            <div className="text-[11px] font-mono bg-stone-50 p-2 rounded-lg border border-stone-200 text-stone-700 overflow-x-auto">
-                              {log.field && <span className="font-bold text-[#8C6A47]">{log.field}: </span>}
-                              {log.nilai_lama && <span className="line-through text-rose-600 mr-2">{log.nilai_lama}</span>}
-                              {log.nilai_baru && <span className="text-emerald-700 font-bold">{log.nilai_baru}</span>}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                <SantriAuditHistoryTab
+                  loading={loadingAuditHistory}
+                  history={itemAuditHistory}
+                />
               </div>
             )}
           </div>
