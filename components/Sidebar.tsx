@@ -198,9 +198,9 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     : allNavGroups;
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white/40 backdrop-blur-md border-r border-white/20 text-[#422F21]">
+    <div className="flex flex-col h-full bg-white/40 backdrop-blur-md border-r border-white/50 text-[#422F21]">
       {/* Header Sidebar: Identitas Resmi Kompak & Sejajar Lurus dengan TopHeader (h-[72px]) */}
-      <div className="h-[72px] px-3 border-b border-white/20 bg-white/30 backdrop-blur-xs relative select-none flex items-center justify-center shrink-0">
+      <div className="h-[72px] px-3 border-b border-white/50 bg-white/30 backdrop-blur-xs relative select-none flex items-center justify-center shrink-0">
         <Link
           href="/"
           onClick={onCloseMobile}
@@ -252,7 +252,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                     className={`sidebar-transition flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide ${
                       isActive
                         ? 'bg-[#8C6A47] text-white shadow-sm font-bold border border-[#735334]'
-                        : 'text-[#422F21] hover:bg-[#EFE8E1] hover:text-[#8C6A47]'
+                        : 'text-[#422F21] hover:bg-white/50 hover:text-[#8C6A47]'
                     }`}
                   >
                     <div className="flex items-center space-x-2.5">
@@ -283,7 +283,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
 
       {/* Footer Sidebar: Karakter Usth. Halwaa (Tanpa Pop Up Chat Bubble) */}
-      <div className="pt-2 pb-3 px-2 border-t border-white/20 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center shrink-0">
+      <div className="pt-2 pb-3 px-2 border-t border-white/50 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center shrink-0">
         <button
           type="button"
           onClick={() => setTanyaUsOpen(true)}

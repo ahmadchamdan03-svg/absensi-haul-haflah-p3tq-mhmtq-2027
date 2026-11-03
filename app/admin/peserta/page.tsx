@@ -66,7 +66,7 @@ export default function ManajemenPesertaPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#EFE8E1] py-8 px-4 sm:px-6 lg:px-8 space-y-8">
+    <div className="min-h-screen bg-transparent py-8 px-4 sm:px-6 lg:px-8 space-y-8">
       <PesertaHeader
         toastMessage={toastMessage}
         setShowAddModal={setShowAddModal}

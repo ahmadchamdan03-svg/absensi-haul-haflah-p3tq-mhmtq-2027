@@ -19,9 +19,9 @@ export default function PimpinanPage() {
 
   return (
     <AuthGuard allowedRoles={['PIMPINAN', 'ADMIN']}>
-      <div className="min-h-screen bg-[#FAF7F3] text-[#422F21] pb-24">
+      <div className="min-h-screen bg-transparent text-[#422F21] pb-24">
         {/* HEADER KHUSUS AKUN PIMPINAN */}
-        <header className="border-b-2 border-[#D5C4B4] bg-[#FAF7F3]/95 backdrop-blur-md sticky top-0 z-20 px-4 py-3 sm:py-4">
+        <header className="border-b border-white/50 bg-white/40 backdrop-blur-md sticky top-0 z-20 px-4 py-3 sm:py-4">
           <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
             {/* SISI KIRI: LOGO HAUL HAFLAH */}
             <div className="flex items-center space-x-3">

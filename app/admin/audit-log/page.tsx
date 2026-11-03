@@ -377,9 +377,9 @@ export default function AuditLogPage() {
 
   return (
     <AuthGuard allowedRoles={['ADMIN', 'PIMPINAN']}>
-      <div className="min-h-screen bg-[#FAF7F3] text-[#422F21] pb-24 font-sans selection:bg-[#8C6A47]/20 selection:text-[#422F21]">
+      <div className="min-h-screen bg-transparent text-[#422F21] pb-24 font-sans selection:bg-[#8C6A47]/20 selection:text-[#422F21]">
         {/* HEADER HALAMAN AUDIT LOG */}
-        <header className="bg-white border-b border-[#D5C4B4] sticky top-0 z-20 px-4 py-4 shadow-xs">
+        <header className="bg-white/40 backdrop-blur-md border-b border-white/50 sticky top-0 z-20 px-4 py-4 shadow-xs">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-[#8C6A47] shrink-0">

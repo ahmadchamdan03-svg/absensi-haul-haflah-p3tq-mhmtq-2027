@@ -430,9 +430,9 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
   }, [totalKuotaTamu, totalHadirTamu]);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#422F21] pb-24">
+    <div className="min-h-screen bg-transparent text-[#422F21] pb-24">
       {/* HEADER RESPONSIF */}
-      <header className="border-b border-[#E8DFD5] bg-[#FAF7F3]/95 backdrop-blur-md sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
+      <header className="border-b border-white/50 bg-white/40 backdrop-blur-md sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-800 border-2 border-emerald-600 flex items-center justify-center font-bold shadow-xs shrink-0">
