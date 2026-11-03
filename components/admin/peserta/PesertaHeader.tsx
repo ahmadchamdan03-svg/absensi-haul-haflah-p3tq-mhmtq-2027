@@ -36,8 +36,8 @@ export default function PesertaHeader({
         </div>
       )}
 
-      {/* Header Halaman: Warm Latte & Cinnamon Mocha Aesthetic */}
-      <div className="max-w-7xl mx-auto bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-6 sm:p-8 shadow-sm border-2 border-[#8C6A47]/40 relative overflow-hidden">
+      {/* Header Halaman: Warm Latte & Cinnamon Mocha Aesthetic with Glassmorphism */}
+      <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md text-[#422F21] rounded-3xl p-6 sm:p-8 shadow-sm border border-white/70 relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-10 -translate-y-8 opacity-10 pointer-events-none">
           <img
             src="/images/logo-haul-gold.png"

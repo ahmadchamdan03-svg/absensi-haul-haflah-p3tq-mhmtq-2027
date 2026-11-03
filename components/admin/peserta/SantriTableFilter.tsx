@@ -251,7 +251,7 @@ export default function SantriTableFilter({
   setCurrentPage,
 }: SantriTableFilterProps) {
   return (
-    <div className="max-w-7xl mx-auto bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-4">
+    <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md rounded-3xl p-5 shadow-sm border border-white/70 space-y-4">
       {tabsHeader}
 
       {/* Bar Pencarian & Dropdown Filter Bagian Tamatan */}

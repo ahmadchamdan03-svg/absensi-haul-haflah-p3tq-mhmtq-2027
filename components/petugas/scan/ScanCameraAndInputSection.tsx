@@ -55,7 +55,7 @@ export default function ScanCameraAndInputSection({
   return (
     <>
       {/* Header Jalur Pemeriksaan */}
-      <div className="relative z-10 mb-4 bg-[#FAF7F3] rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 border-[#D5C4B4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="relative z-10 mb-4 bg-white/55 backdrop-blur-md rounded-3xl p-3.5 sm:p-4 shadow-sm border border-white/70 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         {/* Baris 1 (Mobile) / Sisi Kiri (Desktop): Info Gerbang & Tombol Denah */}
         <div className="flex items-center justify-between w-full md:w-auto gap-3 flex-wrap">
           <div className="flex items-center space-x-3 min-w-0">
@@ -164,7 +164,7 @@ export default function ScanCameraAndInputSection({
       {/* TAMPILAN 1: SCANNER AKTIF (PILIHAN DUA JALUR: USB HARDWARE vs KAMERA HP)   */}
       {/* ========================================================================= */}
       {showScannerViewport && (
-        <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm border border-opera-200 space-y-5">
+        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 sm:p-7 shadow-sm border border-white/70 space-y-5">
           {/* Panel Kamera Live */}
           <div className="space-y-3">
             {/* Header Status Kamera */}

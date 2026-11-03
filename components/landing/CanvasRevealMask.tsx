@@ -33,6 +33,16 @@ export default function CanvasRevealMask() {
     let h = 0;
     let dpr = 1;
 
+    function drawBaseFill() {
+      if (!ctx) return;
+      const g = ctx.createRadialGradient(w * 0.5, h * 0.45, 60, w * 0.5, h * 0.45, Math.max(w, h) * 0.85);
+      g.addColorStop(0, `rgba(${MASK_RGB}, 0.88)`);
+      g.addColorStop(0.65, `rgba(${MASK_RGB}, 0.92)`);
+      g.addColorStop(1, `rgba(${MASK_RGB}, 0.96)`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
+
     function resize() {
       if (!canvas || !ctx) return;
       w = window.innerWidth;
@@ -46,8 +56,7 @@ export default function CanvasRevealMask() {
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = `rgb(${MASK_RGB})`;
-      ctx.fillRect(0, 0, w, h);
+      drawBaseFill();
     }
 
     resize();
@@ -123,10 +132,9 @@ export default function CanvasRevealMask() {
       if (!ctx) return;
       const now = performance.now();
 
-      // Lapisi ulang seluruh kanvas dengan warna dasar krem solid
+      // Lapisi ulang seluruh kanvas dengan gradien halus krem
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = `rgb(${MASK_RGB})`;
-      ctx.fillRect(0, 0, w, h);
+      drawBaseFill();
 
       // Kikis kanvas pada setiap titik riak air menggunakan destination-out
       ctx.globalCompositeOperation = 'destination-out';
@@ -203,6 +211,10 @@ export default function CanvasRevealMask() {
           backgroundImage: 'url(/images/panggung-haul-haflah.jpg)',
         }}
       />
+
+      {/* Layer Ambient Light Orbs di atas foto panggung untuk kedalaman kaca */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D49B5B]/25 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-[#8C6A47]/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* 2. Layer Canvas 2D Organic Reveal Mask (#FAF7F3) */}
       <canvas

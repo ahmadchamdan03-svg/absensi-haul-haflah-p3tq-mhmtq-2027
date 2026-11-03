@@ -79,7 +79,7 @@ export function TamuHeroAndEventSections({
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
+          <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
             <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
             <p className="text-sm text-[#8C6A47] font-black">• KH. MARZUQI DAHLAN •</p>
             <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
@@ -259,11 +259,11 @@ export function WaliHeroAndIdentitySections({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-3 border-t border-stone-100 text-xs">
-            <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
+            <div className="p-3.5 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-0.5">
               <span className="text-stone-500 text-[10px] uppercase font-bold block">Nama Wali:</span>
               <p className="font-bold text-[#422F21] leading-snug">{item?.entitas?.namaWali || item?.entitas?.nama}</p>
             </div>
-            <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-xs border border-[#E8DFD5] space-y-0.5">
+            <div className="p-3.5 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-0.5">
               <span className="text-stone-500 text-[10px] uppercase font-bold block">Asal / Alamat:</span>
               <p className="font-bold text-[#422F21] leading-snug">{item?.entitas?.alamat || 'Kediri'}</p>
             </div>
@@ -302,7 +302,7 @@ export function WaliHeroAndIdentitySections({
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-xs border border-[#E8DFD5] text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
+          <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 text-xs font-serif font-bold text-[#5C3E28] space-y-1.5 text-center">
             <p className="text-sm text-[#8C6A47] font-black">• KH. ABDUL KARIM •</p>
             <p className="text-sm text-[#8C6A47] font-black">• KH. MARZUQI DAHLAN •</p>
             <p className="text-sm text-[#8C6A47] font-black">• KH. MAHRUS ALY •</p>
@@ -385,7 +385,7 @@ export function WaliHeroAndIdentitySections({
 
       {/* 4. ⬅️ KARTU QR CODE GERBANG MASUK (DIPINDAH KE SEBELUM RSVP - PERBAIKAN 3) */}
       <ScrollReveal delay={250}>
-        <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
+        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47]/70 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-5">
           <div className="space-y-1">
             <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
               KODE AKSES RESMI LOKASI ACARA
@@ -402,7 +402,7 @@ export function WaliHeroAndIdentitySections({
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <div className="p-4 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+            <div className="p-4 rounded-3xl bg-white/70 backdrop-blur-xs border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
               {item?.kode || kodeSH ? (
                 <QRCode
                   value={fullQrPayload || formatQrPayloadSync(item?.kode || kodeSH)}
@@ -418,7 +418,7 @@ export function WaliHeroAndIdentitySections({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 bg-[#FAF7F3] p-3 rounded-2xl border border-[#D5C4B4] text-xs">
+          <div className="grid grid-cols-3 gap-2 bg-white/50 backdrop-blur-xs p-3 rounded-2xl border border-white/80 text-xs">
             <div>
               <span className="text-[10px] text-stone-500 uppercase font-bold">KUOTA DASAR</span>
               <p className="font-serif font-black text-lg text-[#422F21]">{kuota?.kuotaDasar || 2}</p>

@@ -48,8 +48,8 @@ export default function RekonTableSection({
             return (
               <div
                 key={d.id || d.kode}
-                className={`p-4 sm:p-5 rounded-3xl border-2 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
-                  isHadir ? 'bg-emerald-50/60 border-emerald-300' : 'bg-white border-[#E8DFD5]'
+                className={`p-4 sm:p-5 rounded-3xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
+                  isHadir ? 'bg-emerald-50/70 backdrop-blur-md border-emerald-300' : 'bg-white/60 backdrop-blur-md border-white/70 hover:border-white/95'
                 }`}
               >
                 {/* INFORMASI UTAMA PESERTA */}

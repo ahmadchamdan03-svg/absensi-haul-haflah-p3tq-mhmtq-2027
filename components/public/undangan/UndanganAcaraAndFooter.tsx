@@ -29,7 +29,7 @@ export default function UndanganAcaraAndFooter({
     <>
       {/* KARTU WAKTU, LOKASI & COUNTDOWN TIMER WALI */}
       <ScrollReveal delay={350}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5 text-center">
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6A47]">
               Waktu &amp; Tempat Pelaksanaan
@@ -48,7 +48,7 @@ export default function UndanganAcaraAndFooter({
             <button
               type="button"
               onClick={onOpenDenah}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-[#FAF7F3] hover:bg-[#EFE8E1] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-white/60 hover:bg-white/80 backdrop-blur-xs text-[#5C3E28] text-xs font-bold border border-white/80 inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
             >
               <Compass className="w-4 h-4 text-[#8C6A47]" />
               <span>Buka Denah Lokasi &amp; Parkir</span>
@@ -56,7 +56,7 @@ export default function UndanganAcaraAndFooter({
             <button
               type="button"
               onClick={onOpenDaftarPeserta}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-white hover:bg-stone-50 text-[#8C6A47] text-xs font-bold border border-[#D5C4B4] inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-white/75 hover:bg-white/90 backdrop-blur-xs text-[#8C6A47] text-xs font-bold border border-white/80 inline-flex items-center justify-center space-x-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
             >
               <Users className="w-4 h-4 text-[#8C6A47]" />
               <span>Lihat Daftar Peserta</span>
@@ -67,7 +67,7 @@ export default function UndanganAcaraAndFooter({
 
       {/* FOOTER TANDA TANGAN PANITIA */}
       <ScrollReveal delay={400}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
+        <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-5 text-xs font-serif text-[#422F21]">
           <p className="italic text-stone-600 leading-relaxed text-center">
             Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
             Jazakumullahu khairan katsiran.
@@ -100,7 +100,7 @@ export default function UndanganAcaraAndFooter({
 
       {/* KARTU PEMBELIAN KUOTA TAMBAHAN */}
       <ScrollReveal delay={450}>
-        <GlassCard className="p-5 sm:p-7 border-2 border-[#E8DFD5]/80 shadow-sm space-y-3.5">
+        <GlassCard className="p-5 sm:p-7 space-y-3.5">
           <div className="flex items-center justify-between border-b border-stone-100 pb-3">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0">

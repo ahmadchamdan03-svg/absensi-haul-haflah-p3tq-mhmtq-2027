@@ -10,7 +10,7 @@ interface ScanRecentHistoryProps {
 
 export default function ScanRecentHistory({ recentScans }: ScanRecentHistoryProps) {
   return (
-    <div className="bg-white rounded-3xl p-5 shadow-xs border border-stone-200 space-y-3">
+    <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 shadow-xs border border-white/70 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 text-[#8C6A47]" />
@@ -18,7 +18,7 @@ export default function ScanRecentHistory({ recentScans }: ScanRecentHistoryProp
             Scan Terakhir Hari Ini
           </h3>
         </div>
-        <span className="text-[10px] font-bold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
+        <span className="text-[10px] font-bold text-stone-500 bg-white/70 px-2.5 py-0.5 rounded-full border border-stone-200">
           5 Terakhir
         </span>
       </div>
@@ -38,7 +38,7 @@ export default function ScanRecentHistory({ recentScans }: ScanRecentHistoryProp
             return (
               <div
                 key={log.id}
-                className="flex items-center justify-between p-2.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] text-xs"
+                className="flex items-center justify-between p-2.5 rounded-2xl bg-white/50 backdrop-blur-xs border border-[#E8DFD5] text-xs"
               >
                 <div className="flex items-center space-x-2.5 min-w-0">
                   <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">

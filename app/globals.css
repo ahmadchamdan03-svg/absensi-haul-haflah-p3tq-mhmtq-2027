@@ -45,9 +45,41 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background-color: #EFE8E1;
+  background-color: #FAF7F3;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Serif SC', 'Songti SC', SimSun, serif;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Ambient Mesh & Glass Background Base (FIX 1) */
+.glass-ambient-bg {
+  background-color: #FAF7F3;
+  background-image: 
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(212, 155, 91, 0.18), transparent 75%),
+    radial-gradient(circle 700px at 10% 20%, rgba(140, 106, 71, 0.10), transparent 70%),
+    radial-gradient(circle 650px at 90% 35%, rgba(212, 155, 91, 0.14), transparent 70%),
+    radial-gradient(circle 600px at 15% 85%, rgba(140, 106, 71, 0.08), transparent 70%),
+    radial-gradient(circle 500px at 85% 90%, rgba(212, 155, 91, 0.12), transparent 70%);
+  background-attachment: fixed;
+}
+
+/* Glass Card Helper Utilities */
+.glass-card-premium {
+  background-color: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  box-shadow: 0 8px 32px 0 rgba(140, 106, 71, 0.06);
+}
+
+.glass-card-interactive {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-interactive:hover {
+  background-color: rgba(255, 255, 255, 0.70);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 36px 0 rgba(140, 106, 71, 0.12);
+  transform: translateY(-2px);
 }
 
 /* Custom Latte & Mocha Decor Utilities */

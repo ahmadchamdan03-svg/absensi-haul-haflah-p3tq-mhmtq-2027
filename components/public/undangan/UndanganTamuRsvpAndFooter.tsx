@@ -31,7 +31,7 @@ export default function UndanganTamuRsvpAndFooter({
     <>
       {/* 6a. KARTU QR CODE GERBANG MASUK TAMU */}
       <ScrollReveal delay={350}>
-        <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47] shadow-lg text-center space-y-5">
+        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47]/70 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-5">
           <div className="space-y-1">
             <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
               KODE AKSES RESMI LOKASI ACARA
@@ -48,7 +48,7 @@ export default function UndanganTamuRsvpAndFooter({
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <div className="p-4 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+            <div className="p-4 rounded-3xl bg-white/70 backdrop-blur-xs border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
               {item?.kode || kodeSH ? (
                 <QRCode
                   value={fullQrPayload || formatQrPayloadSync(item?.kode || kodeSH)}
@@ -68,7 +68,7 @@ export default function UndanganTamuRsvpAndFooter({
 
       {/* 6b. KARTU KONFIRMASI KEHADIRAN (RSVP TAMU UNDANGAN) */}
       <ScrollReveal delay={400}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5 text-center">
           <div className="space-y-1">
             <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
               Konfirmasi Kehadiran
@@ -146,7 +146,7 @@ export default function UndanganTamuRsvpAndFooter({
 
       {/* 8. FOOTER TANDA TANGAN PANITIA */}
       <ScrollReveal delay={450}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm text-center space-y-5 text-xs font-serif text-[#422F21]">
+        <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-5 text-xs font-serif text-[#422F21]">
           <p className="italic text-stone-600 leading-relaxed text-center">
             Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
             Jazakumullahu khairan katsiran.

@@ -38,7 +38,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'SEMUA'
             ? 'border-opera-700 shadow-md ring-2 ring-opera-600/30'
             : 'border-slate-200 hover:border-slate-300'
@@ -61,7 +61,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'BIL_GHOIB'
             ? 'border-emerald-600 shadow-md ring-2 ring-emerald-500/30'
             : 'border-slate-200 hover:border-slate-300'
@@ -85,7 +85,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'BIN_NADZOR'
             ? 'border-blue-600 shadow-md ring-2 ring-blue-500/30'
             : 'border-slate-200 hover:border-slate-300'
@@ -107,7 +107,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'TAMATAN'
             ? 'border-amber-600 shadow-md ring-2 ring-amber-500/30'
             : 'border-slate-200 hover:border-slate-300'
@@ -129,7 +129,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'UNDANGAN_ISTIMEWA'
             ? 'border-amber-600 shadow-md ring-2 ring-amber-500/30 bg-amber-50/20'
             : 'border-slate-200 hover:border-slate-300'
@@ -151,7 +151,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'UNDANGAN_KEHORMATAN'
             ? 'border-purple-600 shadow-md ring-2 ring-purple-500/30 bg-purple-50/20'
             : 'border-slate-200 hover:border-slate-300'
@@ -173,7 +173,7 @@ export default function PesertaTabs({
           setBagianFilter('SEMUA');
           setCurrentPage(1);
         }}
-        className={`cursor-pointer p-3 rounded-2xl bg-white border transition-all ${
+        className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'UNDANGAN_UMUM'
             ? 'border-cyan-600 shadow-md ring-2 ring-cyan-500/30 bg-cyan-50/20'
             : 'border-slate-200 hover:border-slate-300'

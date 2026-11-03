@@ -28,7 +28,7 @@ export default function RekonHeaderAndStats({
   onRefresh,
 }: RekonHeaderAndStatsProps) {
   return (
-    <div className="bg-[#FAF7F3] rounded-3xl p-6 shadow-sm border-2 border-[#D5C4B4] space-y-4">
+    <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 shadow-sm border border-white/70 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-3">
           <div className="w-11 h-11 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] border-2 border-[#8C6A47]/40 flex items-center justify-center font-bold shadow-xs shrink-0">
@@ -90,7 +90,7 @@ export default function RekonHeaderAndStats({
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="Cari berdasarkan Nama Santri, Nama Wali, Tamu VIP, No. HP, atau Kode (SH0001 / UND0101)..."
-          className="w-full pl-11 pr-10 py-3 rounded-2xl border-2 border-[#D5C4B4] text-xs sm:text-sm focus:outline-none focus:border-[#8C6A47] font-semibold bg-white text-[#422F21] placeholder-[#7A624E]/70"
+          className="w-full pl-11 pr-10 py-3 rounded-2xl border border-white/80 text-xs sm:text-sm focus:outline-none focus:border-[#8C6A47] font-semibold bg-white/70 backdrop-blur-xs text-[#422F21] placeholder-[#7A624E]/70 shadow-xs"
         />
         {keyword && (
           <button

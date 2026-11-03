@@ -67,7 +67,7 @@ export default function UndanganWaliRsvpSection({
 
   return (
     <ScrollReveal delay={300}>
-      <GlassCard className="p-4 sm:p-6 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-4 bg-white/80 backdrop-blur-sm">
+      <GlassCard className="p-4 sm:p-6 md:p-8 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-1">
             <h3 className="font-serif font-black text-base text-[#422F21]">
@@ -85,10 +85,10 @@ export default function UndanganWaliRsvpSection({
         </div>
 
         {/* FORMAT 2 KOLOM: JAM (KIRI) & HARI (KANAN) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-white/45 backdrop-blur-xs border border-white/80">
           {/* KOLOM KIRI: CLOCK PICKER 24 JAM */}
           <div
-            className={`p-3 rounded-xl bg-white border transition-all ${
+            className={`p-3 rounded-xl bg-white/75 backdrop-blur-xs border transition-all ${
               !jamKonfirmasi && rsvpValidationErr
                 ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300'
                 : 'border-[#D5C4B4]'
@@ -231,7 +231,7 @@ export default function UndanganWaliRsvpSection({
 
           {/* KOLOM KANAN: PILIHAN HARI KEDATANGAN */}
           <div
-            className={`p-3 rounded-xl bg-white border flex flex-col justify-between transition-all ${
+            className={`p-3 rounded-xl bg-white/75 backdrop-blur-xs border flex flex-col justify-between transition-all ${
               !hariKonfirmasi && rsvpValidationErr
                 ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300'
                 : 'border-[#D5C4B4]'
@@ -312,7 +312,7 @@ export default function UndanganWaliRsvpSection({
               >
                 −
               </button>
-              <div className="h-10 rounded-lg bg-white border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
+              <div className="h-10 rounded-lg bg-white/80 backdrop-blur-xs border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
                 {estL}
               </div>
               <button
@@ -343,7 +343,7 @@ export default function UndanganWaliRsvpSection({
               >
                 −
               </button>
-              <div className="h-10 rounded-lg bg-white border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
+              <div className="h-10 rounded-lg bg-white/80 backdrop-blur-xs border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
                 {estP}
               </div>
               <button

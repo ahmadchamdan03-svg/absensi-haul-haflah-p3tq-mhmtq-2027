@@ -84,10 +84,10 @@ const ROLE_BUTTONS: {
     icon: ShieldCheck,
     image: '/images/halwaa/admin.webp',
     color: {
-      bg: 'bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-rose-900/10',
-      border: 'border border-white/60',
+      bg: 'bg-white/45 hover:bg-white/65 backdrop-blur-md shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(225,29,72,0.15)]',
+      border: 'border border-white/70',
       hoverBorder: 'hover:border-rose-400/80',
-      iconBg: 'bg-rose-50/80 backdrop-blur-xs',
+      iconBg: 'bg-rose-50/70 backdrop-blur-xs',
       iconText: 'text-rose-700',
       hoverAccent: 'group-hover:text-rose-700',
     },
@@ -97,10 +97,10 @@ const ROLE_BUTTONS: {
     icon: LayoutDashboard,
     image: '/images/halwaa/pimpinan.webp',
     color: {
-      bg: 'bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-amber-900/10',
-      border: 'border border-white/60',
+      bg: 'bg-white/45 hover:bg-white/65 backdrop-blur-md shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(217,119,6,0.15)]',
+      border: 'border border-white/70',
       hoverBorder: 'hover:border-amber-400/80',
-      iconBg: 'bg-amber-50/80 backdrop-blur-xs',
+      iconBg: 'bg-amber-50/70 backdrop-blur-xs',
       iconText: 'text-amber-700',
       hoverAccent: 'group-hover:text-amber-700',
     },
@@ -110,10 +110,10 @@ const ROLE_BUTTONS: {
     icon: Users,
     image: '/images/halwaa/penerima-tamu.webp',
     color: {
-      bg: 'bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-emerald-900/10',
-      border: 'border border-white/60',
+      bg: 'bg-white/45 hover:bg-white/65 backdrop-blur-md shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(5,150,105,0.15)]',
+      border: 'border border-white/70',
       hoverBorder: 'hover:border-emerald-400/80',
-      iconBg: 'bg-emerald-50/80 backdrop-blur-xs',
+      iconBg: 'bg-emerald-50/70 backdrop-blur-xs',
       iconText: 'text-emerald-700',
       hoverAccent: 'group-hover:text-emerald-700',
     },
@@ -123,10 +123,10 @@ const ROLE_BUTTONS: {
     icon: QrCode,
     image: '/images/halwaa/penjaga-gerbang.webp',
     color: {
-      bg: 'bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-blue-900/10',
-      border: 'border border-white/60',
+      bg: 'bg-white/45 hover:bg-white/65 backdrop-blur-md shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(37,99,235,0.15)]',
+      border: 'border border-white/70',
       hoverBorder: 'hover:border-blue-400/80',
-      iconBg: 'bg-blue-50/80 backdrop-blur-xs',
+      iconBg: 'bg-blue-50/70 backdrop-blur-xs',
       iconText: 'text-blue-700',
       hoverAccent: 'group-hover:text-blue-700',
     },
@@ -405,7 +405,7 @@ export default function LandingPortalPage() {
       </section>
 
       {/* FOOTER BAWAH */}
-      <footer className="relative z-10 w-full py-6 text-center text-xs text-[#8C6A47]/70 border-t border-[#8C6A47]/10 bg-white/50 backdrop-blur-md">
+      <footer className="relative z-10 w-full py-6 text-center text-xs text-[#8C6A47]/80 border-t border-white/60 bg-white/45 backdrop-blur-md">
         <p className="font-semibold text-[#8C6A47]">
           Haflah Akhirussanah 1448 H. · Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) &amp; MHMTQ Lirboyo
         </p>
@@ -416,7 +416,7 @@ export default function LandingPortalPage() {
       {/* ================================================================= */}
       {selectedRole && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white/85 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-white/70 space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="bg-white/75 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-white/80 space-y-5 animate-in zoom-in-95 duration-150">
             {/* Header Modal */}
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div className="flex items-center space-x-3">
