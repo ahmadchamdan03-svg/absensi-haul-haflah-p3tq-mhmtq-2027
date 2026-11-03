@@ -126,14 +126,14 @@ export default function KonfirmasiStatsAndFilters({
 
       {/* 4 KARTU METRIK RINGKASAN KONFIRMASI */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-in fade-in duration-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 animate-in fade-in duration-300">
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
         </div>
       ) : activeMainTab === 'WALI_SANTRI' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 items-stretch">
           {/* Card 1: Total Santri Riil */}
           <button
             type="button"
@@ -141,7 +141,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('SEMUA');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'SEMUA'
                 ? 'bg-white/90 backdrop-blur-md border-[#8C6A47] ring-2 ring-[#8C6A47]/25 shadow-md'
                 : 'bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/60 hover:border-[#8C6A47]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
@@ -156,7 +156,7 @@ export default function KonfirmasiStatsAndFilters({
                 <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
+            <div className="text-xl sm:text-2xl font-serif font-black text-[#422F21] my-1">
               {rekap.totalSantri}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
                 Santri
@@ -174,7 +174,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('SUDAH');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'SUDAH'
                 ? 'bg-emerald-50/85 backdrop-blur-md border-emerald-600 ring-2 ring-emerald-500/25 shadow-md'
                 : 'bg-white/60 hover:bg-emerald-50/60 backdrop-blur-md border border-white/60 hover:border-emerald-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
@@ -189,17 +189,17 @@ export default function KonfirmasiStatsAndFilters({
                 <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
+            <div className="text-xl sm:text-2xl font-serif font-black text-emerald-900 my-1">
               {rekap.sudahKonfirmasiCount}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
                 Wali ({rekap.persentaseSudah}%)
               </span>
             </div>
-            <div className="text-[11px] sm:text-xs text-emerald-900 space-y-0.5 mt-0.5">
+            <div className="text-[10px] sm:text-[11px] text-emerald-900 space-y-0.5 mt-0.5">
               <p className="font-semibold text-emerald-800">
                 Est: {rekap.totalEstimasiRombongan || 0} Orang
               </p>
-              <p className="text-[10px] sm:text-xs font-bold text-emerald-700">
+              <p className="text-[10px] sm:text-[11px] font-bold text-emerald-700">
                 L: {rekap.sumSudahL || 0} | P: {rekap.sumSudahP || 0}
               </p>
             </div>
@@ -212,7 +212,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('BELUM');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'BELUM'
                 ? 'bg-amber-50/85 backdrop-blur-md border-amber-600 ring-2 ring-amber-500/25 shadow-md'
                 : 'bg-white/60 hover:bg-amber-50/60 backdrop-blur-md border border-white/60 hover:border-amber-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
@@ -227,7 +227,7 @@ export default function KonfirmasiStatsAndFilters({
                 <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-amber-900">
+            <div className="text-xl sm:text-2xl font-serif font-black my-1 text-amber-900">
               {rekap.belumKonfirmasiCount}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
                 Wali ({100 - rekap.persentaseSudah}%)
@@ -245,7 +245,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('SUDAH');
               scrollToTable();
             }}
-            className="rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between border border-white/60 hover:border-[#8C6A47]/60 bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]"
+            className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between border border-white/60 hover:border-[#8C6A47]/60 bg-white/60 hover:bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]"
             title="Klik untuk melihat rincian alokasi kursi hadir"
           >
             <div className="flex items-center justify-between">
@@ -256,7 +256,7 @@ export default function KonfirmasiStatsAndFilters({
                 <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-[#422F21]">
+            <div className="text-xl sm:text-2xl font-serif font-black my-1 text-[#422F21]">
               {rekap.totalEstimasiRombongan}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
                 Kursi
@@ -268,7 +268,7 @@ export default function KonfirmasiStatsAndFilters({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 items-stretch">
           {/* Card 1: TOTAL TAMU UNDANGAN */}
           <button
             type="button"
@@ -276,10 +276,10 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('SEMUA');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'SEMUA'
-                ? 'bg-[#FAF7F3] border-[#8C6A47] ring-2 ring-[#8C6A47]/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-[#8C6A47]'
+                ? 'bg-white/90 backdrop-blur-md border-[#8C6A47] ring-2 ring-[#8C6A47]/25 shadow-md'
+                : 'bg-white/60 hover:bg-white/80 backdrop-blur-md border border-white/60 hover:border-[#8C6A47]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk menampilkan seluruh tamu undangan"
           >
@@ -291,7 +291,7 @@ export default function KonfirmasiStatsAndFilters({
                 <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black text-[#422F21] my-1">
+            <div className="text-xl sm:text-2xl font-serif font-black text-[#422F21] my-1">
               {rekap.totalTamu}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-[#7A624E]">
                 Tamu
@@ -309,7 +309,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('HADIR');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'HADIR'
                 ? 'bg-emerald-50/85 backdrop-blur-md border-emerald-600 ring-2 ring-emerald-500/25 shadow-md'
                 : 'bg-white/60 hover:bg-emerald-50/60 backdrop-blur-md border border-white/60 hover:border-emerald-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
@@ -324,13 +324,13 @@ export default function KonfirmasiStatsAndFilters({
                 <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black text-emerald-900 my-1">
+            <div className="text-xl sm:text-2xl font-serif font-black text-emerald-900 my-1">
               {rekap.tamuHadirCount}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-emerald-700">
                 Tamu ({rekap.persenTamuHadir}%)
               </span>
             </div>
-            <div className="text-[10px] sm:text-xs font-bold text-emerald-700">
+            <div className="text-[10px] sm:text-[11px] font-bold text-emerald-700">
               L: {rekap.countTamuHadirL} | P: {rekap.countTamuHadirP}
             </div>
             <div className="text-[10px] sm:text-xs font-semibold text-emerald-800 truncate">
@@ -345,7 +345,7 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('BERHALANGAN');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'BERHALANGAN'
                 ? 'bg-rose-50/85 backdrop-blur-md border-rose-600 ring-2 ring-rose-500/25 shadow-md'
                 : 'bg-white/60 hover:bg-rose-50/60 backdrop-blur-md border border-white/60 hover:border-rose-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
@@ -360,13 +360,13 @@ export default function KonfirmasiStatsAndFilters({
                 <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-rose-900">
+            <div className="text-xl sm:text-2xl font-serif font-black my-1 text-rose-900">
               {rekap.tamuBerhalanganCount}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-rose-700">
                 Tamu ({rekap.persenTamuBerhalangan}%)
               </span>
             </div>
-            <div className="text-[10px] sm:text-xs font-bold text-rose-700">
+            <div className="text-[10px] sm:text-[11px] font-bold text-rose-700">
               L: {rekap.countTamuBerhalanganL} | P: {rekap.countTamuBerhalanganP}
             </div>
             <div className="text-[10px] sm:text-xs font-semibold truncate text-rose-800">
@@ -381,10 +381,10 @@ export default function KonfirmasiStatsAndFilters({
               setFilterStatus('BELUM');
               scrollToTable();
             }}
-            className={`rounded-3xl p-4 sm:p-5 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[140px] flex flex-col justify-between ${
+            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-sm border-2 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-0.5 min-h-[120px] sm:min-h-[128px] flex flex-col justify-between ${
               filterStatus === 'BELUM'
-                ? 'bg-amber-50/90 border-amber-600 ring-2 ring-amber-500/30'
-                : 'bg-[#FAF7F3] border-[#D5C4B4] hover:border-amber-500 hover:bg-amber-50/50'
+                ? 'bg-amber-50/85 backdrop-blur-md border-amber-600 ring-2 ring-amber-500/25 shadow-md'
+                : 'bg-white/60 hover:bg-amber-50/60 backdrop-blur-md border border-white/60 hover:border-amber-500/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]'
             }`}
             title="Klik untuk memfilter tamu yang BELUM konfirmasi"
           >
@@ -396,7 +396,7 @@ export default function KonfirmasiStatsAndFilters({
                 <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <div className="text-xl sm:text-3xl font-serif font-black my-1 text-amber-900">
+            <div className="text-xl sm:text-2xl font-serif font-black my-1 text-amber-900">
               {rekap.tamuBelumCount}{' '}
               <span className="text-xs sm:text-sm font-sans font-medium text-amber-700">
                 Tamu ({rekap.persenTamuBelum}%)

@@ -13,6 +13,7 @@ import {
   Phone,
   Trash2,
   RotateCcw,
+  Sparkles,
 } from 'lucide-react';
 import { clearActiveRole } from '@/lib/auth-roles';
 import { useTamuData } from '@/lib/hooks/useTamuData';
@@ -61,7 +62,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
     <div className="min-h-screen bg-transparent text-[#422F21] pb-24">
       {/* HEADER RESPONSIF */}
       <header className="border-b border-white/50 bg-white/40 backdrop-blur-md sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-800 border-2 border-emerald-600 flex items-center justify-center font-bold shadow-xs shrink-0">
               <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-700" />
@@ -108,7 +109,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* RINGKASAN LIVE DASBOR TAMU */}
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-300">
@@ -119,17 +120,17 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-300">
-            <div className="p-4 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-1">
-              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">
+            <div className="p-4 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm space-y-1">
+              <span className="text-[10px] font-bold text-[#7A624E] uppercase tracking-wide">
                 Total Tamu Terdata
               </span>
               <div className="text-2xl font-serif font-black text-[#422F21]">
                 {totalKuotaTamu > 0 ? `${totalKuotaTamu} Kursi` : '—'}
               </div>
-              <p className="text-[11px] text-stone-600">Total Kuota ({undanganList.length} Undangan)</p>
+              <p className="text-[11px] text-[#7A624E]">Total Kuota ({undanganList.length} Undangan)</p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-emerald-50/70 border border-emerald-200 shadow-xs space-y-1">
+            <div className="p-4 rounded-3xl bg-emerald-50/70 backdrop-blur-md border border-emerald-200/80 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">
                 Tamu Sudah Rawuh
               </span>
@@ -141,7 +142,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               </p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-amber-50/70 border border-amber-200 shadow-xs space-y-1">
+            <div className="p-4 rounded-3xl bg-amber-50/70 backdrop-blur-md border border-amber-200/80 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
                 Belum Hadir
               </span>
@@ -151,7 +152,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <p className="text-[11px] text-amber-700">Sisa Kuota Belum Terpakai</p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-blue-50/70 border border-blue-200 shadow-xs space-y-1">
+            <div className="p-4 rounded-3xl bg-blue-50/70 backdrop-blur-md border border-blue-200/80 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">
                 Registrasi Gerbang
               </span>
@@ -162,7 +163,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
         )}
 
         {/* TAB PILIHAN: ABSENSI CEPAT vs 8 POS JAGA */}
-        <div className="flex bg-[#EFE8E1] p-1 rounded-2xl border border-[#D5C4B4] max-w-md">
+        <div className="flex bg-white/40 backdrop-blur-md p-1 rounded-2xl border border-white/50 max-w-md shadow-xs">
           <button
             onClick={() => setActiveTab('ABSENSI')}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -187,8 +188,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
         {/* PANEL ABSENSI CEPAT TAMU UNDANGAN */}
         {activeTab === 'ABSENSI' && (
-          <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E8DFD5] shadow-sm space-y-5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div className="bg-white/40 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/50 shadow-lg space-y-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/40 pb-4">
               <div>
                 <h3 className="font-serif font-black text-lg text-[#422F21]">
                   absen cepat tamu undangan
@@ -200,7 +201,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Tambah Tamu Baru</span>
@@ -208,22 +209,22 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             </div>
 
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari nama kiai, masyaikh, instansi, atau kode tamu..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs sm:text-sm focus:outline-none focus:border-emerald-700"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-white/60 bg-white/50 backdrop-blur-sm focus:bg-white/80 text-xs sm:text-sm text-[#422F21] placeholder-[#7A624E]/70 focus:outline-none focus:border-[#8C6A47] shadow-xs"
               />
             </div>
 
             {loading ? (
               <SkeletonList rows={4} className="pt-1" />
             ) : filteredUndangan.length === 0 ? (
-              <div className="p-8 text-center text-stone-500 text-xs bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+              <div className="p-8 text-center text-[#7A624E] text-xs bg-white/30 backdrop-blur-sm rounded-2xl border border-dashed border-white/60 shadow-xs">
                 <p className="font-bold text-sm text-[#422F21]">Belum ada data peserta / tamu</p>
-                <p className="mt-1 text-stone-600">
+                <p className="mt-1 text-[#7A624E]">
                   Silakan panitia menambahkan data tamu undangan via tombol &quot;+ Tambah Tamu Baru&quot;.
                 </p>
               </div>
@@ -243,15 +244,15 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                   return (
                     <div
                       key={u.id || u.kode}
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                      className={`p-4 rounded-2xl border backdrop-blur-xs transition-all flex items-center justify-between gap-3 shadow-xs ${
                         isHadir
-                          ? 'bg-emerald-50/60 border-emerald-300'
-                          : 'bg-white border-[#E8DFD5] hover:border-emerald-500'
+                          ? 'bg-emerald-50/70 border-emerald-300'
+                          : 'bg-white/60 hover:bg-white/80 border-white/60 hover:border-emerald-500/70'
                       }`}
                     >
                       <div className="space-y-1 flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
-                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 border border-stone-200">
+                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100/80 text-stone-700 border border-stone-200">
                             {u.kode}
                           </span>
                           <span className="text-[10px] text-emerald-800 font-semibold truncate">
@@ -261,8 +262,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                         <h4 className="font-serif font-black text-sm text-[#422F21] truncate">
                           {u.nama}
                         </h4>
-                        <p className="text-[11px] text-stone-600 truncate flex items-center gap-1">
-                          <Building className="w-3 h-3 text-stone-400 shrink-0" />
+                        <p className="text-[11px] text-[#7A624E] truncate flex items-center gap-1">
+                          <Building className="w-3 h-3 text-[#8C6A47] shrink-0" />
                           <span>{u.instansi || u.alamat || 'Kediri'}</span>
                         </p>
                         {u.noHp && (
@@ -276,11 +277,11 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                       <div className="text-right shrink-0 space-y-1.5">
                         <div className="text-[11px] font-medium text-stone-500">
                           {isHadir ? (
-                            <span className="px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-black text-[10px]">
+                            <span className="px-2.5 py-1 rounded-full bg-emerald-200/90 text-emerald-950 font-black text-[10px] shadow-xs">
                               ✓ HADIR ({terpakai}/{totalKuotaItem} Kursi)
                             </span>
                           ) : (
-                            <span className="px-2.5 py-1 rounded-full bg-stone-200 text-stone-700 font-semibold text-[10px]">
+                            <span className="px-2.5 py-1 rounded-full bg-stone-200/80 text-stone-700 font-semibold text-[10px]">
                               BELUM ({terpakai}/{totalKuotaItem} Kursi)
                             </span>
                           )}
@@ -304,7 +305,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                               <button
                                 type="button"
                                 onClick={() => handleBatalkanHadir(u)}
-                                className="px-2 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-bold shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
+                                className="px-2 py-1 rounded-xl bg-rose-50/80 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-bold shadow-2xs flex items-center space-x-1 transition-all cursor-pointer"
                                 title="Batalkan Kehadiran (Undo)"
                               >
                                 <RotateCcw className="w-3 h-3" />
@@ -333,24 +334,24 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
         {/* PANEL 8 POS JAGA */}
         {activeTab === 'POS_JAGA' && (
-          <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E8DFD5] shadow-sm space-y-4">
-            <h3 className="font-serif font-black text-base text-[#422F21] border-b border-stone-100 pb-2">
+          <div className="bg-white/40 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/50 shadow-sm space-y-4">
+            <h3 className="font-serif font-black text-base text-[#422F21] border-b border-white/40 pb-2">
               8 Pos Jaga Transit &amp; Registrasi Gerbang
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 backdrop-blur-xs border border-amber-200/80 space-y-1">
                 <div className="font-bold text-amber-900 text-sm">Pos 1: Gerbang Utama VIP</div>
                 <p className="text-amber-800 text-[11px]">Khusus Masyayikh &amp; Penguji Utama</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 backdrop-blur-xs border border-emerald-200/80 space-y-1">
                 <div className="font-bold text-emerald-900 text-sm">Pos 2: Transit Putri Barat</div>
                 <p className="text-emerald-800 text-[11px]">Meja Registrasi Dzurriyah &amp; Nyai</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 space-y-1">
+              <div className="p-3.5 rounded-2xl bg-blue-50/70 backdrop-blur-xs border border-blue-200/80 space-y-1">
                 <div className="font-bold text-blue-900 text-sm">Pos 3: Transit Putra Timur</div>
                 <p className="text-blue-800 text-[11px]">Area Parkir Kiai &amp; Undangan Khusus</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 space-y-1">
+              <div className="p-3.5 rounded-2xl bg-purple-50/70 backdrop-blur-xs border border-purple-200/80 space-y-1">
                 <div className="font-bold text-purple-900 text-sm">Pos 4: Meja Suvenir &amp; Berkat</div>
                 <p className="text-purple-800 text-[11px]">Penyerahan Kitab &amp; Cendera Mata</p>
               </div>
@@ -358,6 +359,28 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           </div>
         )}
       </main>
+
+      {/* FLOATING ACTION BUTTON (FAB) TANYA USTH. HALWAA */}
+      {!isUsModalOpen && (
+        <button
+          type="button"
+          onClick={() => setIsUsModalOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center space-x-2.5 px-4 py-2.5 rounded-full bg-[#8C6A47]/90 hover:bg-[#8C6A47] backdrop-blur-md text-white font-bold text-xs shadow-2xl border border-white/40 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+          title="Tanya Usth. Halwaa seputar tamu dan protokoler"
+        >
+          <div className="w-7 h-7 rounded-full bg-white/20 border border-white/40 overflow-hidden flex items-center justify-center shrink-0">
+            <img
+              src="/images/avatar/ustadzah-avatar-wave.png"
+              alt="Usth. Halwaa"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="font-serif tracking-wide text-amber-100 group-hover:text-white">
+            Tanya Usth. Halwaa
+          </span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+        </button>
+      )}
 
       {/* MODAL TAMBAH TAMU BARU */}
       <TambahTamuModal

@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { clearActiveRole } from '@/lib/auth-roles';
+import { useRouter, usePathname } from 'next/navigation';
+import { clearActiveRole, getActiveRole, AppRole } from '@/lib/auth-roles';
 import {
   Menu,
   LogOut,
@@ -18,21 +18,35 @@ interface TopHeaderProps {
 
 export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [activeRole, setActiveRole] = useState<AppRole | null>(null);
+
+  useEffect(() => {
+    setActiveRole(getActiveRole());
+  }, [pathname]);
+
+  const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
 
   return (
     <header className="h-16 sm:h-[72px] shrink-0 z-20 bg-white/40 backdrop-blur-md border-b border-white/50 text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none shadow-xs">
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-        {/* Tombol Hamburger di HP/Tablet */}
-        <button
-          onClick={onOpenMobile}
-          className="lg:hidden p-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] transition-colors shrink-0"
-          aria-label="Buka Menu Navigasi"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+        {/* Tombol Hamburger di HP/Tablet (Ditiadakan HANYA jika login sebagai role PENERIMA_TAMU) */}
+        {!isRolePenerimaTamu && (
+          <button
+            onClick={onOpenMobile}
+            className="lg:hidden p-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] transition-colors shrink-0"
+            aria-label="Buka Menu Navigasi"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
 
         {/* Logo Haul Haflah (Menggantikan Breadcrumb & Judul Halaman) */}
-        <Link href="/admin/dasbor" className="min-w-0 shrink-0 block group cursor-pointer" title="Kembali ke Dasbor Admin">
+        <Link
+          href={isRolePenerimaTamu ? '/penerima-tamu' : '/admin/dasbor'}
+          className="min-w-0 shrink-0 block group cursor-pointer"
+          title={isRolePenerimaTamu ? 'Pos Penerima Tamu' : 'Kembali ke Dasbor Admin'}
+        >
           <img
             src="/images/logo-haul-gold.png"
             alt="Logo Haul &amp; Haflah P3TQ MHMTQ"

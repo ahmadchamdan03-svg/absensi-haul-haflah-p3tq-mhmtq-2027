@@ -128,6 +128,16 @@ export async function middleware(request: NextRequest) {
     }
 
     // Role-specific granular checks:
+    // 1. Role ADMIN memiliki hak akses penuh ke seluruh rute (dasbor, scan, verifikasi, peserta, penerima-tamu, rekon, dll)
+    if (roleCookie === 'ADMIN') {
+      const response = NextResponse.next();
+      response.headers.set('Content-Security-Policy', CSP);
+      response.headers.set('X-Content-Type-Options', 'nosniff');
+      response.headers.set('X-Frame-Options', 'DENY');
+      response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+      return response;
+    }
+
     // PENJAGA_GERBANG hanya boleh akses /scan, /dasbor, /penerima-tamu, /admin/verifikasi (tidak boleh /admin/peserta, /admin/audit-log, /admin/laporan)
     if (roleCookie === 'PENJAGA_GERBANG') {
       const allowedForGate = ['/scan', '/dasbor', '/penerima-tamu', '/admin/verifikasi'];
@@ -148,9 +158,9 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // PENERIMA_TAMU hanya boleh akses /penerima-tamu, /dasbor, /admin/dasbor
+    // PENERIMA_TAMU hanya boleh akses /penerima-tamu, /dasbor, /admin/dasbor, dan /scan
     if (roleCookie === 'PENERIMA_TAMU') {
-      const allowedForPt = ['/penerima-tamu', '/dasbor', '/admin/dasbor'];
+      const allowedForPt = ['/penerima-tamu', '/dasbor', '/admin/dasbor', '/scan'];
       const isAllowedPtPath = allowedForPt.some((p) => pathname.startsWith(p));
       if (!isAllowedPtPath) {
         logUnauthorizedAccess(clientIp, pathname, roleCookie, 'Penerima tamu route privilege violation');

@@ -242,7 +242,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 const Icon = item.icon;
                 const isActive =
                   pathname === item.href ||
-                  (item.href !== '/' && pathname.startsWith(item.href));
+                  (item.href !== '/' && (pathname.startsWith(`${item.href}/`) || pathname.startsWith(`${item.href}?`)));
 
                 return (
                   <Link

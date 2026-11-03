@@ -5,10 +5,17 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import TopHeader from '@/components/TopHeader';
 import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
+import { getActiveRole, AppRole } from '@/lib/auth-roles';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeRole, setActiveRole] = useState<AppRole | null>(null);
+
+  // Baca active role untuk deteksi hak akses tampilan shell
+  useEffect(() => {
+    setActiveRole(getActiveRole());
+  }, [pathname]);
 
   // Tutup drawer mobile secara otomatis setiap kali rute berpindah
   useEffect(() => {
@@ -40,13 +47,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Khusus role PENERIMA_TAMU yang login: sembunyikan sidebar total agar meja tamu luas penuh layar.
+  // Untuk akun ADMIN (dan role lain), Sidebar tetap muncul normal seperti biasa.
+  const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
+
   return (
     <div className="flex h-screen overflow-hidden bg-transparent relative z-0">
       {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG) */}
       <CanvasRevealMask />
 
-      {/* Sidebar Navigasi Samping */}
-      <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
+      {/* Sidebar Navigasi Samping (Disembunyikan total HANYA untuk role PENERIMA_TAMU; ADMIN tetap ada sidebar) */}
+      {!isRolePenerimaTamu && (
+        <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
+      )}
 
       {/* Area Konten Utama */}
       <div className="flex-1 flex flex-col h-full min-w-0 relative z-10 overflow-hidden">
