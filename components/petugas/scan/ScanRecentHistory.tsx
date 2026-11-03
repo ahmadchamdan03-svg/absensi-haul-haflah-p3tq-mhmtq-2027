@@ -3,12 +3,17 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 import { RecentScanLog } from './types';
+import { SkeletonList } from '@/components/ui/GlassSkeleton';
 
 interface ScanRecentHistoryProps {
   recentScans: RecentScanLog[];
+  loading?: boolean;
 }
 
-export default function ScanRecentHistory({ recentScans }: ScanRecentHistoryProps) {
+export default function ScanRecentHistory({
+  recentScans,
+  loading = false,
+}: ScanRecentHistoryProps) {
   return (
     <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 shadow-xs border border-white/70 space-y-3">
       <div className="flex items-center justify-between">
@@ -23,7 +28,9 @@ export default function ScanRecentHistory({ recentScans }: ScanRecentHistoryProp
         </span>
       </div>
 
-      {recentScans.length === 0 ? (
+      {loading ? (
+        <SkeletonList rows={3} />
+      ) : recentScans.length === 0 ? (
         <p className="text-xs text-stone-400 font-medium text-center py-3">
           Belum ada riwayat scan presensi hari ini.
         </p>

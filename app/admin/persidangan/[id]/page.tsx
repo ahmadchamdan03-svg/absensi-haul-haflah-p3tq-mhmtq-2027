@@ -24,6 +24,7 @@ import PersidanganForm from '@/components/PersidanganForm';
 import PersidanganPDFUploader from '@/components/PersidanganPDFUploader';
 import PersidanganPesertaTable from '@/components/PersidanganPesertaTable';
 import PersidanganScanModal from '@/components/PersidanganScanModal';
+import { SkeletonCard, SkeletonTable } from '@/components/ui/GlassSkeleton';
 
 export default function PersidanganDetailPage() {
   const params = useParams();
@@ -85,11 +86,9 @@ export default function PersidanganDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-12 text-center text-xs text-[#735334]">
-        <div className="inline-flex items-center gap-2">
-          <RefreshCw className="w-5 h-5 animate-spin text-[#8C6A47]" />
-          <span>Memuat data persidangan...</span>
-        </div>
+      <div className="space-y-6 pb-12 animate-in fade-in duration-300">
+        <SkeletonCard className="h-32" />
+        <SkeletonTable rows={5} cols={6} />
       </div>
     );
   }

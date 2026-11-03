@@ -7,8 +7,10 @@ import SantriTableFilter, {
   filterSantriTableItems,
 } from './SantriTableFilter';
 import SantriTableRow, { executeFastTrackVipHelper } from './SantriTableRow';
+import { SkeletonTableRow } from '@/components/ui/GlassSkeleton';
 
 export interface SantriTableProps {
+  loading?: boolean;
   tabsHeader?: React.ReactNode;
   activeTab: string;
   allItems: any[];
@@ -43,6 +45,7 @@ export interface SantriTableProps {
 }
 
 export default function SantriTable({
+  loading = false,
   tabsHeader,
   activeTab,
   allItems,
@@ -138,7 +141,11 @@ export default function SantriTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
-              {paginatedItems.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <SkeletonTableRow key={idx} cols={8} />
+                ))
+              ) : paginatedItems.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400">
                     <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />

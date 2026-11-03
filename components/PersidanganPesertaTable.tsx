@@ -35,6 +35,7 @@ import {
 } from '@/components/admin/persidangan/types';
 import PersidanganToolbarAndStats from '@/components/admin/persidangan/PersidanganToolbarAndStats';
 import PersidanganModals from '@/components/admin/persidangan/PersidanganModals';
+import { SkeletonTableRow } from '@/components/ui/GlassSkeleton';
 
 export type { PersidanganPesertaTableProps };
 
@@ -515,14 +516,9 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
             </thead>
             <tbody className="divide-y divide-[#EFE8E1] text-[#422F21]">
               {loading ? (
-                <tr>
-                  <td colSpan={9} className="p-8 text-center text-xs text-[#735334]">
-                    <div className="inline-flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin text-[#8C6A47]" />
-                      Memuat daftar peserta...
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <SkeletonTableRow key={idx} cols={9} />
+                ))
               ) : filteredList.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-xs text-[#735334]">

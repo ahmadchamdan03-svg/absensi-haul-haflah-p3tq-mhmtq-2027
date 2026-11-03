@@ -10,12 +10,13 @@ import {
 } from '@/lib/laporan-rekap';
 import { LaporanTables } from '@/components/admin/laporan/LaporanTables';
 import { LaporanDetailModal } from '@/components/admin/laporan/LaporanDetailModal';
+import { SkeletonTable } from '@/components/ui/GlassSkeleton';
 
 export default function LaporanPage() {
   const [santriList, setSantriList] = useState<any[]>([]);
   const [tamuList, setTamuList] = useState<any[]>([]);
   const [presensiLogs, setPresensiLogs] = useState<any[]>([]);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [modalKategori, setModalKategori] = useState<string | null>(null);
   const [modalSearch, setModalSearch] = useState<string>('');
@@ -129,30 +130,37 @@ export default function LaporanPage() {
       </div>
 
       {/* DOKUMEN REKAP RESMI (SIAP CETAK) */}
-      <LaporanTables
-        subtotalSantri={subtotalSantri}
-        countBilGhoib={countBilGhoib}
-        countBinNadzor={countBinNadzor}
-        countTamatan={countTamatan}
-        blokSantri={blokSantri}
-        pctSubtotalSantri={pctSubtotalSantri}
-        blokTambahan={blokTambahan}
-        subtotalUndangan={subtotalUndangan}
-        rowsIstimewa={rowsIstimewa}
-        subtotalIstimewa={subtotalIstimewa}
-        pctIstimewa={pctIstimewa}
-        rowsKehormatan={rowsKehormatan}
-        subtotalKehormatan={subtotalKehormatan}
-        pctKehormatan={pctKehormatan}
-        rowsUmum={rowsUmum}
-        subtotalUmum={subtotalUmum}
-        pctUmum={pctUmum}
-        pctSubtotalUndangan={pctSubtotalUndangan}
-        onSelectCategory={(kat) => {
-          setModalKategori(kat);
-          setModalSearch('');
-        }}
-      />
+      {loading ? (
+        <div className="space-y-4">
+          <SkeletonTable rows={6} cols={6} />
+          <SkeletonTable rows={4} cols={6} />
+        </div>
+      ) : (
+        <LaporanTables
+          subtotalSantri={subtotalSantri}
+          countBilGhoib={countBilGhoib}
+          countBinNadzor={countBinNadzor}
+          countTamatan={countTamatan}
+          blokSantri={blokSantri}
+          pctSubtotalSantri={pctSubtotalSantri}
+          blokTambahan={blokTambahan}
+          subtotalUndangan={subtotalUndangan}
+          rowsIstimewa={rowsIstimewa}
+          subtotalIstimewa={subtotalIstimewa}
+          pctIstimewa={pctIstimewa}
+          rowsKehormatan={rowsKehormatan}
+          subtotalKehormatan={subtotalKehormatan}
+          pctKehormatan={pctKehormatan}
+          rowsUmum={rowsUmum}
+          subtotalUmum={subtotalUmum}
+          pctUmum={pctUmum}
+          pctSubtotalUndangan={pctSubtotalUndangan}
+          onSelectCategory={(kat) => {
+            setModalKategori(kat);
+            setModalSearch('');
+          }}
+        />
+      )}
 
       {/* MODAL DETAIL RINCIAN KATEGORI */}
       <LaporanDetailModal

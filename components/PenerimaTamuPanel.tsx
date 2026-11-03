@@ -18,6 +18,7 @@ import { clearActiveRole } from '@/lib/auth-roles';
 import { useTamuData } from '@/lib/hooks/useTamuData';
 import TambahTamuModal from '@/components/penerima-tamu/TambahTamuModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
+import { SkeletonCard, SkeletonList } from '@/components/ui/GlassSkeleton';
 
 export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: boolean }) {
   const router = useRouter();
@@ -109,47 +110,56 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* RINGKASAN LIVE DASBOR TAMU */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="p-4 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-1">
-            <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">
-              Total Tamu Terdata
-            </span>
-            <div className="text-2xl font-serif font-black text-[#422F21]">
-              {totalKuotaTamu > 0 ? `${totalKuotaTamu} Kursi` : '—'}
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-300">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-300">
+            <div className="p-4 rounded-3xl bg-white border border-[#E8DFD5] shadow-xs space-y-1">
+              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">
+                Total Tamu Terdata
+              </span>
+              <div className="text-2xl font-serif font-black text-[#422F21]">
+                {totalKuotaTamu > 0 ? `${totalKuotaTamu} Kursi` : '—'}
+              </div>
+              <p className="text-[11px] text-stone-600">Total Kuota ({undanganList.length} Undangan)</p>
             </div>
-            <p className="text-[11px] text-stone-600">Total Kuota ({undanganList.length} Undangan)</p>
-          </div>
 
-          <div className="p-4 rounded-3xl bg-emerald-50/70 border border-emerald-200 shadow-xs space-y-1">
-            <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">
-              Tamu Sudah Rawuh
-            </span>
-            <div className="text-2xl font-serif font-black text-emerald-900">
-              {totalHadirTamu > 0 || totalKuotaTamu > 0 ? `${totalHadirTamu} Hadir` : '—'}
+            <div className="p-4 rounded-3xl bg-emerald-50/70 border border-emerald-200 shadow-xs space-y-1">
+              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">
+                Tamu Sudah Rawuh
+              </span>
+              <div className="text-2xl font-serif font-black text-emerald-900">
+                {totalHadirTamu > 0 || totalKuotaTamu > 0 ? `${totalHadirTamu} Hadir` : '—'}
+              </div>
+              <p className="text-[11px] text-emerald-700">
+                Terpakai ({totalKuotaTamu > 0 ? `${totalHadirTamu}/${totalKuotaTamu} Kursi` : '—'})
+              </p>
             </div>
-            <p className="text-[11px] text-emerald-700">
-              Terpakai ({totalKuotaTamu > 0 ? `${totalHadirTamu}/${totalKuotaTamu} Kursi` : '—'})
-            </p>
-          </div>
 
-          <div className="p-4 rounded-3xl bg-amber-50/70 border border-amber-200 shadow-xs space-y-1">
-            <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
-              Belum Hadir
-            </span>
-            <div className="text-2xl font-serif font-black text-amber-900">
-              {totalBelumHadirTamu} Belum
+            <div className="p-4 rounded-3xl bg-amber-50/70 border border-amber-200 shadow-xs space-y-1">
+              <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
+                Belum Hadir
+              </span>
+              <div className="text-2xl font-serif font-black text-amber-900">
+                {totalBelumHadirTamu} Belum
+              </div>
+              <p className="text-[11px] text-amber-700">Sisa Kuota Belum Terpakai</p>
             </div>
-            <p className="text-[11px] text-amber-700">Sisa Kuota Belum Terpakai</p>
-          </div>
 
-          <div className="p-4 rounded-3xl bg-blue-50/70 border border-blue-200 shadow-xs space-y-1">
-            <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">
-              Registrasi Gerbang
-            </span>
-            <div className="text-2xl font-serif font-black text-blue-900">06.30 WIB</div>
-            <p className="text-[11px] text-blue-700">07.00 Waktu Istiwa&apos; (WIs)</p>
+            <div className="p-4 rounded-3xl bg-blue-50/70 border border-blue-200 shadow-xs space-y-1">
+              <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">
+                Registrasi Gerbang
+              </span>
+              <div className="text-2xl font-serif font-black text-blue-900">06.30 WIB</div>
+              <p className="text-[11px] text-blue-700">07.00 Waktu Istiwa&apos; (WIs)</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* TAB PILIHAN: ABSENSI CEPAT vs 8 POS JAGA */}
         <div className="flex bg-[#EFE8E1] p-1 rounded-2xl border border-[#D5C4B4] max-w-md">
@@ -209,9 +219,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             </div>
 
             {loading ? (
-              <div className="p-8 text-center text-stone-500 text-xs">
-                <p>Memuat data tamu dari Supabase...</p>
-              </div>
+              <SkeletonList rows={4} className="pt-1" />
             ) : filteredUndangan.length === 0 ? (
               <div className="p-8 text-center text-stone-500 text-xs bg-stone-50 rounded-2xl border border-dashed border-stone-200">
                 <p className="font-bold text-sm text-[#422F21]">Belum ada data peserta / tamu</p>

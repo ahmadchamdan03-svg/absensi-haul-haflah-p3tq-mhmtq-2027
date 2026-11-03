@@ -29,6 +29,7 @@ import {
 import UndanganWaliRsvpSection from '@/components/public/undangan/UndanganWaliRsvpSection';
 import UndanganAcaraAndFooter from '@/components/public/undangan/UndanganAcaraAndFooter';
 import UndanganTamuRsvpAndFooter from '@/components/public/undangan/UndanganTamuRsvpAndFooter';
+import { SkeletonCard } from '@/components/ui/GlassSkeleton';
 
 export default function UndanganWaliPage() {
   const params = useParams();
@@ -766,15 +767,22 @@ export default function UndanganWaliPage() {
               onOpenDaftarPeserta={() => setIsDaftarPesertaOpen(true)}
             />
 
-            <UndanganTamuRsvpAndFooter
-              item={item}
-              kodeSH={kodeSH}
-              fullQrPayload={fullQrPayload}
-              savingRsvp={savingRsvp}
-              rsvpError={rsvpError}
-              tamuRsvpSaved={tamuRsvpSaved}
-              onKonfirmasiTamu={handleKonfirmasiTamu}
-            />
+            {loadingSantri ? (
+              <div className="space-y-4 animate-in fade-in duration-300">
+                <SkeletonCard className="h-44" />
+                <SkeletonCard className="h-64" />
+              </div>
+            ) : (
+              <UndanganTamuRsvpAndFooter
+                item={item}
+                kodeSH={kodeSH}
+                fullQrPayload={fullQrPayload}
+                savingRsvp={savingRsvp}
+                rsvpError={rsvpError}
+                tamuRsvpSaved={tamuRsvpSaved}
+                onKonfirmasiTamu={handleKonfirmasiTamu}
+              />
+            )}
           </div>
         )
       ) : (
@@ -799,34 +807,41 @@ export default function UndanganWaliPage() {
               totalKuotaSantri={totalKuotaSantri}
             />
 
-            <UndanganWaliRsvpSection
-              item={item}
-              totalKuotaSantri={totalKuotaSantri}
-              estL={estL}
-              setEstL={setEstL}
-              estP={estP}
-              setEstP={setEstP}
-              jamKonfirmasi={jamKonfirmasi}
-              setJamKonfirmasi={setJamKonfirmasi}
-              hariKonfirmasi={hariKonfirmasi}
-              setHariKonfirmasi={setHariKonfirmasi}
-              rsvpValidationErr={rsvpValidationErr}
-              setRsvpValidationErr={setRsvpValidationErr}
-              isMounted={isMounted}
-              isMobileDevice={isMobileDevice}
-              clockWrapperRef={clockWrapperRef}
-              isClockOpen={isClockOpen}
-              setIsClockOpen={setIsClockOpen}
-              clockMode={clockMode}
-              setClockMode={setClockMode}
-              savingRsvp={savingRsvp}
-              isWaliRsvpExceeded={isWaliRsvpExceeded}
-              handleSimpanEstimasiWali={handleSimpanEstimasiWali}
-              waHalKhususLink={waHalKhususLink}
-              rsvpError={rsvpError}
-              estimasiSaved={estimasiSaved}
-              lastSavedTime={lastSavedTime}
-            />
+            {loadingSantri ? (
+              <div className="space-y-4 animate-in fade-in duration-300">
+                <SkeletonCard className="h-48" />
+                <SkeletonCard className="h-64" />
+              </div>
+            ) : (
+              <UndanganWaliRsvpSection
+                item={item}
+                totalKuotaSantri={totalKuotaSantri}
+                estL={estL}
+                setEstL={setEstL}
+                estP={estP}
+                setEstP={setEstP}
+                jamKonfirmasi={jamKonfirmasi}
+                setJamKonfirmasi={setJamKonfirmasi}
+                hariKonfirmasi={hariKonfirmasi}
+                setHariKonfirmasi={setHariKonfirmasi}
+                rsvpValidationErr={rsvpValidationErr}
+                setRsvpValidationErr={setRsvpValidationErr}
+                isMounted={isMounted}
+                isMobileDevice={isMobileDevice}
+                clockWrapperRef={clockWrapperRef}
+                isClockOpen={isClockOpen}
+                setIsClockOpen={setIsClockOpen}
+                clockMode={clockMode}
+                setClockMode={setClockMode}
+                savingRsvp={savingRsvp}
+                isWaliRsvpExceeded={isWaliRsvpExceeded}
+                handleSimpanEstimasiWali={handleSimpanEstimasiWali}
+                waHalKhususLink={waHalKhususLink}
+                rsvpError={rsvpError}
+                estimasiSaved={estimasiSaved}
+                lastSavedTime={lastSavedTime}
+              />
+            )}
 
             <UndanganAcaraAndFooter
               kodeSH={kodeSH}

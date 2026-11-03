@@ -16,6 +16,7 @@ import {
   Eye,
   Loader2,
 } from 'lucide-react';
+import { SkeletonTableRow } from '@/components/ui/GlassSkeleton';
 
 export function VerifikasiHeaderAndStats({
   setShowAddManualModal,
@@ -289,12 +290,9 @@ export function VerifikasiOrdersTable({
           </thead>
           <tbody className="divide-y divide-stone-100">
             {loadingData ? (
-              <tr>
-                <td colSpan={8} className="py-12 text-center text-stone-500">
-                  <Loader2 className="w-7 h-7 animate-spin text-[#8C6A47] mx-auto mb-2" />
-                  <p className="font-semibold text-xs">Memuat Data Transaksi dari Supabase...</p>
-                </td>
-              </tr>
+              Array.from({ length: 5 }).map((_, idx) => (
+                <SkeletonTableRow key={idx} cols={8} />
+              ))
             ) : filteredOrders.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-12 text-center text-stone-400">

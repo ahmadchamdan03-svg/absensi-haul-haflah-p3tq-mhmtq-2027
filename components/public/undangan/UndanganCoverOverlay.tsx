@@ -9,6 +9,7 @@ import HeaderUndangan from '@/components/HeaderUndangan';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
 import { cleanKategoriTamatan } from '@/lib/types';
 import { renderTamuName, renderAlamatTamu } from './UndanganEffects';
+import { SkeletonText } from '@/components/ui/GlassSkeleton';
 
 export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
   return (
@@ -89,9 +90,17 @@ export function UndanganCoverTamu({
             <span className="text-xs text-stone-600 uppercase tracking-wider font-semibold">
               Kepada Yth. Bapak/Ibu/Saudara:
             </span>
-            {renderTamuName(item)}
-
-            {renderAlamatTamu(item)}
+            {item?.nama || item?.namaPutra || item?.namaPutri ? (
+              <>
+                {renderTamuName(item)}
+                {renderAlamatTamu(item)}
+              </>
+            ) : (
+              <div className="space-y-1.5 py-1">
+                <SkeletonText width="70%" height="1.5rem" className="mx-auto" />
+                <SkeletonText width="40%" height="1rem" className="mx-auto" />
+              </div>
+            )}
           </div>
 
           <div className="pt-2 space-y-3">
@@ -143,14 +152,18 @@ export function UndanganCoverWali({
               Kepada Yth. Bapak/Ibu Wali Santri dari:
             </span>
             <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21] drop-shadow-xs">
-              {santri?.nama || item?.entitas?.nama || 'Wali Santri'}
+              {santri?.nama || item?.entitas?.nama || item?.nama || (
+                <SkeletonText width="65%" height="1.75rem" className="mx-auto my-1" />
+              )}
             </h2>
             <div className="inline-block px-3.5 py-1 rounded-full bg-white/70 backdrop-blur-xs text-[#8C6A47] text-xs font-bold border border-white/80 max-w-full leading-normal break-words text-center shadow-xs">
               {santri
                 ? santri.kamar && santri.kamar !== '-'
                   ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
                   : (cleanKategoriTamatan(santri.subKategori) || 'Santri')
-                : 'Wali Santri'}
+                : (
+                  <SkeletonText width="5rem" height="0.875rem" className="mx-auto" />
+                )}
             </div>
           </div>
 

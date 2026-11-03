@@ -45,6 +45,7 @@ export default function ScanPage() {
 
   // Riwayat & Submitting state
   const [recentScans, setRecentScans] = useState<RecentScanLog[]>([]);
+  const [loadingScans, setLoadingScans] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Visual feedback overlay
@@ -70,6 +71,8 @@ export default function ScanPage() {
       setRecentScans(logs || []);
     } catch (err) {
       console.error('Error fetching recent scans:', err);
+    } finally {
+      setLoadingScans(false);
     }
   }, []);
 
@@ -514,7 +517,7 @@ export default function ScanPage() {
       />
 
       {/* RIWAYAT SCAN TERAKHIR HARI INI */}
-      <ScanRecentHistory recentScans={recentScans} />
+      <ScanRecentHistory recentScans={recentScans} loading={loadingScans} />
 
       {/* DENAH MODAL */}
       {isDenahOpen && (

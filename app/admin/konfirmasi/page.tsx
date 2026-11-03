@@ -309,6 +309,7 @@ export default function KonfirmasiPage() {
 
       {/* STATS & FILTER SECTION */}
       <KonfirmasiStatsAndFilters
+        loading={loading}
         activeMainTab={activeMainTab}
         setActiveMainTab={setActiveMainTab}
         daftarSantriCount={daftarSantri.length}
@@ -327,6 +328,7 @@ export default function KonfirmasiPage() {
       >
         {/* TABEL DATA KONFIRMASI */}
         <KonfirmasiTableSection
+          loading={loading}
           activeMainTab={activeMainTab}
           paginatedList={paginatedList}
           filteredListLength={filteredList.length}

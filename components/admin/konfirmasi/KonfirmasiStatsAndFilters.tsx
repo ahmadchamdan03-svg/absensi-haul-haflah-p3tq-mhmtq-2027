@@ -15,8 +15,10 @@ import {
   FilterKategoriType,
   KonfirmasiRekap,
 } from './types';
+import { SkeletonCard } from '@/components/ui/GlassSkeleton';
 
 interface KonfirmasiStatsAndFiltersProps {
+  loading?: boolean;
   activeMainTab: MainTabType;
   setActiveMainTab: React.Dispatch<React.SetStateAction<MainTabType>>;
   daftarSantriCount: number;
@@ -36,6 +38,7 @@ interface KonfirmasiStatsAndFiltersProps {
 }
 
 export default function KonfirmasiStatsAndFilters({
+  loading = false,
   activeMainTab,
   setActiveMainTab,
   daftarSantriCount,
@@ -122,7 +125,14 @@ export default function KonfirmasiStatsAndFilters({
       </div>
 
       {/* 4 KARTU METRIK RINGKASAN KONFIRMASI */}
-      {activeMainTab === 'WALI_SANTRI' ? (
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-in fade-in duration-300">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : activeMainTab === 'WALI_SANTRI' ? (
         <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 sm:gap-6 items-stretch">
           {/* Card 1: Total Santri Riil */}
           <button

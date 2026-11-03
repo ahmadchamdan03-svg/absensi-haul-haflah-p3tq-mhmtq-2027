@@ -15,6 +15,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { fetchDashboardMetrics } from '@/lib/dashboard-queries';
 import DenahModal from '@/components/DenahModal';
+import { SkeletonCard, SkeletonList } from '@/components/ui/GlassSkeleton';
 
 interface LiveDasborProps {
   isPimpinanView?: boolean;
@@ -245,55 +246,64 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       </div>
 
       {/* 2 KARTU METRIK UTAMA (GLASSMORPHISM) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* KARTU 1: TOTAL WALI SANTRI */}
-        <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
-              <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
-              TOTAL WALI SANTRI
-            </span>
-            <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isWsAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
-              {totalKuotaWaliSantri > 0 ? `${Math.min(100, Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100))}% Hadir` : '—'} {isWsAnomaly && '⚠️ (Over)'}
-            </span>
-          </div>
-          <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
-            {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri > 0 ? totalKuotaWaliSantri : '—'}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
-            <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.wsL}</strong></span>
-            <span className="text-stone-300">·</span>
-            <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.wsP}</strong></span>
-          </div>
-          <p className="text-xs text-stone-500">
-            Total wali santri hadir / total kuota wali santri keseluruhan
-          </p>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-300">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-300">
+          {/* KARTU 1: TOTAL WALI SANTRI */}
+          <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
+                <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
+                TOTAL WALI SANTRI
+              </span>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isWsAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
+                {totalKuotaWaliSantri > 0 ? `${Math.min(100, Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100))}% Hadir` : '—'} {isWsAnomaly && '⚠️ (Over)'}
+              </span>
+            </div>
+            <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
+              {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri > 0 ? totalKuotaWaliSantri : '—'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
+              <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.wsL}</strong></span>
+              <span className="text-stone-300">·</span>
+              <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.wsP}</strong></span>
+            </div>
+            <p className="text-xs text-stone-500">
+              Total wali santri hadir / total kuota wali santri keseluruhan
+            </p>
+          </div>
 
-        {/* KARTU 2: TOTAL TAMU UNDANGAN */}
-        <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
-              <Award className="w-4.5 h-4.5 text-emerald-700" />
-              TOTAL TAMU UNDANGAN
-            </span>
-            <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isTamuAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}>
-              {totalKuotaTamu > 0 ? `${Math.min(100, Math.round((totalHadirTamu / totalKuotaTamu) * 100))}% Hadir` : '—'} {isTamuAnomaly && '⚠️ (Over)'}
-            </span>
+          {/* KARTU 2: TOTAL TAMU UNDANGAN */}
+          <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
+                <Award className="w-4.5 h-4.5 text-emerald-700" />
+                TOTAL TAMU UNDANGAN
+              </span>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isTamuAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}>
+                {totalKuotaTamu > 0 ? `${Math.min(100, Math.round((totalHadirTamu / totalKuotaTamu) * 100))}% Hadir` : '—'} {isTamuAnomaly && '⚠️ (Over)'}
+              </span>
+            </div>
+            <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
+              {totalHadirTamu} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaTamu}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
+              <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.tamuL}</strong></span>
+              <span className="text-stone-300">·</span>
+              <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.tamuP}</strong></span>
+            </div>
+            <p className="text-xs text-stone-500">
+              Total tamu undangan hadir / total tamu undangan keseluruhan
+            </p>
           </div>
-          <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
-            {totalHadirTamu} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaTamu}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
-            <span>Laki-laki: <strong className="font-bold text-stone-800">{genderStats.tamuL}</strong></span>
-            <span className="text-stone-300">·</span>
-            <span>Perempuan: <strong className="font-bold text-stone-800">{genderStats.tamuP}</strong></span>
-          </div>
-          <p className="text-xs text-stone-500">
-            Total tamu undangan hadir / total tamu undangan keseluruhan
-          </p>
         </div>
-      </div>
+      )}
 
       {/* FILTER & PENCARIAN REAL-TIME */}
       <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] space-y-4">
@@ -397,9 +407,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
 
         {/* TABEL / GRID DAFTAR PESERTA & TAMU */}
         {loading ? (
-          <div className="p-8 text-center text-xs text-stone-500">
-            Memuat data dasbor dari Supabase...
-          </div>
+          <SkeletonList rows={4} className="pt-1" />
         ) : filteredList.length === 0 ? (
           <div className="p-8 text-center text-xs bg-stone-50 rounded-2xl border border-dashed border-stone-200 space-y-1">
             <p className="font-bold text-sm text-[#422F21]">

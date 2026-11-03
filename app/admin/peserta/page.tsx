@@ -50,6 +50,7 @@ export default function ManajemenPesertaPage() {
     handleConfirmHapusSemua,
     handleOpenEdit,
     handleConfirmDelete,
+    loading,
     refreshData,
     stats,
     allItems,
@@ -75,6 +76,7 @@ export default function ManajemenPesertaPage() {
 
       {activeTab.startsWith('UNDANGAN') ? (
         <TamuTable
+          loading={loading}
           tabsHeader={tabsHeader}
           activeTab={activeTab}
           allItems={allItems}
@@ -97,6 +99,7 @@ export default function ManajemenPesertaPage() {
         />
       ) : (
         <SantriTable
+          loading={loading}
           tabsHeader={tabsHeader}
           activeTab={activeTab}
           allItems={allItems}

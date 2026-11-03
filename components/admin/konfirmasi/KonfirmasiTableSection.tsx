@@ -17,8 +17,10 @@ import {
 } from 'lucide-react';
 import { buatPesanPengingatKonfirmasi, buatPesanKonfirmasiTamu, normalkanNomorHp } from '@/lib/hmac';
 import { MainTabType, KonfirmasiItem } from './types';
+import { SkeletonTableRow } from '@/components/ui/GlassSkeleton';
 
 interface KonfirmasiTableSectionProps {
+  loading?: boolean;
   activeMainTab: MainTabType;
   paginatedList: KonfirmasiItem[];
   filteredListLength: number;
@@ -34,6 +36,7 @@ interface KonfirmasiTableSectionProps {
 }
 
 export default function KonfirmasiTableSection({
+  loading = false,
   activeMainTab,
   paginatedList,
   filteredListLength,
@@ -79,7 +82,11 @@ export default function KonfirmasiTableSection({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#D5C4B4]/40">
-            {paginatedList.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <SkeletonTableRow key={idx} cols={7} />
+              ))
+            ) : paginatedList.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-[#7A624E]">
                   <div className="flex flex-col items-center justify-center space-y-2">

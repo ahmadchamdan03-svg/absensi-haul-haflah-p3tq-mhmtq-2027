@@ -25,6 +25,7 @@ import {
 } from '@/lib/persidangan';
 import { supabase } from '@/lib/supabase';
 import PersidanganScanModal from '@/components/PersidanganScanModal';
+import { SkeletonCard } from '@/components/ui/GlassSkeleton';
 
 export default function PersidanganDashboardPage() {
   const router = useRouter();
@@ -160,20 +161,9 @@ export default function PersidanganDashboardPage() {
 
       {/* Grid of Persidangan Cards */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs space-y-4 animate-pulse"
-            >
-              <div className="h-4 bg-[#E5D7C8] rounded w-3/4"></div>
-              <div className="h-3 bg-[#E5D7C8] rounded w-1/2"></div>
-              <div className="space-y-2 pt-2">
-                <div className="h-3 bg-[#E5D7C8] rounded w-full"></div>
-                <div className="h-3 bg-[#E5D7C8] rounded w-5/6"></div>
-              </div>
-              <div className="h-8 bg-[#E5D7C8] rounded-xl w-full pt-4"></div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-in fade-in duration-300">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <SkeletonCard key={i} />
           ))}
         </div>
       ) : filteredList.length === 0 ? (

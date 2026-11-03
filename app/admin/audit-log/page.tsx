@@ -27,6 +27,7 @@ import { supabase } from '@/lib/supabase';
 import { AuditLogDbRow, AksiAudit } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import * as XLSX from 'xlsx';
+import { SkeletonTable } from '@/components/ui/GlassSkeleton';
 
 // FIX 5: Komponen Diff Table Key-Value dengan Highlight Kuning & Collapse Field Sistem
 function DiffTableViewer({
@@ -568,9 +569,8 @@ export default function AuditLogPage() {
             </div>
 
             {loading ? (
-              <div className="py-20 text-center text-stone-500 font-medium">
-                <RefreshCw className="w-8 h-8 text-[#8C6A47] animate-spin mx-auto mb-2" />
-                <p>Memuat data audit log dari Supabase...</p>
+              <div className="p-4">
+                <SkeletonTable rows={6} cols={7} />
               </div>
             ) : filteredLogs.length === 0 ? (
               <div className="py-20 text-center text-stone-500">
