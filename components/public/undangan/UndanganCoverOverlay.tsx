@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertCircle, MessageCircle, MailOpen, ChevronDown } from 'lucide-react';
+import { AlertCircle, MessageCircle, MailOpen } from 'lucide-react';
 import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -75,7 +75,7 @@ export function UndanganCoverTamu({
   onOpen: () => void;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
+    <div className="min-h-screen h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 overflow-hidden">
       <ScrollReveal>
         <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
           <HeaderUndangan titleType="UNDANGAN RESMI" />
@@ -112,13 +112,6 @@ export function UndanganCoverTamu({
               <MailOpen className="w-4 h-4 text-amber-200" />
               <span>Buka Undangan ✉️</span>
             </button>
-
-            <div className="pt-1 flex flex-col items-center space-y-1 text-stone-500 animate-bounce">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6A47]">
-                Scroll ke Bawah ✦
-              </span>
-              <ChevronDown className="w-4 h-4 text-[#8C6A47]" />
-            </div>
           </div>
         </div>
       </ScrollReveal>
@@ -136,7 +129,7 @@ export function UndanganCoverWali({
   onOpen: () => void;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
+    <div className="min-h-screen h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 overflow-hidden">
       <ScrollReveal>
         <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
           <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
@@ -176,13 +169,6 @@ export function UndanganCoverWali({
               <MailOpen className="w-4 h-4 text-amber-200" />
               <span>Buka Undangan ✉️</span>
             </button>
-
-            <div className="pt-1 flex flex-col items-center space-y-1 text-stone-500 animate-bounce">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6A47]">
-                Scroll ke Bawah ✦
-              </span>
-              <ChevronDown className="w-4 h-4 text-[#8C6A47]" />
-            </div>
           </div>
         </div>
       </ScrollReveal>

@@ -1,7 +1,7 @@
 'use client';
 
 import QRCode from 'react-qr-code';
-import { Calendar, Clock, MapPin, Compass, Users } from 'lucide-react';
+import { Calendar, Clock, MapPin, Compass, Users, ChevronDown } from 'lucide-react';
 import { formatQrPayloadSync } from '@/lib/hmac';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
@@ -32,6 +32,14 @@ export function TamuHeroAndEventSections({
           <HeaderUndangan titleType="UNDANGAN RESMI" />
         </div>
       </ScrollReveal>
+
+      {/* INDIKATOR SCROLL HANYA TAMPIL SETELAH UNDANGAN DIBUKA */}
+      <div className="flex flex-col items-center justify-center space-y-1 text-stone-500 animate-bounce py-1 select-none">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6A47]">
+          Scroll ke Bawah ✦
+        </span>
+        <ChevronDown className="w-3.5 h-3.5 text-[#8C6A47]" />
+      </div>
 
       {/* 2. KARTU IDENTITAS TAMU UNDANGAN & SAMBUTAN FORMAL ISLAMI */}
       <ScrollReveal delay={150}>
@@ -236,6 +244,14 @@ export function WaliHeroAndIdentitySections({
           <HeaderUndanganWali />
         </div>
       </ScrollReveal>
+
+      {/* INDIKATOR SCROLL HANYA TAMPIL SETELAH UNDANGAN DIBUKA */}
+      <div className="flex flex-col items-center justify-center space-y-1 text-stone-500 animate-bounce py-1 select-none">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6A47]">
+          Scroll ke Bawah ✦
+        </span>
+        <ChevronDown className="w-3.5 h-3.5 text-[#8C6A47]" />
+      </div>
 
       {/* 2. PROFIL SANTRIWATI & WALI SANTRI (PERBAIKAN 3 & 5: RAPIKAN GRID MOBILE) */}
       <ScrollReveal delay={100}>

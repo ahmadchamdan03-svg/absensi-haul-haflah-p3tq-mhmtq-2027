@@ -575,6 +575,18 @@ export default function UndanganWaliPage() {
     }
   };
 
+  // Kunci scroll body saat cover belum dibuka, buka scroll saat sudah dibuka
+  useEffect(() => {
+    if (!isOpened) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpened]);
+
   const toggleMusic = () => {
     if (!audioRef.current) return;
     if (isPlayingMusic) {
@@ -735,7 +747,11 @@ export default function UndanganWaliPage() {
   }
 
   return (
-    <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative overflow-x-hidden">
+    <div
+      className={`min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative ${
+        !isOpened ? 'h-screen overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
+      }`}
+    >
       {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR) */}
       <CanvasRevealMask />
 
