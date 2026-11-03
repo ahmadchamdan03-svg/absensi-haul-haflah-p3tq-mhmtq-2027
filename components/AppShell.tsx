@@ -38,7 +38,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F3] glass-ambient-bg flex relative overflow-x-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#FAF7F3] glass-ambient-bg relative">
       {/* Ambient Light Orbs for Rich Glass Refraction (FIX 3) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
         {/* Orb 1: Emas / Amber terang di bagian atas tengah-kanan (di belakang kartu metrik dasbor) */}
@@ -55,12 +55,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
 
       {/* Area Konten Utama */}
-      <div className="flex-1 flex flex-col min-w-0 relative z-10">
+      <div className="flex-1 flex flex-col h-full min-w-0 relative z-10 overflow-hidden">
         {/* Top Header Bersih & Ringkas */}
         <TopHeader onOpenMobile={() => setMobileOpen(true)} />
 
         {/* Isi Halaman Panitia */}
-        <main className="flex-1">
+        <main className="flex-1 h-full min-h-0 overflow-y-auto relative">
           {children}
         </main>
       </div>

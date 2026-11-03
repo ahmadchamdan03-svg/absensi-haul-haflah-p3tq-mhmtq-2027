@@ -283,7 +283,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
 
       {/* Footer Sidebar: Karakter Usth. Halwaa (Tanpa Pop Up Chat Bubble) */}
-      <div className="pt-2 pb-3 px-2 border-t border-white/20 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center">
+      <div className="pt-2 pb-3 px-2 border-t border-white/20 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center shrink-0">
         <button
           type="button"
           onClick={() => setTanyaUsOpen(true)}
@@ -313,10 +313,10 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
   return (
     <>
-      {/* 1. Desktop Resizable Sidebar */}
+      {/* 1. Desktop Resizable Sidebar (Statis & Paten Penuh H-Full) */}
       <aside
         style={{ width: `${sidebarWidth}px` }}
-        className={`hidden lg:block shrink-0 h-screen sticky top-0 z-30 no-print select-none relative ${
+        className={`hidden lg:block shrink-0 h-full overflow-hidden no-print select-none relative z-30 ${
           isResizing ? '' : 'transition-[width] duration-150 ease-out'
         }`}
       >
