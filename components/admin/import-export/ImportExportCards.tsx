@@ -247,8 +247,8 @@ export function ImportExportCards({
             <div
               className={`p-4 rounded-2xl border-2 border-dashed text-center space-y-2 transition-all ${
                 selectedKategoriUpload
-                  ? 'bg-[#FAF7F3] border-[#D5C4B4]'
-                  : 'bg-stone-50 border-stone-200 opacity-60'
+                  ? 'bg-white/40 backdrop-blur-xs border-amber-900/30'
+                  : 'bg-white/10 border-stone-300/40 opacity-60'
               }`}
             >
               <input
@@ -264,8 +264,8 @@ export function ImportExportCards({
                 htmlFor={selectedKategoriUpload ? 'excel-file-input' : undefined}
                 className={`inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xs transition-all ${
                   selectedKategoriUpload
-                    ? 'bg-white border border-[#D5C4B4] text-[#5C3E28] hover:bg-stone-100 cursor-pointer'
-                    : 'bg-stone-200 border border-stone-300 text-stone-400 cursor-not-allowed opacity-50'
+                    ? 'bg-white/70 hover:bg-white/90 border border-white/80 text-[#5C3E28] backdrop-blur-xs cursor-pointer'
+                    : 'bg-stone-200/50 border border-stone-300/60 text-stone-400 cursor-not-allowed opacity-50'
                 }`}
               >
                 <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />

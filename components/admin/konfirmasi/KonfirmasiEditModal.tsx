@@ -32,9 +32,9 @@ export default function KonfirmasiEditModal({
   if (!modalItem) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#FAF7F3] rounded-3xl p-6 max-w-md w-full shadow-2xl border-2 border-[#8C6A47]/40 space-y-4 animate-scale-up">
-        <div className="flex items-center justify-between border-b border-[#D5C4B4] pb-3">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#FAF7F3]/95 backdrop-blur-xl rounded-3xl p-6 max-w-md w-full shadow-2xl border border-white/60 space-y-4 animate-scale-up">
+        <div className="flex items-center justify-between border-b border-[#D5C4B4]/60 pb-3">
           <div>
             <h3 className="font-serif font-black text-base text-[#422F21]">
               Edit Konfirmasi Manual Panitia
@@ -45,7 +45,7 @@ export default function KonfirmasiEditModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21] flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/70 backdrop-blur-xs border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21] flex items-center justify-center cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -59,7 +59,7 @@ export default function KonfirmasiEditModal({
         )}
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="p-3 bg-[#EFE8E1]/70 rounded-2xl border border-[#D5C4B4] text-xs space-y-1">
+          <div className="p-3 bg-[#EFE8E1]/60 backdrop-blur-xs rounded-2xl border border-[#D5C4B4]/70 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-[#7A624E]">Wali Santri:</span>
               <span className="font-bold text-[#422F21]">{modalItem.namaWali}</span>
@@ -77,7 +77,7 @@ export default function KonfirmasiEditModal({
           </div>
 
           {/* Stepper Laki-laki */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-white border border-[#D5C4B4]">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80">
             <div>
               <div className="text-xs font-bold text-[#422F21]">Wali Laki-laki (Putra)</div>
               <div className="text-[10px] text-[#7A624E]">Zona Sayap Barat</div>
@@ -106,7 +106,7 @@ export default function KonfirmasiEditModal({
           </div>
 
           {/* Stepper Perempuan */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-white border border-[#D5C4B4]">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80">
             <div>
               <div className="text-xs font-bold text-[#422F21]">Wali Perempuan (Putri)</div>
               <div className="text-[10px] text-[#7A624E]">Zona Sayap Timur</div>
@@ -151,15 +151,15 @@ export default function KonfirmasiEditModal({
               value={editCatatan}
               onChange={(e) => setEditCatatan(e.target.value)}
               placeholder="Contoh: Dikonfirmasi via telepon WhatsApp oleh wali"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white border-2 border-[#D5C4B4] text-xs text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#D5C4B4] text-xs text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
             />
           </div>
 
-          <div className="flex items-center justify-end space-x-2 pt-2 border-t border-[#D5C4B4]">
+          <div className="flex items-center justify-end space-x-2 pt-2 border-t border-[#D5C4B4]/60">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-[#FAF7F3] cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white/70 backdrop-blur-xs border border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-[#FAF7F3] cursor-pointer"
             >
               Batal
             </button>

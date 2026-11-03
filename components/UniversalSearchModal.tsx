@@ -408,13 +408,13 @@ export default function UniversalSearchModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="w-full max-w-3xl bg-[#FAF7F3] rounded-3xl shadow-2xl border-2 border-[#8C6A47]/40 flex flex-col overflow-hidden max-h-[90vh] text-[#422F21]"
+        className="w-full max-w-3xl bg-[#FAF7F3]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 flex flex-col overflow-hidden max-h-[90vh] text-[#422F21]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar Search */}
-        <div className="p-4 sm:p-5 border-b-2 border-[#D5C4B4] bg-white flex items-center space-x-3">
+        <div className="p-4 sm:p-5 border-b border-[#D5C4B4]/70 bg-white/70 backdrop-blur-xs flex items-center space-x-3">
           <Search className="w-5 h-5 text-[#8C6A47] shrink-0" />
           <input
             ref={inputRef}

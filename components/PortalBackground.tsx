@@ -77,23 +77,23 @@ export function PortalBackground() {
           transform: `translate3d(0, ${offsetY}px, 0) scale(1.02)`,
         }}
       >
-        <img
-          src="/images/panggung-aula.jpg"
-          alt="Panggung Aula Al-Muktamar"
-          className="w-full h-full object-cover object-center filter brightness-[1.02] contrast-[1.02]"
-        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[max(100vw,177.78vh)] h-[max(56.25vw,100vh)] overflow-hidden">
+          <img
+            src="/images/panggung-aula.jpg"
+            alt="Panggung Aula Al-Muktamar"
+            className="w-full h-full object-cover filter brightness-[1.02] contrast-[1.02]"
+          />
 
-        {/* Overlay Logo P3TQ & MHMTQ Tajam (Menimpa logo blur di panggung) */}
-        <div className="absolute top-[18%] sm:top-[20%] left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 sm:gap-6 z-10 pointer-events-none drop-shadow-md">
+          {/* Overlay Logo P3TQ (Kiri) & MHMTQ (Kanan) Tajam (Menimpa logo blur di pilar panggung) */}
           <img
             src="/images/logo-p3tq-overlay.png"
             alt="Logo P3TQ"
-            className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain filter drop-shadow-md"
+            className="absolute left-[28.42%] top-[39.5%] -translate-x-1/2 -translate-y-1/2 w-[3.5%] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] pointer-events-none"
           />
           <img
             src="/images/logo-mhmtq-overlay.png"
             alt="Logo MHMTQ"
-            className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain filter drop-shadow-md"
+            className="absolute left-[71.68%] top-[39.8%] -translate-x-1/2 -translate-y-1/2 w-[3.5%] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] pointer-events-none"
           />
         </div>
       </div>

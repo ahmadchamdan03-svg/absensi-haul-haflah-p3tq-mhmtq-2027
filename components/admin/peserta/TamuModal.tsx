@@ -180,7 +180,7 @@ export default function TamuModal({
       {/* MODAL 2: TAMBAH TAMU UNDANGAN */}
       {showAddUndanganModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden">
+          <div className="bg-[#FAF7F3]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 md:p-6 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
@@ -239,7 +239,7 @@ export default function TamuModal({
       {/* MODAL 3 (UNDANGAN): EDIT TAMU UNDANGAN */}
       {isEditingUndangan && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden">
+          <div className="bg-[#FAF7F3]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 shrink-0">
@@ -263,7 +263,7 @@ export default function TamuModal({
             </div>
 
             {/* TAB NAVIGASI EDIT MODAL */}
-            <div className="flex border-b border-slate-200 bg-slate-50 px-4 pt-2 gap-2 text-xs font-bold shrink-0">
+            <div className="flex border-b border-amber-900/10 bg-amber-50/50 backdrop-blur-xs px-4 pt-2 gap-2 text-xs font-bold shrink-0">
               <button
                 type="button"
                 onClick={() => setEditModalTab('FORM')}
