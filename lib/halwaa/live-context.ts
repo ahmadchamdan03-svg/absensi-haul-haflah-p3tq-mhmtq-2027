@@ -530,6 +530,154 @@ export async function handleLiveCategoryNameQueries(userQuery: string, isFirstTu
   return null;
 }
 
+/**
+ * Deteksi apakah pengguna menanyakan tentang santri dengan kategori dobel / ganda.
+ */
+export function detectKategoriDobelIntent(prompt: string, history?: any[]): boolean {
+  const p = prompt.toLowerCase().trim();
+
+  // Pola kata kunci langsung terkait kategori dobel / ganda
+  const isDirectDobel =
+    p.includes('kategori dobel') ||
+    p.includes('kategori ganda') ||
+    p.includes('dobel kategori') ||
+    p.includes('ganda kategori') ||
+    p.includes('santri dobel') ||
+    p.includes('santri ganda') ||
+    ((p.includes('dobel') || p.includes('ganda')) &&
+      (p.includes('santri') || p.includes('kategori') || p.includes('siapa') || p.includes('daftar') || p.includes('punya')));
+
+  if (isDirectDobel) return true;
+
+  // Pola follow-up: jika user meminta format tabel, periksa apakah riwayat sebelumnya membahas kategori dobel
+  const isAskingTable =
+    p.includes('tabel') ||
+    p.includes('table') ||
+    p.includes('bentuk tabel') ||
+    p.includes('format tabel');
+
+  if (isAskingTable && Array.isArray(history) && history.length > 0) {
+    const recentMsgs = history.slice(-4);
+    const wasDiscussingDobel = recentMsgs.some((m: any) => {
+      const content = String(m.content || '').toLowerCase();
+      return (
+        content.includes('kategori dobel') ||
+        content.includes('kategori ganda') ||
+        content.includes('dobel kategori') ||
+        content.includes('santri dobel') ||
+        content.includes('diyanah')
+      );
+    });
+    if (wasDiscussingDobel) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Mengecek apakah pengguna meminta penyajian dalam format tabel
+ */
+export function isTableFormatRequested(prompt: string, history?: any[]): boolean {
+  const p = prompt.toLowerCase();
+  return (
+    p.includes('tabel') ||
+    p.includes('table') ||
+    p.includes('bentuk tabel') ||
+    p.includes('format tabel') ||
+    p.includes('spreadsheet') ||
+    p.includes('kolom')
+  );
+}
+
+/**
+ * Menghandle query santri dengan kategori dobel langsung dari Supabase live
+ */
+export async function handleKategoriDobelQuery(
+  prompt: string,
+  isFirstTurn: boolean = false,
+  history?: any[]
+): Promise<string> {
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb. 🙏✨\n\n" : "";
+
+  // Query tabel peserta_santri dari Supabase
+  let santriList: any[] = [];
+  try {
+    const { data, error } = await supabase
+      .from('peserta_santri')
+      .select('id, kode, nama, nama_wali, sub_kategori, kategori_utama, kuota_dasar, kamar, alamat')
+      .or('sub_kategori.ilike.%&%,sub_kategori.ilike.%dan%')
+      .order('nama', { ascending: true });
+
+    if (error) {
+      console.warn('[Halwaa Kategori Dobel] Error Supabase query:', error);
+    } else if (data) {
+      santriList = data;
+    }
+  } catch (err) {
+    console.warn('[Halwaa Kategori Dobel] Exception querying Supabase:', err);
+  }
+
+  // Fallback ke store jika Supabase offline
+  if (santriList.length === 0) {
+    try {
+      const mockList = store.getKeluargaList();
+      santriList = mockList
+        .filter((k) => {
+          const sub = String(k.santri?.[0]?.subKategori || '');
+          return sub.includes('&') || sub.toLowerCase().includes(' dan ');
+        })
+        .map((k) => ({
+          kode: k.kode,
+          nama: k.santri?.[0]?.nama || '-',
+          nama_wali: k.namaWali,
+          sub_kategori: k.santri?.[0]?.subKategori,
+          kategori_utama: k.santri?.[0]?.kategoriUtama,
+          kuota_dasar: k.kuota?.kuotaDasar || 2,
+          kamar: k.santri?.[0]?.kamar || '-',
+          alamat: k.alamat || 'Kediri',
+        }));
+    } catch {}
+  }
+
+  // Filter ketat memastikan hanya yang benar-benar memiliki tanda '&' atau kata 'dan' di sub_kategori
+  const dobelList = santriList.filter((s) => {
+    const sub = String(s.sub_kategori || '').trim();
+    return sub.includes('&') || /\bdan\b/i.test(sub);
+  });
+
+  if (dobelList.length === 0) {
+    return `${greetingPrefix}Saat ini tidak ada santri yang terdaftar dengan kategori dobel, Us.\n\nSemua santri saat ini tercatat dalam satu kategori tunggal (Bil Ghoib, Bin Nadzori, atau Tamatan).`;
+  }
+
+  const wantsTable = isTableFormatRequested(prompt, history);
+
+  if (wantsTable) {
+    const tableHeader = '| No | Kode | Nama Santri | Nama Wali | Kategori Dobel | Kuota | Kamar |\n|:---:|:---:|:---|:---|:---|:---:|:---:|';
+    const tableRows = dobelList.map((s, idx) => {
+      const nama = s.nama ? `**${s.nama}**` : '-';
+      const wali = s.nama_wali || '-';
+      const sub = s.sub_kategori || '-';
+      const kuota = `${s.kuota_dasar || 2} Kursi`;
+      const kamar = s.kamar && s.kamar !== '-' ? s.kamar : 'Pondok';
+      return `| ${idx + 1} | \`${s.kode}\` | ${nama} | ${wali} | ${sub} | ${kuota} | ${kamar} |`;
+    });
+
+    return `${greetingPrefix}Nggih Us, berikut adalah tabel data **${dobelList.length} santri** yang memiliki **Kategori Dobel** (LIVE Supabase):\n\n${tableHeader}\n${tableRows.join('\n')}\n\n[👉 Kelola Data Peserta di Menu Admin](/admin/peserta)\n\nAda lagi info kepanitiaan yang bisa saya bantu, Us?`;
+  }
+
+  // Format Daftar / List yang rapi dan elegan
+  const listItems = dobelList.map((s, idx) => {
+    const nama = s.nama ? `**${s.nama}**` : '-';
+    const wali = s.nama_wali ? ` (Wali: ${s.nama_wali})` : '';
+    const sub = s.sub_kategori || 'Kategori Dobel';
+    const kuota = s.kuota_dasar ? ` · Kuota: ${s.kuota_dasar} Kursi` : '';
+    const kamar = s.kamar && s.kamar !== '-' ? ` · Kamar: ${s.kamar}` : '';
+    return `${idx + 1}. ${nama}${wali} — *${sub}* (\`${s.kode}\`${kuota}${kamar})`;
+  });
+
+  return `${greetingPrefix}Us, berikut adalah daftar santri yang memiliki **Kategori Dobel**:\n\n${listItems.join('\n')}\n\n*Catatan: Seluruh santri kategori dobel di atas telah disatukan hak kuotanya dalam satu kode barcode resmi.*\n\nAda lagi info kepanitiaan yang bisa saya bantu, Us?`;
+}
+
 export async function getLiveDatabaseContextPrompt(userQuery: string = ''): Promise<string> {
   const [resTamu, resSantri, resPresensi, kuotaMetrics, guestCounts, wsMetrics, tamuMetrics] = await Promise.all([
     getTamuUndanganLive(),
@@ -559,6 +707,14 @@ export async function getLiveDatabaseContextPrompt(userQuery: string = ''): Prom
   const asatidzText = guestCounts?.asatidz ? `${guestCounts.asatidz} orang` : 'Belum ada data di sistem';
   const perwakilanText = guestCounts?.perwakilan ? `${guestCounts.perwakilan} perwakilan` : 'Belum ada data di sistem';
 
+  const dobelSantriList = santriList.filter((s: any) => {
+    const sub = String(s.sub_kategori || '').trim();
+    return sub.includes('&') || /\bdan\b/i.test(sub);
+  });
+  const dobelSummary = dobelSantriList.length > 0
+    ? dobelSantriList.map((s: any) => `${s.nama} (${s.sub_kategori}, Wali: ${s.nama_wali || '-'})`).join('; ')
+    : 'Tidak ada santri kategori dobel';
+
   return `
 === DATA DARI DATABASE SUPABASE (LIVE & ACTUAL) ===
 Timestamp: ${dateStr}, pukul ${timeStr} WIB
@@ -572,16 +728,18 @@ Timestamp: ${dateStr}, pukul ${timeStr} WIB
 - PENGUJI AL-QUR'AN (LIVE SUPA): ${pengujiText}
 - ASATIDZ MHMTQ (LIVE SUPA): ${asatidzText}
 - PERWAKILAN PONDOK (LIVE SUPA): ${perwakilanText}
+- SANTRI KATEGORI DOBEL (LIVE SUPA): ${dobelSantriList.length} santri (${dobelSummary})
 - SISA KUOTA TAMBAHAN (LIVE SUPA): ${kuotaMetrics.sisa} kursi dari total pagu ${kuotaMetrics.total} kursi (pagu terjual: ${kuotaMetrics.terjual} kursi). Jika ditanya sisa kuota tambahan/pagu, sebutkan secara jelas sisa saat ini adalah ${kuotaMetrics.sisa} kursi!
 
---- DAFTAR NAMA TAMU INDIVIDUAL RESMI DARI SUPABASE (LIVE & DETIL) ---
+--- DAFTAR NAMA INDIVIDUAL RESMI DARI SUPABASE (LIVE & DETIL) ---
+• Santri Kategori Dobel: ${dobelSummary}
 • Tamu VVIP: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VVIP')).map((g: any) => `${g.nama||g.nama_putra||'VVIP'} (${g.kode})`).join(', ')) || 'Belum ada data'}
 • Tamu VIP: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VIP') && !`${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('VVIP')).map((g: any) => `${g.nama||g.nama_putra||'VIP'} (${g.kode})`).slice(0, 10).join(', ')) || 'Belum ada data'}
 • Tamu Kehormatan: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('KEHORMATAN')).map((g: any) => `${g.nama||g.nama_putra||'Kehormatan'} (${g.kode})`).join(', ')) || 'Belum ada data'}
 • Penguji Al-Qur'an: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('PENGUJI')).map((g: any) => `${g.nama||g.nama_putra||'Penguji'} (${g.kode}, No. HP: ${g.no_hp||'Tersedia'})`).join(', ')) || 'Belum ada data'}
 • Asatidz MHMTQ: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('ASATIDZ')).map((g: any) => `${g.nama||g.nama_putra||'Asatidz'} (${g.kode})`).join(', ')) || 'Belum ada data'}
 • Perwakilan Pondok: ${(tamuList.filter((g: any) => `${g.kategori||''} ${g.sub_kategori||''}`.toUpperCase().includes('PERWAKILAN')).map((g: any) => `${g.nama||g.nama_putra||'Perwakilan'} (${g.kode})`).join(', ')) || 'Belum ada data'}
-[CATATAN PENTING AI: Anda MEMILIKI AKSES PENUH ke daftar nama individu di atas. SEBUTKAN nama spesifik tersebut saat ditanyakan dan DILARANG MERESPON 'tidak disimpan di Knowledge Base' ATAU 'tidak memiliki akses ke daftar nama'!]
+[CATATAN PENTING AI: Anda MEMILIKI AKSES PENUH ke daftar nama individu santri dan tamu di atas. Jika ditanyakan siapa saja santri kategori dobel, sebutkan nama-nama spesifik di atas dan DILARANG MERESPON 'tidak memiliki akses' atau 'data per-santri belum tersedia'!]
 
 --- STATISTIK KEHADIRAN (REALTIME) ---
 - Wali Santri Hadir: ${wsMetrics?.totalHadir || 0} dari ${wsMetrics?.totalKuota || 0} kuota (${wsMetrics?.persenHadir || 0}%)

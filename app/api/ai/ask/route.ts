@@ -39,6 +39,8 @@ import {
   getLiveArrivedGuestsResponse,
   getLiveArrivedWaliResponse,
   handleWaliSantriQueries,
+  detectKategoriDobelIntent,
+  handleKategoriDobelQuery,
 } from '@/lib/halwaa/live-context';
 import { searchPersonInSupabase } from '@/lib/halwaa/search-person';
 
@@ -78,6 +80,23 @@ export async function POST(req: NextRequest) {
       ? history.filter((item: any) => item.role === 'user').length
       : 0;
     const isFirstTurn = userMessageCount === 0;
+
+    // =========================================================================
+    // FIX INTENT KHUSUS: SANTRI KATEGORI DOBEL (DIRECT QUERY SUPABASE LIVE)
+    // =========================================================================
+    if (detectKategoriDobelIntent(prompt, history)) {
+      const dobelReply = await handleKategoriDobelQuery(prompt, isFirstTurn, history);
+      const cleanReply = cleanReplyForSession(dobelReply, isFirstTurn, prompt);
+      const expr = 'happy';
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_query',
+        model: 'Usth. Halwaa Smart Query',
+        responseTimeMs: Date.now() - startTime,
+      });
+    }
 
     const isChartRequested =
       prompt.toLowerCase().includes('grafik') ||

@@ -69,6 +69,10 @@ ATURAN DATA LIVE DARI SUPABASE (WAJIB & MUTLAK):
 4. SISA KUOTA TAMBAHAN:
    - Sumber: LIVE dari rumus (300 - SUM(pembelian_kuota yang DIVERIFIKASI)).
 
+5. SANTRI DENGAN KATEGORI DOBEL:
+   - Sumber: LIVE dari tabel 'peserta_santri' di database Supabase yang memiliki sub_kategori dengan tanda '&' atau kata 'dan' (misal: "Tamatan (A.04) & Bin Nadzori").
+   - Jika pengguna bertanya tentang siapa saja santri yang punya/memiliki kategori dobel, sebutkan daftar nama spesifiknya secara lengkap beserta wali dan kategorinya. DILARANG MERESPON bahwa data per-santri tidak tersedia!
+
 =============================================================================
 DATA KEUANGAN & SALDO (SANGAT PENTING - DIENFORSE KETAT):
 =============================================================================
