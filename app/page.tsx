@@ -299,7 +299,7 @@ export default function LandingPortalPage() {
       {/* ================================================================= */}
       <div className="min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 w-full relative z-10">
         {/* KONTEN UTAMA: KARTU PEMBUNGKUS PUTIH DIHAPUS, TOMBOL MELAYANG MURNI */}
-        <div id="login-card" className="w-full max-w-md md:max-w-lg p-2 sm:p-4 space-y-4 text-center my-auto animate-in fade-in zoom-in-95 duration-300">
+        <div id="login-card" className="w-full max-w-xl lg:max-w-2xl p-2 sm:p-4 space-y-4 text-center my-auto animate-in fade-in zoom-in-95 duration-300">
           {/* LOGO BERJAJAR */}
           <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
             <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
@@ -308,15 +308,15 @@ export default function LandingPortalPage() {
           </div>
 
           {/* JUDUL & DESKRIPSI IDENTITAS */}
-          <div className="overflow-hidden">
+          <div className="w-full">
             <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.18em] text-[#8C6A47] uppercase mb-2 drop-shadow-xs">
               HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
             </p>
 
-            <h1 className="text-xs sm:text-sm md:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs whitespace-nowrap">
+            <h1 className="text-xs sm:text-sm md:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap">
               Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
             </h1>
-            <h1 className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs whitespace-nowrap tracking-tight sm:tracking-normal">
+            <h1 className="text-[11px] sm:text-xs md:text-sm lg:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap tracking-tight sm:tracking-normal">
               Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
             </h1>
 
@@ -330,7 +330,7 @@ export default function LandingPortalPage() {
           </div>
 
           {/* 4 TOMBOL AKSES ROLE - MELAYANG LANGSUNG DI ATAS BACKGROUND DENGAN HOVER USTH. HALWAA */}
-          <div className="grid grid-cols-2 gap-2.5 md:gap-3 items-stretch">
+          <div className="w-full max-w-md md:max-w-lg mx-auto grid grid-cols-2 gap-2.5 md:gap-3 items-stretch">
             {ROLE_BUTTONS.map(({ key, icon: Icon, image, color }) => {
               const config = ROLES_CONFIG[key];
               const isAdmin = key === 'ADMIN';
