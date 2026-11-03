@@ -28,7 +28,7 @@ export function TamuHeroAndEventSections({
     <>
       {/* 1. HEADER RESMI MELAYANG (FLOATING) */}
       <ScrollReveal delay={50}>
-        <div className="p-2 sm:p-4 text-center">
+        <div className="w-full max-w-2xl lg:max-w-3xl mx-auto p-2 sm:p-4 md:px-6 text-center">
           <HeaderUndangan titleType="UNDANGAN RESMI" />
         </div>
       </ScrollReveal>
@@ -229,7 +229,7 @@ export function WaliHeroAndIdentitySections({
     <>
       {/* 1. HEADER RESMI WALI MELAYANG (FLOATING) */}
       <ScrollReveal delay={50}>
-        <div className="p-2 sm:p-4 text-center">
+        <div className="w-full max-w-2xl lg:max-w-3xl mx-auto p-2 sm:p-4 md:px-6 text-center">
           <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
             UNDANGAN RESMI WALI SANTRI
           </div>

@@ -48,12 +48,12 @@ export function HeaderUndangan({
         1448 H. / 2027 M.
       </p>
 
-      {/* 5. BLOK NAMA LEMBAGA (RAPI & PROPORSIAL DALAM SATU BARIS) */}
-      <div className="text-xs sm:text-sm text-[#7A624E] leading-relaxed space-y-0.5 mt-3 sm:mt-4 text-center font-serif italic max-w-lg mx-auto overflow-hidden">
-        <p className="whitespace-nowrap text-[10px] sm:text-xs md:text-sm">
+      {/* 5. BLOK NAMA LEMBAGA (RAPI & PROPORSIAL DALAM SATU BARIS BEBAS OVERFLOW) */}
+      <div className="w-full max-w-none md:max-w-2xl lg:max-w-3xl text-xs sm:text-sm text-[#7A624E] leading-relaxed space-y-0.5 mt-3 sm:mt-4 text-center font-serif italic mx-auto px-2">
+        <p className="whitespace-nowrap text-[10px] sm:text-xs md:text-[13px] lg:text-sm">
           Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
         </p>
-        <p className="whitespace-nowrap text-[9px] sm:text-xs md:text-sm tracking-tight sm:tracking-normal">
+        <p className="whitespace-nowrap text-[9px] sm:text-[11px] md:text-xs lg:text-[13px] tracking-tight sm:tracking-normal">
           Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
         </p>
         <p className="font-semibold text-[#8C6A47] not-italic text-xs sm:text-sm pt-1">

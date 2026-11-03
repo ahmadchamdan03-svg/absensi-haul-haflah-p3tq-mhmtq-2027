@@ -77,7 +77,7 @@ export function UndanganCoverTamu({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
       <ScrollReveal>
-        <div className="max-w-md w-full p-2 sm:p-4 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
+        <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
           <HeaderUndangan titleType="UNDANGAN RESMI" />
 
           <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
@@ -103,7 +103,7 @@ export function UndanganCoverTamu({
             )}
           </div>
 
-          <div className="pt-2 space-y-3">
+          <div className="pt-2 space-y-3 max-w-md mx-auto w-full">
             <button
               type="button"
               onClick={onOpen}
@@ -138,7 +138,7 @@ export function UndanganCoverWali({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20">
       <ScrollReveal>
-        <div className="max-w-md w-full p-2 sm:p-4 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
+        <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
           <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
             UNDANGAN RESMI WALI SANTRI
           </div>
@@ -167,7 +167,7 @@ export function UndanganCoverWali({
             </div>
           </div>
 
-          <div className="pt-2 space-y-3">
+          <div className="pt-2 space-y-3 max-w-md mx-auto w-full">
             <button
               type="button"
               onClick={onOpen}

@@ -35,11 +35,11 @@ export function NamaLembaga({
   }[weight] || 'font-bold';
 
   return (
-    <div className={`space-y-1 ${textAlign} leading-relaxed ${fontSize} ${color} overflow-hidden ${className}`}>
-      <p className={`font-serif ${fontWeight} whitespace-nowrap text-[10px] sm:text-xs md:text-sm`}>
+    <div className={`w-full space-y-1 ${textAlign} leading-relaxed ${fontSize} ${color} ${className}`}>
+      <p className={`font-serif ${fontWeight} whitespace-nowrap text-[10px] sm:text-xs md:text-[13px] lg:text-sm`}>
         Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
       </p>
-      <p className={`font-serif ${fontWeight} whitespace-nowrap text-[9px] sm:text-xs md:text-sm tracking-tight sm:tracking-normal`}>
+      <p className={`font-serif ${fontWeight} whitespace-nowrap text-[9px] sm:text-[11px] md:text-xs lg:text-[13px] tracking-tight sm:tracking-normal`}>
         Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
       </p>
     </div>
