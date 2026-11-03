@@ -7,6 +7,9 @@ import {
   calculateKuotaDasarSantri,
   mergeSubKategori,
   resolvePriorityKategoriUtama,
+  isDuplicateSantri,
+  normalizePesertaString,
+  normalizeWaliString,
 } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 
@@ -323,20 +326,15 @@ export async function executeBatchImportToSupabase({
     (existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim())
   );
 
-  // Ambil cache data santri yang ada untuk pengecekan Kategori Dobel berdasarkan Nama Santri & Nama Wali (case-insensitive)
-  const santriByNameAndWali = new Map<string, any>();
+  // Ambil cache data santri yang ada untuk pengecekan Kategori Dobel berdasarkan Nama Santri & Nama Wali
+  const existingSantriList: any[] = [];
   if (activeTab === 'SANTRI') {
     const { data: existingSantriData } = await supabase
       .from('peserta_santri')
       .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat');
 
     if (existingSantriData) {
-      for (const s of existingSantriData) {
-        if (s.nama && s.nama_wali) {
-          const key = `${String(s.nama).trim().toUpperCase()}||${String(s.nama_wali).trim().toUpperCase()}`;
-          santriByNameAndWali.set(key, s);
-        }
-      }
+      existingSantriList.push(...existingSantriData);
     }
   }
 
@@ -377,9 +375,8 @@ export async function executeBatchImportToSupabase({
         continue;
       }
 
-      const cleanNamaSantri = namaSantri.trim().toUpperCase();
-      const cleanNamaWali = (namaWali || '').trim().toUpperCase();
-      const santriKey = `${cleanNamaSantri}||${cleanNamaWali}`;
+      const cleanNamaSantri = namaSantri.trim().replace(/\s+/g, ' ');
+      const cleanNamaWali = (namaWali || '').trim().replace(/\s+/g, ' ');
 
       // Tentukan representasi kategori yang di-upload
       const incomingKategoriUtama = selectedKategoriUpload;
@@ -394,8 +391,10 @@ export async function executeBatchImportToSupabase({
       }
 
       // CEK JIKA NAMA SANTRI DAN NAMA WALI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
-      // Jika nama santri sama tapi nama wali berbeda, dianggap orang yang berbeda (lakukan INSERT)
-      const existingSantri = cleanNamaWali ? santriByNameAndWali.get(santriKey) : null;
+      // Menggunakan normalisasi ketat anti-spasi ganda & toleransi gelar wali
+      const existingSantri = cleanNamaWali
+        ? existingSantriList.find((s) => isDuplicateSantri(s.nama, s.nama_wali, cleanNamaSantri, cleanNamaWali))
+        : null;
 
       if (existingSantri) {
         // SANTRI SUDAH ADA DENGAN NAMA & WALI COCOK: LAKUKAN UPDATE (GABUNG KATEGORI, MAX KUOTA, TETAPKAN 1 KODE QR)
@@ -441,11 +440,8 @@ export async function executeBatchImportToSupabase({
 
           if (updateError) throw updateError;
 
-          // Perbarui memori cache agar baris upload berikutnya jika ada nama & wali yang sama tetap sinkron
-          santriByNameAndWali.set(santriKey, {
-            ...existingSantri,
-            ...updatePayload,
-          });
+          // Perbarui objek di memori cache agar baris berikutnya tetap sinkron
+          Object.assign(existingSantri, updatePayload);
 
           successCount++;
         } catch (err: any) {
@@ -509,9 +505,9 @@ export async function executeBatchImportToSupabase({
 
         if (cleanNamaWali) {
           if (insertedData && insertedData[0]) {
-            santriByNameAndWali.set(santriKey, insertedData[0]);
+            existingSantriList.push(insertedData[0]);
           } else {
-            santriByNameAndWali.set(santriKey, { ...payload, id: kode });
+            existingSantriList.push({ ...payload, id: kode });
           }
         }
       } catch (err: any) {

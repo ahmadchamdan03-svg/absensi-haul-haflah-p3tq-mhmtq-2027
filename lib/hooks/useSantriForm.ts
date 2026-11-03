@@ -9,6 +9,9 @@ import {
   calculateKuotaDasarSantri,
   mergeSubKategori,
   resolvePriorityKategoriUtama,
+  isDuplicateSantri,
+  normalizePesertaString,
+  normalizeWaliString,
 } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 
@@ -88,8 +91,8 @@ export function useSantriForm({
     submitLockSantri.current = true;
     setIsSubmittingSantri(true);
 
-    const cleanNama = formData.nama.trim().toUpperCase();
-    const cleanWali = formData.namaWali.trim().toUpperCase();
+    const cleanNama = formData.nama.trim().replace(/\s+/g, ' ');
+    const cleanWali = formData.namaWali.trim().replace(/\s+/g, ' ');
 
     const incomingSubKat =
       formData.kategoriUtama === 'TAMATAN'
@@ -100,31 +103,36 @@ export function useSantriForm({
 
     try {
       // 1. CEK APAKAH NAMA SANTRI DAN NAMA WALI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
+      // Query kandidat santri dengan nama yang cocok (case-insensitive)
       const { data: existingList, error: checkError } = await supabase
         .from('peserta_santri')
         .select('*')
-        .ilike('nama', cleanNama)
-        .ilike('nama_wali', cleanWali);
+        .ilike('nama', cleanNama);
 
       if (checkError) {
         console.warn('Error checking existing santri:', checkError);
       }
 
-      let existing =
-        existingList?.find(
-          (item) =>
-            item.nama &&
-            item.nama.trim().toUpperCase() === cleanNama &&
-            item.nama_wali &&
-            item.nama_wali.trim().toUpperCase() === cleanWali
-        ) || (existingList && existingList.length > 0 ? existingList[0] : null);
+      // Verifikasi menggunakan fungsi normalisasi ketat anti-spasi ganda & toleransi gelar wali
+      let existing = existingList?.find((item) =>
+        isDuplicateSantri(item.nama, item.nama_wali, cleanNama, cleanWali)
+      );
 
-      // Fallback cek memori lokal jika query Supabase belum mengembalikan data
+      // Fallback 1: Jika ilike nama persis tidak menemukan (misal ada spasi berlebih di database)
+      if (!existing && cleanNama.length >= 3) {
+        const { data: broadList } = await supabase
+          .from('peserta_santri')
+          .select('*')
+          .ilike('nama', `%${cleanNama}%`);
+        existing = broadList?.find((item) =>
+          isDuplicateSantri(item.nama, item.nama_wali, cleanNama, cleanWali)
+        );
+      }
+
+      // Fallback 2: Cek memori lokal jika koneksi Supabase offline
       if (!existing) {
         const localMatch = store.getKeluargaList().find((k) =>
-          k.namaWali &&
-          k.namaWali.trim().toUpperCase() === cleanWali &&
-          k.santri?.some((s) => s.nama && s.nama.trim().toUpperCase() === cleanNama)
+          k.santri?.some((s) => isDuplicateSantri(s.nama, k.namaWali, cleanNama, cleanWali))
         );
         if (localMatch) {
           const { data: byKode } = await supabase

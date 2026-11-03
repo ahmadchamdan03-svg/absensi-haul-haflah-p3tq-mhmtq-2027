@@ -29,6 +29,7 @@ export type WarnaTiket = 'Cream' | 'Biru' | 'Hijau' | 'Kuning' | 'Merah muda' | 
 /**
  * Menggabungkan dua string sub_kategori tanpa duplikasi kata kunci.
  * Contoh: "Tamatan (A.01)" + "Bil Ghoib" -> "Tamatan (A.01) & Bil Ghoib"
+ *         "Bin Nadzori" + "Tamatan (A.04)" -> "Tamatan (A.04) & Bin Nadzori"
  */
 export function mergeSubKategori(existingSub?: string, incomingSub?: string): string {
   const ex = (existingSub || '').trim();
@@ -70,7 +71,70 @@ export function mergeSubKategori(existingSub?: string, incomingSub?: string): st
     return formattedEx;
   }
 
+  // Standarisasi urutan: Dahulukan Tamatan bila ada (contoh: "Tamatan (A.04) & Bin Nadzori")
+  const parts = [formattedEx, formattedInc];
+  const tamatanPart = parts.find((p) => p.toLowerCase().includes('tamatan'));
+  const otherPart = parts.find((p) => !p.toLowerCase().includes('tamatan'));
+  if (tamatanPart && otherPart) {
+    return `${tamatanPart} & ${otherPart}`;
+  }
+
   return `${formattedEx} & ${formattedInc}`;
+}
+
+/**
+ * Normalisasi string nama / teks santri untuk pembersihan spasi ganda, trailing space, dan case.
+ */
+export function normalizePesertaString(str?: string | null): string {
+  if (!str) return '';
+  return str.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+/**
+ * Normalisasi nama wali untuk mendeteksi kesamaan nama wali dengan toleransi
+ * penulisan gelar/panggilan (Bpk, Bkp, Bapak, Ibu, Ny, Hj, H) dan spasi ganda.
+ */
+export function normalizeWaliString(str?: string | null): string {
+  if (!str) return '';
+  const cleaned = str.trim().replace(/\s+/g, ' ').toLowerCase();
+  return cleaned
+    .replace(/\b(bkp|bapak)\b\.?/gi, 'bpk')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Membersihkan gelar / titel depan dari nama wali untuk membandingkan nama inti.
+ */
+export function extractCoreWaliName(wali?: string | null): string {
+  if (!wali) return '';
+  const norm = normalizeWaliString(wali);
+  return norm.replace(/^(bpk|bkp|bapak|ibu|ny|hj|h)\.?\s+/i, '').trim();
+}
+
+/**
+ * Mengecek apakah dua santri memiliki nama dan wali yang sama (duplikat).
+ * Membandingkan string nama santri yang dinormalisasi dan nama wali (lengkap atau stripped title).
+ */
+export function isDuplicateSantri(
+  nama1?: string | null,
+  wali1?: string | null,
+  nama2?: string | null,
+  wali2?: string | null
+): boolean {
+  const n1 = normalizePesertaString(nama1);
+  const n2 = normalizePesertaString(nama2);
+  if (!n1 || !n2 || n1 !== n2) return false;
+
+  const w1 = normalizeWaliString(wali1);
+  const w2 = normalizeWaliString(wali2);
+  if (!w1 || !w2 || w1 === '-' || w2 === '-') return false;
+
+  if (w1 === w2) return true;
+
+  const core1 = extractCoreWaliName(w1);
+  const core2 = extractCoreWaliName(w2);
+  return core1.length >= 3 && core1 === core2;
 }
 
 /**
