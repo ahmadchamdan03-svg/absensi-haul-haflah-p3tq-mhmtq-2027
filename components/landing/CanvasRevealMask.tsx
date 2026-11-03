@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 
 // Konstanta parameter organic reveal mask (adaptasi presisi dari teknik Xiaomi MiMo)
-const MASK_RGB = '250, 247, 243'; // #FAF7F3 (krem elegan khas Haflah)
+const MASK_RGB = '234, 219, 200'; // #EADBC8 (krem lebih pekat khas Haflah)
 const R_START = 8; // Titik awal sapuan kursor
 const R_END = 120; // Radius singkap ~120px sesuai instruksi User
 const R_VARY = 0.45; // Variasi acak ukuran per-titik sapuan (efek kuas organik)
@@ -204,13 +204,30 @@ export default function CanvasRevealMask() {
       className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: 'url(/images/panggung-haul-haflah.jpg)',
-        }}
-      />
+      {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar (Baru) & Overlay Logo */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+        <div className="relative w-full h-full min-w-full min-h-full">
+          <img
+            src="/images/panggung-aula.jpg"
+            alt="Panggung Aula Al-Muktamar"
+            className="w-full h-full object-cover object-center"
+          />
+
+          {/* Overlay Logo P3TQ & MHMTQ Tajam (Menimpa logo blur di panggung) */}
+          <div className="absolute top-[18%] sm:top-[20%] left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 sm:gap-6 z-10 pointer-events-none drop-shadow-md">
+            <img
+              src="/images/logo-p3tq-overlay.png"
+              alt="Logo P3TQ"
+              className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain filter drop-shadow-md"
+            />
+            <img
+              src="/images/logo-mhmtq-overlay.png"
+              alt="Logo MHMTQ"
+              className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain filter drop-shadow-md"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Layer Ambient Light Orbs di atas foto panggung untuk kedalaman kaca */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D49B5B]/25 rounded-full blur-3xl pointer-events-none" />

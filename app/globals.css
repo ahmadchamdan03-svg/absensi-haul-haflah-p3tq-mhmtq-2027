@@ -52,13 +52,13 @@ body {
 
 /* Ambient Mesh & Glass Background Base (FIX 1) */
 .glass-ambient-bg {
-  background-color: #FAF7F3;
+  background-color: #EADBC8;
   background-image: 
-    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(212, 155, 91, 0.24), transparent 75%),
-    radial-gradient(circle 700px at 10% 20%, rgba(140, 106, 71, 0.16), transparent 70%),
-    radial-gradient(circle 650px at 90% 35%, rgba(212, 155, 91, 0.20), transparent 70%),
-    radial-gradient(circle 600px at 15% 85%, rgba(140, 106, 71, 0.14), transparent 70%),
-    radial-gradient(circle 500px at 85% 90%, rgba(212, 155, 91, 0.18), transparent 70%);
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(212, 155, 91, 0.32), transparent 75%),
+    radial-gradient(circle 700px at 10% 20%, rgba(140, 106, 71, 0.22), transparent 70%),
+    radial-gradient(circle 650px at 90% 35%, rgba(212, 155, 91, 0.28), transparent 70%),
+    radial-gradient(circle 600px at 15% 85%, rgba(140, 106, 71, 0.20), transparent 70%),
+    radial-gradient(circle 500px at 85% 90%, rgba(212, 155, 91, 0.24), transparent 70%);
   background-attachment: fixed;
 }
 

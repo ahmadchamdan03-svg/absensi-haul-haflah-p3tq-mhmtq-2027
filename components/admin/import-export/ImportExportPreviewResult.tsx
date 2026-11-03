@@ -30,7 +30,7 @@ export function ImportExportPreviewResult({
     <>
       {/* PROGRESS BAR */}
       {isProcessing && (
-        <div className="bg-white rounded-3xl p-5 border-2 border-emerald-300 shadow-md space-y-2">
+        <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 border border-emerald-300 shadow-md space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-emerald-900">
             <span>Sedang Memproses Unggahan ke Supabase...</span>
             <span>{progressPercent}%</span>
@@ -46,7 +46,7 @@ export function ImportExportPreviewResult({
 
       {/* LAPORAN HASIL IMPORT */}
       {uploadResult && (
-        <div className="bg-white rounded-3xl p-6 border-2 border-emerald-400 shadow-md space-y-4 animate-in fade-in">
+        <div className="bg-white/50 backdrop-blur-md rounded-3xl p-6 border border-emerald-400 shadow-md space-y-4 animate-in fade-in">
           <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             <div>
@@ -95,7 +95,7 @@ export function ImportExportPreviewResult({
 
       {/* PREVIEW 5 BARIS PERTAMA */}
       {previewRows.length > 0 && (
-        <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-3">
+        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 space-y-3">
           <div className="flex items-center justify-between border-b border-stone-100 pb-3">
             <div className="flex items-center space-x-2">
               <Eye className="w-4 h-4 text-[#8C6A47]" />

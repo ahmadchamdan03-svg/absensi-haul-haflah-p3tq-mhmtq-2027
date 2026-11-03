@@ -45,7 +45,7 @@ export function LaporanTables({
   onSelectCategory: (kategori: string) => void;
 }) {
   return (
-    <div className="bg-white rounded-3xl p-4 sm:p-10 shadow-sm border border-slate-200 space-y-6 print:p-0 print:border-none print:shadow-none">
+    <div className="bg-white/50 backdrop-blur-md rounded-3xl p-4 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60 space-y-6 print:bg-white print:p-0 print:border-none print:shadow-none">
       {/* Kop Resmi Lembar Rekap Panitia */}
       <div className="text-center pb-4 sm:pb-6 border-b-2 border-slate-900 space-y-2">
         <div className="flex justify-center items-center gap-2 sm:gap-3 mb-2">

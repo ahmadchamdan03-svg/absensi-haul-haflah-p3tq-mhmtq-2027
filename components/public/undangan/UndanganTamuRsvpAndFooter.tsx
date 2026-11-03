@@ -31,21 +31,10 @@ export default function UndanganTamuRsvpAndFooter({
     <>
       {/* 6a. KARTU QR CODE GERBANG MASUK TAMU */}
       <ScrollReveal delay={350}>
-        <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-5">
-          <div className="space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
-              KODE AKSES RESMI LOKASI ACARA
-            </span>
-            <h3 className="font-serif font-black text-lg text-[#322116]">
-              Tunjukkan QR Code Ini Kepada Petugas
-            </h3>
-            <p className="text-xs text-[#8C6A47] font-semibold">
-              Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara.
-            </p>
-            <p className="text-[11px] text-stone-500">
-              Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
-            </p>
-          </div>
+        <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-4">
+          <p className="text-xs sm:text-sm font-semibold text-[#422F21]">
+            Mohon tunjukkan QR Code kepada petugas saat memasuki lokasi acara.
+          </p>
 
           <div className="flex flex-col items-center justify-center">
             <div className="p-4 rounded-3xl bg-white/70 backdrop-blur-xs border border-white/80 shadow-xs max-w-[260px] w-full aspect-square flex items-center justify-center">
@@ -63,6 +52,10 @@ export default function UndanganTamuRsvpAndFooter({
               )}
             </div>
           </div>
+
+          <p className="text-[11px] sm:text-xs text-[#7A624E]">
+            Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>.
+          </p>
         </div>
       </ScrollReveal>
 

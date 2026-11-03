@@ -49,9 +49,9 @@ export function ImportExportCards({
   return (
     <>
       {/* HEADER SECTION */}
-      <div className="bg-white rounded-3xl p-6 border-2 border-[#D5C4B4] shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-xs font-bold border border-[#D5C4B4]">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/60 text-[#8C6A47] text-xs font-bold border border-white/80">
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>MODUL RESMI IMPORT &amp; EXPORT DATA EXCEL</span>
           </div>
@@ -88,7 +88,7 @@ export function ImportExportCards({
           className={`px-5 py-2.5 rounded-2xl font-serif font-bold text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer ${
             activeTab === 'SANTRI'
               ? 'bg-[#8C6A47] text-white shadow-md'
-              : 'bg-white text-stone-600 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+              : 'bg-white/50 hover:bg-white/70 backdrop-blur-sm text-stone-700 border border-white/60'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -104,7 +104,7 @@ export function ImportExportCards({
           className={`px-5 py-2.5 rounded-2xl font-serif font-bold text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer ${
             activeTab === 'TAMU'
               ? 'bg-[#8C6A47] text-white shadow-md'
-              : 'bg-white text-stone-600 hover:bg-[#FAF7F3] border border-[#D5C4B4]'
+              : 'bg-white/50 hover:bg-white/70 backdrop-blur-sm text-stone-700 border border-white/60'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -115,8 +115,8 @@ export function ImportExportCards({
       {/* 2 KARTU UTAMA: DOWNLOAD TEMPLATE & UPLOAD DATA */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* KARTU 1: DOWNLOAD TEMPLATE PER KATEGORI */}
-        <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-4">
-          <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
+        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 space-y-4">
+          <div className="flex items-center space-x-2 border-b border-white/40 pb-3">
             <Download className="w-5 h-5 text-[#8C6A47]" />
             <h2 className="font-serif font-black text-base text-[#422F21]">
               1. Unduh Template Format Excel
@@ -192,8 +192,8 @@ export function ImportExportCards({
         </div>
 
         {/* KARTU 2: UPLOAD & KONFIGURASI IMPORT */}
-        <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-4">
-          <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
+        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 space-y-4">
+          <div className="flex items-center space-x-2 border-b border-white/40 pb-3">
             <Upload className="w-5 h-5 text-[#8C6A47]" />
             <h2 className="font-serif font-black text-base text-[#422F21]">
               2. Unggah Berkas Excel Sesuai Kategori
@@ -211,7 +211,7 @@ export function ImportExportCards({
                 setSelectedKategoriUpload(e.target.value);
                 if (selectedFile) handleResetUpload();
               }}
-              className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#D5C4B4] bg-white font-serif font-semibold text-xs text-[#322116] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-white/60 bg-white/70 backdrop-blur-xs font-serif font-semibold text-xs text-[#322116] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
             >
               <option value="">
                 {activeTab === 'SANTRI'

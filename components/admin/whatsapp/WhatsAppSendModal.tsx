@@ -222,8 +222,8 @@ export default function WhatsAppSendModal({
     <>
       {/* MODAL EDIT HP WALI */}
       {editingItem && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-[#D5C4B4]">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
@@ -294,8 +294,8 @@ export default function WhatsAppSendModal({
 
       {/* MODAL EDIT HP TAMU UNDANGAN */}
       {editingTamuItem && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-[#D5C4B4]">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">

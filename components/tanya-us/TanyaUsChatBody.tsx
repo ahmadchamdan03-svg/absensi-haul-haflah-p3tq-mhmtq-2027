@@ -44,7 +44,7 @@ export function TanyaUsHeaderAndSettings({
   return (
     <>
       {/* Header Modal Ustadzah AI */}
-      <div className="py-2.5 px-3 sm:px-6 bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] border-b-2 border-[#D5C4B4] flex items-center justify-between shrink-0 select-none gap-2">
+      <div className="py-2.5 px-3 sm:px-6 bg-white/50 backdrop-blur-md border-b border-white/60 flex items-center justify-between shrink-0 select-none gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           {/* Avatar Ustadzah Animasi Interaktif */}
           <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
@@ -204,7 +204,7 @@ export function TanyaUsMessageList({
               className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 shadow-xs space-y-2 text-xs sm:text-[13px] leading-relaxed relative group ${
                 isUser
                   ? 'bg-gradient-to-br from-[#F6F0E8] via-[#EFE5D9] to-[#E6D8C8] border-2 border-[#CBB59F] text-[#2D1B0E] rounded-br-xs'
-                  : 'bg-white border-2 border-[#D5C4B4] text-[#422F21] rounded-bl-xs'
+                  : 'bg-white/70 backdrop-blur-md border border-white/80 text-[#422F21] shadow-xs rounded-bl-xs'
               }`}
             >
               {/* Sender & Timestamp */}
@@ -373,7 +373,7 @@ export function TanyaUsInputBar({
   isLoading: boolean;
 }) {
   return (
-    <div className="p-3 sm:p-4 bg-[#FAF7F3] border-t-2 border-[#D5C4B4] shrink-0 space-y-2">
+    <div className="p-3 sm:p-4 bg-white/40 backdrop-blur-md border-t border-white/50 shrink-0 space-y-2">
       {/* Quick Action Chips per Role */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
         {role === 'ADMIN' && (
@@ -381,21 +381,21 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleNavigate('/scan')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👉 Buka Scanner
             </button>
             <button
               type="button"
               onClick={() => handleNavigate('/admin/dasbor')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📊 Cek Rekap Kehadiran
             </button>
             <button
               type="button"
               onClick={() => handleNavigate('/admin/whatsapp')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               💬 Kirim WA Gateway
             </button>
@@ -406,14 +406,14 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleNavigate('/scan')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👉 Buka Scanner Gerbang
             </button>
             <button
               type="button"
               onClick={() => handleSendMessage('Bagaimana status kedatangan di gerbang saat ini?')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📊 Status Kedatangan Gerbang
             </button>
@@ -424,14 +424,14 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleSendMessage('Berapa persen tingkat okupansi dan jumlah total yang sudah hadir saat ini?')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📊 Ringkasan Kehadiran
             </button>
             <button
               type="button"
               onClick={() => handleSendMessage('Siapa saja Masyayikh dan Tamu Kehormatan yang sudah hadir?')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👑 Status Tamu VIP
             </button>
@@ -442,14 +442,14 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleSendMessage('Siapa saja tamu undangan yang sudah tiba dan yang belum hadir?')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👥 Cek Status Tamu
             </button>
             <button
               type="button"
               onClick={() => handleNavigate('/penerima-tamu')}
-              className="px-2.5 py-1 rounded-xl bg-white border border-[#D5C4B4] text-[#8C6A47] font-bold hover:bg-[#EFE8E1] transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📋 Presensi Tamu Masuk
             </button>
@@ -472,7 +472,7 @@ export function TanyaUsInputBar({
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="Tanyakan apapun pada Usth. Halwaa seputar Haflah... (Enter untuk kirim)"
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] focus:border-[#8C6A47] focus:outline-none text-xs sm:text-sm text-[#422F21] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white/70 backdrop-blur-xs border border-white/80 focus:bg-white/95 focus:border-[#8C6A47] focus:outline-none text-xs sm:text-sm text-[#422F21] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
           />
         </div>
 

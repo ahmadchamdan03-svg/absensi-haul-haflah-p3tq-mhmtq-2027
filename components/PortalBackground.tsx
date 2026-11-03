@@ -70,13 +70,33 @@ export function PortalBackground() {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
-      {/* 1. FOTO PANGGUNG MEGAH FULL-SCREEN DENGAN PARALLAX HALUS */}
+      {/* 1. FOTO PANGGUNG MEGAH FULL-SCREEN DENGAN PARALLAX HALUS & OVERLAY LOGO */}
       <div
-        className="absolute inset-0 bg-[url('/images/panggung-haul-haflah.jpg')] bg-cover bg-center bg-no-repeat filter brightness-[1.02] contrast-[1.02] transition-transform duration-75 ease-out will-change-transform"
+        className="absolute inset-0 transition-transform duration-75 ease-out will-change-transform"
         style={{
           transform: `translate3d(0, ${offsetY}px, 0) scale(1.02)`,
         }}
-      />
+      >
+        <img
+          src="/images/panggung-aula.jpg"
+          alt="Panggung Aula Al-Muktamar"
+          className="w-full h-full object-cover object-center filter brightness-[1.02] contrast-[1.02]"
+        />
+
+        {/* Overlay Logo P3TQ & MHMTQ Tajam (Menimpa logo blur di panggung) */}
+        <div className="absolute top-[18%] sm:top-[20%] left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 sm:gap-6 z-10 pointer-events-none drop-shadow-md">
+          <img
+            src="/images/logo-p3tq-overlay.png"
+            alt="Logo P3TQ"
+            className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain filter drop-shadow-md"
+          />
+          <img
+            src="/images/logo-mhmtq-overlay.png"
+            alt="Logo MHMTQ"
+            className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain filter drop-shadow-md"
+          />
+        </div>
+      </div>
 
       {/* 2. OVERLAY KREM TRANSPARAN */}
       <div className="absolute inset-0 bg-[#F5EFE6]/60" />

@@ -102,8 +102,8 @@ export function LaporanDetailModal({
   const totalBelumCount = rawItems.length - totalHadirCount;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-in fade-in no-print">
-      <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-300 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 animate-in fade-in no-print">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-white/80 overflow-hidden">
         {/* Header Modal */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] border-b border-[#D5C4B4] flex items-center justify-between">
           <div>

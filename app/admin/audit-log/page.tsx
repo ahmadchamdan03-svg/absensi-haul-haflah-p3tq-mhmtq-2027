@@ -401,7 +401,7 @@ export default function AuditLogPage() {
                 type="button"
                 onClick={fetchAuditLogs}
                 disabled={loading}
-                className="px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-700 text-xs font-bold shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-white/50 hover:bg-white/70 backdrop-blur-sm border border-white/60 text-stone-700 text-xs font-bold shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
                 <span>Refresh Data</span>
@@ -431,7 +431,7 @@ export default function AuditLogPage() {
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 quickFilter === 'SEMUA'
                   ? 'bg-[#422F21] text-white shadow-xs'
-                  : 'bg-white text-stone-600 border border-stone-300 hover:bg-stone-50'
+                  : 'bg-white/50 text-stone-700 border border-white/60 hover:bg-white/70 backdrop-blur-sm'
               }`}
             >
               Semua Log ({logs.length})
@@ -483,7 +483,7 @@ export default function AuditLogPage() {
           </div>
 
           {/* PANEL FILTER FORM DETAIL */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E8DFD5] shadow-xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
             {/* Search */}
             <div className="md:col-span-2 relative">
               <label className="block text-[11px] font-bold text-stone-600 mb-1">Cari Kode / Nama / Catatan</label>
@@ -494,7 +494,7 @@ export default function AuditLogPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Ketik SH0042, UND0117, nama..."
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-stone-300 text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
                 />
               </div>
             </div>
@@ -506,7 +506,7 @@ export default function AuditLogPage() {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
               />
             </div>
 
@@ -516,7 +516,7 @@ export default function AuditLogPage() {
               <select
                 value={selectedAksi}
                 onChange={(e) => setSelectedAksi(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
               >
                 <option value="SEMUA">Semua Jenis Aksi</option>
                 <option value="TANDAI_HADIR">TANDAI_HADIR</option>
@@ -539,7 +539,7 @@ export default function AuditLogPage() {
               <select
                 value={selectedPanitia}
                 onChange={(e) => setSelectedPanitia(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
               >
                 <option value="SEMUA">Semua Petugas</option>
                 {listPanitia.map((p) => (
@@ -552,8 +552,8 @@ export default function AuditLogPage() {
           </div>
 
           {/* TABEL HASIL AUDIT LOG */}
-          <div className="bg-white rounded-2xl border border-[#E8DFD5] shadow-xs overflow-hidden">
-            <div className="px-4 py-3 bg-[#FAF7F3] border-b border-[#E8DFD5] flex items-center justify-between">
+          <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-2xl overflow-hidden">
+            <div className="px-4 py-3 bg-white/60 backdrop-blur-xs border-b border-white/50 flex items-center justify-between">
               <span className="text-xs font-bold text-[#5C3E28]">
                 Menampilkan <span className="text-[#8C6A47] font-extrabold">{filteredLogs.length}</span> catatan audit log
               </span>
@@ -680,7 +680,7 @@ export default function AuditLogPage() {
         {/* MODAL DETAIL AUDIT LOG */}
         {selectedLogDetail && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-            <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border-2 border-[#8C6A47] overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/80 overflow-hidden">
               <div className="bg-gradient-to-r from-[#422F21] to-[#5C3E28] text-white p-4 sm:p-5 flex items-center justify-between shrink-0 border-b border-[#8C6A47]">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shrink-0">

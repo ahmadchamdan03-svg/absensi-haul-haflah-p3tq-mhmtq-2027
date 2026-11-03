@@ -122,9 +122,9 @@ export default function PersidanganDashboardPage() {
   return (
     <div className="space-y-6 pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 sm:p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-5 sm:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EFE8E1] border border-[#D5C4B4] text-[10px] font-bold uppercase tracking-wider text-[#8C6A47]">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/60 border border-white/80 text-[10px] font-bold uppercase tracking-wider text-[#8C6A47]">
             <Sparkles className="w-3 h-3 text-[#D49B5B]" />
             Modul Kepanitiaan
           </div>
@@ -146,7 +146,7 @@ export default function PersidanganDashboardPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-4 shadow-xs">
+      <div className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-4 shadow-xs">
         <div className="relative w-full max-w-md">
           <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
           <input
@@ -154,7 +154,7 @@ export default function PersidanganDashboardPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari judul persidangan..."
-            className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
+            className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-white/60 bg-white/70 backdrop-blur-xs text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
           />
         </div>
       </div>
@@ -167,8 +167,8 @@ export default function PersidanganDashboardPage() {
           ))}
         </div>
       ) : filteredList.length === 0 ? (
-        <div className="bg-[#FAF7F3] border-2 border-dashed border-[#D5C4B4] rounded-2xl p-10 sm:p-14 text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white border border-[#D5C4B4] text-[#8C6A47] flex items-center justify-center mx-auto shadow-xs">
+        <div className="bg-white/30 backdrop-blur-sm border-2 border-dashed border-white/50 rounded-2xl p-10 sm:p-14 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-white/60 border border-white/80 text-[#8C6A47] flex items-center justify-center mx-auto shadow-xs">
             <FileText className="w-7 h-7" />
           </div>
           <div className="space-y-1">
@@ -203,7 +203,7 @@ export default function PersidanganDashboardPage() {
             return (
               <div
                 key={item.id}
-                className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs hover:border-[#8C6A47] transition-all flex flex-col justify-between space-y-4 group"
+                className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.05)] hover:border-white/80 transition-all flex flex-col justify-between space-y-4 group"
               >
                 {/* Header Card */}
                 <div className="space-y-2.5">
@@ -262,7 +262,7 @@ export default function PersidanganDashboardPage() {
                     type="button"
                     onClick={() => setActiveScanPersidangan(item)}
                     title="Scan QR Code Kehadiran"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#D5C4B4] hover:bg-[#FAF7F3] hover:border-[#8C6A47] text-xs font-bold text-[#8C6A47] shadow-2xs transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/50 border border-white/60 hover:bg-white/70 backdrop-blur-sm text-xs font-bold text-[#8C6A47] shadow-2xs transition-colors"
                   >
                     <Camera className="w-3.5 h-3.5 text-[#8C6A47]" />
                     <span>Scan Kehadiran</span>
@@ -275,7 +275,7 @@ export default function PersidanganDashboardPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Buka Halaman Undangan Resmi"
-                        className="p-1.5 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+                        className="p-1.5 rounded-xl bg-white/50 border border-white/60 text-[#735334] hover:bg-white/70 backdrop-blur-sm transition-colors"
                       >
                         <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
                       </a>
@@ -307,11 +307,11 @@ export default function PersidanganDashboardPage() {
       {/* Delete Confirmation Modal */}
       {deleteModalTarget && (
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setDeleteModalTarget(null)}
         >
           <div
-            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
+            className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 text-red-700">
@@ -339,7 +339,7 @@ export default function PersidanganDashboardPage() {
                 type="button"
                 onClick={() => setDeleteModalTarget(null)}
                 disabled={deletingId !== null}
-                className="px-4 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3]"
+                className="px-4 py-2 rounded-xl border border-white/60 bg-white/50 hover:bg-white/70 backdrop-blur-sm text-xs font-bold text-[#735334]"
               >
                 Batal
               </button>

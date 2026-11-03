@@ -401,21 +401,10 @@ export function WaliHeroAndIdentitySections({
 
       {/* 4. ⬅️ KARTU QR CODE GERBANG MASUK (DIPINDAH KE SEBELUM RSVP - PERBAIKAN 3) */}
       <ScrollReveal delay={250}>
-        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47]/70 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-5">
-          <div className="space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#8C6A47]">
-              KODE AKSES RESMI LOKASI ACARA
-            </span>
-            <h3 className="font-serif font-black text-lg text-[#322116]">
-              Tunjukkan QR Code Ini Kepada Petugas
-            </h3>
-            <p className="text-xs text-[#8C6A47] font-semibold">
-              Mohon QR Code disimpan dan ditunjukkan kepada petugas saat memasuki Lokasi acara.
-            </p>
-            <p className="text-[11px] text-stone-500">
-              Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>
-            </p>
-          </div>
+        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border-2 border-[#8C6A47]/70 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-4">
+          <p className="text-xs sm:text-sm font-semibold text-[#422F21]">
+            Mohon tunjukkan QR Code kepada petugas saat memasuki lokasi acara.
+          </p>
 
           <div className="flex flex-col items-center justify-center">
             <div className="p-4 rounded-3xl bg-white/70 backdrop-blur-xs border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
@@ -433,6 +422,10 @@ export function WaliHeroAndIdentitySections({
               )}
             </div>
           </div>
+
+          <p className="text-[11px] sm:text-xs text-[#7A624E]">
+            Pintu registrasi dibuka mulai pukul <strong>06.30 WIB / 07.00 WIs</strong>.
+          </p>
 
           <div className="grid grid-cols-3 gap-2 bg-white/50 backdrop-blur-xs p-3 rounded-2xl border border-white/80 text-xs">
             <div>

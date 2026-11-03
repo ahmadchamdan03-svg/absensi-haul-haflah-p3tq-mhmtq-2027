@@ -324,7 +324,7 @@ export default function WhatsAppStats({
         </div>
 
         {/* Box Preview Template Pesan */}
-        <div className="mt-4 p-4 rounded-2xl bg-white border border-[#D5C4B4] space-y-2">
+        <div className="mt-4 p-4 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
@@ -509,7 +509,7 @@ export default function WhatsAppStats({
         </div>
 
         {/* Box Preview Template Pesan Tamu Undangan (Format Resmi Persis) */}
-        <div className="mt-4 p-4 rounded-2xl bg-white border border-[#D5C4B4] space-y-2">
+        <div className="mt-4 p-4 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <MessageSquare className="w-4 h-4 text-[#8C6A47]" />

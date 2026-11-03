@@ -58,13 +58,13 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
 
   if (activeTab === 'WALI_SANTRI') {
     return (
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#D5C4B4] space-y-4">
+      <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 space-y-4">
         <WhatsAppFilter {...props} />
 
         {/* Tabel Wali */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-2xl border border-white/40 bg-white/20">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
+            <thead className="bg-white/60 backdrop-blur-xs text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-3 px-3">Kode</th>
                 <th className="py-3 px-4">Nama Wali Santri &amp; HP</th>
@@ -267,13 +267,13 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-[#D5C4B4] space-y-4">
+    <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 space-y-4">
       <WhatsAppFilter {...props} />
 
       {/* Tabel Tamu Undangan */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-2xl border border-white/40 bg-white/20">
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
+          <thead className="bg-white/60 backdrop-blur-xs text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
             <tr>
               <th className="py-3 px-3">Kode</th>
               <th className="py-3 px-4">Nama Penerima &amp; HP</th>

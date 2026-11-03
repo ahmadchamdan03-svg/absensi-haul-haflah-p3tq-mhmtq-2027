@@ -290,7 +290,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl h-[92dvh] sm:h-[88vh] max-h-[800px] flex flex-col rounded-2xl sm:rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-2xl overflow-hidden relative motion-reduce:transform-none"
+        className="w-full max-w-3xl h-[92dvh] sm:h-[88vh] max-h-[800px] flex flex-col rounded-2xl sm:rounded-3xl bg-white/60 backdrop-blur-xl border border-white/80 shadow-2xl overflow-hidden relative motion-reduce:transform-none"
         onClick={(e) => e.stopPropagation()}
       >
         <TanyaUsHeaderAndSettings
