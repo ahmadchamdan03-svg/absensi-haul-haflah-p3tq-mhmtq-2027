@@ -95,7 +95,6 @@ export default function ScanCameraAndInputSection({
             }`}
           >
             <span>Jalur Barat</span>
-            <span className="block text-[10px] font-medium opacity-90 sm:inline sm:ml-1">(Putra)</span>
           </button>
           <button
             type="button"
@@ -107,7 +106,6 @@ export default function ScanCameraAndInputSection({
             }`}
           >
             <span>Jalur Timur</span>
-            <span className="block text-[10px] font-medium opacity-90 sm:inline sm:ml-1">(Putri)</span>
           </button>
         </div>
       </div>

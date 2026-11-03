@@ -349,7 +349,7 @@ export default function ScanResultModals({
             <p><strong>Nama:</strong> {checkinResult.detail?.nama}</p>
             <p><strong>Kode:</strong> {checkinResult.detail?.kode}</p>
             <p><strong>Kategori:</strong> {checkinResult.detail?.subKategori || checkinResult.detail?.kategori || '-'}</p>
-            <p><strong>Jalur Gerbang:</strong> {jalur === 'BARAT' ? 'Jalur Barat (Putra)' : 'Jalur Timur (Putri)'}</p>
+            <p><strong>Jalur Gerbang:</strong> {jalur === 'BARAT' ? 'Jalur Barat' : 'Jalur Timur'}</p>
             <p><strong>Sisa Kuota:</strong> {checkinResult.sisa} Kursi</p>
           </div>
 
