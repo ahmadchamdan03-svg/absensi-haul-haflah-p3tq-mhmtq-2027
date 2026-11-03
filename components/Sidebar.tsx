@@ -198,9 +198,9 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     : allNavGroups;
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#FAF7F3]/90 backdrop-blur-md border-r border-[#D5C4B4]/60 text-[#422F21]">
+    <div className="flex flex-col h-full bg-white/40 backdrop-blur-md border-r border-white/20 text-[#422F21]">
       {/* Header Sidebar: Identitas Resmi Kompak & Sejajar Lurus dengan TopHeader (h-[72px]) */}
-      <div className="h-[72px] px-3 border-b-2 border-[#D5C4B4] bg-[#EFE8E1]/60 relative select-none flex items-center justify-center shrink-0">
+      <div className="h-[72px] px-3 border-b border-white/20 bg-white/30 backdrop-blur-xs relative select-none flex items-center justify-center shrink-0">
         <Link
           href="/"
           onClick={onCloseMobile}
@@ -283,7 +283,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
 
       {/* Footer Sidebar: Karakter Usth. Halwaa (Tanpa Pop Up Chat Bubble) */}
-      <div className="pt-2 pb-3 px-2 border-t border-[#E8DFD5] bg-gradient-to-b from-[#FAF7F3] to-[#EFE8E1] select-none flex flex-col items-center justify-center">
+      <div className="pt-2 pb-3 px-2 border-t border-white/20 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center">
         <button
           type="button"
           onClick={() => setTanyaUsOpen(true)}

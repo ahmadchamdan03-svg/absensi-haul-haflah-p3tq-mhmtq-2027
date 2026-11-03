@@ -228,7 +228,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={() => setIsDenahOpen(true)}
-            className="p-2.5 rounded-xl bg-white/55 hover:bg-white/80 backdrop-blur-md text-[#5C3E28] border border-white/70 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#5C3E28] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <Compass className="w-4 h-4 text-[#8C6A47]" />
             <span>Denah Lapangan</span>
@@ -236,7 +236,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={fetchLiveDasborData}
-            className="p-2.5 rounded-xl bg-white/55 hover:bg-white/80 backdrop-blur-md text-[#8C6A47] border border-white/70 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#8C6A47] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Refresh</span>
@@ -247,7 +247,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       {/* 2 KARTU METRIK UTAMA (GLASSMORPHISM) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* KARTU 1: TOTAL WALI SANTRI */}
-        <div className="p-6 rounded-3xl bg-white/55 backdrop-blur-md border border-white/70 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] space-y-3 card-transition">
+        <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
               <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
@@ -271,7 +271,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
         </div>
 
         {/* KARTU 2: TOTAL TAMU UNDANGAN */}
-        <div className="p-6 rounded-3xl bg-white/55 backdrop-blur-md border border-white/70 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] space-y-3 card-transition">
+        <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
               <Award className="w-4.5 h-4.5 text-emerald-700" />
@@ -296,7 +296,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       </div>
 
       {/* FILTER & PENCARIAN REAL-TIME */}
-      <div className="bg-white/55 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/70 shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-4">
+      <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] space-y-4">
         {/* SECTION HEADER & TABS HANYA MUNCUL DI AKUN PETUGAS (TIDAK DI PIMPINAN) */}
         {!isPimpinanView && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
@@ -310,7 +310,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
             </div>
 
             {/* TAB FILTER KATEGORI */}
-            <div className="flex bg-[#EFE8E1] p-1 rounded-2xl border border-[#D5C4B4] text-xs font-bold">
+            <div className="flex bg-white/40 backdrop-blur-xs p-1 rounded-2xl border border-white/60 text-xs font-bold">
               <button
                 type="button"
                 onClick={() => setTabCategory('SEMUA')}
@@ -351,7 +351,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari nama santri, wali, instansi, atau kode (cth: SH0001, KH. Abdullah)..."
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] text-xs sm:text-sm focus:outline-none input-transition"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/60 bg-white/50 backdrop-blur-xs text-xs sm:text-sm focus:outline-none input-transition shadow-xs"
             />
           </div>
 
