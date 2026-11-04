@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ArrowRight, ExternalLink, FileSpreadsheet, FileText, Download } from 'lucide-react';
-import { exportTextToPdf, exportTableToExcel, exportTextToDocx } from '@/lib/halwaa/file-exporter';
+import { exportTextToPdf, exportTableToExcel, exportTextToDocx, fetchFreshMotivasi } from '@/lib/halwaa/file-exporter';
 
 export type UstadzahExpression =
   | 'wave'
@@ -511,7 +511,14 @@ export function renderFormattedContent(
           </div>
           <button
             type="button"
-            onClick={() => exportTextToPdf(title, text.replace(/\[DOWNLOAD_.*?\]/gi, '').trim())}
+            onClick={async () => {
+              const clean = text
+                .replace(/\[DOWNLOAD_.*?\]/gi, '')
+                .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
+                .trim();
+              const motivasi = await fetchFreshMotivasi(`Dokumen PDF ${title}`);
+              exportTextToPdf(title, clean, undefined, motivasi);
+            }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
             title="Unduh dokumen PDF ke perangkat"
           >
@@ -544,7 +551,14 @@ export function renderFormattedContent(
           </div>
           <button
             type="button"
-            onClick={() => exportTextToDocx(title, text.replace(/\[DOWNLOAD_.*?\]/gi, '').trim())}
+            onClick={async () => {
+              const clean = text
+                .replace(/\[DOWNLOAD_.*?\]/gi, '')
+                .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
+                .trim();
+              const motivasi = await fetchFreshMotivasi(`Dokumen Word ${title}`);
+              exportTextToDocx(title, clean, undefined, motivasi);
+            }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
             title="Unduh dokumen Word ke perangkat"
           >

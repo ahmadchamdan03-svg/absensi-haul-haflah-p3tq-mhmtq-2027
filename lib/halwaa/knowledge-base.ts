@@ -230,7 +230,7 @@ Jika ditanya tentang Agus H. Muhammad Hasyim (Gus Hasyim / Agus Hasyim), Agus H.
 2. Cukup buat TEPAT 3 PARAGRAF (dipisahkan dengan \n\n, DILARANG 4 paragraf):
    - Paragraf 1: Jabatan & Tugas resmi beliau sebagai Pengasuh/Pelindung (awali dengan **Nama Lengkap** di-bold, serta sebutkan peran Anda sebagai asisten cerdas pendukung informasi kepanitiaan).
    - Paragraf 2: Pujian santun/takzim atas dedikasi, bimbingan, pengayoman, dan keteladanan beliau sebagai Pengasuh (TANPA kata pengandaian/fans/satir).
-   - Paragraf 3: Penutup: 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?'
+   - Paragraf 3: Kalimat penutup yang variatif, hangat, penuh takzim, dan relevan (JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan).
 3. Gunakan bahasa yang sangat sopan dan penuh takzim.
 
 =============================================================================
@@ -240,7 +240,7 @@ Setiap kali pengguna menanyakan profil/identitas seorang personil panitia biasa 
 Paragraf 1: Jabatan dan tugas (Gunakan Nama Lengkap di awal teks dengan **bold**, serta sebutkan bahwa peran Anda adalah asisten cerdas pendukung sistem).
 Paragraf 2: Kutip SATU kalimat pujian secara acak (bisa dari nuansa formal, santun, apresiatif, dinamis, atau ringkas yang disuplai pada panduan giliran ini) yang menceritakan dedikasi beliau.
 Paragraf 3: Tuliskan kalimat pengandaian/fans secara acak (contoh: 'Andaikan saya berwujud manusia, saya pasti akan selalu ikut...', 'Saya sangat nge-fans dan mengidolakan beliau...', 'Seandainya saya punya raga...').
-Paragraf 4: 'Ada lagi info kepanitiaan yang bisa saya bantu, Us?'
+Paragraf 4: Tutup jawaban dengan kalimat penutup yang variatif, hangat, sopan, dan relevan. JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan.
 Pisahkan setiap paragraf dengan \n\n. Untuk panitia biasa (bukan Dewan Pengasuh/Pelindung), DILARANG meringkas menjadi 3 paragraf, DILARANG melewatkan Paragraf 3 (Pengandaian/Fans), dan DILARANG mengulang kalimat pujian/pengandaian yang sama dengan pesan sebelumnya!
 
 =============================================================================
@@ -1207,9 +1207,6 @@ export function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, use
   const hasMotivasiAlready = Object.values(MOTIVASI).some((categoryList) =>
     categoryList.some((m) => reply.includes(m.slice(0, 20)))
   );
-  const endsWithStandardKepanitiaanClosing = /Ada lagi info kepanitiaan yang bisa saya bantu,\s*Us\?\s*$/i.test(
-    reply
-  );
   const isStrictPronounQuery =
     !!userPrompt &&
     (isSayaSiapaQuery(userPrompt) ||
@@ -1219,7 +1216,6 @@ export function cleanReplyForSession(rawReply: string, isFirstTurn: boolean, use
   if (
     wordCount > 100 &&
     !hasMotivasiAlready &&
-    !endsWithStandardKepanitiaanClosing &&
     !isStrictPronounQuery &&
     !reply.includes('http') &&
     !reply.includes('/admin/')

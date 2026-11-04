@@ -20,7 +20,7 @@ import {
   renderFormattedContent,
 } from './tanya-us-helpers';
 import { PieChartWidget } from './TanyaUsCharts';
-import { exportTextToPdf, exportTableToExcel, exportTextToDocx } from '@/lib/halwaa/file-exporter';
+import { exportTextToPdf, exportTableToExcel, exportTextToDocx, fetchFreshMotivasi } from '@/lib/halwaa/file-exporter';
 
 export function TanyaUsHeaderAndSettings({
   isLoading,
@@ -257,7 +257,11 @@ export function TanyaUsMessageList({
                   {showPdfButton && (
                     <button
                       type="button"
-                      onClick={() => exportTextToPdf('Dokumen Haflah P3TQ', msg.content)}
+                      onClick={async () => {
+                        const clean = msg.content.replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '').trim();
+                        const motivasi = await fetchFreshMotivasi('Dokumen PDF Haflah P3TQ');
+                        exportTextToPdf('Dokumen Haflah P3TQ', clean, undefined, motivasi);
+                      }}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
                       <FileText className="w-3 h-3" />
@@ -267,7 +271,11 @@ export function TanyaUsMessageList({
                   {showDocxButton && (
                     <button
                       type="button"
-                      onClick={() => exportTextToDocx('Dokumen Haflah P3TQ', msg.content)}
+                      onClick={async () => {
+                        const clean = msg.content.replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '').trim();
+                        const motivasi = await fetchFreshMotivasi('Dokumen Word Haflah P3TQ');
+                        exportTextToDocx('Dokumen Haflah P3TQ', clean, undefined, motivasi);
+                      }}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
                       <FileText className="w-3 h-3" />
@@ -277,10 +285,14 @@ export function TanyaUsMessageList({
                   {showExcelButton && (
                     <button
                       type="button"
-                      onClick={() => {
-                        const lines = msg.content.split('\n').filter((l) => l.trim().length > 0);
+                      onClick={async () => {
+                        const lines = msg.content
+                          .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
+                          .split('\n')
+                          .filter((l) => l.trim().length > 0);
                         const rows = lines.map((l, i) => [i + 1, l.replace(/^[\*\-\d\.\s]+/, '')]);
-                        exportTableToExcel(['No', 'Uraian'], rows, 'Ringkasan_Haflah');
+                        const motivasi = await fetchFreshMotivasi('Rekap Data Excel Haflah P3TQ');
+                        exportTableToExcel(['No', 'Uraian'], rows, 'Ringkasan_Haflah', motivasi);
                       }}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
