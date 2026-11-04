@@ -12,7 +12,7 @@ type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
 // Timeout ketat per tier: tepat 15 detik. Lewat batas → controller.abort() memutus request.
 const TIER_TIMEOUT_MS: Record<ProviderName, number> = {
-  Clouvia: 15000,
+  Clouvia: 12000,
   Vikey: 15000,
   Gemini: 15000,
 };
@@ -124,7 +124,7 @@ async function callOpenAiCompatible(params: {
 
 /**
  * 3-Tier Failover Engine for Usth. Halwaa AI Assistant:
- * Tier 1 (Utama)     : Clouvia (deepseek-v4.1-flash / claude-opus-5.5 / gpt-6-luna)
+ * Tier 1 (Utama)     : Clouvia (coding-high-flash)
  * Tier 2 (Cadangan 1): Vikey (vikey/plan)
  * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
@@ -156,15 +156,15 @@ export async function askAI(
 
   openAiMessages.push({ role: 'user', content: prompt });
 
-  // Timeout dinamis per intent (default 10s untuk obrolan biasa, 20s untuk gambar & file)
-  const requestTimeoutMs = options?.timeout || 10000;
+  // Timeout dinamis (default 12s untuk Tier 1 Clouvia, 15s untuk failover)
+  const requestTimeoutMs = options?.timeout || TIER_TIMEOUT_MS.Clouvia;
 
   // =========================================================================
   // TIER 1 — CLOUVIA (UTAMA)
   // =========================================================================
   const clouviaKey = readEnv('CLOUVIA_API_KEY');
   if (clouviaKey) {
-    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'deepseek-v4.1-flash';
+    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'coding-high-flash';
     const text = await callOpenAiCompatible({
       tierLabel: 'Tier 1 Clouvia',
       apiKey: clouviaKey,

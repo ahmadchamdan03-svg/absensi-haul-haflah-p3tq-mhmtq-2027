@@ -149,30 +149,17 @@ ${kepanitiaanTurnRule}
     // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
     // =========================================================================
-    // DETEKSI INTENT ROUTING AI: FILE (HEAVY REASONING) VS GAMBAR VS CHAT CEPAT
+    // DYNAMIC AI ROUTING: UNIFIKASI KE CODING-HIGH-FLASH (TIER 1 CLOUVIA)
     // =========================================================================
-    const qLower = prompt.toLowerCase().trim();
-    let customModel: string | undefined = undefined;
-    let customTimeout = 10000;
+    // Seluruh intent (Obrolan Biasa, Dokumen/File, Visual/Gambar) menggunakan model coding-high-flash
+    // dengan batas waktu terpadu 12 detik.
+    const customModel = process.env.CLOUVIA_MODEL || 'coding-high-flash';
+    const customTimeout = 12000; // 12 detik timeout untuk seluruh intent Tier 1 Clouvia
 
-    const isFileIntent = /(pdf|excel|xlsx?|word|docx?|ppt|pptx|dokumen|file|berkas|unduh|download|ekspor)/i.test(qLower);
-    const isImageIntent = /(gambar|foto|ilustrasi|image|desain visual)/i.test(qLower);
-
-    if (isFileIntent) {
-      customModel = process.env.CLOUVIA_MODEL_FILE || 'claude-opus-5.5';
-      customTimeout = 20000; // 20 detik untuk proses generasi dokumen
-    } else if (isImageIntent) {
-      customModel = process.env.CLOUVIA_MODEL_IMAGE || process.env.CLOUVIA_MODEL_GPT || 'gpt-6-luna';
-      customTimeout = 20000; // 20 detik untuk deskripsi gambar visual
-    } else {
-      customModel = process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash';
-      customTimeout = 10000; // 10 detik default respon cepat obrolan biasa
-    }
-
-      const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {
-        model: customModel,
-        timeout: customTimeout,
-      });
+    const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {
+      model: customModel,
+      timeout: customTimeout,
+    });
       if (aiResponse && aiResponse.text && aiResponse.text.trim().length > 0) {
         const cleanReply = cleanReplyForSession(aiResponse.text, isFirstTurn, prompt);
         const expr = isSayaSiapaQuery(prompt) || isThirdPersonPronounQuery(prompt)
