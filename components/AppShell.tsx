@@ -60,6 +60,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Khusus role PENERIMA_TAMU yang login: sembunyikan sidebar total agar meja tamu luas penuh layar.
   // Untuk akun ADMIN (dan role lain), Sidebar tetap muncul normal seperti biasa.
   const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
+  // Sembunyikan TopHeader global khusus di halaman Penerima Tamu agar tampilan lega dan fokus pada pos meja transit
+  const isPenerimaTamuRoute = pathname.includes('/penerima-tamu');
 
   return (
     <div className="flex h-screen overflow-hidden relative z-0 bg-[url('/images/panggung-aula.jpg')] bg-cover bg-center bg-fixed bg-no-repeat">
@@ -78,8 +80,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Area Konten Utama: Merespons pergeseran lebar sidebar secara halus */}
       <div className="flex-1 flex flex-col h-full min-w-0 relative z-10 overflow-hidden transition-all duration-300 ease-in-out">
-        {/* Top Header Bersih & Ringkas */}
-        <TopHeader onOpenMobile={() => setMobileOpen(true)} />
+        {/* Top Header Bersih & Ringkas (Disembunyikan di halaman Penerima Tamu) */}
+        {!isPenerimaTamuRoute && (
+          <TopHeader onOpenMobile={() => setMobileOpen(true)} />
+        )}
 
         {/* Isi Halaman Panitia */}
         <main className="flex-1 h-full min-h-0 overflow-y-auto relative">
