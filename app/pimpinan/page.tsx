@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { HelpCircle, LogOut, Calendar } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { clearActiveRole } from '@/lib/auth-roles';
 import TanyaUsModal from '@/components/TanyaUsModal';
 import AuthGuard from '@/components/AuthGuard';
@@ -19,50 +19,42 @@ export default function PimpinanPage() {
 
   return (
     <AuthGuard allowedRoles={['PIMPINAN', 'ADMIN']}>
-      <div className="min-h-screen bg-transparent text-[#422F21] pb-24">
-        {/* HEADER KHUSUS AKUN PIMPINAN */}
-        <header className="border-b border-white/50 bg-white/40 backdrop-blur-md sticky top-0 z-20 px-4 py-3 sm:py-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            {/* SISI KIRI: LOGO HAUL HAFLAH */}
-            <div className="flex items-center space-x-3">
-              <img
-                src="/images/logo-haul-gold.png"
-                alt="Logo Haul &amp; Haflah P3TQ MHMTQ"
-                className="h-10 sm:h-12 w-auto object-contain"
-              />
-            </div>
+      <div className="w-full min-h-screen bg-transparent text-[#422F21] pb-24 relative">
+        {/* Tombol Keluar Sesi Melayang Elegan di Sudut Kanan Atas */}
+        <div className="fixed top-6 right-6 z-40">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="p-2 sm:px-3.5 sm:py-2 rounded-2xl bg-white/70 hover:bg-white/95 text-stone-700 border border-white/80 shadow-md backdrop-blur-md flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer hover:scale-105 active:scale-95"
+            title="Keluar Sesi"
+          >
+            <LogOut className="w-4 h-4 text-stone-500" />
+            <span className="hidden sm:inline">Keluar</span>
+          </button>
+        </div>
 
-            {/* SISI KANAN: TANGGAL, TANYA USTH. HALWAA, KELUAR */}
-            <div className="flex items-center space-x-2">
-              <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] text-xs font-semibold text-[#5C3E28]">
-                <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
-                <span>Sabtu, 24 Rajab 1448 H. / 02 Jan 2027 M.</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsUsModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-700 to-amber-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
-              >
-                <HelpCircle className="w-3.5 h-3.5 text-amber-200" />
-                <span>Tanya Usth. Halwaa</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-bold shadow-2xs flex items-center space-x-1.5 transition-all cursor-pointer"
-                title="Keluar Sesi"
-              >
-                <LogOut className="w-3.5 h-3.5 text-stone-500" />
-                <span>Keluar</span>
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* KONTEN UTAMA: IDENTIK DENGAN LIVE DASBOR (MODE PIMPINAN) */}
-        <main className="max-w-6xl mx-auto px-4 py-6">
+        {/* KONTEN UTAMA: LIVE DASBOR FULLSCREEN / KIOSK (MODE PIMPINAN) */}
+        <main className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
           <LiveDasbor isPimpinanView={true} />
         </main>
+
+        {/* FLOATING ACTION BUTTON (FAB) USTH. HALWAA */}
+        <button
+          type="button"
+          onClick={() => setIsUsModalOpen(true)}
+          className="fixed bottom-8 right-8 z-50 flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 rounded-full shadow-2xl transition-all duration-300 group cursor-pointer hover:scale-105 active:scale-95"
+          title="Tanya Usth. Halwaa"
+          aria-label="Tanya Usth. Halwaa"
+        >
+          <div className="w-7 h-7 rounded-full overflow-hidden border border-amber-200/60 shadow-xs shrink-0 bg-[#FAF7F3]">
+            <img
+              src="/images/avatar/ustadzah-avatar-wave.png"
+              alt="Usth. Halwaa"
+              className="w-full h-full object-cover transition-transform group-hover:scale-110"
+            />
+          </div>
+          <span className="font-bold text-sm tracking-wide">Tanya Usth. Halwaa</span>
+        </button>
 
         <TanyaUsModal isOpen={isUsModalOpen} onClose={() => setIsUsModalOpen(false)} />
       </div>

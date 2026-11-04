@@ -62,14 +62,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
   // Sembunyikan TopHeader global khusus di halaman Penerima Tamu agar tampilan lega dan fokus pada pos meja transit
   const isPenerimaTamuRoute = pathname.includes('/penerima-tamu');
+  // Halaman Pimpinan berkonsep fullscreen / kiosk: tanpa sidebar dan tanpa top header
+  const isPimpinan = pathname.includes('/pimpinan');
 
   return (
     <div className="flex h-screen overflow-hidden relative z-0 bg-[url('/images/panggung-aula.jpg')] bg-cover bg-center bg-fixed bg-no-repeat">
       {/* Background Overlay Transparan Minimal 20% Tanpa Blur agar foto panggung sangat jelas & tajam */}
       <div className="absolute inset-0 bg-[#FAF7F3]/20 -z-10 pointer-events-none" aria-hidden="true" />
 
-      {/* Sidebar Navigasi Samping (Disembunyikan total HANYA untuk role PENERIMA_TAMU; ADMIN tetap ada sidebar) */}
-      {!isRolePenerimaTamu && (
+      {/* Sidebar Navigasi Samping (Disembunyikan untuk role PENERIMA_TAMU dan halaman /pimpinan) */}
+      {!isRolePenerimaTamu && !isPimpinan && (
         <Sidebar
           mobileOpen={mobileOpen}
           onCloseMobile={() => setMobileOpen(false)}
@@ -80,8 +82,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Area Konten Utama: Merespons pergeseran lebar sidebar secara halus */}
       <div className="flex-1 flex flex-col h-full min-w-0 relative z-10 overflow-hidden transition-all duration-300 ease-in-out">
-        {/* Top Header Bersih & Ringkas (Disembunyikan di halaman Penerima Tamu) */}
-        {!isPenerimaTamuRoute && (
+        {/* Top Header Bersih & Ringkas (Disembunyikan di halaman Penerima Tamu dan Pimpinan) */}
+        {!isPenerimaTamuRoute && !isPimpinan && (
           <TopHeader onOpenMobile={() => setMobileOpen(true)} />
         )}
 
