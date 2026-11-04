@@ -3,6 +3,7 @@
 import React from 'react';
 import { Edit3, X, Save } from 'lucide-react';
 import { GolonganUndangan, WalkinFormState } from './types';
+import { OPSI_UNDANGAN_ISTIMEWA, OPSI_UNDANGAN_UMUM } from '@/lib/hooks/useTamuData';
 
 interface RekonModalsProps {
   editingItem: any | null;
@@ -452,12 +453,12 @@ export default function RekonModals({
       {/* MODAL WALK-IN GUEST BARU */}
       {showWalkinModal && (
         <div
-          className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowWalkinModal(false);
           }}
         >
-          <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+          <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-xl sm:max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-4 sm:space-y-5 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-stone-200/60 pb-3">
               <div>
                 <h3 className="font-serif font-black text-lg text-[#422F21]">
@@ -478,7 +479,7 @@ export default function RekonModals({
 
             <form onSubmit={onSaveWalkin} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-[#422F21] mb-1">Golongan Tamu Walk-in:</label>
+                <label className="block font-bold text-[#422F21] mb-1.5">Golongan Tamu Walk-in:</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['ISTIMEWA', 'KEHORMATAN', 'UMUM'] as GolonganUndangan[]).map((gol) => (
                     <button
@@ -488,10 +489,16 @@ export default function RekonModals({
                         setWalkinForm({
                           ...walkinForm,
                           golongan: gol,
-                          kategori: gol === 'ISTIMEWA' ? 'VVIP' : gol === 'KEHORMATAN' ? 'Tamu Kehormatan' : 'Asatidz Mhmtq Sekalian',
+                          kategori:
+                            gol === 'ISTIMEWA'
+                              ? OPSI_UNDANGAN_ISTIMEWA[0]
+                              : gol === 'KEHORMATAN'
+                              ? 'Tamu Kehormatan'
+                              : OPSI_UNDANGAN_UMUM[0],
+                          customKategori: '',
                         })
                       }
-                      className={`py-2 px-1 rounded-xl font-bold border transition-all text-center text-[11px] ${
+                      className={`py-2 px-1 rounded-xl font-bold border transition-all text-center text-[11px] cursor-pointer ${
                         walkinForm.golongan === gol
                           ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
                           : 'bg-white/50 text-[#422F21] border-white/60 hover:bg-white/75 backdrop-blur-xs'
@@ -503,54 +510,117 @@ export default function RekonModals({
                 </div>
               </div>
 
-              {walkinForm.golongan === 'ISTIMEWA' ? (
-                <div className="space-y-3 bg-white/50 backdrop-blur-xs p-3.5 rounded-2xl border border-white/60">
+              {/* Field Nama Tamu Putra & Putri Berdampingan (Grid 2 Kolom) */}
+              <div className="space-y-3 bg-white/50 backdrop-blur-xs p-3.5 sm:p-4 rounded-2xl border border-white/60">
+                <label className="block font-bold text-[#422F21] text-xs mb-1">
+                  Nama Tamu Undangan *
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putra:</label>
+                    <label className="block font-semibold text-[#422F21] text-xs mb-1">
+                      👨 Nama Tamu Putra{' '}
+                      <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
+                    </label>
                     <input
                       type="text"
                       value={walkinForm.namaPutra}
                       onChange={(e) => setWalkinForm({ ...walkinForm, namaPutra: e.target.value })}
-                      placeholder="Contoh: KH. ABDULLOH FAQIHI"
-                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
+                      placeholder="Nama tamu putra..."
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putri:</label>
+                    <label className="block font-semibold text-[#422F21] text-xs mb-1">
+                      👩 Nama Tamu Putri{' '}
+                      <span className="text-stone-500 font-normal">(Ning / Nyai / Ust.)</span>:
+                    </label>
                     <input
                       type="text"
                       value={walkinForm.namaPutri}
                       onChange={(e) => setWalkinForm({ ...walkinForm, namaPutri: e.target.value })}
-                      placeholder="Contoh: NYAI HJ. HINDAH"
-                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
+                      placeholder="Nama tamu putri..."
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
                     />
                   </div>
                 </div>
-              ) : (
+              </div>
+
+              {/* Kategori Undangan (Dropdown) - Muncul untuk ISTIMEWA & UMUM, Sembunyi untuk KEHORMATAN */}
+              {walkinForm.golongan !== 'KEHORMATAN' && (
                 <div>
-                  <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Walk-in:</label>
+                  <label className="block font-bold text-[#422F21] mb-1.5">
+                    Kategori Undangan:
+                  </label>
+                  <select
+                    value={walkinForm.kategori}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, kategori: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs font-medium text-[#422F21]"
+                  >
+                    {(walkinForm.golongan === 'ISTIMEWA' ? OPSI_UNDANGAN_ISTIMEWA : OPSI_UNDANGAN_UMUM).map(
+                      (opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      )
+                    )}
+                  </select>
+                  {walkinForm.kategori === 'Lainnya (Ketik Sendiri...)' && (
+                    <input
+                      type="text"
+                      value={walkinForm.customKategori || ''}
+                      onChange={(e) => setWalkinForm({ ...walkinForm, customKategori: e.target.value })}
+                      placeholder="Ketik kategori khusus..."
+                      className="w-full mt-2 px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Instansi / Asal Lembaga - Khusus Golongan UMUM */}
+              {walkinForm.golongan === 'UMUM' && (
+                <div>
+                  <label className="block font-bold text-[#422F21] mb-1.5">
+                    Instansi / Asal Lembaga:
+                  </label>
                   <input
                     type="text"
-                    value={walkinForm.nama}
-                    onChange={(e) => setWalkinForm({ ...walkinForm, nama: e.target.value })}
-                    placeholder="Contoh: KH. ANWAR MASHADI"
-                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs"
-                    required
+                    value={walkinForm.instansi}
+                    onChange={(e) => setWalkinForm({ ...walkinForm, instansi: e.target.value })}
+                    placeholder="Nama instansi atau lembaga..."
+                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
                   />
                 </div>
               )}
 
+              {/* Alamat - Muncul untuk ISTIMEWA, KEHORMATAN, dan UMUM */}
               <div>
-                <label className="block font-bold text-[#422F21] mb-1">Instansi / Alamat Asal:</label>
+                <label className="block font-bold text-[#422F21] mb-1.5">
+                  Alamat:
+                </label>
                 <input
                   type="text"
-                  value={walkinForm.instansi}
-                  onChange={(e) => setWalkinForm({ ...walkinForm, instansi: e.target.value, alamat: e.target.value })}
-                  placeholder="Contoh: PP. Lirboyo Kediri"
-                  className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs"
+                  value={walkinForm.alamat}
+                  onChange={(e) => setWalkinForm({ ...walkinForm, alamat: e.target.value })}
+                  placeholder="Alamat asal (kota/daerah)..."
+                  className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
                 />
               </div>
 
+              {/* Nomor WhatsApp / HP - Muncul untuk ISTIMEWA, KEHORMATAN, dan UMUM */}
+              <div>
+                <label className="block font-bold text-[#422F21] mb-1.5">
+                  Nomor WhatsApp / HP (Opsional):
+                </label>
+                <input
+                  type="text"
+                  value={walkinForm.noHp}
+                  onChange={(e) => setWalkinForm({ ...walkinForm, noHp: e.target.value })}
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
+                />
+              </div>
+
+              {/* Checkbox Presensi Seketika */}
               <div className="p-3.5 rounded-2xl bg-emerald-50/60 backdrop-blur-xs border border-emerald-200/80 flex items-center space-x-2.5">
                 <input
                   type="checkbox"

@@ -11,6 +11,7 @@ export interface WalkinFormState {
   namaPutra: string;
   namaPutri: string;
   kategori: string;
+  customKategori?: string;
   instansi: string;
   alamat: string;
   noHp: string;
@@ -24,6 +25,7 @@ export const INITIAL_WALKIN_FORM: WalkinFormState = {
   namaPutra: '',
   namaPutri: '',
   kategori: 'VVIP',
+  customKategori: '',
   instansi: '',
   alamat: '',
   noHp: '',

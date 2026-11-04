@@ -397,43 +397,54 @@ export default function RekonPage() {
     e.preventDefault();
     setSavingWalkin(true);
 
-    let finalNama = '';
-    const p = walkinForm.namaPutra.trim().toUpperCase();
-    const w = walkinForm.namaPutri.trim().toUpperCase();
+    const p = (walkinForm.namaPutra || '').trim().toUpperCase();
+    const w = (walkinForm.namaPutri || '').trim().toUpperCase();
 
-    if (walkinForm.golongan === 'ISTIMEWA') {
-      if (!p && !w) {
-        showToast('Isi minimal salah satu: Nama Putra atau Nama Putri!', 'error');
-        setSavingWalkin(false);
-        return;
-      }
-      finalNama = p && w ? `${p} & ${w}` : p || w;
+    if (!p && !w) {
+      showToast('Isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!', 'error');
+      setSavingWalkin(false);
+      return;
+    }
+    const finalNama = p && w ? `${p} & ${w}` : p || w;
+
+    let finalKategori = '';
+    if (walkinForm.golongan === 'KEHORMATAN') {
+      finalKategori = 'Tamu Kehormatan';
     } else {
-      if (!walkinForm.nama.trim() && !p && !w) {
-        showToast('Nama Tamu Walk-in wajib diisi!', 'error');
-        setSavingWalkin(false);
-        return;
-      }
-      finalNama = walkinForm.nama.trim().toUpperCase() || (p && w ? `${p} & ${w}` : p || w);
+      finalKategori = (
+        walkinForm.kategori === 'Lainnya (Ketik Sendiri...)'
+          ? (walkinForm.customKategori || '').trim()
+          : walkinForm.kategori.trim()
+      ) || (walkinForm.golongan === 'ISTIMEWA' ? 'VVIP' : 'Asatidz Mhmtq Sekalian');
+    }
+
+    let finalAlamat = '';
+    let finalInstansi = '';
+    if (walkinForm.golongan === 'ISTIMEWA' || walkinForm.golongan === 'KEHORMATAN') {
+      finalAlamat = (walkinForm.alamat || walkinForm.instansi || '').trim();
+      finalInstansi = finalAlamat;
+    } else {
+      finalInstansi = (walkinForm.instansi || '').trim();
+      finalAlamat = (walkinForm.alamat || '').trim();
     }
 
     try {
       let newKode = generateRandomKode('UND');
       newKode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase);
-      // FIX 2: Payload HANYA kolom resmi tabel tamu_undangan (TANPA kuota_dasar / kuota_tambahan)
+      // Payload kolom resmi tabel tamu_undangan
       const payload = {
         kode: newKode,
         nama: finalNama,
         nama_putra: p || null,
         nama_putri: w || null,
-        instansi: walkinForm.instansi.trim() || walkinForm.alamat.trim() || '-',
-        alamat: walkinForm.alamat.trim() || '-',
-        kategori: walkinForm.kategori.trim() || 'Tamu Walk-in',
+        instansi: finalInstansi || '-',
+        alamat: finalAlamat || '-',
+        kategori: finalKategori,
         sub_kategori: walkinForm.golongan,
         no_hp: walkinForm.noHp.trim() || '-',
         kuota_terpakai: walkinForm.langsungCheckin ? 1 : 0,
         status_konfirmasi: 'BELUM',
-        warna_tiket: getWarnaTiketUndangan(walkinForm.golongan, walkinForm.kategori),
+        warna_tiket: getWarnaTiketUndangan(walkinForm.golongan, finalKategori),
         created_at: new Date().toISOString(),
       };
 
@@ -450,8 +461,8 @@ export default function RekonPage() {
           tipe_peserta: 'UNDANGAN',
           jalur: 'MEJA_REKONSILIASI',
           panitia_id: 'panitia-rekonsiliasi',
-          jumlah_l: 1,
-          jumlah_p: 0,
+          jumlah_l: p ? 1 : 0,
+          jumlah_p: w && !p ? 1 : 0,
           catatan: 'Walk-in Langsung Hadir',
         });
       }
