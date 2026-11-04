@@ -44,7 +44,7 @@ export function TanyaUsHeaderAndSettings({
   return (
     <>
       {/* Header Modal Ustadzah AI */}
-      <div className="py-2.5 px-3 sm:px-6 bg-white/50 backdrop-blur-md border-b border-white/60 flex items-center justify-between shrink-0 select-none gap-2">
+      <div className="py-2.5 px-3 sm:px-6 bg-white/40 backdrop-blur-md border-b border-white/40 flex items-center justify-between shrink-0 select-none gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           {/* Avatar Ustadzah Animasi Interaktif */}
           <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
@@ -76,8 +76,8 @@ export function TanyaUsHeaderAndSettings({
         <div className="flex items-center space-x-1 sm:space-x-2">
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className={`p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-[#E5DCD2] transition-colors ${
-              showSettings ? 'bg-[#E5DCD2] text-[#8C6A47]' : ''
+            className={`p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-white/60 transition-colors ${
+              showSettings ? 'bg-white/60 text-[#8C6A47]' : ''
             }`}
             title="Pengaturan API Key"
             aria-label="Pengaturan"
@@ -86,7 +86,7 @@ export function TanyaUsHeaderAndSettings({
           </button>
           <button
             onClick={handleResetChat}
-            className="p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-[#E5DCD2] transition-colors"
+            className="p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-white/60 transition-colors"
             title="Mulai Percakapan Baru"
             aria-label="Reset Chat"
           >
@@ -94,7 +94,7 @@ export function TanyaUsHeaderAndSettings({
           </button>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-[#E5DCD2] transition-colors"
+            className="p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-white/60 transition-colors"
             title="Tutup (Esc)"
             aria-label="Tutup"
           >
@@ -105,7 +105,7 @@ export function TanyaUsHeaderAndSettings({
 
       {/* Panel Pengaturan API Key (Opsional / Terbuka Saat Tombol Settings Diklik) */}
       {showSettings && (
-        <div className="p-4 bg-amber-50/90 border-b-2 border-amber-200 text-xs text-[#543C28] space-y-2 shrink-0 animate-in slide-in-from-top-2 duration-150">
+        <div className="p-4 bg-[#FAF7F3]/95 backdrop-blur-md border-b border-white/40 text-xs text-[#543C28] space-y-2 shrink-0 animate-in slide-in-from-top-2 duration-150 shadow-inner">
           <div className="flex items-center justify-between">
             <span className="font-bold flex items-center gap-1.5 text-[#8C6A47]">
               <Settings className="w-3.5 h-3.5" />
@@ -127,7 +127,7 @@ export function TanyaUsHeaderAndSettings({
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               placeholder="Masukkan API Key Zhipu AI / Gemini / OpenAI..."
-              className="flex-1 px-3 py-1.5 rounded-xl border border-white/80 bg-white/70 backdrop-blur-xs text-xs font-mono focus:outline-none focus:border-[#8C6A47]"
+              className="flex-1 px-3 py-1.5 rounded-xl border border-white/80 bg-white/80 backdrop-blur-xs text-xs font-mono focus:outline-none focus:border-[#8C6A47] text-[#422F21]"
             />
             <button
               onClick={handleSaveApiKey}
@@ -158,7 +158,7 @@ export function TanyaUsMessageList({
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }) {
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-[#FAF7F3]/30">
       {messages.map((msg, msgIndex) => {
         const isUser = msg.role === 'user';
         const prevUserMsg = msgIndex > 0 ? messages[msgIndex - 1] : null;
@@ -201,17 +201,17 @@ export function TanyaUsMessageList({
             )}
 
             <div
-              className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 shadow-xs space-y-2 text-xs sm:text-[13px] leading-relaxed relative group ${
+              className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 shadow-sm space-y-2 text-xs sm:text-[13px] leading-relaxed relative group ${
                 isUser
-                  ? 'bg-gradient-to-br from-[#F6F0E8] via-[#EFE5D9] to-[#E6D8C8] border-2 border-[#CBB59F] text-[#2D1B0E] rounded-br-xs'
-                  : 'bg-white/70 backdrop-blur-md border border-white/80 text-[#422F21] shadow-xs rounded-bl-xs'
+                  ? 'bg-amber-100/90 border border-amber-200/80 text-[#2D1B0E] shadow-sm rounded-br-xs'
+                  : 'bg-white/70 backdrop-blur-sm border border-white/50 shadow-sm text-[#422F21] rounded-bl-xs'
               }`}
             >
               {/* Sender & Timestamp */}
               <div
-                className={`flex items-center justify-between text-[10px] pb-1 border-b ${
+                className={`flex items-center justify-between gap-2 text-[10px] pb-1 border-b ${
                   isUser
-                    ? 'border-[#CBB59F]/60 text-[#7D5A3C]'
+                    ? 'border-amber-200/80 text-[#7D5A3C]'
                     : 'border-[#EFE8E1] text-[#7A624E]'
                 }`}
               >
@@ -296,7 +296,7 @@ export function TanyaUsMessageList({
                 <div className="pt-1 flex items-center justify-end">
                   <button
                     onClick={() => handleCopyText(msg.id, msg.content)}
-                    className="inline-flex items-center space-x-1 text-[10px] text-[#7A624E] hover:text-[#422F21] px-2 py-0.5 rounded-md hover:bg-[#EFE8E1] transition-colors"
+                    className="inline-flex items-center space-x-1 text-[10px] text-[#7A624E] hover:text-[#422F21] px-2 py-0.5 rounded-md hover:bg-white/60 transition-colors"
                     title="Salin jawaban"
                   >
                     {copiedId === msg.id ? (
@@ -316,7 +316,7 @@ export function TanyaUsMessageList({
             </div>
 
             {isUser && (
-              <div className="w-8 h-8 rounded-full bg-[#EFE5D9] border-2 border-[#CBB59F] flex items-center justify-center shrink-0 mt-0.5 text-[#8C6A47] shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-[#EADBC8] border-2 border-[#8C6A47]/40 flex items-center justify-center shrink-0 mt-0.5 text-[#8C6A47] shadow-xs">
                 <User className="w-4 h-4" />
               </div>
             )}
@@ -335,7 +335,7 @@ export function TanyaUsMessageList({
             />
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs text-[#7A624E] flex items-center space-x-2.5 shadow-xs">
+          <div className="p-3.5 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/50 text-xs text-[#422F21] flex items-center space-x-2.5 shadow-sm">
             <div className="flex space-x-1">
               <div className="w-2 h-2 rounded-full bg-[#8C6A47] animate-bounce" />
               <div className="w-2 h-2 rounded-full bg-[#A47E57] animate-bounce [animation-delay:0.2s]" />
@@ -373,7 +373,7 @@ export function TanyaUsInputBar({
   isLoading: boolean;
 }) {
   return (
-    <div className="p-3 sm:p-4 bg-white/40 backdrop-blur-md border-t border-white/50 shrink-0 space-y-2">
+    <div className="p-3 sm:p-4 bg-white/50 backdrop-blur-md border-t border-white/40 shrink-0 space-y-2">
       {/* Quick Action Chips per Role */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
         {role === 'ADMIN' && (
@@ -472,14 +472,14 @@ export function TanyaUsInputBar({
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="Tanyakan apapun pada Usth. Halwaa seputar Haflah... (Enter untuk kirim)"
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white/70 backdrop-blur-xs border border-white/80 focus:bg-white/95 focus:border-[#8C6A47] focus:outline-none text-xs sm:text-sm text-[#422F21] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/60 focus:bg-white/90 focus:border-[#8C6A47] focus:outline-none text-xs sm:text-sm text-[#422F21] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
           />
         </div>
 
         <button
           type="submit"
           disabled={!inputQuery.trim() || isLoading}
-          className="p-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#D49B5B] hover:brightness-105 disabled:opacity-50 text-white font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
+          className="p-3 rounded-2xl bg-[#8C6A47] hover:bg-[#735334] disabled:opacity-50 text-white font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
           title="Kirim Pertanyaan"
         >
           <Send className="w-4 h-4" />
