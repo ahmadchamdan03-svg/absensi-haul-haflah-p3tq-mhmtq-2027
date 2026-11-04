@@ -63,8 +63,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden relative z-0 bg-[url('/images/panggung-aula.jpg')] bg-cover bg-center bg-fixed bg-no-repeat">
-      {/* Background Overlay Lembut Kaca */}
-      <div className="absolute inset-0 bg-[#FAF7F3]/85 backdrop-blur-sm -z-10 pointer-events-none" aria-hidden="true" />
+      {/* Background Overlay Lembut Kaca (Transparan 60% agar foto panggung terlihat jelas) */}
+      <div className="absolute inset-0 bg-[#FAF7F3]/60 -z-10 pointer-events-none" aria-hidden="true" />
 
       {/* Sidebar Navigasi Samping (Disembunyikan total HANYA untuk role PENERIMA_TAMU; ADMIN tetap ada sidebar) */}
       {!isRolePenerimaTamu && (
