@@ -206,7 +206,10 @@ export default function CanvasRevealMask() {
     >
       {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar (Baru) & Overlay Logo */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="relative w-[max(100vw,177.78vh)] h-[max(56.25vw,100vh)] overflow-hidden">
+        <div
+          className="relative shrink-0 overflow-hidden"
+          style={{ width: 'max(100vw, 177.78vh)', height: 'max(56.25vw, 100vh)' }}
+        >
           <img
             src="/images/panggung-aula.jpg"
             alt="Panggung Aula Al-Muktamar"
@@ -217,12 +220,12 @@ export default function CanvasRevealMask() {
           <img
             src="/images/logo-p3tq-overlay.png"
             alt="Logo P3TQ"
-            className="absolute left-[28.42%] top-[39.5%] -translate-x-1/2 -translate-y-1/2 w-[3.5%] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] pointer-events-none"
+            className="absolute left-[28.35%] top-[40.50%] -translate-x-1/2 -translate-y-1/2 w-[3.70%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] pointer-events-none"
           />
           <img
             src="/images/logo-mhmtq-overlay.png"
             alt="Logo MHMTQ"
-            className="absolute left-[71.68%] top-[39.8%] -translate-x-1/2 -translate-y-1/2 w-[3.5%] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] pointer-events-none"
+            className="absolute left-[71.52%] top-[40.50%] -translate-x-1/2 -translate-y-1/2 w-[3.70%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] pointer-events-none"
           />
         </div>
       </div>
