@@ -259,8 +259,9 @@ export function TanyaUsMessageList({
                       type="button"
                       onClick={async () => {
                         const clean = cleanDocumentText(msg.content);
-                        const motivasi = await fetchFreshMotivasi('Kepanitiaan Haflah P3TQ');
-                        exportTextToPdf('Dokumen Haflah P3TQ', clean, undefined, motivasi);
+                        const userTopic = prevUserMsg?.content?.replace(/^(tolong|mohon|buatkan|bikin|unduh|download|ekspor|jadikan|format|versi)\s+/i, '').trim().slice(0, 50) || 'Dokumen_Haflah_P3TQ';
+                        const motivasi = await fetchFreshMotivasi(userTopic);
+                        exportTextToPdf(userTopic, clean, undefined, motivasi);
                       }}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-700 hover:bg-red-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
@@ -273,8 +274,9 @@ export function TanyaUsMessageList({
                       type="button"
                       onClick={async () => {
                         const clean = cleanDocumentText(msg.content);
-                        const motivasi = await fetchFreshMotivasi('Kepanitiaan Haflah P3TQ');
-                        exportTextToDocx('Dokumen Haflah P3TQ', clean, undefined, motivasi);
+                        const userTopic = prevUserMsg?.content?.replace(/^(tolong|mohon|buatkan|bikin|unduh|download|ekspor|jadikan|format|versi)\s+/i, '').trim().slice(0, 50) || 'Dokumen_Haflah_P3TQ';
+                        const motivasi = await fetchFreshMotivasi(userTopic);
+                        exportTextToDocx(userTopic, clean, undefined, motivasi);
                       }}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
@@ -291,8 +293,9 @@ export function TanyaUsMessageList({
                           .split('\n')
                           .filter((l) => l.trim().length > 0);
                         const rows = lines.map((l, i) => [i + 1, l.replace(/^[\*\-\d\.\s]+/, '')]);
-                        const motivasi = await fetchFreshMotivasi('Kepanitiaan Haflah P3TQ');
-                        exportTableToExcel(['No', 'Uraian'], rows, 'Ringkasan_Haflah', motivasi);
+                        const userTopic = prevUserMsg?.content?.replace(/^(tolong|mohon|buatkan|bikin|unduh|download|ekspor|jadikan|format|versi)\s+/i, '').trim().slice(0, 50) || 'Ringkasan_Haflah';
+                        const motivasi = await fetchFreshMotivasi(userTopic);
+                        exportTableToExcel(['No', 'Uraian'], rows, userTopic, motivasi);
                       }}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >

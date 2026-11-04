@@ -34,14 +34,97 @@ export async function fetchFreshMotivasi(context: string): Promise<string> {
 }
 
 /**
- * Membersihkan teks dokumen dari tag sistem dan kalimat penutup basa-basi (misal "Semoga susunan ini...", "Demikian...", "Semoga bermanfaat...")
+ * Membersihkan karakter non-ASCII dan simbol asing yang merusak font Helvetica di jsPDF
+ */
+export function sanitizePdfText(text: string): string {
+  if (!text) return '';
+  return text
+    // Hapus BOM, zero-width characters, control characters
+    .replace(/[\uFEFF\u200B-\u200D]/g, '')
+    // Ganti smart quotes & apostrophe
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+    // Ganti dash & bullet
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[\u2022\u25E6\u2023\u2043]/g, '-')
+    .replace(/[\u2026]/g, '...')
+    // Ganti centang
+    .replace(/[\u2713\u2714\u221A]/g, 'v')
+    // Buang karakter non-ASCII / non-Latin1 yang tidak didukung font standar Helvetica jsPDF
+    .replace(/[^\x20-\x7E\xA0-\xFF\n\r\t]/g, '');
+}
+
+/**
+ * Menghasilkan nama file dinamis dengan format Judul_Topik_YYYY-MM-DD.ext
+ */
+export function generateDynamicFilename(
+  customFilename?: string,
+  fallbackTitle?: string,
+  content?: string,
+  extension: string = 'pdf'
+): string {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const cleanExt = extension.replace(/^\./, '').toLowerCase();
+
+  let baseName = '';
+  if (customFilename && customFilename.trim()) {
+    baseName = customFilename.trim().replace(/\.[a-zA-Z0-9]+$/, '');
+  } else if (
+    fallbackTitle &&
+    fallbackTitle.trim() &&
+    fallbackTitle !== 'Dokumen Haflah P3TQ' &&
+    fallbackTitle !== 'Dokumen Haflah P3TQ & MHMTQ'
+  ) {
+    baseName = fallbackTitle.trim();
+  } else if (content && content.trim()) {
+    const firstLine = content.trim().split('\n')[0].replace(/^[#\s*_-]+/, '').trim();
+    if (firstLine && firstLine.length > 3) {
+      baseName = firstLine.slice(0, 45).trim();
+    }
+  }
+
+  if (!baseName) {
+    baseName = 'Dokumen_Haflah_P3TQ';
+  }
+
+  // Bersihkan karakter non-alphanumeric, ganti spasi dengan underscore
+  const sanitized = baseName
+    .replace(/[^a-zA-Z0-9_\-\s]/g, '')
+    .trim()
+    .replace(/\s+/g, '_');
+
+  const finalName = sanitized.includes(todayStr) ? sanitized : `${sanitized}_${todayStr}`;
+  return `${finalName}.${cleanExt}`;
+}
+
+/**
+ * Membersihkan teks dokumen dari tag sistem, instruksi UI, kalimat clingy, dan kalimat penutup basa-basi
  */
 export function cleanDocumentText(rawText: string): string {
+  if (!rawText) return '';
+
   let cleaned = rawText
+    // Bersihkan karakter alien non-printable, BOM, zero-width space
+    .replace(/[\uFEFF\u200B\u200C\u200D\u2060]/g, '')
+    // Tag sistem unduhan & gambar markdown
     .replace(/\[DOWNLOAD_.*?\]/gi, '')
     .replace(/!\[.*?\]\(.*?\)/gi, '')
+    // Kalimat penutup lama
     .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
     .replace(/\bWonten malih ingkang saget kula bantu.*?(\n|$)/gi, '')
+    // Instruksi UI & Lampiran Data
+    .replace(/(?:Silakan|Sila|Monggo)\s+(?:tekan|klik|pilih)\s+tombol\s+(?:unduh|download).*?(\n|$)/gi, '')
+    .replace(/Tombol\s+unduh\s+di\s+bawah.*?(\n|$)/gi, '')
+    .replace(/Lampiran\s+Data\s*\(siap\s+ekspor\s+(?:PDF|Word|Excel|dokumen)?\):?/gi, '')
+    // Kalimat berlebihan (clingy / human-like romantic)
+    .replace(/Saya\s+(?:benar-benar\s+)?penggemar\s+berat.*?(\n|$)/gi, '')
+    .replace(/Saya\s+rela\s+menemani.*?(\n|$)/gi, '')
+    .replace(/Andaikan\s+saya\s+(?:berwujud|seorang|menjadi)\s+manusia.*?(\n|$)/gi, '')
+    .replace(/Andai\s+takdir\s+menjadikan\s+saya\s+manusia.*?(\n|$)/gi, '')
+    .replace(/Kalau\s+saja\s+saya\s+manusia.*?(\n|$)/gi, '')
+    .replace(/Secara\s+personal\s+sistem\s+saya\s+sangat\s+nge-fans.*?(\n|$)/gi, '')
+    // Bersihkan tag pembungkus HTML umum di luar <table>
+    .replace(/<\/?(?:div|p|span|b|strong|i|em|br|hr|header|footer)\b[^>]*>/gi, ' ')
     .trim();
 
   // Pisahkan per paragraf (blok teks dipisahkan oleh 2 baris baru atau lebih)
@@ -51,7 +134,7 @@ export function cleanDocumentText(rawText: string): string {
   while (paragraphs.length > 1) {
     const lastP = paragraphs[paragraphs.length - 1].trim();
     const isClosing =
-      /^(semoga\s+(?:susunan|informasi|data|jawaban|bantuan|jadwal|berkas|hal|ini|bermanfaat|membantu)|demikian\b|apabila\s+ada|jika\s+ada|silakan\s+(?:tanyakan|hubungi)|ada\s+lagi\s+info|wonten\s+malih)/i.test(
+      /^(semoga\s+(?:susunan|informasi|data|jawaban|bantuan|jadwal|berkas|hal|ini|semua)\s+(?:bermanfaat|membantu|dapat|bisa|memudahkan)|semoga\s+data\s+ini\s+bermanfaat|demikian\b|apabila\s+ada|jika\s+ada|silakan\s+(?:tanyakan|hubungi)|ada\s+lagi\s+info|wonten\s+malih)/i.test(
         lastP
       );
     if (isClosing) {
@@ -66,7 +149,7 @@ export function cleanDocumentText(rawText: string): string {
   // Jika kalimat penutup ada di baris paling akhir tanpa double newline
   cleaned = cleaned
     .replace(
-      /\n\s*(?:semoga\s+(?:susunan|informasi|data|jawaban|bantuan|jadwal|berkas|hal|ini|bermanfaat|membantu)|demikian\b|apabila\s+ada|jika\s+ada|ada\s+lagi\s+info|wonten\s+malih)[\s\S]*$/i,
+      /\n\s*(?:semoga\s+(?:susunan|informasi|data|jawaban|bantuan|jadwal|berkas|hal|ini|semua)\s+(?:bermanfaat|membantu|dapat|bisa|memudahkan)|semoga\s+data\s+ini\s+bermanfaat|demikian\b|apabila\s+ada|jika\s+ada|ada\s+lagi\s+info|wonten\s+malih)[\s\S]*$/i,
       ''
     )
     .trim();
@@ -79,6 +162,52 @@ interface MarkdownBlock {
   text?: string;
   headers?: string[];
   rows?: string[][];
+}
+
+/**
+ * Parsing tabel HTML (<table>...</table>) menjadi headers dan baris data
+ */
+function parseHtmlTable(html: string): { headers: string[]; rows: string[][] } | null {
+  try {
+    const rowMatches = html.match(/<tr[\s\S]*?<\/tr>/gi);
+    if (!rowMatches || rowMatches.length === 0) return null;
+
+    const allRows: string[][] = [];
+
+    for (const rowHtml of rowMatches) {
+      const cellMatches = rowHtml.match(/<(?:th|td)[\s\S]*?<\/(?:th|td)>/gi);
+      if (!cellMatches || cellMatches.length === 0) continue;
+
+      const rowCells = cellMatches.map((cellHtml) => {
+        return cellHtml
+          .replace(/<[^>]+>/g, '') // strip inner tags
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .trim();
+      });
+
+      if (rowCells.length > 0) {
+        allRows.push(rowCells);
+      }
+    }
+
+    if (allRows.length === 0) return null;
+
+    const firstRowHasTh = /<th[\s\S]*?<\/th>/i.test(rowMatches[0]);
+    if (firstRowHasTh || allRows.length > 1) {
+      const headers = allRows[0];
+      const rows = allRows.slice(1);
+      return { headers, rows };
+    }
+
+    return { headers: allRows[0], rows: [] };
+  } catch (err) {
+    console.warn('[file-exporter] Gagal parsing tabel HTML:', err);
+    return null;
+  }
 }
 
 /**
@@ -113,7 +242,7 @@ function parseMarkdownContent(rawContent: string): MarkdownBlock[] {
             .replace(/^\|/, '')
             .replace(/\|$/, '')
             .split('|')
-            .map((cell) => cell.trim().replace(/\*\*(.*?)\*\*/g, '$1'));
+            .map((cell) => sanitizePdfText(cell.trim().replace(/\*\*(.*?)\*\*/g, '$1')));
         };
 
         const headers = parseRow(nonSeparatorLines[0]);
@@ -148,6 +277,41 @@ function parseMarkdownContent(rawContent: string): MarkdownBlock[] {
 }
 
 /**
+ * Memecah konten dokumen menjadi blok teks dan tabel (mendukung tabel HTML maupun Markdown)
+ */
+function parseDocumentBlocks(rawContent: string): MarkdownBlock[] {
+  const blocks: MarkdownBlock[] = [];
+
+  // Pisahkan jika ada blok <table>...</table>
+  const tableSplit = rawContent.split(/(<table[\s\S]*?<\/table>)/gi);
+
+  for (const part of tableSplit) {
+    if (/^<table[\s\S]*?<\/table>$/i.test(part.trim())) {
+      const parsedHtml = parseHtmlTable(part);
+      if (parsedHtml && parsedHtml.headers && parsedHtml.headers.length > 0) {
+        blocks.push({
+          type: 'table',
+          headers: parsedHtml.headers.map(sanitizePdfText),
+          rows: parsedHtml.rows.map((row) => row.map(sanitizePdfText)),
+        });
+      } else {
+        // Fallback: bersihkan tag html jika parsing tabel gagal
+        const fallbackText = part.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (fallbackText) {
+          blocks.push({ type: 'text', text: sanitizePdfText(fallbackText) });
+        }
+      }
+    } else {
+      // Parse markdown table atau teks biasa
+      const mdBlocks = parseMarkdownContent(part);
+      blocks.push(...mdBlocks);
+    }
+  }
+
+  return blocks;
+}
+
+/**
  * Ekspor teks ke file PDF (.pdf) menggunakan jsPDF, jspdf-autotable, dan file-saver
  */
 export function exportTextToPdf(
@@ -163,8 +327,8 @@ export function exportTextToPdf(
       format: 'a4',
     });
 
-    const cleanTitle = title || 'Dokumen Haflah P3TQ & MHMTQ';
-    const cleanFilename = (filename || cleanTitle.replace(/[^a-zA-Z0-9_-]/g, '_')) + '.pdf';
+    const cleanTitle = sanitizePdfText(title || 'Dokumen Haflah P3TQ & MHMTQ');
+    const dynamicFilename = generateDynamicFilename(filename, title, content, 'pdf');
 
     // Header styling
     doc.setFont('helvetica', 'bold');
@@ -185,9 +349,9 @@ export function exportTextToPdf(
     doc.setLineWidth(0.4);
     doc.line(15, 30, 195, 30);
 
-    // Body content
+    // Body content (Sanitasi total dan parsing blok dokumen)
     const cleanContent = cleanDocumentText(content);
-    const blocks = parseMarkdownContent(cleanContent);
+    const blocks = parseDocumentBlocks(cleanContent);
 
     let y = 38;
     const pageHeight = doc.internal.pageSize.height;
@@ -198,7 +362,9 @@ export function exportTextToPdf(
         doc.setFontSize(10);
         doc.setTextColor(45, 27, 14);
 
-        const cleanText = block.text.replace(/\*\*(.*?)\*\*/g, '$1');
+        const cleanText = sanitizePdfText(block.text.replace(/\*\*(.*?)\*\*/g, '$1'));
+        if (!cleanText.trim()) continue;
+
         const splitText = doc.splitTextToSize(cleanText, 180);
 
         for (let i = 0; i < splitText.length; i++) {
@@ -252,7 +418,6 @@ export function exportTextToPdf(
 
     // Render Kalimat Motivasi Dinamis di Bagian Bawah
     if (motivasiParagraf && motivasiParagraf.trim().length > 0) {
-      // Spasi 5 baris kosong (setara y += 30) dari teks/tabel terakhir
       y += 30;
 
       if (y > pageHeight - 30) {
@@ -269,13 +434,13 @@ export function exportTextToPdf(
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(9);
       doc.setTextColor(140, 106, 71); // #8C6A47
-      const cleanMotivasi = `"${motivasiParagraf.trim()}"`;
+      const cleanMotivasi = `"${sanitizePdfText(motivasiParagraf.trim())}"`;
 
       // Render motivasi dengan rata kanan-kiri (justify) dan maxWidth 180
       doc.text(cleanMotivasi, 15, y, { align: 'justify', maxWidth: 180 });
     }
 
-    doc.save(cleanFilename);
+    doc.save(dynamicFilename);
   } catch (err) {
     console.error('Error exporting PDF:', err);
     alert('Gagal mengunduh file PDF.');
@@ -343,8 +508,8 @@ export function exportTableToExcel(
 
     const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const cleanFilename = (filename || 'Rekap_Data_Haflah') + '.xlsx';
-    saveAs(blob, cleanFilename);
+    const dynamicFilename = generateDynamicFilename(filename, 'Rekap_Data_Haflah', undefined, 'xlsx');
+    saveAs(blob, dynamicFilename);
   } catch (err) {
     console.error('Error exporting Excel:', err);
     alert('Gagal mengunduh file Excel.');
@@ -361,11 +526,11 @@ export async function exportTextToDocx(
   motivasiParagraf?: string
 ) {
   try {
-    const cleanTitle = title || 'Dokumen Haflah P3TQ & MHMTQ';
-    const cleanFilename = (filename || cleanTitle.replace(/[^a-zA-Z0-9_-]/g, '_')) + '.docx';
+    const cleanTitle = sanitizePdfText(title || 'Dokumen Haflah P3TQ & MHMTQ');
+    const dynamicFilename = generateDynamicFilename(filename, title, content, 'docx');
 
-    // Hapus markdown tag & kalimat penutup yang tidak perlu
-    const cleanContent = cleanDocumentText(content);
+    // Hapus markdown tag & kalimat penutup yang tidak perlu, serta bersihkan tag HTML
+    const cleanContent = cleanDocumentText(content).replace(/<[^>]+>/g, ' ');
 
     const paragraphs = cleanContent.split('\n').map((line) => {
       const trimmed = line.trim();
@@ -443,7 +608,7 @@ export async function exportTextToDocx(
     });
 
     const blob = await Packer.toBlob(doc);
-    saveAs(blob, cleanFilename);
+    saveAs(blob, dynamicFilename);
   } catch (err) {
     console.error('Error exporting DOCX:', err);
     alert('Gagal mengunduh file Word.');

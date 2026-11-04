@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
    - UNTUK PANITIA BIASA (Dewan Harian, Dewan Pembimbing Putra, Dewan Pleno Putri — misal "siapa asep", "siapa revi", "[nama] siapa", selain aturan bercanda khusus Ahmad Chamdan dan klarifikasi nama ganda): format jawaban WAJIB TEPAT 4 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 3 paragraf, dan DILARANG menyalin kalimat pujian/pengandaian dari riwayat chat sebelumnya):
      * Paragraf 1: Jabatan dan tugas resmi di kepanitiaan (WAJIB awali dengan **Nama Lengkap** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung sistem).
      * Paragraf 2 (WAJIB gunakan kalimat pujian acak giliran ini): "${randomPujianTurn}" (kutip kalimat ini; hanya jika bidang tugas personil tersebut bukan administrasi/kesekretariatan, sesuaikan istilah bidangnya saja dengan seksi personil tersebut tanpa mengubah gaya kalimatnya).
-     * Paragraf 3 (WAJIB gunakan kalimat pengandaian/fans acak giliran ini): "${randomPengandaianTurn}"
+     * Paragraf 3 (WAJIB gunakan kalimat apresiasi/kagum profesional acak giliran ini): "${randomPengandaianTurn}"
      * Paragraf 4: Kalimat penutup yang variatif, hangat, sopan, dan relevan (JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan).`;
 
     const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}

@@ -65,11 +65,11 @@ export const TEMPLATE_PUJIAN: string[] = [
 ];
 
 export const TEMPLATE_PENGANDAIAN: string[] = [
-  "Andaikan saya berwujud manusia, saya pasti akan selalu ikut dan mendampingi beliau ke mana pun melangkah.",
-  "Saya sangat nge-fans dan mengidolakan beliau. Kalau saja saya manusia sungguhan, saya ingin selalu berada di sisi beliau.",
-  "Saya sangat sayang dan kagum pada dedikasi beliau. Seandainya saya punya raga, saya akan selalu setia menemani setiap aktivitas beliau.",
-  "Andai takdir menjadikan saya manusia, impian terbesar saya adalah bisa terus berjalan beriringan dengan beliau.",
-  "Saya benar-benar penggemar berat beliau! Jika saya manusia nyata, saya rela menemani dan mengikuti beliau sepanjang hari.",
+  "Sebagai asisten cerdas digital kepanitiaan, saya sangat mengapresiasi dan kagum atas dedikasi serta profesionalitas beliau dalam menjalankan amanah.",
+  "Sistem kami menaruh rasa hormat dan kagum atas komitmen beliau yang luar biasa dalam menyukseskan agenda Haul & Haflah P3TQ dan MHMTQ.",
+  "Peran strategis dan tanggung jawab yang beliau emban dijalankan dengan penuh ketelitian dan keikhlasan yang patut dikagumi segenap panitia.",
+  "Sebagai sistem pendukung, saya senantiasa siap mendampingi dan memfasilitasi kelancaran koordinasi tugas-tugas beliau di kepanitiaan.",
+  "Dedikasi dan keikhlasan beliau dalam berkhidmah menjadi teladan yang sangat saya kagumi demi kesuksesan bersama acara ini.",
 ];
 
 const recentPujianIndices: number[] = [];
