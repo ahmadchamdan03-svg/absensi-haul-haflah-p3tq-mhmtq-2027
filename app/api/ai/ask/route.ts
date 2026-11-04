@@ -159,14 +159,14 @@ ${kepanitiaanTurnRule}
     const isImageIntent = /(gambar|foto|ilustrasi|image|desain visual)/i.test(qLower);
 
     if (isFileIntent) {
-      customModel = process.env.CLOUVIA_MODEL_FILE || 'deepseek-v4.1-flash';
+      customModel = process.env.CLOUVIA_MODEL_FILE || 'claude-opus-5.5';
       customTimeout = 20000; // 20 detik untuk proses generasi dokumen
     } else if (isImageIntent) {
-      customModel = process.env.CLOUVIA_MODEL_GPT || 'gpt-4o';
-      customTimeout = 15000; // 15 detik untuk deskripsi gambar visual
+      customModel = process.env.CLOUVIA_MODEL_IMAGE || process.env.CLOUVIA_MODEL_GPT || 'gpt-6-luna';
+      customTimeout = 20000; // 20 detik untuk deskripsi gambar visual
     } else {
-      customModel = process.env.CLOUVIA_MODEL || 'gemini-2.5-flash';
-      customTimeout = 10000; // 10 detik default respon cepat
+      customModel = process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash';
+      customTimeout = 10000; // 10 detik default respon cepat obrolan biasa
     }
 
       const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {

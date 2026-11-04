@@ -46,7 +46,7 @@ function createTimeoutController(ms: number) {
 function logTierError(tierLabel: string, err: any, startedAt: number, aborted: boolean) {
   const elapsedMs = Date.now() - startedAt;
   if (aborted) {
-    console.error(`[AI-Router] ${tierLabel} TIMEOUT setelah ${elapsedMs} ms (>15s) — request dibatalkan via AbortController.`);
+    console.error(`[AI-Router] ${tierLabel} TIMEOUT setelah ${elapsedMs} ms — request dibatalkan via AbortController.`);
     return;
   }
   if (err instanceof OpenAI.APIError) {
@@ -124,9 +124,9 @@ async function callOpenAiCompatible(params: {
 
 /**
  * 3-Tier Failover Engine for Usth. Halwaa AI Assistant:
- * Tier 1 (Utama)     : Clouvia (model ringan via CLOUVIA_MODEL, timeout 15 dtk)
- * Tier 2 (Cadangan 1): Vikey (vikey/plan, timeout 15 dtk)
- * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash, timeout 15 dtk)
+ * Tier 1 (Utama)     : Clouvia (deepseek-v4.1-flash / claude-opus-5.5 / gpt-6-luna)
+ * Tier 2 (Cadangan 1): Vikey (vikey/plan)
+ * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
  */
 export interface AskAiOptions {
@@ -156,7 +156,7 @@ export async function askAI(
 
   openAiMessages.push({ role: 'user', content: prompt });
 
-  // Timeout dinamis per intent (default 10s untuk obrolan cepat, 15s untuk gambar, 20s untuk file)
+  // Timeout dinamis per intent (default 10s untuk obrolan biasa, 20s untuk gambar & file)
   const requestTimeoutMs = options?.timeout || 10000;
 
   // =========================================================================

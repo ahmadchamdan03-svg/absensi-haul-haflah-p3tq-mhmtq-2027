@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       'Langsung tuliskan isi paragraf motivasi saja secara mengalir.';
 
     const aiResponse = await askAI(prompt, [], systemInstruction, {
-      model: process.env.CLOUVIA_MODEL || 'gemini-2.5-flash',
+      model: process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash',
       timeout: 10000,
     });
 
