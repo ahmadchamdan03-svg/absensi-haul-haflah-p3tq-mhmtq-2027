@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import {
   Users,
   Search,
-  HelpCircle,
   LogOut,
   Gift,
   Building,
-  Plus,
+  UserRoundPlus,
   Phone,
   Trash2,
   RotateCcw,
@@ -60,18 +59,24 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
   return (
     <div className="min-h-screen bg-transparent text-[#422F21] pb-24">
-      {/* HEADER RESPONSIF */}
-      <header className="border-b border-white/50 bg-white/40 backdrop-blur-md sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
+      {/* HEADER RESPONSIF — Floating White Text (tanpa background) */}
+      <header className="sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-800 border-2 border-emerald-600 flex items-center justify-center font-bold shadow-xs shrink-0">
-              <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-700" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/20 text-white border-2 border-white/50 flex items-center justify-center font-bold shadow-xs shrink-0 backdrop-blur-sm">
+              <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <div className="text-[10px] sm:text-xs font-serif font-black tracking-wider text-emerald-800 uppercase leading-tight truncate">
+              <div
+                className="text-[10px] sm:text-xs font-serif font-black tracking-wider text-white uppercase leading-tight truncate drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]"
+                style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.85), 0 4px 18px rgba(0, 0, 0, 0.7)' }}
+              >
                 POS PENERIMA TAMU · MEJA TRANSIT
               </div>
-              <h1 className="font-serif font-black text-xs sm:text-base text-[#422F21] leading-tight truncate">
+              <h1
+                className="font-serif font-black text-xs sm:text-base text-white leading-tight truncate drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]"
+                style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.85), 0 4px 18px rgba(0, 0, 0, 0.7)' }}
+              >
                 Haul &amp; Haflah P3TQ - MHMTQ 2027
               </h1>
             </div>
@@ -81,27 +86,19 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             <button
               type="button"
               onClick={() => handleOpenAddModal('ISTIMEWA')}
-              className="flex-1 md:flex-none justify-center px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs flex items-center space-x-1 transition-all cursor-pointer whitespace-nowrap"
+              className="flex-1 md:flex-none justify-center px-3 py-2 sm:py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-4 h-4" />
-              <span>+ Tambah Tamu</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsUsModalOpen(true)}
-              className="flex-1 md:flex-none justify-center px-3 py-2 sm:py-1.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
-            >
-              <HelpCircle className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Tanya Usth. Halwaa</span>
+              <UserRoundPlus className="w-4 h-4" />
+              <span>Tambah Tamu</span>
             </button>
             {showLogout && (
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-3 py-2 sm:py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-bold shadow-2xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
+                className="px-3 py-2 sm:py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/40 text-xs font-bold shadow-2xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
                 title="Keluar / Ganti Peran"
               >
-                <LogOut className="w-3.5 h-3.5 text-stone-500" />
+                <LogOut className="w-3.5 h-3.5 text-white/80" />
                 <span className="inline">Keluar</span>
               </button>
             )}
@@ -130,14 +127,14 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <p className="text-[11px] text-[#7A624E]">Total Kuota ({undanganList.length} Undangan)</p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-emerald-50/70 backdrop-blur-md border border-emerald-200/80 shadow-sm space-y-1">
-              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide">
+            <div className="p-4 rounded-3xl bg-blue-50/70 backdrop-blur-md border border-blue-200/80 shadow-sm space-y-1">
+              <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">
                 Tamu Sudah Rawuh
               </span>
-              <div className="text-2xl font-serif font-black text-emerald-900">
+              <div className="text-2xl font-serif font-black text-blue-900">
                 {totalHadirTamu > 0 || totalKuotaTamu > 0 ? `${totalHadirTamu} Hadir` : '—'}
               </div>
-              <p className="text-[11px] text-emerald-700">
+              <p className="text-[11px] text-blue-700">
                 Terpakai ({totalKuotaTamu > 0 ? `${totalHadirTamu}/${totalKuotaTamu} Kursi` : '—'})
               </p>
             </div>
@@ -168,8 +165,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             onClick={() => setActiveTab('ABSENSI')}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'ABSENSI'
-                ? 'bg-emerald-800 text-white shadow-xs'
-                : 'text-[#422F21] hover:text-emerald-800'
+                ? 'bg-blue-800 text-white shadow-xs'
+                : 'text-[#422F21] hover:text-blue-800'
             }`}
           >
             Absensi Cepat Tamu
@@ -178,8 +175,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             onClick={() => setActiveTab('POS_JAGA')}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'POS_JAGA'
-                ? 'bg-emerald-800 text-white shadow-xs'
-                : 'text-[#422F21] hover:text-emerald-800'
+                ? 'bg-blue-800 text-white shadow-xs'
+                : 'text-[#422F21] hover:text-blue-800'
             }`}
           >
             8 Pos Jaga Putri &amp; Putra
@@ -201,10 +198,10 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs"
+                className="px-3 py-1.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs"
               >
-                <Plus className="w-4 h-4" />
-                <span>+ Tambah Tamu Baru</span>
+                <UserRoundPlus className="w-4 h-4" />
+                <span>Tambah Tamu Baru</span>
               </button>
             </div>
 
@@ -246,8 +243,8 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                       key={u.id || u.kode}
                       className={`p-4 rounded-2xl border backdrop-blur-xs transition-all flex items-center justify-between gap-3 shadow-xs ${
                         isHadir
-                          ? 'bg-emerald-50/70 border-emerald-300'
-                          : 'bg-white/60 hover:bg-white/80 border-white/60 hover:border-emerald-500/70'
+                          ? 'bg-blue-50/70 border-blue-300'
+                          : 'bg-white/60 hover:bg-white/80 border-white/60 hover:border-blue-500/70'
                       }`}
                     >
                       <div className="space-y-1 flex-1 min-w-0">
@@ -255,7 +252,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                           <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100/80 text-stone-700 border border-stone-200">
                             {u.kode}
                           </span>
-                          <span className="text-[10px] text-emerald-800 font-semibold truncate">
+                          <span className="text-[10px] text-blue-800 font-semibold truncate">
                             {u.kategori}
                           </span>
                         </div>
@@ -277,7 +274,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                       <div className="text-right shrink-0 space-y-1.5">
                         <div className="text-[11px] font-medium text-stone-500">
                           {isHadir ? (
-                            <span className="px-2.5 py-1 rounded-full bg-emerald-200/90 text-emerald-950 font-black text-[10px] shadow-xs">
+                            <span className="px-2.5 py-1 rounded-full bg-blue-200/90 text-blue-950 font-black text-[10px] shadow-xs">
                               ✓ HADIR ({terpakai}/{totalKuotaItem} Kursi)
                             </span>
                           ) : (
@@ -292,14 +289,14 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                             <button
                               type="button"
                               onClick={() => handleQuickCheckin(u)}
-                              className="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                              className="px-3 py-1.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
                             >
                               Tandai Hadir
                             </button>
                           ) : (
                             <div className="flex items-center justify-end gap-2">
-                              <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
-                                <Gift className="w-3 h-3 text-emerald-600" />
+                              <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
+                                <Gift className="w-3 h-3 text-blue-600" />
                                 <span>Suvenir Siap</span>
                               </span>
                               <button
@@ -343,9 +340,9 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                 <div className="font-bold text-amber-900 text-sm">Pos 1: Gerbang Utama VIP</div>
                 <p className="text-amber-800 text-[11px]">Khusus Masyayikh &amp; Penguji Utama</p>
               </div>
-              <div className="p-3.5 rounded-2xl bg-emerald-50/70 backdrop-blur-xs border border-emerald-200/80 space-y-1">
-                <div className="font-bold text-emerald-900 text-sm">Pos 2: Transit Putri Barat</div>
-                <p className="text-emerald-800 text-[11px]">Meja Registrasi Dzurriyah &amp; Nyai</p>
+              <div className="p-3.5 rounded-2xl bg-blue-50/70 backdrop-blur-xs border border-blue-200/80 space-y-1">
+                <div className="font-bold text-blue-900 text-sm">Pos 2: Transit Putri Barat</div>
+                <p className="text-blue-800 text-[11px]">Meja Registrasi Dzurriyah &amp; Nyai</p>
               </div>
               <div className="p-3.5 rounded-2xl bg-blue-50/70 backdrop-blur-xs border border-blue-200/80 space-y-1">
                 <div className="font-bold text-blue-900 text-sm">Pos 3: Transit Putra Timur</div>
