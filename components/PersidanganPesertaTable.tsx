@@ -467,7 +467,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PersidanganToolbarAndStats
         toast={toast}
         onCloseToast={() => setToast(null)}
@@ -487,7 +487,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       />
 
       {/* Table Peserta */}
-      <div className="bg-white border-2 border-[#D5C4B4] rounded-2xl overflow-hidden shadow-xs">
+      <div className="bg-white border border-[#D5C4B4] rounded-xl overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>

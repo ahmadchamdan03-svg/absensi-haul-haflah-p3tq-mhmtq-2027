@@ -15,10 +15,11 @@ export default function NewPersidanganPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl pb-12">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 sm:p-6 shadow-xs">
-        <div className="space-y-1">
+    <div className="px-6 lg:px-8 py-6 pb-12 max-w-5xl mx-auto">
+      {/* Unified Seamless Panel: Header + Form */}
+      <div className="bg-white/80 backdrop-blur-md border border-[#D5C4B4] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden">
+        {/* Top Header */}
+        <div className="p-5 sm:p-6 bg-gradient-to-b from-[#FAF7F3] to-[#F5EFE8] border-b border-[#D5C4B4] space-y-2">
           <Link
             href="/admin/persidangan"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8C6A47] hover:text-[#5E432A] transition-colors mb-1"
@@ -34,14 +35,16 @@ export default function NewPersidanganPage() {
             Isi judul persidangan dan sesuaikan template pesan WhatsApp di bawah. Setelah dibuat, Anda akan langsung diarahkan untuk mengunggah berkas PDF undangan resmi.
           </p>
         </div>
-      </div>
 
-      {/* Form Container */}
-      <PersidanganForm
-        mode="create"
-        onSuccess={handleSuccess}
-        onCancel={() => router.push('/admin/persidangan')}
-      />
+        {/* Form Container */}
+        <div className="p-5 sm:p-6 bg-white">
+          <PersidanganForm
+            mode="create"
+            onSuccess={handleSuccess}
+            onCancel={() => router.push('/admin/persidangan')}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -320,7 +320,7 @@ export default function PersidanganPDFUploader({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Alert Messages */}
       {errorMsg && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3">
@@ -337,7 +337,7 @@ export default function PersidanganPDFUploader({
       )}
 
       {/* Info Link Publik Resmi & Tautan PDF */}
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-5 shadow-xs space-y-4">
+      <div className="bg-[#FAF7F3]/70 border border-[#D5C4B4] rounded-xl p-4 sm:p-5 shadow-2xs space-y-3">
         {/* Tautan Publik Resmi */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1 min-w-0 flex-1">
@@ -430,7 +430,7 @@ export default function PersidanganPDFUploader({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all ${
+          className={`border border-dashed rounded-xl p-6 sm:p-8 text-center transition-all ${
             isDragging
               ? 'border-[#8C6A47] bg-[#F5E6D3]/60'
               : 'border-[#D5C4B4] bg-[#FAF7F3] hover:border-[#8C6A47]'

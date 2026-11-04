@@ -120,42 +120,47 @@ export default function PersidanganDashboardPage() {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-5 sm:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/60 border border-white/80 text-[10px] font-bold uppercase tracking-wider text-[#8C6A47]">
-            <Sparkles className="w-3 h-3 text-[#D49B5B]" />
-            Modul Kepanitiaan
+    <div className="px-6 lg:px-8 py-6 pb-12 max-w-7xl mx-auto space-y-6">
+      {/* Top Header & Search Bar (Unified Seamless Panel) */}
+      <div className="bg-white/50 backdrop-blur-md border border-[#D5C4B4] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 border-b border-[#E5D7C8] bg-gradient-to-b from-[#FAF7F3]/90 to-[#F5EFE8]/80">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/70 border border-[#D5C4B4] text-[10px] font-bold uppercase tracking-wider text-[#8C6A47]">
+              <Sparkles className="w-3 h-3 text-[#D49B5B]" />
+              Modul Kepanitiaan
+            </div>
+            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
+              Manajemen Persidangan
+            </h1>
+            <p className="text-xs text-[#735334] max-w-xl">
+              Kelola persidangan, unggah berkas PDF resmi, dan distribusikan tautan langsung ke peserta via WhatsApp.
+            </p>
           </div>
-          <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
-            Manajemen Persidangan
-          </h1>
-          <p className="text-xs text-[#735334] max-w-xl">
-            Kelola persidangan, unggah berkas PDF resmi, dan distribusikan tautan langsung ke peserta via WhatsApp.
-          </p>
+
+          <Link
+            href="/admin/persidangan/new"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            + Buat Persidangan Baru
+          </Link>
         </div>
 
-        <Link
-          href="/admin/persidangan/new"
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          + Buat Persidangan Baru
-        </Link>
-      </div>
-
-      {/* Search Bar */}
-      <div className="bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl p-4 shadow-xs">
-        <div className="relative w-full max-w-md">
-          <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari judul persidangan..."
-            className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-white/60 bg-white/70 backdrop-blur-xs text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
-          />
+        {/* Search Bar - Menyatu tepat di bawah header */}
+        <div className="p-3.5 sm:p-4 bg-white/60 backdrop-blur-xs flex items-center justify-between gap-4">
+          <div className="relative w-full max-w-md">
+            <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari judul persidangan..."
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:bg-white transition-all"
+            />
+          </div>
+          <div className="text-xs font-semibold text-[#8C6A47] shrink-0">
+            Total: <span className="font-bold text-[#422F21]">{filteredList.length}</span> Persidangan
+          </div>
         </div>
       </div>
 

@@ -75,7 +75,7 @@ export default function PersidanganToolbarAndStats({
       )}
 
       {/* Control Bar: Actions & Filters */}
-      <div className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
+      <div className="bg-[#FAF7F3]/70 border border-[#D5C4B4] rounded-xl p-4 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-[#8C6A47]/10 border border-[#8C6A47]/30 flex items-center justify-center text-[#8C6A47]">
