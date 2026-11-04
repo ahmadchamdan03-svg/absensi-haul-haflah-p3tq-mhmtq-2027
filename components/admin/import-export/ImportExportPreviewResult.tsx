@@ -95,15 +95,15 @@ export function ImportExportPreviewResult({
 
       {/* PREVIEW 5 BARIS PERTAMA */}
       {previewRows.length > 0 && (
-        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6 space-y-3">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+        <div className="bg-[#422F21]/15 backdrop-blur-md border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl p-6 space-y-3">
+          <div className="flex items-center justify-between border-b border-white/40 pb-3">
             <div className="flex items-center space-x-2">
-              <Eye className="w-4 h-4 text-[#8C6A47]" />
-              <h3 className="font-serif font-black text-sm text-[#422F21]">
+              <Eye className="w-4 h-4 text-[#2D1B0E]" />
+              <h3 className="font-serif font-black text-sm text-[#2D1B0E]">
                 Pratinjau Data Unggahan (5 Baris Pertama)
               </h3>
             </div>
-            <span className="text-[11px] font-bold text-stone-500">
+            <span className="text-[11px] font-bold text-[#2D1B0E]">
               Total {parsedDataLength} baris terdeteksi
             </span>
           </div>
