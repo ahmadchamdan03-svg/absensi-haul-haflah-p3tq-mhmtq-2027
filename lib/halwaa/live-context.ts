@@ -1,5 +1,5 @@
 import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { getWaliSantriMetrics, getTamuUndanganMetrics } from '@/lib/dashboard-metrics';
 
 export function getGolonganUndangan(u: any): 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM' {

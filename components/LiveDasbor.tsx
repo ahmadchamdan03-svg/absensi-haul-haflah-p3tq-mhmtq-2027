@@ -12,7 +12,7 @@ import {
   Compass,
   AlertCircle,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { fetchDashboardMetrics } from '@/lib/dashboard-queries';
 import DenahModal from '@/components/DenahModal';
 import { SkeletonCard, SkeletonList } from '@/components/ui/GlassSkeleton';

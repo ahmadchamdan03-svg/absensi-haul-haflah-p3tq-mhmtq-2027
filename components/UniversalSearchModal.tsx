@@ -26,7 +26,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 
 export interface SearchItem {
   id: string;

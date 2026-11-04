@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import {
   getWarnaTiketSantri,

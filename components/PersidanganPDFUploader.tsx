@@ -21,7 +21,7 @@ import {
   updatePersidangan,
   getPublicPersidanganUrl,
 } from '@/lib/persidangan';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 
 interface PersidanganPDFUploaderProps {
   persidangan: Persidangan;

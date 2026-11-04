@@ -8,7 +8,7 @@ import {
   ArrowLeft,
   Loader2,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { calculateKuotaDasarSantri } from '@/lib/types';
 import { normalizePortalToken, getAmbiguousKodeVariants } from '@/lib/utils';
 import PortalBackground from '@/components/PortalBackground';

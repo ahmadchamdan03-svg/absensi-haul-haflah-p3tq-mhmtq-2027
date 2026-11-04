@@ -72,9 +72,23 @@ function pickNextVariationAngle(): string {
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
+    // 1. Verifikasi Sesi Otoritas Panitia (Cegah Bypass / Unauthorized LLM Spam)
+    const sessionCookie =
+      req.cookies.get('haflah_active_role_session')?.value ||
+      req.cookies.get('user_role')?.value;
+    const validRoles = ['ADMIN', 'PENERIMA_TAMU', 'PIMPINAN', 'PENJAGA_GERBANG'];
+
+    if (!sessionCookie || !validRoles.includes(sessionCookie)) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Sesi panitia tidak valid atau belum login. Akses asisten AI ditolak.' },
+        { status: 401 }
+      );
+    }
+
+    const currentRole = sessionCookie;
+
     const body = await req.json();
-    const { prompt, history, role, userRole } = body;
-    const currentRole = role || userRole || 'WALI';
+    const { prompt, history } = body;
 
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });

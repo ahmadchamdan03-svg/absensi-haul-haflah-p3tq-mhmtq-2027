@@ -15,7 +15,7 @@ import {
   Check,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { getWarnaTiketUndangan } from '@/lib/types';
 import {
   OPSI_UNDANGAN_ISTIMEWA,

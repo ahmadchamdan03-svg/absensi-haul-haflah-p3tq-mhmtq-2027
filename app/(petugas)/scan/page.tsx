@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { JalurPemeriksaan, CheckinResult } from '@/lib/types';
 import DenahModal from '@/components/DenahModal';

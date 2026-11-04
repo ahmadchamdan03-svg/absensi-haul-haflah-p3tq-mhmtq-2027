@@ -23,7 +23,7 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { AuditLogDbRow, AksiAudit } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';
 import * as XLSX from 'xlsx';

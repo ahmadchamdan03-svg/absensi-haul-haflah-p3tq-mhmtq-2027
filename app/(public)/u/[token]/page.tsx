@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
 import { calculateKuotaDasarSantri, cleanKategoriTamatan } from '@/lib/types';

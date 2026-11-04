@@ -14,7 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Persidangan, PersidanganPeserta } from '@/lib/persidangan';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 
 interface PersidanganScanModalProps {
   persidangan: Persidangan;

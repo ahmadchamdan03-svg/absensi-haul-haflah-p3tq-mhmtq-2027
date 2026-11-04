@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseServer as supabase } from '@/lib/supabase/server';
 
 // Content Security Policy
 const CSP = [
@@ -86,7 +86,8 @@ export async function middleware(request: NextRequest) {
     'unknown-ip';
 
   // 2. RATE LIMITING
-  // Admin routes: 200 req/min | Public routes & API: 60 req/min
+  // AI Ask route: 10 req/min (Anti-Spam Kuota) | Admin routes: 200 req/min | Public routes & API: 60 req/min
+  const isAiAskRoute = pathname.startsWith('/api/ai/ask');
   const isAdminRoute =
     pathname.startsWith('/admin') ||
     pathname.startsWith('/scan') ||
@@ -95,11 +96,15 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/penerima-tamu') ||
     pathname.startsWith('/pimpinan');
 
-  const rateLimitMax = isAdminRoute ? 200 : 60;
-  const isAllowed = checkRateLimit(clientIp, rateLimitMax);
+  const rateLimitMax = isAiAskRoute ? 10 : (isAdminRoute ? 200 : 60);
+  const rateLimitKey = isAiAskRoute ? `ai:${clientIp}` : clientIp;
+  const isAllowed = checkRateLimit(rateLimitKey, rateLimitMax);
 
   if (!isAllowed) {
-    return new NextResponse('Too Many Requests. Silakan tunggu 1 menit.', {
+    const errorMsg = isAiAskRoute
+      ? 'Terlalu banyak permintaan AI (Maksimal 10 request per menit). Silakan tunggu sejenak.'
+      : 'Too Many Requests. Silakan tunggu 1 menit.';
+    return new NextResponse(errorMsg, {
       status: 429,
       headers: {
         'Retry-After': '60',

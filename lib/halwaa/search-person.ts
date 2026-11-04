@@ -1,5 +1,5 @@
 import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { getGolonganUndangan } from './live-context';
 
 export interface PersonSearchResult {

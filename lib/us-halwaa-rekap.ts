@@ -3,7 +3,7 @@
 // Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M.
 // =============================================================================
 
-import { supabase } from './supabase';
+import { supabase } from './supabase/client';
 
 export function detectRekapKehadiranIntent(query: string): boolean {
   const q = query.toLowerCase().trim().replace(/[.,!?;:]/g, ' ').replace(/\s+/g, ' ');

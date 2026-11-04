@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Printer, Download, Sparkles } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import {
   fetchLaporanDataFromSupabase,
   computeLaporanThreeBlocks,

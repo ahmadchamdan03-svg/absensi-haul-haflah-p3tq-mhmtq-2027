@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Users, UserCheck } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
 import AuthGuard from '@/components/AuthGuard';

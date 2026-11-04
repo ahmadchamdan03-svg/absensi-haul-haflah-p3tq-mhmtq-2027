@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Users, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import {
   findDuplicateSantriInList,
   autoMergeAllDuplicatesInSupabase,

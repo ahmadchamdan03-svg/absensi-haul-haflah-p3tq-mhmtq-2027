@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from './supabase/client';
 
 /**
  * Sinkronisasi kuota_terpakai pada tabel `peserta_santri` dan `tamu_undangan`
@@ -10,8 +10,27 @@ export async function syncKuotaTerpakai(
 ): Promise<number> {
   if (!kode) return 0;
 
+  // Di browser, sinkronisasi kuota dilakukan secara atomik di sisi server via API /api/checkin
+  if (typeof window !== 'undefined') {
+    try {
+      const { data: logs } = await supabase
+        .from('presensi_log')
+        .select('jumlah_l, jumlah_p')
+        .eq('kode_qr', kode);
+
+      return (logs || []).reduce(
+        (sum, item) => sum + (Number(item.jumlah_l) || 0) + (Number(item.jumlah_p) || 0),
+        0
+      );
+    } catch {
+      return 0;
+    }
+  }
+
+  // Di server environment: gunakan supabaseServer
   try {
-    const { data: logs, error: fetchErr } = await supabase
+    const { supabaseServer } = await import('./supabase/server');
+    const { data: logs, error: fetchErr } = await supabaseServer
       .from('presensi_log')
       .select('jumlah_l, jumlah_p')
       .eq('kode_qr', kode);
@@ -25,34 +44,26 @@ export async function syncKuotaTerpakai(
       0
     );
 
-    // Update peserta_santri & tamu_undangan
     const santriPayload: Record<string, any> = {
       kuota_terpakai: totalTerpakai,
       updated_at: new Date().toISOString(),
       ...(extraSantriData || {}),
     };
 
-    const [resSantri, resTamu] = await Promise.all([
-      supabase
+    await Promise.all([
+      supabaseServer
         .from('peserta_santri')
         .update(santriPayload)
         .or(`kode.eq.${kode},nis.eq.${kode}`),
-      supabase
+      supabaseServer
         .from('tamu_undangan')
         .update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() })
         .eq('kode', kode),
     ]);
 
-    if (resSantri.error) {
-      console.error('Error updating kuota_terpakai peserta_santri:', resSantri.error);
-    }
-    if (resTamu.error) {
-      console.error('Error updating kuota_terpakai tamu_undangan:', resTamu.error);
-    }
-
     return totalTerpakai;
   } catch (err) {
-    console.error('Failed to sync kuota_terpakai:', err);
+    console.error('Failed to sync kuota_terpakai on server:', err);
     return 0;
   }
 }
@@ -60,6 +71,7 @@ export async function syncKuotaTerpakai(
 /**
  * Upsert presensi_log untuk kode_qr.
  * Menjamin 1 kode_qr hanya memiliki 1 record presensi_log aktif, atau mengupdate jika sudah ada.
+ * Pada browser, diarahkan ke API route /api/checkin agar diproses dengan supabaseServer (service_role).
  */
 export async function upsertPresensiLog(payload: {
   kode_qr: string;
@@ -75,14 +87,29 @@ export async function upsertPresensiLog(payload: {
   extraSantriData?: Record<string, any>;
   existingId?: string;
 }) {
-  const { kode_qr, existingId } = payload;
+  const { kode_qr } = payload;
   if (!kode_qr) throw new Error('kode_qr required for upsertPresensiLog');
 
-  let primaryId = existingId;
+  // Jika dipanggil dari browser (Client Component), panggil API route server
+  if (typeof window !== 'undefined') {
+    const res = await fetch('/api/checkin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok || data.ok === false) {
+      throw new Error(data.pesan || data.reason || 'Gagal menyimpan presensi ke server');
+    }
+    return data;
+  }
 
-  // Jika existingId belum diketahui, cek ke database
+  // Jika dipanggil langsung di lingkungan server (API route / Server Component)
+  const { supabaseServer } = await import('./supabase/server');
+  let primaryId = payload.existingId;
+
   if (!primaryId) {
-    const { data: existingLogs, error: existingErr } = await supabase
+    const { data: existingLogs, error: existingErr } = await supabaseServer
       .from('presensi_log')
       .select('id')
       .eq('kode_qr', kode_qr);
@@ -91,54 +118,41 @@ export async function upsertPresensiLog(payload: {
 
     if (existingLogs && existingLogs.length > 0) {
       primaryId = existingLogs[0].id;
-
-      // Clean up any duplicate legacy rows if more than 1 row exists
       if (existingLogs.length > 1) {
         const extraIds = existingLogs.slice(1).map((r) => r.id);
-        await supabase.from('presensi_log').delete().in('id', extraIds);
+        await supabaseServer.from('presensi_log').delete().in('id', extraIds);
       }
     }
   }
 
-  if (primaryId) {
-    // Update the existing row
-    const { error: updateErr } = await supabase
-      .from('presensi_log')
-      .update({
-        nama_peserta: payload.nama_peserta,
-        tipe_peserta: payload.tipe_peserta,
-        jalur: payload.jalur,
-        panitia_id: payload.panitia_id,
-        jumlah_l: payload.jumlah_l ?? 0,
-        jumlah_p: payload.jumlah_p ?? 0,
-        jumlah_balita: payload.jumlah_balita ?? 0,
-        tiket_panggung: payload.tiket_panggung ?? 0,
-        catatan: payload.catatan,
-        created_at: new Date().toISOString(),
-      })
-      .eq('id', primaryId);
+  const logRow = {
+    nama_peserta: payload.nama_peserta,
+    tipe_peserta: payload.tipe_peserta,
+    jalur: payload.jalur || 'MEJA_REKONSILIASI',
+    panitia_id: payload.panitia_id || 'panitia-rekonsiliasi',
+    jumlah_l: payload.jumlah_l ?? 0,
+    jumlah_p: payload.jumlah_p ?? 0,
+    jumlah_balita: payload.jumlah_balita ?? 0,
+    tiket_panggung: payload.tiket_panggung ?? 0,
+    catatan: payload.catatan,
+    created_at: new Date().toISOString(),
+  };
 
+  if (primaryId) {
+    const { error: updateErr } = await supabaseServer
+      .from('presensi_log')
+      .update(logRow)
+      .eq('id', primaryId);
     if (updateErr) throw updateErr;
   } else {
-    // Insert new row
-    const { error: insertErr } = await supabase.from('presensi_log').insert([
+    const { error: insertErr } = await supabaseServer.from('presensi_log').insert([
       {
         kode_qr,
-        nama_peserta: payload.nama_peserta,
-        tipe_peserta: payload.tipe_peserta,
-        jalur: payload.jalur || 'MEJA_REKONSILIASI',
-        panitia_id: payload.panitia_id || 'panitia-rekonsiliasi',
-        jumlah_l: payload.jumlah_l ?? 0,
-        jumlah_p: payload.jumlah_p ?? 0,
-        jumlah_balita: payload.jumlah_balita ?? 0,
-        tiket_panggung: payload.tiket_panggung ?? 0,
-        catatan: payload.catatan,
-        created_at: new Date().toISOString(),
+        ...logRow,
       },
     ]);
     if (insertErr) throw insertErr;
   }
 
-  // Sync kuota terpakai (dan satukan update extraSantriData jika ada)
   await syncKuotaTerpakai(kode_qr, payload.extraSantriData);
 }

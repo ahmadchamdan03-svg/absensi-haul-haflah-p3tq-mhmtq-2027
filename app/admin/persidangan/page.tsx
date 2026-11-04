@@ -23,7 +23,7 @@ import {
   getPersidanganList,
   deletePersidangan,
 } from '@/lib/persidangan';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import PersidanganScanModal from '@/components/PersidanganScanModal';
 import { SkeletonCard } from '@/components/ui/GlassSkeleton';
 

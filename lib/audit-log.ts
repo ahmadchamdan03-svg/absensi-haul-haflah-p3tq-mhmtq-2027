@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { getActiveRole } from '@/lib/auth-roles';
 import { AksiAudit } from '@/lib/types';
 

@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import {
   getWarnaTiketUndangan,

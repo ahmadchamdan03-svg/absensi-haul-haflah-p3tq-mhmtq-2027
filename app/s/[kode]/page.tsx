@@ -2,7 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, Home } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 
 export const dynamic = 'force-dynamic';
 

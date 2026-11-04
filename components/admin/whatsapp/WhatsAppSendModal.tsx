@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Smartphone, Check, X } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { normalkanNomorHp } from '@/lib/hmac';
 import { getTeksPesan, getTeksPesanTamu } from './WhatsAppStats';
 

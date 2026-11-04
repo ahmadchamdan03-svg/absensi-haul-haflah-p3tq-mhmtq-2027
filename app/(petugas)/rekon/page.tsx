@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { getWarnaTiketUndangan } from '@/lib/types';
 import { syncKuotaTerpakai, upsertPresensiLog } from '@/lib/presensi-helper';

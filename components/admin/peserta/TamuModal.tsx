@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Users, Sparkles, Building, Edit, X, History } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { generateRandomKode } from '@/lib/utils';
 import TamuFormFields, {
   GolonganUndangan,

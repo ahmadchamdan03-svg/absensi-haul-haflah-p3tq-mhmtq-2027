@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import * as XLSX from 'xlsx';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import {
   Send,
   Trash2,

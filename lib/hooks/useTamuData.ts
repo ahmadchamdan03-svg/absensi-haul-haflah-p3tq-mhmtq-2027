@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 import { getWarnaTiketUndangan } from '@/lib/types';

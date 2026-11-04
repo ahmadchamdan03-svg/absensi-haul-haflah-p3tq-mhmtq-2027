@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { getWarnaTiketUndangan, getWarnaTiketSantri } from '@/lib/types';
 import * as XLSX from 'xlsx';
 

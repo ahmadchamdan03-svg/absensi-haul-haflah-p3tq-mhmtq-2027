@@ -3,7 +3,7 @@
 import React from 'react';
 import { History } from 'lucide-react';
 import { store } from '@/lib/mock-data';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { getWarnaTiketUndangan } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';

@@ -3,7 +3,7 @@
 // Haul & Haflah P3TQ - MHMTQ 1448 H. / 2027 M.
 // =====================================================================
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 
 
 export type AppRole = 'ADMIN' | 'PENERIMA_TAMU' | 'PIMPINAN' | 'PENJAGA_GERBANG' | 'WALI';

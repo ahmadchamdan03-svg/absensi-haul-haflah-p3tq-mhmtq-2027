@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
 import { calculateKuotaDasarSantri, cleanKategoriTamatan } from '@/lib/types';
 import { ScanActiveItem, playSuccessChime, playBuzzerError } from '@/components/petugas/scan/types';
 import confetti from 'canvas-confetti';
