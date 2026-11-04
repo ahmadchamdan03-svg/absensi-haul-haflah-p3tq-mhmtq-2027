@@ -254,7 +254,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-300">
           {/* KARTU 1: TOTAL WALI SANTRI */}
-          <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
+          <div className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
                 <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
@@ -278,7 +278,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           </div>
 
           {/* KARTU 2: TOTAL TAMU UNDANGAN */}
-          <div className="p-6 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
+          <div className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
                 <Award className="w-4.5 h-4.5 text-emerald-700" />
@@ -304,7 +304,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       )}
 
       {/* FILTER & PENCARIAN REAL-TIME */}
-      <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] space-y-4">
+      <div className="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] space-y-4">
         {/* SECTION HEADER & TABS HANYA MUNCUL DI AKUN PETUGAS (TIDAK DI PIMPINAN) */}
         {!isPimpinanView && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
