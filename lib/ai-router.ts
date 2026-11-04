@@ -129,10 +129,16 @@ async function callOpenAiCompatible(params: {
  * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash, timeout 15 dtk)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
  */
+export interface AskAiOptions {
+  model?: string;
+  timeout?: number;
+}
+
 export async function askAI(
   prompt: string,
   history: any[] = [],
-  systemPrompt: string
+  systemPrompt: string,
+  options?: AskAiOptions
 ): Promise<AiResponse> {
   // Format message array untuk OpenAI Compatible API (Clouvia & Vikey)
   const openAiMessages: ChatMessage[] = [{ role: 'system', content: systemPrompt }];
@@ -150,17 +156,21 @@ export async function askAI(
 
   openAiMessages.push({ role: 'user', content: prompt });
 
+  // Timeout dinamis per intent (default 10s untuk obrolan cepat, 15s untuk gambar, 20s untuk file)
+  const requestTimeoutMs = options?.timeout || 10000;
+
   // =========================================================================
   // TIER 1 — CLOUVIA (UTAMA)
   // =========================================================================
   const clouviaKey = readEnv('CLOUVIA_API_KEY');
   if (clouviaKey) {
+    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'deepseek-v4.1-flash';
     const text = await callOpenAiCompatible({
       tierLabel: 'Tier 1 Clouvia',
       apiKey: clouviaKey,
       baseURL: readEnv('CLOUVIA_BASE_URL') || 'https://router.clouvia.id/v1',
-      model: readEnv('CLOUVIA_MODEL') || 'deepseek-v4.1-flash',
-      timeoutMs: TIER_TIMEOUT_MS.Clouvia,
+      model: clouviaModel,
+      timeoutMs: requestTimeoutMs,
       maxTokens: 2500,
       messages: openAiMessages,
     });
@@ -179,7 +189,7 @@ export async function askAI(
       apiKey: vikeyKey,
       baseURL: readEnv('VIKEY_BASE_URL', 'AI_GATEWAY_BASE_URL') || 'https://api-plan.vikey.ai/v1',
       model: readEnv('VIKEY_MODEL', 'AI_GATEWAY_MODEL') || 'vikey/plan',
-      timeoutMs: TIER_TIMEOUT_MS.Vikey,
+      timeoutMs: requestTimeoutMs,
       // vikey/plan membutuhkan headroom token karena reasoning internal
       maxTokens: 2500,
       messages: openAiMessages,
@@ -199,7 +209,7 @@ export async function askAI(
     const primaryGeminiModel = readEnv('GEMINI_MODEL') || 'gemini-2.5-flash';
     const candidateGeminiModels = Array.from(new Set([primaryGeminiModel, 'gemini-3.5-flash-lite']));
     const startedAt = Date.now();
-    const { controller, clear } = createTimeoutController(TIER_TIMEOUT_MS.Gemini);
+    const { controller, clear } = createTimeoutController(requestTimeoutMs);
 
     try {
       // GEMINI_API_KEYS bisa berisi beberapa key dipisah koma — ambil yang pertama

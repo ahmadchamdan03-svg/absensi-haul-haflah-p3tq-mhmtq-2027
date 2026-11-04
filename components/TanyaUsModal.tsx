@@ -296,9 +296,11 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl h-[92dvh] sm:h-[88vh] max-h-[800px] flex flex-col rounded-3xl bg-[#FAF7F3]/90 backdrop-blur-2xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden relative motion-reduce:transform-none"
+        className="w-full max-w-3xl h-[92dvh] sm:h-[88vh] max-h-[800px] flex flex-col rounded-3xl bg-[url('/images/bg-chat-halwaa.jpg')] bg-cover bg-center bg-no-repeat relative overflow-hidden isolate border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.15)] motion-reduce:transform-none"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Lapisan Overlay Transparan & Blur agar kontras teks tinggi dan efek kaca menonjol */}
+        <div className="absolute inset-0 bg-[#FAF7F3]/85 backdrop-blur-sm pointer-events-none -z-10" aria-hidden="true" />
         <TanyaUsHeaderAndSettings
           isLoading={isLoading}
           showSettings={showSettings}

@@ -29,6 +29,10 @@ import {
   cleanReplyForSession,
   detectExpression,
 } from '@/lib/halwaa/knowledge-base';
+import {
+  isTechnicalInfrastructureQuery,
+  handleTechnicalInfrastructureQuery,
+} from '@/lib/halwaa/technical-knowledge';
 import { handleChamdanAndRekeningQuery } from '@/lib/halwaa/chamdan';
 import { getRandomPujian, getRandomPengandaian } from '@/lib/halwaa/template-pujian';
 import {
@@ -144,7 +148,31 @@ ${kepanitiaanTurnRule}
 
     // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
-      const aiResponse = await askAI(prompt, history, dynamicSystemPrompt);
+    // =========================================================================
+    // DETEKSI INTENT ROUTING AI: FILE (HEAVY REASONING) VS GAMBAR VS CHAT CEPAT
+    // =========================================================================
+    const qLower = prompt.toLowerCase().trim();
+    let customModel: string | undefined = undefined;
+    let customTimeout = 10000;
+
+    const isFileIntent = /(pdf|excel|xlsx?|word|docx?|ppt|pptx|dokumen|file|berkas|unduh|download|ekspor)/i.test(qLower);
+    const isImageIntent = /(gambar|foto|ilustrasi|image|desain visual)/i.test(qLower);
+
+    if (isFileIntent) {
+      customModel = process.env.CLOUVIA_MODEL_FILE || 'deepseek-v4.1-flash';
+      customTimeout = 20000; // 20 detik untuk proses generasi dokumen
+    } else if (isImageIntent) {
+      customModel = process.env.CLOUVIA_MODEL_GPT || 'gpt-4o';
+      customTimeout = 15000; // 15 detik untuk deskripsi gambar visual
+    } else {
+      customModel = process.env.CLOUVIA_MODEL || 'gemini-2.5-flash';
+      customTimeout = 10000; // 10 detik default respon cepat
+    }
+
+      const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {
+        model: customModel,
+        timeout: customTimeout,
+      });
       if (aiResponse && aiResponse.text && aiResponse.text.trim().length > 0) {
         const cleanReply = cleanReplyForSession(aiResponse.text, isFirstTurn, prompt);
         const expr = isSayaSiapaQuery(prompt) || isThirdPersonPronounQuery(prompt)
@@ -172,6 +200,17 @@ ${kepanitiaanTurnRule}
       }
     } catch (aiError: any) {
       console.warn('[AI Ask Route] Seluruh tier AI gagal/offline. Berpindah ke Local Smart Fallback:', aiError.message || aiError);
+
+      if (isTechnicalInfrastructureQuery(prompt)) {
+        return NextResponse.json({
+          reply: handleTechnicalInfrastructureQuery(prompt),
+          expression: 'polite',
+          avatar: '/images/avatar/ustadzah-avatar-polite.png',
+          source: 'smart_knowledge_engine',
+          model: 'Usth. Halwaa Architecture Engine',
+          responseTimeMs: Date.now() - startTime,
+        });
+      }
 
       // Cadangan (Fallback Lokal) Kata Ganti — hanya dipakai saat seluruh AI gagal/timeout
       if (isSayaSiapaQuery(prompt)) {
@@ -206,6 +245,19 @@ ${kepanitiaanTurnRule}
     // =========================================================================
     // FIX 2: LOGIKA FALLBACK BERURUTAN (JIKA AI GAGAL / OFFLINE)
     // =========================================================================
+
+    // 0. Fallback Analisis Teknis & Infrastruktur Sistem
+    if (isTechnicalInfrastructureQuery(prompt)) {
+      const reply = handleTechnicalInfrastructureQuery(prompt);
+      return NextResponse.json({
+        reply,
+        expression: 'polite',
+        avatar: '/images/avatar/ustadzah-avatar-polite.png',
+        source: 'smart_knowledge_engine',
+        model: 'Usth. Halwaa Architecture Engine',
+        responseTimeMs: Date.now() - startTime,
+      });
+    }
 
     // 1. Fallback Chart / Grafik Rekap Kehadiran
     if (isChartRequested) {

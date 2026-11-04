@@ -44,7 +44,7 @@ export function TanyaUsHeaderAndSettings({
   return (
     <>
       {/* Header Modal Ustadzah AI */}
-      <div className="py-2.5 px-3 sm:px-6 bg-white/40 backdrop-blur-md border-b border-white/40 flex items-center justify-between shrink-0 select-none gap-2">
+      <div className="py-2.5 px-3 sm:px-6 bg-white/60 backdrop-blur-md border-b border-white/40 flex items-center justify-between shrink-0 select-none gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           {/* Avatar Ustadzah Animasi Interaktif */}
           <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
@@ -158,7 +158,7 @@ export function TanyaUsMessageList({
   messagesEndRef: React.RefObject<HTMLDivElement>;
 }) {
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-[#FAF7F3]/30">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 bg-transparent">
       {messages.map((msg, msgIndex) => {
         const isUser = msg.role === 'user';
         const prevUserMsg = msgIndex > 0 ? messages[msgIndex - 1] : null;
@@ -203,8 +203,8 @@ export function TanyaUsMessageList({
             <div
               className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 shadow-sm space-y-2 text-xs sm:text-[13px] leading-relaxed relative group ${
                 isUser
-                  ? 'bg-amber-100/90 border border-amber-200/80 text-[#2D1B0E] shadow-sm rounded-br-xs'
-                  : 'bg-white/70 backdrop-blur-sm border border-white/50 shadow-sm text-[#422F21] rounded-bl-xs'
+                  ? 'bg-amber-100/90 border border-amber-200/80 shadow-sm text-[#2D1B0E] rounded-br-xs'
+                  : 'bg-white/80 backdrop-blur-md border border-white/60 shadow-sm text-[#422F21] rounded-bl-xs'
               }`}
             >
               {/* Sender & Timestamp */}
@@ -373,7 +373,7 @@ export function TanyaUsInputBar({
   isLoading: boolean;
 }) {
   return (
-    <div className="p-3 sm:p-4 bg-white/50 backdrop-blur-md border-t border-white/40 shrink-0 space-y-2">
+    <div className="p-3 sm:p-4 bg-white/60 backdrop-blur-md border-t border-white/40 shrink-0 space-y-2">
       {/* Quick Action Chips per Role */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
         {role === 'ADMIN' && (

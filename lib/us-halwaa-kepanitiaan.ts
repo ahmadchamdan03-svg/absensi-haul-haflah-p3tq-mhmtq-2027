@@ -13,6 +13,7 @@ import {
 } from './us-halwaa-motivasi';
 import { SEKSI_DATABASE } from './us-halwaa-seksi';
 import { getRandomPujian, getRandomPengandaian } from './halwaa/template-pujian';
+import { isTechnicalInfrastructureQuery } from './halwaa/technical-knowledge';
 
 export interface PanitiaMember {
   name: string;
@@ -660,6 +661,9 @@ export function detectDuplicateSelectionIntent(prompt: string, history?: any[]):
 }
 
 export function detectHubunganKepanitiaanIntent(pertanyaan: string, history?: any[]): boolean {
+  if (isTechnicalInfrastructureQuery(pertanyaan)) {
+    return false;
+  }
   if (isKamuSiapaQuery(pertanyaan) || isSayaSiapaQuery(pertanyaan)) {
     return true;
   }
