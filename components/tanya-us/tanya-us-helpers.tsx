@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ArrowRight, ExternalLink, FileSpreadsheet, FileText, Download } from 'lucide-react';
-import { exportTextToPdf, exportTableToExcel, exportTextToDocx, fetchFreshMotivasi } from '@/lib/halwaa/file-exporter';
+import { exportTextToPdf, exportTableToExcel, exportTextToDocx, fetchFreshMotivasi, cleanDocumentText } from '@/lib/halwaa/file-exporter';
 
 export type UstadzahExpression =
   | 'wave'
@@ -512,11 +512,9 @@ export function renderFormattedContent(
           <button
             type="button"
             onClick={async () => {
-              const clean = text
-                .replace(/\[DOWNLOAD_.*?\]/gi, '')
-                .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
-                .trim();
-              const motivasi = await fetchFreshMotivasi(`Dokumen PDF ${title}`);
+              const clean = cleanDocumentText(text);
+              const cleanTitle = title.replace(/\b(dokumen|pdf|word|excel|laporan|file)\b/gi, '').trim() || 'Haflah P3TQ';
+              const motivasi = await fetchFreshMotivasi(cleanTitle);
               exportTextToPdf(title, clean, undefined, motivasi);
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
@@ -552,11 +550,9 @@ export function renderFormattedContent(
           <button
             type="button"
             onClick={async () => {
-              const clean = text
-                .replace(/\[DOWNLOAD_.*?\]/gi, '')
-                .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
-                .trim();
-              const motivasi = await fetchFreshMotivasi(`Dokumen Word ${title}`);
+              const clean = cleanDocumentText(text);
+              const cleanTitle = title.replace(/\b(dokumen|pdf|word|excel|laporan|file)\b/gi, '').trim() || 'Haflah P3TQ';
+              const motivasi = await fetchFreshMotivasi(cleanTitle);
               exportTextToDocx(title, clean, undefined, motivasi);
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"

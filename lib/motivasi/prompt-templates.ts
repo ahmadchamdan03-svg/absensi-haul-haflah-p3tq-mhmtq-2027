@@ -7,56 +7,58 @@ export const FALLBACK_MOTIVASI =
 
 export const MOTIVASI_PROMPT_TEMPLATES: string[] = [
   // 1. Dedikasi & Pengabdian
-  'Tulis 1 paragraf motivasi islami bertema DEDIKASI dan pengabdian tulus dalam konteks: "{context}". Gunakan 3-4 kalimat yang menenangkan, apresiatif, dan menggugah semangat khidmah tanpa menyebutkan nama orang lain.',
+  'Tulis 1 paragraf motivasi islami bertema DEDIKASI dan pengabdian tulus dalam rangka: "{context}". Gunakan 3-4 kalimat yang menenangkan, apresiatif, dan menggugah semangat khidmah tanpa menyebutkan nama orang lain. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 2. Mengatasi Lelah & Kejenuhan
-  'Tulis 1 paragraf motivasi islami tentang MENGUBAH LELAH MENJADI LILLAH dalam rangka: "{context}". Susun 3-4 kalimat yang menghibur hati yang penat, mengingatkan pahala kesabaran di balik setiap peluh perjuangan.',
+  'Tulis 1 paragraf motivasi islami tentang MENGUBAH LELAH MENJADI LILLAH dalam rangka: "{context}". Susun 3-4 kalimat yang menghibur hati yang penat, mengingatkan pahala kesabaran di balik setiap peluh perjuangan. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 3. Tugas Berat & Tanggung Jawab
-  'Tulis 1 paragraf motivasi islami tentang KETANGGUHAN MENGEMBAN AMANAH BERAT terkait: "{context}". Gunakan 3-4 kalimat yang membangkitkan rasa percaya diri, tawakkal, dan keyakinan bahwa Allah tidak membebani di luar kesanggupan.',
+  'Tulis 1 paragraf motivasi islami tentang KETANGGUHAN MENGEMBAN AMANAH BERAT terkait: "{context}". Gunakan 3-4 kalimat yang membangkitkan rasa percaya diri, tawakkal, dan keyakinan bahwa Allah tidak membebani di luar kesanggupan. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 4. Rasa Syukur & Keberkahan
-  'Tulis 1 paragraf renungan islami bertema SYUKUR atas kelancaran proses: "{context}". Gunakan 3-4 kalimat puitis dan sejuk tentang bagaimana rasa syukur melipatgandakan nikmat serta mendatangkan keberkahan berkelanjutan.',
+  'Tulis 1 paragraf renungan islami bertema SYUKUR atas kelancaran proses: "{context}". Gunakan 3-4 kalimat puitis dan sejuk tentang bagaimana rasa syukur melipatgandakan nikmat serta mendatangkan keberkahan berkelanjutan. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 5. Harapan & Optimisme Masa Depan
-  'Tulis 1 paragraf motivasi islami tentang OPTIMISME dan prasangka baik kepada Allah dalam menjalankan: "{context}". Gunakan 3-4 kalimat penuh harapan cerah yang menguatkan langkah para pejuang santri.',
+  'Tulis 1 paragraf motivasi islami tentang OPTIMISME dan prasangka baik kepada Allah dalam menjalankan: "{context}". Gunakan 3-4 kalimat penuh harapan cerah yang menguatkan langkah para pejuang santri. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 6. Keteguhan Saat Menghadapi Kendala
-  'Tulis 1 paragraf motivasi islami tentang KETEGARAN HATI saat menghadapi rintangan teknis pada: "{context}". Gunakan 3-4 kalimat bijak yang menumbuhkan ketenangan, bahwa setiap kesulitan selalu bersanding dengan kemudahan.',
+  'Tulis 1 paragraf motivasi islami tentang KETEGARAN HATI saat menghadapi rintangan teknis pada: "{context}". Gunakan 3-4 kalimat bijak yang menumbuhkan ketenangan, bahwa setiap kesulitan selalu bersanding dengan kemudahan. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 7. Ketenangan Batin di Bawah Tekanan
-  'Tulis 1 paragraf motivasi islami bertema THUMA\'NINAH (ketenangan batin) saat padatnya amanah: "{context}". Gunakan 3-4 kalimat syahdu yang mengingatkan pentingnya dzikir dan kelapangan dada.',
+  'Tulis 1 paragraf motivasi islami bertema THUMA\'NINAH (ketenangan batin) saat padatnya amanah: "{context}". Gunakan 3-4 kalimat syahdu yang mengingatkan pentingnya dzikir dan kelapangan dada. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 8. Menghargai Nilai Diri & Kontribusi di Balik Layar
-  'Tulis 1 paragraf apresiasi islami tentang NILAI MULIA KHIDMAH DI BALIK LAYAR untuk: "{context}". Gunakan 3-4 kalimat hangat yang menegaskan bahwa keikhlasan yang tak tampak di mata manusia tetap harum di sisi Allah.',
+  'Tulis 1 paragraf apresiasi islami tentang NILAI MULIA KHIDMAH DI BALIK LAYAR untuk: "{context}". Gunakan 3-4 kalimat hangat yang menegaskan bahwa keikhlasan yang tak tampak di mata manusia tetap harum di sisi Allah. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 9. Energi Positif & Keceriaan Bersama
-  'Tulis 1 paragraf motivasi islami bertema ENERGI POSITIF dan saling menguatkan dalam: "{context}". Gunakan 3-4 kalimat bersemangat yang menyebarkan kehangatan ukhuwah dan senyum ketulusan.',
+  'Tulis 1 paragraf motivasi islami bertema ENERGI POSITIF dan saling menguatkan dalam: "{context}". Gunakan 3-4 kalimat bersemangat yang menyebarkan kehangatan ukhuwah dan senyum ketulusan. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 10. Keikhlasan & Kemurnian Niat
-  'Tulis 1 paragraf renungan islami bertema KEIKHLASAN NIAT semata-mata mengharap ridha Ilahi dalam: "{context}". Gunakan 3-4 kalimat mendalam yang memurnikan tujuan perjuangan dari riya dan pamrih duniawi.',
+  'Tulis 1 paragraf renungan islami bertema KEIKHLASAN NIAT semata-mata mengharap ridha Ilahi dalam: "{context}". Gunakan 3-4 kalimat mendalam yang memurnikan tujuan perjuangan dari riya dan pamrih duniawi. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 11. Kebersamaan & Sinergi Jamaah
-  'Tulis 1 paragraf motivasi islami tentang KEKUATAN BERJAMAAH dan kerja sama solid menyukseskan: "{context}". Gunakan 3-4 kalimat yang menginspirasi persatuan hati, bagaikan satu bangunan yang saling menopang.',
+  'Tulis 1 paragraf motivasi islami tentang KEKUATAN BERJAMAAH dan kerja sama solid menyukseskan: "{context}". Gunakan 3-4 kalimat yang menginspirasi persatuan hati, bagaikan satu bangunan yang saling menopang. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 12. Kesabaran Menanti Buah Manis
-  'Tulis 1 paragraf motivasi islami tentang KESABARAN dan ketelatenan dalam merawat detail: "{context}". Gunakan 3-4 kalimat yang meyakinkan bahwa proses yang ditempuh dengan sabar akan berbuah manis tak terhingga.',
+  'Tulis 1 paragraf motivasi islami tentang KESABARAN dan ketelatenan dalam merawat detail: "{context}". Gunakan 3-4 kalimat yang meyakinkan bahwa proses yang ditempuh dengan sabar akan berbuah manis tak terhingga. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 13. Ketelitian & Profesionalitas Santri
-  'Tulis 1 paragraf motivasi islami tentang ITQAN (profesionalitas dan ketelitian) dalam amanah: "{context}". Gunakan 3-4 kalimat inspiratif bahwa Allah mencintai hamba yang bekerja dengan rapi, teliti, dan tuntas.',
+  'Tulis 1 paragraf motivasi islami tentang ITQAN (profesionalitas dan ketelitian) dalam amanah: "{context}". Gunakan 3-4 kalimat inspiratif bahwa Allah mencintai hamba yang bekerja dengan rapi, teliti, dan tuntas. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 14. Keberkahan Melayani Masyayikh & Tamu
-  'Tulis 1 paragraf motivasi islami tentang KEMULIAAN IKRAMUD DLUYUF (memuliakan tamu dan guru) dalam: "{context}". Gunakan 3-4 kalimat takzim yang menegaskan bahwa melayani dhuyufurrahman adalah pintu terbukanya rahmat agung.',
+  'Tulis 1 paragraf motivasi islami tentang KEMULIAAN IKRAMUD DLUYUF (memuliakan tamu dan guru) dalam: "{context}". Gunakan 3-4 kalimat takzim yang menegaskan bahwa melayani dhuyufurrahman adalah pintu terbukanya rahmat agung. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 
   // 15. Istiqomah Menuju Puncak Kesuksesan
-  'Tulis 1 paragraf motivasi islami tentang ISTIQOMAH menjaga ritme semangat hingga akhir acara: "{context}". Gunakan 3-4 kalimat pembakar semangat yang mengokohkan tekad agar tidak kendor sebelum garis akhir.',
+  'Tulis 1 paragraf motivasi islami tentang ISTIQOMAH menjaga ritme semangat hingga akhir acara: "{context}". Gunakan 3-4 kalimat pembakar semangat yang mengokohkan tekad agar tidak kendor sebelum garis akhir. DILARANG menyebutkan kata "PDF", "Dokumen", atau "Laporan". Cukup sebut acara atau kegiatan secara umum (misal: Haflah P3TQ). Tulis HANYA 1 paragraf.',
 ];
 
 /**
- * Memilih satu template prompt motivasi secara acak dan menyisipkan konteks dokumen.
+ * Memilih satu template prompt motivasi secara acak dan menyisipkan konteks acara secara bersih.
  */
 export function getRandomMotivasiPrompt(context: string): string {
-  const cleanContext = (context || 'Dokumen Resmi Haflah P3TQ & MHMTQ').trim();
+  const cleanContext = (context || 'Haflah P3TQ & MHMTQ')
+    .replace(/\b(dokumen|pdf|laporan|file|word|excel|docx|xlsx)\b/gi, '')
+    .trim() || 'Haflah P3TQ & MHMTQ';
   const randomIndex = Math.floor(Math.random() * MOTIVASI_PROMPT_TEMPLATES.length);
   const template = MOTIVASI_PROMPT_TEMPLATES[randomIndex];
   return template.replace(/\{context\}/g, cleanContext);

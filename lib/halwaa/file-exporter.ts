@@ -2,6 +2,7 @@
 
 import { saveAs } from 'file-saver';
 import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { Document, Paragraph, TextRun, HeadingLevel, Packer } from 'docx';
 
@@ -13,10 +14,14 @@ const DEFAULT_FALLBACK_MOTIVASI =
  */
 export async function fetchFreshMotivasi(context: string): Promise<string> {
   try {
+    const cleanContext = (context || 'Haflah P3TQ & MHMTQ')
+      .replace(/\b(dokumen|pdf|laporan|file|word|excel|docx|xlsx)\b/gi, '')
+      .trim() || 'Haflah P3TQ & MHMTQ';
+
     const res = await fetch('/api/motivasi-fresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ konteks: context }),
+      body: JSON.stringify({ konteks: cleanContext }),
     });
     const data = await res.json();
     if (data?.sukses && data?.paragraf) {
@@ -29,19 +34,121 @@ export async function fetchFreshMotivasi(context: string): Promise<string> {
 }
 
 /**
- * Membersihkan teks dokumen dari tag sistem dan kalimat penutup wajib yang tidak diperlukan di dokumen
+ * Membersihkan teks dokumen dari tag sistem dan kalimat penutup basa-basi (misal "Semoga susunan ini...", "Demikian...", "Semoga bermanfaat...")
  */
-function cleanDocumentText(rawText: string): string {
-  return rawText
+export function cleanDocumentText(rawText: string): string {
+  let cleaned = rawText
     .replace(/\[DOWNLOAD_.*?\]/gi, '')
     .replace(/!\[.*?\]\(.*?\)/gi, '')
     .replace(/Ada lagi info kepanitiaan.*?(\n|$)/gi, '')
     .replace(/\bWonten malih ingkang saget kula bantu.*?(\n|$)/gi, '')
     .trim();
+
+  // Pisahkan per paragraf (blok teks dipisahkan oleh 2 baris baru atau lebih)
+  const paragraphs = cleaned.split(/\n\s*\n/);
+
+  // Buang paragraf terakhir jika merupakan kalimat penutup basa-basi
+  while (paragraphs.length > 1) {
+    const lastP = paragraphs[paragraphs.length - 1].trim();
+    const isClosing =
+      /^(semoga\s+(?:susunan|informasi|data|jawaban|bantuan|jadwal|berkas|hal|ini|bermanfaat|membantu)|demikian\b|apabila\s+ada|jika\s+ada|silakan\s+(?:tanyakan|hubungi)|ada\s+lagi\s+info|wonten\s+malih)/i.test(
+        lastP
+      );
+    if (isClosing) {
+      paragraphs.pop();
+    } else {
+      break;
+    }
+  }
+
+  cleaned = paragraphs.join('\n\n').trim();
+
+  // Jika kalimat penutup ada di baris paling akhir tanpa double newline
+  cleaned = cleaned
+    .replace(
+      /\n\s*(?:semoga\s+(?:susunan|informasi|data|jawaban|bantuan|jadwal|berkas|hal|ini|bermanfaat|membantu)|demikian\b|apabila\s+ada|jika\s+ada|ada\s+lagi\s+info|wonten\s+malih)[\s\S]*$/i,
+      ''
+    )
+    .trim();
+
+  return cleaned;
+}
+
+interface MarkdownBlock {
+  type: 'text' | 'table';
+  text?: string;
+  headers?: string[];
+  rows?: string[][];
 }
 
 /**
- * Ekspor teks ke file PDF (.pdf) menggunakan jsPDF dan file-saver
+ * Memecah konten markdown menjadi blok teks biasa dan tabel markdown bergaris
+ */
+function parseMarkdownContent(rawContent: string): MarkdownBlock[] {
+  const lines = rawContent.split('\n');
+  const blocks: MarkdownBlock[] = [];
+  let currentTextLines: string[] = [];
+  let currentTableLines: string[] = [];
+
+  function flushText() {
+    if (currentTextLines.length > 0) {
+      const text = currentTextLines.join('\n').trim();
+      if (text) {
+        blocks.push({ type: 'text', text });
+      }
+      currentTextLines = [];
+    }
+  }
+
+  function flushTable() {
+    if (currentTableLines.length > 0) {
+      // Buang baris separator seperti |---|---| atau |:---|:---|
+      const nonSeparatorLines = currentTableLines.filter(
+        (l) => !/^\s*\|?\s*[-:\s|]{3,}\s*\|?\s*$/.test(l)
+      );
+
+      if (nonSeparatorLines.length > 0) {
+        const parseRow = (line: string): string[] => {
+          return line
+            .replace(/^\|/, '')
+            .replace(/\|$/, '')
+            .split('|')
+            .map((cell) => cell.trim().replace(/\*\*(.*?)\*\*/g, '$1'));
+        };
+
+        const headers = parseRow(nonSeparatorLines[0]);
+        const rows = nonSeparatorLines.slice(1).map(parseRow);
+
+        blocks.push({
+          type: 'table',
+          headers,
+          rows,
+        });
+      }
+      currentTableLines = [];
+    }
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const isTableRow = /^\s*\|.*\|\s*$/.test(line);
+
+    if (isTableRow) {
+      flushText();
+      currentTableLines.push(line);
+    } else {
+      flushTable();
+      currentTextLines.push(line);
+    }
+  }
+
+  flushText();
+  flushTable();
+  return blocks;
+}
+
+/**
+ * Ekspor teks ke file PDF (.pdf) menggunakan jsPDF, jspdf-autotable, dan file-saver
  */
 export function exportTextToPdf(
   title: string,
@@ -79,33 +186,81 @@ export function exportTextToPdf(
     doc.line(15, 30, 195, 30);
 
     // Body content
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(45, 27, 14);
+    const cleanContent = cleanDocumentText(content);
+    const blocks = parseMarkdownContent(cleanContent);
 
-    // Hapus markdown tag & frasa penutup yang tidak perlu untuk PDF
-    const cleanContent = cleanDocumentText(content).replace(/\*\*(.*?)\*\*/g, '$1');
-
-    const splitText = doc.splitTextToSize(cleanContent, 180);
     let y = 38;
     const pageHeight = doc.internal.pageSize.height;
 
-    for (let i = 0; i < splitText.length; i++) {
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
+    for (const block of blocks) {
+      if (block.type === 'text' && block.text) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(45, 27, 14);
+
+        const cleanText = block.text.replace(/\*\*(.*?)\*\*/g, '$1');
+        const splitText = doc.splitTextToSize(cleanText, 180);
+
+        for (let i = 0; i < splitText.length; i++) {
+          if (y > pageHeight - 20) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(splitText[i], 15, y);
+          y += 6;
+        }
+        y += 2;
+      } else if (block.type === 'table' && block.headers && block.rows) {
+        if (y > pageHeight - 35) {
+          doc.addPage();
+          y = 20;
+        }
+
+        autoTable(doc, {
+          startY: y,
+          head: [block.headers],
+          body: block.rows,
+          margin: { left: 15, right: 15 },
+          theme: 'grid',
+          headStyles: {
+            fillColor: [239, 232, 225], // #EFE8E1
+            textColor: [84, 60, 40], // #543C28
+            fontStyle: 'bold',
+            lineWidth: 0.2,
+            lineColor: [213, 196, 180],
+          },
+          styles: {
+            fontSize: 9,
+            cellPadding: 2.5,
+            textColor: [45, 27, 14],
+            lineColor: [213, 196, 180],
+            lineWidth: 0.2,
+          },
+          alternateRowStyles: {
+            fillColor: [253, 251, 247],
+          },
+        });
+
+        const lastTable = (doc as any).lastAutoTable;
+        if (lastTable && lastTable.finalY) {
+          y = lastTable.finalY + 8;
+        } else {
+          y += 25;
+        }
       }
-      doc.text(splitText[i], 15, y);
-      y += 6;
     }
 
     // Render Kalimat Motivasi Dinamis di Bagian Bawah
     if (motivasiParagraf && motivasiParagraf.trim().length > 0) {
-      if (y > pageHeight - 35) {
+      // Spasi 5 baris kosong (setara y += 30) dari teks/tabel terakhir
+      y += 30;
+
+      if (y > pageHeight - 30) {
         doc.addPage();
         y = 20;
       }
-      y += 4;
+
+      // Garis pemisah tipis estetis
       doc.setDrawColor(213, 196, 180);
       doc.setLineWidth(0.3);
       doc.line(15, y, 195, y);
@@ -115,16 +270,9 @@ export function exportTextToPdf(
       doc.setFontSize(9);
       doc.setTextColor(140, 106, 71); // #8C6A47
       const cleanMotivasi = `"${motivasiParagraf.trim()}"`;
-      const splitMotivasi = doc.splitTextToSize(cleanMotivasi, 180);
 
-      for (let i = 0; i < splitMotivasi.length; i++) {
-        if (y > pageHeight - 15) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(splitMotivasi[i], 15, y);
-        y += 5;
-      }
+      // Render motivasi dengan rata kanan-kiri (justify) dan maxWidth 180
+      doc.text(cleanMotivasi, 15, y, { align: 'justify', maxWidth: 180 });
     }
 
     doc.save(cleanFilename);
