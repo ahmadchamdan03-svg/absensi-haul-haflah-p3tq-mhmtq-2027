@@ -218,7 +218,10 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black tracking-tight text-[#422F21]">
+          <h1
+            className="text-xl sm:text-2xl lg:text-3xl font-serif font-black tracking-tight text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)] drop-shadow-2xl"
+            style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.85), 0 4px 18px rgba(0, 0, 0, 0.7)' }}
+          >
             Laporan Realtime Jumlah Kehadiran Peserta Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.
           </h1>
         </div>
