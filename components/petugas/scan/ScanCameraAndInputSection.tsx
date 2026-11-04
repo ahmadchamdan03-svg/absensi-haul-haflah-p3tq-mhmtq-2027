@@ -75,7 +75,7 @@ export default function ScanCameraAndInputSection({
           <button
             type="button"
             onClick={onOpenDenah}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#5C3E28] text-xs font-bold border border-[#D5C4B4] flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/60 hover:bg-white/85 text-[#5C3E28] text-xs font-bold border border-white/70 backdrop-blur-xs flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
             title="Buka Denah Lapangan Interaktif"
           >
             <Compass className="w-4 h-4 text-[#8C6A47]" />
@@ -84,7 +84,7 @@ export default function ScanCameraAndInputSection({
         </div>
 
         {/* Baris 2 (Mobile) / Sisi Kanan (Desktop): Pemilih Jalur Barat vs Timur */}
-        <div className="flex w-full md:w-auto bg-[#EFE8E1] p-1 rounded-xl border border-[#D5C4B4] gap-1.5 flex-wrap sm:flex-nowrap">
+        <div className="flex w-full md:w-auto bg-white/50 backdrop-blur-xs p-1 rounded-xl border border-white/60 gap-1.5 flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => setJalur('BARAT')}
@@ -314,7 +314,7 @@ export default function ScanCameraAndInputSection({
                 value={kodeInput}
                 onChange={(e) => setKodeInput(e.target.value)}
                 placeholder="Ketik kode manual jika scanner tidak tersambung (contoh: SH2943)..."
-                className="flex-1 px-4 py-3 text-sm rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+                className="flex-1 px-4 py-3 text-sm rounded-2xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:outline-none focus:ring-2 focus:ring-[#8C6A47] font-mono text-[#422F21] placeholder:text-[#7A624E]/70 shadow-inner"
               />
               <button
                 type="submit"

@@ -40,7 +40,6 @@ export default function LaporanPage() {
 
   useEffect(() => {
     fetchLaporanData();
-    const interval = setInterval(fetchLaporanData, 60000);
 
     const channel = supabase
       .channel('laporan_page_realtime')
@@ -51,7 +50,6 @@ export default function LaporanPage() {
       .subscribe();
 
     return () => {
-      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, []);

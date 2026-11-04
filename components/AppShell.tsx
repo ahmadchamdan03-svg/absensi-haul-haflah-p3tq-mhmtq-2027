@@ -11,6 +11,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeRole, setActiveRole] = useState<AppRole | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Ambil preferensi sidebar collapsed dari localStorage saat mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('haflah_sidebar_collapsed');
+      if (saved !== null) {
+        setIsCollapsed(saved === 'true');
+      }
+    } catch {}
+  }, []);
 
   // Baca active role untuk deteksi hak akses tampilan shell
   useEffect(() => {
@@ -58,11 +69,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar Navigasi Samping (Disembunyikan total HANYA untuk role PENERIMA_TAMU; ADMIN tetap ada sidebar) */}
       {!isRolePenerimaTamu && (
-        <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
+        <Sidebar
+          mobileOpen={mobileOpen}
+          onCloseMobile={() => setMobileOpen(false)}
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+        />
       )}
 
-      {/* Area Konten Utama */}
-      <div className="flex-1 flex flex-col h-full min-w-0 relative z-10 overflow-hidden">
+      {/* Area Konten Utama: Merespons pergeseran lebar sidebar secara halus */}
+      <div className="flex-1 flex flex-col h-full min-w-0 relative z-10 overflow-hidden transition-all duration-300 ease-in-out">
         {/* Top Header Bersih & Ringkas */}
         <TopHeader onOpenMobile={() => setMobileOpen(true)} />
 

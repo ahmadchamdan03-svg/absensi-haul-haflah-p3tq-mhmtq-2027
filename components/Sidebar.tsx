@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { clearActiveRole, getActiveRole } from '@/lib/auth-roles';
+import { usePathname } from 'next/navigation';
+import { getActiveRole } from '@/lib/auth-roles';
 import {
-  Home,
   LayoutDashboard,
   QrCode,
   ShieldCheck,
@@ -17,12 +16,8 @@ import {
   History,
   Sparkles,
   X,
-  ExternalLink,
-  GripVertical,
-  Search,
-  LogOut,
-  Bot,
   Mail,
+  ChevronLeft,
 } from 'lucide-react';
 import UniversalSearchModal from '@/components/UniversalSearchModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
@@ -30,6 +25,8 @@ import TanyaUsModal from '@/components/TanyaUsModal';
 interface SidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
+  isCollapsed?: boolean;
+  setIsCollapsed?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface NavItem {
@@ -44,13 +41,13 @@ interface NavGroup {
   items: NavItem[];
 }
 
-export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
+export default function Sidebar({
+  mobileOpen,
+  onCloseMobile,
+  isCollapsed = false,
+  setIsCollapsed,
+}: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  // State untuk pengaturan lebar sidebar manual (Desktop)
-  const [sidebarWidth, setSidebarWidth] = useState<number>(280);
-  const [isResizing, setIsResizing] = useState<boolean>(false);
 
   // State Universal Search
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -85,68 +82,23 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Ambil lebar tersimpan dari localStorage saat komponen dimuat
-  useEffect(() => {
-    try {
-      const savedWidth = localStorage.getItem('haflah_sidebar_width');
-      if (savedWidth) {
-        const parsed = parseInt(savedWidth, 10);
-        if (parsed >= 220 && parsed <= 480) {
-          setSidebarWidth(parsed);
-        }
-      }
-    } catch {
-      // Abaikan jika localStorage dibatasi
-    }
-  }, []);
-
-  // Handler interaktif drag untuk memperbesar / memperkecil lebar sidebar
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsResizing(true);
-  };
-
-  const handleResetWidth = () => {
-    setSidebarWidth(280);
-    try {
-      localStorage.setItem('haflah_sidebar_width', '280');
-    } catch {}
-  };
-
-  useEffect(() => {
-    if (!isResizing) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      // Hitung lebar sidebar dari posisi horizontal cursor layar
-      const newWidth = Math.max(220, Math.min(480, e.clientX));
-      setSidebarWidth(newWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      try {
-        localStorage.setItem('haflah_sidebar_width', sidebarWidth.toString());
-      } catch {}
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-  }, [isResizing, sidebarWidth]);
-
-  // Hydration-safe: role dibaca setelah mount (server & render pertama client sama-sama null)
+  // Hydration-safe: role dibaca setelah mount
   const [activeRole, setActiveRoleState] = useState<ReturnType<typeof getActiveRole> | null>(null);
   useEffect(() => {
     setActiveRoleState(getActiveRole());
   }, []);
+
+  const toggleCollapse = () => {
+    if (setIsCollapsed) {
+      setIsCollapsed((prev) => {
+        const next = !prev;
+        try {
+          localStorage.setItem('haflah_sidebar_collapsed', String(next));
+        } catch {}
+        return next;
+      });
+    }
+  };
 
   const allNavGroups: NavGroup[] = [
     {
@@ -197,27 +149,45 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       ]
     : allNavGroups;
 
-  const sidebarContent = (
-    <div className="flex flex-col h-full bg-white/40 backdrop-blur-md border-r border-white/50 text-[#422F21]">
-      {/* Header Sidebar: Identitas Resmi Kompak & Sejajar Lurus dengan TopHeader (h-[72px]) */}
+  // Render konten sidebar fleksibel (mode collapsed vs expanded)
+  const renderSidebarContent = (collapsed: boolean) => (
+    <div className="flex flex-col h-full bg-white/40 backdrop-blur-xl border-r border-white/50 text-[#422F21] shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300">
+      {/* Header Sidebar: Identitas Resmi Sejajar dengan TopHeader (h-[72px]) */}
       <div className="h-[72px] px-3 border-b border-white/50 bg-white/30 backdrop-blur-xs relative select-none flex items-center justify-center shrink-0">
-        <Link
-          href="/"
-          onClick={onCloseMobile}
-          className="block group text-center space-y-0.5"
-        >
-          <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#422F21] leading-none group-hover:text-[#8C6A47] transition-colors">
-            HAUL & HAFLAH
-          </div>
-          <div className="text-[11px] font-bold text-[#735334] tracking-wide leading-tight">
-            P3TQ & MHMTQ Lirboyo
-          </div>
-          <div className="pt-0.5">
-            <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#FAF7F3] text-[#8C6A47] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs">
-              1448 H. / 2027 M.
-            </span>
-          </div>
-        </Link>
+        {collapsed ? (
+          <Link
+            href="/"
+            onClick={onCloseMobile}
+            className="flex items-center justify-center group"
+            title="HAUL & HAFLAH P3TQ & MHMTQ Lirboyo 1448 H. / 2027 M."
+          >
+            <div className="w-10 h-10 rounded-2xl bg-white/70 border border-white/80 p-1 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <img
+                src="/images/logo-haul-gold.png"
+                alt="Logo Haul"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </Link>
+        ) : (
+          <Link
+            href="/"
+            onClick={onCloseMobile}
+            className="block group text-center space-y-0.5"
+          >
+            <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#422F21] leading-none group-hover:text-[#8C6A47] transition-colors whitespace-nowrap">
+              HAUL &amp; HAFLAH
+            </div>
+            <div className="text-[11px] font-bold text-[#735334] tracking-wide leading-tight whitespace-nowrap">
+              P3TQ &amp; MHMTQ Lirboyo
+            </div>
+            <div className="pt-0.5">
+              <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#FAF7F3] text-[#8C6A47] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs whitespace-nowrap">
+                1448 H. / 2027 M.
+              </span>
+            </div>
+          </Link>
+        )}
 
         {/* Tombol Tutup Mobile Drawer */}
         <button
@@ -230,19 +200,44 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       </div>
 
       {/* Navigasi Menu Vertikal Terkelompok */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      <div className={`flex-1 overflow-y-auto ${collapsed ? 'px-2 py-4 space-y-4' : 'px-3 py-4 space-y-6'}`}>
         {navGroups.map((group) => (
           <div key={group.groupTitle} className="space-y-1">
-            <div className="px-3 text-[10px] font-black uppercase tracking-wider text-[#8C6A47]/80">
-              {group.groupTitle}
-            </div>
+            {collapsed ? (
+              <div className="my-2 mx-1.5 h-px bg-white/40" title={group.groupTitle} />
+            ) : (
+              <div className="px-3 text-[10px] font-black uppercase tracking-wider text-[#8C6A47]/80 whitespace-nowrap">
+                {group.groupTitle}
+              </div>
+            )}
 
-            <div className="space-y-1 pt-1">
+            <div className="space-y-1 pt-0.5">
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive =
                   pathname === item.href ||
                   (item.href !== '/' && (pathname.startsWith(`${item.href}/`) || pathname.startsWith(`${item.href}?`)));
+
+                if (collapsed) {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onCloseMobile}
+                      title={`${item.label}${item.badge ? ` (${item.badge})` : ''}`}
+                      className={`relative w-11 h-11 mx-auto flex items-center justify-center rounded-2xl transition-all duration-200 group ${
+                        isActive
+                          ? 'bg-[#8C6A47] text-white shadow-md font-bold border border-[#735334]'
+                          : 'text-[#422F21] hover:bg-white/60 hover:text-[#8C6A47]'
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#8C6A47] group-hover:scale-110 transition-transform'}`} />
+                      {item.badge && (
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white/80" />
+                      )}
+                    </Link>
+                  );
+                }
 
                 return (
                   <Link
@@ -255,14 +250,14 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                         : 'text-[#422F21] hover:bg-white/50 hover:text-[#8C6A47]'
                     }`}
                   >
-                    <div className="flex items-center space-x-2.5">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#8C6A47]'}`} />
-                      <span>{item.label}</span>
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#8C6A47]'}`} />
+                      <span className="truncate">{item.label}</span>
                     </div>
 
                     {item.badge && (
                       <span
-                        className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
+                        className={`shrink-0 text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
                           isActive
                             ? 'bg-white/20 text-white'
                             : item.badge === 'Live'
@@ -281,64 +276,85 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         ))}
       </div>
 
-
-      {/* Footer Sidebar: Karakter Usth. Halwaa (Tanpa Pop Up Chat Bubble) */}
-      <div className="pt-2 pb-3 px-2 border-t border-white/50 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center shrink-0">
-        <button
-          type="button"
-          onClick={() => setTanyaUsOpen(true)}
-          onMouseEnter={() => setIsUsHovered(true)}
-          onMouseLeave={() => setIsUsHovered(false)}
-          className="group relative flex flex-col items-center cursor-pointer focus:outline-none"
-          title="Klik untuk bertanya ke Usth. Halwaa"
-        >
-          {/* Area Gambar Karakter Ustadzah (Satu elemen gambar bersih tanpa ghosting/tumpuk) */}
-          <div className="relative w-20 h-20 sm:w-22 sm:h-20 flex items-end justify-center transition-transform duration-200 group-hover:scale-105">
+      {/* Footer Sidebar: Karakter Usth. Halwaa */}
+      {collapsed ? (
+        <div className="py-3 px-2 border-t border-white/50 bg-white/30 backdrop-blur-xs select-none flex items-center justify-center shrink-0">
+          <button
+            type="button"
+            onClick={() => setTanyaUsOpen(true)}
+            onMouseEnter={() => setIsUsHovered(true)}
+            onMouseLeave={() => setIsUsHovered(false)}
+            className="group relative w-11 h-11 rounded-2xl bg-white/60 hover:bg-white/90 border border-white/80 p-0.5 flex items-center justify-center shadow-xs cursor-pointer focus:outline-none transition-all hover:scale-110 active:scale-95"
+            title="Tanya Usth. Halwaa!"
+          >
             <img
-              src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-half-standby.png'}
+              src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
               alt="Usth. Halwaa"
-              className="w-full h-full object-contain object-bottom filter drop-shadow-sm"
+              className="w-full h-full object-contain rounded-xl"
             />
-          </div>
+            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 ring-2 ring-white animate-pulse" />
+          </button>
+        </div>
+      ) : (
+        <div className="pt-2 pb-3 px-2 border-t border-white/50 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center shrink-0">
+          <button
+            type="button"
+            onClick={() => setTanyaUsOpen(true)}
+            onMouseEnter={() => setIsUsHovered(true)}
+            onMouseLeave={() => setIsUsHovered(false)}
+            className="group relative flex flex-col items-center cursor-pointer focus:outline-none"
+            title="Klik untuk bertanya ke Usth. Halwaa"
+          >
+            {/* Area Gambar Karakter Ustadzah */}
+            <div className="relative w-20 h-20 sm:w-22 sm:h-20 flex items-end justify-center transition-transform duration-200 group-hover:scale-105">
+              <img
+                src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-half-standby.png'}
+                alt="Usth. Halwaa"
+                className="w-full h-full object-contain object-bottom filter drop-shadow-sm"
+              />
+            </div>
 
-          {/* Label Tanya Usth. Halwaa! (Menempel langsung tanpa jarak) */}
-          <div className="-mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#9B7752] to-[#8C6A47] group-hover:brightness-110 text-white text-[11px] font-bold shadow-xs border border-[#735334] flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 z-10">
-            <Sparkles className="w-3 h-3 text-amber-200 animate-pulse" />
-            <span>Tanya Usth. Halwaa!</span>
-          </div>
-        </button>
-      </div>
+            {/* Label Tanya Usth. Halwaa! */}
+            <div className="-mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#9B7752] to-[#8C6A47] group-hover:brightness-110 text-white text-[11px] font-bold shadow-xs border border-[#735334] flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 z-10 whitespace-nowrap">
+              <Sparkles className="w-3 h-3 text-amber-200 animate-pulse shrink-0" />
+              <span>Tanya Usth. Halwaa!</span>
+            </div>
+          </button>
+        </div>
+      )}
     </div>
   );
 
   return (
     <>
-      {/* 1. Desktop Resizable Sidebar (Statis & Paten Penuh H-Full) */}
+      {/* 1. Desktop Glassy Collapsible Sidebar V3 */}
       <aside
-        style={{ width: `${sidebarWidth}px` }}
-        className={`hidden lg:block shrink-0 h-full overflow-hidden no-print select-none relative z-30 ${
-          isResizing ? '' : 'transition-[width] duration-150 ease-out'
+        className={`hidden lg:block shrink-0 h-full no-print select-none relative z-30 transition-all duration-300 ease-in-out ${
+          isCollapsed ? 'w-[78px]' : 'w-[260px]'
         }`}
+        style={{
+          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
       >
-        {sidebarContent}
+        {renderSidebarContent(isCollapsed)}
 
-        {/* Drag Handle di Tepi Kanan Sidebar */}
-        <div
-          onMouseDown={handleMouseDown}
-          onDoubleClick={handleResetWidth}
-          title="Tarik ke kiri/kanan untuk mengatur lebar sidebar secara manual (Klik 2x untuk reset)"
-          className={`absolute top-0 -right-1.5 w-3 h-full cursor-col-resize z-40 flex items-center justify-center transition-colors group ${
-            isResizing
-              ? 'bg-[#8C6A47]/60 text-white'
-              : 'hover:bg-[#8C6A47]/30 text-transparent hover:text-[#8C6A47]'
-          }`}
+        {/* Tombol Toggle Collapse / Expand di pojok kanan atas sidebar */}
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          className="absolute -right-3.5 top-7 bg-white/90 backdrop-blur-md rounded-full p-1.5 shadow-md border border-white/60 hover:scale-110 active:scale-95 transition-all z-50 cursor-pointer text-[#8C6A47] hover:text-[#422F21]"
+          title={isCollapsed ? 'Lebarkan Sidebar (260px)' : 'Kecilkan Sidebar (78px)'}
+          aria-label={isCollapsed ? 'Lebarkan Sidebar' : 'Kecilkan Sidebar'}
         >
-          {/* Indikator Pegangan Vertikal Visual */}
-          <div className="w-1 h-12 rounded-full bg-[#8C6A47] opacity-50 group-hover:opacity-100 transition-opacity" />
-        </div>
+          <ChevronLeft
+            className={`w-3.5 h-3.5 transition-transform duration-300 ease-in-out ${
+              isCollapsed ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
       </aside>
 
-      {/* 2. Mobile Drawer & Backdrop Overlay */}
+      {/* 2. Mobile Drawer & Backdrop Overlay (Selalu expanded w-72) */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex no-print">
           {/* Backdrop */}
@@ -349,7 +365,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
 
           {/* Drawer Panel */}
           <div className="relative w-72 max-w-[85vw] h-full shadow-2xl z-10 animate-slide-right">
-            {sidebarContent}
+            {renderSidebarContent(false)}
           </div>
         </div>
       )}
@@ -369,4 +385,3 @@ export default function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     </>
   );
 }
-

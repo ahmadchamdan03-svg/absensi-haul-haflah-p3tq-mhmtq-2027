@@ -117,15 +117,15 @@ export function LaporanDetailModal({
           <button
             type="button"
             onClick={() => setModalKategori(null)}
-            className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-slate-700 hover:bg-[#EFE8E1] transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-white/60 hover:bg-white/80 backdrop-blur-xs border border-white/70 text-slate-700 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filter Tabs & Search Bar */}
-        <div className="p-3 sm:p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-1.5 bg-slate-200 p-1 rounded-xl font-bold">
+        <div className="p-3 sm:p-4 bg-white/50 backdrop-blur-xs border-b border-white/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-1.5 bg-white/40 border border-white/60 p-1 rounded-xl font-bold">
             <button
               type="button"
               onClick={() => setModalTab('HADIR')}
@@ -157,7 +157,7 @@ export function LaporanDetailModal({
               value={modalSearch}
               onChange={(e) => setModalSearch(e.target.value)}
               placeholder="Cari nama, kode, wali, instansi..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:border-[#8C6A47]"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
             />
           </div>
         </div>
@@ -173,11 +173,11 @@ export function LaporanDetailModal({
             filteredItems.map((item, idx) => (
               <div
                 key={item.kode + idx}
-                className="p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-amber-50/60 transition-colors flex items-center justify-between gap-3"
+                className="p-3 rounded-2xl border border-white/60 bg-white/50 backdrop-blur-xs hover:bg-white/75 transition-colors flex items-center justify-between gap-3"
               >
                 <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-[#8C6A47] text-[11px] bg-white px-2 py-0.5 rounded border border-[#D5C4B4]">
+                    <span className="font-mono font-bold text-[#8C6A47] text-[11px] bg-white/70 backdrop-blur-xs px-2 py-0.5 rounded border border-white/80">
                       {item.kode}
                     </span>
                     <span className="font-bold text-slate-900 truncate text-sm">

@@ -127,7 +127,7 @@ export function TanyaUsHeaderAndSettings({
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               placeholder="Masukkan API Key Zhipu AI / Gemini / OpenAI..."
-              className="flex-1 px-3 py-1.5 rounded-xl border border-[#D5C4B4] bg-white text-xs font-mono focus:outline-none focus:border-[#8C6A47]"
+              className="flex-1 px-3 py-1.5 rounded-xl border border-white/80 bg-white/70 backdrop-blur-xs text-xs font-mono focus:outline-none focus:border-[#8C6A47]"
             />
             <button
               onClick={handleSaveApiKey}

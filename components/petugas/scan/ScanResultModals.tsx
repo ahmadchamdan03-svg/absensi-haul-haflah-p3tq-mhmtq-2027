@@ -52,7 +52,7 @@ export default function ScanResultModals({
       {/* TAMPILAN 2: DETAIL PESERTA DARI SUPABASE SAAT QR TERPINDAI */}
       {/* ========================================================================= */}
       {activeItem && !checkinResult && (
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-opera-700 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-w-md mx-auto">
+        <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-w-md mx-auto">
           {/* Header Compact */}
           <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-3.5 py-2.5 flex items-center justify-between border-b border-gold-500/30">
             <div className="flex items-center space-x-2">
@@ -104,7 +104,7 @@ export default function ScanResultModals({
               const terpakai = activeItem.kuota.terpakai;
               const sisa = Math.max(0, totalKuota - terpakai);
               return (
-                <div className="grid grid-cols-3 gap-1.5 text-center bg-stone-50 p-2.5 rounded-2xl border border-stone-200">
+                <div className="grid grid-cols-3 gap-1.5 text-center bg-white/50 backdrop-blur-xs p-2.5 rounded-2xl border border-white/60">
                   <div className="border-r border-stone-200 pr-1">
                     <div className="text-[10px] font-bold text-slate-500 uppercase">KUOTA</div>
                     <div className="text-xl font-serif font-black text-slate-800">
@@ -204,7 +204,7 @@ export default function ScanResultModals({
               return (
                 <div className="space-y-3 pt-2 border-t border-slate-100">
                   <div className="grid grid-cols-2 gap-2.5">
-                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                    <div className="p-2.5 bg-white/50 backdrop-blur-xs rounded-2xl border border-white/60">
                       <label className="block text-[10px] font-bold text-slate-600 mb-1">
                         JUMLAH PRIA (L)
                       </label>
@@ -212,7 +212,7 @@ export default function ScanResultModals({
                         <button
                           type="button"
                           onClick={() => setJumlahL(Math.max(0, jumlahL - 1))}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                          className="w-7 h-7 rounded-lg bg-white/70 backdrop-blur-xs border border-white/80 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
                         >
                           -
                         </button>
@@ -221,21 +221,21 @@ export default function ScanResultModals({
                           min={0}
                           value={jumlahL}
                           onChange={(e) => setJumlahL(parseInt(e.target.value, 10) || 0)}
-                          className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
+                          className="w-full text-center font-bold text-sm bg-white/70 backdrop-blur-xs border border-white/80 rounded-lg py-0.5 text-slate-800"
                         />
                         <button
                           type="button"
                           onClick={() => setJumlahL(jumlahL + 1)}
                           disabled={isPlusDisabled}
                           title={isPlusDisabled ? `Total input (${totalInput}) sudah mencapai kuota (${totalKuota})` : undefined}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="w-7 h-7 rounded-lg bg-white/70 backdrop-blur-xs border border-white/80 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           +
                         </button>
                       </div>
                     </div>
 
-                    <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                    <div className="p-2.5 bg-white/50 backdrop-blur-xs rounded-2xl border border-white/60">
                       <label className="block text-[10px] font-bold text-slate-600 mb-1">
                         JUMLAH WANITA (P)
                       </label>
@@ -243,7 +243,7 @@ export default function ScanResultModals({
                         <button
                           type="button"
                           onClick={() => setJumlahP(Math.max(0, jumlahP - 1))}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                          className="w-7 h-7 rounded-lg bg-white/70 backdrop-blur-xs border border-white/80 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0"
                         >
                           -
                         </button>
@@ -252,14 +252,14 @@ export default function ScanResultModals({
                           min={0}
                           value={jumlahP}
                           onChange={(e) => setJumlahP(parseInt(e.target.value, 10) || 0)}
-                          className="w-full text-center font-bold text-sm bg-white border border-slate-300 rounded-lg py-0.5"
+                          className="w-full text-center font-bold text-sm bg-white/70 backdrop-blur-xs border border-white/80 rounded-lg py-0.5 text-slate-800"
                         />
                         <button
                           type="button"
                           onClick={() => setJumlahP(jumlahP + 1)}
                           disabled={isPlusDisabled}
                           title={isPlusDisabled ? `Total input (${totalInput}) sudah mencapai kuota (${totalKuota})` : undefined}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-300 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="w-7 h-7 rounded-lg bg-white/70 backdrop-blur-xs border border-white/80 font-black text-xs text-slate-700 shadow-xs cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           +
                         </button>
@@ -333,7 +333,7 @@ export default function ScanResultModals({
       {/* TAMPILAN 3: HASIL PRESENSI SUKSES */}
       {/* ========================================================================= */}
       {checkinResult && checkinResult.ok && (
-        <div className="bg-white rounded-3xl p-6 shadow-2xl border-2 border-emerald-500 text-center space-y-4 animate-in fade-in zoom-in-95">
+        <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl border-2 border-emerald-500/80 text-center space-y-4 animate-in fade-in zoom-in-95">
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto font-bold border-2 border-emerald-300">
             <Check className="w-10 h-10" />
           </div>
@@ -345,7 +345,7 @@ export default function ScanResultModals({
             <p className="text-xs text-emerald-800 mt-1">{checkinResult.pesan}</p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1 text-left">
+          <div className="p-4 rounded-2xl bg-emerald-50/70 backdrop-blur-xs border border-emerald-200 text-xs text-emerald-900 space-y-1 text-left">
             <p><strong>Nama:</strong> {checkinResult.detail?.nama}</p>
             <p><strong>Kode:</strong> {checkinResult.detail?.kode}</p>
             <p><strong>Kategori:</strong> {checkinResult.detail?.subKategori || checkinResult.detail?.kategori || '-'}</p>
@@ -366,7 +366,7 @@ export default function ScanResultModals({
 
       {/* MODAL KONFIRMASI RESET KARTU CREAM */}
       {showResetConfirmModal && activeItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="relative flex flex-col items-center w-full max-w-sm">
             {/* FOTO USTH. HALWAA — POP-OUT DARI BELAKANG KOTAK (HANYA BANTAN BAWAH 5% TERTUTUP) */}
             <div className="relative z-0 -mb-2 sm:-mb-2.5 w-36 sm:w-44 h-36 sm:h-44 pointer-events-none flex justify-center items-end">
@@ -389,7 +389,7 @@ export default function ScanResultModals({
             </div>
 
             {/* KOTAK POP-UP — DI DEPAN FOTO (HANYA TEKS + TOMBOL) */}
-            <div className="relative z-10 bg-white rounded-3xl w-full p-6 space-y-4 shadow-2xl border-2 border-amber-300 text-center animate-in zoom-in-95 duration-200">
+            <div className="relative z-10 bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl w-full p-6 space-y-4 shadow-2xl border border-white/60 text-center animate-in zoom-in-95 duration-200">
               {/* Teks Peringatan */}
               <div className="space-y-2">
                 <h3 className="font-serif font-black text-amber-950 text-base sm:text-lg leading-tight">

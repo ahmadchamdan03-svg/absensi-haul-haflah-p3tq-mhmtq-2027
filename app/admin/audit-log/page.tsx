@@ -73,7 +73,7 @@ function DiffTableViewer({
     const displayedKeys = showSystemFields ? allKeys : allKeys.filter((k) => !systemFields.includes(k));
 
     return (
-      <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-3">
+      <div className="p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-2">
           <div>
             <span className="text-[10px] text-stone-400 font-bold uppercase block">
@@ -161,7 +161,7 @@ function DiffTableViewer({
 
   // Fallback jika bukan JSON objek ganda
   return (
-    <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
+    <div className="p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-[10px] text-stone-400 font-bold uppercase">
           PERUBAHAN DATA ({field || 'General'})
@@ -703,8 +703,8 @@ export default function AuditLogPage() {
                 </button>
               </div>
 
-              <div className="p-5 space-y-4 text-xs overflow-y-auto flex-1 bg-stone-50">
-                <div className="grid grid-cols-2 gap-3 p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs">
+              <div className="p-5 space-y-4 text-xs overflow-y-auto flex-1 bg-white/30 backdrop-blur-xs">
+                <div className="grid grid-cols-2 gap-3 p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs">
                   <div>
                     <span className="text-[10px] text-stone-400 font-bold uppercase">PETUGAS PANITIA</span>
                     <p className="font-bold text-[#422F21] text-sm">{selectedLogDetail.panitia_id || 'SYSTEM'}</p>
@@ -717,7 +717,7 @@ export default function AuditLogPage() {
                 </div>
 
                 {selectedLogDetail.kode && (
-                  <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
+                  <div className="p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs space-y-1">
                     <span className="text-[10px] text-stone-400 font-bold uppercase">PESERTA TERDAMPAK</span>
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-sm text-[#8C6A47]">{selectedLogDetail.kode}</span>
@@ -735,7 +735,7 @@ export default function AuditLogPage() {
                 />
 
                 {selectedLogDetail.catatan && (
-                  <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
+                  <div className="p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs space-y-1">
                     <span className="text-[10px] text-stone-400 font-bold uppercase">CATATAN AKSI</span>
                     <p className="font-semibold text-stone-700 italic">{selectedLogDetail.catatan}</p>
                   </div>

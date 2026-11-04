@@ -145,9 +145,9 @@ export async function verifyRolePasswordAsync(role: AppRole, inputPassword: stri
   const roleWithSpaces = roleLower.replace(/_/g, ' ');
   const candidatePeran = Array.from(new Set([roleLower, roleWithSpaces, role]));
 
-  // Buat AbortController dengan timeout 2500ms agar Supabase menjadi source of truth tanpa membuat login hanging
+  // Buat AbortController dengan timeout 8000ms (8 detik) agar Supabase memiliki waktu respons memadai saat koneksi lambat/sibuk
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2500);
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
     const { data, error } = await supabase

@@ -72,7 +72,6 @@ export default function KonfirmasiPage() {
 
   useEffect(() => {
     fetchKonfirmasiData();
-    const interval = setInterval(fetchKonfirmasiData, 60000);
 
     const channel = supabase
       .channel('konfirmasi_page_realtime')
@@ -83,7 +82,6 @@ export default function KonfirmasiPage() {
       .subscribe();
 
     return () => {
-      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, []);

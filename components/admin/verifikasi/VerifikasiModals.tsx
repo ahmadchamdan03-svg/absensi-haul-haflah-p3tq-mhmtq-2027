@@ -145,7 +145,7 @@ export function VerifikasiModals({
 
                 {/* Dropdown hasil cari santri */}
                 {filteredSantriList.length > 0 && !selectedSantriKode && (
-                  <div className="max-h-44 overflow-y-auto border border-[#D5C4B4] rounded-xl bg-white shadow-lg divide-y divide-stone-100">
+                  <div className="max-h-44 overflow-y-auto border border-white/60 rounded-xl bg-white/95 backdrop-blur-md shadow-lg divide-y divide-stone-100/60">
                     {filteredSantriList.map((s) => (
                       <button
                         key={s.id || s.kode}
@@ -154,7 +154,7 @@ export function VerifikasiModals({
                           setSelectedSantriKode(s.kode);
                           setSearchSantriText(`${s.nama} (${s.kode})`);
                         }}
-                        className="w-full text-left p-2.5 hover:bg-[#FAF0E6] transition-colors flex items-center justify-between cursor-pointer"
+                        className="w-full text-left p-2.5 hover:bg-amber-100/60 transition-colors flex items-center justify-between cursor-pointer"
                       >
                         <div>
                           <div className="font-bold text-[#422F21]">{s.nama}</div>
@@ -186,11 +186,11 @@ export function VerifikasiModals({
               {/* Stepper Jumlah Kursi */}
               <div className="space-y-1.5">
                 <label className="font-bold text-[#422F21] block">Jumlah Kuota Tambahan:</label>
-                <div className="flex items-center space-x-3 p-3 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4]">
+                <div className="flex items-center space-x-3 p-3 bg-white/50 backdrop-blur-xs rounded-xl border border-white/60">
                   <button
                     type="button"
                     onClick={() => setManualJumlah(Math.max(1, manualJumlah - 1))}
-                    className="w-9 h-9 rounded-lg bg-white border border-stone-300 font-black text-sm cursor-pointer hover:bg-stone-100 active:scale-95"
+                    className="w-9 h-9 rounded-lg bg-white/70 backdrop-blur-xs border border-white/80 font-black text-sm cursor-pointer hover:bg-white active:scale-95"
                   >
                     −
                   </button>

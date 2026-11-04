@@ -49,8 +49,8 @@ export default async function ShortLinkRedirectPage({ params }: ShortLinkPagePro
 
 function NotFoundView({ kode }: { kode?: string }) {
   return (
-    <div className="min-h-screen bg-[#FAF7F3] flex items-center justify-center p-4">
-      <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl space-y-5">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
+      <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl space-y-5">
         <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
           <AlertTriangle className="w-8 h-8" />
         </div>

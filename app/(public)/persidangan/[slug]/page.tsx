@@ -81,8 +81,8 @@ function PublicPersidanganContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF7F3] flex items-center justify-center p-4">
-        <div className="bg-white border-2 border-[#D5C4B4] rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
+      <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
           <div className="w-12 h-12 rounded-full border-4 border-[#8C6A47] border-t-transparent animate-spin mx-auto"></div>
           <div className="space-y-1">
             <h3 className="font-serif font-bold text-base text-[#422F21]">
@@ -100,9 +100,9 @@ function PublicPersidanganContent() {
   // Halaman 404 jika slug tidak ditemukan
   if (notFound || !persidangan) {
     return (
-      <div className="min-h-screen bg-[#FAF7F3] flex items-center justify-center p-4">
-        <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+      <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
             <AlertTriangle className="w-8 h-8" />
           </div>
 
@@ -140,9 +140,9 @@ function PublicPersidanganContent() {
   // Jika persidangan ditemukan tapi belum ada PDF diunggah
   if (!persidangan.pdf_url) {
     return (
-      <div className="min-h-screen bg-[#FAF7F3] flex items-center justify-center p-4">
-        <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-8 max-w-lg w-full text-center shadow-xl space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] text-[#8C6A47] flex items-center justify-center mx-auto shadow-xs">
+      <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
+        <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-8 max-w-lg w-full text-center shadow-xl space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-white/60 border border-white/70 text-[#8C6A47] flex items-center justify-center mx-auto shadow-xs">
             <FileText className="w-8 h-8" />
           </div>
 
@@ -177,7 +177,7 @@ function PublicPersidanganContent() {
 
   // Tampilan Halaman Gambar Universal (Scrollable, Native Zoom di HP)
   return (
-    <div className="min-h-screen bg-[#F5EFE6] text-[#422F21] relative selection:bg-[#D49B5B] selection:text-white pb-16">
+    <div className="min-h-screen bg-transparent text-[#422F21] relative selection:bg-[#D49B5B] selection:text-white pb-16">
       {/* Floating Button Kiri Atas: Kembali */}
       <div className="fixed top-4 left-4 z-50">
         <button
@@ -233,7 +233,7 @@ function PublicPersidanganContent() {
             {persidangan.jpg_urls!.map((url, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-lg shadow-xl overflow-hidden border border-[#D5C4B4] transition-all"
+                className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden border border-white/60 transition-all"
               >
                 <img
                   src={url}
@@ -245,7 +245,7 @@ function PublicPersidanganContent() {
             ))}
           </div>
         ) : (
-          <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-8 sm:p-12 text-center shadow-xl space-y-4 my-12">
+          <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-8 sm:p-12 text-center shadow-xl space-y-4 my-12">
             <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
               <RefreshCw className="w-7 h-7 animate-spin text-[#8C6A47]" />
             </div>

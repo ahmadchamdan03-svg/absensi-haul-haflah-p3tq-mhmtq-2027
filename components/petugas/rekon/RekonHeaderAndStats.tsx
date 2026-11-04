@@ -56,7 +56,7 @@ export default function RekonHeaderAndStats({
           <button
             type="button"
             onClick={onRefresh}
-            className="p-2.5 rounded-2xl bg-white hover:bg-stone-100 text-[#8C6A47] border-2 border-[#D5C4B4] shadow-2xs flex items-center justify-center transition-all cursor-pointer"
+            className="p-2.5 rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#8C6A47] border border-white/70 shadow-2xs flex items-center justify-center transition-all cursor-pointer"
             title="Refresh Data"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />

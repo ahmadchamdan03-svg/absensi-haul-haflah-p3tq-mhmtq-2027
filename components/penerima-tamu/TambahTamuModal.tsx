@@ -58,9 +58,9 @@ export default function TambahTamuModal({
   if (!showAddModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full shadow-2xl border border-[#E8DFD5] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95">
-        <div className="flex items-center justify-between border-b border-stone-100 p-4 md:p-6 bg-[#FAF7F3] shrink-0">
+    <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
+      <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full shadow-2xl border border-white/60 max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95">
+        <div className="flex items-center justify-between border-b border-white/50 p-4 md:p-6 bg-white/40 backdrop-blur-md shrink-0">
           <div>
             <h3 className="font-serif font-black text-base md:text-xl text-[#422F21]">
               Tambah Tamu Undangan Baru
@@ -72,7 +72,7 @@ export default function TambahTamuModal({
           <button
             type="button"
             onClick={() => setShowAddModal(false)}
-            className="p-1.5 rounded-xl hover:bg-stone-200/60 text-stone-400 hover:text-stone-700 transition-colors"
+            className="p-1.5 rounded-xl hover:bg-white/40 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
@@ -92,10 +92,10 @@ export default function TambahTamuModal({
                   key={gol}
                   type="button"
                   onClick={() => handleOpenAddModal(gol)}
-                  className={`py-2.5 px-2 rounded-xl font-bold border transition-all text-center text-xs md:text-sm ${
+                  className={`py-2.5 px-2 rounded-xl font-bold border transition-all text-center text-xs md:text-sm cursor-pointer ${
                     selectedGolonganUndangan === gol
                       ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                      : 'bg-[#FAF7F3] text-[#422F21] border-[#D5C4B4] hover:bg-[#EFE8E1]'
+                      : 'bg-white/50 text-[#422F21] border-white/70 hover:bg-white/80 backdrop-blur-xs'
                   }`}
                 >
                   {gol}
@@ -104,7 +104,7 @@ export default function TambahTamuModal({
             </div>
           </div>
 
-          <div className="space-y-3 bg-[#FAF7F3] p-4 md:p-5 rounded-2xl border border-[#D5C4B4]">
+          <div className="space-y-3 bg-white/40 backdrop-blur-xs p-4 md:p-5 rounded-2xl border border-white/50">
             <label className="block font-bold text-[#422F21] text-xs md:text-sm mb-1">
               Nama Tamu Undangan *
             </label>
@@ -119,7 +119,7 @@ export default function TambahTamuModal({
                   value={undanganForm.namaPutra}
                   onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
                   placeholder="Nama tamu putra..."
-                  className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
+                  className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
                 />
               </div>
               <div>
@@ -132,7 +132,7 @@ export default function TambahTamuModal({
                   value={undanganForm.namaPutri}
                   onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
                   placeholder="Nama tamu putri..."
-                  className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
+                  className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
                 />
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function TambahTamuModal({
               <select
                 value={undanganKategoriDropdown}
                 onChange={(e) => setUndanganKategoriDropdown(e.target.value)}
-                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs md:text-sm font-medium text-[#422F21]"
+                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm font-medium text-[#422F21]"
               >
                 {(selectedGolonganUndangan === 'ISTIMEWA' ? OPSI_UNDANGAN_ISTIMEWA : OPSI_UNDANGAN_UMUM).map(
                   (opt) => (
@@ -162,7 +162,7 @@ export default function TambahTamuModal({
                   value={customKategoriInput}
                   onChange={(e) => setCustomKategoriInput(e.target.value)}
                   placeholder="Ketik nama kategori khusus..."
-                  className="w-full mt-2 px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
+                  className="w-full mt-2 px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
                 />
               )}
             </div>
@@ -179,7 +179,7 @@ export default function TambahTamuModal({
                 setUndanganForm({ ...undanganForm, instansi: e.target.value, alamat: e.target.value })
               }
               placeholder="Contoh: PP. Lirboyo Kota Kediri"
-              className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
+              className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
             />
           </div>
 
@@ -192,15 +192,15 @@ export default function TambahTamuModal({
               value={undanganForm.noHp}
               onChange={(e) => setUndanganForm({ ...undanganForm, noHp: e.target.value })}
               placeholder="08xxxxxxxxxx"
-              className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
+              className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm focus:ring-1 focus:ring-emerald-700"
             />
           </div>
 
-          <div className="pt-3 border-t border-stone-200 flex items-center space-x-3 shrink-0">
+          <div className="pt-3 border-t border-white/50 flex items-center space-x-3 shrink-0">
             <button
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="flex-1 py-3 rounded-xl border border-stone-300 text-stone-700 font-bold hover:bg-stone-100 text-xs md:text-sm transition-colors cursor-pointer"
+              className="flex-1 py-3 rounded-xl border border-white/70 bg-white/60 hover:bg-white/80 text-stone-700 font-bold text-xs md:text-sm transition-colors cursor-pointer backdrop-blur-xs"
             >
               Batal
             </button>

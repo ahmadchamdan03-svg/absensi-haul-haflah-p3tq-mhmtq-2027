@@ -79,7 +79,7 @@ export function SingleDonutChart({
 
       {/* Legends */}
       <div className="w-full mt-3 space-y-1.5 text-xs">
-        <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-[#E8DFD5]">
+        <div className="flex items-center justify-between bg-white/60 backdrop-blur-xs px-2.5 py-1.5 rounded-lg border border-white/70 shadow-2xs">
           <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#422F21]">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: colorHadir }} />
             {labelHadir}
@@ -88,7 +88,7 @@ export function SingleDonutChart({
             {hadir.toLocaleString('id-ID')} ({persen}%)
           </span>
         </div>
-        <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-[#E8DFD5]">
+        <div className="flex items-center justify-between bg-white/60 backdrop-blur-xs px-2.5 py-1.5 rounded-lg border border-white/70 shadow-2xs">
           <span className="flex items-center gap-1.5 text-[11px] font-semibold text-stone-600">
             <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-[#E5E0D8]" />
             Belum Hadir

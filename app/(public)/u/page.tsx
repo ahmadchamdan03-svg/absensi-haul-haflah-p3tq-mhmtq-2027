@@ -3,8 +3,8 @@ import { MailX, Home } from 'lucide-react';
 
 export default function PublicUPage() {
   return (
-    <div className="min-h-screen bg-[#FAF7F3] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none">
-      <div className="max-w-md w-full bg-white/80 backdrop-blur-md border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none">
+      <div className="max-w-md w-full bg-white/80 backdrop-blur-md border border-white/70 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
         {/* LOGO RESMI */}
         <div className="flex justify-center">
           <img

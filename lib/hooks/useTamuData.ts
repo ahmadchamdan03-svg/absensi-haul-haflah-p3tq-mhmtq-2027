@@ -119,7 +119,6 @@ export function useTamuData() {
 
   useEffect(() => {
     fetchTamuData();
-    const interval = setInterval(fetchTamuData, 60000);
 
     const channel = supabase
       .channel('penerima_tamu_realtime')
@@ -129,7 +128,6 @@ export function useTamuData() {
       .subscribe();
 
     return () => {
-      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, [fetchTamuData]);

@@ -39,10 +39,10 @@ export default function RekonModals({
             if (e.target === e.currentTarget) setEditingItem(null);
           }}
         >
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 border border-[#E8DFD5] max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+          <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-stone-200/60 pb-4">
               <div>
-                <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-[#FAF0E6] text-[#8C6A47] text-[10px] font-bold border border-[#D5C4B4]">
+                <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-white/60 backdrop-blur-xs text-[#8C6A47] text-[10px] font-bold border border-white/70">
                   <Edit3 className="w-3.5 h-3.5 text-[#8C6A47]" />
                   <span>PANEL EDIT LENGKAP REKONSILIASI</span>
                 </div>
@@ -61,7 +61,7 @@ export default function RekonModals({
 
             <form onSubmit={onSaveEdit} className="space-y-4 text-xs">
               {/* BLOK 1: IDENTITAS & KONTAK */}
-              <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+              <div className="p-4 rounded-2xl bg-white/50 backdrop-blur-xs border border-white/60 space-y-3">
                 <h4 className="font-serif font-black text-sm text-[#422F21]">1. Identitas &amp; Kontak Utama</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -71,7 +71,7 @@ export default function RekonModals({
                       type="text"
                       value={editingItem.nama}
                       onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-semibold text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-semibold text-xs focus:ring-1 focus:ring-[#8C6A47]"
                       required
                     />
                   </div>
@@ -83,7 +83,7 @@ export default function RekonModals({
                         type="text"
                         value={editingItem.namaWali}
                         onChange={(e) => setEditingItem({ ...editingItem, namaWali: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
                       />
                     </div>
                   ) : (
@@ -93,7 +93,7 @@ export default function RekonModals({
                         type="text"
                         value={editingItem.instansi}
                         onChange={(e) => setEditingItem({ ...editingItem, instansi: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
                       />
                     </div>
                   )}
@@ -104,7 +104,7 @@ export default function RekonModals({
                       type="text"
                       value={editingItem.noHp}
                       onChange={(e) => setEditingItem({ ...editingItem, noHp: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
                     />
                   </div>
 
@@ -114,14 +114,14 @@ export default function RekonModals({
                       type="text"
                       value={editingItem.alamat}
                       onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* BLOK 2: KATEGORI & KUOTA */}
-              <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+              <div className="p-4 rounded-2xl bg-white/50 backdrop-blur-xs border border-white/60 space-y-3">
                 <h4 className="font-serif font-black text-sm text-[#422F21]">2. Kategori, Kuota &amp; Warna Tiket</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -132,7 +132,7 @@ export default function RekonModals({
                         <select
                           value={editingItem.kategoriUtama}
                           onChange={(e) => setEditingItem({ ...editingItem, kategoriUtama: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-semibold"
+                          className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs font-semibold"
                         >
                           <option value="BIL_GHOIB">BIL_GHOIB (Cream)</option>
                           <option value="BIN_NADZOR">BIN_NADZOR (Biru)</option>
@@ -145,7 +145,7 @@ export default function RekonModals({
                           type="text"
                           value={editingItem.subKategori}
                           onChange={(e) => setEditingItem({ ...editingItem, subKategori: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                         />
                       </div>
                       <div>
@@ -154,7 +154,7 @@ export default function RekonModals({
                           type="text"
                           value={editingItem.kamar}
                           onChange={(e) => setEditingItem({ ...editingItem, kamar: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                         />
                       </div>
                     </>
@@ -165,7 +165,7 @@ export default function RekonModals({
                         <select
                           value={editingItem.subKategori}
                           onChange={(e) => setEditingItem({ ...editingItem, subKategori: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-semibold"
+                          className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs font-semibold"
                         >
                           <option value="ISTIMEWA">ISTIMEWA (VVIP / VIP)</option>
                           <option value="KEHORMATAN">KEHORMATAN (Masyayikh / Habaib)</option>
@@ -178,7 +178,7 @@ export default function RekonModals({
                           type="text"
                           value={editingItem.kategori}
                           onChange={(e) => setEditingItem({ ...editingItem, kategori: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                          className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                         />
                       </div>
                     </>
@@ -193,7 +193,7 @@ export default function RekonModals({
                       min="0"
                       value={editingItem.kuotaDasar}
                       onChange={(e) => setEditingItem({ ...editingItem, kuotaDasar: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-bold text-xs"
                     />
                   </div>
                   <div>
@@ -203,7 +203,7 @@ export default function RekonModals({
                       min="0"
                       value={editingItem.kuotaTambahan}
                       onChange={(e) => setEditingItem({ ...editingItem, kuotaTambahan: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs text-emerald-800"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-bold text-xs text-emerald-800"
                     />
                   </div>
                   <div>
@@ -243,7 +243,7 @@ export default function RekonModals({
                           presensiP: nextP,
                         });
                       }}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs text-blue-900"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-bold text-xs text-blue-900"
                     />
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export default function RekonModals({
                     <select
                       value={editingItem.warnaTiket}
                       onChange={(e) => setEditingItem({ ...editingItem, warnaTiket: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white font-bold text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-bold text-xs"
                     >
                       <option value="Cream">Cream</option>
                       <option value="Biru">Biru</option>
@@ -261,12 +261,12 @@ export default function RekonModals({
               </div>
 
               {/* BLOK 3: JUMLAH KEHADIRAN (PRESENSI REALTIME) */}
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
+              <div className="p-4 rounded-2xl bg-amber-50/50 backdrop-blur-xs border border-amber-200/70 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-serif font-black text-sm text-[#422F21]">
                     3. Jumlah Kehadiran (Presensi Realtime)
                   </h4>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100/80 backdrop-blur-xs text-amber-900 border border-amber-300">
                     Total Kuota: {(Number(editingItem.kuotaDasar || 0) + Number(editingItem.kuotaTambahan || 0))} Kursi
                   </span>
                 </div>
@@ -279,7 +279,7 @@ export default function RekonModals({
                   return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       {/* Stepper Putra */}
-                      <div className="p-3 rounded-xl bg-white border border-[#D5C4B4] flex items-center justify-between shadow-2xs">
+                      <div className="p-3 rounded-xl bg-white/60 backdrop-blur-xs border border-white/70 flex items-center justify-between shadow-2xs">
                         <div>
                           <span className="font-bold text-xs text-[#422F21] block">Putra / Laki-laki (L)</span>
                           <span className="text-[10px] text-stone-500">Jumlah fisik hadir</span>
@@ -326,7 +326,7 @@ export default function RekonModals({
                       </div>
 
                       {/* Stepper Putri */}
-                      <div className="p-3 rounded-xl bg-white border border-[#D5C4B4] flex items-center justify-between shadow-2xs">
+                      <div className="p-3 rounded-xl bg-white/60 backdrop-blur-xs border border-white/70 flex items-center justify-between shadow-2xs">
                         <div>
                           <span className="font-bold text-xs text-[#422F21] block">Putri / Perempuan (P)</span>
                           <span className="text-[10px] text-stone-500">Jumlah fisik hadir</span>
@@ -377,7 +377,7 @@ export default function RekonModals({
               </div>
 
               {/* BLOK 4: RSVP & STATUS */}
-              <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+              <div className="p-4 rounded-2xl bg-white/50 backdrop-blur-xs border border-white/60 space-y-3">
                 <h4 className="font-serif font-black text-sm text-[#422F21]">4. RSVP &amp; Catatan</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -386,7 +386,7 @@ export default function RekonModals({
                     <select
                       value={editingItem.statusKonfirmasi}
                       onChange={(e) => setEditingItem({ ...editingItem, statusKonfirmasi: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs font-bold"
                     >
                       <option value="BELUM">BELUM</option>
                       <option value="SUDAH">SUDAH</option>
@@ -399,7 +399,7 @@ export default function RekonModals({
                       min="0"
                       value={editingItem.perkiraanL}
                       onChange={(e) => setEditingItem({ ...editingItem, perkiraanL: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                     />
                   </div>
                   <div>
@@ -409,7 +409,7 @@ export default function RekonModals({
                       min="0"
                       value={editingItem.perkiraanP}
                       onChange={(e) => setEditingItem({ ...editingItem, perkiraanP: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                     />
                   </div>
                 </div>
@@ -421,7 +421,7 @@ export default function RekonModals({
                     value={editingItem.catatanKonfirmasi}
                     onChange={(e) => setEditingItem({ ...editingItem, catatanKonfirmasi: e.target.value })}
                     placeholder="Contoh: Koreksi kuota walk-in di gerbang selatan..."
-                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                   />
                 </div>
               </div>
@@ -457,8 +457,8 @@ export default function RekonModals({
             if (e.target === e.currentTarget) setShowWalkinModal(false);
           }}
         >
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-[#E8DFD5] max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+          <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-stone-200/60 pb-3">
               <div>
                 <h3 className="font-serif font-black text-lg text-[#422F21]">
                   Daftarkan Tamu Walk-in Baru
@@ -494,7 +494,7 @@ export default function RekonModals({
                       className={`py-2 px-1 rounded-xl font-bold border transition-all text-center text-[11px] ${
                         walkinForm.golongan === gol
                           ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                          : 'bg-[#FAF7F3] text-[#422F21] border-[#D5C4B4] hover:bg-[#EFE8E1]'
+                          : 'bg-white/50 text-[#422F21] border-white/60 hover:bg-white/75 backdrop-blur-xs'
                       }`}
                     >
                       {gol}
@@ -504,7 +504,7 @@ export default function RekonModals({
               </div>
 
               {walkinForm.golongan === 'ISTIMEWA' ? (
-                <div className="space-y-3 bg-[#FAF7F3] p-3.5 rounded-2xl border border-[#D5C4B4]">
+                <div className="space-y-3 bg-white/50 backdrop-blur-xs p-3.5 rounded-2xl border border-white/60">
                   <div>
                     <label className="block font-bold text-[#422F21] mb-1">Nama Tamu Putra:</label>
                     <input
@@ -512,7 +512,7 @@ export default function RekonModals({
                       value={walkinForm.namaPutra}
                       onChange={(e) => setWalkinForm({ ...walkinForm, namaPutra: e.target.value })}
                       placeholder="Contoh: KH. ABDULLOH FAQIHI"
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                     />
                   </div>
                   <div>
@@ -522,7 +522,7 @@ export default function RekonModals({
                       value={walkinForm.namaPutri}
                       onChange={(e) => setWalkinForm({ ...walkinForm, namaPutri: e.target.value })}
                       placeholder="Contoh: NYAI HJ. HINDAH"
-                      className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs"
                     />
                   </div>
                 </div>
@@ -534,7 +534,7 @@ export default function RekonModals({
                     value={walkinForm.nama}
                     onChange={(e) => setWalkinForm({ ...walkinForm, nama: e.target.value })}
                     placeholder="Contoh: KH. ANWAR MASHADI"
-                    className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs"
                     required
                   />
                 </div>
@@ -547,11 +547,11 @@ export default function RekonModals({
                   value={walkinForm.instansi}
                   onChange={(e) => setWalkinForm({ ...walkinForm, instansi: e.target.value, alamat: e.target.value })}
                   placeholder="Contoh: PP. Lirboyo Kediri"
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-xs"
+                  className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs"
                 />
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center space-x-2.5">
+              <div className="p-3.5 rounded-2xl bg-emerald-50/60 backdrop-blur-xs border border-emerald-200/80 flex items-center space-x-2.5">
                 <input
                   type="checkbox"
                   id="langsungCheckin"
@@ -568,7 +568,7 @@ export default function RekonModals({
                 <button
                   type="button"
                   onClick={() => setShowWalkinModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-stone-300 text-stone-700 font-bold hover:bg-stone-100 cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl border border-stone-300/80 bg-white/50 backdrop-blur-xs text-stone-700 font-bold hover:bg-white/80 cursor-pointer"
                 >
                   Batal
                 </button>

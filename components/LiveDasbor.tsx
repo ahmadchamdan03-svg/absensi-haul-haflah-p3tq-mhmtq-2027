@@ -76,9 +76,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
 
   useEffect(() => {
     fetchLiveDasborData();
-    const interval = setInterval(fetchLiveDasborData, 60000);
 
-    // Supabase Realtime Subscription untuk update instant saat presensi di-absen
+    // Supabase Realtime Subscription untuk update instant saat presensi di-absen (bebas polling beban)
     const channel = supabase
       .channel('live_dasbor_realtime')
       .on(
@@ -112,7 +111,6 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       .subscribe();
 
     return () => {
-      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, []);

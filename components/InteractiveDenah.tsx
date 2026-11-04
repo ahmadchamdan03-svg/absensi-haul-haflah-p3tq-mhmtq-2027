@@ -101,20 +101,72 @@ export default function InteractiveDenah({
     });
   }, []);
 
+  // Window-level mouse move and mouse up listeners while dragging
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const onWindowMouseMove = (e: MouseEvent) => {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    };
+
+    const onWindowMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    window.addEventListener('mousemove', onWindowMouseMove);
+    window.addEventListener('mouseup', onWindowMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onWindowMouseMove);
+      window.removeEventListener('mouseup', onWindowMouseUp);
+    };
+  }, [isDragging, dragStart]);
+
+  // Window-level touch move & touch end listeners
+  useEffect(() => {
+    if (!isDragging && touchStartDistRef.current === null) return;
+
+    const onWindowTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1 && isDragging) {
+        setPosition({
+          x: e.touches[0].clientX - dragStart.x,
+          y: e.touches[0].clientY - dragStart.y,
+        });
+      } else if (e.touches.length === 2 && touchStartDistRef.current !== null) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDist = Math.hypot(dx, dy);
+        const ratio = currentDist / touchStartDistRef.current;
+        const newScale = Math.min(3.0, Math.max(0.5, touchStartScaleRef.current * ratio));
+        setScale(Number(newScale.toFixed(2)));
+      }
+    };
+
+    const onWindowTouchEnd = () => {
+      setIsDragging(false);
+      touchStartDistRef.current = null;
+    };
+
+    window.addEventListener('touchmove', onWindowTouchMove, { passive: true });
+    window.addEventListener('touchend', onWindowTouchEnd);
+    window.addEventListener('touchcancel', onWindowTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', onWindowTouchMove);
+      window.removeEventListener('touchend', onWindowTouchEnd);
+      window.removeEventListener('touchcancel', onWindowTouchEnd);
+    };
+  }, [isDragging, dragStart]);
+
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only drag with primary mouse button
     if (e.button !== 0) return;
     setIsDragging(true);
     setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPosition({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    });
   };
 
   const handleMouseUp = () => {
@@ -134,22 +186,6 @@ export default function InteractiveDenah({
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       touchStartDistRef.current = Math.hypot(dx, dy);
       touchStartScaleRef.current = scale;
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1 && isDragging) {
-      setPosition({
-        x: e.touches[0].clientX - dragStart.x,
-        y: e.touches[0].clientY - dragStart.y,
-      });
-    } else if (e.touches.length === 2 && touchStartDistRef.current !== null) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const currentDist = Math.hypot(dx, dy);
-      const ratio = currentDist / touchStartDistRef.current;
-      const newScale = Math.min(3.0, Math.max(0.5, touchStartScaleRef.current * ratio));
-      setScale(Number(newScale.toFixed(2)));
     }
   };
 
@@ -188,9 +224,9 @@ export default function InteractiveDenah({
   const jalurFiltered = filterZones(DENAH_HAFLAH_2027.jalurAkses);
 
   return (
-    <div className={`flex flex-col bg-white rounded-3xl border-2 border-[#D5C4B4] overflow-hidden shadow-md select-none ${className}`}>
+    <div className={`flex flex-col bg-transparent rounded-3xl overflow-hidden select-none ${className}`}>
       {/* HEADER RINGKAS & KONTROL UTAMA */}
-      <div className="bg-[#FAF7F3] px-4 py-3 border-b border-[#D5C4B4] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white/40 backdrop-blur-md px-4 py-3 border-b border-white/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-2.5">
           <div className="w-9 h-9 rounded-2xl bg-[#8C6A47] text-white flex items-center justify-center font-bold shadow-xs shrink-0">
             <MapPin className="w-5 h-5" />
@@ -207,11 +243,11 @@ export default function InteractiveDenah({
 
         {/* AKSI: ZOOM, UNDUH, BUKA TAB BARU */}
         <div className="flex items-center gap-1.5 self-end sm:self-auto flex-wrap">
-          <div className="flex items-center space-x-1 bg-white p-1 rounded-xl border border-[#D5C4B4] shadow-2xs">
+          <div className="flex items-center space-x-1 bg-white/60 backdrop-blur-xs p-1 rounded-xl border border-white/70 shadow-2xs">
             <button
               type="button"
               onClick={handleZoomIn}
-              className="p-1.5 rounded-lg text-[#8C6A47] hover:bg-[#EFE8E1] transition-colors"
+              className="p-1.5 rounded-lg text-[#8C6A47] hover:bg-white/80 transition-colors cursor-pointer"
               title="Perbesar Denah (+)"
             >
               <ZoomIn className="w-4 h-4" />
@@ -219,7 +255,7 @@ export default function InteractiveDenah({
             <button
               type="button"
               onClick={handleZoomOut}
-              className="p-1.5 rounded-lg text-[#8C6A47] hover:bg-[#EFE8E1] transition-colors"
+              className="p-1.5 rounded-lg text-[#8C6A47] hover:bg-white/80 transition-colors cursor-pointer"
               title="Perkecil Denah (-)"
             >
               <ZoomOut className="w-4 h-4" />
@@ -227,7 +263,7 @@ export default function InteractiveDenah({
             <button
               type="button"
               onClick={handleReset}
-              className="p-1.5 rounded-lg text-[#8C6A47] hover:bg-[#EFE8E1] transition-colors"
+              className="p-1.5 rounded-lg text-[#8C6A47] hover:bg-white/80 transition-colors cursor-pointer"
               title="Reset Posisi & Zoom"
             >
               <RotateCcw className="w-4 h-4" />
@@ -238,7 +274,7 @@ export default function InteractiveDenah({
             href={DENAH_HAFLAH_2027.gambarUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-white border border-[#D5C4B4] text-[11px] font-bold text-[#422F21] hover:bg-[#EFE8E1] transition-colors shadow-2xs"
+            className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-white/60 backdrop-blur-xs border border-white/70 text-[11px] font-bold text-[#422F21] hover:bg-white/85 transition-colors shadow-2xs"
             title="Buka Denah Resolusi Tinggi di Tab Baru"
           >
             <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
@@ -262,13 +298,9 @@ export default function InteractiveDenah({
         ref={containerRef}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
         onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className={`relative flex-1 min-h-[380px] sm:min-h-[480px] md:min-h-[540px] bg-stone-900 overflow-hidden flex items-center justify-center p-4 touch-none ${
+        style={{ touchAction: 'none' }}
+        className={`relative flex-1 min-h-[380px] sm:min-h-[460px] md:min-h-[500px] bg-stone-900/95 overflow-hidden flex items-center justify-center p-4 ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
@@ -339,7 +371,7 @@ export default function InteractiveDenah({
       </div>
 
       {/* DIREKTORI & PENJELASAN ZONA LOKASI (INTERAKTIF & CLICKABLE) */}
-      <div className="bg-[#FAF7F3] border-t border-[#D5C4B4] p-4 space-y-3">
+      <div className="bg-white/40 backdrop-blur-md border-t border-white/50 p-4 space-y-3">
         {/* SEARCH & FILTER TAB */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           <div className="relative flex-1">
@@ -349,15 +381,15 @@ export default function InteractiveDenah({
               placeholder="Cari lokasi (contoh: VVIP, Prasmanan, MCK, Parkir)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white rounded-xl border border-[#D5C4B4] focus:outline-none focus:ring-2 focus:ring-[#8C6A47] text-[#422F21]"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white/60 backdrop-blur-xs rounded-xl border border-white/70 focus:outline-none focus:ring-2 focus:ring-[#8C6A47] text-[#422F21] placeholder-[#7A624E]/70"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-[#EFE8E1] p-1 rounded-xl self-start sm:self-auto shrink-0">
+          <div className="flex items-center gap-1 bg-white/50 backdrop-blur-xs p-1 rounded-xl border border-white/60 self-start sm:self-auto shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab('semua')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                 activeTab === 'semua' ? 'bg-[#8C6A47] text-white shadow-2xs' : 'text-[#7A624E] hover:text-[#422F21]'
               }`}
             >
@@ -366,7 +398,7 @@ export default function InteractiveDenah({
             <button
               type="button"
               onClick={() => setActiveTab('dalam')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                 activeTab === 'dalam' ? 'bg-[#8C6A47] text-white shadow-2xs' : 'text-[#7A624E] hover:text-[#422F21]'
               }`}
             >
@@ -375,7 +407,7 @@ export default function InteractiveDenah({
             <button
               type="button"
               onClick={() => setActiveTab('luar')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                 activeTab === 'luar' ? 'bg-[#8C6A47] text-white shadow-2xs' : 'text-[#7A624E] hover:text-[#422F21]'
               }`}
             >
@@ -384,7 +416,7 @@ export default function InteractiveDenah({
             <button
               type="button"
               onClick={() => setActiveTab('jalur')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                 activeTab === 'jalur' ? 'bg-[#8C6A47] text-white shadow-2xs' : 'text-[#7A624E] hover:text-[#422F21]'
               }`}
             >
@@ -412,8 +444,8 @@ export default function InteractiveDenah({
                   }}
                   className={`p-2.5 rounded-xl border transition-all shadow-2xs cursor-pointer ${
                     isSelected
-                      ? 'bg-gradient-to-br from-amber-50 to-[#FAF0E0] border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
-                      : 'bg-white border-[#EFE8E1] hover:border-[#8C6A47] hover:bg-[#FAF7F3]'
+                      ? 'bg-amber-100/90 border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
+                      : 'bg-white/60 backdrop-blur-xs border-white/70 hover:border-[#8C6A47] hover:bg-white/85'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1.5">
@@ -424,7 +456,7 @@ export default function InteractiveDenah({
                       className={`text-[9px] px-1.5 py-0.5 rounded font-semibold border shrink-0 ${
                         isSelected
                           ? 'bg-[#8C6A47] text-white border-[#725436]'
-                          : 'bg-[#FAF7F3] text-[#8C6A47] border-[#D5C4B4]'
+                          : 'bg-white/60 text-[#8C6A47] border-white/80'
                       }`}
                     >
                       {isSelected ? 'Fokus' : 'Dalam'}
@@ -453,8 +485,8 @@ export default function InteractiveDenah({
                   }}
                   className={`p-2.5 rounded-xl border transition-all shadow-2xs cursor-pointer ${
                     isSelected
-                      ? 'bg-gradient-to-br from-amber-50 to-[#FAF0E0] border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
-                      : 'bg-white border-[#EFE8E1] hover:border-[#8C6A47] hover:bg-[#FAF7F3]'
+                      ? 'bg-amber-100/90 border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
+                      : 'bg-white/60 backdrop-blur-xs border-white/70 hover:border-[#8C6A47] hover:bg-white/85'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1.5">
@@ -465,7 +497,7 @@ export default function InteractiveDenah({
                       className={`text-[9px] px-1.5 py-0.5 rounded font-semibold border shrink-0 ${
                         isSelected
                           ? 'bg-[#8C6A47] text-white border-[#725436]'
-                          : 'bg-[#FAF7F3] text-[#422F21] border-[#D5C4B4]'
+                          : 'bg-white/60 text-[#422F21] border-white/80'
                       }`}
                     >
                       {isSelected ? 'Fokus' : 'Luar / MCK'}
@@ -494,8 +526,8 @@ export default function InteractiveDenah({
                   }}
                   className={`p-2.5 rounded-xl border transition-all shadow-2xs cursor-pointer ${
                     isSelected
-                      ? 'bg-gradient-to-br from-amber-50 to-[#FAF0E0] border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
-                      : 'bg-white border-[#EFE8E1] hover:border-emerald-500 hover:bg-emerald-50/30'
+                      ? 'bg-amber-100/90 border-2 border-[#B8860B] ring-2 ring-amber-400/50 shadow-md scale-[1.01]'
+                      : 'bg-white/60 backdrop-blur-xs border-white/70 hover:border-emerald-500 hover:bg-emerald-50/40'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1.5">

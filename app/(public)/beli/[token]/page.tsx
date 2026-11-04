@@ -439,8 +439,8 @@ export default function BeliKuotaPage() {
   // ---------------------------------------------------------------------------
   if (loadingSantri || loadingControl || loadingOrders) {
     return (
-      <div className="min-h-screen bg-[#FAF7F3] text-[#422F21] flex flex-col items-center justify-center p-6">
-        <div className="bg-white rounded-3xl p-8 border-2 border-[#D5C4B4] shadow-xl text-center space-y-4 max-w-sm w-full">
+      <div className="min-h-screen bg-transparent text-[#422F21] flex flex-col items-center justify-center p-6">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/70 shadow-xl text-center space-y-4 max-w-sm w-full">
           <Loader2 className="w-10 h-10 animate-spin text-[#8C6A47] mx-auto" />
           <p className="font-serif font-bold text-sm text-[#422F21]">
             Memuat Data Pembelian Kuota...
@@ -452,9 +452,9 @@ export default function BeliKuotaPage() {
 
   if (!santri) {
     return (
-      <div className="min-h-screen bg-[#FAF7F3] text-[#422F21] flex flex-col items-center justify-center p-4 sm:p-6">
-        <div className="bg-white rounded-3xl p-8 border-2 border-rose-300 shadow-xl text-center space-y-5 max-w-md w-full">
-          <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto">
+      <div className="min-h-screen bg-transparent text-[#422F21] flex flex-col items-center justify-center p-4 sm:p-6">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-rose-300/80 shadow-xl text-center space-y-5 max-w-md w-full">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50/80 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto">
             <AlertCircle className="w-7 h-7" />
           </div>
           <div className="space-y-1">
