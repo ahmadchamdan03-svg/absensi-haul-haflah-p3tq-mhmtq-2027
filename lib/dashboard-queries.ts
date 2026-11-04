@@ -22,9 +22,18 @@ export interface DashboardMetricsResult {
  */
 export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
   const [resSantri, resUndangan, resLogs] = await Promise.all([
-    supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
-    supabase.from('tamu_undangan').select('*').order('created_at', { ascending: false }),
-    supabase.from('presensi_log').select('*').order('created_at', { ascending: false }),
+    supabase
+      .from('peserta_santri')
+      .select('id, kode, nama, nama_wali, kategori_utama, sub_kategori, kelas, kamar, no_hp, alamat, kuota_dasar, kuota_tambahan, kuota_terpakai, created_at, updated_at')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('tamu_undangan')
+      .select('id, kode, nama, nama_putra, nama_putri, instansi, alamat, kategori, sub_kategori, no_hp, kuota_terpakai, created_at, updated_at')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('presensi_log')
+      .select('id, kode_qr, tipe_peserta, jumlah_l, jumlah_p, created_at')
+      .order('created_at', { ascending: false }),
   ]);
 
   const santriData = resSantri.data || [];
@@ -42,8 +51,8 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
       if (!latestCheckinMap[key] && logTime) {
         latestCheckinMap[key] = logTime;
       }
-      const l = Number(log.jumlah_l || log.jumlahL || 0);
-      const p = Number(log.jumlah_p || log.jumlahP || 0);
+      const l = Number(log.jumlah_l || (log as any).jumlahL || 0);
+      const p = Number(log.jumlah_p || (log as any).jumlahP || 0);
       sumLogMap[key] = (sumLogMap[key] || 0) + l + p;
       loggedKeys.add(key);
     }
@@ -70,8 +79,8 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
   for (const log of logsData) {
     const tipe = (log.tipe_peserta || '').toUpperCase();
     const qr = (log.kode_qr || '').toUpperCase();
-    const l = Number(log.jumlah_l || log.jumlahL || 0);
-    const p = Number(log.jumlah_p || log.jumlahP || 0);
+    const l = Number(log.jumlah_l || (log as any).jumlahL || 0);
+    const p = Number(log.jumlah_p || (log as any).jumlahP || 0);
 
     if (tipe === 'SANTRI' || tipe === 'WALI' || qr.startsWith('SH')) {
       wsL += l;
@@ -97,8 +106,8 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     for (const u of undanganData) {
       if ((u.kuota_terpakai || 0) > 0) {
         const terpakai = Number(u.kuota_terpakai);
-        const pStr = (u.nama_putra || u.namaPutra || '').trim();
-        const wStr = (u.nama_putri || u.namaPutri || '').trim();
+        const pStr = (u.nama_putra || (u as any).namaPutra || '').trim();
+        const wStr = (u.nama_putri || (u as any).namaPutri || '').trim();
         if (pStr && wStr) {
           tamuL += Math.ceil(terpakai / 2);
           tamuP += Math.floor(terpakai / 2);
