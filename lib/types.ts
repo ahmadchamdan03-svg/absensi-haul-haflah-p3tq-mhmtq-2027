@@ -6,6 +6,17 @@ export type KategoriKode = 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN';
 
 export const BAGIAN_TAMATAN_LIST = ['A.01', 'A.02', 'A.03', 'A.04', 'B.01', 'B.02', 'B.03'] as const;
 
+export const KELAS_BIN_NADZOR_LIST = [
+  '2 Tsanawiyah',
+  '3 Tsanawiyah',
+  '1 Aliyah',
+  '2 Aliyah',
+  '3 Aliyah',
+  'Mutakhorijat',
+] as const;
+
+export type KelasBinNadzor = (typeof KELAS_BIN_NADZOR_LIST)[number];
+
 export function extractBagianTamatan(text?: string): string {
   if (!text) return '';
   const match = text.match(/[AB]\.0[1-4]/i);

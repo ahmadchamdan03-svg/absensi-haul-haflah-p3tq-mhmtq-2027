@@ -1,12 +1,16 @@
 'use client';
 
 import React from 'react';
+import { KELAS_BIN_NADZOR_LIST } from '@/lib/types';
 
 interface SantriBiodataProps {
   nama: string;
   onNamaChange: (val: string) => void;
   kamar: string;
   onKamarChange: (val: string) => void;
+  kelas?: string;
+  onKelasChange?: (val: string) => void;
+  kategoriUtama?: 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN';
   namaWali: string;
   onNamaWaliChange: (val: string) => void;
   noHp: string;
@@ -20,6 +24,9 @@ export default function SantriBiodataTab({
   onNamaChange,
   kamar,
   onKamarChange,
+  kelas = '2 Tsanawiyah',
+  onKelasChange,
+  kategoriUtama,
   namaWali,
   onNamaWaliChange,
   noHp,
@@ -55,6 +62,26 @@ export default function SantriBiodataTab({
           className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
         />
       </div>
+
+      {/* Field Kelas: Khusus Kategori BIN_NADZOR tepat di bawah Kamar Pondok */}
+      {kategoriUtama === 'BIN_NADZOR' && (
+        <div className="animate-in fade-in">
+          <label className="block font-bold text-slate-700 mb-1">
+            Kelas *
+          </label>
+          <select
+            value={kelas || '2 Tsanawiyah'}
+            onChange={(e) => onKelasChange?.(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800"
+          >
+            {KELAS_BIN_NADZOR_LIST.map((kls) => (
+              <option key={kls} value={kls}>
+                {kls}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Nama Wali & No WhatsApp */}
       <div className="grid grid-cols-2 gap-3">

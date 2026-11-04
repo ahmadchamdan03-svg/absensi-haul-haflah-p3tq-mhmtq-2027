@@ -39,6 +39,7 @@ export function useSantriForm({
     nama: '',
     kategoriUtama: 'BIL_GHOIB' as 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN',
     bagianTamatan: 'A.01',
+    kelas: '2 Tsanawiyah',
     kamar: '',
     namaWali: '',
     noHp: '',
@@ -175,6 +176,10 @@ export function useSantriForm({
           updated_at: new Date().toISOString(),
         };
 
+        if (formData.kategoriUtama === 'BIN_NADZOR' && formData.kelas) {
+          updatePayload.kelas = formData.kelas;
+        }
+
         if (formData.noHp.trim()) {
           updatePayload.no_hp = formData.noHp.trim();
         }
@@ -228,6 +233,7 @@ export function useSantriForm({
           nama: '',
           kategoriUtama: 'BIL_GHOIB',
           bagianTamatan: 'A.01',
+          kelas: '2 Tsanawiyah',
           kamar: '',
           namaWali: '',
           noHp: '',
@@ -243,13 +249,18 @@ export function useSantriForm({
       let kodeBaru = generateRandomKode('SH');
       kodeBaru = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase);
 
+      const resolvedKelas =
+        formData.kategoriUtama === 'BIN_NADZOR'
+          ? (formData.kelas || '2 Tsanawiyah')
+          : (formData.kategoriUtama || '-');
+
       const { data, error } = await supabase.from('peserta_santri').insert([
         {
           kode: kodeBaru,
           nama: cleanNama,
           kategori_utama: formData.kategoriUtama || 'BIL_GHOIB',
           sub_kategori: incomingSubKat,
-          kelas: formData.kategoriUtama || '-',
+          kelas: resolvedKelas,
           kamar: formData.kamar.trim() || '-',
           nama_wali: cleanWali || '-',
           no_hp: formData.noHp.trim() || '-',
@@ -280,7 +291,7 @@ export function useSantriForm({
             nis: kodeBaru,
             nama: cleanNama,
             kamar: formData.kamar.trim() || '-',
-            kelas: formData.kategoriUtama || '-',
+            kelas: resolvedKelas,
             kategoriUtama: formData.kategoriUtama || 'BIL_GHOIB',
             subKategori: incomingSubKat,
             bagianTamatan: incomingSubKat,
@@ -301,6 +312,7 @@ export function useSantriForm({
         nama: cleanNama,
         kategoriUtama: formData.kategoriUtama,
         bagianTamatan: formData.kategoriUtama === 'TAMATAN' ? formData.bagianTamatan : undefined,
+        kelas: formData.kategoriUtama === 'BIN_NADZOR' ? resolvedKelas : undefined,
         kamar: formData.kamar.trim(),
         namaWali: formData.namaWali.trim().toUpperCase(),
         noHp: formData.noHp.trim(),
@@ -330,6 +342,7 @@ export function useSantriForm({
         nama: '',
         kategoriUtama: 'BIL_GHOIB',
         bagianTamatan: 'A.01',
+        kelas: '2 Tsanawiyah',
         kamar: '',
         namaWali: '',
         noHp: '',
@@ -363,6 +376,9 @@ export function useSantriForm({
       } else if (editingItem.kategoriUtama === 'TAMATAN') {
         subKat = `Tamatan (${editingItem.bagianTamatan || 'A.01'})`;
         kls = `3 ALY ${editingItem.bagianTamatan || 'A.01'}`;
+      } else if (editingItem.kategoriUtama === 'BIN_NADZOR') {
+        subKat = 'Bin Nadzori';
+        kls = editingItem.kelas || '2 Tsanawiyah';
       } else {
         subKat = 'Bin Nadzori';
         kls = 'Bin Nadzori';

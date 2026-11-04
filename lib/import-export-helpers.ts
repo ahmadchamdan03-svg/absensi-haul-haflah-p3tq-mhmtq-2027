@@ -60,6 +60,15 @@ export const downloadTemplateSantriExcel = async (
         { header: 'ALAMAT / ASAL KOTA', key: 'alamat', width: 28 },
         { header: 'BAGIAN TAMATAN', key: 'bagian_tamatan', width: 22 },
       ];
+    } else if (filterKat === 'BIN_NADZOR') {
+      ws.columns = [
+        { header: 'NAMA LENGKAP SANTRIWATI', key: 'nama_santri', width: 34 },
+        { header: 'KAMAR PONDOK', key: 'kamar', width: 22 },
+        { header: 'KELAS', key: 'kelas', width: 22 },
+        { header: 'NAMA WALI SANTRI', key: 'nama_wali', width: 28 },
+        { header: 'NO WHATSAPP WALI', key: 'no_hp', width: 22 },
+        { header: 'ALAMAT / ASAL KOTA', key: 'alamat', width: 28 },
+      ];
     } else {
       ws.columns = [
         { header: 'NAMA LENGKAP SANTRIWATI', key: 'nama_santri', width: 34 },
@@ -98,6 +107,18 @@ export const downloadTemplateSantriExcel = async (
           showErrorMessage: true,
           errorTitle: 'Pilihan Tidak Valid',
           error: 'Silakan pilih bagian tamatan dari daftar opsi (A.01 s/d B.03).',
+        };
+      }
+    } else if (filterKat === 'BIN_NADZOR') {
+      const binNadzorOptions = '"2 Tsanawiyah,3 Tsanawiyah,1 Aliyah,2 Aliyah,3 Aliyah,Mutakhorijat"';
+      for (let r = 2; r <= 500; r++) {
+        ws.getCell(`C${r}`).dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: [binNadzorOptions],
+          showErrorMessage: true,
+          errorTitle: 'Pilihan Tidak Valid',
+          error: 'Silakan pilih kelas dari daftar opsi (2 Tsanawiyah, 3 Tsanawiyah, 1 Aliyah, 2 Aliyah, 3 Aliyah, Mutakhorijat).',
         };
       }
     }
@@ -331,7 +352,7 @@ export async function executeBatchImportToSupabase({
   if (activeTab === 'SANTRI') {
     const { data: existingSantriData } = await supabase
       .from('peserta_santri')
-      .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat');
+      .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas');
 
     if (existingSantriData) {
       existingSantriList.push(...existingSantriData);
@@ -362,6 +383,7 @@ export async function executeBatchImportToSupabase({
         'nama'
       );
       const kamar = getVal('KAMAR PONDOK', 'KAMAR', 'kamar_pondok', 'kamar') || null;
+      const kelas = getVal('KELAS', 'TINGKAT', 'kelas', 'tingkat') || null;
       const namaWali = getVal('NAMA WALI SANTRI', 'NAMA WALI', 'WALI', 'nama_wali') || null;
       const noHp = getVal('NO WHATSAPP WALI', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
       const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'ASAL KOTA', 'alamat') || null;
@@ -431,6 +453,9 @@ export async function executeBatchImportToSupabase({
         ) {
           updatePayload.alamat = alamat;
         }
+        if (incomingKategoriUtama === 'BIN_NADZOR' && kelas) {
+          updatePayload.kelas = kelas;
+        }
 
         try {
           const { error: updateError } = await supabase
@@ -475,12 +500,17 @@ export async function executeBatchImportToSupabase({
       const warnaTiket = getWarnaTiketSantri(kategoriUtama, subKategori);
       const kuotaDasar = calculateKuotaDasarSantri(kategoriUtama, subKategori);
 
+      const resolvedKelas =
+        incomingKategoriUtama === 'BIN_NADZOR'
+          ? (kelas || 'Belum Diisi')
+          : (incomingKategoriUtama === 'TAMATAN' ? `3 ALY ${bagianTamatan || 'A.01'}` : incomingKategoriUtama);
+
       try {
         const payload = {
           kode,
           nama: cleanNamaSantri,
           nama_wali: namaWali,
-          kelas: kategoriUtama,
+          kelas: resolvedKelas,
           kamar,
           alamat,
           no_hp: noHp,
@@ -497,7 +527,7 @@ export async function executeBatchImportToSupabase({
         const { data: insertedData, error } = await supabase
           .from('peserta_santri')
           .insert([payload])
-          .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat');
+          .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas');
 
         if (error) throw error;
         successCount++;

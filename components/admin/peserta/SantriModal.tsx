@@ -3,6 +3,7 @@
 import React from 'react';
 import { Plus, Edit, X, History, Loader2 } from 'lucide-react';
 import { useSantriForm } from '@/lib/hooks/useSantriForm';
+import { KELAS_BIN_NADZOR_LIST } from '@/lib/types';
 import SantriBiodataTab from './modal/SantriBiodataTab';
 import SantriKuotaTab from './modal/SantriKuotaTab';
 import SantriAuditHistoryTab from './modal/SantriAuditHistoryTab';
@@ -89,6 +90,9 @@ export default function SantriModal({
                 onNamaChange={(val) => setFormData({ ...formData, nama: val })}
                 kamar={formData.kamar}
                 onKamarChange={(val) => setFormData({ ...formData, kamar: val })}
+                kelas={formData.kelas}
+                onKelasChange={(val) => setFormData({ ...formData, kelas: val })}
+                kategoriUtama={formData.kategoriUtama}
                 namaWali={formData.namaWali}
                 onNamaWaliChange={(val) => setFormData({ ...formData, namaWali: val })}
                 noHp={formData.noHp}
@@ -222,6 +226,23 @@ export default function SantriModal({
                     />
                   </div>
                 </div>
+
+                {editingItem.kategoriUtama === 'BIN_NADZOR' && (
+                  <div className="animate-in fade-in">
+                    <label className="block font-bold text-slate-700 mb-1">Kelas *</label>
+                    <select
+                      value={editingItem.kelas || '2 Tsanawiyah'}
+                      onChange={(e) => setEditingItem({ ...editingItem, kelas: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800"
+                    >
+                      {KELAS_BIN_NADZOR_LIST.map((kls) => (
+                        <option key={kls} value={kls}>
+                          {kls}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
