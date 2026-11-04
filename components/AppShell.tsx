@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import TopHeader from '@/components/TopHeader';
-import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import { getActiveRole, AppRole } from '@/lib/auth-roles';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -63,9 +62,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
 
   return (
-    <div className="flex h-screen overflow-hidden bg-transparent relative z-0">
-      {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG) */}
-      <CanvasRevealMask />
+    <div className="flex h-screen overflow-hidden relative z-0 bg-[url('/images/panggung-aula.jpg')] bg-cover bg-center bg-fixed bg-no-repeat">
+      {/* Background Overlay Lembut Kaca */}
+      <div className="absolute inset-0 bg-[#FAF7F3]/85 backdrop-blur-sm -z-10 pointer-events-none" aria-hidden="true" />
 
       {/* Sidebar Navigasi Samping (Disembunyikan total HANYA untuk role PENERIMA_TAMU; ADMIN tetap ada sidebar) */}
       {!isRolePenerimaTamu && (
