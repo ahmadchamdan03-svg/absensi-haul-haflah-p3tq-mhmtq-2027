@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from 'react';
 
 // Konstanta parameter organic reveal mask (adaptasi presisi dari teknik Xiaomi MiMo)
-const MASK_RGB = '234, 219, 200'; // #E0F2FE (krem lebih pekat khas Haflah)
 const R_START = 8; // Titik awal sapuan kursor
 const R_END = 120; // Radius singkap ~120px sesuai instruksi User
 const R_VARY = 0.45; // Variasi acak ukuran per-titik sapuan (efek kuas organik)
@@ -33,13 +32,11 @@ export default function CanvasRevealMask() {
     let h = 0;
     let dpr = 1;
 
+    // Lapisan tirai transparan tipis (warna gelap dengan opacity rendah ~0.18-0.20)
+    // Tanpa filter blur, sehingga gambar panggung di bawahnya 100% tajam & pop
     function drawBaseFill() {
       if (!ctx) return;
-      const g = ctx.createRadialGradient(w * 0.5, h * 0.45, 60, w * 0.5, h * 0.45, Math.max(w, h) * 0.85);
-      g.addColorStop(0, `rgba(${MASK_RGB}, 0.88)`);
-      g.addColorStop(0.65, `rgba(${MASK_RGB}, 0.92)`);
-      g.addColorStop(1, `rgba(${MASK_RGB}, 0.96)`);
-      ctx.fillStyle = g;
+      ctx.fillStyle = 'rgba(15, 28, 63, 0.20)';
       ctx.fillRect(0, 0, w, h);
     }
 
@@ -86,7 +83,6 @@ export default function CanvasRevealMask() {
         const dx = x - lastX;
         const dy = y - lastY;
         const dist = Math.hypot(dx, dy);
-        // Cegah interpolasi berlebih jika kursor berpindah/teleport secara mendadak (> 150px)
         if (dist > 150) {
           addStamp(x, y);
         } else {
@@ -100,12 +96,12 @@ export default function CanvasRevealMask() {
       lastY = y;
     }
 
-    // Carve organic harmonic hole (lekukan riak air harmonik dengan fungsi Math.sin)
+    // Carve organic harmonic hole (lekukan riak air harmonik murni tanpa blur)
     function carveInk(x: number, y: number, r: number, alpha: number, seed: number) {
       if (!ctx) return;
       const g = ctx.createRadialGradient(x, y, r * 0.25, x, y, r);
-      g.addColorStop(0, `rgba(0, 0, 0, ${0.95 * alpha})`);
-      g.addColorStop(0.55, `rgba(0, 0, 0, ${0.88 * alpha})`);
+      g.addColorStop(0, `rgba(0, 0, 0, ${1.0 * alpha})`);
+      g.addColorStop(0.6, `rgba(0, 0, 0, ${0.85 * alpha})`);
       g.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
       ctx.fillStyle = g;
@@ -114,10 +110,9 @@ export default function CanvasRevealMask() {
       for (let i = 0; i <= segs; i++) {
         const a = (i / segs) * Math.PI * 2;
         const wob =
-          0.78 +
-          0.14 * Math.sin(a * 3 + seed) +
-          0.08 * Math.sin(a * 7 + seed * 2.1) +
-          0.05 * Math.sin(a * 13 + seed * 0.7);
+          0.85 +
+          0.10 * Math.sin(a * 3 + seed) +
+          0.05 * Math.sin(a * 7 + seed * 2.1);
         const rr = r * wob;
         const px = x + Math.cos(a) * rr;
         const py = y + Math.sin(a) * rr;
@@ -132,8 +127,9 @@ export default function CanvasRevealMask() {
       if (!ctx) return;
       const now = performance.now();
 
-      // Lapisi ulang seluruh kanvas dengan gradien halus krem
+      // Lapisi ulang seluruh kanvas dengan tirai tipis transparan
       ctx.globalCompositeOperation = 'source-over';
+      ctx.clearRect(0, 0, w, h);
       drawBaseFill();
 
       // Kikis kanvas pada setiap titik riak air menggunakan destination-out
@@ -144,9 +140,9 @@ export default function CanvasRevealMask() {
           stamps.splice(i, 1);
           continue;
         }
-        const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic untuk ekspansi lembut
+        const ease = 1 - Math.pow(1 - t, 3);
         const r = R_START + (stamps[i].rmax - R_START) * ease;
-        const alpha = 1 - t * t; // Pemudaran kuadratik hingga menutup kembali
+        const alpha = 1 - t * t;
         carveInk(stamps[i].x, stamps[i].y, r, alpha, stamps[i].seed);
       }
 
@@ -207,8 +203,7 @@ export default function CanvasRevealMask() {
       {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar (Tajam & Bebas Blur) */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <div
-          className="relative shrink-0 overflow-hidden"
-          style={{ width: 'max(100vw, 177.78vh)', height: 'max(56.25vw, 100vh)' }}
+          className="relative shrink-0 overflow-hidden w-full h-full"
         >
           <img
             src="/images/panggung-aula.jpg"
@@ -217,7 +212,13 @@ export default function CanvasRevealMask() {
           />
 
           {/* Overlay kontras sangat tipis agar foto panggung tetap tajam tanpa buram */}
-          <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+
+          {/* 2. Interactive Canvas Reveal Mask Overlay (Riak air interaktif menyibak tirai) */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+          />
         </div>
       </div>
     </div>
