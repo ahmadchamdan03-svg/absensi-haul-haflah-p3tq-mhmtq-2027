@@ -129,6 +129,10 @@ async function callOpenAiCompatible(params: {
  * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
  */
+export function isDocumentFileIntent(prompt: string): boolean {
+  return /\b(pdf|excel|xlsx|xls|word|docx|doc|csv|file|berkas|dokumen|unduh|download|ekspor)\b/i.test(prompt);
+}
+
 export interface AskAiOptions {
   model?: string;
   timeout?: number;

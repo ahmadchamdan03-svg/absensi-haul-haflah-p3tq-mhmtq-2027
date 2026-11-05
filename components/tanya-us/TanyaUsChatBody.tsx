@@ -219,7 +219,7 @@ export function TanyaUsMessageList({
                   {isUser ? (
                     <>
                       <User className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                      <span className="text-[#5C3D26] font-black">Anda (Panitia / Tamu)</span>
+                      <span className="text-[#5C3D26] font-black">Orang Baik</span>
                     </>
                   ) : (
                     <>
@@ -352,9 +352,9 @@ export function TanyaUsMessageList({
 
           <div className="p-3.5 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/50 text-xs text-[#0F2C59] flex items-center space-x-2.5 shadow-sm">
             <div className="flex space-x-1">
-              <div className="w-2 h-2 rounded-full bg-[#1D4ED8] animate-bounce" />
-              <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-bounce [animation-delay:0.2s]" />
-              <div className="w-2 h-2 rounded-full bg-[#D49B5B] animate-bounce [animation-delay:0.4s]" />
+              <div className="w-2 h-2 rounded-full bg-[#0F2C59] animate-bounce" />
+              <div className="w-2 h-2 rounded-full bg-[#0F2C59] animate-bounce [animation-delay:0.2s]" />
+              <div className="w-2 h-2 rounded-full bg-[#0F2C59] animate-bounce [animation-delay:0.4s]" />
             </div>
             <span className="font-medium italic text-[11px]">
               Usth. Halwaa sedang menyusun jawaban terbaik...
