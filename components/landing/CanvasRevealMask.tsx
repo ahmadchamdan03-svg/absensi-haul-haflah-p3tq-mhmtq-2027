@@ -204,7 +204,7 @@ export default function CanvasRevealMask() {
       className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar (Baru) & Overlay Logo */}
+      {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar (Tajam & Bebas Blur) */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <div
           className="relative shrink-0 overflow-hidden"
@@ -213,32 +213,13 @@ export default function CanvasRevealMask() {
           <img
             src="/images/panggung-aula.jpg"
             alt="Panggung Aula Al-Muktamar"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
 
-          {/* Overlay Logo P3TQ (Kiri) & MHMTQ (Kanan) Tajam (Menimpa logo blur di pilar panggung) */}
-          <img
-            src="/images/logo-p3tq-overlay.png"
-            alt="Logo P3TQ"
-            className="absolute left-[28.35%] top-[40.50%] -translate-x-1/2 -translate-y-1/2 w-[3.70%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] pointer-events-none"
-          />
-          <img
-            src="/images/logo-mhmtq-overlay.png"
-            alt="Logo MHMTQ"
-            className="absolute left-[71.52%] top-[40.50%] -translate-x-1/2 -translate-y-1/2 w-[3.70%] object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] pointer-events-none"
-          />
+          {/* Overlay kontras sangat tipis agar foto panggung tetap tajam tanpa buram */}
+          <div className="absolute inset-0 bg-black/10 pointer-events-none" />
         </div>
       </div>
-
-      {/* Layer Ambient Light Orbs di atas foto panggung untuk kedalaman kaca */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D49B5B]/25 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-[#1D4ED8]/20 rounded-full blur-3xl pointer-events-none" />
-
-      {/* 2. Layer Canvas 2D Organic Reveal Mask (#F0F9FF) */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full block pointer-events-none"
-      />
     </div>
   );
 }
