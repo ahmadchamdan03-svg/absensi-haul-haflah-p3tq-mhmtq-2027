@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 
 // Konstanta parameter organic reveal mask persis seperti mekanisme Xiaomi MiMo Code
-const MASK_COLOR = '#FAF7F3'; // Tirai warna krem solid penutup gambar panggung
+const MASK_COLOR = '#0F2C59'; // Tirai warna Deep Navy solid penutup gambar panggung
 const R_START = 8; // Setiap riak lahir kecil (radius 8px)
 const R_END = 128; // Radius maksimal singkap (~128px)
 const R_VARY = 0.45; // Variasi acak ukuran per titik sapuan (efek kuas organik)
@@ -33,7 +33,7 @@ export default function CanvasRevealMask() {
     let h = 0;
     let dpr = 1;
 
-    // 1. Mengisi seluruh kanvas dengan tirai krem solid (#FAF7F3)
+    // 1. Mengisi seluruh kanvas dengan tirai Deep Navy solid (#0F2C59)
     function drawBaseFill() {
       if (!ctx) return;
       ctx.fillStyle = MASK_COLOR;
