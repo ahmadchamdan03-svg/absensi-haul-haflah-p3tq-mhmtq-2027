@@ -48,9 +48,9 @@ import {
 } from '@/lib/halwaa/live-context';
 import { searchPersonInSupabase } from '@/lib/halwaa/search-person';
 
-// 3-Tier failover worst-case: 3 × 15 dtk = 45 dtk (+ query Supabase).
-// Beri ruang 60 dtk agar fungsi Vercel tidak diputus sebelum fallback selesai.
-export const maxDuration = 90;
+// 3-Tier failover worst-case: 60 dtk (Clouvia) + 15 dtk (Vikey) + 15 dtk (Gemini) = 90 dtk (+ query Supabase).
+// Beri ruang 120 dtk agar fungsi Vercel tidak diputus sebelum fallback selesai.
+export const maxDuration = 120;
 
 const PRONOUN_VARIATION_ANGLES = [
   'ketulusan khidmah di balik layar dan keberkahan setiap tetes perjuangan',
@@ -163,17 +163,12 @@ ${kepanitiaanTurnRule}
     // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
     // =========================================================================
-    // DYNAMIC AI ROUTING: UNIFIKASI KE CODING-HIGH-FLASH (TIER 1 CLOUVIA)
+    // DYNAMIC AI ROUTING: UNIFIKASI KE DEEPSEEK-V4.1-FLASH (TIER 1 CLOUVIA)
     // =========================================================================
-    // Seluruh intent (Obrolan Biasa, Dokumen/File, Visual/Gambar) menggunakan model coding-high-flash
-    // dengan batas waktu terpadu 12 detik.
-    const customModel = process.env.CLOUVIA_MODEL || 'coding-high-flash';
-    // Deteksi intent pembuatan/unduhan dokumen (PDF, Excel, Word, dokumen cetak)
-    const isFileIntent = /\b(pdf|excel|xlsx|xls|word|docx|doc|csv|file|berkas|dokumen|unduh|download|ekspor)\b/i.test(prompt);
-
-    // Timeout untuk pembuatan dokumen diperpanjang menjadi 1 Menit (60.000 ms) menggunakan model coding-high-flash
-    // Intent obrolan biasa dan visual tetap menggunakan timeout wajar (12 detik)
-    const customTimeout = isFileIntent ? 60000 : 12000;
+    // Seluruh intent (Obrolan Biasa, File/Dokumen, Visual/Gambar) menggunakan model deepseek-v4.1-flash
+    // dengan batas waktu terpadu 60 detik (60.000 ms).
+    const customModel = process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash';
+    const customTimeout = 60000;
 
     const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {
       model: customModel,

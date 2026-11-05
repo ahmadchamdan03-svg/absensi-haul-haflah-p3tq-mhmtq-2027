@@ -10,9 +10,9 @@ type ProviderName = AiResponse['model'];
 
 type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
-// Timeout ketat per tier: tepat 15 detik. Lewat batas → controller.abort() memutus request.
+// Timeout ketat per tier: Clouvia 60 detik (60.000 ms), Failover 15 detik. Lewat batas → controller.abort() memutus request.
 const TIER_TIMEOUT_MS: Record<ProviderName, number> = {
-  Clouvia: 12000,
+  Clouvia: 60000,
   Vikey: 15000,
   Gemini: 15000,
 };
@@ -124,7 +124,7 @@ async function callOpenAiCompatible(params: {
 
 /**
  * 3-Tier Failover Engine for Usth. Halwaa AI Assistant:
- * Tier 1 (Utama)     : Clouvia (coding-high-flash)
+ * Tier 1 (Utama)     : Clouvia (deepseek-v4.1-flash)
  * Tier 2 (Cadangan 1): Vikey (vikey/plan)
  * Tier 3 (Cadangan 2): Google Gemini (gemini-2.5-flash)
  * Fallback Terakhir  : Local Smart Knowledge Engine (handled by caller)
@@ -160,21 +160,21 @@ export async function askAI(
 
   openAiMessages.push({ role: 'user', content: prompt });
 
-  // Timeout dinamis (default 12s untuk Tier 1 Clouvia, 15s untuk failover)
-  const requestTimeoutMs = options?.timeout || TIER_TIMEOUT_MS.Clouvia;
+  // Timeout Tier 1 Clouvia (default 60s / 60.000 ms)
+  const clouviaTimeoutMs = options?.timeout || TIER_TIMEOUT_MS.Clouvia;
 
   // =========================================================================
   // TIER 1 — CLOUVIA (UTAMA)
   // =========================================================================
   const clouviaKey = readEnv('CLOUVIA_API_KEY');
   if (clouviaKey) {
-    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'coding-high-flash';
+    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'deepseek-v4.1-flash';
     const text = await callOpenAiCompatible({
       tierLabel: 'Tier 1 Clouvia',
       apiKey: clouviaKey,
       baseURL: readEnv('CLOUVIA_BASE_URL') || 'https://router.clouvia.id/v1',
       model: clouviaModel,
-      timeoutMs: requestTimeoutMs,
+      timeoutMs: clouviaTimeoutMs,
       maxTokens: 2500,
       messages: openAiMessages,
     });
@@ -193,7 +193,7 @@ export async function askAI(
       apiKey: vikeyKey,
       baseURL: readEnv('VIKEY_BASE_URL', 'AI_GATEWAY_BASE_URL') || 'https://api-plan.vikey.ai/v1',
       model: readEnv('VIKEY_MODEL', 'AI_GATEWAY_MODEL') || 'vikey/plan',
-      timeoutMs: requestTimeoutMs,
+      timeoutMs: TIER_TIMEOUT_MS.Vikey,
       // vikey/plan membutuhkan headroom token karena reasoning internal
       maxTokens: 2500,
       messages: openAiMessages,
@@ -213,7 +213,7 @@ export async function askAI(
     const primaryGeminiModel = readEnv('GEMINI_MODEL') || 'gemini-2.5-flash';
     const candidateGeminiModels = Array.from(new Set([primaryGeminiModel, 'gemini-3.5-flash-lite']));
     const startedAt = Date.now();
-    const { controller, clear } = createTimeoutController(requestTimeoutMs);
+    const { controller, clear } = createTimeoutController(TIER_TIMEOUT_MS.Gemini);
 
     try {
       // GEMINI_API_KEYS bisa berisi beberapa key dipisah koma — ambil yang pertama
