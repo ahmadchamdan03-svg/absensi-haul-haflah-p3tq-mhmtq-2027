@@ -344,35 +344,24 @@ export default function ScanPage() {
       const totalKuota = activeItem.kuota.kuotaDasar + activeItem.kuota.kuotaTambahan;
       const kodeTarget = activeItem.kode || String(activeItem.id);
 
-      // 1. Ambil total kumulatif TERKINI dari presensi_log untuk hitung akumulasi dan anti-duplicate guard
-      const { data: currentLogs, error: currentLogsErr } = await supabase
-        .from('presensi_log')
-        .select('id, jumlah_l, jumlah_p, jumlah_balita, tiket_panggung, created_at')
-        .eq('kode_qr', kodeTarget);
-
-      if (currentLogsErr) {
-        throw new Error(`Gagal membaca presensi terkini (${currentLogsErr.message})`);
-      }
-
-      // Anti-Duplicate Guard 3 detik
+      // Anti-Duplicate Guard 3 detik (In-memory guard - instant response)
       const now = Date.now();
-      const isRecentlySubmitted = (currentLogs || []).some((r: any) => {
-        if (!r.created_at) return false;
-        const diff = now - new Date(r.created_at).getTime();
-        return diff >= 0 && diff < 3000;
-      });
-
-      if (isRecentlySubmitted) {
+      if (
+        lastSubmittedScanRef.current &&
+        lastSubmittedScanRef.current.code === kodeTarget &&
+        now - lastSubmittedScanRef.current.time < 3000
+      ) {
         setErrorMsg('Peringatan: Presensi untuk kode ini baru saja dicatat dalam 3 detik terakhir (Anti-Duplicate Guard).');
         playBuzzerError();
         setIsSubmitting(false);
         return;
       }
+      lastSubmittedScanRef.current = { code: kodeTarget, time: now };
 
-      const prevL = (currentLogs || []).reduce((s, r: any) => s + Number(r.jumlah_l || 0), 0);
-      const prevP = (currentLogs || []).reduce((s, r: any) => s + Number(r.jumlah_p || 0), 0);
-      const prevBalita = (currentLogs || []).reduce((s, r: any) => s + Number(r.jumlah_balita || 0), 0);
-      const prevTiketPanggung = (currentLogs || []).some((r: any) => Number(r.tiket_panggung || 0) > 0) ? 1 : 0;
+      const prevL = Number(activeItem.kuota?.terpakaiL || 0);
+      const prevP = Number(activeItem.kuota?.terpakaiP || 0);
+      const prevBalita = Number(activeItem.kuota?.terpakaiBalita || 0);
+      const prevTiketPanggung = Number(activeItem.kuota?.tiketPanggungDiberi || 0) > 0 ? 1 : 0;
 
       const nextL = prevL + jumlahL;
       const nextP = prevP + jumlahP;
@@ -391,10 +380,11 @@ export default function ScanPage() {
         ? { tiket_panggung_diberi: nextTiketPanggung }
         : undefined;
 
-      // 2. Upsert ke presensi_log + sync kuota_terpakai (dan satukan update peserta_santri)
+      // 2. Upsert ke presensi_log + sync kuota_terpakai via server API secara paralel
       try {
         await upsertPresensiLog({
           kode_qr: kodeTarget,
+          entityId: activeItem.id,
           nama_peserta: activeItem.nama || activeItem.namaSantri || 'Peserta',
           tipe_peserta: activeItem.tipe === 'KELUARGA' ? 'KELUARGA' : 'UNDANGAN',
           jalur: jalur,
@@ -405,7 +395,7 @@ export default function ScanPage() {
           tiket_panggung: prevTiketPanggung || (isNewlyGivingGold ? 1 : 0),
           catatan: `Scan Pintu ${jalur}`,
           extraSantriData,
-          existingId: currentLogs && currentLogs.length > 0 ? currentLogs[0].id : undefined,
+          existingId: activeItem.kuota?.existingLogId,
         });
       } catch (logErr: any) {
         setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message || logErr}`);

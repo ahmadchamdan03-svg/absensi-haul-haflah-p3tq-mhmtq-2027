@@ -204,6 +204,9 @@ export function useTamuData() {
         body: JSON.stringify({
           action: 'checkin',
           kode_qr: u.kode,
+          entityId: u.id,
+          nama_peserta: u.nama,
+          tipe_peserta: 'UNDANGAN',
           jumlah_l: jumlahL,
           jumlah_p: jumlahP,
           jalur: 'MEJA_TRANSIT',

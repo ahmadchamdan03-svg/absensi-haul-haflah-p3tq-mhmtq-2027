@@ -44,6 +44,7 @@ export function extractCleanScanCode(scannedRaw: string): string {
 
 /**
  * Mengambil data peserta santri atau tamu undangan dari Supabase beserta kalkulasi kuota live
+ * Menggunakan Promise.all paralel untuk mengurangi network waterfall dari 3x menjadi 1x roundtrip.
  */
 export async function fetchPesertaByCode(cleanCode: string): Promise<{
   itemObj: ScanActiveItem;
@@ -53,32 +54,38 @@ export async function fetchPesertaByCode(cleanCode: string): Promise<{
   isBilGhoib: boolean;
   isAlreadyGiven: boolean;
 }> {
-  // 1. Cek Peserta Santri
-  let { data: santri, error: santriError } = await supabase
-    .from('peserta_santri')
-    .select('*')
-    .or(`kode.eq.${cleanCode},nis.eq.${cleanCode}`)
-    .maybeSingle();
-
-  if (santriError) {
-    throw new Error(`Gagal memeriksa data peserta santri (${santriError.message})`);
-  }
-
-  // 2. Jika tidak ada di santri, cek ke Tamu Undangan
-  let tamu = null;
-  if (!santri) {
-    const resTamu = await supabase
+  // Query paralel ke peserta_santri, tamu_undangan, dan presensi_log sekaligus
+  const [resSantri, resTamu, resLogs] = await Promise.all([
+    supabase
+      .from('peserta_santri')
+      .select('*')
+      .or(`kode.eq.${cleanCode},nis.eq.${cleanCode}`)
+      .maybeSingle(),
+    supabase
       .from('tamu_undangan')
       .select('*')
       .eq('kode', cleanCode)
-      .maybeSingle();
-    if (resTamu.error) {
-      throw new Error(`Gagal memeriksa data tamu undangan (${resTamu.error.message})`);
-    }
-    tamu = resTamu.data;
+      .maybeSingle(),
+    supabase
+      .from('presensi_log')
+      .select('id, jumlah_l, jumlah_p, jumlah_balita, tiket_panggung, created_at')
+      .eq('kode_qr', cleanCode),
+  ]);
+
+  if (resSantri.error) {
+    throw new Error(`Gagal memeriksa data peserta santri (${resSantri.error.message})`);
+  }
+  if (resTamu.error) {
+    throw new Error(`Gagal memeriksa data tamu undangan (${resTamu.error.message})`);
+  }
+  if (resLogs.error) {
+    throw new Error(`Gagal membaca log presensi (${resLogs.error.message})`);
   }
 
-  // 3. Jika kode tidak terdaftar di Supabase
+  const santri = resSantri.data;
+  const tamu = resTamu.data;
+
+  // Jika kode tidak terdaftar di Supabase
   if (!santri && !tamu) {
     throw new Error(`Kode QR "${cleanCode}" TIDAK TERDAFTAR dalam basis data!`);
   }
@@ -86,22 +93,13 @@ export async function fetchPesertaByCode(cleanCode: string): Promise<{
   const isSantri = !!santri;
   const entity = santri || tamu;
   const targetKode = entity.kode || entity.nis || cleanCode;
+  const presensiLogs = resLogs.data || [];
 
-  // Single Source of Truth: Fetch live terpakai from presensi_log
-  const { data: presensiLogs, error: presensiError } = await supabase
-    .from('presensi_log')
-    .select('jumlah_l, jumlah_p')
-    .eq('kode_qr', targetKode);
-
-  if (presensiError) {
-    throw new Error(`Gagal membaca log presensi (${presensiError.message})`);
-  }
-
-  const existingL = (presensiLogs || []).reduce(
+  const existingL = presensiLogs.reduce(
     (sum, r) => sum + Number(r.jumlah_l || 0),
     0
   );
-  const existingP = (presensiLogs || []).reduce(
+  const existingP = presensiLogs.reduce(
     (sum, r) => sum + Number(r.jumlah_p || 0),
     0
   );
@@ -162,6 +160,10 @@ export async function fetchPesertaByCode(cleanCode: string): Promise<{
       kuotaDasar,
       kuotaTambahan,
       terpakai,
+      terpakaiL: existingL,
+      terpakaiP: existingP,
+      terpakaiBalita: presensiLogs.reduce((sum, r) => sum + Number(r.jumlah_balita || 0), 0),
+      existingLogId: presensiLogs[0]?.id,
       tiketPanggungJatah: isBilGhoib ? 1 : 0,
       tiketPanggungDiberi: Number(entity.tiket_panggung_diberi || 0),
     },

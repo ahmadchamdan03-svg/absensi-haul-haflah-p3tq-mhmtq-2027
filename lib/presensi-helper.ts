@@ -86,6 +86,7 @@ export async function upsertPresensiLog(payload: {
   catatan?: string;
   extraSantriData?: Record<string, any>;
   existingId?: string;
+  entityId?: string;
 }) {
   const { kode_qr } = payload;
   if (!kode_qr) throw new Error('kode_qr required for upsertPresensiLog');

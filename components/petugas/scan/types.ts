@@ -29,6 +29,10 @@ export interface ScanKuotaInfo {
   kuotaDasar: number;
   kuotaTambahan: number;
   terpakai: number;
+  terpakaiL?: number;
+  terpakaiP?: number;
+  terpakaiBalita?: number;
+  existingLogId?: any;
   tiketPanggungJatah: number;
   tiketPanggungDiberi: number;
 }
