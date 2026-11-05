@@ -63,13 +63,13 @@ export async function POST(req: NextRequest) {
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
+      const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
       const getVal = (...keys: string[]) => {
-        for (const k of keys) {
-          const matchedKey = Object.keys(row).find(
-            (rk) => rk.trim().toLowerCase() === k.trim().toLowerCase()
-          );
-          if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null) {
-            const val = String(row[matchedKey]).trim();
+        const normKeys = keys.map(norm);
+        for (const rk of Object.keys(row)) {
+          const normRk = norm(rk);
+          if (normKeys.includes(normRk) && row[rk] !== undefined && row[rk] !== null) {
+            const val = String(row[rk]).trim();
             if (val !== '') return val;
           }
         }
@@ -77,13 +77,26 @@ export async function POST(req: NextRequest) {
       };
 
       if (isSantri) {
-        const namaSantri = getVal('NAMA LENGKAP SANTRI', 'NAMA SANTRI', 'NAMA', 'nama_santri', 'nama');
-        const kamar = getVal('KAMAR PONDOK', 'KAMAR', 'kamar_pondok', 'kamar') || null;
-        const kelas = getVal('KELAS', 'TINGKAT', 'kelas', 'tingkat') || null;
-        const namaWali = getVal('NAMA WALI SANTRI', 'NAMA WALI', 'WALI', 'nama_wali') || null;
-        const noHp = getVal('NO WHATSAPP WALI', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
-        const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'ASAL KOTA', 'alamat') || null;
-        const bagianTamatan = getVal('BAGIAN TAMATAN', 'BAGIAN', 'bagian_tamatan') || null;
+        const namaSantri = getVal(
+          'NAMA LENGKAP SANTRIWATI',
+          'NAMA LENGKAP SANTRI',
+          'NAMA SANTRIWATI',
+          'NAMA SANTRI',
+          'NAMA LENGKAP',
+          'NAMA',
+          'SANTRI',
+          'SANTRIWATI',
+          'nama_santriwati',
+          'nama_lengkap_santriwati',
+          'nama_santri',
+          'nama'
+        );
+        const kamar = getVal('KAMAR PONDOK', 'KAMAR', 'KAMAR SANTRI', 'NO KAMAR', 'kamar_pondok', 'kamar') || null;
+        const kelas = getVal('KELAS', 'TINGKAT', 'JENJANG', 'TINGKAT KELAS', 'kelas', 'tingkat') || null;
+        const namaWali = getVal('NAMA WALI SANTRI', 'NAMA WALI SANTRIWATI', 'NAMA WALI', 'WALI SANTRI', 'WALI', 'NAMA ORANG TUA', 'ORANG TUA', 'nama_wali') || null;
+        const noHp = getVal('NO WHATSAPP WALI', 'NO WA WALI', 'NO WHATSAPP', 'NO WA', 'WHATSAPP WALI', 'WHATSAPP', 'NO HP WALI', 'NO HP', 'HP', 'TELEPON', 'no_hp') || null;
+        const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT ASAL KOTA', 'ASAL KOTA', 'ALAMAT', 'KOTA', 'ASAL', 'alamat') || null;
+        const bagianTamatan = getVal('BAGIAN TAMATAN', 'BAGIAN', 'SUB KATEGORI TAMATAN', 'SUB KATEGORI', 'bagian_tamatan') || null;
 
         if (!namaSantri) {
           skippedCount++;
@@ -223,9 +236,9 @@ export async function POST(req: NextRequest) {
         }
       } else {
         // Tamu Undangan
-        const p = getVal('NAMA TAMU PUTRA', 'NAMA PUTRA', 'PUTRA', 'nama_putra');
-        const w = getVal('NAMA TAMU PUTRI', 'NAMA PUTRI', 'PUTRI', 'nama_putri');
-        const rawNama = getVal('NAMA TAMU', 'NAMA', 'nama_tamu', 'nama');
+        const p = getVal('NAMA TAMU PUTRA', 'TAMU PUTRA', 'NAMA PUTRA', 'PUTRA', 'BAPAK', 'KYAI', 'nama_putra');
+        const w = getVal('NAMA TAMU PUTRI', 'TAMU PUTRI', 'NAMA PUTRI', 'PUTRI', 'IBU', 'NYAI', 'nama_putri');
+        const rawNama = getVal('NAMA TAMU', 'NAMA UNDANGAN', 'NAMA LENGKAP', 'NAMA', 'TAMU', 'nama_tamu', 'nama');
 
         let finalNama = '';
         if (p && w) finalNama = `${p} & ${w}`;
@@ -239,10 +252,10 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        const kategoriUndangan = getVal('KATEGORI UNDANGAN', 'KATEGORI', 'kategori_undangan', 'kategori') || null;
-        const instansi = getVal('INSTANSI / ASAL LEMBAGA', 'INSTANSI', 'ASAL LEMBAGA', 'instansi') || null;
-        const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'alamat') || null;
-        const noHp = getVal('NO WHATSAPP / HP', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
+        const kategoriUndangan = getVal('KATEGORI UNDANGAN', 'KATEGORI', 'GOLONGAN UNDANGAN', 'GOLONGAN', 'SUB KATEGORI', 'kategori_undangan', 'kategori') || null;
+        const instansi = getVal('INSTANSI / ASAL LEMBAGA', 'INSTANSI ASAL LEMBAGA', 'INSTANSI', 'ASAL LEMBAGA', 'LEMBAGA', 'instansi') || null;
+        const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT ASAL KOTA', 'ASAL KOTA', 'ALAMAT', 'KOTA', 'ASAL', 'alamat') || null;
+        const noHp = getVal('NO WHATSAPP / HP', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'WHATSAPP', 'TELEPON', 'no_hp') || null;
 
         let kode = getVal('KODE', 'kode').toUpperCase();
         if (!kode) {
