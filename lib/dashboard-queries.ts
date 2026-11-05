@@ -71,7 +71,7 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
   }
 
   // Calculate Total Kuota (Denominators)
-  const wsKuota = santriData.reduce(
+  let wsKuota = santriData.reduce(
     (sum, s) => sum + Number(s.kuota_dasar || 0) + Number(s.kuota_tambahan || 0),
     0
   );
@@ -99,10 +99,10 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     const isTamu = tipe === 'TAMU' || tipe === 'UNDANGAN' || qr.startsWith('UND') || tamuCodeSet.has(qr);
 
     // Abaikan log yatim / data sampah yang tidak terdaftar di data peserta
-    if (isSantri && (santriCodeSet.has(qr) || santriData.length === 0)) {
+    if (santriCodeSet.has(qr) || (isSantri && !isTamu && santriCodeSet.has(qr))) {
       wsL += l;
       wsP += p;
-    } else if (isTamu && (tamuCodeSet.has(qr) || undanganData.length === 0)) {
+    } else if (tamuCodeSet.has(qr) || (isTamu && !isSantri && tamuCodeSet.has(qr))) {
       tamuL += l;
       tamuP += p;
     }
@@ -137,12 +137,25 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     }
   }
 
-  const wsHadir = wsL + wsP;
-  const tamuHadir = tamuL + tamuP;
+  const wsHadir = santriData.length > 0 ? (wsL + wsP) : 0;
+  let tamuHadir = undanganData.length > 0 ? (tamuL + tamuP) : 0;
 
   // Invariant safeguard: Pastikan tamuHadir tidak pernah lebih besar dari tamuKuota
-  if (tamuHadir > tamuKuota) {
+  if (undanganData.length === 0) {
+    tamuKuota = 0;
+    tamuHadir = 0;
+    tamuL = 0;
+    tamuP = 0;
+  } else if (tamuHadir > tamuKuota) {
     tamuKuota = tamuHadir;
+  }
+
+  if (santriData.length === 0) {
+    wsKuota = 0;
+    wsL = 0;
+    wsP = 0;
+  } else if (wsHadir > wsKuota) {
+    wsKuota = wsHadir;
   }
 
   // Invariant validations

@@ -184,9 +184,25 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // 1. Bersihkan presensi_log terkait jika ada kode
-    if (kode) {
-      await supabaseServer.from('presensi_log').delete().eq('kode_qr', kode);
+    let targetKode = kode;
+    let targetNama = body.nama || null;
+
+    // Ambil data sebelum dihapus jika id diberikan tapi kode/nama belum ada
+    if (id || !targetNama) {
+      let q = supabaseServer.from('tamu_undangan').select('kode, nama');
+      if (id) q = q.eq('id', id);
+      else q = q.eq('kode', targetKode);
+      const { data: existing } = await q.maybeSingle();
+      if (existing) {
+        if (!targetKode) targetKode = existing.kode;
+        if (!targetNama) targetNama = existing.nama;
+      }
+    }
+
+    // 1. Bersihkan presensi_log terkait (fallback aplikasi selain DB trigger)
+    if (targetKode) {
+      await supabaseServer.from('presensi_log').delete().eq('kode_qr', targetKode);
+      await supabaseServer.from('antrean_presensi_gagal').delete().eq('kode_qr', targetKode);
     }
 
     // 2. Hapus dari tamu_undangan
@@ -194,7 +210,7 @@ export async function DELETE(req: NextRequest) {
     if (id) {
       query = query.eq('id', id);
     } else {
-      query = query.eq('kode', kode);
+      query = query.eq('kode', targetKode);
     }
 
     const { error } = await query;
@@ -206,15 +222,32 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    if (kode) {
+    // 3. Catat aktivitas penghapusan ke audit_log
+    try {
+      await supabaseServer.from('audit_log').insert({
+        panitia_id: 'ADMIN',
+        panitia_role: role,
+        aksi: 'HAPUS',
+        tabel: 'tamu_undangan',
+        kode: targetKode || null,
+        nama: targetNama || null,
+        detail: { id, kode: targetKode, nama: targetNama },
+        catatan: `Penghapusan tamu ${targetNama || targetKode || id} berhasil beserta cascade log presensi.`,
+        created_at: new Date().toISOString(),
+      });
+    } catch (auditErr) {
+      console.warn('[API Tamu] Audit log insert warning:', auditErr);
+    }
+
+    if (targetKode) {
       try {
-        (store as any).batalCheckin(kode);
+        (store as any).batalCheckin(targetKode);
       } catch {}
     }
 
     return NextResponse.json({
       ok: true,
-      pesan: `Data tamu ${kode || id} berhasil dihapus dari sistem.`,
+      pesan: `Data tamu ${targetKode || id} berhasil dihapus dari sistem.`,
     });
   } catch (err: any) {
     console.error('[API Tamu] Fatal DELETE error:', err);
