@@ -345,27 +345,29 @@ export default function Sidebar({
         className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none ${
           isCollapsed
             ? 'left-3.5 w-12 h-12 rounded-2xl justify-center p-1'
-            : 'left-6 px-3.5 py-2.5 rounded-full gap-2.5'
+            : 'left-6 pl-2 pr-5 py-2 rounded-full gap-2.5'
         }`}
-        title="Tanya Usth. Halwaa!"
-        aria-label="Tanya Usth. Halwaa AI Assistant"
+        title="Usth. Halwaa"
+        aria-label="Usth. Halwaa Asisten AI"
       >
-        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white/20 p-0.5 border border-white/40 shrink-0">
-          <img
-            src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
-            alt="Usth. Halwaa"
-            className="w-full h-full object-contain"
-          />
-          <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0F2C59] animate-pulse" />
+        <div className="relative w-8 h-8 shrink-0">
+          <div className="w-full h-full rounded-full overflow-hidden bg-white/20 border border-white/40">
+            <img
+              src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
+              alt="Usth. Halwaa"
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
+          <span className="absolute top-0 right-0 z-10 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0F2C59] animate-pulse" />
         </div>
         {!isCollapsed && (
           <div className="flex flex-col text-left pr-1">
-            <span className="text-[11px] font-black tracking-wide leading-tight text-white flex items-center gap-1">
-              <span>Tanya Usth. Halwaa</span>
-              <Sparkles className="w-3 h-3 text-amber-300 animate-pulse" />
+            <span className="text-xs font-bold tracking-wide leading-tight text-white flex items-center gap-1">
+              <span>Usth. Halwaa</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
             </span>
-            <span className="text-[9px] font-medium text-blue-200 leading-none">
-              AI Assistant
+            <span className="text-[10px] font-medium text-blue-200 leading-none mt-0.5">
+              Asisten AI
             </span>
           </div>
         )}
