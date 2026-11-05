@@ -182,9 +182,9 @@ export default function LandingPortalPage() {
         <div id="login-card" className="w-full max-w-xl lg:max-w-2xl p-2 sm:p-4 space-y-4 text-center my-auto animate-in fade-in zoom-in-95 duration-300">
           {/* LOGO BERJAJAR */}
           <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
-            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.45)]" />
-            <img src="/images/logo-haul-blue.png" alt="Logo Haul Haflah" className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.45)]" />
-            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.45)]" />
+            <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]" />
+            <img src="/images/logo-haul-white.png" alt="Logo Haul Haflah" className="h-9 md:h-12 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]" />
+            <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]" />
           </div>
 
           {/* JUDUL & DESKRIPSI IDENTITAS */}

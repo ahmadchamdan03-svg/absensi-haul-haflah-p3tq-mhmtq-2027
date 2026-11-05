@@ -48,9 +48,9 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
           title={isRolePenerimaTamu ? 'Pos Penerima Tamu' : 'Kembali ke Dasbor Admin'}
         >
           <img
-            src="/images/logo-haul-blue.png"
+            src="/images/logo-haul-white.png"
             alt="Logo Haul &amp; Haflah P3TQ MHMTQ"
-            className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+            className="h-10 sm:h-12 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] transition-transform group-hover:scale-105"
           />
         </Link>
       </div>

@@ -160,13 +160,11 @@ export default function Sidebar({
             className="flex items-center justify-center group"
             title="HAUL & HAFLAH P3TQ & MHMTQ Lirboyo 1448 H. / 2027 M."
           >
-            <div className="w-10 h-10 rounded-2xl bg-white/70 border border-white/80 p-1 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-              <img
-                src="/images/logo-haul-blue.png"
-                alt="Logo Haul"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <img
+              src="/images/logo-haul-white.png"
+              alt="Logo Haul"
+              className="h-10 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform"
+            />
           </Link>
         ) : (
           <Link
