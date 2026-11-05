@@ -257,7 +257,13 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-300">
           {/* KARTU 1: TOTAL WALI SANTRI */}
-          <div className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
+          <div
+            onClick={() => {
+              setTabCategory('SANTRI');
+              setStatusFilter('SUDAH');
+            }}
+            className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
                 <Users className="w-4.5 h-4.5 text-[#1D4ED8]" />
@@ -281,7 +287,13 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           </div>
 
           {/* KARTU 2: TOTAL TAMU UNDANGAN */}
-          <div className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
+          <div
+            onClick={() => {
+              setTabCategory('UNDANGAN');
+              setStatusFilter('SUDAH');
+            }}
+            className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
                 <Award className="w-4.5 h-4.5 text-blue-700" />

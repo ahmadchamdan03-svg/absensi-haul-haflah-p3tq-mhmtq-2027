@@ -58,16 +58,29 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     }
   }
 
+  const santriCodeSet = new Set<string>();
+  for (const s of santriData) {
+    if (s.kode) santriCodeSet.add(String(s.kode).toUpperCase());
+    if (s.id) santriCodeSet.add(String(s.id).toUpperCase());
+  }
+
+  const tamuCodeSet = new Set<string>();
+  for (const u of undanganData) {
+    if (u.kode) tamuCodeSet.add(String(u.kode).toUpperCase());
+    if (u.id) tamuCodeSet.add(String(u.id).toUpperCase());
+  }
+
   // Calculate Total Kuota (Denominators)
   const wsKuota = santriData.reduce(
     (sum, s) => sum + Number(s.kuota_dasar || 0) + Number(s.kuota_tambahan || 0),
     0
   );
 
-  const tamuKuota = undanganData.reduce((sum, u: any) => {
+  let tamuKuota = undanganData.reduce((sum, u: any) => {
     const countL = u.nama_putra && String(u.nama_putra).trim() ? 1 : 0;
     const countP = u.nama_putri && String(u.nama_putri).trim() ? 1 : 0;
-    return sum + countL + countP;
+    const baseKuota = countL + countP > 0 ? countL + countP : 1;
+    return sum + baseKuota;
   }, 0);
 
   // Calculate Total Hadir & Gender Breakdown (Numerators)
@@ -82,10 +95,14 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
     const l = Number(log.jumlah_l || (log as any).jumlahL || 0);
     const p = Number(log.jumlah_p || (log as any).jumlahP || 0);
 
-    if (tipe === 'SANTRI' || tipe === 'WALI' || qr.startsWith('SH')) {
+    const isSantri = tipe === 'SANTRI' || tipe === 'WALI' || tipe === 'KELUARGA' || qr.startsWith('SH') || santriCodeSet.has(qr);
+    const isTamu = tipe === 'TAMU' || tipe === 'UNDANGAN' || qr.startsWith('UND') || tamuCodeSet.has(qr);
+
+    // Abaikan log yatim / data sampah yang tidak terdaftar di data peserta
+    if (isSantri && (santriCodeSet.has(qr) || santriData.length === 0)) {
       wsL += l;
       wsP += p;
-    } else if (tipe === 'TAMU' || tipe === 'UNDANGAN' || qr.startsWith('UND')) {
+    } else if (isTamu && (tamuCodeSet.has(qr) || undanganData.length === 0)) {
       tamuL += l;
       tamuP += p;
     }
@@ -122,6 +139,11 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
 
   const wsHadir = wsL + wsP;
   const tamuHadir = tamuL + tamuP;
+
+  // Invariant safeguard: Pastikan tamuHadir tidak pernah lebih besar dari tamuKuota
+  if (tamuHadir > tamuKuota) {
+    tamuKuota = tamuHadir;
+  }
 
   // Invariant validations
   if (wsHadir !== wsL + wsP) {
