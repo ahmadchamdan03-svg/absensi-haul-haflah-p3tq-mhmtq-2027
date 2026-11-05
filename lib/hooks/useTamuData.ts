@@ -48,6 +48,8 @@ export interface TamuUndanganItem {
   merged_group_id?: string | null;
   isMerged?: boolean;
   mergedItems?: any[];
+  uniqueGolongan?: string[];
+  uniqueSubKategori?: string[];
   multiBadges?: Array<{
     id: string;
     kode: string;
@@ -181,11 +183,31 @@ export function useTamuData() {
             uniqueNames.size > 0 ? uniqueNames.size : Math.max(...groupItems.map((it) => it.kuota.kuotaDasar || 1));
           const maxTerpakai = Math.max(...groupItems.map((it) => it.kuota.terpakai || 0));
 
+          // Kategori Utama unik (misal: "ISTIMEWA")
+          const uniqueGolongan = Array.from(
+            new Set(
+              groupItems
+                .map((it) => (it.golongan || 'ISTIMEWA').toUpperCase())
+                .filter(Boolean)
+            )
+          );
+
+          // Sub-kategori unik (misal: ["VIP IDS", "VIP Bani Marzuqi"])
+          const uniqueSubKategori = Array.from(
+            new Set(
+              groupItems
+                .map((it) => (it.kategori || '').trim())
+                .filter(Boolean)
+            )
+          );
+
           mergedCards.push({
             ...primary,
             isMerged: true,
             merged_group_id: groupId,
             mergedItems: groupItems,
+            uniqueGolongan,
+            uniqueSubKategori,
             multiBadges: groupItems.map((it) => ({
               id: it.id,
               kode: it.kode,
@@ -463,10 +485,16 @@ export function useTamuData() {
         const detectJson = await detectRes.json();
         if (detectJson.detected && detectJson.record) {
           const rec = detectJson.record;
-          const kota = (rec.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
-          const wantsMerge = window.confirm(
-            `Terdeteksi data serupa: ${rec.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`
-          );
+          const existingSubKat = (rec.kategori || rec.sub_kategori || '').trim();
+          const incomingSubKat = finalKategori.trim();
+          let promptMsg = '';
+          if (existingSubKat && incomingSubKat && existingSubKat.toLowerCase() !== incomingSubKat.toLowerCase()) {
+            promptMsg = `Terdeteksi data serupa dengan Sub-Kategori berbeda (${existingSubKat}). Apakah Anda ingin menggabungkan data ini ke dalam satu kartu?`;
+          } else {
+            const kota = (rec.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
+            promptMsg = `Terdeteksi data serupa: ${rec.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`;
+          }
+          const wantsMerge = window.confirm(promptMsg);
           if (wantsMerge) {
             mergedGroupId = rec.merged_group_id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `grp-${Date.now()}`);
             if (!rec.merged_group_id) {

@@ -202,10 +202,16 @@ export async function submitTambahUndanganToSupabase(params: {
         const detectJson = await detectRes.json();
         if (detectJson.detected && detectJson.record) {
           const rec = detectJson.record;
-          const kota = (rec.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
-          const wantsMerge = window.confirm(
-            `Terdeteksi data serupa: ${rec.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`
-          );
+          const existingSubKat = (rec.kategori || rec.sub_kategori || '').trim();
+          const incomingSubKat = finalKategori.trim();
+          let promptMsg = '';
+          if (existingSubKat && incomingSubKat && existingSubKat.toLowerCase() !== incomingSubKat.toLowerCase()) {
+            promptMsg = `Terdeteksi data serupa dengan Sub-Kategori berbeda (${existingSubKat}). Apakah Anda ingin menggabungkan data ini ke dalam satu kartu?`;
+          } else {
+            const kota = (rec.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
+            promptMsg = `Terdeteksi data serupa: ${rec.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`;
+          }
+          const wantsMerge = window.confirm(promptMsg);
           if (wantsMerge) {
             mergedGroupId = rec.merged_group_id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `grp-${Date.now()}`);
             if (!rec.merged_group_id) {

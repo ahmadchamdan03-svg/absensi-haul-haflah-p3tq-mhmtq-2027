@@ -254,26 +254,32 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                           </span>
                           {u.isMerged ? (
                             <>
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-900 border border-purple-200 text-[10px] font-bold">
-                                <Users className="w-3 h-3 text-purple-700" />
-                                <span>Gabungan ({u.mergedItems?.length} Kategori)</span>
-                              </span>
-                              <div className="flex flex-wrap gap-1">
-                                {u.multiBadges?.map((b) => (
+                              {/* Kategori Utama (1 badge jika kategori utamanya sama) */}
+                              {(u.uniqueGolongan && u.uniqueGolongan.length > 0
+                                ? u.uniqueGolongan
+                                : [u.golongan || 'ISTIMEWA']
+                              ).map((gol: string, gIdx: number) => {
+                                const isIst = gol === 'ISTIMEWA';
+                                const isKeh = gol === 'KEHORMATAN';
+                                return (
                                   <span
-                                    key={b.id || b.kode}
-                                    className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold border ${
-                                      b.golongan === 'ISTIMEWA'
+                                    key={gIdx}
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                      isIst
                                         ? 'bg-amber-100 text-amber-950 border-amber-300'
-                                        : b.golongan === 'KEHORMATAN'
+                                        : isKeh
                                         ? 'bg-purple-100 text-purple-950 border-purple-300'
                                         : 'bg-cyan-100 text-cyan-950 border-cyan-300'
                                     }`}
                                   >
-                                    {b.golongan} · {b.kategori}
+                                    {isIst ? '👑 Istimewa' : isKeh ? '🏛️ Kehormatan' : '👥 Umum'}
                                   </span>
-                                ))}
-                              </div>
+                                );
+                              })}
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-900 border border-purple-200 text-[10px] font-bold">
+                                <Users className="w-3 h-3 text-purple-700" />
+                                <span>Gabungan ({u.mergedItems?.length || 2})</span>
+                              </span>
                             </>
                           ) : (
                             <span className="text-[10px] text-blue-800 font-semibold truncate">
@@ -281,6 +287,29 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                             </span>
                           )}
                         </div>
+
+                        {/* Jika kartu gabungan, tampilkan Sub-Kategori sebagai label kecil */}
+                        {u.isMerged && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            {(u.uniqueSubKategori && u.uniqueSubKategori.length > 0
+                              ? u.uniqueSubKategori
+                              : Array.from(
+                                  new Set(
+                                    (u.mergedItems || [])
+                                      .map((m: any) => (m.kategori || m.subKategori || '').trim())
+                                      .filter(Boolean)
+                                  )
+                                )
+                            ).map((sub: string, sIdx: number) => (
+                              <span
+                                key={sIdx}
+                                className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/80 text-blue-950 border border-blue-200/80 shadow-2xs"
+                              >
+                                {sub}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <h4 className="font-serif font-black text-sm text-[#0F2C59] truncate">
                           {u.nama}
                         </h4>

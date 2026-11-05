@@ -215,8 +215,9 @@ export default function TamuTable({
         const distinctKategoriInItems = Array.from(
           new Set(
             allItems
-              .filter((it) => it.tipe === 'UNDANGAN' && it.golonganUndangan === 'UMUM' && it.kategori)
-              .map((it) => it.kategori)
+              .filter((it) => it.tipe === 'UNDANGAN' && (it.golonganUndangan === 'UMUM' || it.uniqueGolongan?.includes('UMUM')))
+              .flatMap((it) => (it.isMerged && it.uniqueSubKategori ? it.uniqueSubKategori : [it.kategori]))
+              .filter(Boolean)
           )
         );
 
@@ -231,7 +232,13 @@ export default function TamuTable({
           { value: 'SEMUA', label: `Semua Tamu Umum (${stats.undanganUmumCount})` },
           ...allCat.map((cat) => {
             const count = allItems.filter(
-              (it) => it.tipe === 'UNDANGAN' && it.golonganUndangan === 'UMUM' && matchUndanganCategory(it.kategori, cat)
+              (it) =>
+                it.tipe === 'UNDANGAN' &&
+                (it.golonganUndangan === 'UMUM' || it.uniqueGolongan?.includes('UMUM')) &&
+                (matchUndanganCategory(it.kategori, cat) ||
+                  (it.isMerged &&
+                    (it.uniqueSubKategori?.some((sub: string) => matchUndanganCategory(sub, cat)) ||
+                     it.mergedItems?.some((m: any) => matchUndanganCategory(m.kategori, cat)))))
             ).length;
             return { value: cat, label: `${cat} (${count})` };
           }),
@@ -243,8 +250,9 @@ export default function TamuTable({
         const distinctKategoriInItems = Array.from(
           new Set(
             allItems
-              .filter((it) => it.tipe === 'UNDANGAN' && it.golonganUndangan === 'ISTIMEWA' && it.kategori)
-              .map((it) => it.kategori)
+              .filter((it) => it.tipe === 'UNDANGAN' && (it.golonganUndangan === 'ISTIMEWA' || it.uniqueGolongan?.includes('ISTIMEWA')))
+              .flatMap((it) => (it.isMerged && it.uniqueSubKategori ? it.uniqueSubKategori : [it.kategori]))
+              .filter(Boolean)
           )
         );
 
@@ -259,7 +267,13 @@ export default function TamuTable({
           { value: 'SEMUA', label: `Semua Tamu Istimewa (${stats.undanganIstimewaCount})` },
           ...allCat.map((cat) => {
             const count = allItems.filter(
-              (it) => it.tipe === 'UNDANGAN' && it.golonganUndangan === 'ISTIMEWA' && matchUndanganCategory(it.kategori, cat)
+              (it) =>
+                it.tipe === 'UNDANGAN' &&
+                (it.golonganUndangan === 'ISTIMEWA' || it.uniqueGolongan?.includes('ISTIMEWA')) &&
+                (matchUndanganCategory(it.kategori, cat) ||
+                  (it.isMerged &&
+                    (it.uniqueSubKategori?.some((sub: string) => matchUndanganCategory(sub, cat)) ||
+                     it.mergedItems?.some((m: any) => matchUndanganCategory(m.kategori, cat)))))
             ).length;
             return { value: cat, label: `${cat} (${count})` };
           }),
@@ -332,7 +346,9 @@ export default function TamuTable({
         ) {
           const matches =
             matchUndanganCategory(item.kategori, bagianFilter) ||
-            (item.isMerged && item.mergedItems?.some((m: any) => matchUndanganCategory(m.kategori, bagianFilter)));
+            (item.isMerged &&
+              (item.uniqueSubKategori?.some((sub: string) => matchUndanganCategory(sub, bagianFilter)) ||
+               item.mergedItems?.some((m: any) => matchUndanganCategory(m.kategori, bagianFilter))));
           if (!matches) return false;
         }
       }
@@ -353,7 +369,9 @@ export default function TamuTable({
         const matchKamar = normalize(item.kamar).includes(q);
         const matchBagian = normalize(item.bagianTamatan).includes(q);
         const matchKelas = normalize(item.kelas || '').includes(q);
-        const matchSub = normalize(item.subKategori || item.kategori || '').includes(q);
+        const matchSub =
+          normalize(item.subKategori || item.kategori || '').includes(q) ||
+          (item.isMerged && item.uniqueSubKategori?.some((sub: string) => normalize(sub).includes(q)));
         return (
           matchKode ||
           matchNama ||
@@ -592,18 +610,18 @@ export default function TamuTable({
                       {/* Kategori & Bagian (Multi-badge if Merged) */}
                       <td className="py-3 px-4">
                         {item.isMerged ? (
-                          <div className="space-y-1">
-                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold">
-                              <Link2 className="w-3 h-3 text-blue-600 shrink-0" />
-                              <span>Gabungan ({item.mergedItems?.length} Kategori)</span>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-1">
-                              {item.multiBadges?.map((b: any, bIdx: number) => {
-                                const isIst = b.golonganUndangan === 'ISTIMEWA';
-                                const isKeh = b.golonganUndangan === 'KEHORMATAN';
+                          <div className="space-y-1.5">
+                            {/* Kategori Utama (1 badge jika kategori utamanya sama) & Badge Gabungan */}
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {(item.uniqueGolongan && item.uniqueGolongan.length > 0
+                                ? item.uniqueGolongan
+                                : [item.golonganUndangan || 'ISTIMEWA']
+                              ).map((gol: string, gIdx: number) => {
+                                const isIst = gol === 'ISTIMEWA';
+                                const isKeh = gol === 'KEHORMATAN';
                                 return (
                                   <span
-                                    key={bIdx}
+                                    key={gIdx}
                                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                                       isIst
                                         ? 'bg-amber-100 text-amber-900 border-amber-300'
@@ -616,6 +634,31 @@ export default function TamuTable({
                                   </span>
                                 );
                               })}
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold">
+                                <Link2 className="w-3 h-3 text-blue-600 shrink-0" />
+                                <span>Gabungan ({item.mergedItems?.length || 2})</span>
+                              </span>
+                            </div>
+
+                            {/* Daftar Sub-Kategori sebagai Label Kecil */}
+                            <div className="flex flex-wrap items-center gap-1">
+                              {(item.uniqueSubKategori && item.uniqueSubKategori.length > 0
+                                ? item.uniqueSubKategori
+                                : Array.from(
+                                    new Set(
+                                      (item.mergedItems || [])
+                                        .map((m: any) => (m.kategori || m.subKategori || '').trim())
+                                        .filter(Boolean)
+                                    )
+                                  )
+                              ).map((sub: string, sIdx: number) => (
+                                <span
+                                  key={sIdx}
+                                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs"
+                                >
+                                  {sub}
+                                </span>
+                              ))}
                             </div>
                           </div>
                         ) : (

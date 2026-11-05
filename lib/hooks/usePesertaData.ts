@@ -552,6 +552,24 @@ export function usePesertaData() {
       const totalKuota = resolvedKuotaDasar + sumKuotaTambahan;
       const maxTerpakai = Math.max(...groupItems.map((it) => it.terpakai || 0));
 
+      // Kategori Utama unik (e.g. ['ISTIMEWA'])
+      const uniqueGolongan = Array.from(
+        new Set(
+          groupItems
+            .map((it) => (it.golonganUndangan || it.golongan || (it.tipe === 'SANTRI' ? 'SANTRI' : 'ISTIMEWA')).toUpperCase())
+            .filter(Boolean)
+        )
+      );
+
+      // Sub-kategori unik (e.g. ['VIP IDS', 'VIP Bani Marzuqi'])
+      const uniqueSubKategori = Array.from(
+        new Set(
+          groupItems
+            .map((it) => (it.kategori || it.subKategori || it.kategoriUtama || '').trim())
+            .filter(Boolean)
+        )
+      );
+
       mergedCards.push({
         ...primary,
         id: primary.id,
@@ -559,6 +577,8 @@ export function usePesertaData() {
         isMerged: true,
         merged_group_id: groupId,
         mergedItems: groupItems,
+        uniqueGolongan,
+        uniqueSubKategori,
         kuotaDasar: resolvedKuotaDasar,
         kuotaTambahan: sumKuotaTambahan,
         terpakai: maxTerpakai,

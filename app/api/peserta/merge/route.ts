@@ -77,16 +77,25 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Ambil seluruh data untuk validasi nama, alamat, kuota_terpakai
+      // Ambil seluruh data untuk validasi nama, alamat, kuota_terpakai, dan variasi sub-kategori
       const tamuIds = items.filter(i => i.table === 'tamu_undangan').map(i => i.id);
       const santriIds = items.filter(i => i.table === 'peserta_santri').map(i => i.id);
 
       const [resTamu, resSantri] = await Promise.all([
-        tamuIds.length > 0 ? supabaseServer.from('tamu_undangan').select('id, nama, alamat, kuota_terpakai, merged_group_id').in('id', tamuIds) : { data: [], error: null },
-        santriIds.length > 0 ? supabaseServer.from('peserta_santri').select('id, nama, alamat, kuota_terpakai, merged_group_id').in('id', santriIds) : { data: [], error: null },
+        tamuIds.length > 0 ? supabaseServer.from('tamu_undangan').select('id, nama, alamat, kategori, sub_kategori, kuota_terpakai, merged_group_id').in('id', tamuIds) : { data: [], error: null },
+        santriIds.length > 0 ? supabaseServer.from('peserta_santri').select('id, nama, alamat, sub_kategori, kategori_utama, kuota_terpakai, merged_group_id').in('id', santriIds) : { data: [], error: null },
       ]);
 
       const allRecords = [...(resTamu.data || []), ...(resSantri.data || [])];
+
+      // Kumpulkan variasi sub-kategori
+      const subKategoriVariations = Array.from(
+        new Set(
+          allRecords
+            .map((r: any) => (r.kategori || r.sub_kategori || r.kategori_utama || '').trim())
+            .filter(Boolean)
+        )
+      );
 
       // ⚠️ ATURAN KETAT 1: Merge HANYA bisa dilakukan jika peserta BELUM PERNAH SCAN (kuota_terpakai == 0)
       const hasScanned = allRecords.some(r => Number(r.kuota_terpakai || 0) > 0);
@@ -149,6 +158,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         ok: true,
         merged_group_id: targetGroupId,
+        sub_kategori_list: subKategoriVariations,
         pesan: `Berhasil menggabungkan ${allRecords.length} data peserta.`,
       });
     }
