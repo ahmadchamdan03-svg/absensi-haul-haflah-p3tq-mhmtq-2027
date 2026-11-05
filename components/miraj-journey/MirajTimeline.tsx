@@ -170,7 +170,7 @@ export default function MirajTimeline({
 
   return (
     <main className="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 relative overflow-hidden">
-      <div className="relative w-full max-w-4xl h-[78vh] sm:h-auto sm:aspect-[4/3] max-h-[85vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 sm:border-4 border-[#8C6A47]/60 bg-black flex items-center justify-center">
+      <div className="relative w-full max-w-4xl h-[78vh] sm:h-auto sm:aspect-[4/3] max-h-[85vh] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 sm:border-4 border-[#1D4ED8]/60 bg-black flex items-center justify-center">
         <canvas
           ref={canvasRef}
           className="w-full h-full object-contain cursor-pointer touch-none"

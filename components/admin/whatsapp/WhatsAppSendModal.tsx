@@ -230,7 +230,7 @@ export default function WhatsAppSendModal({
                   <Smartphone className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h3 className="font-serif font-black text-sm text-[#422F21]">
+                  <h3 className="font-serif font-black text-sm text-[#0F2C59]">
                     Edit Nomor WhatsApp Wali
                   </h3>
                   <p className="text-[11px] text-stone-500">
@@ -247,17 +247,17 @@ export default function WhatsAppSendModal({
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <p className="font-bold text-amber-900">
+              <div className="p-3 bg-sky-50 rounded-2xl border border-sky-200 space-y-1">
+                <p className="font-bold text-blue-950">
                   {editingItem.namaWali} ({editingItem.kode})
                 </p>
-                <p className="text-[11px] text-amber-800">
+                <p className="text-[11px] text-blue-900">
                   Santri: {editingItem.santri?.[0]?.nama || '-'}
                 </p>
               </div>
 
               <div>
-                <label className="block font-bold text-[#422F21] mb-1">
+                <label className="block font-bold text-[#0F2C59] mb-1">
                   Nomor WhatsApp Baru:
                 </label>
                 <input
@@ -265,7 +265,7 @@ export default function WhatsAppSendModal({
                   value={newHpInput}
                   onChange={(e) => setNewHpInput(e.target.value)}
                   placeholder="Contoh: 081234567890"
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#BAE6FD] bg-[#F0F9FF] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 />
                 <p className="text-[10px] text-stone-400 mt-1">
                   Format: 08xx atau 628xx. Status WA akan otomatis diset kembali ke "BELUM".
@@ -282,7 +282,7 @@ export default function WhatsAppSendModal({
               </button>
               <button
                 onClick={handleSaveEditNoHp}
-                className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
+                className="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
               >
                 <Check className="w-4 h-4" />
                 <span>Simpan ke Supabase</span>
@@ -298,11 +298,11 @@ export default function WhatsAppSendModal({
           <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-sky-100 text-blue-900 flex items-center justify-center font-bold">
                   <Smartphone className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h3 className="font-serif font-black text-sm text-[#422F21]">
+                  <h3 className="font-serif font-black text-sm text-[#0F2C59]">
                     Edit Nomor WhatsApp Tamu Undangan
                   </h3>
                   <p className="text-[11px] text-stone-500">
@@ -319,17 +319,17 @@ export default function WhatsAppSendModal({
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
-                <p className="font-bold text-amber-900">
+              <div className="p-3 bg-sky-50 rounded-2xl border border-sky-200 space-y-1">
+                <p className="font-bold text-blue-950">
                   {editingTamuItem.nama} ({editingTamuItem.kode})
                 </p>
-                <p className="text-[11px] text-amber-800">
+                <p className="text-[11px] text-blue-900">
                   Kategori: {editingTamuItem.kategori} · {editingTamuItem.instansi}
                 </p>
               </div>
 
               <div>
-                <label className="block font-bold text-[#422F21] mb-1">
+                <label className="block font-bold text-[#0F2C59] mb-1">
                   Nomor WhatsApp Baru:
                 </label>
                 <input
@@ -337,7 +337,7 @@ export default function WhatsAppSendModal({
                   value={newHpInputTamu}
                   onChange={(e) => setNewHpInputTamu(e.target.value)}
                   placeholder="Contoh: 081234567890"
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#D5C4B4] bg-[#FAF7F3] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#BAE6FD] bg-[#F0F9FF] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 />
                 <p className="text-[10px] text-stone-400 mt-1">
                   Format: 08xx atau 628xx. Status WA akan otomatis diset kembali ke "BELUM".
@@ -354,7 +354,7 @@ export default function WhatsAppSendModal({
               </button>
               <button
                 onClick={handleSaveEditNoHpTamu}
-                className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
+                className="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
               >
                 <Check className="w-4 h-4" />
                 <span>Simpan ke Supabase</span>

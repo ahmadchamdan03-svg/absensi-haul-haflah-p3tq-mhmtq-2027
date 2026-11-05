@@ -216,7 +216,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('debug') === '1' || urlParams.has('debug')) {
-          console.groupCollapsed(`%c[Halwaa Debug] 🔍 "${query}"`, 'color: #8C6A47; font-weight: bold;');
+          console.groupCollapsed(`%c[Halwaa Debug] 🔍 "${query}"`, 'color: #1D4ED8; font-weight: bold;');
           console.log('%cQuery Input:', 'font-weight: bold;', query);
           console.log('%cModel / Engine:', 'font-weight: bold;', data?.model || 'Unknown');
           console.log('%cSource:', 'font-weight: bold;', data?.source || 'Unknown');
@@ -292,7 +292,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-5 bg-[#422F21]/40 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-5 bg-[#0F2C59]/40 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -300,7 +300,7 @@ Nggih Usth., wonten ingkang saget kula bantu seputar pelaksanaan Haul & Haflah P
         onClick={(e) => e.stopPropagation()}
       >
         {/* Lapisan Overlay Transparan Minimal Tanpa Blur agar foto 100% tajam */}
-        <div className="absolute inset-0 bg-[#FAF7F3]/30 pointer-events-none -z-10" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[#F0F9FF]/30 pointer-events-none -z-10" aria-hidden="true" />
         <TanyaUsHeaderAndSettings
           isLoading={isLoading}
           showSettings={showSettings}

@@ -49,10 +49,10 @@ export default function PersidanganToolbarAndStats({
         <div
           className={`p-4 rounded-xl text-xs font-semibold flex items-center justify-between gap-3 shadow-md transition-all ${
             toast.type === 'success'
-              ? 'bg-emerald-600 text-white'
+              ? 'bg-blue-600 text-white'
               : toast.type === 'error'
               ? 'bg-red-600 text-white'
-              : 'bg-[#8C6A47] text-white'
+              : 'bg-[#1D4ED8] text-white'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -75,23 +75,23 @@ export default function PersidanganToolbarAndStats({
       )}
 
       {/* Control Bar: Actions & Filters */}
-      <div className="bg-[#FAF7F3]/70 border border-[#D5C4B4] rounded-xl p-4 shadow-2xs space-y-3">
+      <div className="bg-[#F0F9FF]/70 border border-[#BAE6FD] rounded-xl p-4 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#8C6A47]/10 border border-[#8C6A47]/30 flex items-center justify-center text-[#8C6A47]">
+            <div className="w-9 h-9 rounded-xl bg-[#1D4ED8]/10 border border-[#1D4ED8]/30 flex items-center justify-center text-[#1D4ED8]">
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="font-serif font-bold text-sm sm:text-base text-[#422F21]">
+              <h4 className="font-serif font-bold text-sm sm:text-base text-[#0F2C59]">
                 Daftar Peserta Persidangan
               </h4>
-              <p className="text-[11px] text-[#735334]">
+              <p className="text-[11px] text-[#1E40AF]">
                 Total: <strong>{pesertaList.length}</strong> orang • Hadir:{' '}
-                <strong className="text-emerald-700">
+                <strong className="text-blue-700">
                   {pesertaList.filter((p) => p.status_kehadiran === 'HADIR').length}
                 </strong>{' '}
                 • Terkirim:{' '}
-                <strong className="text-emerald-700">
+                <strong className="text-blue-700">
                   {pesertaList.filter((p) => p.status_kirim === 'TERKIRIM').length}
                 </strong>{' '}
                 • Belum:{' '}
@@ -117,16 +117,16 @@ export default function PersidanganToolbarAndStats({
             <button
               type="button"
               onClick={onOpenImportModal}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#F5E6D3] text-xs font-bold text-[#735334] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#BAE6FD] bg-white hover:bg-[#F5E6D3] text-xs font-bold text-[#1E40AF] transition-colors"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-700" />
+              <FileSpreadsheet className="w-3.5 h-3.5 text-blue-700" />
               Import Excel
             </button>
 
             <button
               type="button"
               onClick={onOpenAddModal}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-xs transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
               + Tambah Peserta
@@ -137,13 +137,13 @@ export default function PersidanganToolbarAndStats({
         {/* Filter & Search Controls */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E5D7C8]">
           <div className="relative">
-            <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#1D4ED8] absolute left-3 top-2.5 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Cari nama, nomor WA, atau kode..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs text-[#0F2C59] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40"
             />
           </div>
 
@@ -151,7 +151,7 @@ export default function PersidanganToolbarAndStats({
             <select
               value={filterStatus}
               onChange={(e) => onFilterStatusChange(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
+              className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs text-[#0F2C59] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40"
             >
               <option value="SEMUA">Semua Status</option>
               <option value="HADIR">Presensi: Hadir</option>

@@ -51,7 +51,7 @@ export default function MirajTimelineCard({
         {/* Status Power-Up Aktif */}
         <div className="flex items-center space-x-1.5 pt-1">
           {activeShield && (
-            <div className="px-2 py-0.5 rounded-md bg-amber-500/80 text-amber-950 text-[10px] font-black flex items-center space-x-1 border border-amber-300">
+            <div className="px-2 py-0.5 rounded-md bg-amber-500/80 text-blue-950 text-[10px] font-black flex items-center space-x-1 border border-sky-300">
               <Shield className="w-3 h-3" />
               <span>Tameng Bismillah</span>
             </div>
@@ -63,7 +63,7 @@ export default function MirajTimelineCard({
             </div>
           )}
           {magnetTimeLeft > 0 && (
-            <div className="px-2 py-0.5 rounded-md bg-emerald-500/80 text-emerald-950 text-[10px] font-black flex items-center space-x-1 border border-emerald-300">
+            <div className="px-2 py-0.5 rounded-md bg-blue-500/80 text-blue-950 text-[10px] font-black flex items-center space-x-1 border border-blue-300">
               <span>📿 Tasbih: {magnetTimeLeft}s</span>
             </div>
           )}

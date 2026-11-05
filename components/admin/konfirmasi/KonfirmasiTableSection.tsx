@@ -53,7 +53,7 @@ export default function KonfirmasiTableSection({
   return (
     <>
       {/* Indikator Geser di Layar HP */}
-      <div className="md:hidden px-3.5 py-2 bg-amber-50/90 border-2 border-b-0 border-[#D5C4B4] rounded-t-2xl text-[11px] font-semibold text-[#8C6A47] flex items-center justify-between mt-3">
+      <div className="md:hidden px-3.5 py-2 bg-sky-50/90 border-2 border-b-0 border-[#BAE6FD] rounded-t-2xl text-[11px] font-semibold text-[#1D4ED8] flex items-center justify-between mt-3">
         <span className="flex items-center space-x-1.5">
           <span>👉</span>
           <span>Geser tabel ke samping untuk melihat Kontak, Kuota &amp; Aksi</span>
@@ -62,9 +62,9 @@ export default function KonfirmasiTableSection({
       </div>
 
       {/* TABEL DATA KONFIRMASI */}
-      <div className="overflow-x-auto rounded-b-2xl md:rounded-2xl border-2 border-[#D5C4B4] bg-white shadow-sm mt-0 md:mt-3">
-        <table className="w-full text-left text-xs text-[#422F21]">
-          <thead className="bg-[#EFE8E1] text-[#5C3E28] font-bold uppercase tracking-wider border-b border-[#D5C4B4]">
+      <div className="overflow-x-auto rounded-b-2xl md:rounded-2xl border-2 border-[#BAE6FD] bg-white shadow-sm mt-0 md:mt-3">
+        <table className="w-full text-left text-xs text-[#0F2C59]">
+          <thead className="bg-[#E0F2FE] text-[#1E3A8A] font-bold uppercase tracking-wider border-b border-[#BAE6FD]">
             <tr>
               <th className="py-3 px-3.5 whitespace-nowrap">
                 {activeMainTab === 'WALI_SANTRI' ? 'Kode & Santri' : 'Kode & Tamu'}
@@ -81,7 +81,7 @@ export default function KonfirmasiTableSection({
               <th className="py-3 px-3.5 text-center whitespace-nowrap">Aksi Panitia</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#D5C4B4]/40">
+          <tbody className="divide-y divide-[#BAE6FD]/40">
             {loading ? (
               Array.from({ length: 5 }).map((_, idx) => (
                 <SkeletonTableRow key={idx} cols={7} />
@@ -90,7 +90,7 @@ export default function KonfirmasiTableSection({
               <tr>
                 <td colSpan={7} className="py-8 text-center text-[#7A624E]">
                   <div className="flex flex-col items-center justify-center space-y-2">
-                    <Users className="w-8 h-8 text-[#8C6A47]/40" />
+                    <Users className="w-8 h-8 text-[#1D4ED8]/40" />
                     <div className="font-semibold">
                       Tidak ada data{' '}
                       {activeMainTab === 'WALI_SANTRI' ? 'santri' : 'tamu undangan'} yang cocok
@@ -103,13 +103,13 @@ export default function KonfirmasiTableSection({
               </tr>
             ) : (
               paginatedList.map((item) => (
-                <tr key={item.id} className="hover:bg-[#FAF7F3] transition-colors">
+                <tr key={item.id} className="hover:bg-[#F0F9FF] transition-colors">
                   {/* Kode & Santri */}
                   <td className="py-3 px-4">
-                    <div className="font-serif font-black text-sm text-[#422F21]">
+                    <div className="font-serif font-black text-sm text-[#0F2C59]">
                       {item.namaSantri}
                     </div>
-                    <div className="flex items-center space-x-1.5 text-[11px] text-[#8C6A47] font-mono mt-0.5">
+                    <div className="flex items-center space-x-1.5 text-[11px] text-[#1D4ED8] font-mono mt-0.5">
                       <span className="font-bold">{item.kode}</span>
                       {item.kamar && item.kamar !== '-' && (
                         <span className="text-[#7A624E]">· Kamar {item.kamar}</span>
@@ -122,9 +122,9 @@ export default function KonfirmasiTableSection({
                     <span
                       className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                         item.kategoriUtama === 'BIL_GHOIB'
-                          ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                          ? 'bg-blue-100 text-blue-900 border border-blue-300'
                           : item.kategoriUtama === 'TAMATAN'
-                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          ? 'bg-sky-100 text-blue-950 border border-sky-300'
                           : 'bg-blue-100 text-blue-900 border border-blue-300'
                       }`}
                     >
@@ -137,14 +137,14 @@ export default function KonfirmasiTableSection({
 
                   {/* Nama Wali & Kontak WA (Riil dari Supabase DB) */}
                   <td className="py-3 px-4">
-                    <div className="font-semibold text-[#422F21]">{item.namaWali}</div>
+                    <div className="font-semibold text-[#0F2C59]">{item.namaWali}</div>
                     <div className="text-[11px] text-[#7A624E] flex items-center space-x-2 mt-0.5">
                       {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' ? (
                         <a
                           href={`https://wa.me/${item.noHp.replace(/\D/g, '').replace(/^0/, '62')}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-emerald-700 hover:text-emerald-900 font-mono font-bold flex items-center space-x-1 underline"
+                          className="text-blue-700 hover:text-blue-900 font-mono font-bold flex items-center space-x-1 underline"
                           title="Hubungi Wali via WhatsApp"
                         >
                           <Phone className="w-3 h-3" />
@@ -163,11 +163,11 @@ export default function KonfirmasiTableSection({
 
                   {/* Jatah Kuota */}
                   <td className="py-3 px-4 text-center whitespace-nowrap">
-                    <div className="font-mono font-black text-sm text-[#422F21]">
+                    <div className="font-mono font-black text-sm text-[#0F2C59]">
                       {item.totalKuota}{' '}
                       <span className="text-xs font-normal text-[#7A624E]">Kursi</span>
                     </div>
-                    <div className="text-[10px] text-[#8C6A47]">
+                    <div className="text-[10px] text-[#1D4ED8]">
                       {item.kuotaDasar} Dasar
                       {item.kuotaTambahan > 0 && ` + ${item.kuotaTambahan} Tambahan`}
                     </div>
@@ -189,15 +189,15 @@ export default function KonfirmasiTableSection({
                       </div>
                     ) : item.statusKonfirmasi === 'SUDAH' ? (
                       <div>
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                          <CheckCircle2 className="w-3 h-3 mr-1 text-blue-600" />
                           Sudah Konfirmasi
                         </span>
                         <div className="text-[10px] text-[#7A624E] mt-0.5">
                           {item.diubahOleh === 'PANITIA_MANUAL' ? (
-                            <span className="text-[#8C6A47] font-semibold">Oleh: Panitia Manual</span>
+                            <span className="text-[#1D4ED8] font-semibold">Oleh: Panitia Manual</span>
                           ) : item.tipe === 'TAMU_UNDANGAN' ? (
-                            <span className="text-[#8C6A47] font-semibold">Oleh: Tamu (RSVP)</span>
+                            <span className="text-[#1D4ED8] font-semibold">Oleh: Tamu (RSVP)</span>
                           ) : (
                             <span>Oleh: Wali Santri</span>
                           )}
@@ -210,7 +210,7 @@ export default function KonfirmasiTableSection({
                       </div>
                     ) : (
                       <div>
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-100 text-blue-950 border border-sky-300">
                           <Clock className="w-3 h-3 mr-1 text-amber-600" />
                           Belum Konfirmasi
                         </span>
@@ -223,11 +223,11 @@ export default function KonfirmasiTableSection({
                   <td className="py-3 px-4 text-center whitespace-nowrap">
                     {item.statusKonfirmasi === 'SUDAH' ? (
                       <div>
-                        <div className="font-black text-[#422F21] text-sm">
+                        <div className="font-black text-[#0F2C59] text-sm">
                           {item.totalEstimasi}{' '}
                           <span className="text-xs font-normal text-[#7A624E]">Orang</span>
                         </div>
-                        <div className="text-[10px] text-[#8C6A47] font-medium">
+                        <div className="text-[10px] text-[#1D4ED8] font-medium">
                           L: {item.perkiraanL} · P: {item.perkiraanP}
                         </div>
                         {item.catatan && (
@@ -250,7 +250,7 @@ export default function KonfirmasiTableSection({
                       {/* Edit Manual */}
                       <button
                         onClick={() => handleOpenEdit(item)}
-                        className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border border-[#D5C4B4] font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#F0F9FF] text-[#1D4ED8] border border-[#BAE6FD] font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer"
                         title="Edit Konfirmasi Secara Manual"
                       >
                         <Edit3 className="w-3 h-3" />
@@ -261,10 +261,10 @@ export default function KonfirmasiTableSection({
                       {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' ? (
                         sentFonnteKodes[item.kode] ? (
                           <div
-                            className="px-2.5 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-[11px] flex items-center space-x-1"
+                            className="px-2.5 py-1.5 rounded-xl bg-blue-100 text-blue-800 border border-blue-300 font-bold text-[11px] flex items-center space-x-1"
                             title={`Terkirim via Fonnte jam ${sentFonnteKodes[item.kode]}`}
                           >
-                            <Check className="w-3 h-3 text-emerald-700" />
+                            <Check className="w-3 h-3 text-blue-700" />
                             <span>Terkirim</span>
                           </div>
                         ) : (
@@ -274,7 +274,7 @@ export default function KonfirmasiTableSection({
                             className={`px-2.5 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
                               item.statusKonfirmasi === 'BELUM'
                                 ? 'bg-amber-600 hover:bg-amber-700 text-white border border-amber-700'
-                                : 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-800'
+                                : 'bg-blue-700 hover:bg-blue-800 text-white border border-blue-800'
                             } disabled:opacity-50`}
                             title={
                               item.statusKonfirmasi === 'BELUM'
@@ -313,7 +313,7 @@ export default function KonfirmasiTableSection({
                           )}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 transition-all cursor-pointer"
+                          className="p-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 transition-all cursor-pointer"
                           title="Buka Chat Pengingat Resmi di WhatsApp Web"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
@@ -332,21 +332,21 @@ export default function KonfirmasiTableSection({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs text-[#7A624E]">
         <div>
           Menampilkan{' '}
-          <span className="font-bold text-[#422F21]">
+          <span className="font-bold text-[#0F2C59]">
             {filteredListLength > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}
           </span>{' '}
           hingga{' '}
-          <span className="font-bold text-[#422F21]">
+          <span className="font-bold text-[#0F2C59]">
             {Math.min(currentPage * itemsPerPage, filteredListLength)}
           </span>{' '}
-          dari <span className="font-bold text-[#422F21]">{filteredListLength}</span> data terfilter
+          dari <span className="font-bold text-[#0F2C59]">{filteredListLength}</span> data terfilter
         </div>
 
         <div className="flex items-center space-x-2 self-center sm:self-auto">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="p-1.5 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#FAF7F3] disabled:opacity-40 disabled:hover:bg-white text-[#422F21] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl border border-[#BAE6FD] bg-white hover:bg-[#F0F9FF] disabled:opacity-40 disabled:hover:bg-white text-[#0F2C59] transition-colors cursor-pointer"
             title="Halaman Sebelumnya"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -357,7 +357,7 @@ export default function KonfirmasiTableSection({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="p-1.5 rounded-xl border border-[#D5C4B4] bg-white hover:bg-[#FAF7F3] disabled:opacity-40 disabled:hover:bg-white text-[#422F21] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl border border-[#BAE6FD] bg-white hover:bg-[#F0F9FF] disabled:opacity-40 disabled:hover:bg-white text-[#0F2C59] transition-colors cursor-pointer"
             title="Halaman Selanjutnya"
           >
             <ChevronRight className="w-4 h-4" />

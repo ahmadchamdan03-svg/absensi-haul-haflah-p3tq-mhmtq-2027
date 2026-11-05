@@ -445,10 +445,10 @@ export default function BeliKuotaPage() {
   // ---------------------------------------------------------------------------
   if (loadingSantri || loadingControl || loadingOrders) {
     return (
-      <div className="min-h-screen bg-transparent text-[#422F21] flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-transparent text-[#0F2C59] flex flex-col items-center justify-center p-6">
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/70 shadow-xl text-center space-y-4 max-w-sm w-full">
-          <Loader2 className="w-10 h-10 animate-spin text-[#8C6A47] mx-auto" />
-          <p className="font-serif font-bold text-sm text-[#422F21]">
+          <Loader2 className="w-10 h-10 animate-spin text-[#1D4ED8] mx-auto" />
+          <p className="font-serif font-bold text-sm text-[#0F2C59]">
             Memuat Data Pembelian Kuota...
           </p>
         </div>
@@ -458,7 +458,7 @@ export default function BeliKuotaPage() {
 
   if (!santri) {
     return (
-      <div className="min-h-screen bg-transparent text-[#422F21] flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="min-h-screen bg-transparent text-[#0F2C59] flex flex-col items-center justify-center p-4 sm:p-6">
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-rose-300/80 shadow-xl text-center space-y-5 max-w-md w-full">
           <div className="w-14 h-14 rounded-2xl bg-rose-50/80 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto">
             <AlertCircle className="w-7 h-7" />
@@ -471,7 +471,7 @@ export default function BeliKuotaPage() {
           </div>
           <Link
             href="/"
-            className="w-full py-3 rounded-2xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold inline-flex items-center justify-center space-x-2 transition-all shadow-md cursor-pointer"
+            className="w-full py-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold inline-flex items-center justify-center space-x-2 transition-all shadow-md cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Beranda Portal</span>
@@ -482,7 +482,7 @@ export default function BeliKuotaPage() {
   }
 
   return (
-    <div className="min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 py-8 px-4 sm:px-6 relative overflow-x-hidden">
+    <div className="min-h-screen text-[#0F2C59] selection:bg-[#1D4ED8]/20 py-8 px-4 sm:px-6 relative overflow-x-hidden">
       <PortalBackground />
       <div className="max-w-xl mx-auto space-y-6 relative z-10">
         <BeliKuotaHeaderAndInfo

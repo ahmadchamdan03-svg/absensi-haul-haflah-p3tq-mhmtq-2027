@@ -770,7 +770,7 @@ export default function UndanganWaliPage() {
 
   return (
     <div
-      className={`min-h-screen text-[#422F21] selection:bg-[#8C6A47]/20 relative ${
+      className={`min-h-screen text-[#0F2C59] selection:bg-[#1D4ED8]/20 relative ${
         !isOpened ? 'h-screen overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
       }`}
     >

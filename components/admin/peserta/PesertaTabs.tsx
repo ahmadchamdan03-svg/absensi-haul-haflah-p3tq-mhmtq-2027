@@ -63,18 +63,18 @@ export default function PesertaTabs({
         }}
         className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'BIL_GHOIB'
-            ? 'border-emerald-600 shadow-md ring-2 ring-emerald-500/30'
+            ? 'border-blue-600 shadow-md ring-2 ring-emerald-500/30'
             : 'border-slate-200 hover:border-slate-300'
         }`}
       >
-        <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide flex items-center justify-between">
+        <div className="text-[10px] font-bold text-blue-800 uppercase tracking-wide flex items-center justify-between">
           <span>BIL GHOIB</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
         </div>
-        <div className="text-xl font-serif font-black text-emerald-950 mt-1">
+        <div className="text-xl font-serif font-black text-blue-950 mt-1">
           {stats.bilGhoibCount}
         </div>
-        <div className="text-[10px] text-emerald-700 mt-0.5 truncate">
+        <div className="text-[10px] text-blue-700 mt-0.5 truncate">
           4 Kursi · Cream
         </div>
       </div>
@@ -113,14 +113,14 @@ export default function PesertaTabs({
             : 'border-slate-200 hover:border-slate-300'
         }`}
       >
-        <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wide flex items-center justify-between">
+        <div className="text-[10px] font-bold text-blue-900 uppercase tracking-wide flex items-center justify-between">
           <span>TAMATAN</span>
           <span className="w-2 h-2 rounded-full bg-amber-500"></span>
         </div>
-        <div className="text-xl font-serif font-black text-amber-950 mt-1">
+        <div className="text-xl font-serif font-black text-blue-950 mt-1">
           {stats.tamatanCount}
         </div>
-        <div className="text-[10px] text-amber-800 mt-0.5 truncate">2 Kursi · Biru</div>
+        <div className="text-[10px] text-blue-900 mt-0.5 truncate">2 Kursi · Biru</div>
       </div>
 
       <div
@@ -131,15 +131,15 @@ export default function PesertaTabs({
         }}
         className={`cursor-pointer p-3 rounded-2xl bg-white/60 backdrop-blur-md border transition-all ${
           activeTab === 'UNDANGAN_ISTIMEWA'
-            ? 'border-amber-600 shadow-md ring-2 ring-amber-500/30 bg-amber-50/20'
+            ? 'border-amber-600 shadow-md ring-2 ring-amber-500/30 bg-sky-50/20'
             : 'border-slate-200 hover:border-slate-300'
         }`}
       >
-        <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wide flex items-center justify-between">
+        <div className="text-[10px] font-bold text-blue-900 uppercase tracking-wide flex items-center justify-between">
           <span>🌟 ISTIMEWA</span>
           <span className="w-2 h-2 rounded-full bg-amber-500"></span>
         </div>
-        <div className="text-xl font-serif font-black text-amber-950 mt-1">
+        <div className="text-xl font-serif font-black text-blue-950 mt-1">
           {stats.undanganIstimewaCount}
         </div>
         <div className="text-[10px] text-amber-700 mt-0.5 truncate">VVIP &amp; VIP</div>

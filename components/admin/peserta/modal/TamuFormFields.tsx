@@ -178,7 +178,7 @@ export default function TamuFormFields({
               }}
               className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
                 selectedGolonganUndangan === 'ISTIMEWA'
-                  ? 'bg-amber-100 text-amber-900 border-amber-400 ring-2 ring-amber-400/30 shadow-sm'
+                  ? 'bg-sky-100 text-blue-950 border-sky-400 ring-2 ring-amber-400/30 shadow-sm'
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
             >
@@ -236,9 +236,9 @@ export default function TamuFormFields({
         </div>
 
         {/* NAMA TAMU UNDANGAN: INPUT PUTRA & PUTRI UNTUK SEMUA GOLONGAN */}
-        <div className="p-4 md:p-5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
+        <div className="p-4 md:p-5 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block font-bold text-amber-950 text-xs md:text-sm flex items-center space-x-1.5">
+            <label className="block font-bold text-blue-950 text-xs md:text-sm flex items-center space-x-1.5">
               <Sparkles className="w-4 h-4 text-amber-600" />
               <span>Nama Tamu Undangan *</span>
             </label>
@@ -254,7 +254,7 @@ export default function TamuFormFields({
                 value={undanganForm.namaPutra}
                 onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
                 placeholder="Nama tamu putra..."
-                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
+                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
               />
             </div>
 
@@ -267,7 +267,7 @@ export default function TamuFormFields({
                 value={undanganForm.namaPutri}
                 onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
                 placeholder="Nama tamu putri..."
-                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
+                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
               />
             </div>
           </div>
@@ -457,7 +457,7 @@ export default function TamuFormFields({
             }}
             className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
               editGolonganUndangan === 'ISTIMEWA'
-                ? 'bg-amber-100 text-amber-900 border-amber-400 ring-2 ring-amber-400/30 shadow-sm'
+                ? 'bg-sky-100 text-blue-950 border-sky-400 ring-2 ring-amber-400/30 shadow-sm'
                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
             }`}
           >
@@ -504,9 +504,9 @@ export default function TamuFormFields({
       {editGolonganUndangan === 'ISTIMEWA' ||
       (editGolonganUndangan === 'UMUM' &&
         editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian') ? (
-        <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-3">
+        <div className="p-3.5 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block font-bold text-amber-950 text-xs flex items-center space-x-1.5">
+            <label className="block font-bold text-blue-950 text-xs flex items-center space-x-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
               <span>Nama Tamu Undangan *</span>
             </label>
@@ -530,7 +530,7 @@ export default function TamuFormFields({
                   setEditingItem({ ...editingItem, namaPutra: p, nama: combined });
                 }}
                 placeholder="Nama tamu putra..."
-                className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
               />
             </div>
 
@@ -551,7 +551,7 @@ export default function TamuFormFields({
                   setEditingItem({ ...editingItem, namaPutri: w, nama: combined });
                 }}
                 placeholder="Nama tamu putri..."
-                className="w-full px-3 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
               />
             </div>
           </div>

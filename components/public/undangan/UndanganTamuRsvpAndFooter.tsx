@@ -32,7 +32,7 @@ export default function UndanganTamuRsvpAndFooter({
       {/* 6a. KARTU QR CODE GERBANG MASUK TAMU */}
       <ScrollReveal delay={350}>
         <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-4">
-          <p className="text-xs sm:text-sm font-semibold text-[#422F21]">
+          <p className="text-xs sm:text-sm font-semibold text-[#0F2C59]">
             Mohon tunjukkan QR Code kepada petugas saat memasuki lokasi acara.
           </p>
 
@@ -42,8 +42,8 @@ export default function UndanganTamuRsvpAndFooter({
                 <QRCode
                   value={fullQrPayload || formatQrPayloadSync(item?.kode || kodeSH)}
                   size={220}
-                  bgColor="#FAF7F3"
-                  fgColor="#422F21"
+                  bgColor="#F0F9FF"
+                  fgColor="#0F2C59"
                   level="M"
                   style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
                 />
@@ -63,7 +63,7 @@ export default function UndanganTamuRsvpAndFooter({
       <ScrollReveal delay={400}>
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5 text-center">
           <div className="space-y-1">
-            <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+            <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
               Konfirmasi Kehadiran
             </h3>
             <p className="text-xs text-[#7A624E]">
@@ -72,12 +72,12 @@ export default function UndanganTamuRsvpAndFooter({
           </div>
 
           {item?.estimasi?.statusKonfirmasi === 'HADIR' || item?.estimasi?.statusKonfirmasi === 'SUDAH' ? (
-            <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 space-y-2">
-              <div className="font-serif font-black text-sm text-emerald-900 flex items-center justify-center space-x-1.5">
-                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+            <div className="p-4 rounded-2xl bg-blue-50 border-2 border-blue-300 text-blue-950 space-y-2">
+              <div className="font-serif font-black text-sm text-blue-900 flex items-center justify-center space-x-1.5">
+                <CheckCircle2 className="w-5 h-5 text-blue-700" />
                 <span>✓ Terkonfirmasi Hadir</span>
               </div>
-              <p className="text-xs text-emerald-800">
+              <p className="text-xs text-blue-800">
                 Terima kasih! Anda telah mengonfirmasi untuk <strong>HADIR</strong> pada Haul &amp; Haflah P3TQ - MHMTQ 2027.
               </p>
             </div>
@@ -100,8 +100,8 @@ export default function UndanganTamuRsvpAndFooter({
               disabled={savingRsvp}
               className={`py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 active:scale-95 ${
                 item?.estimasi?.statusKonfirmasi === 'HADIR' || item?.estimasi?.statusKonfirmasi === 'SUDAH'
-                  ? 'bg-emerald-800 text-white ring-2 ring-emerald-400'
-                  : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                  ? 'bg-blue-800 text-white ring-2 ring-emerald-400'
+                  : 'bg-blue-700 hover:bg-blue-800 text-white'
               }`}
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-200" />
@@ -130,7 +130,7 @@ export default function UndanganTamuRsvpAndFooter({
           )}
 
           {tamuRsvpSaved && (
-            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs text-center font-bold animate-in fade-in">
+            <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs text-center font-bold animate-in fade-in">
               ✓ Konfirmasi berhasil disimpan ke sistem panitia.
             </div>
           )}
@@ -139,7 +139,7 @@ export default function UndanganTamuRsvpAndFooter({
 
       {/* 8. FOOTER TANDA TANGAN PANITIA */}
       <ScrollReveal delay={450}>
-        <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-5 text-xs font-serif text-[#422F21]">
+        <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-5 text-xs font-serif text-[#0F2C59]">
           <p className="italic text-stone-600 leading-relaxed text-center">
             Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />
             Jazakumullahu khairan katsiran.
@@ -147,24 +147,24 @@ export default function UndanganTamuRsvpAndFooter({
 
           <div className="pt-4 border-t border-[#E8DFD5] grid grid-cols-2 gap-3 md:gap-6 max-w-md mx-auto text-center">
             <div className="text-center space-y-1">
-              <p className="text-[10px] md:text-xs font-serif uppercase tracking-widest text-[#8C6A47] font-semibold">
+              <p className="text-[10px] md:text-xs font-serif uppercase tracking-widest text-[#1D4ED8] font-semibold">
                 KETUA UMUM
               </p>
-              <p className="pt-3 font-serif font-bold text-sm md:text-base text-[#422F21]">
+              <p className="pt-3 font-serif font-bold text-sm md:text-base text-[#0F2C59]">
                 (Sinta Maelani)
               </p>
             </div>
             <div className="text-center space-y-1">
-              <p className="text-[10px] md:text-xs font-serif uppercase tracking-widest text-[#8C6A47] font-semibold">
+              <p className="text-[10px] md:text-xs font-serif uppercase tracking-widest text-[#1D4ED8] font-semibold">
                 SEKRETARIS UMUM
               </p>
-              <p className="pt-3 font-serif font-bold text-sm md:text-base text-[#422F21]">
+              <p className="pt-3 font-serif font-bold text-sm md:text-base text-[#0F2C59]">
                 (Refi Al Izzatul Kholifah)
               </p>
             </div>
           </div>
 
-          <div className="pt-3 text-[#8C6A47] font-serif italic text-xs md:text-sm font-bold text-center">
+          <div className="pt-3 text-[#1D4ED8] font-serif italic text-xs md:text-sm font-bold text-center">
             Wassalamu'alaikum Warahmatullahi Wabarakatuh
           </div>
 

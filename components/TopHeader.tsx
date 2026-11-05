@@ -28,13 +28,13 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
 
   return (
-    <header className="h-16 sm:h-[72px] shrink-0 z-20 bg-white/40 backdrop-blur-md border-b border-white/50 text-[#422F21] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none shadow-xs">
+    <header className="h-16 sm:h-[72px] shrink-0 z-20 bg-white/40 backdrop-blur-md border-b border-white/50 text-[#0F2C59] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none shadow-xs">
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         {/* Tombol Hamburger di HP/Tablet (Ditiadakan HANYA jika login sebagai role PENERIMA_TAMU) */}
         {!isRolePenerimaTamu && (
           <button
             onClick={onOpenMobile}
-            className="lg:hidden p-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] transition-colors shrink-0"
+            className="lg:hidden p-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] transition-colors shrink-0"
             aria-label="Buka Menu Navigasi"
           >
             <Menu className="w-5 h-5" />
@@ -58,15 +58,15 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
       {/* Sisi Kanan: Badge Tanggal Acara & Pintasan Aksi Cepat */}
       <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
         {/* Info Tanggal Acara */}
-        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#EFE8E1] border border-[#D5C4B4] text-xs font-semibold text-[#5C3E28]">
-          <Calendar className="w-3.5 h-3.5 text-[#8C6A47]" />
+        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-[#E0F2FE] border border-[#BAE6FD] text-xs font-semibold text-[#1E3A8A]">
+          <Calendar className="w-3.5 h-3.5 text-[#1D4ED8]" />
           <span>Sabtu, 24 Rajab 1448 H. / 02 Jan 2027 M.</span>
         </div>
 
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}
         <Link
           href="/scan"
-          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-2xs border border-[#735334]"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-2xs border border-[#1E40AF]"
           title="Buka Scanner QR Gerbang Masuk"
         >
           <QrCode className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-amber-200" />
@@ -76,10 +76,10 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Live Dasbor */}
         <Link
           href="/admin/dasbor"
-          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#8C6A47] text-xs font-bold shadow-2xs border border-white/70"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#1D4ED8] text-xs font-bold shadow-2xs border border-white/70"
           title="Buka Live Dasbor Kedatangan"
         >
-          <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#8C6A47]" />
+          <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#1D4ED8]" />
           <span className="hidden md:inline ml-1.5">Live Dasbor</span>
         </Link>
 

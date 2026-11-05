@@ -40,18 +40,18 @@ export function WelcomePopup({ userName, onClose }: Props) {
         </div>
 
         {/* Kotak Putih */}
-        <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-amber-200 p-5 md:p-6 w-full max-w-xs md:max-w-sm text-center">
-          <p className="text-base md:text-lg font-semibold text-[#422F21] mb-3">
+        <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-sky-200 p-5 md:p-6 w-full max-w-xs md:max-w-sm text-center">
+          <p className="text-base md:text-lg font-semibold text-[#0F2C59] mb-3">
             Selamat datang di dasbor,
             <br />
             <span className="text-amber-700 font-bold">{userName}</span>
           </p>
 
-          <p className="text-sm md:text-base tracking-[0.2em] text-[#8C6A47] uppercase mb-3">
+          <p className="text-sm md:text-base tracking-[0.2em] text-[#1D4ED8] uppercase mb-3">
             ✦ HAFLAH AKHIRUSSANAH ✦
           </p>
 
-          <div className="w-full text-xs md:text-sm font-serif text-[#422F21] leading-relaxed space-y-1">
+          <div className="w-full text-xs md:text-sm font-serif text-[#0F2C59] leading-relaxed space-y-1">
             <p className="whitespace-nowrap text-[10px] sm:text-xs md:text-[13px] lg:text-sm">Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)</p>
             <p className="whitespace-nowrap text-[9px] sm:text-[11px] md:text-xs lg:text-[13px] tracking-tight sm:tracking-normal">Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)</p>
           </div>
@@ -59,7 +59,7 @@ export function WelcomePopup({ userName, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 px-4 py-2 bg-[#8C6A47] text-white rounded-lg text-sm hover:bg-[#7a5a3b] transition-colors cursor-pointer"
+            className="mt-4 px-4 py-2 bg-[#1D4ED8] text-white rounded-lg text-sm hover:bg-[#7a5a3b] transition-colors cursor-pointer"
           >
             Tutup
           </button>

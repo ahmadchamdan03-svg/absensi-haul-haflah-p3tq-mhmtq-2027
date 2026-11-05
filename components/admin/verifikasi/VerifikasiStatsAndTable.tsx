@@ -44,8 +44,8 @@ export function VerifikasiHeaderAndStats({
       {/* HEADER LOGO & JUDUL HALAMAN */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6">
         <div className="space-y-1">
-          <div className="flex items-center space-x-2 text-xs font-bold text-[#8C6A47] uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-[#8C6A47]" />
+          <div className="flex items-center space-x-2 text-xs font-bold text-[#1D4ED8] uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-[#1D4ED8]" />
             <span>Panel Verifikasi Panitia</span>
           </div>
           <h1 className="font-serif font-black text-2xl text-[#322116]">
@@ -59,7 +59,7 @@ export function VerifikasiHeaderAndStats({
         <button
           type="button"
           onClick={() => setShowAddManualModal(true)}
-          className="py-3 px-5 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-2 cursor-pointer active:scale-95 shrink-0"
+          className="py-3 px-5 rounded-2xl bg-gradient-to-r from-[#1D4ED8] to-[#3B82F6] hover:brightness-105 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-2 cursor-pointer active:scale-95 shrink-0"
         >
           <Plus className="w-4 h-4 text-amber-200" />
           <span>Tambah Transaksi Manual (Kasir)</span>
@@ -73,12 +73,12 @@ export function VerifikasiHeaderAndStats({
             PAGU TERJUAL (DIVERIFIKASI)
           </span>
           <div className="flex items-baseline space-x-2">
-            <span className="font-serif font-black text-3xl text-emerald-700">{paguTerjual}</span>
+            <span className="font-serif font-black text-3xl text-blue-700">{paguTerjual}</span>
             <span className="text-xs text-stone-500 font-bold">/ 300 unit</span>
           </div>
           <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden border border-stone-200">
             <div
-              className="bg-emerald-600 h-full rounded-full transition-all duration-500"
+              className="bg-blue-600 h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(100, (paguTerjual / 300) * 100)}%` }}
             />
           </div>
@@ -89,7 +89,7 @@ export function VerifikasiHeaderAndStats({
             SISA TERSEDIA
           </span>
           <div className="flex items-baseline space-x-2">
-            <span className="font-serif font-black text-3xl text-[#422F21]">{sisaPagu}</span>
+            <span className="font-serif font-black text-3xl text-[#0F2C59]">{sisaPagu}</span>
             <span className="text-xs text-stone-500 font-bold">unit pagu</span>
           </div>
           <p className="text-[11px] text-stone-500 font-medium">Kapasitas maksimal 300 kursi</p>
@@ -143,14 +143,14 @@ export function VerifikasiHeaderAndStats({
         <div
           className={`p-4 rounded-2xl text-xs font-bold border flex items-center justify-between shadow-xs animate-in fade-in ${
             statusMsg.tipe === 'success'
-              ? 'bg-emerald-50 text-emerald-950 border-emerald-300'
+              ? 'bg-blue-50 text-blue-950 border-blue-300'
               : 'bg-rose-50 text-rose-950 border-rose-300'
           }`}
         >
           <div className="flex items-center space-x-2">
             <CheckCircle2
               className={`w-5 h-5 shrink-0 ${
-                statusMsg.tipe === 'success' ? 'text-emerald-600' : 'text-rose-600'
+                statusMsg.tipe === 'success' ? 'text-blue-600' : 'text-rose-600'
               }`}
             />
             <span>{statusMsg.text}</span>
@@ -211,8 +211,8 @@ export function VerifikasiOrdersTable({
             onClick={() => setFilterStatus('SEMUA')}
             className={`px-4 py-2.5 rounded-2xl transition-all shrink-0 cursor-pointer ${
               filterStatus === 'SEMUA'
-                ? 'bg-[#8C6A47] text-white shadow-md'
-                : 'bg-white/50 hover:bg-white/70 backdrop-blur-sm text-[#422F21] border border-white/60'
+                ? 'bg-[#1D4ED8] text-white shadow-md'
+                : 'bg-white/50 hover:bg-white/70 backdrop-blur-sm text-[#0F2C59] border border-white/60'
             }`}
           >
             Semua Transaksi ({pembelianListLength})
@@ -232,8 +232,8 @@ export function VerifikasiOrdersTable({
             onClick={() => setFilterStatus('DIVERIFIKASI')}
             className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
               filterStatus === 'DIVERIFIKASI'
-                ? 'bg-emerald-700 text-white shadow-md'
-                : 'bg-emerald-50/70 hover:bg-emerald-100/80 backdrop-blur-sm text-emerald-900 border border-emerald-300/60'
+                ? 'bg-blue-700 text-white shadow-md'
+                : 'bg-blue-50/70 hover:bg-blue-100/80 backdrop-blur-sm text-blue-900 border border-blue-300/60'
             }`}
           >
             <Check className="w-3.5 h-3.5" />
@@ -260,7 +260,7 @@ export function VerifikasiOrdersTable({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari ID pesanan, santri, wali..."
-            className="w-full pl-9 pr-8 py-2.5 text-xs rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#8C6A47]"
+            className="w-full pl-9 pr-8 py-2.5 text-xs rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#1D4ED8]"
           />
           {searchQuery && (
             <button
@@ -276,7 +276,7 @@ export function VerifikasiOrdersTable({
       {/* TABEL TRANSAKSI KUOTA TAMBAHAN */}
       <div className="overflow-x-auto rounded-2xl border border-white/50 bg-white/30 backdrop-blur-xs">
         <table className="w-full min-w-[920px] text-xs text-left">
-          <thead className="bg-white/50 backdrop-blur-xs text-[#422F21] font-serif font-black border-b border-[#D5C4B4] uppercase tracking-wider text-[10px]">
+          <thead className="bg-white/50 backdrop-blur-xs text-[#0F2C59] font-serif font-black border-b border-[#BAE6FD] uppercase tracking-wider text-[10px]">
             <tr>
               <th className="py-3.5 px-4 whitespace-nowrap">ID PESANAN</th>
               <th className="py-3.5 px-4 whitespace-nowrap">WALI &amp; SANTRI</th>
@@ -308,7 +308,7 @@ export function VerifikasiOrdersTable({
                 const isMenunggu = order.status === 'MENUNGGU_VERIFIKASI' || order.status === 'MENUNGGU_PEMBAYARAN';
 
                 return (
-                  <tr key={orderId} className="hover:bg-[#FAF7F3]/70 transition-colors">
+                  <tr key={orderId} className="hover:bg-[#F0F9FF]/70 transition-colors">
                     {/* ID PESANAN */}
                     <td className="py-3.5 px-4 font-mono">
                       <span className="font-bold text-[#322116] block text-xs">{orderId}</span>
@@ -326,11 +326,11 @@ export function VerifikasiOrdersTable({
 
                     {/* WALI & SANTRI */}
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-[#422F21]">
+                      <div className="font-bold text-[#0F2C59]">
                         {order.nama_wali || santri?.nama_wali || 'Wali Santri'}
                       </div>
                       <div className="text-[11px] text-stone-600 flex items-center space-x-1 pt-0.5">
-                        <span className="font-semibold text-[#8C6A47]">
+                        <span className="font-semibold text-[#1D4ED8]">
                           {santri?.nama || order.kode_santri}
                         </span>
                         <span className="text-stone-400">
@@ -339,7 +339,7 @@ export function VerifikasiOrdersTable({
                       </div>
                       {(santri?.no_hp || order.no_hp) && (
                         <div className="text-[10px] text-stone-400 font-mono flex items-center space-x-1 mt-0.5">
-                          <Phone className="w-2.5 h-2.5 text-emerald-600" />
+                          <Phone className="w-2.5 h-2.5 text-blue-600" />
                           <span>{santri?.no_hp || order.no_hp}</span>
                         </div>
                       )}
@@ -347,14 +347,14 @@ export function VerifikasiOrdersTable({
 
                     {/* KATEGORI */}
                     <td className="py-3.5 px-4">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF0E6] text-[#8C6A47] border border-[#D5C4B4]">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF0E6] text-[#1D4ED8] border border-[#BAE6FD]">
                         {santri?.sub_kategori || santri?.kategori_utama || 'Santri'}
                       </span>
                     </td>
 
                     {/* JUMLAH KURSI */}
                     <td className="py-3.5 px-4 font-bold text-stone-800">
-                      <span className="text-sm font-serif font-black text-[#422F21]">
+                      <span className="text-sm font-serif font-black text-[#0F2C59]">
                         {numKursi}
                       </span>{' '}
                       Kursi
@@ -395,8 +395,8 @@ export function VerifikasiOrdersTable({
                           </div>
                         </div>
                       ) : order.metode === 'TUNAI' ? (
-                        <span className="inline-flex items-center space-x-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-300">
-                          <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="inline-flex items-center space-x-1 text-blue-800 font-bold bg-blue-50 px-2.5 py-1 rounded-xl border border-blue-300">
+                          <Banknote className="w-3.5 h-3.5 text-blue-600" />
                           <span>Kas Tunai</span>
                         </span>
                       ) : (
@@ -407,8 +407,8 @@ export function VerifikasiOrdersTable({
                     {/* STATUS BADGE */}
                     <td className="py-3.5 px-4">
                       {order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold text-[11px]">
-                          <Check className="w-3 h-3 text-emerald-700" />
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 font-bold text-[11px]">
+                          <Check className="w-3 h-3 text-blue-700" />
                           <span>Diverifikasi</span>
                         </span>
                       ) : order.status === 'MENUNGGU_VERIFIKASI' ? (
@@ -417,7 +417,7 @@ export function VerifikasiOrdersTable({
                           <span>Menunggu Verifikasi</span>
                         </span>
                       ) : order.status === 'MENUNGGU_PEMBAYARAN' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[11px]">
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-sky-100 text-blue-950 border border-sky-300 font-bold text-[11px]">
                           <Clock className="w-3 h-3 text-amber-700" />
                           <span>Menunggu Bayar</span>
                         </span>
@@ -439,7 +439,7 @@ export function VerifikasiOrdersTable({
                               type="button"
                               disabled={isProcessing}
                               onClick={() => handleVerifikasiOrder(order)}
-                              className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition-all active:scale-95 cursor-pointer"
+                              className="px-3 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition-all active:scale-95 cursor-pointer"
                               title="Verifikasi dan tambahkan kuota ke QR santri"
                             >
                               <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -464,7 +464,7 @@ export function VerifikasiOrdersTable({
                             href={`https://wa.me/${(santri?.no_hp || order.no_hp).replace(/[^0-9]/g, '')}?text=Assalamu%27alaikum%20Bpk%2FIbu%20Wali%20Santri%2C%20mengenai%20pesanan%20kuota%20tambahan%20${orderId}...`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 transition-colors cursor-pointer"
                             title="Hubungi Wali via WhatsApp"
                           >
                             <MessageSquare className="w-4 h-4" />

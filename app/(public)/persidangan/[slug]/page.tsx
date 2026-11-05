@@ -83,12 +83,12 @@ function PublicPersidanganContent() {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#8C6A47] border-t-transparent animate-spin mx-auto"></div>
+          <div className="w-12 h-12 rounded-full border-4 border-[#1D4ED8] border-t-transparent animate-spin mx-auto"></div>
           <div className="space-y-1">
-            <h3 className="font-serif font-bold text-base text-[#422F21]">
+            <h3 className="font-serif font-bold text-base text-[#0F2C59]">
               Membuka Undangan Persidangan...
             </h3>
-            <p className="text-xs text-[#735334]">
+            <p className="text-xs text-[#1E40AF]">
               Memuat berkas resmi kepanitiaan.
             </p>
           </div>
@@ -102,7 +102,7 @@ function PublicPersidanganContent() {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-xl space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-sky-50/80 border border-sky-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
             <AlertTriangle className="w-8 h-8" />
           </div>
 
@@ -110,10 +110,10 @@ function PublicPersidanganContent() {
             <span className="inline-block px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-[10px] font-bold uppercase tracking-wider">
               Undangan Tidak Ditemukan
             </span>
-            <h2 className="font-serif font-black text-xl text-[#422F21]">
+            <h2 className="font-serif font-black text-xl text-[#0F2C59]">
               Persidangan Tidak Ditemukan
             </h2>
-            <p className="text-xs text-[#735334] leading-relaxed">
+            <p className="text-xs text-[#1E40AF] leading-relaxed">
               Undangan persidangan tidak ditemukan atau sudah tidak berlaku.
               Pastikan Anda membuka tautan resmi yang dibagikan oleh panitia.
             </p>
@@ -122,14 +122,14 @@ function PublicPersidanganContent() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-md transition-all"
             >
               <Home className="w-4 h-4" />
               Kembali ke Beranda
             </Link>
           </div>
 
-          <div className="text-[10px] text-[#A89887] pt-2 border-t border-[#EFE8E1]">
+          <div className="text-[10px] text-[#A89887] pt-2 border-t border-[#E0F2FE]">
             Panitia Haul &amp; Haflah P3TQ - MHMTQ 1448 H. / 2027 M.
           </div>
         </div>
@@ -142,18 +142,18 @@ function PublicPersidanganContent() {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-8 max-w-lg w-full text-center shadow-xl space-y-5">
-          <div className="w-16 h-16 rounded-2xl bg-white/60 border border-white/70 text-[#8C6A47] flex items-center justify-center mx-auto shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-white/60 border border-white/70 text-[#1D4ED8] flex items-center justify-center mx-auto shadow-xs">
             <FileText className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <span className="inline-block px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold uppercase tracking-wider">
+            <span className="inline-block px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-amber-700 text-[10px] font-bold uppercase tracking-wider">
               Dokumen Dalam Proses
             </span>
-            <h2 className="font-serif font-black text-xl text-[#422F21]">
+            <h2 className="font-serif font-black text-xl text-[#0F2C59]">
               {persidangan.judul}
             </h2>
-            <p className="text-xs text-[#735334] leading-relaxed">
+            <p className="text-xs text-[#1E40AF] leading-relaxed">
               Dokumen PDF surat persidangan sedang dipersiapkan oleh sekretariat kepanitiaan.
               Silakan periksa kembali tautan ini beberapa saat lagi.
             </p>
@@ -162,7 +162,7 @@ function PublicPersidanganContent() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-md transition-all"
             >
               <Home className="w-4 h-4" />
               Kembali ke Beranda
@@ -177,7 +177,7 @@ function PublicPersidanganContent() {
 
   // Tampilan Halaman Gambar Universal (Scrollable, Native Zoom di HP)
   return (
-    <div className="min-h-screen bg-transparent text-[#422F21] relative selection:bg-[#D49B5B] selection:text-white pb-16">
+    <div className="min-h-screen bg-transparent text-[#0F2C59] relative selection:bg-[#D49B5B] selection:text-white pb-16">
       {/* Floating Button Kiri Atas: Kembali */}
       <div className="fixed top-4 left-4 z-50">
         <button
@@ -189,7 +189,7 @@ function PublicPersidanganContent() {
               router.push('/');
             }
           }}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#8C6A47]/90 hover:bg-[#735334] text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 border border-white/20"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#1D4ED8]/90 hover:bg-[#1E40AF] text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 border border-white/20"
           title="Kembali"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -203,7 +203,7 @@ function PublicPersidanganContent() {
           type="button"
           onClick={handleDownload}
           disabled={downloading}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#8C6A47]/90 hover:bg-[#735334] text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 border border-white/20 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1D4ED8]/90 hover:bg-[#1E40AF] text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 border border-white/20 disabled:opacity-50"
           title="Unduh berkas PDF ke perangkat Anda"
         >
           {downloading ? (
@@ -218,7 +218,7 @@ function PublicPersidanganContent() {
           href={persidangan.pdf_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#422F21]/90 hover:bg-[#2b1f15] text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 border border-white/20"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#0F2C59]/90 hover:bg-[#2b1f15] text-white text-xs font-bold shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 border border-white/20"
           title="Buka langsung PDF asli di tab baru"
         >
           <ExternalLink className="w-4 h-4" />
@@ -246,14 +246,14 @@ function PublicPersidanganContent() {
           </div>
         ) : (
           <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl p-8 sm:p-12 text-center shadow-xl space-y-4 my-12">
-            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
-              <RefreshCw className="w-7 h-7 animate-spin text-[#8C6A47]" />
+            <div className="w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+              <RefreshCw className="w-7 h-7 animate-spin text-[#1D4ED8]" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-serif font-bold text-lg text-[#422F21]">
+              <h3 className="font-serif font-bold text-lg text-[#0F2C59]">
                 PDF Sedang Dipersiapkan
               </h3>
-              <p className="text-xs text-[#735334] max-w-md mx-auto leading-relaxed">
+              <p className="text-xs text-[#1E40AF] max-w-md mx-auto leading-relaxed">
                 Halaman surat persidangan sedang dipersiapkan. Anda dapat mengunduh berkas langsung melalui tombol <strong>⬇ Unduh PDF</strong> di atas.
               </p>
             </div>
@@ -262,13 +262,13 @@ function PublicPersidanganContent() {
 
         {/* Card QR Code Akses Presensi (Hanya tampil jika parameter ?to= ada) */}
         {toCode && (
-          <div className="bg-white border-2 border-[#D5C4B4] rounded-3xl p-6 sm:p-8 shadow-xl my-6 flex items-center justify-center">
-            <div className="p-4 sm:p-5 rounded-3xl bg-[#FAF7F3] border-2 border-[#D5C4B4] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
+          <div className="bg-white border-2 border-[#BAE6FD] rounded-3xl p-6 sm:p-8 shadow-xl my-6 flex items-center justify-center">
+            <div className="p-4 sm:p-5 rounded-3xl bg-[#F0F9FF] border-2 border-[#BAE6FD] shadow-inner max-w-[260px] w-full aspect-square flex items-center justify-center">
               <QRCode
                 value={toCode}
                 size={220}
-                bgColor="#FAF7F3"
-                fgColor="#422F21"
+                bgColor="#F0F9FF"
+                fgColor="#0F2C59"
                 level="M"
                 style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
               />
@@ -277,7 +277,7 @@ function PublicPersidanganContent() {
         )}
 
         {/* Footer Panitia */}
-        <div className="text-center pt-8 pb-4 text-[11px] text-[#8C6A47] font-medium">
+        <div className="text-center pt-8 pb-4 text-[11px] text-[#1D4ED8] font-medium">
           Panitia Haul &amp; Haflah Akhirussanah P3TQ &amp; MHMTQ Lirboyo 1448 H. / 2027 M.
         </div>
       </div>
@@ -289,10 +289,10 @@ export default function PublicPersidanganViewerPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#FAF7F3] flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-[#D5C4B4] rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
-            <div className="w-12 h-12 rounded-full border-4 border-[#8C6A47] border-t-transparent animate-spin mx-auto"></div>
-            <p className="text-xs text-[#735334]">Memuat dokumen undangan...</p>
+        <div className="min-h-screen bg-[#F0F9FF] flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-[#BAE6FD] rounded-2xl p-8 max-w-sm w-full text-center shadow-lg space-y-4">
+            <div className="w-12 h-12 rounded-full border-4 border-[#1D4ED8] border-t-transparent animate-spin mx-auto"></div>
+            <p className="text-xs text-[#1E40AF]">Memuat dokumen undangan...</p>
           </div>
         </div>
       }

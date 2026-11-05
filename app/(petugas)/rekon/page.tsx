@@ -517,7 +517,7 @@ export default function RekonPage() {
 
   return (
     <AuthGuard allowedRoles={['ADMIN', 'PENJAGA_GERBANG']}>
-      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 text-[#422F21]">
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 text-[#0F2C59]">
         <RekonHeaderAndStats
           loading={loading}
           toastMsg={toastMsg}

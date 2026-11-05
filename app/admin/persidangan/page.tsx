@@ -122,24 +122,24 @@ export default function PersidanganDashboardPage() {
   return (
     <div className="px-6 lg:px-8 py-6 pb-12 max-w-7xl mx-auto space-y-6">
       {/* Top Header & Search Bar (Unified Seamless Panel) */}
-      <div className="bg-white/50 backdrop-blur-md border border-[#D5C4B4] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 border-b border-[#E5D7C8] bg-gradient-to-b from-[#FAF7F3]/90 to-[#F5EFE8]/80">
+      <div className="bg-white/50 backdrop-blur-md border border-[#BAE6FD] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 border-b border-[#E5D7C8] bg-gradient-to-b from-[#F0F9FF]/90 to-[#F5EFE8]/80">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/70 border border-[#D5C4B4] text-[10px] font-bold uppercase tracking-wider text-[#8C6A47]">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/70 border border-[#BAE6FD] text-[10px] font-bold uppercase tracking-wider text-[#1D4ED8]">
               <Sparkles className="w-3 h-3 text-[#D49B5B]" />
               Modul Kepanitiaan
             </div>
-            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21]">
+            <h1 className="font-serif font-black text-xl sm:text-2xl text-[#0F2C59]">
               Manajemen Persidangan
             </h1>
-            <p className="text-xs text-[#735334] max-w-xl">
+            <p className="text-xs text-[#1E40AF] max-w-xl">
               Kelola persidangan, unggah berkas PDF resmi, dan distribusikan tautan langsung ke peserta via WhatsApp.
             </p>
           </div>
 
           <Link
             href="/admin/persidangan/new"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             + Buat Persidangan Baru
@@ -149,17 +149,17 @@ export default function PersidanganDashboardPage() {
         {/* Search Bar - Menyatu tepat di bawah header */}
         <div className="p-3.5 sm:p-4 bg-white/60 backdrop-blur-xs flex items-center justify-between gap-4">
           <div className="relative w-full max-w-md">
-            <Search className="w-4 h-4 text-[#8C6A47] absolute left-3 top-2.5 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#1D4ED8] absolute left-3 top-2.5 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari judul persidangan..."
-              className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] text-xs text-[#422F21] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 focus:bg-white transition-all"
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] text-xs text-[#0F2C59] placeholder-[#A89887] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40 focus:bg-white transition-all"
             />
           </div>
-          <div className="text-xs font-semibold text-[#8C6A47] shrink-0">
-            Total: <span className="font-bold text-[#422F21]">{filteredList.length}</span> Persidangan
+          <div className="text-xs font-semibold text-[#1D4ED8] shrink-0">
+            Total: <span className="font-bold text-[#0F2C59]">{filteredList.length}</span> Persidangan
           </div>
         </div>
       </div>
@@ -173,16 +173,16 @@ export default function PersidanganDashboardPage() {
         </div>
       ) : filteredList.length === 0 ? (
         <div className="bg-white/30 backdrop-blur-sm border-2 border-dashed border-white/50 rounded-2xl p-10 sm:p-14 text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-white/60 border border-white/80 text-[#8C6A47] flex items-center justify-center mx-auto shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-white/60 border border-white/80 text-[#1D4ED8] flex items-center justify-center mx-auto shadow-xs">
             <FileText className="w-7 h-7" />
           </div>
           <div className="space-y-1">
-            <h3 className="font-serif font-bold text-base text-[#422F21]">
+            <h3 className="font-serif font-bold text-base text-[#0F2C59]">
               {persidanganList.length === 0
                 ? 'Belum ada persidangan'
                 : 'Tidak ada persidangan yang sesuai'}
             </h3>
-            <p className="text-xs text-[#735334] max-w-sm mx-auto">
+            <p className="text-xs text-[#1E40AF] max-w-sm mx-auto">
               {persidanganList.length === 0
                 ? 'Belum ada persidangan yang dibuat. Klik tombol di bawah untuk membuat surat undangan persidangan baru.'
                 : 'Coba ubah kata kunci pencarian Anda.'}
@@ -191,7 +191,7 @@ export default function PersidanganDashboardPage() {
           {persidanganList.length === 0 && (
             <Link
               href="/admin/persidangan/new"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
             >
               <Plus className="w-4 h-4" />
               + Buat Persidangan Baru
@@ -214,13 +214,13 @@ export default function PersidanganDashboardPage() {
                 <div className="space-y-2.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-100 text-emerald-800 border-emerald-300">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-blue-100 text-blue-800 border-blue-300">
                         Aktif
                       </span>
                       {item.prefix_kode && (
                         <span
                           title={`Awalan Kode: ${item.prefix_kode}`}
-                          className="inline-block px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-wider bg-[#8C6A47]/10 text-[#8C6A47] border border-[#8C6A47]/25"
+                          className="inline-block px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-wider bg-[#1D4ED8]/10 text-[#1D4ED8] border border-[#1D4ED8]/25"
                         >
                           {item.prefix_kode}
                         </span>
@@ -228,33 +228,33 @@ export default function PersidanganDashboardPage() {
                     </div>
 
                     {hasPdf ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
                         <FileCheck className="w-3 h-3" />
                         PDF Siap
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
                         <AlertCircle className="w-3 h-3" />
                         Belum Ada PDF
                       </span>
                     )}
                   </div>
 
-                  <h3 className="font-serif font-bold text-base text-[#422F21] group-hover:text-[#8C6A47] transition-colors line-clamp-2">
+                  <h3 className="font-serif font-bold text-base text-[#0F2C59] group-hover:text-[#1D4ED8] transition-colors line-clamp-2">
                     {item.judul}
                   </h3>
                 </div>
 
                 {/* Details info */}
-                <div className="space-y-2 py-2 border-y border-[#E5D7C8] text-xs text-[#735334]">
+                <div className="space-y-2 py-2 border-y border-[#E5D7C8] text-xs text-[#1E40AF]">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Users className="w-3.5 h-3.5 text-[#8C6A47] shrink-0" />
+                      <Users className="w-3.5 h-3.5 text-[#1D4ED8] shrink-0" />
                       <span>
                         <strong>{countPeserta}</strong> Peserta
                       </span>
                     </div>
-                    <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span className="text-[11px] font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
                       <strong>{countHadir}</strong> Hadir
                     </span>
                   </div>
@@ -267,9 +267,9 @@ export default function PersidanganDashboardPage() {
                     type="button"
                     onClick={() => setActiveScanPersidangan(item)}
                     title="Scan QR Code Kehadiran"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/50 border border-white/60 hover:bg-white/70 backdrop-blur-sm text-xs font-bold text-[#8C6A47] shadow-2xs transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/50 border border-white/60 hover:bg-white/70 backdrop-blur-sm text-xs font-bold text-[#1D4ED8] shadow-2xs transition-colors"
                   >
-                    <Camera className="w-3.5 h-3.5 text-[#8C6A47]" />
+                    <Camera className="w-3.5 h-3.5 text-[#1D4ED8]" />
                     <span>Scan Kehadiran</span>
                   </button>
 
@@ -280,9 +280,9 @@ export default function PersidanganDashboardPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Buka Halaman Undangan Resmi"
-                        className="p-1.5 rounded-xl bg-white/50 border border-white/60 text-[#735334] hover:bg-white/70 backdrop-blur-sm transition-colors"
+                        className="p-1.5 rounded-xl bg-white/50 border border-white/60 text-[#1E40AF] hover:bg-white/70 backdrop-blur-sm transition-colors"
                       >
-                        <ExternalLink className="w-3.5 h-3.5 text-[#8C6A47]" />
+                        <ExternalLink className="w-3.5 h-3.5 text-[#1D4ED8]" />
                       </a>
                     )}
                     <button
@@ -296,7 +296,7 @@ export default function PersidanganDashboardPage() {
 
                     <Link
                       href={`/admin/persidangan/${item.id}`}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold shadow-xs transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-xs transition-colors"
                     >
                       <span>Kelola</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -324,7 +324,7 @@ export default function PersidanganDashboardPage() {
                 <ShieldAlert className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <h3 className="font-serif font-bold text-base text-[#422F21]">
+                <h3 className="font-serif font-bold text-base text-[#0F2C59]">
                   Hapus Persidangan?
                 </h3>
                 <span className="text-[11px] text-red-600 font-semibold">
@@ -333,9 +333,9 @@ export default function PersidanganDashboardPage() {
               </div>
             </div>
 
-            <p className="text-xs text-[#735334] leading-relaxed">
+            <p className="text-xs text-[#1E40AF] leading-relaxed">
               Anda akan menghapus persidangan{' '}
-              <strong className="text-[#422F21]">&quot;{deleteModalTarget.judul}&quot;</strong>.
+              <strong className="text-[#0F2C59]">&quot;{deleteModalTarget.judul}&quot;</strong>.
               Seluruh data peserta terkait akan ikut dihapus secara otomatis (CASCADE).
             </p>
 
@@ -344,7 +344,7 @@ export default function PersidanganDashboardPage() {
                 type="button"
                 onClick={() => setDeleteModalTarget(null)}
                 disabled={deletingId !== null}
-                className="px-4 py-2 rounded-xl border border-white/60 bg-white/50 hover:bg-white/70 backdrop-blur-sm text-xs font-bold text-[#735334]"
+                className="px-4 py-2 rounded-xl border border-white/60 bg-white/50 hover:bg-white/70 backdrop-blur-sm text-xs font-bold text-[#1E40AF]"
               >
                 Batal
               </button>

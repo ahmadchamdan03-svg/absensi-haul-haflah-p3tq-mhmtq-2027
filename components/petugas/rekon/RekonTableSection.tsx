@@ -26,7 +26,7 @@ export default function RekonTableSection({
 
       {searchResults.length === 0 ? (
         <div className="p-8 text-center bg-white rounded-3xl border-2 border-dashed border-stone-200 text-stone-500 text-xs">
-          <p className="font-bold text-sm text-[#422F21]">Data tidak ditemukan</p>
+          <p className="font-bold text-sm text-[#0F2C59]">Data tidak ditemukan</p>
           <p className="mt-1">
             Tidak ada peserta / tamu yang cocok dengan kata kunci &quot;{keyword}&quot;. Gunakan tombol &quot;+ Daftarkan Walk-in&quot; jika tamu hadir tanpa registrasi awal.
           </p>
@@ -49,13 +49,13 @@ export default function RekonTableSection({
               <div
                 key={d.id || d.kode}
                 className={`p-4 sm:p-5 rounded-3xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
-                  isHadir ? 'bg-emerald-50/70 backdrop-blur-md border-emerald-300' : 'bg-white/60 backdrop-blur-md border-white/70 hover:border-white/95'
+                  isHadir ? 'bg-blue-50/70 backdrop-blur-md border-blue-300' : 'bg-white/60 backdrop-blur-md border-white/70 hover:border-white/95'
                 }`}
               >
                 {/* INFORMASI UTAMA PESERTA */}
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                    <span className="font-mono text-xs font-black px-2.5 py-0.5 rounded-lg bg-[#FAF0E6] text-[#422F21] border border-[#D5C4B4]">
+                    <span className="font-mono text-xs font-black px-2.5 py-0.5 rounded-lg bg-[#FAF0E6] text-[#0F2C59] border border-[#BAE6FD]">
                       {d.kode}
                     </span>
                     <span
@@ -74,7 +74,7 @@ export default function RekonTableSection({
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
                             isCream
-                              ? 'bg-[#F5E6D3] text-[#5C3E28] border-[#D49B5B]'
+                              ? 'bg-[#F5E6D3] text-[#1E3A8A] border-[#D49B5B]'
                               : 'bg-blue-100 text-blue-900 border-blue-300'
                           }`}
                         >
@@ -83,8 +83,8 @@ export default function RekonTableSection({
                       );
                     })()}
                     {isHadir ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-emerald-950 border border-emerald-300 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-blue-950 border border-blue-300 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-blue-700" />
                         <span>HADIR ({currentTerpakai}/{totalKuota} Kursi)</span>
                       </span>
                     ) : (
@@ -94,7 +94,7 @@ export default function RekonTableSection({
                     )}
                   </div>
 
-                  <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+                  <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
                     {d.nama}
                   </h3>
 
@@ -121,8 +121,8 @@ export default function RekonTableSection({
                     onClick={() => onToggleHadir(item)}
                     className={`w-full md:w-auto px-4 py-2 rounded-2xl text-xs font-bold shadow-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
                       isHadir
-                        ? 'bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300'
-                        : 'bg-emerald-800 hover:bg-emerald-900 text-white'
+                        ? 'bg-sky-100 hover:bg-sky-200 text-blue-950 border border-sky-300'
+                        : 'bg-blue-800 hover:bg-blue-900 text-white'
                     }`}
                   >
                     {isHadir ? (
@@ -141,9 +141,9 @@ export default function RekonTableSection({
                   <button
                     type="button"
                     onClick={() => onOpenEdit(item)}
-                    className="w-full md:w-auto px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F3] text-[#8C6A47] border-2 border-[#D5C4B4] font-bold text-xs shadow-2xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
+                    className="w-full md:w-auto px-4 py-2 rounded-2xl bg-white hover:bg-[#F0F9FF] text-[#1D4ED8] border-2 border-[#BAE6FD] font-bold text-xs shadow-2xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-[#8C6A47]" />
+                    <Edit3 className="w-3.5 h-3.5 text-[#1D4ED8]" />
                     <span>Edit Lengkap</span>
                   </button>
                 </div>

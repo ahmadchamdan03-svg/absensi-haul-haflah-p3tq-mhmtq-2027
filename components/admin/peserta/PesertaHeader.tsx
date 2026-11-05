@@ -30,14 +30,14 @@ export default function PesertaHeader({
     <>
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#8C6A47] text-white px-5 py-3.5 rounded-2xl shadow-2xl border-2 border-[#D49B5B] flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-5">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1D4ED8] text-white px-5 py-3.5 rounded-2xl shadow-2xl border-2 border-[#D49B5B] flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-5">
           <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
           <span className="text-xs font-semibold">{toastMessage}</span>
         </div>
       )}
 
       {/* Header Halaman: Warm Latte & Cinnamon Mocha Aesthetic with Glassmorphism */}
-      <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md text-[#422F21] rounded-3xl p-6 sm:p-8 shadow-sm border border-white/70 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md text-[#0F2C59] rounded-3xl p-6 sm:p-8 shadow-sm border border-white/70 relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-10 -translate-y-8 opacity-10 pointer-events-none">
           <img
             src="/images/logo-haul-gold.png"
@@ -49,15 +49,15 @@ export default function PesertaHeader({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-2xl bg-white border-2 border-[#8C6A47] flex items-center justify-center text-[#8C6A47] shadow-sm">
-                <Users className="w-6 h-6 text-[#8C6A47]" />
+              <div className="w-12 h-12 rounded-2xl bg-white border-2 border-[#1D4ED8] flex items-center justify-center text-[#1D4ED8] shadow-sm">
+                <Users className="w-6 h-6 text-[#1D4ED8]" />
               </div>
               <div>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF7F3] text-[#8C6A47] border border-[#D49B5B]">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F0F9FF] text-[#1D4ED8] border border-[#D49B5B]">
                   <Sparkles className="w-3 h-3 mr-1 text-[#D49B5B]" />
                   DATABASE RESMI SANTRI &amp; TAMU
                 </span>
-                <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#422F21] tracking-wide">
+                <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#0F2C59] tracking-wide">
                   Daftar Peserta Tiap Kategori
                 </h1>
               </div>
@@ -72,7 +72,7 @@ export default function PesertaHeader({
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] to-[#735334] hover:brightness-105 text-white font-serif font-bold text-xs shadow-md border border-[#5C3E28] flex items-center space-x-1.5 transition-all"
+              className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#1D4ED8] to-[#1E40AF] hover:brightness-105 text-white font-serif font-bold text-xs shadow-md border border-[#1E3A8A] flex items-center space-x-1.5 transition-all"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>Tambah Santri</span>
@@ -80,10 +80,10 @@ export default function PesertaHeader({
 
             <button
               onClick={() => handleOpenAddUndangan('ISTIMEWA')}
-              className="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#422F21] font-serif font-bold text-xs border-2 border-[#D49B5B] shadow-sm flex items-center space-x-1.5 transition-all"
+              className="px-3.5 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#0F2C59] font-serif font-bold text-xs border-2 border-[#D49B5B] shadow-sm flex items-center space-x-1.5 transition-all"
               title="Tambah Tamu Undangan (Istimewa, Kehormatan, atau Umum)"
             >
-              <Plus className="w-4 h-4 text-[#8C6A47] stroke-[3]" />
+              <Plus className="w-4 h-4 text-[#1D4ED8] stroke-[3]" />
               <span>Tambah Undangan</span>
             </button>
           </div>
@@ -249,7 +249,7 @@ export function PesertaUtilityModals({
                   onClick={() => setClearScope('UNDANGAN')}
                   className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                     clearScope === 'UNDANGAN'
-                      ? 'border-amber-500 bg-amber-50/70 ring-2 ring-amber-400/30'
+                      ? 'border-amber-500 bg-sky-50/70 ring-2 ring-amber-400/30'
                       : 'border-slate-200 hover:bg-slate-50'
                   }`}
                 >
@@ -383,7 +383,7 @@ export function PesertaUtilityModals({
                 <div className="text-slate-500 text-[11px]">
                   {qrDetailItem.tipe === 'UNDANGAN' ? (
                     qrDetailItem.golonganUndangan === 'ISTIMEWA' ? (
-                      <span className="text-amber-900 font-semibold">
+                      <span className="text-blue-950 font-semibold">
                         📍 Alamat: {qrDetailItem.alamat || qrDetailItem.instansi || 'Kediri'}
                       </span>
                     ) : qrDetailItem.golonganUndangan === 'KEHORMATAN' ? (
@@ -506,7 +506,7 @@ Pemerhati Haul & Haflah P3TQ - MHMTQ Lirboyo Kediri`;
                     navigator.clipboard.writeText(waText);
                     showToast(`✓ Pesan WA santun untuk ${qrDetailItem.nama} berhasil disalin!`);
                   }}
-                  className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer mt-2"
+                  className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer mt-2"
                 >
                   <span>📋 Salin Template Chat WA Santun</span>
                 </button>

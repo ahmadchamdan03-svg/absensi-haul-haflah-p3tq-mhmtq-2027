@@ -20,13 +20,13 @@ export const EXPRESSION_AVATARS: Record<
     src: '/images/avatar/ustadzah-avatar-wave.png',
     label: 'Menyapa Ramah',
     mood: '👋 Sapaan Hangat',
-    badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
+    badgeColor: 'bg-sky-100 text-blue-900 border-sky-300',
   },
   happy: {
     src: '/images/avatar/ustadzah-avatar-happy.png',
     label: 'Gembira & Bersyukur',
     mood: '✨ Penuh Berkah',
-    badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
   },
   wink: {
     src: '/images/avatar/ustadzah-avatar-wink.png',
@@ -50,7 +50,7 @@ export const EXPRESSION_AVATARS: Record<
     src: '/images/avatar/ustadzah-avatar-polite.png',
     label: 'Santun & Khidmat',
     mood: '🌸 Khidmat & Santun',
-    badgeColor: 'bg-[#EFE8E1] text-[#735334] border-[#D5C4B4]',
+    badgeColor: 'bg-[#E0F2FE] text-[#1E40AF] border-[#BAE6FD]',
   },
 };
 
@@ -233,10 +233,10 @@ export function renderFormattedContent(
   let currentList: React.ReactNode[] = [];
   let currentTableLines: string[] = [];
 
-  const textColor = isUser ? 'text-[#2D1B0E]' : 'text-[#543C28]';
-  const strongColor = isUser ? 'text-[#1A0E06]' : 'text-[#422F21]';
-  const bulletDot = isUser ? 'bg-[#8C6A47]' : 'bg-[#8C6A47]';
-  const numColor = isUser ? 'text-[#7A5533]' : 'text-[#8C6A47]';
+  const textColor = isUser ? 'text-[#0A192F]' : 'text-[#543C28]';
+  const strongColor = isUser ? 'text-[#1A0E06]' : 'text-[#0F2C59]';
+  const bulletDot = isUser ? 'bg-[#1D4ED8]' : 'bg-[#1D4ED8]';
+  const numColor = isUser ? 'text-[#7A5533]' : 'text-[#1D4ED8]';
 
   const flushList = () => {
     if (currentList.length > 0) {
@@ -268,14 +268,14 @@ export function renderFormattedContent(
     elements.push(
       <div
         key={tableKey}
-        className="my-3 overflow-hidden rounded-2xl border border-[#D5C4B4] bg-[#FDFBF7] shadow-xs"
+        className="my-3 overflow-hidden rounded-2xl border border-[#BAE6FD] bg-[#F0F9FF] shadow-xs"
       >
         <div className="overflow-x-auto max-h-72">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#EFE8E1] border-b border-[#D5C4B4] text-[#543C28] font-bold">
+              <tr className="bg-[#E0F2FE] border-b border-[#BAE6FD] text-[#543C28] font-bold">
                 {headerRow.map((h, i) => (
-                  <th key={i} className="p-2.5 border-r border-[#D5C4B4] last:border-r-0 whitespace-nowrap">
+                  <th key={i} className="p-2.5 border-r border-[#BAE6FD] last:border-r-0 whitespace-nowrap">
                     {parseInline(h)}
                   </th>
                 ))}
@@ -285,12 +285,12 @@ export function renderFormattedContent(
               {dataRows.map((row, rIdx) => (
                 <tr
                   key={rIdx}
-                  className="border-b border-[#EFE8E1] last:border-b-0 hover:bg-[#F5EFE8] transition-colors"
+                  className="border-b border-[#E0F2FE] last:border-b-0 hover:bg-[#F5EFE8] transition-colors"
                 >
                   {row.map((cell, cIdx) => (
                     <td
                       key={cIdx}
-                      className="p-2.5 border-r border-[#EFE8E1] last:border-r-0 text-[#2D1B0E]"
+                      className="p-2.5 border-r border-[#E0F2FE] last:border-r-0 text-[#0A192F]"
                     >
                       {parseInline(cell)}
                     </td>
@@ -300,15 +300,15 @@ export function renderFormattedContent(
             </tbody>
           </table>
         </div>
-        <div className="p-2.5 bg-[#F7F2EC] border-t border-[#D5C4B4] flex items-center justify-between flex-wrap gap-2 text-[11px]">
-          <span className="text-[#735334] font-bold flex items-center gap-1.5">
-            <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+        <div className="p-2.5 bg-[#F7F2EC] border-t border-[#BAE6FD] flex items-center justify-between flex-wrap gap-2 text-[11px]">
+          <span className="text-[#1E40AF] font-bold flex items-center gap-1.5">
+            <FileSpreadsheet className="w-4 h-4 text-blue-700" />
             <span>Tabel Data Haflah ({dataRows.length} baris)</span>
           </span>
           <button
             type="button"
             onClick={() => exportTableToExcel(headerRow, dataRows, 'Tabel_Data_Haflah')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
             title="Unduh data tabel dalam format spreadsheet Excel"
           >
             <Download className="w-3.5 h-3.5" />
@@ -341,7 +341,7 @@ export function renderFormattedContent(
           return (
             <span
               key={idx}
-              className="block my-2 rounded-xl overflow-hidden border border-[#D5C4B4] bg-[#FDFBF7] shadow-xs"
+              className="block my-2 rounded-xl overflow-hidden border border-[#BAE6FD] bg-[#F0F9FF] shadow-xs"
             >
               <img
                 src={url}
@@ -350,7 +350,7 @@ export function renderFormattedContent(
                 loading="lazy"
               />
               {alt && (
-                <span className="block p-1.5 text-[10px] text-[#735334] bg-[#F7F2EC] text-center font-medium">
+                <span className="block p-1.5 text-[10px] text-[#1E40AF] bg-[#F7F2EC] text-center font-medium">
                   {alt}
                 </span>
               )}
@@ -394,11 +394,11 @@ export function renderFormattedContent(
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 my-0.5 mx-0.5 rounded-lg bg-[#F5EFE8] hover:bg-[#EFE8E1] text-[#735334] hover:text-[#543C28] font-bold text-xs border border-[#D5C4B4] transition-all underline underline-offset-2 decoration-[#8C6A47]/40 hover:decoration-[#8C6A47] cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 my-0.5 mx-0.5 rounded-lg bg-[#F5EFE8] hover:bg-[#E0F2FE] text-[#1E40AF] hover:text-[#543C28] font-bold text-xs border border-[#BAE6FD] transition-all underline underline-offset-2 decoration-[#1D4ED8]/40 hover:decoration-[#1D4ED8] cursor-pointer"
               title={`Kunjungi tautan eksternal: ${label}`}
             >
               <span>{label}</span>
-              <ExternalLink className="w-3 h-3 text-[#8C6A47] shrink-0" />
+              <ExternalLink className="w-3 h-3 text-[#1D4ED8] shrink-0" />
             </a>
           );
         }
@@ -408,7 +408,7 @@ export function renderFormattedContent(
             key={idx}
             type="button"
             onClick={() => onNavigate?.(url)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 my-1 mx-0.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#9B7752] to-[#8C6A47] hover:brightness-110 text-white font-bold text-xs shadow-xs transition-all active:scale-95 border border-[#735334] cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 my-1 mx-0.5 rounded-xl bg-gradient-to-r from-[#1D4ED8] via-[#9B7752] to-[#1D4ED8] hover:brightness-110 text-white font-bold text-xs shadow-xs transition-all active:scale-95 border border-[#1E40AF] cursor-pointer"
             title={`Buka ${label}`}
           >
             <span>{label}</span>
@@ -423,7 +423,7 @@ export function renderFormattedContent(
           <span
             key={idx}
             dir="rtl"
-            className="font-['KFGQPC_Utsman_Taha_Naskh','KFGQPC_Uthmanic_Script_HAFS','Amiri',serif] text-lg sm:text-xl leading-relaxed text-[#2D1B0E] mx-1 inline-block"
+            className="font-['KFGQPC_Utsman_Taha_Naskh','KFGQPC_Uthmanic_Script_HAFS','Amiri',serif] text-lg sm:text-xl leading-relaxed text-[#0A192F] mx-1 inline-block"
           >
             {part}
           </span>
@@ -461,7 +461,7 @@ export function renderFormattedContent(
       elements.push(
         <div
           key={`img-card-${index}`}
-          className="my-3 rounded-2xl overflow-hidden border border-[#D5C4B4] bg-[#FDFBF7] shadow-xs"
+          className="my-3 rounded-2xl overflow-hidden border border-[#BAE6FD] bg-[#F0F9FF] shadow-xs"
         >
           <div className="relative w-full aspect-video max-h-[300px] bg-stone-100 flex items-center justify-center overflow-hidden">
             <img
@@ -472,13 +472,13 @@ export function renderFormattedContent(
             />
           </div>
           {alt && (
-            <div className="px-3 py-2 text-[11px] text-[#735334] font-medium flex items-center justify-between border-t border-[#EFE8E1] bg-[#F7F2EC]">
+            <div className="px-3 py-2 text-[11px] text-[#1E40AF] font-medium flex items-center justify-between border-t border-[#E0F2FE] bg-[#F7F2EC]">
               <span className="truncate pr-2 font-medium">{alt}</span>
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[10px] text-[#8C6A47] hover:underline font-bold shrink-0"
+                className="inline-flex items-center gap-1 text-[10px] text-[#1D4ED8] hover:underline font-bold shrink-0"
               >
                 <span>Lihat Ukuran Penuh</span>
                 <ExternalLink className="w-3 h-3" />
@@ -577,8 +577,8 @@ export function renderFormattedContent(
           dir={isArabicQuote ? 'rtl' : 'ltr'}
           className={`my-3 p-3.5 sm:p-4 rounded-2xl border-2 ${
             isArabicQuote
-              ? 'border-r-4 border-l-2 border-[#8C6A47] bg-[#FBF8F4] text-right font-["KFGQPC_Utsman_Taha_Naskh","KFGQPC_Uthmanic_Script_HAFS","Amiri",serif] text-xl sm:text-2xl leading-[2.4] text-[#2D1B0E] shadow-xs'
-              : 'border-l-4 border-r-2 border-[#8C6A47] bg-[#F5EFE8] text-left text-xs leading-relaxed text-[#543C28]'
+              ? 'border-r-4 border-l-2 border-[#1D4ED8] bg-[#FBF8F4] text-right font-["KFGQPC_Utsman_Taha_Naskh","KFGQPC_Uthmanic_Script_HAFS","Amiri",serif] text-xl sm:text-2xl leading-[2.4] text-[#0A192F] shadow-xs'
+              : 'border-l-4 border-r-2 border-[#1D4ED8] bg-[#F5EFE8] text-left text-xs leading-relaxed text-[#543C28]'
           }`}
         >
           {parseInline(quoteContent)}
@@ -609,7 +609,7 @@ export function renderFormattedContent(
 
     if (trimmed === '---' || trimmed === '***') {
       flushList();
-      elements.push(<hr key={`hr-${index}`} className="my-2 border-[#E5DCD2]" />);
+      elements.push(<hr key={`hr-${index}`} className="my-2 border-[#BAE6FD]" />);
       return;
     }
 
@@ -650,7 +650,7 @@ export function renderFormattedContent(
           <p
             key={`ar-p-${index}`}
             dir="rtl"
-            className="my-2.5 text-right font-['KFGQPC_Utsman_Taha_Naskh','KFGQPC_Uthmanic_Script_HAFS','Amiri',serif] text-xl sm:text-2xl leading-[2.4] text-[#2D1B0E]"
+            className="my-2.5 text-right font-['KFGQPC_Utsman_Taha_Naskh','KFGQPC_Uthmanic_Script_HAFS','Amiri',serif] text-xl sm:text-2xl leading-[2.4] text-[#0A192F]"
           >
             {parseInline(trimmed)}
           </p>

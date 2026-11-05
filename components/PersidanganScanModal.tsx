@@ -397,23 +397,23 @@ export default function PersidanganScanModal({
       onClick={onClose}
     >
       <div
-        className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="bg-[#F0F9FF] border-2 border-[#BAE6FD] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modal */}
-        <div className="bg-[#FAF7F3] border-b-2 border-[#D5C4B4] px-5 py-3.5 flex items-center justify-between gap-3">
+        <div className="bg-[#F0F9FF] border-b-2 border-[#BAE6FD] px-5 py-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#8C6A47]/15 border border-[#8C6A47]/30 flex items-center justify-center text-[#8C6A47]">
+            <div className="w-9 h-9 rounded-xl bg-[#1D4ED8]/15 border border-[#1D4ED8]/30 flex items-center justify-center text-[#1D4ED8]">
               <Camera className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-sm sm:text-base text-[#422F21] line-clamp-1">
+              <h3 className="font-serif font-bold text-sm sm:text-base text-[#0F2C59] line-clamp-1">
                 Scan Kehadiran Persidangan
               </h3>
-              <p className="text-[11px] text-[#735334] line-clamp-1">
+              <p className="text-[11px] text-[#1E40AF] line-clamp-1">
                 {persidangan.judul}{' '}
                 {persidangan.prefix_kode && (
-                  <span className="font-mono font-bold text-[#8C6A47]">
+                  <span className="font-mono font-bold text-[#1D4ED8]">
                     ({persidangan.prefix_kode})
                   </span>
                 )}
@@ -426,7 +426,7 @@ export default function PersidanganScanModal({
               type="button"
               onClick={handleToggleFacingMode}
               title="Ganti Kamera (Depan / Belakang)"
-              className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+              className="p-2 rounded-xl bg-white border border-[#BAE6FD] text-[#1E40AF] hover:bg-[#F0F9FF] transition-colors"
             >
               <SwitchCamera className="w-4 h-4" />
             </button>
@@ -434,7 +434,7 @@ export default function PersidanganScanModal({
               type="button"
               onClick={onClose}
               title="Tutup"
-              className="p-2 rounded-xl bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+              className="p-2 rounded-xl bg-white border border-[#BAE6FD] text-[#1E40AF] hover:bg-[#F0F9FF] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -443,7 +443,7 @@ export default function PersidanganScanModal({
 
         {/* Scanner Viewport Container */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto space-y-4">
-          <div className="relative aspect-square max-w-[340px] mx-auto rounded-2xl overflow-hidden bg-stone-900 border-2 border-[#D5C4B4] shadow-inner flex items-center justify-center">
+          <div className="relative aspect-square max-w-[340px] mx-auto rounded-2xl overflow-hidden bg-stone-900 border-2 border-[#BAE6FD] shadow-inner flex items-center justify-center">
             {/* HTML5 QR Camera Element */}
             <div
               id="persidangan-camera-reader"
@@ -452,28 +452,28 @@ export default function PersidanganScanModal({
 
             {/* Loading Spinner */}
             {cameraLoading && (
-              <div className="absolute inset-0 bg-[#FAF7F3] flex flex-col items-center justify-center p-4 text-center z-10 space-y-2">
-                <RefreshCw className="w-8 h-8 text-[#8C6A47] animate-spin" />
-                <span className="text-xs font-bold text-[#422F21]">Menghubungkan ke kamera...</span>
+              <div className="absolute inset-0 bg-[#F0F9FF] flex flex-col items-center justify-center p-4 text-center z-10 space-y-2">
+                <RefreshCw className="w-8 h-8 text-[#1D4ED8] animate-spin" />
+                <span className="text-xs font-bold text-[#0F2C59]">Menghubungkan ke kamera...</span>
               </div>
             )}
 
             {/* Error Message */}
             {cameraError && (
-              <div className="absolute inset-0 bg-[#FAF7F3] flex flex-col items-center justify-center p-5 text-center z-10 space-y-3">
+              <div className="absolute inset-0 bg-[#F0F9FF] flex flex-col items-center justify-center p-5 text-center z-10 space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-red-100 border border-red-200 text-red-600 flex items-center justify-center">
                   <XCircle className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-serif font-bold text-xs sm:text-sm text-[#422F21]">
+                  <h4 className="font-serif font-bold text-xs sm:text-sm text-[#0F2C59]">
                     Gagal Mengakses Kamera
                   </h4>
-                  <p className="text-[11px] text-[#735334] max-w-xs">{cameraError}</p>
+                  <p className="text-[11px] text-[#1E40AF] max-w-xs">{cameraError}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => startCamera(facingMode)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#8C6A47] text-white text-xs font-bold shadow-xs hover:bg-[#735334]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold shadow-xs hover:bg-[#1E40AF]"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   Coba Lagi
@@ -486,9 +486,9 @@ export default function PersidanganScanModal({
               <div
                 className={`absolute inset-0 z-30 p-6 flex flex-col items-center justify-center text-center animate-in fade-in duration-150 backdrop-blur-xs ${
                   scanResult.type === 'success'
-                    ? 'bg-emerald-950/85 text-white'
+                    ? 'bg-blue-950/85 text-white'
                     : scanResult.type === 'warning'
-                    ? 'bg-amber-950/85 text-white'
+                    ? 'bg-blue-950/85 text-white'
                     : scanResult.type === 'rate_limit'
                     ? 'bg-orange-950/85 text-white'
                     : 'bg-red-950/85 text-white'
@@ -497,12 +497,12 @@ export default function PersidanganScanModal({
                 {/* Icon */}
                 <div className="mb-2">
                   {scanResult.type === 'success' && (
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-blue-500/20 border-2 border-blue-400 flex items-center justify-center">
                       <CheckCircle2 className="w-9 h-9 text-emerald-300" />
                     </div>
                   )}
                   {scanResult.type === 'warning' && (
-                    <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-sky-400 flex items-center justify-center">
                       <AlertTriangle className="w-9 h-9 text-amber-300" />
                     </div>
                   )}
@@ -547,7 +547,7 @@ export default function PersidanganScanModal({
 
           {/* Instruksi Penggunaan */}
           <div className="text-center space-y-1">
-            <p className="text-xs text-[#735334]">
+            <p className="text-xs text-[#1E40AF]">
               Arahkan kamera ke QR Code peserta pada surat undangan digital mereka.
             </p>
             <p className="text-[11px] text-[#A89887]">
@@ -557,26 +557,26 @@ export default function PersidanganScanModal({
 
           {/* Sesi Kehadiran Baru / Recent Scans */}
           {recentScans.length > 0 && (
-            <div className="bg-white border border-[#D5C4B4] rounded-2xl p-3.5 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-[#422F21]">
+            <div className="bg-white border border-[#BAE6FD] rounded-2xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#0F2C59]">
                 <span className="flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-[#8C6A47]" />
+                  <Users className="w-3.5 h-3.5 text-[#1D4ED8]" />
                   Baru Saja Hadir ({recentScans.length}):
                 </span>
-                <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <span className="text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
                   Sesi Ini
                 </span>
               </div>
-              <div className="divide-y divide-[#EFE8E1] max-h-36 overflow-y-auto text-xs">
+              <div className="divide-y divide-[#E0F2FE] max-h-36 overflow-y-auto text-xs">
                 {recentScans.map((item, idx) => (
                   <div key={idx} className="py-1.5 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] font-bold text-[#8C6A47] bg-[#8C6A47]/10 px-1.5 py-0.5 rounded">
+                      <span className="font-mono text-[10px] font-bold text-[#1D4ED8] bg-[#1D4ED8]/10 px-1.5 py-0.5 rounded">
                         {item.kode}
                       </span>
-                      <span className="font-semibold text-[#422F21] line-clamp-1">{item.nama}</span>
+                      <span className="font-semibold text-[#0F2C59] line-clamp-1">{item.nama}</span>
                     </div>
-                    <span className="text-[10px] font-mono text-[#735334] shrink-0">
+                    <span className="text-[10px] font-mono text-[#1E40AF] shrink-0">
                       {item.waktu}
                     </span>
                   </div>
@@ -587,11 +587,11 @@ export default function PersidanganScanModal({
         </div>
 
         {/* Footer Modal */}
-        <div className="bg-[#FAF7F3] border-t-2 border-[#D5C4B4] px-5 py-3 flex items-center justify-end">
+        <div className="bg-[#F0F9FF] border-t-2 border-[#BAE6FD] px-5 py-3 flex items-center justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-white border border-[#D5C4B4] text-xs font-bold text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+            className="px-5 py-2 rounded-xl bg-white border border-[#BAE6FD] text-xs font-bold text-[#1E40AF] hover:bg-[#F0F9FF] transition-colors"
           >
             Tutup Scanner
           </button>

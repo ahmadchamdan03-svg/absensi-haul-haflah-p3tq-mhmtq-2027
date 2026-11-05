@@ -13,7 +13,7 @@ export default function DenahPublicPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center space-x-2 text-xs font-bold text-[#8C6A47] hover:text-[#422F21] bg-white/60 hover:bg-white/85 backdrop-blur-xs px-3.5 py-2 rounded-2xl border border-white/70 shadow-xs self-start transition-colors"
+            className="inline-flex items-center space-x-2 text-xs font-bold text-[#1D4ED8] hover:text-[#0F2C59] bg-white/60 hover:bg-white/85 backdrop-blur-xs px-3.5 py-2 rounded-2xl border border-white/70 shadow-xs self-start transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Beranda</span>
@@ -23,9 +23,9 @@ export default function DenahPublicPage() {
             <a
               href="/images/denah-haflah-2027.jpg"
               download="Denah-Haflah-P3TQ-2027.jpg"
-              className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#422F21] bg-white/60 hover:bg-white/85 backdrop-blur-xs px-3 py-2 rounded-2xl border border-white/70 shadow-xs hover:bg-[#EFE8E1] transition-colors"
+              className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#0F2C59] bg-white/60 hover:bg-white/85 backdrop-blur-xs px-3 py-2 rounded-2xl border border-white/70 shadow-xs hover:bg-[#E0F2FE] transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-[#8C6A47]" />
+              <Download className="w-3.5 h-3.5 text-[#1D4ED8]" />
               <span>Unduh Arsip JPG</span>
             </a>
           </div>

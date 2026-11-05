@@ -84,18 +84,18 @@ export default function PersidanganModals({
           onClick={onCloseAddModal}
         >
           <div
-            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
+            className="bg-[#F0F9FF] border-2 border-[#BAE6FD] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[#E5D7C8] pb-3">
-              <h3 className="font-serif font-bold text-base text-[#422F21] flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-[#8C6A47]" />
+              <h3 className="font-serif font-bold text-base text-[#0F2C59] flex items-center gap-2">
+                <UserPlus className="w-4 h-4 text-[#1D4ED8]" />
                 Tambah Peserta Baru
               </h3>
               <button
                 type="button"
                 onClick={onCloseAddModal}
-                className="p-1 text-[#735334] hover:text-[#422F21]"
+                className="p-1 text-[#1E40AF] hover:text-[#0F2C59]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -103,7 +103,7 @@ export default function PersidanganModals({
 
             <form onSubmit={onAddSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#1E40AF] mb-1">
                   Nama Penerima <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -112,12 +112,12 @@ export default function PersidanganModals({
                   onChange={(e) => onInputNamaChange(e.target.value)}
                   placeholder="Contoh: Gus Ahmad Faqih"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
+                  className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs text-[#0F2C59] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#1E40AF] mb-1">
                   Nomor WhatsApp <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -126,7 +126,7 @@ export default function PersidanganModals({
                   onChange={(e) => onInputNoWaChange(e.target.value)}
                   placeholder="Contoh: 08123456789 atau 628123456789"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 font-mono"
+                  className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs text-[#0F2C59] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40 font-mono"
                 />
                 <span className="text-[10px] text-[#A89887] block mt-1">
                   Format akan otomatis dinormalisasi ke format internasional (628...).
@@ -137,14 +137,14 @@ export default function PersidanganModals({
                 <button
                   type="button"
                   onClick={onCloseAddModal}
-                  className="px-4 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3]"
+                  className="px-4 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs font-bold text-[#1E40AF] hover:bg-[#F0F9FF]"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold disabled:opacity-50"
                 >
                   {formSubmitting ? 'Menyimpan...' : 'Tambah Saja'}
                 </button>
@@ -163,18 +163,18 @@ export default function PersidanganModals({
           onClick={onCloseEditModal}
         >
           <div
-            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
+            className="bg-[#F0F9FF] border-2 border-[#BAE6FD] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[#E5D7C8] pb-3">
-              <h3 className="font-serif font-bold text-base text-[#422F21] flex items-center gap-2">
-                <Edit2 className="w-4 h-4 text-[#8C6A47]" />
+              <h3 className="font-serif font-bold text-base text-[#0F2C59] flex items-center gap-2">
+                <Edit2 className="w-4 h-4 text-[#1D4ED8]" />
                 Edit Data Peserta
               </h3>
               <button
                 type="button"
                 onClick={onCloseEditModal}
-                className="p-1 text-[#735334] hover:text-[#422F21]"
+                className="p-1 text-[#1E40AF] hover:text-[#0F2C59]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -182,7 +182,7 @@ export default function PersidanganModals({
 
             <form onSubmit={onEditSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#1E40AF] mb-1">
                   Nama Penerima <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -190,12 +190,12 @@ export default function PersidanganModals({
                   value={inputNama}
                   onChange={(e) => onInputNamaChange(e.target.value)}
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40"
+                  className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs text-[#0F2C59] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#735334] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#1E40AF] mb-1">
                   Nomor WhatsApp <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -203,7 +203,7 @@ export default function PersidanganModals({
                   value={inputNoWa}
                   onChange={(e) => onInputNoWaChange(e.target.value)}
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs text-[#422F21] focus:outline-none focus:ring-2 focus:ring-[#8C6A47]/40 font-mono"
+                  className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs text-[#0F2C59] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/40 font-mono"
                 />
               </div>
 
@@ -211,14 +211,14 @@ export default function PersidanganModals({
                 <button
                   type="button"
                   onClick={onCloseEditModal}
-                  className="px-4 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3]"
+                  className="px-4 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs font-bold text-[#1E40AF] hover:bg-[#F0F9FF]"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold disabled:opacity-50"
                 >
                   {formSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
@@ -237,26 +237,26 @@ export default function PersidanganModals({
           onClick={onCloseImportModal}
         >
           <div
-            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-lg shadow-xl space-y-4"
+            className="bg-[#F0F9FF] border-2 border-[#BAE6FD] rounded-2xl p-6 w-full max-w-lg shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[#E5D7C8] pb-3">
-              <h3 className="font-serif font-bold text-base text-[#422F21] flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-emerald-700" />
+              <h3 className="font-serif font-bold text-base text-[#0F2C59] flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-blue-700" />
                 Import Peserta via Excel (.xlsx)
               </h3>
               <button
                 type="button"
                 onClick={onCloseImportModal}
-                className="p-1 text-[#735334] hover:text-[#422F21]"
+                className="p-1 text-[#1E40AF] hover:text-[#0F2C59]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="p-3 rounded-xl bg-white border border-[#D5C4B4] text-xs text-[#735334] space-y-1">
-                <div className="font-bold text-[#422F21]">Format Kolom Excel:</div>
+              <div className="p-3 rounded-xl bg-white border border-[#BAE6FD] text-xs text-[#1E40AF] space-y-1">
+                <div className="font-bold text-[#0F2C59]">Format Kolom Excel:</div>
                 <ul className="list-disc list-inside space-y-0.5 text-[11px]">
                   <li>
                     Kolom A: <strong>Nama Penerima</strong>
@@ -278,9 +278,9 @@ export default function PersidanganModals({
                 <button
                   type="button"
                   onClick={() => excelInputRef.current?.click()}
-                  className="w-full py-3 rounded-xl border-2 border-dashed border-[#8C6A47] bg-white hover:bg-[#F5E6D3]/40 text-xs font-bold text-[#8C6A47] flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-3 rounded-xl border-2 border-dashed border-[#1D4ED8] bg-white hover:bg-[#F5E6D3]/40 text-xs font-bold text-[#1D4ED8] flex items-center justify-center gap-2 transition-colors"
                 >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+                  <FileSpreadsheet className="w-4 h-4 text-blue-700" />
                   {excelFileName ? `Ganti Berkas (${excelFileName})` : 'Pilih Berkas Excel (.xlsx)'}
                 </button>
               </div>
@@ -288,40 +288,40 @@ export default function PersidanganModals({
               {/* Preview 5 Baris Pertama */}
               {excelPreviewData.length > 0 && (
                 <div className="space-y-2">
-                  <div className="text-xs font-bold text-[#422F21] flex items-center justify-between">
+                  <div className="text-xs font-bold text-[#0F2C59] flex items-center justify-between">
                     <span>Pratinjau Data (5 dari {excelAllData.length} baris):</span>
-                    <span className="text-[11px] text-[#8C6A47]">
+                    <span className="text-[11px] text-[#1D4ED8]">
                       Total {excelAllData.length} peserta terdeteksi
                     </span>
                   </div>
 
-                  <div className="border border-[#D5C4B4] rounded-xl overflow-hidden bg-white max-h-48 overflow-y-auto">
+                  <div className="border border-[#BAE6FD] rounded-xl overflow-hidden bg-white max-h-48 overflow-y-auto">
                     <table className="w-full text-left text-[11px]">
-                      <thead className="bg-[#FAF7F3] text-[#735334] font-bold border-b border-[#D5C4B4]">
+                      <thead className="bg-[#F0F9FF] text-[#1E40AF] font-bold border-b border-[#BAE6FD]">
                         <tr>
                           <th className="p-2 w-8">No</th>
                           <th className="p-2">Nama</th>
                           <th className="p-2">No WA</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#EFE8E1]">
+                      <tbody className="divide-y divide-[#E0F2FE]">
                         {excelPreviewData.map((row, idx) => (
                           <tr key={idx}>
-                            <td className="p-2 text-center text-[#735334]">{idx + 1}</td>
+                            <td className="p-2 text-center text-[#1E40AF]">{idx + 1}</td>
                             <td className="p-2 font-medium">{row.nama}</td>
-                            <td className="p-2 font-mono text-[#735334]">{row.no_wa}</td>
+                            <td className="p-2 font-mono text-[#1E40AF]">{row.no_wa}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
 
-                  <label className="flex items-center gap-2 text-xs text-[#735334] cursor-pointer pt-1">
+                  <label className="flex items-center gap-2 text-xs text-[#1E40AF] cursor-pointer pt-1">
                     <input
                       type="checkbox"
                       checked={skipDuplicates}
                       onChange={(e) => onSkipDuplicatesChange(e.target.checked)}
-                      className="rounded text-[#8C6A47] focus:ring-[#8C6A47]"
+                      className="rounded text-[#1D4ED8] focus:ring-[#1D4ED8]"
                     />
                     <span>Lewati jika nomor WA sudah ada di daftar persidangan ini</span>
                   </label>
@@ -333,7 +333,7 @@ export default function PersidanganModals({
               <button
                 type="button"
                 onClick={onCloseImportModal}
-                className="px-4 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3]"
+                className="px-4 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs font-bold text-[#1E40AF] hover:bg-[#F0F9FF]"
               >
                 Batal
               </button>
@@ -341,7 +341,7 @@ export default function PersidanganModals({
                 type="button"
                 onClick={onImportSubmit}
                 disabled={excelAllData.length === 0 || importing}
-                className="px-5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-bold disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold disabled:opacity-50"
               >
                 {importing
                   ? 'Mengimpor...'
@@ -361,50 +361,50 @@ export default function PersidanganModals({
           onClick={onCloseConfirmSend}
         >
           <div
-            className="bg-[#FAF7F3] border-2 border-[#D5C4B4] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
+            className="bg-[#F0F9FF] border-2 border-[#BAE6FD] rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[#E5D7C8] pb-3">
-              <h3 className="font-serif font-bold text-base text-[#422F21] flex items-center gap-2">
-                <Send className="w-4 h-4 text-emerald-600" />
+              <h3 className="font-serif font-bold text-base text-[#0F2C59] flex items-center gap-2">
+                <Send className="w-4 h-4 text-blue-600" />
                 Konfirmasi Kirim WhatsApp
               </h3>
               <button
                 type="button"
                 onClick={onCloseConfirmSend}
-                className="p-1 text-[#735334] hover:text-[#422F21]"
+                className="p-1 text-[#1E40AF] hover:text-[#0F2C59]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-[#735334]">
+            <div className="space-y-3 text-xs text-[#1E40AF]">
               <p>
                 Kirim surat undangan digital persidangan ke penerima berikut?
               </p>
 
-              <div className="p-3.5 rounded-xl bg-white border border-[#D5C4B4] space-y-1.5">
+              <div className="p-3.5 rounded-xl bg-white border border-[#BAE6FD] space-y-1.5">
                 <div>
                   <span className="text-[#A89887] text-[10px] uppercase font-bold block">
                     Nama Penerima
                   </span>
-                  <strong className="text-sm text-[#422F21]">{confirmSendTarget.nama}</strong>
+                  <strong className="text-sm text-[#0F2C59]">{confirmSendTarget.nama}</strong>
                 </div>
                 <div>
                   <span className="text-[#A89887] text-[10px] uppercase font-bold block">
                     Nomor WhatsApp
                   </span>
-                  <span className="font-mono text-xs text-[#422F21]">{confirmSendTarget.no_wa}</span>
+                  <span className="font-mono text-xs text-[#0F2C59]">{confirmSendTarget.no_wa}</span>
                 </div>
                 <div>
                   <span className="text-[#A89887] text-[10px] uppercase font-bold block">
                     Persidangan
                   </span>
-                  <span className="text-xs text-[#8C6A47] font-semibold">{persidangan.judul}</span>
+                  <span className="text-xs text-[#1D4ED8] font-semibold">{persidangan.judul}</span>
                 </div>
               </div>
 
-              <p className="text-[11px] text-[#8C6A47]">
+              <p className="text-[11px] text-[#1D4ED8]">
                 Pesan akan dikirim langsung via gateway WhatsApp Fonnte bersama tautan dokumen PDF resmi.
               </p>
             </div>
@@ -413,14 +413,14 @@ export default function PersidanganModals({
               <button
                 type="button"
                 onClick={onCloseConfirmSend}
-                className="px-4 py-2 rounded-xl border border-[#D5C4B4] bg-white text-xs font-bold text-[#735334] hover:bg-[#FAF7F3]"
+                className="px-4 py-2 rounded-xl border border-[#BAE6FD] bg-white text-xs font-bold text-[#1E40AF] hover:bg-[#F0F9FF]"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={() => onExecuteSendWa(confirmSendTarget)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
                 Ya, Kirim Sekarang

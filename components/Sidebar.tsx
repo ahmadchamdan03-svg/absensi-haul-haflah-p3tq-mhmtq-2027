@@ -151,7 +151,7 @@ export default function Sidebar({
 
   // Render konten sidebar fleksibel (mode collapsed vs expanded)
   const renderSidebarContent = (collapsed: boolean) => (
-    <div className="flex flex-col h-full bg-white/40 backdrop-blur-xl border-r border-white/50 text-[#422F21] shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300">
+    <div className="flex flex-col h-full bg-white/40 backdrop-blur-xl border-r border-white/50 text-[#0F2C59] shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300">
       {/* Header Sidebar: Identitas Resmi Sejajar dengan TopHeader (h-[72px]) */}
       <div className="h-[72px] px-3 border-b border-white/50 bg-white/30 backdrop-blur-xs relative select-none flex items-center justify-center shrink-0">
         {collapsed ? (
@@ -175,14 +175,14 @@ export default function Sidebar({
             onClick={onCloseMobile}
             className="block group text-center space-y-0.5"
           >
-            <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#422F21] leading-none group-hover:text-[#8C6A47] transition-colors whitespace-nowrap">
+            <div className="font-serif font-black text-xs sm:text-sm tracking-wider text-[#0F2C59] leading-none group-hover:text-[#1D4ED8] transition-colors whitespace-nowrap">
               HAUL &amp; HAFLAH
             </div>
-            <div className="text-[11px] font-bold text-[#735334] tracking-wide leading-tight whitespace-nowrap">
+            <div className="text-[11px] font-bold text-[#1E40AF] tracking-wide leading-tight whitespace-nowrap">
               P3TQ &amp; MHMTQ Lirboyo
             </div>
             <div className="pt-0.5">
-              <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#FAF7F3] text-[#8C6A47] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs whitespace-nowrap">
+              <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#F0F9FF] text-[#1D4ED8] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs whitespace-nowrap">
                 1448 H. / 2027 M.
               </span>
             </div>
@@ -192,7 +192,7 @@ export default function Sidebar({
         {/* Tombol Tutup Mobile Drawer */}
         <button
           onClick={onCloseMobile}
-          className="lg:hidden absolute top-2 right-2 p-1 rounded-xl bg-white border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21]"
+          className="lg:hidden absolute top-2 right-2 p-1 rounded-xl bg-white border border-[#BAE6FD] text-[#7A624E] hover:text-[#0F2C59]"
           aria-label="Tutup menu"
         >
           <X className="w-3.5 h-3.5" />
@@ -206,7 +206,7 @@ export default function Sidebar({
             {collapsed ? (
               <div className="my-2 mx-1.5 h-px bg-white/40" title={group.groupTitle} />
             ) : (
-              <div className="px-3 text-[10px] font-black uppercase tracking-wider text-[#8C6A47]/80 whitespace-nowrap">
+              <div className="px-3 text-[10px] font-black uppercase tracking-wider text-[#1D4ED8]/80 whitespace-nowrap">
                 {group.groupTitle}
               </div>
             )}
@@ -227,13 +227,13 @@ export default function Sidebar({
                       title={`${item.label}${item.badge ? ` (${item.badge})` : ''}`}
                       className={`relative w-11 h-11 mx-auto flex items-center justify-center rounded-2xl transition-all duration-200 group ${
                         isActive
-                          ? 'bg-[#8C6A47] text-white shadow-md font-bold border border-[#735334]'
-                          : 'text-[#422F21] hover:bg-white/60 hover:text-[#8C6A47]'
+                          ? 'bg-[#1D4ED8] text-white shadow-md font-bold border border-[#1E40AF]'
+                          : 'text-[#0F2C59] hover:bg-white/60 hover:text-[#1D4ED8]'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#8C6A47] group-hover:scale-110 transition-transform'}`} />
+                      <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#1D4ED8] group-hover:scale-110 transition-transform'}`} />
                       {item.badge && (
-                        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white/80" />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500 ring-2 ring-white/80" />
                       )}
                     </Link>
                   );
@@ -246,12 +246,12 @@ export default function Sidebar({
                     onClick={onCloseMobile}
                     className={`sidebar-transition flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide ${
                       isActive
-                        ? 'bg-[#8C6A47] text-white shadow-sm font-bold border border-[#735334]'
-                        : 'text-[#422F21] hover:bg-white/50 hover:text-[#8C6A47]'
+                        ? 'bg-[#1D4ED8] text-white shadow-sm font-bold border border-[#1E40AF]'
+                        : 'text-[#0F2C59] hover:bg-white/50 hover:text-[#1D4ED8]'
                     }`}
                   >
                     <div className="flex items-center space-x-2.5 min-w-0">
-                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#8C6A47]'}`} />
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#1D4ED8]'}`} />
                       <span className="truncate">{item.label}</span>
                     </div>
 
@@ -261,8 +261,8 @@ export default function Sidebar({
                           isActive
                             ? 'bg-white/20 text-white'
                             : item.badge === 'Live'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                            : 'bg-amber-100 text-amber-900 border border-amber-300'
+                            ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                            : 'bg-sky-100 text-blue-950 border border-sky-300'
                         }`}
                       >
                         {item.badge}
@@ -315,7 +315,7 @@ export default function Sidebar({
             </div>
 
             {/* Label Tanya Usth. Halwaa! */}
-            <div className="-mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#8C6A47] via-[#9B7752] to-[#8C6A47] group-hover:brightness-110 text-white text-[11px] font-bold shadow-xs border border-[#735334] flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 z-10 whitespace-nowrap">
+            <div className="-mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#1D4ED8] via-[#9B7752] to-[#1D4ED8] group-hover:brightness-110 text-white text-[11px] font-bold shadow-xs border border-[#1E40AF] flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 z-10 whitespace-nowrap">
               <Sparkles className="w-3 h-3 text-amber-200 animate-pulse shrink-0" />
               <span>Tanya Usth. Halwaa!</span>
             </div>
@@ -342,7 +342,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={toggleCollapse}
-          className="absolute -right-3.5 top-7 bg-white/90 backdrop-blur-md rounded-full p-1.5 shadow-md border border-white/60 hover:scale-110 active:scale-95 transition-all z-50 cursor-pointer text-[#8C6A47] hover:text-[#422F21]"
+          className="absolute -right-3.5 top-7 bg-white/90 backdrop-blur-md rounded-full p-1.5 shadow-md border border-white/60 hover:scale-110 active:scale-95 transition-all z-50 cursor-pointer text-[#1D4ED8] hover:text-[#0F2C59]"
           title={isCollapsed ? 'Lebarkan Sidebar (260px)' : 'Kecilkan Sidebar (78px)'}
           aria-label={isCollapsed ? 'Lebarkan Sidebar' : 'Kecilkan Sidebar'}
         >

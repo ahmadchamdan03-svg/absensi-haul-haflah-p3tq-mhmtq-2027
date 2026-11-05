@@ -33,18 +33,18 @@ export function HeaderUndangan({
       </div>
 
       {/* 2. BARIS 1 — TIPE UNDANGAN */}
-      <p className="text-xs sm:text-sm font-serif font-black tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#8C6A47] text-center">
+      <p className="text-xs sm:text-sm font-serif font-black tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#1D4ED8] text-center">
         {titleType}
       </p>
 
       {/* 3. BARIS 2 — JUDUL UTAMA (Bebas Overflow & Wrap Rapi pada Mobile) */}
-      <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-[#422F21] leading-tight text-center break-words max-w-full mx-auto mt-2 sm:mt-3 px-1">
+      <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-[#0F2C59] leading-tight text-center break-words max-w-full mx-auto mt-2 sm:mt-3 px-1">
         <span className="inline-block">Haul &amp; Haflah</span>{' '}
         <span className="inline-block">Akhirussanah</span>
       </h1>
 
       {/* 4. BARIS 3 — TAHUN (BARIS TERPISAH) */}
-      <p className="text-sm sm:text-base md:text-lg font-serif text-[#422F21] font-medium text-center mt-1 sm:mt-2">
+      <p className="text-sm sm:text-base md:text-lg font-serif text-[#0F2C59] font-medium text-center mt-1 sm:mt-2">
         1448 H. / 2027 M.
       </p>
 
@@ -56,7 +56,7 @@ export function HeaderUndangan({
         <p className="whitespace-nowrap text-[9px] sm:text-[11px] md:text-xs lg:text-[13px] tracking-tight sm:tracking-normal">
           Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
         </p>
-        <p className="font-semibold text-[#8C6A47] not-italic text-xs sm:text-sm pt-1">
+        <p className="font-semibold text-[#1D4ED8] not-italic text-xs sm:text-sm pt-1">
           Lirboyo Kediri
         </p>
       </div>

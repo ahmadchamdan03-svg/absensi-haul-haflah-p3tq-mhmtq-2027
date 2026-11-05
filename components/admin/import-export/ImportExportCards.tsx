@@ -49,9 +49,9 @@ export function ImportExportCards({
   return (
     <>
       {/* HEADER SECTION - KACA TERANG PEKAT & TEKS KONTRAS */}
-      <div className="bg-[#FAF7F3]/95 backdrop-blur-md border border-[#422F21]/20 shadow-md rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-[#F0F9FF]/95 backdrop-blur-md border border-[#0F2C59]/20 shadow-md rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#422F21]/10 text-[#1A110B] text-xs font-bold border border-[#422F21]/20">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0F2C59]/10 text-[#1A110B] text-xs font-bold border border-[#0F2C59]/20">
             <FileSpreadsheet className="w-3.5 h-3.5 text-[#1A110B]" />
             <span>MODUL RESMI IMPORT &amp; EXPORT DATA EXCEL</span>
           </div>
@@ -68,7 +68,7 @@ export function ImportExportCards({
             type="button"
             onClick={() => handleExportDataLive(activeTab)}
             disabled={isProcessing}
-            className="px-4 py-2.5 rounded-2xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+            className="px-4 py-2.5 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
           >
             <Database className="w-3.5 h-3.5 text-amber-200" />
             <span>Export Data Live (.xlsx)</span>
@@ -77,7 +77,7 @@ export function ImportExportCards({
       </div>
 
       {/* TAB PILIHAN ENTITAS: SANTRI ATAU TAMU */}
-      <div className="flex items-center space-x-2 border-b border-[#422F21]/20 pb-2">
+      <div className="flex items-center space-x-2 border-b border-[#0F2C59]/20 pb-2">
         <button
           type="button"
           onClick={() => {
@@ -87,8 +87,8 @@ export function ImportExportCards({
           }}
           className={`px-5 py-2.5 rounded-2xl font-serif font-bold text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer ${
             activeTab === 'SANTRI'
-              ? 'bg-[#8C6A47] text-white shadow-md'
-              : 'bg-[#FAF7F3]/95 hover:bg-white text-[#1A110B] border border-[#422F21]/20 shadow-2xs'
+              ? 'bg-[#1D4ED8] text-white shadow-md'
+              : 'bg-[#F0F9FF]/95 hover:bg-white text-[#1A110B] border border-[#0F2C59]/20 shadow-2xs'
           }`}
         >
           <Users className="w-4 h-4 text-inherit" />
@@ -103,8 +103,8 @@ export function ImportExportCards({
           }}
           className={`px-5 py-2.5 rounded-2xl font-serif font-bold text-xs sm:text-sm transition-all flex items-center space-x-2 cursor-pointer ${
             activeTab === 'TAMU'
-              ? 'bg-[#8C6A47] text-white shadow-md'
-              : 'bg-[#FAF7F3]/95 hover:bg-white text-[#1A110B] border border-[#422F21]/20 shadow-2xs'
+              ? 'bg-[#1D4ED8] text-white shadow-md'
+              : 'bg-[#F0F9FF]/95 hover:bg-white text-[#1A110B] border border-[#0F2C59]/20 shadow-2xs'
           }`}
         >
           <Layers className="w-4 h-4 text-inherit" />
@@ -115,8 +115,8 @@ export function ImportExportCards({
       {/* 2 KARTU UTAMA: DOWNLOAD TEMPLATE & UPLOAD DATA (KACA TERANG PEKAT) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* KARTU 1: DOWNLOAD TEMPLATE PER KATEGORI */}
-        <div className="bg-[#FAF7F3]/95 backdrop-blur-md border border-[#422F21]/20 shadow-md rounded-3xl p-6 space-y-4">
-          <div className="flex items-center space-x-2 border-b border-[#422F21]/15 pb-3">
+        <div className="bg-[#F0F9FF]/95 backdrop-blur-md border border-[#0F2C59]/20 shadow-md rounded-3xl p-6 space-y-4">
+          <div className="flex items-center space-x-2 border-b border-[#0F2C59]/15 pb-3">
             <Download className="w-5 h-5 text-[#1A110B]" />
             <h2 className="font-serif font-black text-base text-[#1A110B]">
               1. Unduh Template Format Excel
@@ -137,25 +137,25 @@ export function ImportExportCards({
                   <button
                     type="button"
                     onClick={() => handleDownloadTemplateSantri('BIL_GHOIB')}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#FAF7F3] border-2 border-[#422F21]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#F0F9FF] border-2 border-[#0F2C59]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#1D4ED8]" />
                     <span>Bil Ghoib</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDownloadTemplateSantri('BIN_NADZOR')}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#FAF7F3] border-2 border-[#422F21]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#F0F9FF] border-2 border-[#0F2C59]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#1D4ED8]" />
                     <span>Bin Nadzor</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDownloadTemplateSantri('TAMATAN')}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#FAF7F3] border-2 border-[#422F21]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#F0F9FF] border-2 border-[#0F2C59]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#1D4ED8]" />
                     <span>Tamatan</span>
                   </button>
                 </>
@@ -164,25 +164,25 @@ export function ImportExportCards({
                   <button
                     type="button"
                     onClick={() => handleDownloadTemplateTamu('ISTIMEWA')}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#FAF7F3] border-2 border-[#422F21]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#F0F9FF] border-2 border-[#0F2C59]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#1D4ED8]" />
                     <span>Istimewa</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDownloadTemplateTamu('KEHORMATAN')}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#FAF7F3] border-2 border-[#422F21]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#F0F9FF] border-2 border-[#0F2C59]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#1D4ED8]" />
                     <span>Kehormatan</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDownloadTemplateTamu('UMUM')}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#FAF7F3] border-2 border-[#422F21]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#F0F9FF] border-2 border-[#0F2C59]/30 text-center text-xs font-serif font-black text-[#1A110B] shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center space-y-1.5"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-[#8C6A47]" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#1D4ED8]" />
                     <span>Umum</span>
                   </button>
                 </>
@@ -192,8 +192,8 @@ export function ImportExportCards({
         </div>
 
         {/* KARTU 2: UPLOAD & KONFIGURASI IMPORT */}
-        <div className="bg-[#FAF7F3]/95 backdrop-blur-md border border-[#422F21]/20 shadow-md rounded-3xl p-6 space-y-4">
-          <div className="flex items-center space-x-2 border-b border-[#422F21]/15 pb-3">
+        <div className="bg-[#F0F9FF]/95 backdrop-blur-md border border-[#0F2C59]/20 shadow-md rounded-3xl p-6 space-y-4">
+          <div className="flex items-center space-x-2 border-b border-[#0F2C59]/15 pb-3">
             <Upload className="w-5 h-5 text-[#1A110B]" />
             <h2 className="font-serif font-black text-base text-[#1A110B]">
               2. Unggah Berkas Excel Sesuai Kategori
@@ -211,7 +211,7 @@ export function ImportExportCards({
                 setSelectedKategoriUpload(e.target.value);
                 if (selectedFile) handleResetUpload();
               }}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[#422F21]/30 bg-white font-serif font-bold text-xs text-[#1A110B] shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#0F2C59]/30 bg-white font-serif font-bold text-xs text-[#1A110B] shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
             >
               <option value="" className="bg-white text-gray-500">
                 {activeTab === 'SANTRI'
@@ -245,7 +245,7 @@ export function ImportExportCards({
               Langkah 2 — Unggah File Excel:
             </label>
             <div
-              className={`p-4 rounded-2xl border-2 border-dashed border-[#422F21]/40 text-center space-y-2 transition-all ${
+              className={`p-4 rounded-2xl border-2 border-dashed border-[#0F2C59]/40 text-center space-y-2 transition-all ${
                 selectedKategoriUpload
                   ? 'bg-white shadow-2xs'
                   : 'bg-white/80 opacity-80'
@@ -264,7 +264,7 @@ export function ImportExportCards({
                 htmlFor={selectedKategoriUpload ? 'excel-file-input' : undefined}
                 className={`inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xs transition-all ${
                   selectedKategoriUpload
-                    ? 'bg-[#8C6A47] hover:bg-[#735334] text-white border border-[#735334] cursor-pointer'
+                    ? 'bg-[#1D4ED8] hover:bg-[#1E40AF] text-white border border-[#1E40AF] cursor-pointer'
                     : 'bg-stone-200 border border-stone-300 text-stone-500 cursor-not-allowed opacity-60'
                 }`}
               >
@@ -273,7 +273,7 @@ export function ImportExportCards({
               </label>
 
               {selectedFile ? (
-                <div className="text-xs font-bold text-emerald-950 pt-1">
+                <div className="text-xs font-bold text-blue-950 pt-1">
                   📄 Berkas terpilih: <strong>{selectedFile.name}</strong> ({parsedDataLength} baris data)
                 </div>
               ) : (
@@ -292,7 +292,7 @@ export function ImportExportCards({
               type="button"
               onClick={handleExecuteImport}
               disabled={!selectedKategoriUpload || !selectedFile || parsedDataLength === 0 || isProcessing}
-              className="flex-1 py-3 px-4 rounded-2xl bg-emerald-800 hover:bg-emerald-900 disabled:bg-emerald-900 disabled:opacity-85 disabled:cursor-not-allowed text-white font-serif font-black text-xs shadow-md transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+              className="flex-1 py-3 px-4 rounded-2xl bg-blue-800 hover:bg-blue-900 disabled:bg-blue-900 disabled:opacity-85 disabled:cursor-not-allowed text-white font-serif font-black text-xs shadow-md transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
             >
               {isProcessing ? (
                 <>
@@ -316,7 +316,7 @@ export function ImportExportCards({
                 type="button"
                 onClick={handleResetUpload}
                 disabled={isProcessing}
-                className="px-3 py-3 rounded-2xl border border-[#422F21]/30 bg-white text-[#1A110B] hover:bg-[#FAF7F3] font-bold text-xs"
+                className="px-3 py-3 rounded-2xl border border-[#0F2C59]/30 bg-white text-[#1A110B] hover:bg-[#F0F9FF] font-bold text-xs"
                 title="Batalkan Pilihan"
               >
                 <X className="w-4 h-4" />

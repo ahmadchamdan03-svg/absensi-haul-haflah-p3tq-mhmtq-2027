@@ -15,18 +15,18 @@ export default function PublicUPage() {
         </div>
 
         {/* DIVIDER */}
-        <div className="flex items-center justify-center gap-3 text-[#8C6A47]/60">
-          <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+        <div className="flex items-center justify-center gap-3 text-[#1D4ED8]/60">
+          <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent flex-1" />
           <span className="text-xs">❖</span>
-          <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+          <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent flex-1" />
         </div>
 
         {/* PESAN */}
         <div className="space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-[#8C6A47] mb-1">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 text-[#1D4ED8] mb-1">
             <MailX className="w-6 h-6 animate-pulse" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
+          <h1 className="text-xl sm:text-2xl font-serif font-black text-[#0F2C59]">
             Kode Undangan Diperlukan
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
@@ -38,7 +38,7 @@ export default function PublicUPage() {
         <div className="pt-2">
           <Link
             href="/"
-            className="w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-bold text-sm tracking-wide shadow-lg transition-all active:scale-95 inline-flex items-center justify-center space-x-2 border border-amber-200/50"
+            className="w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-bold text-sm tracking-wide shadow-lg transition-all active:scale-95 inline-flex items-center justify-center space-x-2 border border-sky-200/50"
           >
             <Home className="w-4 h-4 text-amber-200" />
             <span>Kembali ke Beranda Utama</span>

@@ -70,7 +70,7 @@ export default function UndanganWaliRsvpSection({
       <GlassCard className="p-4 sm:p-6 md:p-8 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-1">
-            <h3 className="font-serif font-black text-base text-[#422F21]">
+            <h3 className="font-serif font-black text-base text-[#0F2C59]">
               Konfirmasi Kehadiran
             </h3>
             <p className="text-xs md:text-sm text-[#7A624E] text-left">
@@ -78,7 +78,7 @@ export default function UndanganWaliRsvpSection({
             </p>
           </div>
           {item?.estimasi?.statusKonfirmasi === 'SUDAH' && (
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300 shrink-0">
               ✓ Terkonfirmasi
             </span>
           )}
@@ -91,14 +91,14 @@ export default function UndanganWaliRsvpSection({
             className={`p-3 rounded-xl bg-white/75 backdrop-blur-xs border transition-all ${
               !jamKonfirmasi && rsvpValidationErr
                 ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300'
-                : 'border-[#D5C4B4]'
+                : 'border-[#BAE6FD]'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-serif font-black text-[#422F21] uppercase tracking-wide">
+              <label className="block text-xs font-serif font-black text-[#0F2C59] uppercase tracking-wide">
                 ⏰ Jam Kedatangan:
               </label>
-              <div className="text-xs font-bold text-[#8C6A47] px-2.5 py-1 bg-[#FAF7F3] rounded-xl border border-[#D5C4B4] shrink-0 font-mono shadow-2xs">
+              <div className="text-xs font-bold text-[#1D4ED8] px-2.5 py-1 bg-[#F0F9FF] rounded-xl border border-[#BAE6FD] shrink-0 font-mono shadow-2xs">
                 {jamKonfirmasi ? `${jamKonfirmasi} WIB` : 'Belum dipilih'}
               </div>
             </div>
@@ -121,7 +121,7 @@ export default function UndanganWaliRsvpSection({
                       isOpen={isClockOpen}
                       onClockOpen={() => setIsClockOpen(true)}
                       onClockClose={() => setIsClockOpen(false)}
-                      clockIcon={<Clock className="w-4 h-4 text-[#8C6A47]" />}
+                      clockIcon={<Clock className="w-4 h-4 text-[#1D4ED8]" />}
                       className={`custom-time-picker z-50 w-full ${
                         !jamKonfirmasi && rsvpValidationErr ? 'has-error' : ''
                       }`}
@@ -133,7 +133,7 @@ export default function UndanganWaliRsvpSection({
                   </div>
                 ) : (
                   <div className="relative w-full">
-                    <Clock className="w-4 h-4 text-[#8C6A47] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Clock className="w-4 h-4 text-[#1D4ED8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="time"
                       value={jamKonfirmasi}
@@ -141,8 +141,8 @@ export default function UndanganWaliRsvpSection({
                         setJamKonfirmasi(e.target.value);
                         setRsvpValidationErr(null);
                       }}
-                      className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#422F21] focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47] ${
-                        !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#D5C4B4]'
+                      className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#0F2C59] focus:outline-hidden focus:ring-2 focus:ring-[#1D4ED8] ${
+                        !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#BAE6FD]'
                       }`}
                     />
                   </div>
@@ -152,13 +152,13 @@ export default function UndanganWaliRsvpSection({
               {/* Toolbar Kontrol Clock Picker Interaktif (Desktop) */}
               {isMounted && !isMobileDevice && isClockOpen && (
                 <div className="flex items-center justify-between w-full pt-1 px-1 text-xs">
-                  <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#D5C4B4]">
+                  <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#BAE6FD]">
                     <button
                       type="button"
                       onClick={() => setClockMode('hours')}
                       className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
                         clockMode === 'hours'
-                          ? 'bg-[#8C6A47] text-white shadow-xs'
+                          ? 'bg-[#1D4ED8] text-white shadow-xs'
                           : 'text-[#7A624E] hover:bg-stone-200/60'
                       }`}
                     >
@@ -169,7 +169,7 @@ export default function UndanganWaliRsvpSection({
                       onClick={() => setClockMode('minutes')}
                       className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
                         clockMode === 'minutes'
-                          ? 'bg-[#8C6A47] text-white shadow-xs'
+                          ? 'bg-[#1D4ED8] text-white shadow-xs'
                           : 'text-[#7A624E] hover:bg-stone-200/60'
                       }`}
                     >
@@ -177,7 +177,7 @@ export default function UndanganWaliRsvpSection({
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#D5C4B4]">
+                  <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#BAE6FD]">
                     <button
                       type="button"
                       onClick={() => {
@@ -191,7 +191,7 @@ export default function UndanganWaliRsvpSection({
                       }}
                       className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                         parseInt((jamKonfirmasi || '08:00').split(':')[0], 10) < 12
-                          ? 'bg-[#8C6A47] text-white shadow-xs'
+                          ? 'bg-[#1D4ED8] text-white shadow-xs'
                           : 'text-[#7A624E] hover:bg-stone-200/60'
                       }`}
                     >
@@ -210,7 +210,7 @@ export default function UndanganWaliRsvpSection({
                       }}
                       className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                         parseInt((jamKonfirmasi || '08:00').split(':')[0], 10) >= 12
-                          ? 'bg-[#8C6A47] text-white shadow-xs'
+                          ? 'bg-[#1D4ED8] text-white shadow-xs'
                           : 'text-[#7A624E] hover:bg-stone-200/60'
                       }`}
                     >
@@ -222,7 +222,7 @@ export default function UndanganWaliRsvpSection({
 
               {/* Hint Interaksi Desktop */}
               {isMounted && !isMobileDevice && isClockOpen && (
-                <p className="text-[10px] text-[#8C6A47] italic text-center -mt-1">
+                <p className="text-[10px] text-[#1D4ED8] italic text-center -mt-1">
                   *Klik atau geser/drag lingkaran jam analog untuk memutar jarum waktu
                 </p>
               )}
@@ -234,12 +234,12 @@ export default function UndanganWaliRsvpSection({
             className={`p-3 rounded-xl bg-white/75 backdrop-blur-xs border flex flex-col justify-between transition-all ${
               !hariKonfirmasi && rsvpValidationErr
                 ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300'
-                : 'border-[#D5C4B4]'
+                : 'border-[#BAE6FD]'
             }`}
           >
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-serif font-black text-[#422F21] uppercase tracking-wide">
+                <label className="block text-xs font-serif font-black text-[#0F2C59] uppercase tracking-wide">
                   🗓️ Hari Kedatangan:
                 </label>
                 <span className="text-[10px] text-stone-500">Pilih salah satu</span>
@@ -253,8 +253,8 @@ export default function UndanganWaliRsvpSection({
                   }}
                   className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
                     hariKonfirmasi === 'JUMAT'
-                      ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-xs ring-2 ring-[#8C6A47]/30'
-                      : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
+                      ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs ring-2 ring-[#1D4ED8]/30'
+                      : 'bg-white text-[#7A624E] border-[#BAE6FD] hover:bg-[#FAF0E6]'
                   }`}
                 >
                   Jum'at (23 Rajab)
@@ -267,8 +267,8 @@ export default function UndanganWaliRsvpSection({
                   }}
                   className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
                     hariKonfirmasi === 'SABTU'
-                      ? 'bg-[#8C6A47] text-white border-[#8C6A47] shadow-xs ring-2 ring-[#8C6A47]/30'
-                      : 'bg-white text-[#7A624E] border-[#D5C4B4] hover:bg-[#FAF0E6]'
+                      ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs ring-2 ring-[#1D4ED8]/30'
+                      : 'bg-white text-[#7A624E] border-[#BAE6FD] hover:bg-[#FAF0E6]'
                   }`}
                 >
                   Sabtu (24 Rajab)
@@ -278,7 +278,7 @@ export default function UndanganWaliRsvpSection({
 
             <div className="text-[10px] text-stone-500 pt-2 text-center">
               {hariKonfirmasi ? (
-                <span className="text-emerald-700 font-bold">
+                <span className="text-blue-700 font-bold">
                   ✓ Terpilih: {hariKonfirmasi === 'JUMAT' ? "Jum'at" : 'Sabtu'}
                 </span>
               ) : (
@@ -299,7 +299,7 @@ export default function UndanganWaliRsvpSection({
         <div className="space-y-4 md:space-y-5 pt-1">
           {/* WALI SANTRI PUTRA */}
           <div>
-            <p className="text-sm md:text-base font-semibold text-[#422F21] mb-2 text-left">
+            <p className="text-sm md:text-base font-semibold text-[#0F2C59] mb-2 text-left">
               WALI SANTRI PUTRA
             </p>
             <div className="grid grid-cols-3 gap-2 w-full">
@@ -307,19 +307,19 @@ export default function UndanganWaliRsvpSection({
                 type="button"
                 onClick={() => setEstL((p) => Math.max(0, p - 1))}
                 disabled={estL === 0}
-                className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                className="h-10 rounded-lg bg-[#1D4ED8] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
                 title="Kurangi Wali Santri Putra"
               >
                 −
               </button>
-              <div className="h-10 rounded-lg bg-white/80 backdrop-blur-xs border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
+              <div className="h-10 rounded-lg bg-white/80 backdrop-blur-xs border border-[#1D4ED8]/30 flex items-center justify-center text-lg font-bold text-[#0F2C59]">
                 {estL}
               </div>
               <button
                 type="button"
                 onClick={() => setEstL((p) => (totalInputWali < totalKuotaSantri ? p + 1 : p))}
                 disabled={totalInputWali >= totalKuotaSantri}
-                className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                className="h-10 rounded-lg bg-[#1D4ED8] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
                 title="Tambah Wali Santri Putra"
               >
                 +
@@ -330,7 +330,7 @@ export default function UndanganWaliRsvpSection({
 
           {/* WALI SANTRI PUTRI */}
           <div>
-            <p className="text-sm md:text-base font-semibold text-[#422F21] mb-2 text-left">
+            <p className="text-sm md:text-base font-semibold text-[#0F2C59] mb-2 text-left">
               WALI SANTRI PUTRI
             </p>
             <div className="grid grid-cols-3 gap-2 w-full">
@@ -338,19 +338,19 @@ export default function UndanganWaliRsvpSection({
                 type="button"
                 onClick={() => setEstP((p) => Math.max(0, p - 1))}
                 disabled={estP === 0}
-                className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                className="h-10 rounded-lg bg-[#1D4ED8] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
                 title="Kurangi Wali Santri Putri"
               >
                 −
               </button>
-              <div className="h-10 rounded-lg bg-white/80 backdrop-blur-xs border border-[#8C6A47]/30 flex items-center justify-center text-lg font-bold text-[#422F21]">
+              <div className="h-10 rounded-lg bg-white/80 backdrop-blur-xs border border-[#1D4ED8]/30 flex items-center justify-center text-lg font-bold text-[#0F2C59]">
                 {estP}
               </div>
               <button
                 type="button"
                 onClick={() => setEstP((p) => (totalInputWali < totalKuotaSantri ? p + 1 : p))}
                 disabled={totalInputWali >= totalKuotaSantri}
-                className="h-10 rounded-lg bg-[#8C6A47] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
+                className="h-10 rounded-lg bg-[#1D4ED8] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
                 title="Tambah Wali Santri Putri"
               >
                 +
@@ -372,7 +372,7 @@ export default function UndanganWaliRsvpSection({
           type="button"
           onClick={handleSimpanEstimasiWali}
           disabled={savingRsvp || isWaliRsvpExceeded}
-          className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#8C6A47] to-[#A47E57] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
+          className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#1D4ED8] to-[#3B82F6] hover:brightness-105 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
         >
           {savingRsvp ? (
             <>
@@ -391,10 +391,10 @@ export default function UndanganWaliRsvpSection({
           href={waHalKhususLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-3 rounded-2xl bg-white border-2 border-[#8C6A47] text-[#422F21] hover:bg-[#FAF7F3] font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
+          className="w-full py-3 rounded-2xl bg-white border-2 border-[#1D4ED8] text-[#0F2C59] hover:bg-[#F0F9FF] font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
           title="Hubungi Panitia via WhatsApp untuk Menyampaikan Hal Khusus"
         >
-          <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+          <MessageCircle className="w-4 h-4 text-blue-600 shrink-0" />
           <span>Ada Hal Khusus? Hubungi Panitia</span>
         </a>
 
@@ -405,7 +405,7 @@ export default function UndanganWaliRsvpSection({
         )}
 
         {estimasiSaved && (
-          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs text-center font-bold animate-in fade-in">
+          <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs text-center font-bold animate-in fade-in">
             ✓ Konfirmasi kehadiran Anda berhasil disimpan ke sistem panitia Supabase
             {lastSavedTime ? ` pada ${lastSavedTime}` : ''}.
           </div>

@@ -18,8 +18,8 @@ export default function ScanRecentHistory({
     <div className="bg-white/60 backdrop-blur-md rounded-3xl p-5 shadow-xs border border-white/70 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Clock className="w-4 h-4 text-[#8C6A47]" />
-          <h3 className="font-serif font-black text-xs sm:text-sm text-[#422F21]">
+          <Clock className="w-4 h-4 text-[#1D4ED8]" />
+          <h3 className="font-serif font-black text-xs sm:text-sm text-[#0F2C59]">
             Scan Terakhir Hari Ini
           </h3>
         </div>
@@ -48,11 +48,11 @@ export default function ScanRecentHistory({
                 className="flex items-center justify-between p-2.5 rounded-2xl bg-white/50 backdrop-blur-xs border border-[#E8DFD5] text-xs"
               >
                 <div className="flex items-center space-x-2.5 min-w-0">
-                  <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs shrink-0">
                     ✓
                   </span>
                   <div className="min-w-0">
-                    <span className="font-mono font-bold text-[#422F21] block truncate">
+                    <span className="font-mono font-bold text-[#0F2C59] block truncate">
                       {log.kode_qr} — <span className="font-sans font-semibold text-stone-700">{log.nama_peserta || 'Peserta'}</span>
                     </span>
                     <span className="text-[10px] text-stone-500">
@@ -60,7 +60,7 @@ export default function ScanRecentHistory({
                     </span>
                   </div>
                 </div>
-                <span className="text-xs font-serif font-black text-amber-900 bg-amber-100 px-2.5 py-1 rounded-xl border border-amber-200 shrink-0">
+                <span className="text-xs font-serif font-black text-blue-950 bg-sky-100 px-2.5 py-1 rounded-xl border border-sky-200 shrink-0">
                   {totalOrang} orang
                 </span>
               </div>

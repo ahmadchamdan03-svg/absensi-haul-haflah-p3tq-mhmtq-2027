@@ -33,19 +33,19 @@ export default function KonfirmasiEditModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#FAF7F3]/95 backdrop-blur-xl rounded-3xl p-6 max-w-md w-full shadow-2xl border border-white/60 space-y-4 animate-scale-up">
-        <div className="flex items-center justify-between border-b border-[#D5C4B4]/60 pb-3">
+      <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-3xl p-6 max-w-md w-full shadow-2xl border border-white/60 space-y-4 animate-scale-up">
+        <div className="flex items-center justify-between border-b border-[#BAE6FD]/60 pb-3">
           <div>
-            <h3 className="font-serif font-black text-base text-[#422F21]">
+            <h3 className="font-serif font-black text-base text-[#0F2C59]">
               Edit Konfirmasi Manual Panitia
             </h3>
             <p className="text-xs text-[#7A624E]">
-              Santri: <span className="font-bold text-[#422F21]">{modalItem.namaSantri}</span> ({modalItem.kode})
+              Santri: <span className="font-bold text-[#0F2C59]">{modalItem.namaSantri}</span> ({modalItem.kode})
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/70 backdrop-blur-xs border border-[#D5C4B4] text-[#7A624E] hover:text-[#422F21] flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/70 backdrop-blur-xs border border-[#BAE6FD] text-[#7A624E] hover:text-[#0F2C59] flex items-center justify-center cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -59,27 +59,27 @@ export default function KonfirmasiEditModal({
         )}
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="p-3 bg-[#EFE8E1]/60 backdrop-blur-xs rounded-2xl border border-[#D5C4B4]/70 text-xs space-y-1">
+          <div className="p-3 bg-[#E0F2FE]/60 backdrop-blur-xs rounded-2xl border border-[#BAE6FD]/70 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-[#7A624E]">Wali Santri:</span>
-              <span className="font-bold text-[#422F21]">{modalItem.namaWali}</span>
+              <span className="font-bold text-[#0F2C59]">{modalItem.namaWali}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#7A624E]">Kategori / Kelas:</span>
-              <span className="font-bold text-[#422F21]">
+              <span className="font-bold text-[#0F2C59]">
                 {modalItem.subKategori} ({modalItem.kelas})
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#7A624E]">Total Jatah Kuota:</span>
-              <span className="font-bold text-[#8C6A47]">{modalItem.totalKuota} Kursi</span>
+              <span className="font-bold text-[#1D4ED8]">{modalItem.totalKuota} Kursi</span>
             </div>
           </div>
 
           {/* Stepper Laki-laki */}
           <div className="flex items-center justify-between p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80">
             <div>
-              <div className="text-xs font-bold text-[#422F21]">Wali Laki-laki (Putra)</div>
+              <div className="text-xs font-bold text-[#0F2C59]">Wali Laki-laki (Putra)</div>
               <div className="text-[10px] text-[#7A624E]">Zona Sayap Barat</div>
             </div>
             <div className="flex items-center space-x-3">
@@ -87,18 +87,18 @@ export default function KonfirmasiEditModal({
                 type="button"
                 disabled={editL <= 0}
                 onClick={() => setEditL(Math.max(0, editL - 1))}
-                className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-[#F0F9FF] border border-[#BAE6FD] font-bold text-[#0F2C59] disabled:opacity-30 transition-all cursor-pointer"
               >
                 −
               </button>
-              <span className="w-6 text-center font-black text-[#422F21] text-base">{editL}</span>
+              <span className="w-6 text-center font-black text-[#0F2C59] text-base">{editL}</span>
               <button
                 type="button"
                 disabled={editL + editP >= modalItem.totalKuota}
                 onClick={() => {
                   if (editL + editP < modalItem.totalKuota) setEditL(editL + 1);
                 }}
-                className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-[#F0F9FF] border border-[#BAE6FD] font-bold text-[#0F2C59] disabled:opacity-30 transition-all cursor-pointer"
               >
                 +
               </button>
@@ -108,7 +108,7 @@ export default function KonfirmasiEditModal({
           {/* Stepper Perempuan */}
           <div className="flex items-center justify-between p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80">
             <div>
-              <div className="text-xs font-bold text-[#422F21]">Wali Perempuan (Putri)</div>
+              <div className="text-xs font-bold text-[#0F2C59]">Wali Perempuan (Putri)</div>
               <div className="text-[10px] text-[#7A624E]">Zona Sayap Timur</div>
             </div>
             <div className="flex items-center space-x-3">
@@ -116,34 +116,34 @@ export default function KonfirmasiEditModal({
                 type="button"
                 disabled={editP <= 0}
                 onClick={() => setEditP(Math.max(0, editP - 1))}
-                className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-[#F0F9FF] border border-[#BAE6FD] font-bold text-[#0F2C59] disabled:opacity-30 transition-all cursor-pointer"
               >
                 −
               </button>
-              <span className="w-6 text-center font-black text-[#422F21] text-base">{editP}</span>
+              <span className="w-6 text-center font-black text-[#0F2C59] text-base">{editP}</span>
               <button
                 type="button"
                 disabled={editL + editP >= modalItem.totalKuota}
                 onClick={() => {
                   if (editL + editP < modalItem.totalKuota) setEditP(editP + 1);
                 }}
-                className="w-8 h-8 rounded-lg bg-[#FAF7F3] border border-[#D5C4B4] font-bold text-[#422F21] disabled:opacity-30 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-[#F0F9FF] border border-[#BAE6FD] font-bold text-[#0F2C59] disabled:opacity-30 transition-all cursor-pointer"
               >
                 +
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#EFE8E1]/80 text-xs font-bold text-[#7A624E]">
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#E0F2FE]/80 text-xs font-bold text-[#7A624E]">
             <span>Total Estimasi:</span>
-            <span className="text-[#8C6A47] font-black text-sm">
+            <span className="text-[#1D4ED8] font-black text-sm">
               {editL + editP} / {modalItem.totalKuota} Kursi
             </span>
           </div>
 
           {/* Catatan Panitia */}
           <div>
-            <label className="block text-xs font-bold text-[#422F21] mb-1">
+            <label className="block text-xs font-bold text-[#0F2C59] mb-1">
               Catatan Panitia (Opsional):
             </label>
             <input
@@ -151,21 +151,21 @@ export default function KonfirmasiEditModal({
               value={editCatatan}
               onChange={(e) => setEditCatatan(e.target.value)}
               placeholder="Contoh: Dikonfirmasi via telepon WhatsApp oleh wali"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#D5C4B4] text-xs text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/70 backdrop-blur-xs border border-[#BAE6FD] text-xs text-[#0F2C59] focus:outline-none focus:border-[#1D4ED8]"
             />
           </div>
 
-          <div className="flex items-center justify-end space-x-2 pt-2 border-t border-[#D5C4B4]/60">
+          <div className="flex items-center justify-end space-x-2 pt-2 border-t border-[#BAE6FD]/60">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white/70 backdrop-blur-xs border border-[#D5C4B4] text-xs font-bold text-[#7A624E] hover:bg-[#FAF7F3] cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white/70 backdrop-blur-xs border border-[#BAE6FD] text-xs font-bold text-[#7A624E] hover:bg-[#F0F9FF] cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white text-xs font-black shadow-md transition-all cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-black shadow-md transition-all cursor-pointer"
             >
               Simpan Konfirmasi
             </button>

@@ -19,7 +19,7 @@ export default function PimpinanPage() {
 
   return (
     <AuthGuard allowedRoles={['PIMPINAN', 'ADMIN']}>
-      <div className="w-full min-h-screen bg-transparent text-[#422F21] pb-24 relative">
+      <div className="w-full min-h-screen bg-transparent text-[#0F2C59] pb-24 relative">
         {/* Tombol Keluar Sesi Melayang Elegan di Sudut Kanan Atas */}
         <div className="fixed top-6 right-6 z-40">
           <button
@@ -46,7 +46,7 @@ export default function PimpinanPage() {
           title="Tanya Usth. Halwaa"
           aria-label="Tanya Usth. Halwaa"
         >
-          <div className="w-7 h-7 rounded-full overflow-hidden border border-amber-200/60 shadow-xs shrink-0 bg-[#FAF7F3]">
+          <div className="w-7 h-7 rounded-full overflow-hidden border border-sky-200/60 shadow-xs shrink-0 bg-[#F0F9FF]">
             <img
               src="/images/avatar/ustadzah-avatar-wave.png"
               alt="Usth. Halwaa"

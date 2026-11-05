@@ -35,7 +35,7 @@ export default function SantriKuotaTab({
             onClick={() => onKategoriUtamaChange('BIL_GHOIB')}
             className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
               kategoriUtama === 'BIL_GHOIB'
-                ? 'bg-emerald-700 text-white border-emerald-800 shadow'
+                ? 'bg-blue-700 text-white border-blue-800 shadow'
                 : 'bg-slate-50 text-slate-700 border-slate-300'
             }`}
           >
@@ -79,15 +79,15 @@ export default function SantriKuotaTab({
 
       {/* Opsi Khusus Tamatan */}
       {kategoriUtama === 'TAMATAN' && (
-        <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-300 space-y-1.5 animate-in fade-in">
-          <label className="block font-bold text-amber-950">
+        <div className="p-3.5 bg-sky-50 rounded-2xl border border-sky-300 space-y-1.5 animate-in fade-in">
+          <label className="block font-bold text-blue-950">
             Pilih Bagian Tamatan *
           </label>
           {isEditMode ? (
             <select
               value={bagianTamatan || 'A.01'}
               onChange={(e) => onBagianTamatanChange?.(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-950 font-bold focus:outline-none focus:ring-2 focus:ring-amber-600"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 text-blue-950 font-bold focus:outline-none focus:ring-2 focus:ring-amber-600"
             >
               {BAGIAN_TAMATAN_LIST.map((bg) => (
                 <option key={bg} value={bg}>
@@ -105,7 +105,7 @@ export default function SantriKuotaTab({
                   className={`py-1.5 px-2 rounded-lg font-bold text-center text-xs transition-all ${
                     bagianTamatan === bg
                       ? 'bg-amber-600 text-white shadow'
-                      : 'bg-white text-amber-900 border border-amber-200 hover:bg-amber-100'
+                      : 'bg-white text-blue-950 border border-sky-200 hover:bg-sky-100'
                   }`}
                 >
                   {bg}

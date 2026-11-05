@@ -99,7 +99,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/icon.png?v=4.2" />
         <link rel="shortcut icon" href="/icon.png?v=4.2" />
       </head>
-      <body className="min-h-screen bg-[#EADBC8] glass-ambient-bg text-slate-900 antialiased selection:bg-amber-100 selection:text-amber-900">
+      <body className="min-h-screen bg-[#E0F2FE] glass-ambient-bg text-slate-900 antialiased selection:bg-sky-100 selection:text-blue-950">
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -304,7 +304,7 @@ export default function KonfirmasiPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Toast Notifikasi Sukses */}
       {successToast && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-emerald-800 text-white shadow-xl flex items-center space-x-3 border-2 border-emerald-600 animate-slide-up">
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-blue-800 text-white shadow-xl flex items-center space-x-3 border-2 border-blue-600 animate-slide-up">
           <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
           <div className="text-xs font-semibold">{successToast}</div>
         </div>

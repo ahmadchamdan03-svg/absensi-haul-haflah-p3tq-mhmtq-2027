@@ -17,21 +17,21 @@ export default function NewPersidanganPage() {
   return (
     <div className="px-6 lg:px-8 py-6 pb-12 max-w-5xl mx-auto">
       {/* Unified Seamless Panel: Header + Form */}
-      <div className="bg-white/80 backdrop-blur-md border border-[#D5C4B4] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-md border border-[#BAE6FD] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden">
         {/* Top Header */}
-        <div className="p-5 sm:p-6 bg-gradient-to-b from-[#FAF7F3] to-[#F5EFE8] border-b border-[#D5C4B4] space-y-2">
+        <div className="p-5 sm:p-6 bg-gradient-to-b from-[#F0F9FF] to-[#F5EFE8] border-b border-[#BAE6FD] space-y-2">
           <Link
             href="/admin/persidangan"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8C6A47] hover:text-[#5E432A] transition-colors mb-1"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1D4ED8] hover:text-[#5E432A] transition-colors mb-1"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Kembali ke Daftar Persidangan
           </Link>
-          <h1 className="font-serif font-black text-xl sm:text-2xl text-[#422F21] flex items-center gap-2.5">
-            <FilePlus className="w-6 h-6 text-[#8C6A47]" />
+          <h1 className="font-serif font-black text-xl sm:text-2xl text-[#0F2C59] flex items-center gap-2.5">
+            <FilePlus className="w-6 h-6 text-[#1D4ED8]" />
             Buat Persidangan Baru
           </h1>
-          <p className="text-xs text-[#735334]">
+          <p className="text-xs text-[#1E40AF]">
             Isi judul persidangan dan sesuaikan template pesan WhatsApp di bawah. Setelah dibuat, Anda akan langsung diarahkan untuk mengunggah berkas PDF undangan resmi.
           </p>
         </div>

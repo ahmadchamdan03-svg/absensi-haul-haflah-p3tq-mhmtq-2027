@@ -13,7 +13,7 @@ import { SkeletonText } from '@/components/ui/GlassSkeleton';
 
 export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
   return (
-    <div className="min-h-screen bg-[#FAF7F3] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10">
+    <div className="min-h-screen bg-[#F0F9FF] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10">
       <CanvasRevealMask />
       <div className="max-w-md w-full p-6 sm:p-8 space-y-6 relative z-20">
         <div className="flex justify-center">
@@ -24,17 +24,17 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
           />
         </div>
 
-        <div className="flex items-center justify-center gap-3 text-[#8C6A47]/60">
-          <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+        <div className="flex items-center justify-center gap-3 text-[#1D4ED8]/60">
+          <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent flex-1" />
           <span className="text-xs">❖</span>
-          <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+          <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent flex-1" />
         </div>
 
         <div className="space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-[#8C6A47] mb-1">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 text-[#1D4ED8] mb-1">
             <AlertCircle className="w-6 h-6 animate-pulse" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-serif font-black text-[#422F21]">
+          <h1 className="text-xl sm:text-2xl font-serif font-black text-[#0F2C59]">
             Kode Undangan Tidak Ditemukan
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
@@ -47,7 +47,7 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
             href={`https://wa.me/${finalWaNo}?text=${encodeURIComponent("Assalamu'alaikum, saya ingin konfirmasi link undangan Haflah.")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-xs sm:text-sm shadow-md transition-all active:scale-95 inline-flex items-center justify-center space-x-2"
+            className="w-full py-3 px-6 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs sm:text-sm shadow-md transition-all active:scale-95 inline-flex items-center justify-center space-x-2"
           >
             <MessageCircle className="w-4 h-4 text-emerald-200" />
             <span>Hubungi Panitia via WhatsApp</span>
@@ -80,10 +80,10 @@ export function UndanganCoverTamu({
         <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
           <HeaderUndangan titleType="UNDANGAN RESMI" />
 
-          <div className="flex items-center justify-center gap-3 my-2 text-[#8C6A47]/60">
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+          <div className="flex items-center justify-center gap-3 my-2 text-[#1D4ED8]/60">
+            <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent flex-1" />
             <span className="text-xs">❖</span>
-            <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent flex-1" />
+            <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent flex-1" />
           </div>
 
           <div className="space-y-1.5 py-1">
@@ -107,7 +107,7 @@ export function UndanganCoverTamu({
             <button
               type="button"
               onClick={onOpen}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-sky-200/50 cursor-pointer animate-pulse"
             >
               <MailOpen className="w-4 h-4 text-amber-200" />
               <span>Buka Undangan ✉️</span>
@@ -132,24 +132,24 @@ export function UndanganCoverWali({
     <div className="min-h-screen h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 overflow-hidden">
       <ScrollReveal>
         <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
-          <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#8C6A47] uppercase text-center mb-1">
+          <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#1D4ED8] uppercase text-center mb-1">
             UNDANGAN RESMI WALI SANTRI
           </div>
 
           <HeaderUndanganWali />
 
-          <div className="h-px bg-gradient-to-r from-transparent via-[#D5C4B4] to-transparent my-2" />
+          <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent my-2" />
 
           <div className="space-y-2 py-1">
             <span className="text-xs text-stone-600 uppercase tracking-wider font-semibold">
               Kepada Yth. Bapak/Ibu Wali Santri dari:
             </span>
-            <h2 className="text-xl sm:text-2xl font-serif font-black text-[#422F21] drop-shadow-xs">
+            <h2 className="text-xl sm:text-2xl font-serif font-black text-[#0F2C59] drop-shadow-xs">
               {santri?.nama || item?.entitas?.nama || item?.nama || (
                 <SkeletonText width="65%" height="1.75rem" className="mx-auto my-1" />
               )}
             </h2>
-            <div className="inline-block px-3.5 py-1 rounded-full bg-white/70 backdrop-blur-xs text-[#8C6A47] text-xs font-bold border border-white/80 max-w-full leading-normal break-words text-center shadow-xs">
+            <div className="inline-block px-3.5 py-1 rounded-full bg-white/70 backdrop-blur-xs text-[#1D4ED8] text-xs font-bold border border-white/80 max-w-full leading-normal break-words text-center shadow-xs">
               {santri
                 ? santri.kamar && santri.kamar !== '-'
                   ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
@@ -164,7 +164,7 @@ export function UndanganCoverWali({
             <button
               type="button"
               onClick={onOpen}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-amber-200/50 cursor-pointer animate-pulse"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-sky-200/50 cursor-pointer animate-pulse"
             >
               <MailOpen className="w-4 h-4 text-amber-200" />
               <span>Buka Undangan ✉️</span>

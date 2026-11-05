@@ -254,7 +254,7 @@ export function MirajArenaOverlays({
             </div>
             <div className="flex justify-between items-center text-xs text-slate-400">
               <span>Gelar Kehormatan:</span>
-              <span className="font-bold text-emerald-400 text-right">{currentGelar}</span>
+              <span className="font-bold text-blue-400 text-right">{currentGelar}</span>
             </div>
           </div>
 
@@ -282,12 +282,12 @@ export function MirajArenaOverlays({
       {/* OVERLAY: VICTORY SCREEN (TAMAT SKOR 1000) */}
       {gameState === 'VICTORY' && (
         <div className="absolute inset-0 bg-gradient-to-b from-amber-950/90 via-yellow-950/90 to-black/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20 space-y-4 animate-fade-in">
-          <div className="w-20 h-20 rounded-full bg-amber-400/20 border-2 border-amber-300 flex items-center justify-center text-4xl animate-bounce">
+          <div className="w-20 h-20 rounded-full bg-amber-400/20 border-2 border-sky-300 flex items-center justify-center text-4xl animate-bounce">
             👑
           </div>
 
           <div>
-            <span className="px-3 py-1 rounded-full bg-amber-400/30 text-amber-200 border border-amber-300 text-xs font-black uppercase tracking-widest">
+            <span className="px-3 py-1 rounded-full bg-amber-400/30 text-amber-200 border border-sky-300 text-xs font-black uppercase tracking-widest">
               VICTORY ACHIEVED!
             </span>
             <h2 className="text-2xl sm:text-4xl font-serif font-black text-yellow-300 tracking-wide mt-1">
@@ -298,7 +298,7 @@ export function MirajArenaOverlays({
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-center w-full max-w-xs">
+          <div className="p-4 rounded-2xl bg-amber-500/20 border-2 border-sky-400 text-center w-full max-w-xs">
             <span className="text-xs text-amber-200 block">Gelar Kemuliaan Tertinggi:</span>
             <strong className="text-base sm:text-lg font-serif font-black text-yellow-300 block mt-0.5">
               👑 Khatimatul Maqam Al-A&apos;la
@@ -377,7 +377,7 @@ export default function MirajInteractive({
                         {idx === 0 ? '👑 1' : idx + 1}
                       </td>
                       <td className="py-2.5 px-3 font-semibold uppercase">{item.nama}</td>
-                      <td className="py-2.5 px-3 text-[11px] text-emerald-400">{item.gelar}</td>
+                      <td className="py-2.5 px-3 text-[11px] text-blue-400">{item.gelar}</td>
                       <td className="py-2.5 px-3 text-right font-black text-amber-400">{item.skor}</td>
                     </tr>
                   ))}
@@ -448,7 +448,7 @@ export default function MirajInteractive({
                     </span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                    <strong className="text-emerald-400 block">📿 Magnet Tasbih</strong>
+                    <strong className="text-blue-400 block">📿 Magnet Tasbih</strong>
                     <span className="text-[11px] text-slate-400">
                       Menarik seluruh butiran cahaya pahala di sekitar selama 6 detik secara otomatis.
                     </span>
@@ -463,7 +463,7 @@ export default function MirajInteractive({
               </div>
 
               <div>
-                <h4 className="font-bold text-emerald-400 text-sm mb-1">3. Tingkatan Gelar Santriwati:</h4>
+                <h4 className="font-bold text-blue-400 text-sm mb-1">3. Tingkatan Gelar Santriwati:</h4>
                 <ul className="space-y-1 list-disc pl-4 text-[11px]">
                   <li>
                     Skor 1 – 30: <strong>Musafirah Dunia</strong>

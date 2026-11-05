@@ -59,10 +59,10 @@ export default function TambahTamuModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-      <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full shadow-2xl border border-white/60 max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95">
+      <div className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full shadow-2xl border border-white/60 max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95">
         <div className="flex items-center justify-between border-b border-white/50 p-4 md:p-6 bg-white/40 backdrop-blur-md shrink-0">
           <div>
-            <h3 className="font-serif font-black text-base md:text-xl text-[#422F21]">
+            <h3 className="font-serif font-black text-base md:text-xl text-[#0F2C59]">
               Tambah Tamu Undangan Baru
             </h3>
             <p className="text-xs text-[#7A624E] mt-0.5">
@@ -83,7 +83,7 @@ export default function TambahTamuModal({
           className="p-4 md:p-6 space-y-4 md:space-y-5 text-xs md:text-sm overflow-y-auto flex-1"
         >
           <div>
-            <label className="block font-bold text-[#422F21] mb-1.5 text-xs md:text-sm">
+            <label className="block font-bold text-[#0F2C59] mb-1.5 text-xs md:text-sm">
               Golongan Tamu Undangan:
             </label>
             <div className="grid grid-cols-3 gap-2 md:gap-3">
@@ -94,8 +94,8 @@ export default function TambahTamuModal({
                   onClick={() => handleOpenAddModal(gol)}
                   className={`py-2.5 px-2 rounded-xl font-bold border transition-all text-center text-xs md:text-sm cursor-pointer ${
                     selectedGolonganUndangan === gol
-                      ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                      : 'bg-white/50 text-[#422F21] border-white/70 hover:bg-white/80 backdrop-blur-xs'
+                      ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
+                      : 'bg-white/50 text-[#0F2C59] border-white/70 hover:bg-white/80 backdrop-blur-xs'
                   }`}
                 >
                   {gol}
@@ -105,12 +105,12 @@ export default function TambahTamuModal({
           </div>
 
           <div className="space-y-3 bg-white/40 backdrop-blur-xs p-4 md:p-5 rounded-2xl border border-white/50">
-            <label className="block font-bold text-[#422F21] text-xs md:text-sm mb-1">
+            <label className="block font-bold text-[#0F2C59] text-xs md:text-sm mb-1">
               Nama Tamu Undangan *
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div>
-                <label className="block font-semibold text-[#422F21] text-xs md:text-sm mb-1">
+                <label className="block font-semibold text-[#0F2C59] text-xs md:text-sm mb-1">
                   👨 Nama Tamu Putra{' '}
                   <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
                 </label>
@@ -123,7 +123,7 @@ export default function TambahTamuModal({
                 />
               </div>
               <div>
-                <label className="block font-semibold text-[#422F21] text-xs md:text-sm mb-1">
+                <label className="block font-semibold text-[#0F2C59] text-xs md:text-sm mb-1">
                   👩 Nama Tamu Putri{' '}
                   <span className="text-stone-500 font-normal">(Ning / Nyai / Ust.)</span>:
                 </label>
@@ -140,13 +140,13 @@ export default function TambahTamuModal({
 
           {selectedGolonganUndangan !== 'KEHORMATAN' && (
             <div>
-              <label className="block font-bold text-[#422F21] mb-1.5 text-xs md:text-sm">
+              <label className="block font-bold text-[#0F2C59] mb-1.5 text-xs md:text-sm">
                 Kategori Undangan:
               </label>
               <select
                 value={undanganKategoriDropdown}
                 onChange={(e) => setUndanganKategoriDropdown(e.target.value)}
-                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm font-medium text-[#422F21]"
+                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs md:text-sm font-medium text-[#0F2C59]"
               >
                 {(selectedGolonganUndangan === 'ISTIMEWA' ? OPSI_UNDANGAN_ISTIMEWA : OPSI_UNDANGAN_UMUM).map(
                   (opt) => (
@@ -169,7 +169,7 @@ export default function TambahTamuModal({
           )}
 
           <div>
-            <label className="block font-bold text-[#422F21] mb-1.5 text-xs md:text-sm">
+            <label className="block font-bold text-[#0F2C59] mb-1.5 text-xs md:text-sm">
               Instansi / Alamat:
             </label>
             <input
@@ -184,7 +184,7 @@ export default function TambahTamuModal({
           </div>
 
           <div>
-            <label className="block font-bold text-[#422F21] mb-1.5 text-xs md:text-sm">
+            <label className="block font-bold text-[#0F2C59] mb-1.5 text-xs md:text-sm">
               Nomor WhatsApp / HP (Opsional):
             </label>
             <input
@@ -206,7 +206,7 @@ export default function TambahTamuModal({
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs md:text-sm shadow-md transition-colors cursor-pointer"
+              className="flex-1 py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs md:text-sm shadow-md transition-colors cursor-pointer"
             >
               Simpan Tamu
             </button>

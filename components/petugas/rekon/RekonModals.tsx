@@ -40,14 +40,14 @@ export default function RekonModals({
             if (e.target === e.currentTarget) setEditingItem(null);
           }}
         >
-          <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+          <div className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-stone-200/60 pb-4">
               <div>
-                <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-white/60 backdrop-blur-xs text-[#8C6A47] text-[10px] font-bold border border-white/70">
-                  <Edit3 className="w-3.5 h-3.5 text-[#8C6A47]" />
+                <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-full bg-white/60 backdrop-blur-xs text-[#1D4ED8] text-[10px] font-bold border border-white/70">
+                  <Edit3 className="w-3.5 h-3.5 text-[#1D4ED8]" />
                   <span>PANEL EDIT LENGKAP REKONSILIASI</span>
                 </div>
-                <h3 className="text-lg font-serif font-black text-[#422F21] mt-1">
+                <h3 className="text-lg font-serif font-black text-[#0F2C59] mt-1">
                   Edit Data {editingItem.tipe === 'SANTRI' ? 'Peserta Santri' : 'Tamu Undangan'}: {editingItem.kode}
                 </h3>
               </div>
@@ -63,59 +63,59 @@ export default function RekonModals({
             <form onSubmit={onSaveEdit} className="space-y-4 text-xs">
               {/* BLOK 1: IDENTITAS & KONTAK */}
               <div className="p-4 rounded-2xl bg-white/50 backdrop-blur-xs border border-white/60 space-y-3">
-                <h4 className="font-serif font-black text-sm text-[#422F21]">1. Identitas &amp; Kontak Utama</h4>
+                <h4 className="font-serif font-black text-sm text-[#0F2C59]">1. Identitas &amp; Kontak Utama</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nama Utama:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Nama Utama:</label>
                     <input
                       type="text"
                       value={editingItem.nama}
                       onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-semibold text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-semibold text-xs focus:ring-1 focus:ring-[#1D4ED8]"
                       required
                     />
                   </div>
 
                   {editingItem.tipe === 'SANTRI' ? (
                     <div>
-                      <label className="block font-bold text-[#422F21] mb-1">Nama Wali:</label>
+                      <label className="block font-bold text-[#0F2C59] mb-1">Nama Wali:</label>
                       <input
                         type="text"
                         value={editingItem.namaWali}
                         onChange={(e) => setEditingItem({ ...editingItem, namaWali: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#1D4ED8]"
                       />
                     </div>
                   ) : (
                     <div>
-                      <label className="block font-bold text-[#422F21] mb-1">Instansi / Asal:</label>
+                      <label className="block font-bold text-[#0F2C59] mb-1">Instansi / Asal:</label>
                       <input
                         type="text"
                         value={editingItem.instansi}
                         onChange={(e) => setEditingItem({ ...editingItem, instansi: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                        className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#1D4ED8]"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Nomor WhatsApp / HP:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Nomor WhatsApp / HP:</label>
                     <input
                       type="text"
                       value={editingItem.noHp}
                       onChange={(e) => setEditingItem({ ...editingItem, noHp: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#1D4ED8]"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Alamat Domisili:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Alamat Domisili:</label>
                     <input
                       type="text"
                       value={editingItem.alamat}
                       onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#8C6A47]"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs focus:ring-1 focus:ring-[#1D4ED8]"
                     />
                   </div>
                 </div>
@@ -123,13 +123,13 @@ export default function RekonModals({
 
               {/* BLOK 2: KATEGORI & KUOTA */}
               <div className="p-4 rounded-2xl bg-white/50 backdrop-blur-xs border border-white/60 space-y-3">
-                <h4 className="font-serif font-black text-sm text-[#422F21]">2. Kategori, Kuota &amp; Warna Tiket</h4>
+                <h4 className="font-serif font-black text-sm text-[#0F2C59]">2. Kategori, Kuota &amp; Warna Tiket</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {editingItem.tipe === 'SANTRI' ? (
                     <>
                       <div>
-                        <label className="block font-bold text-[#422F21] mb-1">Kategori Utama:</label>
+                        <label className="block font-bold text-[#0F2C59] mb-1">Kategori Utama:</label>
                         <select
                           value={editingItem.kategoriUtama}
                           onChange={(e) => setEditingItem({ ...editingItem, kategoriUtama: e.target.value })}
@@ -141,7 +141,7 @@ export default function RekonModals({
                         </select>
                       </div>
                       <div>
-                        <label className="block font-bold text-[#422F21] mb-1">Sub-Kategori / Kelas:</label>
+                        <label className="block font-bold text-[#0F2C59] mb-1">Sub-Kategori / Kelas:</label>
                         <input
                           type="text"
                           value={editingItem.subKategori}
@@ -150,7 +150,7 @@ export default function RekonModals({
                         />
                       </div>
                       <div>
-                        <label className="block font-bold text-[#422F21] mb-1">Kamar Santri:</label>
+                        <label className="block font-bold text-[#0F2C59] mb-1">Kamar Santri:</label>
                         <input
                           type="text"
                           value={editingItem.kamar}
@@ -162,7 +162,7 @@ export default function RekonModals({
                   ) : (
                     <>
                       <div>
-                        <label className="block font-bold text-[#422F21] mb-1">Golongan Undangan:</label>
+                        <label className="block font-bold text-[#0F2C59] mb-1">Golongan Undangan:</label>
                         <select
                           value={editingItem.subKategori}
                           onChange={(e) => setEditingItem({ ...editingItem, subKategori: e.target.value })}
@@ -174,7 +174,7 @@ export default function RekonModals({
                         </select>
                       </div>
                       <div>
-                        <label className="block font-bold text-[#422F21] mb-1">Kategori Khusus:</label>
+                        <label className="block font-bold text-[#0F2C59] mb-1">Kategori Khusus:</label>
                         <input
                           type="text"
                           value={editingItem.kategori}
@@ -188,7 +188,7 @@ export default function RekonModals({
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Kuota Dasar:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Kuota Dasar:</label>
                     <input
                       type="number"
                       min="0"
@@ -198,17 +198,17 @@ export default function RekonModals({
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Kuota Tambahan:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Kuota Tambahan:</label>
                     <input
                       type="number"
                       min="0"
                       value={editingItem.kuotaTambahan}
                       onChange={(e) => setEditingItem({ ...editingItem, kuotaTambahan: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-bold text-xs text-emerald-800"
+                      className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs font-bold text-xs text-blue-800"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Kuota Terpakai:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Kuota Terpakai:</label>
                     <input
                       type="number"
                       min="0"
@@ -248,7 +248,7 @@ export default function RekonModals({
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Warna Tiket:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Warna Tiket:</label>
                     <select
                       value={editingItem.warnaTiket}
                       onChange={(e) => setEditingItem({ ...editingItem, warnaTiket: e.target.value })}
@@ -262,12 +262,12 @@ export default function RekonModals({
               </div>
 
               {/* BLOK 3: JUMLAH KEHADIRAN (PRESENSI REALTIME) */}
-              <div className="p-4 rounded-2xl bg-amber-50/50 backdrop-blur-xs border border-amber-200/70 space-y-3">
+              <div className="p-4 rounded-2xl bg-sky-50/50 backdrop-blur-xs border border-sky-200/70 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-serif font-black text-sm text-[#422F21]">
+                  <h4 className="font-serif font-black text-sm text-[#0F2C59]">
                     3. Jumlah Kehadiran (Presensi Realtime)
                   </h4>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100/80 backdrop-blur-xs text-amber-900 border border-amber-300">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100/80 backdrop-blur-xs text-blue-950 border border-sky-300">
                     Total Kuota: {(Number(editingItem.kuotaDasar || 0) + Number(editingItem.kuotaTambahan || 0))} Kursi
                   </span>
                 </div>
@@ -282,7 +282,7 @@ export default function RekonModals({
                       {/* Stepper Putra */}
                       <div className="p-3 rounded-xl bg-white/60 backdrop-blur-xs border border-white/70 flex items-center justify-between shadow-2xs">
                         <div>
-                          <span className="font-bold text-xs text-[#422F21] block">Putra / Laki-laki (L)</span>
+                          <span className="font-bold text-xs text-[#0F2C59] block">Putra / Laki-laki (L)</span>
                           <span className="text-[10px] text-stone-500">Jumlah fisik hadir</span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -319,7 +319,7 @@ export default function RekonModals({
                               })
                             }
                             disabled={isMaxReached}
-                            className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-amber-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
+                            className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-blue-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
                           >
                             +
                           </button>
@@ -329,7 +329,7 @@ export default function RekonModals({
                       {/* Stepper Putri */}
                       <div className="p-3 rounded-xl bg-white/60 backdrop-blur-xs border border-white/70 flex items-center justify-between shadow-2xs">
                         <div>
-                          <span className="font-bold text-xs text-[#422F21] block">Putri / Perempuan (P)</span>
+                          <span className="font-bold text-xs text-[#0F2C59] block">Putri / Perempuan (P)</span>
                           <span className="text-[10px] text-stone-500">Jumlah fisik hadir</span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -366,7 +366,7 @@ export default function RekonModals({
                               })
                             }
                             disabled={isMaxReached}
-                            className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-amber-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
+                            className="w-8 h-8 rounded-lg bg-amber-700 hover:bg-blue-800 text-white disabled:opacity-30 font-black text-base flex items-center justify-center cursor-pointer shadow-2xs transition-all"
                           >
                             +
                           </button>
@@ -379,11 +379,11 @@ export default function RekonModals({
 
               {/* BLOK 4: RSVP & STATUS */}
               <div className="p-4 rounded-2xl bg-white/50 backdrop-blur-xs border border-white/60 space-y-3">
-                <h4 className="font-serif font-black text-sm text-[#422F21]">4. RSVP &amp; Catatan</h4>
+                <h4 className="font-serif font-black text-sm text-[#0F2C59]">4. RSVP &amp; Catatan</h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Status Konfirmasi RSVP:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Status Konfirmasi RSVP:</label>
                     <select
                       value={editingItem.statusKonfirmasi}
                       onChange={(e) => setEditingItem({ ...editingItem, statusKonfirmasi: e.target.value })}
@@ -394,7 +394,7 @@ export default function RekonModals({
                     </select>
                   </div>
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Perkiraan Laki-laki:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Perkiraan Laki-laki:</label>
                     <input
                       type="number"
                       min="0"
@@ -404,7 +404,7 @@ export default function RekonModals({
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-[#422F21] mb-1">Perkiraan Perempuan:</label>
+                    <label className="block font-bold text-[#0F2C59] mb-1">Perkiraan Perempuan:</label>
                     <input
                       type="number"
                       min="0"
@@ -416,7 +416,7 @@ export default function RekonModals({
                 </div>
 
                 <div>
-                  <label className="block font-bold text-[#422F21] mb-1">Catatan Khusus Rekonsiliasi:</label>
+                  <label className="block font-bold text-[#0F2C59] mb-1">Catatan Khusus Rekonsiliasi:</label>
                   <input
                     type="text"
                     value={editingItem.catatanKonfirmasi}
@@ -439,7 +439,7 @@ export default function RekonModals({
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-6 py-2.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
+                  className="px-6 py-2.5 rounded-2xl bg-blue-800 hover:bg-blue-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
                 >
                   <Save className="w-4 h-4 text-emerald-200" />
                   <span>{savingEdit ? 'Menyimpan &amp; Menyinkron...' : 'Simpan Perubahan'}</span>
@@ -458,10 +458,10 @@ export default function RekonModals({
             if (e.target === e.currentTarget) setShowWalkinModal(false);
           }}
         >
-          <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl max-w-xl sm:max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-4 sm:space-y-5 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+          <div className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-3xl max-w-xl sm:max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-4 sm:space-y-5 border border-white/60 max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-stone-200/60 pb-3">
               <div>
-                <h3 className="font-serif font-black text-lg text-[#422F21]">
+                <h3 className="font-serif font-black text-lg text-[#0F2C59]">
                   Daftarkan Tamu Walk-in Baru
                 </h3>
                 <p className="text-xs text-[#7A624E]">
@@ -479,7 +479,7 @@ export default function RekonModals({
 
             <form onSubmit={onSaveWalkin} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-[#422F21] mb-1.5">Golongan Tamu Walk-in:</label>
+                <label className="block font-bold text-[#0F2C59] mb-1.5">Golongan Tamu Walk-in:</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['ISTIMEWA', 'KEHORMATAN', 'UMUM'] as GolonganUndangan[]).map((gol) => (
                     <button
@@ -500,8 +500,8 @@ export default function RekonModals({
                       }
                       className={`py-2 px-1 rounded-xl font-bold border transition-all text-center text-[11px] cursor-pointer ${
                         walkinForm.golongan === gol
-                          ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                          : 'bg-white/50 text-[#422F21] border-white/60 hover:bg-white/75 backdrop-blur-xs'
+                          ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
+                          : 'bg-white/50 text-[#0F2C59] border-white/60 hover:bg-white/75 backdrop-blur-xs'
                       }`}
                     >
                       {gol}
@@ -512,12 +512,12 @@ export default function RekonModals({
 
               {/* Field Nama Tamu Putra & Putri Berdampingan (Grid 2 Kolom) */}
               <div className="space-y-3 bg-white/50 backdrop-blur-xs p-3.5 sm:p-4 rounded-2xl border border-white/60">
-                <label className="block font-bold text-[#422F21] text-xs mb-1">
+                <label className="block font-bold text-[#0F2C59] text-xs mb-1">
                   Nama Tamu Undangan *
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold text-[#422F21] text-xs mb-1">
+                    <label className="block font-semibold text-[#0F2C59] text-xs mb-1">
                       👨 Nama Tamu Putra{' '}
                       <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
                     </label>
@@ -530,7 +530,7 @@ export default function RekonModals({
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-[#422F21] text-xs mb-1">
+                    <label className="block font-semibold text-[#0F2C59] text-xs mb-1">
                       👩 Nama Tamu Putri{' '}
                       <span className="text-stone-500 font-normal">(Ning / Nyai / Ust.)</span>:
                     </label>
@@ -548,13 +548,13 @@ export default function RekonModals({
               {/* Kategori Undangan (Dropdown) - Muncul untuk ISTIMEWA & UMUM, Sembunyi untuk KEHORMATAN */}
               {walkinForm.golongan !== 'KEHORMATAN' && (
                 <div>
-                  <label className="block font-bold text-[#422F21] mb-1.5">
+                  <label className="block font-bold text-[#0F2C59] mb-1.5">
                     Kategori Undangan:
                   </label>
                   <select
                     value={walkinForm.kategori}
                     onChange={(e) => setWalkinForm({ ...walkinForm, kategori: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs font-medium text-[#422F21]"
+                    className="w-full px-3 py-2 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs font-medium text-[#0F2C59]"
                   >
                     {(walkinForm.golongan === 'ISTIMEWA' ? OPSI_UNDANGAN_ISTIMEWA : OPSI_UNDANGAN_UMUM).map(
                       (opt) => (
@@ -579,7 +579,7 @@ export default function RekonModals({
               {/* Instansi / Asal Lembaga - Khusus Golongan UMUM */}
               {walkinForm.golongan === 'UMUM' && (
                 <div>
-                  <label className="block font-bold text-[#422F21] mb-1.5">
+                  <label className="block font-bold text-[#0F2C59] mb-1.5">
                     Instansi / Asal Lembaga:
                   </label>
                   <input
@@ -594,7 +594,7 @@ export default function RekonModals({
 
               {/* Alamat - Muncul untuk ISTIMEWA, KEHORMATAN, dan UMUM */}
               <div>
-                <label className="block font-bold text-[#422F21] mb-1.5">
+                <label className="block font-bold text-[#0F2C59] mb-1.5">
                   Alamat:
                 </label>
                 <input
@@ -608,7 +608,7 @@ export default function RekonModals({
 
               {/* Nomor WhatsApp / HP - Muncul untuk ISTIMEWA, KEHORMATAN, dan UMUM */}
               <div>
-                <label className="block font-bold text-[#422F21] mb-1.5">
+                <label className="block font-bold text-[#0F2C59] mb-1.5">
                   Nomor WhatsApp / HP (Opsional):
                 </label>
                 <input
@@ -621,15 +621,15 @@ export default function RekonModals({
               </div>
 
               {/* Checkbox Presensi Seketika */}
-              <div className="p-3.5 rounded-2xl bg-emerald-50/60 backdrop-blur-xs border border-emerald-200/80 flex items-center space-x-2.5">
+              <div className="p-3.5 rounded-2xl bg-blue-50/60 backdrop-blur-xs border border-blue-200/80 flex items-center space-x-2.5">
                 <input
                   type="checkbox"
                   id="langsungCheckin"
                   checked={walkinForm.langsungCheckin}
                   onChange={(e) => setWalkinForm({ ...walkinForm, langsungCheckin: e.target.checked })}
-                  className="w-4 h-4 text-emerald-700 rounded border-stone-300 focus:ring-emerald-700 cursor-pointer"
+                  className="w-4 h-4 text-blue-700 rounded border-stone-300 focus:ring-emerald-700 cursor-pointer"
                 />
-                <label htmlFor="langsungCheckin" className="text-xs font-bold text-emerald-950 cursor-pointer">
+                <label htmlFor="langsungCheckin" className="text-xs font-bold text-blue-950 cursor-pointer">
                   Langsung Tandai HADIR Seketika (Insert Presensi Log)
                 </label>
               </div>
@@ -645,7 +645,7 @@ export default function RekonModals({
                 <button
                   type="submit"
                   disabled={savingWalkin}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {savingWalkin ? 'Menyimpan...' : 'Daftarkan Walk-in'}
                 </button>

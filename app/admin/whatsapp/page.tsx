@@ -625,8 +625,8 @@ export default function WhatsAppPage() {
               onClick={() => setActiveTab('WALI_SANTRI')}
               className={`px-3 sm:px-5 py-2.5 rounded-2xl font-serif font-black text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer text-center ${
                 activeTab === 'WALI_SANTRI'
-                  ? 'bg-[#8C6A47]/90 backdrop-blur-sm text-white shadow-md border border-[#735334]'
-                  : 'bg-white/40 hover:bg-white/70 backdrop-blur-sm text-[#422F21] border border-white/60 shadow-xs'
+                  ? 'bg-[#1D4ED8]/90 backdrop-blur-sm text-white shadow-md border border-[#1E40AF]'
+                  : 'bg-white/40 hover:bg-white/70 backdrop-blur-sm text-[#0F2C59] border border-white/60 shadow-xs'
               }`}
             >
               <Users className="w-4 h-4 shrink-0" />
@@ -637,8 +637,8 @@ export default function WhatsAppPage() {
               onClick={() => setActiveTab('TAMU_UNDANGAN')}
               className={`px-3 sm:px-5 py-2.5 rounded-2xl font-serif font-black text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 sm:space-x-2 cursor-pointer text-center ${
                 activeTab === 'TAMU_UNDANGAN'
-                  ? 'bg-[#8C6A47]/90 backdrop-blur-sm text-white shadow-md border border-[#735334]'
-                  : 'bg-white/40 hover:bg-white/70 backdrop-blur-sm text-[#422F21] border border-white/60 shadow-xs'
+                  ? 'bg-[#1D4ED8]/90 backdrop-blur-sm text-white shadow-md border border-[#1E40AF]'
+                  : 'bg-white/40 hover:bg-white/70 backdrop-blur-sm text-[#0F2C59] border border-white/60 shadow-xs'
               }`}
             >
               <UserCheck className="w-4 h-4 shrink-0" />

@@ -52,7 +52,7 @@ export default function ScanResultModals({
       {/* TAMPILAN 2: DETAIL PESERTA DARI SUPABASE SAAT QR TERPINDAI */}
       {/* ========================================================================= */}
       {activeItem && !checkinResult && (
-        <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-w-md mx-auto">
+        <div className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-w-md mx-auto">
           {/* Header Compact */}
           <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-3.5 py-2.5 flex items-center justify-between border-b border-gold-500/30">
             <div className="flex items-center space-x-2">
@@ -73,10 +73,10 @@ export default function ScanResultModals({
                 {/* Badge Tiket & Instruksi Petugas */}
                 {activeItem.isBilGhoib || (activeItem.warnaTiket && String(activeItem.warnaTiket).toLowerCase().includes('cream')) ? (
                   <div className="text-right">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#F5E6D3] text-[#5C3E28] border border-[#D49B5B]">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#F5E6D3] text-[#1E3A8A] border border-[#D49B5B]">
                       Tiket Cream
                     </span>
-                    <span className="block text-[9px] text-[#5C3E28] font-bold">
+                    <span className="block text-[9px] text-[#1E3A8A] font-bold">
                       Wali Maju Panggung
                     </span>
                   </div>
@@ -121,7 +121,7 @@ export default function ScanResultModals({
                     <div className="text-[10px] font-bold text-slate-500 uppercase">SISA</div>
                     <div
                       className={`text-xl font-serif font-black ${
-                        sisa > 0 ? 'text-emerald-700' : 'text-rose-600'
+                        sisa > 0 ? 'text-blue-700' : 'text-rose-600'
                       }`}
                     >
                       {sisa}
@@ -140,8 +140,8 @@ export default function ScanResultModals({
                   onClick={onToggleKartuHitamGold}
                   className={`p-3 rounded-2xl border-2 transition-all select-none cursor-pointer ${
                     isChecked
-                      ? 'bg-[#F5E6D3] border-[#D49B5B] text-[#5C3E28] shadow-xs hover:border-amber-600'
-                      : 'bg-[#FFFDF9] border-[#D5C4B4] hover:border-amber-500 text-[#422F21]'
+                      ? 'bg-[#F5E6D3] border-[#D49B5B] text-[#1E3A8A] shadow-xs hover:border-amber-600'
+                      : 'bg-[#FFFDF9] border-[#BAE6FD] hover:border-amber-500 text-[#0F2C59]'
                   }`}
                   title={isChecked ? 'Klik untuk membatalkan/uncheck Kartu Cream' : 'Klik untuk memberikan Kartu Cream'}
                 >
@@ -152,7 +152,7 @@ export default function ScanResultModals({
                       checked={isChecked}
                       onChange={onToggleKartuHitamGold}
                       onClick={(e) => e.stopPropagation()}
-                      className="w-4 h-4 rounded text-amber-600 border-amber-400 focus:ring-amber-500 accent-amber-600 mt-0.5 cursor-pointer"
+                      className="w-4 h-4 rounded text-amber-600 border-sky-400 focus:ring-amber-500 accent-amber-600 mt-0.5 cursor-pointer"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
@@ -160,8 +160,8 @@ export default function ScanResultModals({
                           htmlFor="checkbox-cream"
                           className="text-xs font-bold leading-tight flex items-center gap-1.5 cursor-pointer"
                         >
-                          <span className="text-[#5C3E28]">Kartu Cream</span>
-                          <span className="text-[10px] text-amber-800 font-semibold">(Maju Panggung)</span>
+                          <span className="text-[#1E3A8A]">Kartu Cream</span>
+                          <span className="text-[10px] text-blue-900 font-semibold">(Maju Panggung)</span>
                         </label>
 
                         {isChecked ? (
@@ -270,11 +270,11 @@ export default function ScanResultModals({
                   {/* INFO TEKS SISA KUOTA & STATUS AUTOMATIS */}
                   <div className="text-[11px] font-semibold text-center py-1">
                     {terpakai >= totalKuota || isPlusDisabled ? (
-                      <span className="text-amber-900 bg-amber-50 px-3 py-1 rounded-full border border-amber-300 inline-block font-bold">
+                      <span className="text-blue-950 bg-sky-50 px-3 py-1 rounded-full border border-sky-300 inline-block font-bold">
                         ⚠️ KUOTA PENUH — Total saat ini: {totalSetelahInput}/{totalKuota} orang · Sisa kuota: {sisaSetelahInput} orang
                       </span>
                     ) : (
-                      <span className="text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
+                      <span className="text-blue-800 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 inline-block">
                         Total saat ini: <strong>{totalSetelahInput} orang</strong> · Sisa kuota: <strong>{sisaSetelahInput} orang</strong> (Tambahan baru: {totalInput} orang)
                       </span>
                     )}
@@ -333,19 +333,19 @@ export default function ScanResultModals({
       {/* TAMPILAN 3: HASIL PRESENSI SUKSES */}
       {/* ========================================================================= */}
       {checkinResult && checkinResult.ok && (
-        <div className="bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl border-2 border-emerald-500/80 text-center space-y-4 animate-in fade-in zoom-in-95">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto font-bold border-2 border-emerald-300">
+        <div className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl border-2 border-blue-500/80 text-center space-y-4 animate-in fade-in zoom-in-95">
+          <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mx-auto font-bold border-2 border-blue-300">
             <Check className="w-10 h-10" />
           </div>
 
           <div>
-            <h2 className="text-xl font-serif font-black text-emerald-950">
+            <h2 className="text-xl font-serif font-black text-blue-950">
               PRESENSI BERHASIL DICATAT!
             </h2>
-            <p className="text-xs text-emerald-800 mt-1">{checkinResult.pesan}</p>
+            <p className="text-xs text-blue-800 mt-1">{checkinResult.pesan}</p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-emerald-50/70 backdrop-blur-xs border border-emerald-200 text-xs text-emerald-900 space-y-1 text-left">
+          <div className="p-4 rounded-2xl bg-blue-50/70 backdrop-blur-xs border border-blue-200 text-xs text-blue-900 space-y-1 text-left">
             <p><strong>Nama:</strong> {checkinResult.detail?.nama}</p>
             <p><strong>Kode:</strong> {checkinResult.detail?.kode}</p>
             <p><strong>Kategori:</strong> {checkinResult.detail?.subKategori || checkinResult.detail?.kategori || '-'}</p>
@@ -356,7 +356,7 @@ export default function ScanResultModals({
           <button
             type="button"
             onClick={onResetForNext}
-            className="w-full py-3.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-serif font-black text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2"
+            className="w-full py-3.5 rounded-2xl bg-blue-800 hover:bg-blue-900 text-white font-serif font-black text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Scan Kode QR Berikutnya</span>
@@ -382,21 +382,21 @@ export default function ScanResultModals({
               />
               <div
                 id="halwaa-fallback-icon"
-                className="hidden w-20 h-20 rounded-full bg-amber-100 border-2 border-amber-400 text-amber-700 flex-col items-center justify-center shadow-lg"
+                className="hidden w-20 h-20 rounded-full bg-sky-100 border-2 border-sky-400 text-amber-700 flex-col items-center justify-center shadow-lg"
               >
                 <AlertCircle className="w-10 h-10" />
               </div>
             </div>
 
             {/* KOTAK POP-UP — DI DEPAN FOTO (HANYA TEKS + TOMBOL) */}
-            <div className="relative z-10 bg-[#FAF7F3]/95 backdrop-blur-2xl rounded-3xl w-full p-6 space-y-4 shadow-2xl border border-white/60 text-center animate-in zoom-in-95 duration-200">
+            <div className="relative z-10 bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-3xl w-full p-6 space-y-4 shadow-2xl border border-white/60 text-center animate-in zoom-in-95 duration-200">
               {/* Teks Peringatan */}
               <div className="space-y-2">
-                <h3 className="font-serif font-black text-amber-950 text-base sm:text-lg leading-tight">
+                <h3 className="font-serif font-black text-blue-950 text-base sm:text-lg leading-tight">
                   Peringatan Pembatalan Kartu Cream
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
-                  Us, apakah Us yakin ingin mereset status <strong className="text-amber-950">&quot;Kartu Cream&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <strong className="text-rose-600 font-bold">BELUM</strong>?
+                  Us, apakah Us yakin ingin mereset status <strong className="text-blue-950">&quot;Kartu Cream&quot;</strong> untuk santri <strong className="text-stone-900">{activeItem.nama}</strong> ({activeItem.kode}) kembali ke <strong className="text-rose-600 font-bold">BELUM</strong>?
                 </p>
               </div>
 

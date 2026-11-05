@@ -34,13 +34,13 @@ export function CountdownBadge({ targetDate, label, className = '', showLabels =
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
       {label && <span className="font-semibold">{label}</span>}
       <div className="flex items-center gap-1 font-mono font-bold">
-        <span className="bg-amber-900/10 px-1.5 py-0.5 rounded text-amber-900">{timeLeft.days}d</span>
+        <span className="bg-blue-900/10 px-1.5 py-0.5 rounded text-blue-950">{timeLeft.days}d</span>
         <span>:</span>
-        <span className="bg-amber-900/10 px-1.5 py-0.5 rounded text-amber-900">{String(timeLeft.hours).padStart(2, '0')}h</span>
+        <span className="bg-blue-900/10 px-1.5 py-0.5 rounded text-blue-950">{String(timeLeft.hours).padStart(2, '0')}h</span>
         <span>:</span>
-        <span className="bg-amber-900/10 px-1.5 py-0.5 rounded text-amber-900">{String(timeLeft.minutes).padStart(2, '0')}m</span>
+        <span className="bg-blue-900/10 px-1.5 py-0.5 rounded text-blue-950">{String(timeLeft.minutes).padStart(2, '0')}m</span>
         <span>:</span>
-        <span className="bg-amber-900/10 px-1.5 py-0.5 rounded text-amber-900">{String(timeLeft.seconds).padStart(2, '0')}s</span>
+        <span className="bg-blue-900/10 px-1.5 py-0.5 rounded text-blue-950">{String(timeLeft.seconds).padStart(2, '0')}s</span>
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export function TanyaUsHeaderAndSettings({
       <div className="py-2.5 px-3 sm:px-6 bg-white/60 backdrop-blur-md border-b border-white/40 flex items-center justify-between shrink-0 select-none gap-2">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           {/* Avatar Ustadzah Animasi Interaktif */}
-          <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F0F9FF] border-2 border-[#1D4ED8] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
             <img
               src={
                 isLoading
@@ -57,12 +57,12 @@ export function TanyaUsHeaderAndSettings({
               alt="Usth. Halwaa"
               className="w-full h-full object-cover transition-all duration-300"
             />
-            <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-600 animate-pulse" />
+            <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500 border-2 border-white ring-1 ring-emerald-600 animate-pulse" />
           </div>
 
           <div className="min-w-0">
             <div className="flex items-center">
-              <h2 className="font-serif font-black text-sm sm:text-lg text-[#422F21] leading-tight truncate">
+              <h2 className="font-serif font-black text-sm sm:text-lg text-[#0F2C59] leading-tight truncate">
                 Tanya Usth. Halwaa
               </h2>
             </div>
@@ -76,8 +76,8 @@ export function TanyaUsHeaderAndSettings({
         <div className="flex items-center space-x-1 sm:space-x-2">
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className={`p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-white/60 transition-colors ${
-              showSettings ? 'bg-white/60 text-[#8C6A47]' : ''
+            className={`p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors ${
+              showSettings ? 'bg-white/60 text-[#1D4ED8]' : ''
             }`}
             title="Pengaturan API Key"
             aria-label="Pengaturan"
@@ -86,7 +86,7 @@ export function TanyaUsHeaderAndSettings({
           </button>
           <button
             onClick={handleResetChat}
-            className="p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-white/60 transition-colors"
+            className="p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors"
             title="Mulai Percakapan Baru"
             aria-label="Reset Chat"
           >
@@ -94,7 +94,7 @@ export function TanyaUsHeaderAndSettings({
           </button>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-[#7A624E] hover:text-[#422F21] hover:bg-white/60 transition-colors"
+            className="p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors"
             title="Tutup (Esc)"
             aria-label="Tutup"
           >
@@ -105,15 +105,15 @@ export function TanyaUsHeaderAndSettings({
 
       {/* Panel Pengaturan API Key (Opsional / Terbuka Saat Tombol Settings Diklik) */}
       {showSettings && (
-        <div className="p-4 bg-[#FAF7F3]/95 backdrop-blur-md border-b border-white/40 text-xs text-[#543C28] space-y-2 shrink-0 animate-in slide-in-from-top-2 duration-150 shadow-inner">
+        <div className="p-4 bg-[#F0F9FF]/95 backdrop-blur-md border-b border-white/40 text-xs text-[#543C28] space-y-2 shrink-0 animate-in slide-in-from-top-2 duration-150 shadow-inner">
           <div className="flex items-center justify-between">
-            <span className="font-bold flex items-center gap-1.5 text-[#8C6A47]">
+            <span className="font-bold flex items-center gap-1.5 text-[#1D4ED8]">
               <Settings className="w-3.5 h-3.5" />
               <span>Konfigurasi Kunci API AI (Opsional)</span>
             </span>
             <button
               onClick={() => setShowSettings(false)}
-              className="text-[#8C6A47] hover:text-[#422F21]"
+              className="text-[#1D4ED8] hover:text-[#0F2C59]"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -127,11 +127,11 @@ export function TanyaUsHeaderAndSettings({
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               placeholder="Masukkan API Key Zhipu AI / Gemini / OpenAI..."
-              className="flex-1 px-3 py-1.5 rounded-xl border border-white/80 bg-white/80 backdrop-blur-xs text-xs font-mono focus:outline-none focus:border-[#8C6A47] text-[#422F21]"
+              className="flex-1 px-3 py-1.5 rounded-xl border border-white/80 bg-white/80 backdrop-blur-xs text-xs font-mono focus:outline-none focus:border-[#1D4ED8] text-[#0F2C59]"
             />
             <button
               onClick={handleSaveApiKey}
-              className="px-3 py-1.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs transition-colors shrink-0 shadow-xs"
+              className="px-3 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs transition-colors shrink-0 shadow-xs"
             >
               Simpan
             </button>
@@ -189,7 +189,7 @@ export function TanyaUsMessageList({
           >
             {!isUser && (
               <div
-                className="w-10 h-10 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden mt-0.5 group/avatar relative"
+                className="w-10 h-10 rounded-full bg-[#F0F9FF] border-2 border-[#1D4ED8] shadow-sm flex items-center justify-center shrink-0 overflow-hidden mt-0.5 group/avatar relative"
                 title={`Ekspresi Usth. Halwaa: ${EXPRESSION_AVATARS[msg.expression || 'polite'].label}`}
               >
                 <img
@@ -203,29 +203,29 @@ export function TanyaUsMessageList({
             <div
               className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 shadow-sm space-y-2 text-xs sm:text-[13px] leading-relaxed relative group ${
                 isUser
-                  ? 'bg-amber-100/90 border border-amber-200/80 shadow-sm text-[#2D1B0E] rounded-br-xs'
-                  : 'bg-white/80 backdrop-blur-md border border-white/60 shadow-sm text-[#422F21] rounded-bl-xs'
+                  ? 'bg-sky-100/90 border border-sky-200/80 shadow-sm text-[#0A192F] rounded-br-xs'
+                  : 'bg-white/80 backdrop-blur-md border border-white/60 shadow-sm text-[#0F2C59] rounded-bl-xs'
               }`}
             >
               {/* Sender & Timestamp */}
               <div
                 className={`flex items-center justify-between gap-2 text-[10px] pb-1 border-b ${
                   isUser
-                    ? 'border-amber-200/80 text-[#7D5A3C]'
-                    : 'border-[#EFE8E1] text-[#7A624E]'
+                    ? 'border-sky-200/80 text-[#7D5A3C]'
+                    : 'border-[#E0F2FE] text-[#7A624E]'
                 }`}
               >
                 <span className="font-bold flex items-center space-x-1 flex-wrap gap-y-1">
                   {isUser ? (
                     <>
-                      <User className="w-3.5 h-3.5 text-[#8C6A47]" />
+                      <User className="w-3.5 h-3.5 text-[#1D4ED8]" />
                       <span className="text-[#5C3D26] font-black">Anda (Panitia / Tamu)</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-3 h-3 text-[#D49B5B]" />
                       <span>Usth. Halwaa</span>
-                      <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-md bg-[#EFE8E1] text-[#8C6A47] font-semibold">
+                      <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-md bg-[#E0F2FE] text-[#1D4ED8] font-semibold">
                         {msg.model || 'Clouvia'}
                       </span>
                       <span
@@ -238,7 +238,7 @@ export function TanyaUsMessageList({
                     </>
                   )}
                 </span>
-                <span className={isUser ? 'text-[#8C6A47] font-semibold' : ''}>{msg.timestamp}</span>
+                <span className={isUser ? 'text-[#1D4ED8] font-semibold' : ''}>{msg.timestamp}</span>
               </div>
 
               {/* Konten Balasan */}
@@ -249,9 +249,9 @@ export function TanyaUsMessageList({
 
               {/* Tombol Unduhan File Tambahan HANYA jika diminta oleh pengguna di pertanyaan sebelumnya */}
               {!isUser && (showPdfButton || showDocxButton || showExcelButton) && (
-                <div className="pt-2 border-t border-[#EFE8E1] flex items-center gap-1.5 flex-wrap">
+                <div className="pt-2 border-t border-[#E0F2FE] flex items-center gap-1.5 flex-wrap">
                   <span className="text-[10px] text-[#7A624E] font-medium flex items-center gap-1">
-                    <Download className="w-3 h-3 text-[#8C6A47]" />
+                    <Download className="w-3 h-3 text-[#1D4ED8]" />
                     Unduh Berkas yang Diminta:
                   </span>
                   {showPdfButton && (
@@ -297,7 +297,7 @@ export function TanyaUsMessageList({
                         const motivasi = await fetchFreshMotivasi(userTopic);
                         exportTableToExcel(['No', 'Uraian'], rows, userTopic, motivasi);
                       }}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] shadow-2xs transition-all active:scale-95 cursor-pointer"
                     >
                       <FileSpreadsheet className="w-3 h-3" />
                       <span>Unduh Excel (.xlsx)</span>
@@ -311,13 +311,13 @@ export function TanyaUsMessageList({
                 <div className="pt-1 flex items-center justify-end">
                   <button
                     onClick={() => handleCopyText(msg.id, msg.content)}
-                    className="inline-flex items-center space-x-1 text-[10px] text-[#7A624E] hover:text-[#422F21] px-2 py-0.5 rounded-md hover:bg-white/60 transition-colors"
+                    className="inline-flex items-center space-x-1 text-[10px] text-[#7A624E] hover:text-[#0F2C59] px-2 py-0.5 rounded-md hover:bg-white/60 transition-colors"
                     title="Salin jawaban"
                   >
                     {copiedId === msg.id ? (
                       <>
-                        <Check className="w-3 h-3 text-emerald-600" />
-                        <span className="text-emerald-700 font-bold">Tersalin!</span>
+                        <Check className="w-3 h-3 text-blue-600" />
+                        <span className="text-blue-700 font-bold">Tersalin!</span>
                       </>
                     ) : (
                       <>
@@ -331,7 +331,7 @@ export function TanyaUsMessageList({
             </div>
 
             {isUser && (
-              <div className="w-8 h-8 rounded-full bg-[#EADBC8] border-2 border-[#8C6A47]/40 flex items-center justify-center shrink-0 mt-0.5 text-[#8C6A47] shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-[#E0F2FE] border-2 border-[#1D4ED8]/40 flex items-center justify-center shrink-0 mt-0.5 text-[#1D4ED8] shadow-xs">
                 <User className="w-4 h-4" />
               </div>
             )}
@@ -342,7 +342,7 @@ export function TanyaUsMessageList({
       {/* Indikator Mengetik (Typing Indicator) */}
       {isLoading && (
         <div className="flex gap-3 justify-start items-center">
-          <div className="w-10 h-10 rounded-full bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-full bg-[#F0F9FF] border-2 border-[#1D4ED8] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
             <img
               src="/images/avatar/ustadzah-avatar-thinking.png"
               alt="Usth. Halwaa Berpikir"
@@ -350,10 +350,10 @@ export function TanyaUsMessageList({
             />
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/50 text-xs text-[#422F21] flex items-center space-x-2.5 shadow-sm">
+          <div className="p-3.5 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/50 text-xs text-[#0F2C59] flex items-center space-x-2.5 shadow-sm">
             <div className="flex space-x-1">
-              <div className="w-2 h-2 rounded-full bg-[#8C6A47] animate-bounce" />
-              <div className="w-2 h-2 rounded-full bg-[#A47E57] animate-bounce [animation-delay:0.2s]" />
+              <div className="w-2 h-2 rounded-full bg-[#1D4ED8] animate-bounce" />
+              <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-bounce [animation-delay:0.2s]" />
               <div className="w-2 h-2 rounded-full bg-[#D49B5B] animate-bounce [animation-delay:0.4s]" />
             </div>
             <span className="font-medium italic text-[11px]">
@@ -396,21 +396,21 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleNavigate('/scan')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👉 Buka Scanner
             </button>
             <button
               type="button"
               onClick={() => handleNavigate('/admin/dasbor')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📊 Cek Rekap Kehadiran
             </button>
             <button
               type="button"
               onClick={() => handleNavigate('/admin/whatsapp')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               💬 Kirim WA Gateway
             </button>
@@ -421,14 +421,14 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleNavigate('/scan')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👉 Buka Scanner Gerbang
             </button>
             <button
               type="button"
               onClick={() => handleSendMessage('Bagaimana status kedatangan di gerbang saat ini?')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📊 Status Kedatangan Gerbang
             </button>
@@ -439,14 +439,14 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleSendMessage('Berapa persen tingkat okupansi dan jumlah total yang sudah hadir saat ini?')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📊 Ringkasan Kehadiran
             </button>
             <button
               type="button"
               onClick={() => handleSendMessage('Siapa saja Masyayikh dan Tamu Kehormatan yang sudah hadir?')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👑 Status Tamu VIP
             </button>
@@ -457,14 +457,14 @@ export function TanyaUsInputBar({
             <button
               type="button"
               onClick={() => handleSendMessage('Siapa saja tamu undangan yang sudah tiba dan yang belum hadir?')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               👥 Cek Status Tamu
             </button>
             <button
               type="button"
               onClick={() => handleNavigate('/penerima-tamu')}
-              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#8C6A47] font-bold transition-colors whitespace-nowrap shadow-2xs"
+              className="px-2.5 py-1 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs border border-white/70 text-[#1D4ED8] font-bold transition-colors whitespace-nowrap shadow-2xs"
             >
               📋 Presensi Tamu Masuk
             </button>
@@ -487,14 +487,14 @@ export function TanyaUsInputBar({
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="Tanyakan apapun pada Usth. Halwaa seputar Haflah... (Enter untuk kirim)"
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/60 focus:bg-white/90 focus:border-[#8C6A47] focus:outline-none text-xs sm:text-sm text-[#422F21] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/60 focus:bg-white/90 focus:border-[#1D4ED8] focus:outline-none text-xs sm:text-sm text-[#0F2C59] placeholder:text-[#7A624E]/70 resize-none min-h-[42px] max-h-24 shadow-inner"
           />
         </div>
 
         <button
           type="submit"
           disabled={!inputQuery.trim() || isLoading}
-          className="p-3 rounded-2xl bg-[#8C6A47] hover:bg-[#735334] disabled:opacity-50 text-white font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
+          className="p-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-50 text-white font-bold transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
           title="Kirim Pertanyaan"
         >
           <Send className="w-4 h-4" />

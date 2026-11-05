@@ -2,11 +2,11 @@ import React from 'react';
 
 /**
  * Palet Warna Desain Warm Latte & Cinnamon Mocha Coffee:
- * - Aksen Dominan: Cinnamon Mocha #8C6A47
+ * - Aksen Dominan: Cinnamon Mocha #1D4ED8
  * - Ambience & Sorotan: Golden Caramel Crema #D49B5B
- * - Tan Sekunder: Biscuit Tan #C4A88E
- * - Dasar: Warm Oat Cream #EFE8E1 / Pure Milk Cream #FAF7F3
- * - Teks Kontras: Deep Roasted Espresso #422F21
+ * - Tan Sekunder: Biscuit Tan #7DD3FC
+ * - Dasar: Warm Oat Cream #E0F2FE / Pure Milk Cream #F0F9FF
+ * - Teks Kontras: Deep Roasted Espresso #0F2C59
  */
 
 /**
@@ -32,14 +32,14 @@ export function TraditionalCorner({
     <div className={`select-none pointer-events-none ${className} ${transformMap[position]}`}>
       <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
         {/* Garis Border Luar Siku */}
-        <path d="M 2 38 V 4 A 2 2 0 0 1 4 2 H 38" stroke="#8C6A47" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 2 38 V 4 A 2 2 0 0 1 4 2 H 38" stroke="#1D4ED8" strokeWidth="2.5" strokeLinecap="round" />
         {/* Garis Border Dalam Siku */}
         <path d="M 6 36 V 8 A 2 2 0 0 1 8 6 H 36" stroke="#D49B5B" strokeWidth="1.2" strokeLinecap="round" />
 
         {/* Motif Simpul Fretwork Geometris Sudut (回纹 / Greek Key) */}
         <path
           d="M 10 28 V 12 A 2 2 0 0 1 12 10 H 28 V 22 H 16 V 16 H 22"
-          stroke="#8C6A47"
+          stroke="#1D4ED8"
           strokeWidth="1.8"
           strokeLinecap="square"
           strokeLinejoin="miter"
@@ -98,8 +98,8 @@ export function BegoniaCartouche({
              C 6 34, 6 26, 12 20
              C 16 16, 22 18, 28 18
              C 33 18, 35 12, 40 8 Z"
-          fill="#FAF7F3"
-          stroke="#8C6A47"
+          fill="#F0F9FF"
+          stroke="#1D4ED8"
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
@@ -130,10 +130,10 @@ export function BegoniaCartouche({
         />
 
         {/* Aksen Sayap Kiri & Kanan */}
-        <circle cx="20" cy="40" r="3" fill="#8C6A47" />
-        <circle cx="220" cy="40" r="3" fill="#8C6A47" />
-        <circle cx="20" cy="40" r="1.5" fill="#FAF7F3" />
-        <circle cx="220" cy="40" r="1.5" fill="#FAF7F3" />
+        <circle cx="20" cy="40" r="3" fill="#1D4ED8" />
+        <circle cx="220" cy="40" r="3" fill="#1D4ED8" />
+        <circle cx="20" cy="40" r="1.5" fill="#F0F9FF" />
+        <circle cx="220" cy="40" r="1.5" fill="#F0F9FF" />
       </svg>
 
       {/* Konten Di Dalam Plakat Begonia */}
@@ -143,7 +143,7 @@ export function BegoniaCartouche({
         ) : (
           <>
             {title && (
-              <div className="text-xs sm:text-sm font-serif font-black text-[#422F21] tracking-widest uppercase">
+              <div className="text-xs sm:text-sm font-serif font-black text-[#0F2C59] tracking-widest uppercase">
                 {title}
               </div>
             )}
@@ -173,27 +173,27 @@ export function TraditionalLatticeRoundel({
     <div className={`select-none shrink-0 ${className}`}>
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-sm">
         {/* Lingkaran Luar Cokelat Moka */}
-        <circle cx="50" cy="50" r="47" stroke="#8C6A47" strokeWidth="2.5" fill="#FAF7F3" />
+        <circle cx="50" cy="50" r="47" stroke="#1D4ED8" strokeWidth="2.5" fill="#F0F9FF" />
         {/* Lingkaran Tengah Emas Karamel */}
         <circle cx="50" cy="50" r="41" stroke="#D49B5B" strokeWidth="1.5" strokeDasharray="3 2" />
         {/* Lingkaran Inti */}
-        <circle cx="50" cy="50" r="32" stroke="#8C6A47" strokeWidth="2" fill="#EFE8E1" />
+        <circle cx="50" cy="50" r="32" stroke="#1D4ED8" strokeWidth="2" fill="#E0F2FE" />
 
         {/* Pola Kisi-kisi Jendela Antik (Traditional Lattice Window Screen) */}
         {/* Palang Horizontal & Vertikal */}
-        <line x1="18" y1="50" x2="82" y2="50" stroke="#8C6A47" strokeWidth="2" />
-        <line x1="50" y1="18" x2="50" y2="82" stroke="#8C6A47" strokeWidth="2" />
+        <line x1="18" y1="50" x2="82" y2="50" stroke="#1D4ED8" strokeWidth="2" />
+        <line x1="50" y1="18" x2="50" y2="82" stroke="#1D4ED8" strokeWidth="2" />
 
         {/* Pola Meander Tengah */}
-        <rect x="38" y="38" width="24" height="24" stroke="#8C6A47" strokeWidth="2" fill="none" />
-        <rect x="44" y="44" width="12" height="12" stroke="#D49B5B" strokeWidth="1.5" fill="#FAF7F3" />
-        <circle cx="50" cy="50" r="2.5" fill="#8C6A47" />
+        <rect x="38" y="38" width="24" height="24" stroke="#1D4ED8" strokeWidth="2" fill="none" />
+        <rect x="44" y="44" width="12" height="12" stroke="#D49B5B" strokeWidth="1.5" fill="#F0F9FF" />
+        <circle cx="50" cy="50" r="2.5" fill="#1D4ED8" />
 
         {/* 4 Sudut Kisi Luar */}
-        <path d="M 28 32 H 38 V 22" stroke="#8C6A47" strokeWidth="1.8" fill="none" />
-        <path d="M 72 32 H 62 V 22" stroke="#8C6A47" strokeWidth="1.8" fill="none" />
-        <path d="M 28 68 H 38 V 78" stroke="#8C6A47" strokeWidth="1.8" fill="none" />
-        <path d="M 72 68 H 62 V 78" stroke="#8C6A47" strokeWidth="1.8" fill="none" />
+        <path d="M 28 32 H 38 V 22" stroke="#1D4ED8" strokeWidth="1.8" fill="none" />
+        <path d="M 72 32 H 62 V 22" stroke="#1D4ED8" strokeWidth="1.8" fill="none" />
+        <path d="M 28 68 H 38 V 78" stroke="#1D4ED8" strokeWidth="1.8" fill="none" />
+        <path d="M 72 68 H 62 V 78" stroke="#1D4ED8" strokeWidth="1.8" fill="none" />
       </svg>
     </div>
   );
@@ -215,15 +215,15 @@ export function TraditionalHeaderBanner({
     <div className={`flex items-center justify-center space-x-1.5 sm:space-x-3 select-none ${className}`}>
       {/* Sayap Garis Meander Kiri */}
       <div className="flex-1 flex items-center justify-end space-x-1 min-w-[12px]">
-        <div className="h-[2px] w-full max-w-[80px] sm:max-w-[120px] bg-gradient-to-r from-transparent to-[#8C6A47]"></div>
-        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 border-t-2 border-r-2 border-[#8C6A47] rotate-45 shrink-0"></div>
+        <div className="h-[2px] w-full max-w-[80px] sm:max-w-[120px] bg-gradient-to-r from-transparent to-[#1D4ED8]"></div>
+        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 border-t-2 border-r-2 border-[#1D4ED8] rotate-45 shrink-0"></div>
         <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#D49B5B] shrink-0"></div>
       </div>
 
       {/* Plakat Begonia Kecil di Tengah */}
-      <div className="inline-flex items-center px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-sm shrink-0">
+      <div className="inline-flex items-center px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl bg-[#F0F9FF] border-2 border-[#1D4ED8] shadow-sm shrink-0">
         <TraditionalLatticeRoundel className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 shrink-0" />
-        <span className="text-[10px] sm:text-xs font-serif font-black tracking-wider sm:tracking-widest text-[#422F21] uppercase whitespace-nowrap">
+        <span className="text-[10px] sm:text-xs font-serif font-black tracking-wider sm:tracking-widest text-[#0F2C59] uppercase whitespace-nowrap">
           {title}
         </span>
         <TraditionalLatticeRoundel className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 shrink-0" />
@@ -232,8 +232,8 @@ export function TraditionalHeaderBanner({
       {/* Sayap Garis Meander Kanan */}
       <div className="flex-1 flex items-center justify-start space-x-1 min-w-[12px]">
         <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#D49B5B] shrink-0"></div>
-        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 border-b-2 border-l-2 border-[#8C6A47] rotate-45 shrink-0"></div>
-        <div className="h-[2px] w-full max-w-[80px] sm:max-w-[120px] bg-gradient-to-l from-transparent to-[#8C6A47]"></div>
+        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 border-b-2 border-l-2 border-[#1D4ED8] rotate-45 shrink-0"></div>
+        <div className="h-[2px] w-full max-w-[80px] sm:max-w-[120px] bg-gradient-to-l from-transparent to-[#1D4ED8]"></div>
       </div>
     </div>
   );
@@ -254,16 +254,16 @@ export function TraditionalFrameWrapper({
     <div className={`relative ${className}`}>
       {/* 4 Sudut Ornamen Tradisional */}
       <div className="absolute top-2 left-2 z-10">
-        <TraditionalCorner position="top-left" className="w-6 h-6 text-[#8C6A47]" />
+        <TraditionalCorner position="top-left" className="w-6 h-6 text-[#1D4ED8]" />
       </div>
       <div className="absolute top-2 right-2 z-10">
-        <TraditionalCorner position="top-right" className="w-6 h-6 text-[#8C6A47]" />
+        <TraditionalCorner position="top-right" className="w-6 h-6 text-[#1D4ED8]" />
       </div>
       <div className="absolute bottom-2 left-2 z-10">
-        <TraditionalCorner position="bottom-left" className="w-6 h-6 text-[#8C6A47]" />
+        <TraditionalCorner position="bottom-left" className="w-6 h-6 text-[#1D4ED8]" />
       </div>
       <div className="absolute bottom-2 right-2 z-10">
-        <TraditionalCorner position="bottom-right" className="w-6 h-6 text-[#8C6A47]" />
+        <TraditionalCorner position="bottom-right" className="w-6 h-6 text-[#1D4ED8]" />
       </div>
 
       {children}
@@ -276,10 +276,10 @@ export function TraditionalFrameWrapper({
  */
 export function PorcelainCartouche({ title, subtitle, className = "" }: { title?: string; subtitle?: string; className?: string }) {
   return (
-    <div className={`relative inline-flex items-center px-4 py-2 rounded-2xl bg-[#FAF7F3] border-2 border-[#8C6A47] shadow-md shadow-[#8C6A47]/10 ${className}`}>
+    <div className={`relative inline-flex items-center px-4 py-2 rounded-2xl bg-[#F0F9FF] border-2 border-[#1D4ED8] shadow-md shadow-[#1D4ED8]/10 ${className}`}>
       <TraditionalCorner position="top-left" className="w-4 h-4 mr-2 shrink-0" />
       <div className="text-center">
-        {title && <div className="text-xs font-serif font-black text-[#422F21] tracking-wider uppercase">{title}</div>}
+        {title && <div className="text-xs font-serif font-black text-[#0F2C59] tracking-wider uppercase">{title}</div>}
         {subtitle && <div className="text-[10px] text-[#7A624E] font-serif font-medium">{subtitle}</div>}
       </div>
       <TraditionalCorner position="top-right" className="w-4 h-4 ml-2 shrink-0" />
@@ -293,24 +293,24 @@ export function PorcelainCartouche({ title, subtitle, className = "" }: { title?
 export function PorcelainUrnIcon({ className = "w-8 h-8" }: { className?: string }) {
   return (
     <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <circle cx="24" cy="8" r="5" fill="#FAF7F3" stroke="#D49B5B" strokeWidth="1.2" />
-      <circle cx="18" cy="11" r="4.5" fill="#EFE8E1" stroke="#D49B5B" strokeWidth="1.2" />
-      <circle cx="30" cy="11" r="4.5" fill="#EFE8E1" stroke="#D49B5B" strokeWidth="1.2" />
+      <circle cx="24" cy="8" r="5" fill="#F0F9FF" stroke="#D49B5B" strokeWidth="1.2" />
+      <circle cx="18" cy="11" r="4.5" fill="#E0F2FE" stroke="#D49B5B" strokeWidth="1.2" />
+      <circle cx="30" cy="11" r="4.5" fill="#E0F2FE" stroke="#D49B5B" strokeWidth="1.2" />
       <circle cx="24" cy="9" r="2" fill="#D49B5B" />
-      <path d="M14 13 C12 9 16 7 18 10 Z" fill="#8C6A47" />
-      <path d="M34 13 C36 9 32 7 30 10 Z" fill="#8C6A47" />
-      <path d="M19 14 H29 V17 H19 Z" fill="#FAF7F3" stroke="#8C6A47" strokeWidth="1.2" />
+      <path d="M14 13 C12 9 16 7 18 10 Z" fill="#1D4ED8" />
+      <path d="M34 13 C36 9 32 7 30 10 Z" fill="#1D4ED8" />
+      <path d="M19 14 H29 V17 H19 Z" fill="#F0F9FF" stroke="#1D4ED8" strokeWidth="1.2" />
       <path d="M17 14 H31" stroke="#D49B5B" strokeWidth="1.5" strokeLinecap="round" />
       <path
         d="M19 17 C13 20 12 28 15 35 C17 38 20 40 24 40 C28 40 31 38 33 35 C36 28 35 20 29 17 Z"
         fill="#FFFFFF"
-        stroke="#8C6A47"
+        stroke="#1D4ED8"
         strokeWidth="1.8"
       />
-      <ellipse cx="24" cy="27" rx="6" ry="7" fill="#EFE8E1" stroke="#8C6A47" strokeWidth="1" />
-      <circle cx="24" cy="27" r="3" fill="#8C6A47" />
+      <ellipse cx="24" cy="27" rx="6" ry="7" fill="#E0F2FE" stroke="#1D4ED8" strokeWidth="1" />
+      <circle cx="24" cy="27" r="3" fill="#1D4ED8" />
       <circle cx="24" cy="27" r="1.5" fill="#D49B5B" />
-      <path d="M18 40 H30 V43 H18 Z" fill="#FAF7F3" stroke="#8C6A47" strokeWidth="1.2" />
+      <path d="M18 40 H30 V43 H18 Z" fill="#F0F9FF" stroke="#1D4ED8" strokeWidth="1.2" />
       <path d="M16 43 H32" stroke="#D49B5B" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
@@ -322,15 +322,15 @@ export function PorcelainUrnIcon({ className = "w-8 h-8" }: { className?: string
 export function StageLantern({ className = "w-6 h-10" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M4 14 H10 V22 H4" stroke="#8C6A47" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M4 14 H10 V22 H4" stroke="#1D4ED8" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="4" cy="18" r="2" fill="#D49B5B" />
-      <path d="M10 14 V8 C10 6 12 4 15 4" stroke="#8C6A47" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M9 13 L15 6 L21 13 Z" fill="#8C6A47" stroke="#5C3E28" strokeWidth="1" />
+      <path d="M10 14 V8 C10 6 12 4 15 4" stroke="#1D4ED8" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M9 13 L15 6 L21 13 Z" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="1" />
       <circle cx="15" cy="5" r="1.5" fill="#D49B5B" />
       <path d="M10 13 H20 L18 28 H12 Z" fill="#FCF3E4" stroke="#D49B5B" strokeWidth="1.2" />
       <ellipse cx="15" cy="20" rx="3.5" ry="5.5" fill="#D49B5B" filter="drop-shadow(0 0 6px #D49B5B)" />
       <ellipse cx="15" cy="20" rx="1.5" ry="2.5" fill="#FFFFFF" />
-      <path d="M11 28 H19 L15 34 Z" fill="#8C6A47" stroke="#5C3E28" strokeWidth="1" />
+      <path d="M11 28 H19 L15 34 Z" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="1" />
       <circle cx="15" cy="35" r="1.5" fill="#D49B5B" />
     </svg>
   );
@@ -341,20 +341,20 @@ export function StageLantern({ className = "w-6 h-10" }: { className?: string })
  */
 export function StagePillarAccent({ side = "left" }: { side?: "left" | "right" }) {
   return (
-    <div className={`hidden lg:flex flex-col items-center justify-between py-6 px-1.5 bg-[#EFE8E1] border-x-2 border-[#8C6A47]/30 shadow-md w-8 shrink-0 select-none ${side === "left" ? "rounded-l-2xl" : "rounded-r-2xl"}`}>
+    <div className={`hidden lg:flex flex-col items-center justify-between py-6 px-1.5 bg-[#E0F2FE] border-x-2 border-[#1D4ED8]/30 shadow-md w-8 shrink-0 select-none ${side === "left" ? "rounded-l-2xl" : "rounded-r-2xl"}`}>
       <div className="w-6 h-4 bg-gradient-to-b from-[#D49B5B] to-[#BE8340] rounded-t-sm border border-[#9E6728] flex items-center justify-center shadow-sm">
         <div className="w-4 h-1 bg-white/70 rounded-full"></div>
       </div>
       <div className="flex-1 flex justify-center space-x-1 my-3 w-full">
-        <div className="w-0.5 h-full bg-[#8C6A47]/35 rounded-full"></div>
+        <div className="w-0.5 h-full bg-[#1D4ED8]/35 rounded-full"></div>
         <div className="w-0.5 h-full bg-[#D49B5B]/50 rounded-full"></div>
-        <div className="w-0.5 h-full bg-[#8C6A47]/35 rounded-full"></div>
+        <div className="w-0.5 h-full bg-[#1D4ED8]/35 rounded-full"></div>
       </div>
       <TraditionalLatticeRoundel className="w-5 h-5 my-1" />
       <div className="flex-1 flex justify-center space-x-1 my-3 w-full">
-        <div className="w-0.5 h-full bg-[#8C6A47]/35 rounded-full"></div>
+        <div className="w-0.5 h-full bg-[#1D4ED8]/35 rounded-full"></div>
         <div className="w-0.5 h-full bg-[#D49B5B]/50 rounded-full"></div>
-        <div className="w-0.5 h-full bg-[#8C6A47]/35 rounded-full"></div>
+        <div className="w-0.5 h-full bg-[#1D4ED8]/35 rounded-full"></div>
       </div>
       <div className="w-6 h-4 bg-gradient-to-t from-[#BE8340] to-[#D49B5B] rounded-b-sm border border-[#9E6728] flex items-center justify-center shadow-sm">
         <div className="w-4 h-1 bg-white/70 rounded-full"></div>

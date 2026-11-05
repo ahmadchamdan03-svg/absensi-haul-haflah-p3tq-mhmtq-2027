@@ -8,57 +8,57 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Palet Desain Warm Latte & Cinnamon Mocha Coffee (Sesuai Gambar Referensi):
-        // 1. Warna Dasar (Dominan): Warm Oat Cream #EFE8E1 (RGB 239, 232, 225)
-        // 2. Warna Aksen: Rich Cinnamon Mocha #8C6A47 (RGB 140, 106, 71)
-        // 3. Warna Sekunder: Biscuit Tan #C4A88E (RGB 196, 168, 142)
-        // 4. Warna Ambience: Golden Caramel Crema #D49B5B (RGB 212, 155, 91)
-        // 5. Warna Teks: Deep Roasted Espresso #422F21 (RGB 66, 47, 33)
+        // Palet Desain Royal Blue & Ice Sky White:
+        // 1. Warna Dasar (Dominan): Ice Sky White #F0F9FF (RGB 240, 249, 255)
+        // 2. Warna Aksen: Royal Blue #1D4ED8 (RGB 29, 78, 216)
+        // 3. Warna Sekunder: Sky Blue #7DD3FC (RGB 125, 211, 252)
+        // 4. Warna Ambience: Golden Caramel Crema #D49B5B (Tetap dipertahankan untuk aksen Halwaa)
+        // 5. Warna Teks: Deep Royal Navy #0F2C59 (RGB 15, 44, 89)
 
-        // Mocha / Cinnamon Coffee Brown
+        // Mocha -> Deep Royal Navy & Blue
         mocha: {
-          50: '#FAF6F2',
-          100: '#F4ECE4',
-          200: '#E5D6C7',
-          300: '#D5C0AB',
-          400: '#A47E57',
-          500: '#8C6A47', // Exact Coffee Brown
-          600: '#735334',
-          700: '#5C3E28',
-          800: '#422F21', // Exact Dark Text
-          900: '#362518',
-          950: '#26190E',
-          DEFAULT: '#8C6A47',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#1D4ED8', // Royal Blue
+          600: '#1E40AF',
+          700: '#1E3A8A',
+          800: '#0F2C59', // Exact Dark Navy Text
+          900: '#0A192F',
+          950: '#050D1A',
+          DEFAULT: '#1D4ED8',
         },
 
-        // Warm Oat Cream / Latte
+        // Warm Oat Cream / Latte -> Ice Sky White
         latte: {
-          50: '#FAF7F3',
-          100: '#EFE8E1', // Exact Base Cream
-          200: '#E5DCD2',
-          300: '#D5C4B4',
-          400: '#C4A88E',
-          500: '#B09074',
-          600: '#947255',
-          700: '#75563D',
-          800: '#543C28',
-          900: '#382618',
-          DEFAULT: '#EFE8E1',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#60A5FA',
+          600: '#3B82F6',
+          700: '#1D4ED8',
+          800: '#1E40AF',
+          900: '#0F2C59',
+          DEFAULT: '#F0F9FF',
         },
 
-        // Biscuit Tan
+        // Biscuit Tan -> Sky Tan
         tan: {
-          50: '#FAF6F2',
-          100: '#F2E9E1',
-          200: '#E4D5C8',
-          300: '#D4C2B2',
-          DEFAULT: '#C4A88E',
-          500: '#C4A88E',
-          600: '#B09074',
-          700: '#947357',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          DEFAULT: '#38BDF8',
+          500: '#38BDF8',
+          600: '#0284C7',
+          700: '#0369A1',
         },
 
-        // Golden Caramel Crema
+        // Golden Caramel Crema (Tetap dipertahankan untuk aksen Halwaa / bintang)
         caramel: {
           50: '#FEFAF5',
           100: '#FCF3E4',
@@ -71,50 +71,50 @@ module.exports = {
           800: '#7A4D15',
         },
 
-        // Backward-compatible alias ivory -> latte
+        // Backward-compatible alias ivory -> ice sky white
         ivory: {
-          DEFAULT: '#EFE8E1',
-          50: '#FAF7F3',
-          100: '#EFE8E1',
-          200: '#E5DCD2',
-          300: '#D5C4B4',
-          400: '#C4A88E',
-          500: '#B09074',
-          600: '#8C6A47',
-          700: '#735334',
-          800: '#422F21',
-          900: '#362518',
+          DEFAULT: '#F0F9FF',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#60A5FA',
+          600: '#1D4ED8',
+          700: '#1E40AF',
+          800: '#0F2C59',
+          900: '#0A192F',
         },
 
-        // Backward-compatible alias chinoiserie / porcelain -> mocha
+        // Backward-compatible alias chinoiserie / porcelain -> royal blue
         chinoiserie: {
-          DEFAULT: '#8C6A47',
-          50: '#FAF6F2',
-          100: '#EFE8E1',
-          200: '#D5C4B4',
-          300: '#C4A88E',
-          400: '#A47E57',
-          500: '#8C6A47',
-          600: '#735334',
-          700: '#5C3E28',
-          800: '#422F21',
-          900: '#362518',
-          950: '#26190E',
+          DEFAULT: '#1D4ED8',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#1D4ED8',
+          600: '#1E40AF',
+          700: '#1E3A8A',
+          800: '#0F2C59',
+          900: '#0A192F',
+          950: '#050D1A',
         },
 
         porcelain: {
-          DEFAULT: '#8C6A47',
-          50: '#FAF6F2',
-          100: '#EFE8E1',
-          200: '#D5C4B4',
-          300: '#C4A88E',
-          400: '#A47E57',
-          500: '#8C6A47',
-          600: '#735334',
-          700: '#5C3E28',
-          800: '#422F21',
-          900: '#362518',
-          950: '#26190E',
+          DEFAULT: '#1D4ED8',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#1D4ED8',
+          600: '#1E40AF',
+          700: '#1E3A8A',
+          800: '#0F2C59',
+          900: '#0A192F',
+          950: '#050D1A',
         },
 
         // Backward-compatible alias gold / amberGlow -> caramel
@@ -146,45 +146,45 @@ module.exports = {
           900: '#58350B',
         },
 
-        // Backward-compatible alias opera & pesantren -> mocha & espresso
+        // Backward-compatible alias opera & pesantren -> navy & royal blue
         opera: {
-          50: '#FAF6F2',
-          100: '#EFE8E1',
-          200: '#D5C4B4',
-          300: '#C4A88E',
-          400: '#A47E57',
-          500: '#8C6A47',
-          600: '#735334',
-          700: '#5C3E28',
-          800: '#422F21',
-          850: '#362518',
-          900: '#26190E',
-          950: '#1A1009',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#1D4ED8',
+          600: '#1E40AF',
+          700: '#1E3A8A',
+          800: '#0F2C59',
+          850: '#0C2346',
+          900: '#0A192F',
+          950: '#050D1A',
         },
 
         pesantren: {
-          50: '#FAF6F2',
-          100: '#EFE8E1',
-          200: '#D5C4B4',
-          300: '#C4A88E',
-          400: '#A47E57',
-          500: '#8C6A47',
-          600: '#735334',
-          700: '#5C3E28',
-          800: '#422F21',
-          900: '#26190E',
-          950: '#1A1009',
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          200: '#BAE6FD',
+          300: '#7DD3FC',
+          400: '#38BDF8',
+          500: '#1D4ED8',
+          600: '#1E40AF',
+          700: '#1E3A8A',
+          800: '#0F2C59',
+          900: '#0A192F',
+          950: '#050D1A',
         },
       },
       backgroundImage: {
-        'mocha-gradient': 'linear-gradient(135deg, #8C6A47 0%, #735334 100%)',
-        'latte-gradient': 'linear-gradient(180deg, #FAF7F3 0%, #EFE8E1 100%)',
+        'mocha-gradient': 'linear-gradient(135deg, #0F2C59 0%, #1D4ED8 100%)',
+        'latte-gradient': 'linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%)',
         'caramel-gradient': 'linear-gradient(135deg, #D49B5B 0%, #B87E3E 100%)',
-        'stage-gradient': 'linear-gradient(135deg, #8C6A47 0%, #735334 100%)',
-        'opera-gradient': 'linear-gradient(135deg, #8C6A47 0%, #735334 100%)',
-        'ivory-card': 'linear-gradient(180deg, #FAF7F3 0%, #EFE8E1 100%)',
+        'stage-gradient': 'linear-gradient(135deg, #0F2C59 0%, #1D4ED8 100%)',
+        'opera-gradient': 'linear-gradient(135deg, #0F2C59 0%, #1D4ED8 100%)',
+        'ivory-card': 'linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%)',
         'amber-glow-card': 'linear-gradient(135deg, #D49B5B 0%, #BE8340 100%)',
-        'chinoiserie-card': 'linear-gradient(135deg, #8C6A47 0%, #735334 100%)',
+        'chinoiserie-card': 'linear-gradient(135deg, #0F2C59 0%, #1D4ED8 100%)',
       }
     },
   },

@@ -87,17 +87,17 @@ function DiffTableViewer({
             <button
               type="button"
               onClick={() => setShowSystemFields(!showSystemFields)}
-              className="text-[10px] font-bold text-[#8C6A47] hover:underline cursor-pointer"
+              className="text-[10px] font-bold text-[#1D4ED8] hover:underline cursor-pointer"
             >
               {showSystemFields ? 'Sembunyikan Field Sistem' : 'Tampilkan Field Sistem'}
             </button>
             <button
               type="button"
               onClick={handleCopy}
-              className="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#422F21] text-[10px] font-bold border border-stone-300 flex items-center gap-1 cursor-pointer"
+              className="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#0F2C59] text-[10px] font-bold border border-stone-300 flex items-center gap-1 cursor-pointer"
               title="Salin JSON Mentah"
             >
-              {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-[#8C6A47]" />}
+              {copied ? <Check className="w-3 h-3 text-blue-600" /> : <Copy className="w-3 h-3 text-[#1D4ED8]" />}
               <span>{copied ? 'Tersalin!' : 'Copy JSON'}</span>
             </button>
           </div>
@@ -105,11 +105,11 @@ function DiffTableViewer({
 
         <div className="border border-stone-200 rounded-xl overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-[#FAF7F3] border-b border-stone-200 text-[#422F21] font-bold text-[11px]">
+            <thead className="bg-[#F0F9FF] border-b border-stone-200 text-[#0F2C59] font-bold text-[11px]">
               <tr>
                 <th className="py-2 px-3 w-1/4">Field</th>
                 <th className="py-2 px-3 w-3/8 text-rose-800">Sebelum</th>
-                <th className="py-2 px-3 w-3/8 text-emerald-800">Sesudah</th>
+                <th className="py-2 px-3 w-3/8 text-blue-800">Sesudah</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-[11px]">
@@ -130,14 +130,14 @@ function DiffTableViewer({
                       key={key}
                       className={
                         isChanged
-                          ? 'bg-amber-100/80 font-bold text-amber-950 border-l-4 border-amber-500'
+                          ? 'bg-sky-100/80 font-bold text-blue-950 border-l-4 border-amber-500'
                           : 'text-stone-400 bg-white'
                       }
                     >
-                      <td className="py-1.5 px-3 font-semibold break-all text-[#5C3E28]">
+                      <td className="py-1.5 px-3 font-semibold break-all text-[#1E3A8A]">
                         {key}
                         {isChanged && (
-                          <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 font-sans font-bold uppercase">
+                          <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded bg-sky-200 text-blue-950 font-sans font-bold uppercase">
                             Berubah
                           </span>
                         )}
@@ -145,7 +145,7 @@ function DiffTableViewer({
                       <td className={`py-1.5 px-3 break-all ${isChanged ? 'text-rose-800 line-through' : 'text-stone-400'}`}>
                         {valLama}
                       </td>
-                      <td className={`py-1.5 px-3 break-all ${isChanged ? 'text-emerald-800' : 'text-stone-400'}`}>
+                      <td className={`py-1.5 px-3 break-all ${isChanged ? 'text-blue-800' : 'text-stone-400'}`}>
                         {valBaru}
                       </td>
                     </tr>
@@ -169,9 +169,9 @@ function DiffTableViewer({
         <button
           type="button"
           onClick={handleCopy}
-          className="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#422F21] text-[10px] font-bold border border-stone-300 flex items-center gap-1 cursor-pointer"
+          className="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#0F2C59] text-[10px] font-bold border border-stone-300 flex items-center gap-1 cursor-pointer"
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-[#8C6A47]" />}
+          {copied ? <Check className="w-3 h-3 text-blue-600" /> : <Copy className="w-3 h-3 text-[#1D4ED8]" />}
           <span>{copied ? 'Tersalin!' : 'Copy JSON'}</span>
         </button>
       </div>
@@ -180,8 +180,8 @@ function DiffTableViewer({
           <div className="text-[10px] font-bold text-rose-600 uppercase mb-1">Nilai Sebelum:</div>
           <pre className="whitespace-pre-wrap break-words">{String(nilaiLama || '(Kosong)')}</pre>
         </div>
-        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
-          <div className="text-[10px] font-bold text-emerald-600 uppercase mb-1">Nilai Sesudah:</div>
+        <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-900">
+          <div className="text-[10px] font-bold text-blue-600 uppercase mb-1">Nilai Sesudah:</div>
           <pre className="whitespace-pre-wrap break-words">{String(nilaiBaru || '(Kosong)')}</pre>
         </div>
       </div>
@@ -321,8 +321,8 @@ export default function AuditLogPage() {
       case 'TANDAI_HADIR':
       case 'VERIFIKASI_KUOTA':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-900 border border-emerald-300">
-            <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-100 text-blue-900 border border-blue-300">
+            <CheckCircle2 className="w-3 h-3 text-blue-700" />
             <span>{aksi}</span>
           </span>
         );
@@ -339,7 +339,7 @@ export default function AuditLogPage() {
       case 'EDIT_TAMU':
       case 'EDIT_KUOTA':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-sky-100 text-blue-950 border border-sky-300">
             <Tag className="w-3 h-3 text-amber-700" />
             <span>{aksi}</span>
           </span>
@@ -378,16 +378,16 @@ export default function AuditLogPage() {
 
   return (
     <AuthGuard allowedRoles={['ADMIN', 'PIMPINAN']}>
-      <div className="min-h-screen bg-transparent text-[#422F21] pb-24 font-sans selection:bg-[#8C6A47]/20 selection:text-[#422F21]">
+      <div className="min-h-screen bg-transparent text-[#0F2C59] pb-24 font-sans selection:bg-[#1D4ED8]/20 selection:text-[#0F2C59]">
         {/* HEADER HALAMAN AUDIT LOG */}
         <header className="bg-white/40 backdrop-blur-md border-b border-white/50 sticky top-0 z-20 px-4 py-4 shadow-xs">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-[#8C6A47] shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-sky-100 border border-sky-300 flex items-center justify-center text-[#1D4ED8] shrink-0">
                 <History className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-serif font-bold text-lg md:text-xl text-[#422F21] leading-tight">
+                <h1 className="font-serif font-bold text-lg md:text-xl text-[#0F2C59] leading-tight">
                   Audit Log &amp; Riwayat Perubahan System
                 </h1>
                 <p className="text-xs text-stone-500 font-medium">
@@ -409,7 +409,7 @@ export default function AuditLogPage() {
               <button
                 type="button"
                 onClick={handleExport}
-                className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#725436] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#725436] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Ekspor Excel</span>
@@ -421,7 +421,7 @@ export default function AuditLogPage() {
         <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
           {/* QUICK FILTER BAR (SECTION F) */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-xs font-bold text-[#8C6A47] shrink-0 flex items-center gap-1">
+            <span className="text-xs font-bold text-[#1D4ED8] shrink-0 flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" />
               <span>Quick Filter:</span>
             </span>
@@ -430,7 +430,7 @@ export default function AuditLogPage() {
               onClick={() => setQuickFilter('SEMUA')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 quickFilter === 'SEMUA'
-                  ? 'bg-[#422F21] text-white shadow-xs'
+                  ? 'bg-[#0F2C59] text-white shadow-xs'
                   : 'bg-white/50 text-stone-700 border border-white/60 hover:bg-white/70 backdrop-blur-sm'
               }`}
             >
@@ -441,8 +441,8 @@ export default function AuditLogPage() {
               onClick={() => setQuickFilter('ABSENSI')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 quickFilter === 'ABSENSI'
-                  ? 'bg-emerald-700 text-white shadow-xs'
-                  : 'bg-emerald-50 text-emerald-900 border border-emerald-300 hover:bg-emerald-100'
+                  ? 'bg-blue-700 text-white shadow-xs'
+                  : 'bg-blue-50 text-blue-900 border border-blue-300 hover:bg-blue-100'
               }`}
             >
               ✓ Absensi (TANDAI_HADIR)
@@ -464,7 +464,7 @@ export default function AuditLogPage() {
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 quickFilter === 'KUOTA'
                   ? 'bg-amber-700 text-white shadow-xs'
-                  : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100'
+                  : 'bg-sky-50 text-blue-950 border border-sky-300 hover:bg-sky-100'
               }`}
             >
               🎟️ Pembelian &amp; Verifikasi Kuota
@@ -494,7 +494,7 @@ export default function AuditLogPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Ketik SH0042, UND0117, nama..."
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
                 />
               </div>
             </div>
@@ -506,7 +506,7 @@ export default function AuditLogPage() {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
               />
             </div>
 
@@ -516,7 +516,7 @@ export default function AuditLogPage() {
               <select
                 value={selectedAksi}
                 onChange={(e) => setSelectedAksi(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
               >
                 <option value="SEMUA">Semua Jenis Aksi</option>
                 <option value="TANDAI_HADIR">TANDAI_HADIR</option>
@@ -539,7 +539,7 @@ export default function AuditLogPage() {
               <select
                 value={selectedPanitia}
                 onChange={(e) => setSelectedPanitia(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#8C6A47]"
+                className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/60 backdrop-blur-xs text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
               >
                 <option value="SEMUA">Semua Petugas</option>
                 {listPanitia.map((p) => (
@@ -554,8 +554,8 @@ export default function AuditLogPage() {
           {/* TABEL HASIL AUDIT LOG */}
           <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-2xl overflow-hidden">
             <div className="px-4 py-3 bg-white/60 backdrop-blur-xs border-b border-white/50 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#5C3E28]">
-                Menampilkan <span className="text-[#8C6A47] font-extrabold">{filteredLogs.length}</span> catatan audit log
+              <span className="text-xs font-bold text-[#1E3A8A]">
+                Menampilkan <span className="text-[#1D4ED8] font-extrabold">{filteredLogs.length}</span> catatan audit log
               </span>
               {dateFilter && (
                 <button
@@ -581,7 +581,7 @@ export default function AuditLogPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FAF7F3] text-stone-600 font-bold uppercase tracking-wider text-[10px] border-b border-[#E8DFD5]">
+                  <thead className="bg-[#F0F9FF] text-stone-600 font-bold uppercase tracking-wider text-[10px] border-b border-[#E8DFD5]">
                     <tr>
                       <th className="py-3 px-4">Waktu (WIB)</th>
                       <th className="py-3 px-4">Petugas / Role</th>
@@ -614,7 +614,7 @@ export default function AuditLogPage() {
 
                           {/* Panitia */}
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <div className="font-bold text-[#422F21]">{log.panitia_id || 'SYSTEM'}</div>
+                            <div className="font-bold text-[#0F2C59]">{log.panitia_id || 'SYSTEM'}</div>
                             <div className="text-[10px] text-stone-400 uppercase font-semibold">{log.panitia_role || 'PANITIA'}</div>
                           </td>
 
@@ -627,7 +627,7 @@ export default function AuditLogPage() {
                           <td className="py-3 px-4">
                             {log.kode ? (
                               <div>
-                                <span className="font-mono font-bold text-[#8C6A47] text-xs">{log.kode}</span>
+                                <span className="font-mono font-bold text-[#1D4ED8] text-xs">{log.kode}</span>
                                 <div className="font-semibold text-stone-800 line-clamp-1">{log.nama || '-'}</div>
                               </div>
                             ) : (
@@ -637,12 +637,12 @@ export default function AuditLogPage() {
 
                           {/* Detail Preview (Lama -> Baru) */}
                           <td className="py-3 px-4 max-w-xs truncate">
-                            {log.field && <span className="font-bold text-[#8C6A47] mr-1">{log.field}:</span>}
+                            {log.field && <span className="font-bold text-[#1D4ED8] mr-1">{log.field}:</span>}
                             {log.nilai_lama && (
                               <span className="line-through text-rose-600 mr-1 font-mono text-[11px]">{log.nilai_lama}</span>
                             )}
                             {log.nilai_baru && (
-                              <span className="font-bold text-emerald-700 font-mono text-[11px]">
+                              <span className="font-bold text-blue-700 font-mono text-[11px]">
                                 {log.nilai_baru.length > 40 ? log.nilai_baru.substring(0, 40) + '...' : log.nilai_baru}
                               </span>
                             )}
@@ -663,7 +663,7 @@ export default function AuditLogPage() {
                               onClick={() => setSelectedLogDetail(log)}
                               className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-[11px] inline-flex items-center gap-1 transition-all cursor-pointer"
                             >
-                              <Eye className="w-3.5 h-3.5 text-[#8C6A47]" />
+                              <Eye className="w-3.5 h-3.5 text-[#1D4ED8]" />
                               <span>Lihat</span>
                             </button>
                           </td>
@@ -681,9 +681,9 @@ export default function AuditLogPage() {
         {selectedLogDetail && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
             <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/80 overflow-hidden">
-              <div className="bg-gradient-to-r from-[#422F21] to-[#5C3E28] text-white p-4 sm:p-5 flex items-center justify-between shrink-0 border-b border-[#8C6A47]">
+              <div className="bg-gradient-to-r from-[#0F2C59] to-[#1E3A8A] text-white p-4 sm:p-5 flex items-center justify-between shrink-0 border-b border-[#1D4ED8]">
                 <div className="flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-sky-400/50 flex items-center justify-center text-amber-300 shrink-0">
                     <History className="w-5 h-5" />
                   </div>
                   <div>
@@ -707,7 +707,7 @@ export default function AuditLogPage() {
                 <div className="grid grid-cols-2 gap-3 p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs">
                   <div>
                     <span className="text-[10px] text-stone-400 font-bold uppercase">PETUGAS PANITIA</span>
-                    <p className="font-bold text-[#422F21] text-sm">{selectedLogDetail.panitia_id || 'SYSTEM'}</p>
+                    <p className="font-bold text-[#0F2C59] text-sm">{selectedLogDetail.panitia_id || 'SYSTEM'}</p>
                     <span className="text-[10px] text-stone-500 font-semibold">{selectedLogDetail.panitia_role || 'PANITIA'}</span>
                   </div>
                   <div>
@@ -720,7 +720,7 @@ export default function AuditLogPage() {
                   <div className="p-3.5 bg-white/60 backdrop-blur-xs rounded-2xl border border-white/70 shadow-2xs space-y-1">
                     <span className="text-[10px] text-stone-400 font-bold uppercase">PESERTA TERDAMPAK</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-sm text-[#8C6A47]">{selectedLogDetail.kode}</span>
+                      <span className="font-mono font-bold text-sm text-[#1D4ED8]">{selectedLogDetail.kode}</span>
                       <span className="font-bold text-stone-800">{selectedLogDetail.nama}</span>
                     </div>
                   </div>

@@ -95,13 +95,13 @@ export default function LaporanPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* HEADER DAN AKSI UTAMA (NO-PRINT) */}
-      <div className="bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] text-[#422F21] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#8C6A47]/40 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+      <div className="bg-gradient-to-r from-[#F0F9FF] via-[#E0F2FE] to-[#F0F9FF] text-[#0F2C59] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#1D4ED8]/40 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         <div className="min-w-0">
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F3] text-[#8C6A47] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#F0F9FF] text-[#1D4ED8] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
             <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
             <span className="truncate">DOKUMEN RESMI REKAPITULASI PRESENSI</span>
           </div>
-          <h1 className="text-lg sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#422F21] leading-tight">
+          <h1 className="text-lg sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#0F2C59] leading-tight">
             Rekap &amp; Ekspor Laporan Presensi Realtime
           </h1>
           <p className="text-xs text-[#7A624E] mt-1 font-medium leading-relaxed">
@@ -112,14 +112,14 @@ export default function LaporanPage() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto shrink-0">
           <button
             onClick={handleExportExcel}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow border border-emerald-700 flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow border border-blue-700 flex items-center justify-center space-x-2 transition-colors cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span>Unduh Excel (.xlsx)</span>
           </button>
           <button
             onClick={handlePrint}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#8C6A47] hover:bg-[#735334] text-white font-bold text-xs shadow border border-[#735334] flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs shadow border border-[#1E40AF] flex items-center justify-center space-x-2 transition-colors cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Cetak Rekap Fisik</span>

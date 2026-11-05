@@ -99,8 +99,8 @@ const ROLE_BUTTONS: {
     color: {
       bg: 'bg-white/45 hover:bg-white/65 backdrop-blur-md shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(217,119,6,0.15)]',
       border: 'border border-white/70',
-      hoverBorder: 'hover:border-amber-400/80',
-      iconBg: 'bg-amber-50/70 backdrop-blur-xs',
+      hoverBorder: 'hover:border-sky-400/80',
+      iconBg: 'bg-sky-50/70 backdrop-blur-xs',
       iconText: 'text-amber-700',
       hoverAccent: 'group-hover:text-amber-700',
     },
@@ -112,10 +112,10 @@ const ROLE_BUTTONS: {
     color: {
       bg: 'bg-white/45 hover:bg-white/65 backdrop-blur-md shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(5,150,105,0.15)]',
       border: 'border border-white/70',
-      hoverBorder: 'hover:border-emerald-400/80',
-      iconBg: 'bg-emerald-50/70 backdrop-blur-xs',
-      iconText: 'text-emerald-700',
-      hoverAccent: 'group-hover:text-emerald-700',
+      hoverBorder: 'hover:border-blue-400/80',
+      iconBg: 'bg-blue-50/70 backdrop-blur-xs',
+      iconText: 'text-blue-700',
+      hoverAccent: 'group-hover:text-blue-700',
     },
   },
   {
@@ -282,7 +282,7 @@ export default function LandingPortalPage() {
 
   return (
     <div
-      className="isolate min-h-screen text-[#422F21] flex flex-col justify-between items-center selection:bg-[#8C6A47]/20 selection:text-[#422F21] relative overflow-x-hidden cursor-pointer"
+      className="isolate min-h-screen text-[#0F2C59] flex flex-col justify-between items-center selection:bg-[#1D4ED8]/20 selection:text-[#0F2C59] relative overflow-x-hidden cursor-pointer"
       onClick={(e) => {
         if (selectedRole) return;
         const cardEl = document.getElementById('login-card');
@@ -309,18 +309,18 @@ export default function LandingPortalPage() {
 
           {/* JUDUL & DESKRIPSI IDENTITAS */}
           <div className="w-full">
-            <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.18em] text-[#8C6A47] uppercase mb-2 drop-shadow-xs">
+            <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.18em] text-[#1D4ED8] uppercase mb-2 drop-shadow-xs">
               HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
             </p>
 
-            <h1 className="text-xs sm:text-sm md:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap">
+            <h1 className="text-xs sm:text-sm md:text-base font-bold text-[#0F2C59] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap">
               Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
             </h1>
-            <h1 className="text-[11px] sm:text-xs md:text-sm lg:text-base font-bold text-[#422F21] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap tracking-tight sm:tracking-normal">
+            <h1 className="text-[11px] sm:text-xs md:text-sm lg:text-base font-bold text-[#0F2C59] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap tracking-tight sm:tracking-normal">
               Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
             </h1>
 
-            <p className="text-[10px] md:text-xs italic text-[#8C6A47] mt-1.5 font-bold">
+            <p className="text-[10px] md:text-xs italic text-[#1D4ED8] mt-1.5 font-bold">
               Lirboyo Kediri
             </p>
 
@@ -362,10 +362,10 @@ export default function LandingPortalPage() {
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/10 shrink-0 shadow-xs`}>
                       <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
                     </div>
-                    <span className={`font-serif font-black text-xs sm:text-sm md:text-base text-[#422F21] ${color.hoverAccent} transition-colors leading-tight break-words min-w-0 flex-1 pr-2.5`}>
+                    <span className={`font-serif font-black text-xs sm:text-sm md:text-base text-[#0F2C59] ${color.hoverAccent} transition-colors leading-tight break-words min-w-0 flex-1 pr-2.5`}>
                       {config.title}
                     </span>
-                    <Lock className="absolute top-2 sm:top-2.5 right-2 sm:right-2.5 w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#8C6A47]/40 group-hover:text-[#8C6A47] transition-colors" />
+                    <Lock className="absolute top-2 sm:top-2.5 right-2 sm:right-2.5 w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1D4ED8]/40 group-hover:text-[#1D4ED8] transition-colors" />
                   </button>
                 </div>
               );
@@ -373,8 +373,8 @@ export default function LandingPortalPage() {
           </div>
 
           {/* FOOTER INFO KEPANITIAAN */}
-          <div className="text-center space-y-1 pt-3 border-t border-[#8C6A47]/20 mt-4">
-            <p className="text-[10px] md:text-[11px] text-[#8C6A47] font-bold">
+          <div className="text-center space-y-1 pt-3 border-t border-[#1D4ED8]/20 mt-4">
+            <p className="text-[10px] md:text-[11px] text-[#1D4ED8] font-bold">
               Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
             </p>
             <p className="text-[10px] md:text-[11px] text-stone-600 font-medium">
@@ -392,7 +392,7 @@ export default function LandingPortalPage() {
         {GALERI_FOTOS.map((src, idx) => (
           <div
             key={idx}
-            className="relative w-full aspect-video overflow-hidden rounded-2xl shadow-lg border border-[#D5C4B4]/70 bg-black/5 transition-all duration-300"
+            className="relative w-full aspect-video overflow-hidden rounded-2xl shadow-lg border border-[#BAE6FD]/70 bg-black/5 transition-all duration-300"
           >
             <img
               src={src}
@@ -405,8 +405,8 @@ export default function LandingPortalPage() {
       </section>
 
       {/* FOOTER BAWAH */}
-      <footer className="relative z-10 w-full py-6 text-center text-xs text-[#8C6A47]/80 border-t border-white/60 bg-white/45 backdrop-blur-md">
-        <p className="font-semibold text-[#8C6A47]">
+      <footer className="relative z-10 w-full py-6 text-center text-xs text-[#1D4ED8]/80 border-t border-white/60 bg-white/45 backdrop-blur-md">
+        <p className="font-semibold text-[#1D4ED8]">
           Haflah Akhirussanah 1448 H. · Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) &amp; MHMTQ Lirboyo
         </p>
       </footer>
@@ -420,11 +420,11 @@ export default function LandingPortalPage() {
             {/* Header Modal */}
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#FAF0E6] text-[#8C6A47] flex items-center justify-center font-bold border border-[#D5C4B4]">
-                  <KeyRound className="w-5 h-5 text-[#8C6A47]" />
+                <div className="w-10 h-10 rounded-2xl bg-[#FAF0E6] text-[#1D4ED8] flex items-center justify-center font-bold border border-[#BAE6FD]">
+                  <KeyRound className="w-5 h-5 text-[#1D4ED8]" />
                 </div>
                 <div>
-                  <h4 className="font-serif font-black text-base text-[#422F21]">
+                  <h4 className="font-serif font-black text-base text-[#0F2C59]">
                     Masuk {ROLES_CONFIG[selectedRole].title}
                   </h4>
                   <p className="text-xs text-[#7A624E]">
@@ -445,7 +445,7 @@ export default function LandingPortalPage() {
             {/* Form Password */}
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-[#422F21] block">
+                <label className="text-xs font-bold text-[#0F2C59] block">
                   Kata Sandi:
                 </label>
                 <div className="relative">
@@ -459,10 +459,10 @@ export default function LandingPortalPage() {
                     placeholder={`Masukkan sandi ${ROLES_CONFIG[selectedRole].title}...`}
                     autoFocus
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 text-sm text-[#422F21] pr-12 focus:outline-none transition-all disabled:opacity-70 disabled:bg-stone-100 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-sm text-[#0F2C59] pr-12 focus:outline-none transition-all disabled:opacity-70 disabled:bg-stone-100 disabled:cursor-not-allowed ${
                       passwordError
                         ? 'border-rose-500 bg-rose-50/50'
-                        : 'border-[#D5C4B4] focus:border-[#8C6A47]'
+                        : 'border-[#BAE6FD] focus:border-[#1D4ED8]'
                     }`}
                   />
                   <button
@@ -496,7 +496,7 @@ export default function LandingPortalPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || inputPassword.length < 4}
-                  className="flex-1 py-3 rounded-2xl bg-[#8C6A47] hover:bg-[#745638] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-2xl bg-[#1D4ED8] hover:bg-[#745638] text-white text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -536,7 +536,7 @@ export default function LandingPortalPage() {
           </div>
 
           {/* Bubble Chat "Tos!" */}
-          <div className="absolute -top-5 md:-top-6 bg-white border-2 border-[#D5C4B4] rounded-full px-2 py-0.5 md:px-2.5 md:py-1 shadow-md text-[10px] md:text-xs font-black text-[#8C6A47] animate-tos-bounce flex items-center gap-0.5 z-30 whitespace-nowrap">
+          <div className="absolute -top-5 md:-top-6 bg-white border-2 border-[#BAE6FD] rounded-full px-2 py-0.5 md:px-2.5 md:py-1 shadow-md text-[10px] md:text-xs font-black text-[#1D4ED8] animate-tos-bounce flex items-center gap-0.5 z-30 whitespace-nowrap">
             <span>{item.bubbleText}</span>
           </div>
 

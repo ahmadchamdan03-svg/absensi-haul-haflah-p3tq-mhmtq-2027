@@ -123,11 +123,11 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-[#D5C4B4] overflow-hidden animate-in zoom-in-95">
+      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-[#BAE6FD] overflow-hidden animate-in zoom-in-95">
         {/* HEADER MODAL */}
-        <div className="p-4 sm:p-5 border-b border-[#E8DFD5] bg-[#FAF7F3] flex items-center justify-between shrink-0">
+        <div className="p-4 sm:p-5 border-b border-[#E8DFD5] bg-[#F0F9FF] flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-[#FAF0E6] text-[#8C6A47] border border-[#D5C4B4] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-[#FAF0E6] text-[#1D4ED8] border border-[#BAE6FD] flex items-center justify-center">
               <Users className="w-5 h-5" />
             </div>
             <div>
@@ -158,7 +158,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari nama santri, nama wali, atau daerah asal..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D5C4B4] bg-[#FAF7F3] text-xs focus:outline-hidden focus:ring-2 focus:ring-[#8C6A47]"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] text-xs focus:outline-hidden focus:ring-2 focus:ring-[#1D4ED8]"
             />
           </div>
 
@@ -168,8 +168,8 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               onClick={() => setActiveTab('ALL')}
               className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === 'ALL'
-                  ? 'bg-[#8C6A47] text-white shadow-xs'
-                  : 'bg-[#FAF7F3] text-stone-600 hover:bg-stone-200 border border-[#D5C4B4]'
+                  ? 'bg-[#1D4ED8] text-white shadow-xs'
+                  : 'bg-[#F0F9FF] text-stone-600 hover:bg-stone-200 border border-[#BAE6FD]'
               }`}
             >
               Semua ({pesertaList.length})
@@ -179,8 +179,8 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               onClick={() => setActiveTab('BIL_GHOIB')}
               className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === 'BIL_GHOIB'
-                  ? 'bg-[#8C6A47] text-white shadow-xs'
-                  : 'bg-[#FAF7F3] text-stone-600 hover:bg-stone-200 border border-[#D5C4B4]'
+                  ? 'bg-[#1D4ED8] text-white shadow-xs'
+                  : 'bg-[#F0F9FF] text-stone-600 hover:bg-stone-200 border border-[#BAE6FD]'
               }`}
             >
               Bil Ghoib
@@ -190,8 +190,8 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               onClick={() => setActiveTab('BIN_NADZOR')}
               className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === 'BIN_NADZOR'
-                  ? 'bg-[#8C6A47] text-white shadow-xs'
-                  : 'bg-[#FAF7F3] text-stone-600 hover:bg-stone-200 border border-[#D5C4B4]'
+                  ? 'bg-[#1D4ED8] text-white shadow-xs'
+                  : 'bg-[#F0F9FF] text-stone-600 hover:bg-stone-200 border border-[#BAE6FD]'
               }`}
             >
               Bin Nadzor
@@ -201,8 +201,8 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               onClick={() => setActiveTab('TAMATAN')}
               className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === 'TAMATAN'
-                  ? 'bg-[#8C6A47] text-white shadow-xs'
-                  : 'bg-[#FAF7F3] text-stone-600 hover:bg-stone-200 border border-[#D5C4B4]'
+                  ? 'bg-[#1D4ED8] text-white shadow-xs'
+                  : 'bg-[#F0F9FF] text-stone-600 hover:bg-stone-200 border border-[#BAE6FD]'
               }`}
             >
               Tamatan
@@ -211,18 +211,18 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
         </div>
 
         {/* LIST DAFTAR PESERTA (SCROLLABLE) */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 bg-[#FAF7F3]">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 bg-[#F0F9FF]">
           {loading ? (
             <div className="py-12 text-center space-y-2">
-              <Loader2 className="w-8 h-8 animate-spin text-[#8C6A47] mx-auto" />
-              <p className="font-serif font-bold text-xs text-[#422F21]">
+              <Loader2 className="w-8 h-8 animate-spin text-[#1D4ED8] mx-auto" />
+              <p className="font-serif font-bold text-xs text-[#0F2C59]">
                 Memuat Daftar Shohibul Hajat...
               </p>
             </div>
           ) : filteredPeserta.length === 0 ? (
             <div className="py-12 text-center space-y-2">
               <Award className="w-10 h-10 text-stone-300 mx-auto" />
-              <p className="font-serif font-bold text-sm text-[#422F21]">
+              <p className="font-serif font-bold text-sm text-[#0F2C59]">
                 Tidak ada data peserta yang cocok.
               </p>
               <p className="text-xs text-stone-500">
@@ -234,9 +234,9 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               const catOrder = getCategoryOrder(p.kategori_utama, p.sub_kategori);
               const badgeClass =
                 catOrder === 1
-                  ? 'bg-amber-100 text-amber-900 border-amber-300'
+                  ? 'bg-sky-100 text-blue-950 border-sky-300'
                   : catOrder === 2
-                  ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                  ? 'bg-blue-100 text-blue-900 border-blue-300'
                   : 'bg-stone-200 text-stone-800 border-stone-300';
 
               return (
@@ -262,7 +262,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
                         <>
                           <span className="text-stone-300">•</span>
                           <span className="inline-flex items-center space-x-0.5 text-stone-500">
-                            <MapPin className="w-3 h-3 text-[#8C6A47] shrink-0" />
+                            <MapPin className="w-3 h-3 text-[#1D4ED8] shrink-0" />
                             <span>{p.alamat}</span>
                           </span>
                         </>
@@ -287,7 +287,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-[#FAF7F3] hover:bg-[#EFE8E1] border border-[#D5C4B4] font-bold text-[#5C3E28] cursor-pointer transition-colors"
+            className="px-4 py-2 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] border border-[#BAE6FD] font-bold text-[#1E3A8A] cursor-pointer transition-colors"
           >
             Tutup
           </button>

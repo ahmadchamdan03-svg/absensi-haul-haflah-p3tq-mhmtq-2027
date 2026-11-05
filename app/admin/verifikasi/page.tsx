@@ -55,7 +55,7 @@ export default function VerifikasiPage() {
 
   return (
     <AuthGuard allowedRoles={['ADMIN']}>
-      <div className="space-[#FAF7F3] space-y-6 selection:bg-[#8C6A47]/20 pb-20">
+      <div className="w-full px-6 lg:px-8 pt-6 pb-12 space-y-6">
         <VerifikasiHeaderAndStats
           setShowAddManualModal={setShowAddManualModal}
           paguTerjual={paguTerjual}

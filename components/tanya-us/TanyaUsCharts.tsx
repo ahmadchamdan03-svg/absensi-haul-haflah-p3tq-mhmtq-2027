@@ -32,8 +32,8 @@ export function SingleDonutChart({
   const strokeDashBelum = circumference - strokeDashHadir;
 
   return (
-    <div className="bg-white/80 backdrop-blur-xs rounded-xl p-3 sm:p-4 border border-[#8C6A47]/20 flex flex-col justify-between shadow-xs w-full">
-      <h4 className="text-xs sm:text-sm font-serif font-black text-[#422F21] mb-2 text-center uppercase tracking-wider flex items-center justify-center gap-1.5">
+    <div className="bg-white/80 backdrop-blur-xs rounded-xl p-3 sm:p-4 border border-[#1D4ED8]/20 flex flex-col justify-between shadow-xs w-full">
+      <h4 className="text-xs sm:text-sm font-serif font-black text-[#0F2C59] mb-2 text-center uppercase tracking-wider flex items-center justify-center gap-1.5">
         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: colorHadir }}></span>
         {title}
       </h4>
@@ -68,7 +68,7 @@ export function SingleDonutChart({
 
         {/* Donut Center Text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-          <span className="text-2xl font-black text-[#422F21] leading-none">
+          <span className="text-2xl font-black text-[#0F2C59] leading-none">
             {hadir.toLocaleString('id-ID')}
           </span>
           <span className="text-[10px] font-bold text-stone-600 mt-1">
@@ -80,11 +80,11 @@ export function SingleDonutChart({
       {/* Legends */}
       <div className="w-full mt-3 space-y-1.5 text-xs">
         <div className="flex items-center justify-between bg-white/60 backdrop-blur-xs px-2.5 py-1.5 rounded-lg border border-white/70 shadow-2xs">
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#422F21]">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#0F2C59]">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: colorHadir }} />
             {labelHadir}
           </span>
-          <span className="font-bold text-[11px] text-[#422F21]">
+          <span className="font-bold text-[11px] text-[#0F2C59]">
             {hadir.toLocaleString('id-ID')} ({persen}%)
           </span>
         </div>
@@ -100,8 +100,8 @@ export function SingleDonutChart({
       </div>
 
       {/* Summary Footer */}
-      <div className="w-full mt-3 pt-2.5 border-t border-[#8C6A47]/15 flex items-center justify-between text-[11px] text-stone-500 font-semibold">
-        <span>Kuota: <strong className="text-[#422F21]">{kuota.toLocaleString('id-ID')} kursi</strong></span>
+      <div className="w-full mt-3 pt-2.5 border-t border-[#1D4ED8]/15 flex items-center justify-between text-[11px] text-stone-500 font-semibold">
+        <span>Kuota: <strong className="text-[#0F2C59]">{kuota.toLocaleString('id-ID')} kursi</strong></span>
         <span>Hadir: <strong style={{ color: colorHadir }}>{hadir.toLocaleString('id-ID')} ({persen}%)</strong></span>
       </div>
     </div>
@@ -113,13 +113,13 @@ export function PieChartWidget({ chart }: { chart: PieChartData }) {
 
   if (wali && tamu) {
     return (
-      <div className="bg-[#FAF6F0] border border-[#E8DFD5] rounded-2xl p-3 sm:p-4 my-3 shadow-xs w-full max-w-full md:max-w-2xl mx-auto text-[#422F21]">
+      <div className="bg-[#FAF6F0] border border-[#E8DFD5] rounded-2xl p-3 sm:p-4 my-3 shadow-xs w-full max-w-full md:max-w-2xl mx-auto text-[#0F2C59]">
         <div className="flex items-center justify-between border-b border-[#E8DFD5] pb-2 mb-3">
-          <h4 className="font-serif font-black text-xs sm:text-sm text-[#422F21] uppercase tracking-wider flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#8C6A47]"></span>
+          <h4 className="font-serif font-black text-xs sm:text-sm text-[#0F2C59] uppercase tracking-wider flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#1D4ED8]"></span>
             {title || 'KEHADIRAN HAFLAH 2027'}
           </h4>
-          <span className="text-[10px] font-bold text-[#8C6A47] bg-[#EFE8E1] px-2 py-0.5 rounded-full border border-[#D5C4B4]">
+          <span className="text-[10px] font-bold text-[#1D4ED8] bg-[#E0F2FE] px-2 py-0.5 rounded-full border border-[#BAE6FD]">
             Realtime Chart
           </span>
         </div>
@@ -130,7 +130,7 @@ export function PieChartWidget({ chart }: { chart: PieChartData }) {
             hadir={wali.totalHadir}
             kuota={wali.totalKuota}
             persen={wali.persenHadir}
-            colorHadir={wali.color || '#8C6A47'}
+            colorHadir={wali.color || '#1D4ED8'}
             labelHadir="Wali Santri Hadir"
           />
           <SingleDonutChart
@@ -177,13 +177,13 @@ export function PieChartWidget({ chart }: { chart: PieChartData }) {
   const percentHadirTotal = summary.totalKuota > 0 ? Math.round((summary.totalHadir / summary.totalKuota) * 100) : 0;
 
   return (
-    <div className="bg-[#FAF6F0] border border-[#E8DFD5] rounded-2xl p-3 sm:p-4 my-3 shadow-xs max-w-full sm:max-w-md mx-auto text-[#422F21]">
+    <div className="bg-[#FAF6F0] border border-[#E8DFD5] rounded-2xl p-3 sm:p-4 my-3 shadow-xs max-w-full sm:max-w-md mx-auto text-[#0F2C59]">
       <div className="flex items-center justify-between border-b border-[#E8DFD5] pb-2 mb-3">
-        <h4 className="font-serif font-black text-xs sm:text-sm text-[#422F21] uppercase tracking-wider flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#8C6A47]"></span>
+        <h4 className="font-serif font-black text-xs sm:text-sm text-[#0F2C59] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#1D4ED8]"></span>
           {title || 'Kehadiran Haflah 2027'}
         </h4>
-        <span className="text-[10px] font-bold text-[#8C6A47] bg-[#EFE8E1] px-2 py-0.5 rounded-full border border-[#D5C4B4]">
+        <span className="text-[10px] font-bold text-[#1D4ED8] bg-[#E0F2FE] px-2 py-0.5 rounded-full border border-[#BAE6FD]">
           Realtime Chart
         </span>
       </div>
@@ -200,10 +200,10 @@ export function PieChartWidget({ chart }: { chart: PieChartData }) {
               />
             ))}
             <circle cx={cx} cy={cy} r={32} fill="#FAF6F0" />
-            <text x={cx} y={cy - 2} textAnchor="middle" className="text-[11px] font-black fill-[#422F21]">
+            <text x={cx} y={cy - 2} textAnchor="middle" className="text-[11px] font-black fill-[#0F2C59]">
               {summary.totalHadir.toLocaleString('id-ID')}
             </text>
-            <text x={cx} y={cy + 10} textAnchor="middle" className="text-[8px] font-bold fill-[#8C6A47]">
+            <text x={cx} y={cy + 10} textAnchor="middle" className="text-[8px] font-bold fill-[#1D4ED8]">
               Hadir ({percentHadirTotal}%)
             </text>
           </svg>
@@ -214,9 +214,9 @@ export function PieChartWidget({ chart }: { chart: PieChartData }) {
             <div key={idx} className="flex items-center justify-between bg-white/80 backdrop-blur-xs px-2.5 py-1.5 rounded-xl border border-[#E8DFD5]">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-3 h-3 rounded-full shrink-0 border border-black/10" style={{ backgroundColor: item.color }} />
-                <span className="font-semibold text-[11px] sm:text-xs text-[#422F21] truncate">{item.label}</span>
+                <span className="font-semibold text-[11px] sm:text-xs text-[#0F2C59] truncate">{item.label}</span>
               </div>
-              <span className="font-bold text-[11px] sm:text-xs text-[#8C6A47] shrink-0">
+              <span className="font-bold text-[11px] sm:text-xs text-[#1D4ED8] shrink-0">
                 {item.value.toLocaleString('id-ID')} ({item.percent}%)
               </span>
             </div>
@@ -225,8 +225,8 @@ export function PieChartWidget({ chart }: { chart: PieChartData }) {
       </div>
 
       <div className="mt-3 pt-2 border-t border-[#E8DFD5] flex items-center justify-between text-[11px] font-semibold text-[#7A624E]">
-        <span>Total Kuota: <strong className="text-[#422F21]">{summary.totalKuota.toLocaleString('id-ID')} kursi</strong></span>
-        <span>Total Hadir: <strong className="text-[#8C6A47]">{summary.totalHadir.toLocaleString('id-ID')} ({percentHadirTotal}%)</strong></span>
+        <span>Total Kuota: <strong className="text-[#0F2C59]">{summary.totalKuota.toLocaleString('id-ID')} kursi</strong></span>
+        <span>Total Hadir: <strong className="text-[#1D4ED8]">{summary.totalHadir.toLocaleString('id-ID')} ({percentHadirTotal}%)</strong></span>
       </div>
     </div>
   );

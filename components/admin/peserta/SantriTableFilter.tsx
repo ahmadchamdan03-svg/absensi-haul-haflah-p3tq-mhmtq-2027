@@ -292,7 +292,7 @@ export default function SantriTableFilter({
                 setBagianFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-opera-700 bg-amber-50/40 text-amber-950 font-medium"
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-opera-700 bg-sky-50/40 text-blue-950 font-medium"
             >
               {subFilterOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>

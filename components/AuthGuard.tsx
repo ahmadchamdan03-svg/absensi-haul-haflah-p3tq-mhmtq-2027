@@ -49,9 +49,9 @@ export default function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
   // Tampilkan loading singkat saat pengecekan
   if (isChecking || !isAuthorized) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0F9FF] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 mx-auto border-3 border-[#D5C4B4] border-t-[#8C6A47] rounded-full animate-spin" />
+          <div className="w-10 h-10 mx-auto border-3 border-[#BAE6FD] border-t-[#1D4ED8] rounded-full animate-spin" />
           <p className="text-xs text-[#7A624E] font-medium">Memeriksa otoritas akses...</p>
         </div>
       </div>

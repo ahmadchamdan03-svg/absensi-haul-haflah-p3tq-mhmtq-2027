@@ -487,11 +487,11 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
       />
 
       {/* Table Peserta */}
-      <div className="bg-white border border-[#D5C4B4] rounded-xl overflow-hidden shadow-2xs">
+      <div className="bg-white border border-[#BAE6FD] rounded-xl overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#FAF7F3] border-b-2 border-[#D5C4B4] text-[#735334] uppercase font-bold text-[10px] tracking-wider select-none">
+              <tr className="bg-[#F0F9FF] border-b-2 border-[#BAE6FD] text-[#1E40AF] uppercase font-bold text-[10px] tracking-wider select-none">
                 <th className="p-3 w-10 text-center">
                   <input
                     type="checkbox"
@@ -499,7 +499,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                       filteredList.length > 0 && selectedIds.length === filteredList.length
                     }
                     onChange={handleSelectAll}
-                    className="rounded text-[#8C6A47] focus:ring-[#8C6A47]"
+                    className="rounded text-[#1D4ED8] focus:ring-[#1D4ED8]"
                   />
                 </th>
                 <th className="p-3 w-10 text-center">No</th>
@@ -514,14 +514,14 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                 <th className="p-3 text-center w-32">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EFE8E1] text-[#422F21]">
+            <tbody className="divide-y divide-[#E0F2FE] text-[#0F2C59]">
               {loading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <SkeletonTableRow key={idx} cols={9} />
                 ))
               ) : filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-xs text-[#735334]">
+                  <td colSpan={9} className="p-8 text-center text-xs text-[#1E40AF]">
                     {pesertaList.length === 0
                       ? 'Belum ada peserta dalam persidangan ini. Klik "+ Tambah Peserta" atau "Import Excel" di atas.'
                       : 'Tidak ada data peserta yang cocok dengan kriteria pencarian/filter.'}
@@ -535,7 +535,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                   return (
                     <tr
                       key={item.id}
-                      className={`hover:bg-[#FAF7F3]/70 transition-colors ${
+                      className={`hover:bg-[#F0F9FF]/70 transition-colors ${
                         isSelected ? 'bg-[#F5E6D3]/40' : ''
                       }`}
                     >
@@ -544,12 +544,12 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleSelectOne(item.id)}
-                          className="rounded text-[#8C6A47] focus:ring-[#8C6A47]"
+                          className="rounded text-[#1D4ED8] focus:ring-[#1D4ED8]"
                         />
                       </td>
-                      <td className="p-3 text-center text-[#735334] font-semibold">{idx + 1}</td>
+                      <td className="p-3 text-center text-[#1E40AF] font-semibold">{idx + 1}</td>
                       <td className="p-3">
-                        <span className="inline-block px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-[#8C6A47]/10 text-[#8C6A47] border border-[#8C6A47]/25">
+                        <span className="inline-block px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-[#1D4ED8]/10 text-[#1D4ED8] border border-[#1D4ED8]/25">
                           {item.kode_peserta || '-'}
                         </span>
                       </td>
@@ -558,7 +558,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                           type="checkbox"
                           checked={item.dapat_qr !== false}
                           onChange={() => handleToggleDapatQr(item)}
-                          className="rounded text-[#8C6A47] focus:ring-[#8C6A47] cursor-pointer w-4 h-4"
+                          className="rounded text-[#1D4ED8] focus:ring-[#1D4ED8] cursor-pointer w-4 h-4"
                           title={
                             item.dapat_qr !== false
                               ? 'QR Code aktif di undangan - Klik untuk nonaktifkan'
@@ -567,9 +567,9 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                         />
                       </td>
                       <td className="p-3 font-bold text-xs">{item.nama}</td>
-                      <td className="p-3 font-mono text-[11px] text-[#735334]">
+                      <td className="p-3 font-mono text-[11px] text-[#1E40AF]">
                         <span className="flex items-center gap-1.5">
-                          <Phone className="w-3 h-3 text-[#8C6A47]" />
+                          <Phone className="w-3 h-3 text-[#1D4ED8]" />
                           {item.no_wa}
                         </span>
                       </td>
@@ -577,7 +577,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                         {item.status_kirim === 'TERKIRIM' ? (
                           <span
                             title={item.waktu_kirim ? `Terkirim: ${item.waktu_kirim}` : undefined}
-                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300"
                           >
                             <CheckCircle2 className="w-3 h-3" />
                             Terkirim
@@ -591,7 +591,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                             Gagal
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-blue-900 border border-sky-300">
                             <Clock className="w-3 h-3" />
                             Belum
                           </span>
@@ -605,9 +605,9 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                                 ? `Waktu hadir: ${new Date(item.waktu_hadir).toLocaleString('id-ID')}`
                                 : 'Sudah Hadir'
                             }
-                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300"
                           >
-                            <Check className="w-3 h-3 text-emerald-600" />
+                            <Check className="w-3 h-3 text-blue-600" />
                             Hadir
                             {item.waktu_hadir && (
                               <span className="text-[9px] font-normal opacity-80">
@@ -636,7 +636,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                             className={`p-1.5 rounded-lg text-white font-bold text-xs transition-colors ${
                               item.status_kirim === 'GAGAL'
                                 ? 'bg-amber-600 hover:bg-amber-700'
-                                : 'bg-emerald-600 hover:bg-emerald-700'
+                                : 'bg-blue-600 hover:bg-blue-700'
                             } disabled:opacity-50`}
                           >
                             {isSendingThis ? (
@@ -651,7 +651,7 @@ export default function PersidanganPesertaTable({ persidangan }: PersidanganPese
                             type="button"
                             onClick={() => handleOpenEdit(item)}
                             title="Edit peserta"
-                            className="p-1.5 rounded-lg bg-white border border-[#D5C4B4] text-[#735334] hover:bg-[#FAF7F3] transition-colors"
+                            className="p-1.5 rounded-lg bg-white border border-[#BAE6FD] text-[#1E40AF] hover:bg-[#F0F9FF] transition-colors"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>

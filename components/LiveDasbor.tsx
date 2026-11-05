@@ -202,13 +202,13 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
     <div className="space-y-6">
       {/* BANNER WARNING ANOMALI BILA HADIR > KUOTA */}
       {isAnomaly && (
-        <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-400 text-amber-950 flex items-start space-x-3 shadow-xs">
+        <div className="p-4 rounded-2xl bg-sky-50 border-2 border-sky-400 text-blue-950 flex items-start space-x-3 shadow-xs">
           <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pulse" />
           <div className="space-y-1">
-            <h5 className="font-serif font-black text-sm text-amber-900">
+            <h5 className="font-serif font-black text-sm text-blue-950">
               ⚠️ TERDETEKSI ANOMALI KEHADIRAN
             </h5>
-            <p className="text-xs text-amber-800 leading-relaxed">
+            <p className="text-xs text-blue-900 leading-relaxed">
               Total Hadir ({totalHadirCombined} orang) melebihi Total Kuota ({totalKuotaCombined} kursi). Silakan cek &amp; lakukan koreksi data via Meja Rekonsiliasi.
             </p>
           </div>
@@ -230,15 +230,15 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={() => setIsDenahOpen(true)}
-            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#5C3E28] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#1E3A8A] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
-            <Compass className="w-4 h-4 text-[#8C6A47]" />
+            <Compass className="w-4 h-4 text-[#1D4ED8]" />
             <span>Denah Lapangan</span>
           </button>
           <button
             type="button"
             onClick={fetchLiveDasborData}
-            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#8C6A47] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#1D4ED8] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Refresh</span>
@@ -260,14 +260,14 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <div className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
-                <Users className="w-4.5 h-4.5 text-[#8C6A47]" />
+                <Users className="w-4.5 h-4.5 text-[#1D4ED8]" />
                 TOTAL WALI SANTRI
               </span>
-              <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isWsAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isWsAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-sky-50 text-blue-900 border-sky-200'}`}>
                 {totalKuotaWaliSantri > 0 ? `${Math.min(100, Math.round((totalHadirWaliSantri / totalKuotaWaliSantri) * 100))}% Hadir` : '—'} {isWsAnomaly && '⚠️ (Over)'}
               </span>
             </div>
-            <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
+            <div className="text-3xl sm:text-4xl font-serif font-black text-[#0F2C59]">
               {totalHadirWaliSantri} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaWaliSantri > 0 ? totalKuotaWaliSantri : '—'}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
@@ -284,14 +284,14 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <div className="p-6 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] hover:shadow-[0_12px_36px_0_rgba(140,106,71,0.14)] space-y-3 card-transition">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wide flex items-center gap-1.5">
-                <Award className="w-4.5 h-4.5 text-emerald-700" />
+                <Award className="w-4.5 h-4.5 text-blue-700" />
                 TOTAL TAMU UNDANGAN
               </span>
-              <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isTamuAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-emerald-50 text-emerald-800 border-emerald-200'}`}>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full border badge-transition ${isTamuAnomaly ? 'bg-red-50 text-red-700 border-red-300' : 'bg-blue-50 text-blue-800 border-blue-200'}`}>
                 {totalKuotaTamu > 0 ? `${Math.min(100, Math.round((totalHadirTamu / totalKuotaTamu) * 100))}% Hadir` : '—'} {isTamuAnomaly && '⚠️ (Over)'}
               </span>
             </div>
-            <div className="text-3xl sm:text-4xl font-serif font-black text-[#422F21]">
+            <div className="text-3xl sm:text-4xl font-serif font-black text-[#0F2C59]">
               {totalHadirTamu} <span className="text-xl font-sans font-normal text-stone-400">/ {totalKuotaTamu}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-stone-600 font-medium pt-0.5">
@@ -312,7 +312,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
         {!isPimpinanView && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
             <div>
-              <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+              <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
                 Pencarian &amp; Filter Kehadiran Realtime
               </h3>
               <p className="text-xs text-[#7A624E]">
@@ -326,7 +326,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 type="button"
                 onClick={() => setTabCategory('SEMUA')}
                 className={`px-3 py-1.5 rounded-xl btn-transition ${
-                  tabCategory === 'SEMUA' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
+                  tabCategory === 'SEMUA' ? 'bg-blue-800 text-white shadow-xs' : 'text-[#0F2C59]'
                 }`}
               >
                 Semua ({allUnifiedList.length})
@@ -335,7 +335,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 type="button"
                 onClick={() => setTabCategory('SANTRI')}
                 className={`px-3 py-1.5 rounded-xl btn-transition ${
-                  tabCategory === 'SANTRI' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
+                  tabCategory === 'SANTRI' ? 'bg-blue-800 text-white shadow-xs' : 'text-[#0F2C59]'
                 }`}
               >
                 Wali Santri ({keluargaList.length})
@@ -344,7 +344,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 type="button"
                 onClick={() => setTabCategory('UNDANGAN')}
                 className={`px-3 py-1.5 rounded-xl btn-transition ${
-                  tabCategory === 'UNDANGAN' ? 'bg-emerald-800 text-white shadow-xs' : 'text-[#422F21]'
+                  tabCategory === 'UNDANGAN' ? 'bg-blue-800 text-white shadow-xs' : 'text-[#0F2C59]'
                 }`}
               >
                 Tamu ({undanganList.length})
@@ -385,8 +385,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 onClick={() => setStatusFilter('SUDAH')}
                 className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                   statusFilter === 'SUDAH'
-                    ? 'bg-emerald-800 text-white border-emerald-800 shadow-xs'
-                    : 'bg-white/60 backdrop-blur-xs text-emerald-800 border-emerald-300/80 hover:bg-white/80'
+                    ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
+                    : 'bg-white/60 backdrop-blur-xs text-blue-800 border-blue-300/80 hover:bg-white/80'
                 }`}
               >
                 ✓ Sudah Hadir
@@ -396,8 +396,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 onClick={() => setStatusFilter('BELUM')}
                 className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
                   statusFilter === 'BELUM'
-                    ? 'bg-amber-800 text-white border-amber-800 shadow-xs'
-                    : 'bg-white/60 backdrop-blur-xs text-amber-800 border-amber-300/80 hover:bg-white/80'
+                    ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
+                    : 'bg-white/60 backdrop-blur-xs text-blue-900 border-sky-300/80 hover:bg-white/80'
                 }`}
               >
                 ⏱ Belum Hadir
@@ -411,7 +411,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <SkeletonList rows={4} className="pt-1" />
         ) : filteredList.length === 0 ? (
           <div className="p-8 text-center text-xs bg-stone-50 rounded-2xl border border-dashed border-stone-200 space-y-1">
-            <p className="font-bold text-sm text-[#422F21]">
+            <p className="font-bold text-sm text-[#0F2C59]">
               {isPimpinanView && !searchQuery
                 ? 'Belum ada tamu undangan yang hadir.'
                 : 'Belum ada data peserta / tamu'}
@@ -431,8 +431,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                 key={item.id || item.kode}
                 className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition-all animate-in fade-in slide-in-from-top-2 duration-300 ${
                   item.isHadir
-                    ? 'bg-emerald-50/70 border-emerald-300'
-                    : 'bg-white/60 backdrop-blur-xs border-white/80 hover:border-emerald-500 shadow-xs'
+                    ? 'bg-blue-50/70 border-blue-300'
+                    : 'bg-white/60 backdrop-blur-xs border-white/80 hover:border-blue-500 shadow-xs'
                 }`}
               >
                 <div className="space-y-1 flex-1 min-w-0">
@@ -450,7 +450,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                       {item.tipe === 'UNDANGAN' ? 'Tamu Undangan' : 'Wali Santri'}
                     </span>
                   </div>
-                  <h4 className="font-serif font-black text-sm text-[#422F21] truncate">
+                  <h4 className="font-serif font-black text-sm text-[#0F2C59] truncate">
                     {item.nama}
                   </h4>
                   <p className="text-[11px] text-stone-600 truncate flex items-center gap-1">
@@ -463,8 +463,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                   {(() => {
                     const totalK = item.kuotaTotal !== undefined ? item.kuotaTotal : (Number(item.kuotaDasar || 0) + Number(item.kuotaTambahan || 0));
                     return item.isHadir ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-950 font-black text-[11px]">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-200 text-blue-950 font-black text-[11px]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
                         <span>HADIR ({item.terpakai}/{totalK} Kursi)</span>
                       </span>
                     ) : (

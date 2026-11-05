@@ -23,7 +23,7 @@ export function BeliClosedNotice() {
         <Info className="w-6 h-6" />
       </div>
       <div className="space-y-1">
-        <h3 className="font-serif font-black text-base text-[#422F21]">
+        <h3 className="font-serif font-black text-base text-[#0F2C59]">
           Pembelian Kuota Tambahan Sedang Ditutup
         </h3>
         <p className="text-xs text-stone-600 leading-relaxed">
@@ -36,15 +36,15 @@ export function BeliClosedNotice() {
 
 export function BeliPaguHabisNotice() {
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-amber-300 shadow-md text-center space-y-4">
-      <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-300 flex items-center justify-center mx-auto">
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-sky-300 shadow-md text-center space-y-4">
+      <div className="w-12 h-12 rounded-2xl bg-sky-50 text-amber-700 border border-sky-300 flex items-center justify-center mx-auto">
         <AlertCircle className="w-6 h-6" />
       </div>
       <div className="space-y-1">
-        <h3 className="font-serif font-black text-base text-amber-950">
+        <h3 className="font-serif font-black text-base text-blue-950">
           Kuota Tambahan Pagu Nasional Sudah Habis
         </h3>
-        <p className="text-xs text-amber-900 leading-relaxed">
+        <p className="text-xs text-blue-950 leading-relaxed">
           Pembelian kuota tambahan tersedia selama masa pemesanan aktif dan kuota masih tersedia.
         </p>
       </div>
@@ -73,7 +73,7 @@ export function BeliOrderForm({
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-6">
       <div className="space-y-1">
-        <h3 className="font-serif font-black text-lg text-[#422F21]">
+        <h3 className="font-serif font-black text-lg text-[#0F2C59]">
           Formulir Pemesanan Kuota Kursi Tambahan
         </h3>
         <p className="text-xs text-stone-600">
@@ -82,10 +82,10 @@ export function BeliOrderForm({
       </div>
 
       {/* STEPPER INPUT JUMLAH KURSI */}
-      <div className="p-4 rounded-2xl bg-[#FAF7F3] border border-[#D5C4B4] space-y-3">
+      <div className="p-4 rounded-2xl bg-[#F0F9FF] border border-[#BAE6FD] space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs font-bold text-[#422F21]">Jumlah Kuota Tambahan:</div>
+            <div className="text-xs font-bold text-[#0F2C59]">Jumlah Kuota Tambahan:</div>
             <div className="text-[10px] text-stone-500">Harga Rp 75.000 / kursi</div>
           </div>
           <div className="flex items-center space-x-3">
@@ -93,18 +93,18 @@ export function BeliOrderForm({
               type="button"
               onClick={() => setJumlahBeli(Math.max(1, jumlahBeli - 1))}
               disabled={jumlahBeli <= 1}
-              className="w-10 h-10 rounded-xl bg-white border border-[#D5C4B4] text-[#422F21] font-black text-base flex items-center justify-center hover:bg-stone-100 disabled:opacity-40 cursor-pointer active:scale-95"
+              className="w-10 h-10 rounded-xl bg-white border border-[#BAE6FD] text-[#0F2C59] font-black text-base flex items-center justify-center hover:bg-stone-100 disabled:opacity-40 cursor-pointer active:scale-95"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="font-mono font-black text-xl w-6 text-center text-[#422F21]">
+            <span className="font-mono font-black text-xl w-6 text-center text-[#0F2C59]">
               {jumlahBeli}
             </span>
             <button
               type="button"
               onClick={() => setJumlahBeli(Math.min(sisaPaguGlobal, jumlahBeli + 1))}
               disabled={jumlahBeli >= sisaPaguGlobal}
-              className="w-10 h-10 rounded-xl bg-[#8C6A47] text-white font-black text-base flex items-center justify-center hover:bg-[#735334] disabled:opacity-40 cursor-pointer active:scale-95 shadow-xs"
+              className="w-10 h-10 rounded-xl bg-[#1D4ED8] text-white font-black text-base flex items-center justify-center hover:bg-[#1E40AF] disabled:opacity-40 cursor-pointer active:scale-95 shadow-xs"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -112,9 +112,9 @@ export function BeliOrderForm({
         </div>
 
         {/* Rincian Total Tagihan */}
-        <div className="pt-3 border-t border-[#D5C4B4] flex items-center justify-between text-xs">
+        <div className="pt-3 border-t border-[#BAE6FD] flex items-center justify-between text-xs">
           <span className="text-stone-600 font-semibold">Total Pembayaran:</span>
-          <span className="font-serif font-black text-lg text-emerald-700">
+          <span className="font-serif font-black text-lg text-blue-700">
             Rp {(jumlahBeli * 75000).toLocaleString('id-ID')}
           </span>
         </div>
@@ -125,7 +125,7 @@ export function BeliOrderForm({
         type="button"
         onClick={onKunciPesanan}
         disabled={isSubmittingOrder || sisaPaguGlobal <= 0}
-        className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 disabled:opacity-50 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center space-x-2 border border-amber-200/40"
+        className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 disabled:opacity-50 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center space-x-2 border border-sky-200/40"
       >
         {isSubmittingOrder ? (
           <>
@@ -149,8 +149,8 @@ export function BeliVerifiedHistory({ verifiedOrders }: { verifiedOrders: any[] 
   return (
     <div className="bg-white rounded-3xl p-6 border-2 border-[#E8DFD5] shadow-xs space-y-4">
       <div className="flex items-center space-x-2 border-b border-stone-100 pb-3">
-        <History className="w-4 h-4 text-[#8C6A47]" />
-        <h3 className="font-serif font-bold text-sm text-[#422F21]">
+        <History className="w-4 h-4 text-[#1D4ED8]" />
+        <h3 className="font-serif font-bold text-sm text-[#0F2C59]">
           Riwayat Transaksi Kuota Tambahan Disetujui ({verifiedOrders.length})
         </h3>
       </div>
@@ -160,7 +160,7 @@ export function BeliVerifiedHistory({ verifiedOrders }: { verifiedOrders: any[] 
           return (
             <div
               key={order.id_pesanan || order.id}
-              className="p-3.5 rounded-2xl bg-[#FAF7F3] border border-[#E8DFD5] flex items-center justify-between text-xs"
+              className="p-3.5 rounded-2xl bg-[#F0F9FF] border border-[#E8DFD5] flex items-center justify-between text-xs"
             >
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
@@ -178,10 +178,10 @@ export function BeliVerifiedHistory({ verifiedOrders }: { verifiedOrders: any[] 
               </div>
 
               <div className="text-right space-y-1">
-                <div className="font-bold text-[#422F21]">
+                <div className="font-bold text-[#0F2C59]">
                   Rp {Number(order.total_bayar || 0).toLocaleString('id-ID')}
                 </div>
-                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-300">
                   Terverifikasi
                 </span>
               </div>
@@ -197,7 +197,7 @@ export function BeliVerifiedHistory({ verifiedOrders }: { verifiedOrders: any[] 
 export function BeliFooter() {
   return (
     <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
-      <p className="font-serif font-bold text-[#422F21]">
+      <p className="font-serif font-bold text-[#0F2C59]">
         Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo
       </p>
       <p>Jika membutuhkan bantuan, silakan hubungi Panitia di 0857-9063-3812</p>

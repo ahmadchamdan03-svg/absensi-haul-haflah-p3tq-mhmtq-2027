@@ -139,7 +139,7 @@ export default function MirajHero({
           title={soundEnabled ? 'Matikan Suara' : 'Nyalakan Suara'}
         >
           {soundEnabled ? (
-            <Volume2 className="w-4 h-4 text-emerald-400" />
+            <Volume2 className="w-4 h-4 text-blue-400" />
           ) : (
             <VolumeX className="w-4 h-4 text-rose-400" />
           )}

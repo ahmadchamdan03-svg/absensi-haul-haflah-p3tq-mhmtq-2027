@@ -32,18 +32,18 @@ export default function PaymentCountdownTimer({ lockedUntil, onExpire }: { locke
   }, [lockedUntil]);
 
   return (
-    <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-center space-y-2">
-      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
+    <div className="p-4 rounded-2xl bg-sky-50 border-2 border-sky-300 text-blue-950 text-center space-y-2">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-900 block">
         SISA WAKTU MENGUNCI PESANAN (6 JAM)
       </span>
-      <div className="flex items-center justify-center space-x-2 font-mono font-black text-2xl text-amber-900">
+      <div className="flex items-center justify-center space-x-2 font-mono font-black text-2xl text-blue-950">
         <Clock className="w-5 h-5 text-amber-700 animate-pulse" />
         <span>
           {String(timeLeft.hours).padStart(2, '0')} : {String(timeLeft.minutes).padStart(2, '0')} :{' '}
           {String(timeLeft.seconds).padStart(2, '0')}
         </span>
       </div>
-      <p className="text-[11px] text-amber-800">
+      <p className="text-[11px] text-blue-900">
         Pesanan akan otomatis dibatalkan jika transfer &amp; unggah bukti tidak dilakukan dalam 6 jam.
       </p>
     </div>

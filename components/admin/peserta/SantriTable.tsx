@@ -163,14 +163,14 @@ export default function SantriTable({
 
       {/* Banner Deteksi Kategori Dobel Belum Bergabung */}
       {duplicateGroups.length > 0 && (
-        <div className="max-w-7xl mx-auto my-3 bg-amber-500/15 border border-amber-500/40 backdrop-blur-md rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-950 shadow-xs animate-in fade-in">
+        <div className="max-w-7xl mx-auto my-3 bg-amber-500/15 border border-amber-500/40 backdrop-blur-md rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-blue-950 shadow-xs animate-in fade-in">
           <div className="flex items-center space-x-3">
             <span className="text-2xl">⚠️</span>
             <div>
               <p className="font-bold text-xs sm:text-sm">
                 Terdeteksi {duplicateGroups.length} Grup Santri Kategori Dobel Belum Bergabung
               </p>
-              <p className="text-[11px] text-amber-900/80">
+              <p className="text-[11px] text-blue-950/80">
                 Nama santri dan wali sama ({duplicateGroups.map((g) => g.nama).slice(0, 3).join(', ')}
                 {duplicateGroups.length > 3 ? '...' : ''}). Gabungkan menjadi 1 baris resmi dengan kuota otomatis.
               </p>

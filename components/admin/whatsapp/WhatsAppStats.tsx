@@ -189,11 +189,11 @@ export default function WhatsAppStats({
       <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-lg rounded-3xl p-4 sm:p-6 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#EFE8E1]/80 backdrop-blur-xs text-[#8C6A47] flex items-center justify-center font-bold border border-white/60 shadow-sm shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#E0F2FE]/80 backdrop-blur-xs text-[#1D4ED8] flex items-center justify-center font-bold border border-white/60 shadow-sm shrink-0">
               <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl font-serif font-black text-[#422F21] truncate">
+              <h1 className="text-lg sm:text-xl font-serif font-black text-[#0F2C59] truncate">
                 Panel WA Gateway — Wali Santri
               </h1>
               <p className="text-xs text-[#7A624E] font-normal leading-tight">
@@ -204,7 +204,7 @@ export default function WhatsAppStats({
 
           <button
             onClick={fetchSantriWaData}
-            className="px-3.5 py-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#8C6A47] border border-white/70 font-bold text-xs shadow-xs flex items-center justify-center space-x-1.5 w-full md:w-auto cursor-pointer transition-all"
+            className="px-3.5 py-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#1D4ED8] border border-white/70 font-bold text-xs shadow-xs flex items-center justify-center space-x-1.5 w-full md:w-auto cursor-pointer transition-all"
           >
             <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
             <span>Refresh Data DB</span>
@@ -222,8 +222,8 @@ export default function WhatsAppStats({
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                 gelombang === 1
-                  ? 'bg-[#8C6A47]/90 backdrop-blur-sm text-white shadow-md border border-[#735334]'
-                  : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/50'
+                  ? 'bg-[#1D4ED8]/90 backdrop-blur-sm text-white shadow-md border border-[#1E40AF]'
+                  : 'text-[#0F2C59] hover:text-[#1D4ED8] hover:bg-white/50'
               }`}
             >
               <span>1. Undangan &amp; QR</span>
@@ -236,8 +236,8 @@ export default function WhatsAppStats({
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
                 gelombang === 2
-                  ? 'bg-[#8C6A47]/90 backdrop-blur-sm text-white shadow-md border border-[#735334]'
-                  : 'text-[#422F21] hover:text-[#8C6A47] hover:bg-white/50'
+                  ? 'bg-[#1D4ED8]/90 backdrop-blur-sm text-white shadow-md border border-[#1E40AF]'
+                  : 'text-[#0F2C59] hover:text-[#1D4ED8] hover:bg-white/50'
               }`}
             >
               <span>2. Kuota Tambahan</span>
@@ -245,8 +245,8 @@ export default function WhatsAppStats({
           </div>
 
           <div className="flex items-center justify-between sm:justify-start space-x-2.5 px-3.5 py-2 bg-white/40 backdrop-blur-sm rounded-xl border border-white/50 shadow-xs shrink-0">
-            <span className="text-xs font-bold text-[#422F21] flex items-center space-x-1.5">
-              <ShoppingBag className="w-4 h-4 text-[#8C6A47]" />
+            <span className="text-xs font-bold text-[#0F2C59] flex items-center space-x-1.5">
+              <ShoppingBag className="w-4 h-4 text-[#1D4ED8]" />
               <span>Beli Kuota:</span>
             </span>
             <div className="flex items-center space-x-2">
@@ -255,7 +255,7 @@ export default function WhatsAppStats({
                 onClick={handleToggleKuotaSwitch}
                 disabled={savingKuotaConfig}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${
-                  kuotaTambahanBuka ? 'bg-emerald-600' : 'bg-[#C5B5A5]'
+                  kuotaTambahanBuka ? 'bg-blue-600' : 'bg-[#C5B5A5]'
                 }`}
               >
                 <span className="sr-only">Toggle Kuota Tambahan</span>
@@ -269,9 +269,9 @@ export default function WhatsAppStats({
               <span
                 className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                   savingKuotaConfig
-                    ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                    ? 'bg-sky-100 text-blue-900 border border-sky-300'
                     : kuotaTambahanBuka
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    ? 'bg-blue-100 text-blue-800 border border-blue-300'
                     : 'bg-stone-100 text-stone-500 border border-stone-300'
                 }`}
               >
@@ -282,17 +282,17 @@ export default function WhatsAppStats({
         </div>
 
         {/* Fonnte Live Status Widget */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-500/10 backdrop-blur-sm border border-emerald-500/20 text-[#422F21] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-xs">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-500/10 backdrop-blur-sm border border-blue-500/20 text-[#0F2C59] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100/80 border border-emerald-300/80 flex items-center justify-center text-emerald-700 shadow-sm shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100/80 border border-blue-300/80 flex items-center justify-center text-blue-700 shadow-sm shrink-0">
               <Wifi className="w-4.5 h-4.5 animate-pulse" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-serif font-black text-[#422F21] truncate">
+                <span className="text-xs font-serif font-black text-[#0F2C59] truncate">
                   FONNTE GATEWAY TERHUBUNG
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400 shrink-0">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-400 shrink-0">
                   ONLINE
                 </span>
               </div>
@@ -306,7 +306,7 @@ export default function WhatsAppStats({
             {!isBlasting ? (
               <button
                 onClick={handleStartBatchBlast}
-                className="w-full md:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center justify-center space-x-1.5 transition-all border border-white/40 cursor-pointer"
+                className="w-full md:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center justify-center space-x-1.5 transition-all border border-white/40 cursor-pointer"
               >
                 <Zap className="w-4 h-4 fill-current" />
                 <span>Kirim Massal Otomatis (Fonnte)</span>
@@ -327,10 +327,10 @@ export default function WhatsAppStats({
         <div className="mt-4 p-4 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
-              <span className="font-bold text-xs text-[#422F21]">
+              <MessageSquare className="w-4 h-4 text-[#1D4ED8]" />
+              <span className="font-bold text-xs text-[#0F2C59]">
                 Preview Template Pesan Wali:{' '}
-                <span className="text-[#8C6A47]">
+                <span className="text-[#1D4ED8]">
                   {gelombang === 1
                     ? 'Gelombang 1 - Undangan Resmi & QR'
                     : 'Gelombang 2 - Info Kuota Tambahan'}
@@ -338,7 +338,7 @@ export default function WhatsAppStats({
               </span>
             </div>
           </div>
-          <div className="p-3.5 rounded-xl bg-white/30 backdrop-blur-sm border border-white/40 font-mono text-[11px] text-[#422F21] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto shadow-inner">
+          <div className="p-3.5 rounded-xl bg-white/30 backdrop-blur-sm border border-white/40 font-mono text-[11px] text-[#0F2C59] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto shadow-inner">
             {getTeksPesan(
               keluargaList[0] || {
                 kode: 'SH0001',
@@ -354,16 +354,16 @@ export default function WhatsAppStats({
 
         {/* Progress Bar Blasting jika aktif */}
         {isBlasting && (
-          <div className="mt-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-2 text-xs text-amber-950">
+          <div className="mt-3 p-3.5 rounded-2xl bg-sky-50 border border-sky-300 space-y-2 text-xs text-blue-950">
             <div className="flex items-center justify-between font-bold">
               <span>Sedang Mengirim Pesan WhatsApp Massal...</span>
               <span>
                 {blastProgress.current} dari {blastProgress.total} wali ({blastProgress.success} berhasil, {blastProgress.failed} gagal)
               </span>
             </div>
-            <div className="w-full bg-amber-200 rounded-full h-2.5 overflow-hidden">
+            <div className="w-full bg-sky-200 rounded-full h-2.5 overflow-hidden">
               <div
-                className="bg-[#8C6A47] h-2.5 rounded-full transition-all duration-300"
+                className="bg-[#1D4ED8] h-2.5 rounded-full transition-all duration-300"
                 style={{
                   width: `${Math.round((blastProgress.current / blastProgress.total) * 100) || 0}%`,
                 }}
@@ -378,20 +378,20 @@ export default function WhatsAppStats({
             className={`mt-4 p-4 rounded-2xl border transition-all ${
               !linkGrupWa.trim()
                 ? 'bg-white/40 backdrop-blur-sm border-white/50 shadow-xs'
-                : 'bg-emerald-50/50 backdrop-blur-sm border-emerald-300 ring-2 ring-emerald-300/30 shadow-xs'
+                : 'bg-blue-50/50 backdrop-blur-sm border-blue-300 ring-2 ring-emerald-300/30 shadow-xs'
             } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block font-bold text-[#422F21]">
+                <label className="block font-bold text-[#0F2C59]">
                   Link Grup WhatsApp Resmi Wali Santri:
                 </label>
                 {savingLinkGrup ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-blue-900 border border-sky-300 animate-pulse">
                     Menyimpan...
                   </span>
                 ) : linkGrupSavedNotice ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
                     {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : '✓ Dikosongkan untuk Sesi Ini'}
                   </span>
                 ) : !linkGrupWa.trim() ? (
@@ -399,7 +399,7 @@ export default function WhatsAppStats({
                     Opsional (Dihapus dari pesan jika kosong)
                   </span>
                 ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
                     ✓ Link Terisi &amp; Aktif
                   </span>
                 )}
@@ -412,13 +412,13 @@ export default function WhatsAppStats({
                   onChange={(e) => setLinkGrupWa(e.target.value)}
                   onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
                   placeholder="https://chat.whatsapp.com/... (kosongkan jika tanpa grup)"
-                  className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/50 backdrop-blur-xs text-slate-900 focus:bg-white/80 focus:ring-2 focus:ring-[#8C6A47]/40 focus:outline-none text-xs font-mono shadow-xs"
+                  className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/50 backdrop-blur-xs text-slate-900 focus:bg-white/80 focus:ring-2 focus:ring-[#1D4ED8]/40 focus:outline-none text-xs font-mono shadow-xs"
                 />
                 <button
                   type="button"
                   onClick={() => handleSaveLinkGrupWa?.(linkGrupWa)}
                   disabled={savingLinkGrup}
-                  className="px-4 py-2 rounded-xl bg-[#8C6A47] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5"
                 >
                   {savingLinkGrup ? '...' : 'Simpan'}
                 </button>
@@ -429,7 +429,7 @@ export default function WhatsAppStats({
             </div>
             <div className="flex items-center p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 shadow-xs">
               <div className="text-[11px] text-[#7A624E] leading-relaxed">
-                <strong className="text-[#8C6A47]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup bersifat sementara per sesi agar panitia selalu menempelkan link grup terbaru.
+                <strong className="text-[#1D4ED8]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup bersifat sementara per sesi agar panitia selalu menempelkan link grup terbaru.
               </div>
             </div>
           </div>
@@ -444,11 +444,11 @@ export default function WhatsAppStats({
       <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-lg rounded-3xl p-6 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1]/80 backdrop-blur-xs text-[#8C6A47] flex items-center justify-center font-bold border border-white/60 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-[#E0F2FE]/80 backdrop-blur-xs text-[#1D4ED8] flex items-center justify-center font-bold border border-white/60 shadow-sm">
               <UserCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-serif font-black text-[#422F21]">
+              <h1 className="text-xl font-serif font-black text-[#0F2C59]">
                 Panel WA Gateway — Tamu Undangan
               </h1>
               <p className="text-xs text-[#7A624E] font-normal">
@@ -459,7 +459,7 @@ export default function WhatsAppStats({
 
           <button
             onClick={fetchTamuWaData}
-            className="px-3.5 py-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#8C6A47] border border-white/70 font-bold text-xs shadow-xs flex items-center space-x-1.5 self-start md:self-auto cursor-pointer transition-all"
+            className="px-3.5 py-2 rounded-xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#1D4ED8] border border-white/70 font-bold text-xs shadow-xs flex items-center space-x-1.5 self-start md:self-auto cursor-pointer transition-all"
           >
             <RefreshCw className={`w-4 h-4 ${loadingTamuData ? 'animate-spin' : ''}`} />
             <span>Refresh Data DB</span>
@@ -467,17 +467,17 @@ export default function WhatsAppStats({
         </div>
 
         {/* Fonnte Live Status Widget */}
-        <div className="mt-5 p-4 rounded-2xl bg-emerald-500/10 backdrop-blur-sm border border-emerald-500/20 text-[#422F21] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
+        <div className="mt-5 p-4 rounded-2xl bg-blue-500/10 backdrop-blur-sm border border-blue-500/20 text-[#0F2C59] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100/80 border border-emerald-300/80 flex items-center justify-center text-emerald-700 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-blue-100/80 border border-blue-300/80 flex items-center justify-center text-blue-700 shadow-sm">
               <Wifi className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-serif font-black text-[#422F21]">
+                <span className="text-xs font-serif font-black text-[#0F2C59]">
                   FONNTE GATEWAY TERHUBUNG
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-400">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-400">
                   ONLINE
                 </span>
               </div>
@@ -491,7 +491,7 @@ export default function WhatsAppStats({
             {!isTamuBlasting ? (
               <button
                 onClick={handleStartBatchBlastTamu}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#8C6A47] via-[#A47E57] to-[#8C6A47] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center space-x-1.5 transition-all border border-white/40 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-xs shadow-md flex items-center space-x-1.5 transition-all border border-white/40 cursor-pointer"
               >
                 <Zap className="w-4 h-4 fill-current" />
                 <span>Kirim WA ke Semua Tamu (Fonnte)</span>
@@ -512,16 +512,16 @@ export default function WhatsAppStats({
         <div className="mt-4 p-4 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 shadow-xs space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <MessageSquare className="w-4 h-4 text-[#8C6A47]" />
-              <span className="font-bold text-xs text-[#422F21]">
+              <MessageSquare className="w-4 h-4 text-[#1D4ED8]" />
+              <span className="font-bold text-xs text-[#0F2C59]">
                 Preview Format Pesan WA Resmi Tamu Undangan:
               </span>
             </div>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EFE8E1]/80 text-[#8C6A47] border border-white/60">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F2FE]/80 text-[#1D4ED8] border border-white/60">
               Format Resmi Haul 2027
             </span>
           </div>
-          <div className="p-3.5 rounded-xl bg-white/30 backdrop-blur-sm border border-white/40 font-mono text-[11px] text-[#422F21] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto shadow-inner">
+          <div className="p-3.5 rounded-xl bg-white/30 backdrop-blur-sm border border-white/40 font-mono text-[11px] text-[#0F2C59] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto shadow-inner">
             {getTeksPesanTamu(
               filteredTamuList[0] || tamuList[0] || {
                 kode: 'UND0107',
@@ -533,16 +533,16 @@ export default function WhatsAppStats({
 
         {/* Progress Bar Blasting Tamu jika aktif */}
         {isTamuBlasting && (
-          <div className="mt-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-2 text-xs text-amber-950">
+          <div className="mt-3 p-3.5 rounded-2xl bg-sky-50 border border-sky-300 space-y-2 text-xs text-blue-950">
             <div className="flex items-center justify-between font-bold">
               <span>Sedang Mengirim WA Undangan ke Tamu...</span>
               <span>
                 {tamuBlastProgress.current} dari {tamuBlastProgress.total} tamu ({tamuBlastProgress.success} berhasil, {tamuBlastProgress.failed} gagal)
               </span>
             </div>
-            <div className="w-full bg-amber-200 rounded-full h-2.5 overflow-hidden">
+            <div className="w-full bg-sky-200 rounded-full h-2.5 overflow-hidden">
               <div
-                className="bg-[#8C6A47] h-2.5 rounded-full transition-all duration-300"
+                className="bg-[#1D4ED8] h-2.5 rounded-full transition-all duration-300"
                 style={{
                   width: `${Math.round((tamuBlastProgress.current / tamuBlastProgress.total) * 100) || 0}%`,
                 }}

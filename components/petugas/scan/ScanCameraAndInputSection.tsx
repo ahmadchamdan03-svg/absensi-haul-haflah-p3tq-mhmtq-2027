@@ -59,11 +59,11 @@ export default function ScanCameraAndInputSection({
         {/* Baris 1 (Mobile) / Sisi Kiri (Desktop): Info Gerbang & Tombol Denah */}
         <div className="flex items-center justify-between w-full md:w-auto gap-3 flex-wrap">
           <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center font-bold border-2 border-[#8C6A47] shadow-sm shrink-0">
-              <QrCode className="w-5 h-5 text-[#8C6A47]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#1D4ED8] flex items-center justify-center font-bold border-2 border-[#1D4ED8] shadow-sm shrink-0">
+              <QrCode className="w-5 h-5 text-[#1D4ED8]" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-serif font-black text-[#422F21] text-xs sm:text-base leading-tight">
+              <h1 className="font-serif font-black text-[#0F2C59] text-xs sm:text-base leading-tight">
                 Gerbang Selatan (Bola Dunia)
               </h1>
               <p className="text-[11px] sm:text-xs text-[#7A624E] font-medium leading-tight">
@@ -75,10 +75,10 @@ export default function ScanCameraAndInputSection({
           <button
             type="button"
             onClick={onOpenDenah}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/60 hover:bg-white/85 text-[#5C3E28] text-xs font-bold border border-white/70 backdrop-blur-xs flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/60 hover:bg-white/85 text-[#1E3A8A] text-xs font-bold border border-white/70 backdrop-blur-xs flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
             title="Buka Denah Lapangan Interaktif"
           >
-            <Compass className="w-4 h-4 text-[#8C6A47]" />
+            <Compass className="w-4 h-4 text-[#1D4ED8]" />
             <span className="hidden sm:inline">Denah Lokasi</span>
           </button>
         </div>
@@ -90,8 +90,8 @@ export default function ScanCameraAndInputSection({
             onClick={() => setJalur('BARAT')}
             className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-bold leading-tight text-center rounded-lg transition-all ${
               jalur === 'BARAT'
-                ? 'bg-[#8C6A47] text-white shadow-sm border border-[#735334]'
-                : 'text-[#422F21] hover:text-[#8C6A47]'
+                ? 'bg-[#1D4ED8] text-white shadow-sm border border-[#1E40AF]'
+                : 'text-[#0F2C59] hover:text-[#1D4ED8]'
             }`}
           >
             <span>Jalur Barat</span>
@@ -101,8 +101,8 @@ export default function ScanCameraAndInputSection({
             onClick={() => setJalur('TIMUR')}
             className={`flex-1 md:flex-none px-3 py-1.5 text-xs font-bold leading-tight text-center rounded-lg transition-all ${
               jalur === 'TIMUR'
-                ? 'bg-[#735334] text-[#FAF7F3] border border-[#D49B5B]/60 shadow-sm'
-                : 'text-[#422F21] hover:text-[#8C6A47]'
+                ? 'bg-[#1E40AF] text-[#F0F9FF] border border-[#D49B5B]/60 shadow-sm'
+                : 'text-[#0F2C59] hover:text-[#1D4ED8]'
             }`}
           >
             <span>Jalur Timur</span>
@@ -117,14 +117,14 @@ export default function ScanCameraAndInputSection({
         <div
           className={`p-4 rounded-3xl border-2 shadow-xl animate-in zoom-in-95 duration-150 flex items-center justify-between gap-3 ${
             scanFeedback.type === 'success'
-              ? 'bg-emerald-50 border-emerald-400 text-emerald-950'
+              ? 'bg-blue-50 border-blue-400 text-blue-950'
               : 'bg-rose-50 border-rose-400 text-rose-950'
           }`}
         >
           <div className="flex items-center space-x-3">
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shrink-0 ${
-                scanFeedback.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'
+                scanFeedback.type === 'success' ? 'bg-blue-600' : 'bg-rose-600'
               }`}
             >
               {scanFeedback.type === 'success' ? (
@@ -139,7 +139,7 @@ export default function ScanCameraAndInputSection({
               </div>
               <div
                 className={`text-xs font-semibold ${
-                  scanFeedback.type === 'success' ? 'text-emerald-800' : 'text-rose-800'
+                  scanFeedback.type === 'success' ? 'text-blue-800' : 'text-rose-800'
                 }`}
               >
                 {scanFeedback.message}
@@ -149,7 +149,7 @@ export default function ScanCameraAndInputSection({
           <span
             className={`px-3 py-1 rounded-xl text-xs font-mono font-bold shrink-0 ${
               scanFeedback.type === 'success'
-                ? 'bg-emerald-200 text-emerald-900'
+                ? 'bg-emerald-200 text-blue-900'
                 : 'bg-rose-200 text-rose-900'
             }`}
           >
@@ -170,7 +170,7 @@ export default function ScanCameraAndInputSection({
               <div className="flex items-center space-x-2">
                 <span
                   className={`w-2.5 h-2.5 rounded-full ${
-                    cameraActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
+                    cameraActive ? 'bg-blue-500 animate-pulse' : 'bg-slate-300'
                   }`}
                 ></span>
                 <span className="text-xs font-serif font-bold text-slate-800 tracking-wide">
@@ -277,11 +277,11 @@ export default function ScanCameraAndInputSection({
             </div>
 
             {cameraError && (
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start space-x-2.5">
+              <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-300 text-blue-950 text-xs flex items-start space-x-2.5">
                 <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <div className="font-bold">Info Perangkat &amp; Izin Kamera:</div>
-                  <div className="text-[11px] text-amber-800 leading-relaxed">
+                  <div className="text-[11px] text-blue-900 leading-relaxed">
                     {cameraError}
                   </div>
                 </div>
@@ -293,10 +293,10 @@ export default function ScanCameraAndInputSection({
           <div className="space-y-2 pt-2 border-t border-stone-200">
             <div className="flex items-center justify-between text-xs text-stone-500">
               <span className="font-semibold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse inline-block"></span>
                 Scanner USB Aktif / Input Kode Manual:
               </span>
-              <span className="text-[11px] font-mono text-[#8C6A47]">Auto-detect USB HID</span>
+              <span className="text-[11px] font-mono text-[#1D4ED8]">Auto-detect USB HID</span>
             </div>
 
             <form
@@ -314,7 +314,7 @@ export default function ScanCameraAndInputSection({
                 value={kodeInput}
                 onChange={(e) => setKodeInput(e.target.value)}
                 placeholder="Ketik kode manual jika scanner tidak tersambung (contoh: SH2943)..."
-                className="flex-1 px-4 py-3 text-sm rounded-2xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:outline-none focus:ring-2 focus:ring-[#8C6A47] font-mono text-[#422F21] placeholder:text-[#7A624E]/70 shadow-inner"
+                className="flex-1 px-4 py-3 text-sm rounded-2xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] font-mono text-[#0F2C59] placeholder:text-[#7A624E]/70 shadow-inner"
               />
               <button
                 type="submit"

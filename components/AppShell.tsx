@@ -49,7 +49,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Subtle Ambient Orbs for Glass Refraction (FIX 1 & FIX 3) */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
           <div className="absolute top-10 left-1/4 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-[#D49B5B]/30 to-amber-300/20 blur-[100px]" />
-          <div className="absolute top-1/2 -left-20 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-[#8C6A47]/25 to-[#D49B5B]/20 blur-[90px]" />
+          <div className="absolute top-1/2 -left-20 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-[#1D4ED8]/25 to-[#D49B5B]/20 blur-[90px]" />
           <div className="absolute bottom-10 right-10 w-[520px] h-[520px] rounded-full bg-gradient-to-tl from-[#D49B5B]/25 via-amber-200/20 to-transparent blur-[110px]" />
         </div>
         <div className="relative z-10">{children}</div>
@@ -68,7 +68,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden relative z-0 bg-[url('/images/panggung-aula.jpg')] bg-cover bg-center bg-fixed bg-no-repeat">
       {/* Background Overlay Transparan Minimal 20% Tanpa Blur agar foto panggung sangat jelas & tajam */}
-      <div className="absolute inset-0 bg-[#FAF7F3]/20 -z-10 pointer-events-none" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[#F0F9FF]/20 -z-10 pointer-events-none" aria-hidden="true" />
 
       {/* Sidebar Navigasi Samping (Disembunyikan untuk role PENERIMA_TAMU dan halaman /pimpinan) */}
       {!isRolePenerimaTamu && !isPimpinan && (

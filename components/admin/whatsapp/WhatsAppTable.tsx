@@ -64,7 +64,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
         {/* Tabel Wali */}
         <div className="overflow-x-auto rounded-2xl border border-white/40 bg-white/20">
           <table className="w-full text-left text-xs">
-            <thead className="bg-white/60 backdrop-blur-xs text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
+            <thead className="bg-white/60 backdrop-blur-xs text-[#1E3A8A] font-bold border-b border-[#BAE6FD] uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-3 px-3">Kode</th>
                 <th className="py-3 px-4">Nama Wali Santri &amp; HP</th>
@@ -133,16 +133,16 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                           <span
                             className={`font-semibold ${
                               isBilGhoib
-                                ? 'text-emerald-700'
+                                ? 'text-blue-700'
                                 : isBinNadzor
                                 ? 'text-blue-700'
-                                : 'text-amber-800'
+                                : 'text-blue-900'
                             }`}
                           >
                             {isBilGhoib ? 'Bil Ghoib' : isBinNadzor ? 'Bin Nadzori' : 'Tamatan'}
                           </span>
                           {isTamatan && bagian && (
-                            <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
+                            <span className="px-1.5 py-0.2 rounded bg-sky-100 text-blue-950 text-[10px] font-bold">
                               Bagian {bagian}
                             </span>
                           )}
@@ -156,10 +156,10 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                         <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5">
                           {isBilGhoib && (
                             <>
-                              <span className="inline-block font-bold text-[#5C3E28] bg-[#F5E6D3] border border-[#D49B5B] px-1.5 py-0.5 rounded text-[10px]">
+                              <span className="inline-block font-bold text-[#1E3A8A] bg-[#F5E6D3] border border-[#D49B5B] px-1.5 py-0.5 rounded text-[10px]">
                                 Cream
                               </span>
-                              <span className="text-[9px] text-[#5C3E28] font-bold block">
+                              <span className="text-[9px] text-[#1E3A8A] font-bold block">
                                 Wali Maju Panggung
                               </span>
                             </>
@@ -181,22 +181,22 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                       </td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">
                         {isConfirmed ? (
-                          <span className="inline-flex flex-col items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <span className="inline-flex flex-col items-center px-2 py-0.5 rounded-xl text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
                             <span>✓ Sudah Konfirmasi</span>
-                            <span className="font-semibold text-[9px] text-emerald-700">
+                            <span className="font-semibold text-[9px] text-blue-700">
                               L: {kel.estimasi?.perkiraanL ?? 0}, P: {kel.estimasi?.perkiraanP ?? 0}
                             </span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-blue-950 border border-sky-300">
                             ⏳ Belum Konfirmasi
                           </span>
                         )}
                       </td>
                       <td className="py-3 px-3 text-center whitespace-nowrap">
                         {isTerkirim ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                            <CheckCircle2 className="w-3 h-3 mr-1 text-blue-600" />
                             TERKIRIM
                           </span>
                         ) : isNoWaNotRegistered || isInvalidNum ? (
@@ -224,7 +224,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                             className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
                               isTerkirim
                                 ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
-                                : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
+                                : 'bg-blue-800 hover:bg-blue-900 text-white shadow-xs'
                             } disabled:opacity-40 disabled:pointer-events-none`}
                             title="Kirim otomatis lewat WhatsApp Fonnte"
                           >
@@ -234,7 +234,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
 
                           <button
                             onClick={() => handleKirimManualWA(kel)}
-                            className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-blue-700 border border-slate-200 transition-colors cursor-pointer"
                             title="Kirim Manual via WhatsApp Web / App"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -273,7 +273,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
       {/* Tabel Tamu Undangan */}
       <div className="overflow-x-auto rounded-2xl border border-white/40 bg-white/20">
         <table className="w-full text-left text-xs">
-          <thead className="bg-white/60 backdrop-blur-xs text-[#5C3E28] font-bold border-b border-[#D5C4B4] uppercase tracking-wider text-[11px]">
+          <thead className="bg-white/60 backdrop-blur-xs text-[#1E3A8A] font-bold border-b border-[#BAE6FD] uppercase tracking-wider text-[11px]">
             <tr>
               <th className="py-3 px-3">Kode</th>
               <th className="py-3 px-4">Nama Penerima &amp; HP</th>
@@ -310,7 +310,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
 
                 return (
                   <tr key={tamu.id || tamu.kode} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-3 font-mono font-bold text-amber-900">
+                    <td className="py-3 px-3 font-mono font-bold text-blue-950">
                       {tamu.kode}
                     </td>
                     <td className="py-3 px-4">
@@ -340,7 +340,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                             isIstimewa
                               ? 'bg-purple-100 text-purple-900 border border-purple-200'
                               : isKehormatan
-                              ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                              ? 'bg-sky-100 text-blue-950 border border-sky-200'
                               : 'bg-slate-100 text-slate-700 border border-slate-200'
                           }`}
                         >
@@ -357,7 +357,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                         return (
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                             isCream
-                              ? 'bg-[#F5E6D3] text-[#5C3E28] border-[#D49B5B]'
+                              ? 'bg-[#F5E6D3] text-[#1E3A8A] border-[#D49B5B]'
                               : 'bg-blue-100 text-blue-900 border-blue-300'
                           }`}>
                             {rawWarna}
@@ -369,8 +369,8 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                     {/* Status WA */}
                     <td className="py-3 px-3 text-center whitespace-nowrap">
                       {isTerkirim ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" />
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                          <CheckCircle2 className="w-3 h-3 mr-1 text-blue-600" />
                           TERKIRIM
                         </span>
                       ) : isNoWaNotRegistered || isInvalidNum ? (
@@ -400,7 +400,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                           className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
                             isTerkirim
                               ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
-                              : 'bg-emerald-800 hover:bg-emerald-900 text-white shadow-xs'
+                              : 'bg-blue-800 hover:bg-blue-900 text-white shadow-xs'
                           } disabled:opacity-40 disabled:pointer-events-none`}
                           title="Kirim otomatis lewat WhatsApp Fonnte"
                         >
@@ -410,7 +410,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
 
                         <button
                           onClick={() => handleKirimManualWATamu(tamu)}
-                          className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-emerald-700 border border-slate-200 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-blue-700 border border-slate-200 transition-colors cursor-pointer"
                           title="Kirim Manual via WhatsApp Web / App"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />

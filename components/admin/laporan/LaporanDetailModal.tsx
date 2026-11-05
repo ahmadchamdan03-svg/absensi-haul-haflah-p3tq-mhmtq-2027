@@ -105,12 +105,12 @@ export function LaporanDetailModal({
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 animate-in fade-in no-print">
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-white/80 overflow-hidden">
         {/* Header Modal */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-[#FAF7F3] via-[#EFE8E1] to-[#FAF7F3] border-b border-[#D5C4B4] flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-[#F0F9FF] via-[#E0F2FE] to-[#F0F9FF] border-b border-[#BAE6FD] flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C6A47]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1D4ED8]">
               RINCIAN DETAILED KATEGORI ({isSantriCat ? 'BLOK 1 WALI SANTRI' : 'BLOK 3 TAMU UNDANGAN'})
             </span>
-            <h3 className="font-serif font-black text-base sm:text-lg text-[#422F21]">
+            <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
               {modalKategori}
             </h3>
           </div>
@@ -131,7 +131,7 @@ export function LaporanDetailModal({
               onClick={() => setModalTab('HADIR')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 modalTab === 'HADIR'
-                  ? 'bg-emerald-800 text-white shadow-xs'
+                  ? 'bg-blue-800 text-white shadow-xs'
                   : 'text-slate-700 hover:text-slate-900'
               }`}
             >
@@ -157,7 +157,7 @@ export function LaporanDetailModal({
               value={modalSearch}
               onChange={(e) => setModalSearch(e.target.value)}
               placeholder="Cari nama, kode, wali, instansi..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs text-[#422F21] focus:outline-none focus:border-[#8C6A47]"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs text-xs text-[#0F2C59] focus:outline-none focus:border-[#1D4ED8]"
             />
           </div>
         </div>
@@ -177,7 +177,7 @@ export function LaporanDetailModal({
               >
                 <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-[#8C6A47] text-[11px] bg-white/70 backdrop-blur-xs px-2 py-0.5 rounded border border-white/80">
+                    <span className="font-mono font-bold text-[#1D4ED8] text-[11px] bg-white/70 backdrop-blur-xs px-2 py-0.5 rounded border border-white/80">
                       {item.kode}
                     </span>
                     <span className="font-bold text-slate-900 truncate text-sm">
@@ -206,8 +206,8 @@ export function LaporanDetailModal({
                 <div className="text-right shrink-0">
                   {item.isHadir ? (
                     <div className="space-y-0.5">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold border border-blue-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
                         <span>HADIR</span>
                       </span>
                       {item.waktuHadir && (

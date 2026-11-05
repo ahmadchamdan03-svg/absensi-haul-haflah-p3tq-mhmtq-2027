@@ -82,7 +82,7 @@ export default function WhatsAppFilter({
           </div>
           <div className="text-lg font-black text-slate-900 mt-0.5">
             Terkirim {totalTerkirim} / {keluargaCount}{' '}
-            <span className="text-sm font-semibold text-emerald-700">({pctTerkirim}%)</span>
+            <span className="text-sm font-semibold text-blue-700">({pctTerkirim}%)</span>
           </div>
         </div>
 
@@ -90,7 +90,7 @@ export default function WhatsAppFilter({
           <select
             value={filterKonfirmasi}
             onChange={(e) => setFilterKonfirmasi(e.target.value as any)}
-            className="px-3 py-2 rounded-xl border border-amber-300 text-xs focus:outline-none bg-amber-50 text-amber-950 font-bold"
+            className="px-3 py-2 rounded-xl border border-sky-300 text-xs focus:outline-none bg-sky-50 text-blue-950 font-bold"
           >
             <option value="SEMUA">Semua Status Konfirmasi</option>
             <option value="BELUM">Belum Konfirmasi Kehadiran</option>
@@ -152,7 +152,7 @@ export default function WhatsAppFilter({
               placeholder="Cari wali / santri / HP..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-44"
+              className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] w-44"
             />
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function WhatsAppFilter({
         </div>
         <div className="text-lg font-black text-slate-900 mt-0.5">
           Terkirim {totalTamuTerkirim} / {tamuCount}{' '}
-          <span className="text-sm font-semibold text-emerald-700">({pctTamuTerkirim}%)</span>
+          <span className="text-sm font-semibold text-blue-700">({pctTamuTerkirim}%)</span>
         </div>
       </div>
 
@@ -205,7 +205,7 @@ export default function WhatsAppFilter({
             placeholder="Cari tamu / instansi / kode..."
             value={tamuSearch}
             onChange={(e) => setTamuSearch(e.target.value)}
-            className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#8C6A47] w-48"
+            className="pl-8 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] w-48"
           />
         </div>
       </div>

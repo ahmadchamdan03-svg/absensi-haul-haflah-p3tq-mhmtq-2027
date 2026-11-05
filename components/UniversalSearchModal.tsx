@@ -48,7 +48,7 @@ const DAFTAR_FITUR: SearchItem[] = [
     title: 'Live Dasbor Monitoring Realtime',
     subtitle: 'Pantau arus kedatangan gerbang, kapasitas kursi aula, dan statistik per kategori',
     badge: 'Realtime',
-    badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
     href: '/admin/dasbor',
   },
   {
@@ -57,7 +57,7 @@ const DAFTAR_FITUR: SearchItem[] = [
     title: 'Daftar Peserta & Tamu Tiap Kategori',
     subtitle: 'Basis data santri Bil Ghoib, Bin Nadzori, Tamatan, & 70 Tamu Undangan Khusus',
     badge: 'Database',
-    badgeColor: 'bg-[#EFE8E1] text-[#8C6A47] border-[#D5C4B4]',
+    badgeColor: 'bg-[#E0F2FE] text-[#1D4ED8] border-[#BAE6FD]',
     href: '/admin/peserta',
   },
   {
@@ -66,7 +66,7 @@ const DAFTAR_FITUR: SearchItem[] = [
     title: 'Meja Rekonsiliasi & Kasus Khusus',
     subtitle: 'Koreksi status hadir, ubah kategori santri, kelola kuota tambahan & tamu walk-in',
     badge: 'Gerbang',
-    badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+    badgeColor: 'bg-sky-100 text-blue-950 border-sky-300',
     href: '/rekon',
   },
   {
@@ -93,7 +93,7 @@ const DAFTAR_FITUR: SearchItem[] = [
     title: 'Sub Ekspor & Laporan Kehadiran',
     subtitle: 'Daftar yang sudah absen masuk vs siapa saja yang belum hadir + Ekspor Multi-sheet Excel',
     badge: 'Laporan',
-    badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
     href: '/admin/laporan',
   },
   {
@@ -111,7 +111,7 @@ const DAFTAR_FITUR: SearchItem[] = [
     title: 'Portal Undangan Digital Wali Santri',
     subtitle: 'Tampilan e-invitation dan barcode QR dinamis yang diterima wali santri',
     badge: 'Public Portal',
-    badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+    badgeColor: 'bg-sky-100 text-blue-950 border-sky-300',
     href: '/u/SH0001',
   },
 ];
@@ -124,7 +124,7 @@ const DAFTAR_LOKASI: SearchItem[] = [
     title: 'Gerbang Selatan (Tugu Bola Dunia)',
     subtitle: 'Pintu utama masuk acara. Jalur Barat, Jalur Timur, dan Meja Rekonsiliasi',
     badge: 'Pintu Masuk',
-    badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
   },
   {
     id: 'loc-aula',
@@ -132,7 +132,7 @@ const DAFTAR_LOKASI: SearchItem[] = [
     title: 'Aula Muktamar Pondok Pesantren Lirboyo',
     subtitle: 'Gedung utama Haul & Haflah 1448 H. Jl. HM. Winarto, Campurejo, Mojoroto, Kediri',
     badge: 'Gedung Utama',
-    badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+    badgeColor: 'bg-sky-100 text-blue-950 border-sky-300',
   },
   {
     id: 'loc-panggung',
@@ -140,7 +140,7 @@ const DAFTAR_LOKASI: SearchItem[] = [
     title: 'Panggung Utama Kehormatan',
     subtitle: 'Panggung prosesi wisudawati Bil Ghoib 30 Juz & Ibu Pendamping (Cream)',
     badge: 'Panggung Khusus',
-    badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+    badgeColor: 'bg-sky-100 text-blue-950 border-sky-300',
   },
   {
     id: 'loc-vip',
@@ -172,7 +172,7 @@ const DAFTAR_LOKASI: SearchItem[] = [
     title: 'Meja Rekonsiliasi & Kasus Khusus',
     subtitle: 'Sisi dalam Gerbang Selatan (dekat tenda panitia) untuk melayani walk-in & cetak tiket ulang',
     badge: 'Meja Kasus',
-    badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+    badgeColor: 'bg-sky-100 text-blue-950 border-sky-300',
   },
   {
     id: 'loc-medis',
@@ -298,8 +298,8 @@ export default function UniversalSearchModal({
               subtitle: `${s.kode} · ${s.kelas || s.kategori_utama || 'Santri'} · Wali: ${s.nama_wali || '-'} (${s.alamat || 'Kediri'})`,
               badge: sudahHadir ? `Hadir (${terpakai} Kursi)` : 'Belum Hadir',
               badgeColor: sudahHadir
-                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                : 'bg-amber-100 text-amber-900 border-amber-300',
+                ? 'bg-blue-100 text-blue-800 border-blue-300'
+                : 'bg-sky-100 text-blue-950 border-sky-300',
               href: `/admin/peserta?q=${s.kode}`,
             });
           }
@@ -410,12 +410,12 @@ export default function UniversalSearchModal({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="w-full max-w-3xl bg-[#FAF7F3]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 flex flex-col overflow-hidden max-h-[90vh] text-[#422F21]"
+        className="w-full max-w-3xl bg-[#F0F9FF]/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 flex flex-col overflow-hidden max-h-[90vh] text-[#0F2C59]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar Search */}
-        <div className="p-4 sm:p-5 border-b border-[#D5C4B4]/70 bg-white/70 backdrop-blur-xs flex items-center space-x-3">
-          <Search className="w-5 h-5 text-[#8C6A47] shrink-0" />
+        <div className="p-4 sm:p-5 border-b border-[#BAE6FD]/70 bg-white/70 backdrop-blur-xs flex items-center space-x-3">
+          <Search className="w-5 h-5 text-[#1D4ED8] shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -430,40 +430,40 @@ export default function UniversalSearchModal({
                 ? 'Tanyakan apa saja ke Google Gemini Free seputar Haflah...'
                 : 'Cari fitur, nama santri/wali, tamu VIP, kode SH0001, atau tempat lokasi...'
             }
-            className="flex-1 bg-transparent text-sm sm:text-base font-semibold text-[#422F21] placeholder-[#7A624E]/70 focus:outline-none"
+            className="flex-1 bg-transparent text-sm sm:text-base font-semibold text-[#0F2C59] placeholder-[#7A624E]/70 focus:outline-none"
           />
 
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded-lg text-[#7A624E] hover:text-[#422F21] hover:bg-[#EFE8E1]"
+              className="p-1 rounded-lg text-[#7A624E] hover:text-[#0F2C59] hover:bg-[#E0F2FE]"
             >
               <X className="w-4 h-4" />
             </button>
           )}
 
-          <div className="hidden sm:flex items-center space-x-1 pl-2 border-l border-[#D5C4B4]">
-            <kbd className="px-2 py-0.5 rounded-md bg-[#EFE8E1] border border-[#D5C4B4] text-[10px] font-mono text-[#8C6A47]">
+          <div className="hidden sm:flex items-center space-x-1 pl-2 border-l border-[#BAE6FD]">
+            <kbd className="px-2 py-0.5 rounded-md bg-[#E0F2FE] border border-[#BAE6FD] text-[10px] font-mono text-[#1D4ED8]">
               ESC
             </kbd>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-[#EFE8E1] text-[#7A624E] hover:text-[#422F21] transition-colors"
+            className="p-1.5 rounded-xl hover:bg-[#E0F2FE] text-[#7A624E] hover:text-[#0F2C59] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Pills Filter */}
-        <div className="flex items-center space-x-2 px-4 py-2.5 bg-[#EFE8E1]/80 border-b border-[#D5C4B4] overflow-x-auto text-xs font-bold">
+        <div className="flex items-center space-x-2 px-4 py-2.5 bg-[#E0F2FE]/80 border-b border-[#BAE6FD] overflow-x-auto text-xs font-bold">
           <button
             onClick={() => setActiveTab('SEMUA')}
             className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
               activeTab === 'SEMUA'
-                ? 'bg-[#8C6A47] text-white shadow-xs'
-                : 'bg-white text-[#7A624E] hover:text-[#422F21] border border-[#D5C4B4]'
+                ? 'bg-[#1D4ED8] text-white shadow-xs'
+                : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             Semua
@@ -473,8 +473,8 @@ export default function UniversalSearchModal({
             onClick={() => setActiveTab('FITUR')}
             className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
               activeTab === 'FITUR'
-                ? 'bg-[#8C6A47] text-white shadow-xs'
-                : 'bg-white text-[#7A624E] hover:text-[#422F21] border border-[#D5C4B4]'
+                ? 'bg-[#1D4ED8] text-white shadow-xs'
+                : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
@@ -485,8 +485,8 @@ export default function UniversalSearchModal({
             onClick={() => setActiveTab('PESERTA')}
             className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
               activeTab === 'PESERTA'
-                ? 'bg-[#8C6A47] text-white shadow-xs'
-                : 'bg-white text-[#7A624E] hover:text-[#422F21] border border-[#D5C4B4]'
+                ? 'bg-[#1D4ED8] text-white shadow-xs'
+                : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -497,8 +497,8 @@ export default function UniversalSearchModal({
             onClick={() => setActiveTab('LOKASI')}
             className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
               activeTab === 'LOKASI'
-                ? 'bg-[#8C6A47] text-white shadow-xs'
-                : 'bg-white text-[#7A624E] hover:text-[#422F21] border border-[#D5C4B4]'
+                ? 'bg-[#1D4ED8] text-white shadow-xs'
+                : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             <MapPin className="w-3.5 h-3.5" />
@@ -509,8 +509,8 @@ export default function UniversalSearchModal({
             onClick={() => setActiveTab('AI')}
             className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
               activeTab === 'AI'
-                ? 'bg-gradient-to-r from-[#8C6A47] to-[#D49B5B] text-white shadow-sm font-black'
-                : 'bg-white text-[#8C6A47] hover:bg-[#FAF7F3] border-2 border-[#D49B5B]'
+                ? 'bg-gradient-to-r from-[#1D4ED8] to-[#D49B5B] text-white shadow-sm font-black'
+                : 'bg-white text-[#1D4ED8] hover:bg-[#F0F9FF] border-2 border-[#D49B5B]'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
@@ -525,16 +525,16 @@ export default function UniversalSearchModal({
             <div className="space-y-2">
               {searchResults.length === 0 ? (
                 <div className="text-center py-12 space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#EFE8E1] text-[#8C6A47] flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E0F2FE] text-[#1D4ED8] flex items-center justify-center mx-auto">
                     <Search className="w-6 h-6" />
                   </div>
-                  <div className="text-sm font-bold text-[#422F21]">
+                  <div className="text-sm font-bold text-[#0F2C59]">
                     Tidak ditemukan hasil untuk "{query}"
                   </div>
                   <p className="text-xs text-[#7A624E] max-w-sm mx-auto">
                     Coba kata kunci lain atau gunakan tab{' '}
                     <strong
-                      className="text-[#8C6A47] cursor-pointer underline"
+                      className="text-[#1D4ED8] cursor-pointer underline"
                       onClick={() => {
                         setActiveTab('AI');
                         handleSendAi(query);
@@ -557,10 +557,10 @@ export default function UniversalSearchModal({
                         item.action();
                       }
                     }}
-                    className="p-3.5 rounded-2xl bg-white hover:bg-[#EFE8E1]/80 border-2 border-[#D5C4B4] hover:border-[#8C6A47] cursor-pointer transition-all flex items-center justify-between group shadow-2xs"
+                    className="p-3.5 rounded-2xl bg-white hover:bg-[#E0F2FE]/80 border-2 border-[#BAE6FD] hover:border-[#1D4ED8] cursor-pointer transition-all flex items-center justify-between group shadow-2xs"
                   >
                     <div className="flex items-center space-x-3 min-w-0 pr-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#FAF7F3] border border-[#D5C4B4] flex items-center justify-center shrink-0 text-[#8C6A47] group-hover:bg-[#8C6A47] group-hover:text-white transition-colors">
+                      <div className="w-9 h-9 rounded-xl bg-[#F0F9FF] border border-[#BAE6FD] flex items-center justify-center shrink-0 text-[#1D4ED8] group-hover:bg-[#1D4ED8] group-hover:text-white transition-colors">
                         {item.tipe === 'FITUR' ? (
                           <Compass className="w-4 h-4" />
                         ) : item.tipe === 'LOKASI' ? (
@@ -572,7 +572,7 @@ export default function UniversalSearchModal({
 
                       <div className="min-w-0">
                         <div className="flex items-center space-x-2">
-                          <span className="font-serif font-black text-xs sm:text-sm text-[#422F21] truncate">
+                          <span className="font-serif font-black text-xs sm:text-sm text-[#0F2C59] truncate">
                             {item.title}
                           </span>
                           {item.badge && (
@@ -591,7 +591,7 @@ export default function UniversalSearchModal({
                       </div>
                     </div>
 
-                    <ArrowRight className="w-4 h-4 text-[#8C6A47] opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-[#1D4ED8] opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
                   </div>
                 ))
               )}
@@ -600,10 +600,10 @@ export default function UniversalSearchModal({
             /* TAB 5: FITUR TANYA GEMINI AI */
             <div className="flex flex-col h-full space-y-4">
               {/* Info Model Gemini Free & Pengaturan Key */}
-              <div className="p-3 rounded-2xl bg-white border border-[#D5C4B4] flex items-center justify-between text-xs">
+              <div className="p-3 rounded-2xl bg-white border border-[#BAE6FD] flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="font-bold text-[#422F21]">Model: Google Gemini Free (1.5 Flash)</span>
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                  <span className="font-bold text-[#0F2C59]">Model: Google Gemini Free (1.5 Flash)</span>
                   <span className="text-[10px] text-[#7A624E] hidden sm:inline">
                     · Pengetahuan Resmi Haflah 1448 H
                   </span>
@@ -611,7 +611,7 @@ export default function UniversalSearchModal({
 
                 <button
                   onClick={() => setShowApiKeySetting(!showApiKeySetting)}
-                  className="text-[11px] text-[#8C6A47] hover:underline font-semibold flex items-center space-x-1"
+                  className="text-[11px] text-[#1D4ED8] hover:underline font-semibold flex items-center space-x-1"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>{apiKeyInput ? 'Ganti API Key' : 'Atur API Key Sendiri'}</span>
@@ -620,8 +620,8 @@ export default function UniversalSearchModal({
 
               {/* Box Pengaturan API Key Tambahan (Opsional) */}
               {showApiKeySetting && (
-                <div className="p-4 rounded-2xl bg-[#EFE8E1] border-2 border-[#D5C4B4] space-y-2 animate-in fade-in">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#422F21]">
+                <div className="p-4 rounded-2xl bg-[#E0F2FE] border-2 border-[#BAE6FD] space-y-2 animate-in fade-in">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#0F2C59]">
                     <span>Kunci API Google Gemini (Free Tier dari Google AI Studio)</span>
                     <button
                       onClick={() => setShowApiKeySetting(false)}
@@ -639,11 +639,11 @@ export default function UniversalSearchModal({
                       value={apiKeyInput}
                       onChange={(e) => setApiKeyInput(e.target.value)}
                       placeholder="AIzaSy..."
-                      className="flex-1 px-3 py-2 rounded-xl bg-white border border-[#D5C4B4] text-xs font-mono text-[#422F21] focus:outline-none"
+                      className="flex-1 px-3 py-2 rounded-xl bg-white border border-[#BAE6FD] text-xs font-mono text-[#0F2C59] focus:outline-none"
                     />
                     <button
                       onClick={() => saveApiKey(apiKeyInput)}
-                      className="px-4 py-2 rounded-xl bg-[#8C6A47] text-white text-xs font-bold hover:bg-[#735334]"
+                      className="px-4 py-2 rounded-xl bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF]"
                     >
                       Simpan
                     </button>
@@ -664,7 +664,7 @@ export default function UniversalSearchModal({
                     }`}
                   >
                     {msg.role === 'assistant' && (
-                      <div className="w-8 h-8 rounded-xl bg-[#8C6A47] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                      <div className="w-8 h-8 rounded-xl bg-[#1D4ED8] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                         <Bot className="w-4 h-4" />
                       </div>
                     )}
@@ -672,14 +672,14 @@ export default function UniversalSearchModal({
                     <div
                       className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed space-y-1 ${
                         msg.role === 'user'
-                          ? 'bg-[#8C6A47] text-white font-medium shadow-xs'
-                          : 'bg-white border-2 border-[#D5C4B4] text-[#422F21] shadow-2xs'
+                          ? 'bg-[#1D4ED8] text-white font-medium shadow-xs'
+                          : 'bg-white border-2 border-[#BAE6FD] text-[#0F2C59] shadow-2xs'
                       }`}
                     >
                       <div className="whitespace-pre-line prose-xs">{msg.content}</div>
 
                       {msg.model && (
-                        <div className="text-[9px] text-[#8C6A47] pt-1 border-t border-[#D5C4B4]/40 font-mono">
+                        <div className="text-[9px] text-[#1D4ED8] pt-1 border-t border-[#BAE6FD]/40 font-mono">
                           {msg.model}
                         </div>
                       )}
@@ -689,11 +689,11 @@ export default function UniversalSearchModal({
 
                 {aiLoading && (
                   <div className="flex items-start space-x-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-[#8C6A47] text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
+                    <div className="w-8 h-8 rounded-xl bg-[#1D4ED8] text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
                       <Sparkles className="w-4 h-4" />
                     </div>
-                    <div className="p-3 rounded-2xl bg-white border border-[#D5C4B4] text-xs text-[#7A624E] flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-[#8C6A47] animate-ping"></span>
+                    <div className="p-3 rounded-2xl bg-white border border-[#BAE6FD] text-xs text-[#7A624E] flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-[#1D4ED8] animate-ping"></span>
                       <span>Gemini sedang menyusun jawaban...</span>
                     </div>
                   </div>
@@ -702,7 +702,7 @@ export default function UniversalSearchModal({
 
               {/* Rekomendasi Pertanyaan Cepat */}
               <div className="space-y-1.5">
-                <span className="text-[10px] font-bold text-[#8C6A47] uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-[#1D4ED8] uppercase tracking-wider">
                   Contoh Pertanyaan Cepat:
                 </span>
                 <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-[11px]">
@@ -716,7 +716,7 @@ export default function UniversalSearchModal({
                     <button
                       key={sIdx}
                       onClick={() => handleSendAi(sug)}
-                      className="px-3 py-1.5 rounded-full bg-white hover:bg-[#FAF7F3] border border-[#D5C4B4] text-[#5C3E28] whitespace-nowrap font-medium transition-colors"
+                      className="px-3 py-1.5 rounded-full bg-white hover:bg-[#F0F9FF] border border-[#BAE6FD] text-[#1E3A8A] whitespace-nowrap font-medium transition-colors"
                     >
                       {sug}
                     </button>
@@ -725,7 +725,7 @@ export default function UniversalSearchModal({
               </div>
 
               {/* Chat Input Bar */}
-              <div className="flex items-center space-x-2 pt-2 border-t border-[#D5C4B4]">
+              <div className="flex items-center space-x-2 pt-2 border-t border-[#BAE6FD]">
                 <input
                   type="text"
                   value={aiPrompt}
@@ -734,12 +734,12 @@ export default function UniversalSearchModal({
                     if (e.key === 'Enter') handleSendAi();
                   }}
                   placeholder="Ketik pertanyaan untuk Gemini AI..."
-                  className="flex-1 px-4 py-2.5 rounded-2xl bg-white border-2 border-[#D5C4B4] text-xs font-semibold text-[#422F21] placeholder-[#7A624E]/70 focus:outline-none focus:border-[#8C6A47]"
+                  className="flex-1 px-4 py-2.5 rounded-2xl bg-white border-2 border-[#BAE6FD] text-xs font-semibold text-[#0F2C59] placeholder-[#7A624E]/70 focus:outline-none focus:border-[#1D4ED8]"
                 />
                 <button
                   onClick={() => handleSendAi()}
                   disabled={!aiPrompt.trim() || aiLoading}
-                  className="px-4 py-2.5 rounded-2xl bg-[#8C6A47] hover:bg-[#735334] disabled:opacity-50 text-white text-xs font-bold transition-colors flex items-center space-x-1.5 shadow-sm"
+                  className="px-4 py-2.5 rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] disabled:opacity-50 text-white text-xs font-bold transition-colors flex items-center space-x-1.5 shadow-sm"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Kirim</span>
@@ -750,16 +750,16 @@ export default function UniversalSearchModal({
         </div>
 
         {/* Footer Hint */}
-        <div className="px-4 py-2.5 bg-[#EFE8E1] border-t border-[#D5C4B4] flex items-center justify-between text-[11px] text-[#7A624E]">
+        <div className="px-4 py-2.5 bg-[#E0F2FE] border-t border-[#BAE6FD] flex items-center justify-between text-[11px] text-[#7A624E]">
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-[#8C6A47]">Haflah Search Spotlight</span>
+            <span className="font-bold text-[#1D4ED8]">Haflah Search Spotlight</span>
             <span>·</span>
             <span>Navigasi langsung & Asisten AI</span>
           </div>
 
           <div className="hidden sm:flex items-center space-x-2">
             <span>Tekan</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#D5C4B4] font-mono text-[9px]">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#BAE6FD] font-mono text-[9px]">
               Ctrl + K
             </kbd>
             <span>kapan saja untuk membuka</span>

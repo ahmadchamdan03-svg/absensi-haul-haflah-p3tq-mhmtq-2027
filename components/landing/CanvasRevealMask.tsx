@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 
 // Konstanta parameter organic reveal mask (adaptasi presisi dari teknik Xiaomi MiMo)
-const MASK_RGB = '234, 219, 200'; // #EADBC8 (krem lebih pekat khas Haflah)
+const MASK_RGB = '234, 219, 200'; // #E0F2FE (krem lebih pekat khas Haflah)
 const R_START = 8; // Titik awal sapuan kursor
 const R_END = 120; // Radius singkap ~120px sesuai instruksi User
 const R_VARY = 0.45; // Variasi acak ukuran per-titik sapuan (efek kuas organik)
@@ -232,9 +232,9 @@ export default function CanvasRevealMask() {
 
       {/* Layer Ambient Light Orbs di atas foto panggung untuk kedalaman kaca */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D49B5B]/25 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-[#8C6A47]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-[#1D4ED8]/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* 2. Layer Canvas 2D Organic Reveal Mask (#FAF7F3) */}
+      {/* 2. Layer Canvas 2D Organic Reveal Mask (#F0F9FF) */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full block pointer-events-none"
