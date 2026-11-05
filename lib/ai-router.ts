@@ -136,6 +136,7 @@ export function isDocumentFileIntent(prompt: string): boolean {
 export interface AskAiOptions {
   model?: string;
   timeout?: number;
+  maxTokens?: number;
 }
 
 export async function askAI(
@@ -162,6 +163,8 @@ export async function askAI(
 
   // Timeout Tier 1 Clouvia (default 60s / 60.000 ms)
   const clouviaTimeoutMs = options?.timeout || TIER_TIMEOUT_MS.Clouvia;
+  // Batasi max tokens: 1200 untuk obrolan biasa (hemat token), 2500 untuk file/dokumen
+  const requestMaxTokens = options?.maxTokens || (isDocumentFileIntent(prompt) ? 2500 : 1200);
 
   // =========================================================================
   // TIER 1 — CLOUVIA (UTAMA)
@@ -175,7 +178,7 @@ export async function askAI(
       baseURL: readEnv('CLOUVIA_BASE_URL') || 'https://router.clouvia.id/v1',
       model: clouviaModel,
       timeoutMs: clouviaTimeoutMs,
-      maxTokens: 2500,
+      maxTokens: requestMaxTokens,
       messages: openAiMessages,
     });
     if (text) return { text, model: 'Clouvia' };
@@ -195,7 +198,7 @@ export async function askAI(
       model: readEnv('VIKEY_MODEL', 'AI_GATEWAY_MODEL') || 'vikey/plan',
       timeoutMs: TIER_TIMEOUT_MS.Vikey,
       // vikey/plan membutuhkan headroom token karena reasoning internal
-      maxTokens: 2500,
+      maxTokens: requestMaxTokens,
       messages: openAiMessages,
       isValidReply: (t) => !t.includes('[No answer:'),
     });

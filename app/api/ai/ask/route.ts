@@ -24,12 +24,19 @@ import {
   getLiveRekapKehadiran,
 } from '@/lib/us-halwaa-rekap';
 import {
+  BASE_PERSONA_PROMPT,
+  KATA_GANTI_PROMPT,
+  SECTION_KEPANITIAAN,
+  SECTION_KEUANGAN,
+  SECTION_ACARA_JADWAL,
+  SECTION_MULTIMEDIA_DOC,
   HAFLAH_KNOWLEDGE_SYSTEM_PROMPT,
   generateLocalSmartResponseAsync,
   cleanReplyForSession,
   detectExpression,
 } from '@/lib/halwaa/knowledge-base';
 import {
+  TECHNICAL_KNOWLEDGE_SECTION,
   isTechnicalInfrastructureQuery,
   handleTechnicalInfrastructureQuery,
 } from '@/lib/halwaa/technical-knowledge';
@@ -131,49 +138,131 @@ export async function POST(req: NextRequest) {
       ? "\n\n[PANDUAN SESI: Ini adalah awal sesi obrolan. Jika pengguna mengucapkan salam, jawab dengan \"Wa'alaikum Salam Wr. Wb.\" (khusus pertanyaan kata ganti 'siapa saya'/'kamu siapa'/'siapa dia' dan profil personil/pengasuh 'siapa [nama]', JANGAN membuat paragraf salam terpisah agar jumlah paragraf persis sesuai aturan: 2 paragraf untuk 'siapa saya', 1 paragraf untuk 'siapa dia', 3 paragraf penuh takzim untuk Dewan Pengasuh/Pelindung, 4 paragraf untuk panitia biasa). PENTING: Acara ini adalah \"Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.\", BUKAN acara Ponpes Lirboyo Pusat! DILARANG menyebut \"Haul & Haflah di Pondok Pesantren Lirboyo\". Tutup jawaban dengan kalimat penutup yang variatif, hangat, sopan, dan relevan. JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan.]"
       : "\n\n[PANDUAN SESI: Ini adalah percakapan lanjutan dalam sesi chat yang sedang berlangsung. PENTING: DILARANG MENJAWAB ATAU MENGULANG SALAM (\"Wa'alaikum Salam Wr. Wb.\" ataupun \"Assalamu'alaikum\"). Langsung jawab ke inti pertanyaan secara to-the-point dan santun. Sapa pengguna dengan \"Usth.\", bukan \"Kang\" atau \"Mbak\". Tutup jawaban dengan kalimat penutup yang variatif, hangat, sopan, dan relevan. JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan.]";
 
-    const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
     const randomPujianTurn = getRandomPujian();
     const randomPengandaianTurn = getRandomPengandaian();
-    const pronounAngleTurn = pickNextVariationAngle();
     const matchedPengasuh = findMatchedDewanPengasuh(prompt);
 
     const kepanitiaanTurnRule = matchedPengasuh
-      ? `2. [ATURAN KHUSUS DEWAN PENGASUH/PELINDUNG TERDETEKSI — WAJIB DIPATUHI]:
+      ? `[ATURAN KHUSUS DEWAN PENGASUH/PELINDUNG TERDETEKSI — WAJIB DIPATUHI]:
    Pertanyaan user saat ini merujuk kepada **${matchedPengasuh.name}** (${matchedPengasuh.jabatanTugas}), yang merupakan jajaran **Dewan Pengasuh/Pelindung**.
    - JANGAN PERNAH menuliskan kalimat pengandaian/fans/satir dalam bentuk apa pun (seperti "Andai takdir menjadikan saya manusia...", "Andaikan saya berwujud manusia...", "Saya sangat nge-fans...", dsb.).
    - Buatlah jawaban TEPAT 3 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 4 paragraf) dengan bahasa yang sangat sopan dan penuh takzim:
      * Paragraf 1: Jabatan & Tugas resmi beliau sebagai **${matchedPengasuh.jabatanTugas}** (WAJIB awali dengan **${matchedPengasuh.name}** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung informasi kepanitiaan).
      * Paragraf 2: Pujian santun dan penuh takzim atas dedikasi, bimbingan, doa restu, serta pengayoman beliau sebagai Pengasuh (TANPA kalimat pengandaian/fans/satir).
      * Paragraf 3: Kalimat penutup yang variatif, hangat, penuh takzim, dan relevan (JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan).`
-      : `2. Jika user menanyakan profil/identitas seorang tokoh/personil kepanitiaan:
-   - KHUSUS JAJARAN DEWAN PENGASUH/PELINDUNG (Agus H. Muhammad Hasyim / Gus Hasyim / Agus Hasyim, Agus H. Muhammad Kafabihi / Gus Muh / Agus Muh / Gus Muhammad / Agus Muhammad, Ning Hj. Tu'ti Amanah Nafisah / Ning Ima / Neng Ima, atau Ning Hj. Jihan Zainab / Ning Jihan / Neng Jihan): JANGAN PERNAH menuliskan kalimat pengandaian/fans/satir; wajib buat TEPAT 3 PARAGRAF penuh takzim (Paragraf 1: **Nama Lengkap** bold + Jabatan & Tugas; Paragraf 2: Pujian santun/takzim sebagai Pengasuh; Paragraf 3: Kalimat penutup yang variatif, hangat, penuh takzim, dan relevan).
+      : `Jika user menanyakan profil/identitas seorang tokoh/personil kepanitiaan:
+   - KHUSUS JAJARAN DEWAN PENGASUH/PELINDUNG: JANGAN PERNAH menuliskan kalimat pengandaian/fans/satir; wajib buat TEPAT 3 PARAGRAF penuh takzim (Paragraf 1: **Nama Lengkap** bold + Jabatan & Tugas; Paragraf 2: Pujian santun/takzim sebagai Pengasuh; Paragraf 3: Kalimat penutup yang variatif, hangat, penuh takzim, dan relevan).
    - UNTUK PANITIA BIASA (Dewan Harian, Dewan Pembimbing Putra, Dewan Pleno Putri — misal "siapa asep", "siapa revi", "[nama] siapa", selain aturan bercanda khusus Ahmad Chamdan dan klarifikasi nama ganda): format jawaban WAJIB TEPAT 4 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 3 paragraf, dan DILARANG menyalin kalimat pujian/pengandaian dari riwayat chat sebelumnya):
      * Paragraf 1: Jabatan dan tugas resmi di kepanitiaan (WAJIB awali dengan **Nama Lengkap** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung sistem).
-     * Paragraf 2 (WAJIB gunakan kalimat pujian acak giliran ini): "${randomPujianTurn}" (kutip kalimat ini; hanya jika bidang tugas personil tersebut bukan administrasi/kesekretariatan, sesuaikan istilah bidangnya saja dengan seksi personil tersebut tanpa mengubah gaya kalimatnya).
+     * Paragraf 2 (WAJIB gunakan kalimat pujian acak giliran ini): "${randomPujianTurn}" (kutip kalimat ini; sesuaikan istilah bidangnya saja dengan seksi personil tersebut).
      * Paragraf 3 (WAJIB gunakan kalimat apresiasi/kagum profesional acak giliran ini): "${randomPengandaianTurn}"
      * Paragraf 4: Kalimat penutup yang variatif, hangat, sopan, dan relevan (JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan).`;
 
-    const dynamicSystemPrompt = `${HAFLAH_KNOWLEDGE_SYSTEM_PROMPT}\n\n${liveDataPrompt}${sessionPromptDirective}
+    // =========================================================================
+    // MODULAR & CONDITIONAL SYSTEM PROMPT (TOKEN REDUCTION OPTIMIZATION)
+    // =========================================================================
+    const userQueryLower = prompt.toLowerCase().trim();
 
-[PANDUAN KEPANITIAAN, KATA GANTI & DATA RESMI:
-1. Jika user bertanya kata ganti ('siapa saya'/'saya siapa', 'kamu siapa'/'siapa kamu', atau 'siapa dia'/'dia siapa'), patuhi ATURAN KHUSUS UNTUK KATA GANTI secara mutlak (2 paragraf untuk 'siapa saya', perkenalan bangga **Usth. Halwaa** untuk 'kamu siapa', 1 paragraf motivasi satir untuk 'siapa dia'). Gunakan nuansa sudut pandang segar giliran ini: "${pronounAngleTurn}" agar diksi & susunan kalimat SELALU BERBEDA TOTAL dari jawaban sebelumnya di riwayat chat!
-${kepanitiaanTurnRule}
-3. DILARANG MENYEBUTKAN SALDO AKHIR Rp 1.102.000 (Jawab: Saldo ini masih bersifat anggaran (perencanaan), bukan realisasi. Untuk laporan realisasi final, silakan tunggu LPJ resmi panitia). Total SH dan total Tamu Undangan selalu di-query LIVE dari Supabase. Selalu sebut 'Anggaran [pemasukan/pengeluaran]' dengan disclaimer '(masih perencanaan, bukan realisasi)'.]`;
+    const isGreetingOnly = /^(halo|hai|hi|hey|assalamu'alaikum|assalamualaikum|ass|pagi|siang|malam|selamat pagi|selamat siang|selamat malam|terima kasih|makasih|syukron|matur nuwun|tes|test|ping|p)[\s.!,?]*$/i.test(prompt.trim());
+
+    const isPronounIntent =
+      isSayaSiapaQuery(prompt) ||
+      isKamuSiapaQuery(prompt) ||
+      isThirdPersonPronounQuery(prompt) ||
+      detectDiaSiapaIntent(userQueryLower) ||
+      userQueryLower.includes('halwa siapa') ||
+      userQueryLower.includes('siapa halwa');
+
+    const isKepanitiaanIntent =
+      !!matchedPengasuh ||
+      detectHubunganKepanitiaanIntent(prompt) ||
+      detectInfoSeksiIntent(prompt) ||
+      /\b(panitia|seksi|ketua|sekretaris|bendahara|kasi|wakasi|koor|pengasuh|pembimbing|pleno|gus|ning|ustadz|ustadzah|bapak|profil|tugas|jabatan|dewan)\b/i.test(prompt) ||
+      /\bsiapa\b/i.test(prompt);
+
+    const isKeuanganIntent =
+      /\b(biaya|bayar|uang|saldo|transfer|rekening|anggaran|dana|donasi|subsidi|nominal|rupiah|pos|pengeluaran|pemasukan|bri)\b/i.test(prompt);
+
+    const isAcaraJadwalIntent =
+      /\b(acara|tanggal|jadwal|kapan|waktu|jam|lokasi|tempat|aula|muktamar|tiket|kartu|sambang|sambangan|gladi|kotor|bersih|rundown|tata tertib|tertib|aturan|larangan|syarat)\b/i.test(prompt);
+
+    const isLiveGuestOrStatsIntent =
+      isStatsQuery(prompt) ||
+      detectRekapKehadiranIntent(prompt) ||
+      /\b(tamu|undangan|santri|shohibul|hajat|kuota|kursi|statistik|kehadiran|hadir|datang|presensi|rekap|dobel|cekin|checkin|vvip|vip|ids|kehormatan|penguji|asatidz|perwakilan)\b/i.test(prompt);
+
+    const isDocMediaIntent =
+      /\b(gambar|foto|ilustrasi|link|tautan|website|download|unduh|pdf|word|docx|doc|excel|xlsx|xls|tabel|table|csv|file|berkas|ekspor)\b/i.test(prompt);
+
+    const isTechIntent = isTechnicalInfrastructureQuery(prompt);
+
+    // Bangun prompt secara modular sesuai konteks yang ditanyakan user
+    const promptParts: string[] = [BASE_PERSONA_PROMPT];
+    promptParts.push(sessionPromptDirective);
+
+    if (isPronounIntent) {
+      const pronounAngleTurn = pickNextVariationAngle();
+      promptParts.push(KATA_GANTI_PROMPT);
+      promptParts.push(`[SUDUT PANDANG VARIASI GILIRAN INI: "${pronounAngleTurn}". Pastikan susunan kalimat dan metafora segar dan berbeda dari sebelumnya.]`);
+    }
+
+    if (isKepanitiaanIntent) {
+      promptParts.push(SECTION_KEPANITIAAN);
+      promptParts.push(kepanitiaanTurnRule);
+    }
+
+    if (isKeuanganIntent) {
+      promptParts.push(SECTION_KEUANGAN);
+    }
+
+    if (isAcaraJadwalIntent) {
+      promptParts.push(SECTION_ACARA_JADWAL);
+    }
+
+    if (isDocMediaIntent) {
+      promptParts.push(SECTION_MULTIMEDIA_DOC);
+    }
+
+    if (isTechIntent) {
+      promptParts.push(TECHNICAL_KNOWLEDGE_SECTION);
+    }
+
+    // Live Supabase Context HANYA dimuat jika user bertanya tentang tamu/santri/kuota/kehadiran
+    if (isLiveGuestOrStatsIntent) {
+      const liveDataPrompt = await getLiveSupabaseGuestPrompt(prompt);
+      if (liveDataPrompt) {
+        promptParts.push(liveDataPrompt);
+      }
+    }
+
+    // Fallback untuk pertanyaan umum yang tidak menyentuh kategori spesifik dan bukan sekadar sapaan
+    if (
+      !isGreetingOnly &&
+      !isPronounIntent &&
+      !isKepanitiaanIntent &&
+      !isKeuanganIntent &&
+      !isAcaraJadwalIntent &&
+      !isLiveGuestOrStatsIntent &&
+      !isDocMediaIntent &&
+      !isTechIntent
+    ) {
+      promptParts.push(HAFLAH_KNOWLEDGE_SYSTEM_PROMPT);
+    }
+
+    const dynamicSystemPrompt = promptParts.join('\n\n');
 
     // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
-    // =========================================================================
-    // DYNAMIC AI ROUTING: UNIFIKASI KE DEEPSEEK-V4.1-FLASH (TIER 1 CLOUVIA)
-    // =========================================================================
-    // Seluruh intent (Obrolan Biasa, File/Dokumen, Visual/Gambar) menggunakan model deepseek-v4.1-flash
-    // dengan batas waktu terpadu 60 detik (60.000 ms).
-    const customModel = process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash';
-    const customTimeout = 60000;
+      const customModel = process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash';
+      const customTimeout = 60000;
+      // Output tokens: 1200 untuk chat biasa (hemat token), 2500 untuk dokumen/file
+      const customMaxTokens = isDocMediaIntent ? 2500 : 1200;
 
-    const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {
-      model: customModel,
-      timeout: customTimeout,
-    });
+      const aiResponse = await askAI(prompt, history, dynamicSystemPrompt, {
+        model: customModel,
+        timeout: customTimeout,
+        maxTokens: customMaxTokens,
+      });
       if (aiResponse && aiResponse.text && aiResponse.text.trim().length > 0) {
         const cleanReply = cleanReplyForSession(aiResponse.text, isFirstTurn, prompt);
         const expr = isSayaSiapaQuery(prompt) || isThirdPersonPronounQuery(prompt)
