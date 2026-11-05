@@ -275,7 +275,7 @@ export async function POST(req: NextRequest) {
           kategori = 'Tamu Kehormatan';
           subKategori = 'KEHORMATAN';
         } else {
-          kategori = kategoriUndangan || 'Pengajar Unit';
+          kategori = kategoriUndangan || 'PENGUJI AL QUR-AN';
           subKategori = 'UMUM';
         }
 

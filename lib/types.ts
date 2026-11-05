@@ -18,6 +18,22 @@ export const KELAS_BIN_NADZOR_LIST = [
 
 export type KelasBinNadzor = (typeof KELAS_BIN_NADZOR_LIST)[number];
 
+export const KATEGORI_UMUM_LIST = [
+  'PENGUJI AL QUR-AN',
+  'MUSTAHIQ TAMATAN ALIYAH',
+  'MUSTAHIQ TAMATAN NON PURNA',
+  "MUSTAHIQOH PURNA IBTIDA'IYAH",
+  'ASATIDZ PURNA BAKTI',
+  'ASATIDZ MHMTQ SEKALIAN',
+  'ASATIDZAH MHMTQ NDUDUK RUMAH',
+  'PENGAJAR EKSTRAKURIKULER PONDOK (MUTAKHORIJIN)',
+  'PERWAKILAN PONDOK',
+  'Lainnya (Ketik Sendiri...)',
+] as const;
+
+export type KategoriUmum = (typeof KATEGORI_UMUM_LIST)[number];
+export const OPSI_UNDANGAN_UMUM = [...KATEGORI_UMUM_LIST];
+
 export function extractBagianTamatan(text?: string): string {
   if (!text) return '';
   const match = text.match(/[AB]\.0[1-4]/i);

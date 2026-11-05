@@ -212,7 +212,7 @@ export default function TamuModal({
                       ? 'VVIP & Dzurriyyah / Keluarga Mahrus / Kunir / Bandar'
                       : selectedGolonganUndangan === 'KEHORMATAN'
                       ? 'Masyayikh, Habaib, Pejabat & Ulama Sepuh'
-                      : 'Asatidz MHMTQ, Mustahiq, Pengajar Unit & Penguji'}
+                      : 'Penguji Al Qur-an, Mustahiq, Asatidz & Perwakilan Pondok'}
                   </p>
                 </div>
               </div>

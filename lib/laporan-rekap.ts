@@ -19,15 +19,15 @@ export const BLOK_3_SUBKATEGORI_DEFINITIONS = [
   { no: 25, kategoriUtama: 'Tamu Kehormatan', kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: '' },
 
   // ── KATEGORI UTAMA 3: TAMU UMUM ──
-  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Mhmtq Sekalian', matchers: ['asatidz mhmtq', 'masyaikh', 'masyayikh'], warna: 'Biru' },
-  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'Asatidz Purna Bakti', matchers: ['purna bakti'], warna: 'Biru' },
-  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'Asatidzah Mhmtq Nduduk Rumah', matchers: ['nduduk'], warna: 'Biru' },
-  { no: 29, kategoriUtama: 'Tamu Umum', kategori: 'Mustahiq Tamatan Non Purna', matchers: ['mustahiq non purna', 'non purna'], warna: 'Biru' },
-  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah', matchers: ['purna mustahiqoh', 'mustahiqoh'], warna: 'Biru' },
-  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Biru' },
-  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'Pengajar Unit', matchers: ['pengajar unit', 'unit'], warna: 'Biru' },
-  { no: 33, kategoriUtama: 'Tamu Umum', kategori: "Penguji Al-Qur'an", matchers: ['penguji'], warna: 'Biru' },
-  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'Perwakilan Pondok', matchers: ['perwakilan'], warna: 'Biru' },
+  { no: 26, kategoriUtama: 'Tamu Umum', kategori: 'PENGUJI AL QUR-AN', matchers: ['penguji'], warna: 'Biru' },
+  { no: 27, kategoriUtama: 'Tamu Umum', kategori: 'MUSTAHIQ TAMATAN ALIYAH', matchers: ['mustahiq tamatan aliyah', 'tamatan aliyah'], warna: 'Biru' },
+  { no: 28, kategoriUtama: 'Tamu Umum', kategori: 'MUSTAHIQ TAMATAN NON PURNA', matchers: ['mustahiq tamatan non purna', 'non purna'], warna: 'Biru' },
+  { no: 29, kategoriUtama: 'Tamu Umum', kategori: "MUSTAHIQOH PURNA IBTIDA'IYAH", matchers: ['mustahiqoh', 'purna ibtida'], warna: 'Biru' },
+  { no: 30, kategoriUtama: 'Tamu Umum', kategori: 'ASATIDZ PURNA BAKTI', matchers: ['purna bakti'], warna: 'Biru' },
+  { no: 31, kategoriUtama: 'Tamu Umum', kategori: 'ASATIDZ MHMTQ SEKALIAN', matchers: ['asatidz mhmtq', 'sekalian', 'masyaikh', 'masyayikh'], warna: 'Biru' },
+  { no: 32, kategoriUtama: 'Tamu Umum', kategori: 'ASATIDZAH MHMTQ NDUDUK RUMAH', matchers: ['nduduk'], warna: 'Biru' },
+  { no: 33, kategoriUtama: 'Tamu Umum', kategori: 'PENGAJAR EKSTRAKURIKULER PONDOK (MUTAKHORIJIN)', matchers: ['ekstrakurikuler', 'ekstra', 'mutakhorijin'], warna: 'Biru' },
+  { no: 34, kategoriUtama: 'Tamu Umum', kategori: 'PERWAKILAN PONDOK', matchers: ['perwakilan'], warna: 'Biru' },
   { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Biru' },
 ];
 

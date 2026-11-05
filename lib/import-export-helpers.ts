@@ -10,6 +10,7 @@ import {
   isDuplicateSantri,
   normalizePesertaString,
   normalizeWaliString,
+  KATEGORI_UMUM_LIST,
 } from '@/lib/types';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
 
@@ -217,18 +218,7 @@ export const downloadTemplateTamuExcel = async (
       'Lainnya (Ketik Sendiri...)',
     ];
 
-    const OPSI_UNDANGAN_UMUM = [
-      'Asatidz MHMTQ Sekalian',
-      'Asatidz Purna Bakti',
-      'Asatidzah MHMTQ Nduduk Rumah',
-      'Mustahiq Tamatan Non Purna',
-      'Purna Mustahiqoh Ibtidaiyah Tamatan Aliyah',
-      'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)',
-      'Pengajar Unit',
-      "Penguji Al-Qur'an",
-      'Perwakilan Pondok',
-      'Lainnya (Ketik Sendiri...)',
-    ];
+    const OPSI_UNDANGAN_UMUM = [...KATEGORI_UMUM_LIST];
 
     if (filterKat === 'ISTIMEWA') {
       const wsRef = wb.addWorksheet('Referensi');

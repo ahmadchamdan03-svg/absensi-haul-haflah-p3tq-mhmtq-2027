@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Users, Crown, Building, Loader2 } from 'lucide-react';
+import { KATEGORI_UMUM_LIST } from '@/lib/types';
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
@@ -19,19 +20,8 @@ export const OPSI_UNDANGAN_ISTIMEWA = [
   'Lainnya (Ketik Sendiri...)',
 ];
 
-// 2. Opsi Tamu Undangan Umum (Sesuai Permintaan)
-export const OPSI_UNDANGAN_UMUM = [
-  'Asatidz Mhmtq Sekalian',
-  'Asatidz Purna Bakti',
-  'Asatidzah Mhmtq Nduduk Rumah',
-  'Mustahiq Tamatan Non Purna',
-  'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah',
-  'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)',
-  'Pengajar Unit',
-  "Penguji Al-Qur'an",
-  'Perwakilan Pondok',
-  'Lainnya (Ketik Sendiri...)',
-];
+// 2. Opsi Tamu Undangan Umum (Sesuai Permintaan: A sampai I + Lainnya)
+export const OPSI_UNDANGAN_UMUM = [...KATEGORI_UMUM_LIST];
 
 export function getGolonganUndangan(u: any): GolonganUndangan {
   if (!u) return 'UMUM';
@@ -84,10 +74,14 @@ export function matchUndanganCategory(itemCategory: string, filterCategory: stri
   if (cleanIc === cleanFc) return true;
 
   if (fc.includes('penguji') && ic.includes('penguji')) return true;
+  if (fc.includes('tamatan aliyah') && ic.includes('tamatan aliyah')) return true;
+  if (fc.includes('non purna') && ic.includes('non purna')) return true;
+  if ((fc.includes('purna ibtida') || fc.includes('mustahiqoh')) && (ic.includes('purna ibtida') || ic.includes('mustahiqoh'))) return true;
   if (fc.includes('purna bakti') && ic.includes('purna bakti')) return true;
+  if (fc.includes('sekalian') && ic.includes('sekalian')) return true;
   if (fc.includes('nduduk') && ic.includes('nduduk')) return true;
   if (fc.includes('mutakhorijin') && ic.includes('mutakhorijin')) return true;
-  if (fc.includes('pengajar unit') && ic.includes('pengajar unit')) return true;
+  if (fc.includes('perwakilan') && ic.includes('perwakilan')) return true;
   if (fc.includes('marzuqi') && ic.includes('marzuqi')) return true;
   if (fc.includes('qomariyah') && ic.includes('qomariyah')) return true;
   if (fc.includes('mahrus') && ic.includes('mahrus')) return true;

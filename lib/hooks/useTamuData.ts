@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
-import { getWarnaTiketUndangan, normalizePesertaString } from '@/lib/types';
+import { getWarnaTiketUndangan, normalizePesertaString, KATEGORI_UMUM_LIST } from '@/lib/types';
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
@@ -21,18 +21,7 @@ export const OPSI_UNDANGAN_ISTIMEWA = [
   'Lainnya (Ketik Sendiri...)',
 ];
 
-export const OPSI_UNDANGAN_UMUM = [
-  'Asatidz Mhmtq Sekalian',
-  'Asatidz Purna Bakti',
-  'Asatidzah Mhmtq Nduduk Rumah',
-  'Mustahiq Tamatan Non Purna',
-  'Purna Mustahiqoh Ibtidaiyyah Tamatan Aliyah',
-  'Pengajar Ekstrakurikuler Pondok (Mutakhorijin)',
-  'Pengajar Unit',
-  "Penguji Al-Qur'an",
-  'Perwakilan Pondok',
-  'Lainnya (Ketik Sendiri...)',
-];
+export const OPSI_UNDANGAN_UMUM = [...KATEGORI_UMUM_LIST];
 
 export interface TamuUndanganItem {
   id: string;
