@@ -16,54 +16,6 @@ import {
 } from 'lucide-react';
 import { AppRole, ROLES_CONFIG, verifyRolePasswordAsync, setActiveRole, getActiveRole } from '@/lib/auth-roles';
 import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
-import { TOS_FOTOS } from '@/lib/tos-fotos';
-
-const playTosSound = () => {
-  try {
-    if (typeof window === 'undefined') return;
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const audioContext = new AudioContextClass();
-
-    // Tap 1
-    const osc1 = audioContext.createOscillator();
-    const gain1 = audioContext.createGain();
-    osc1.connect(gain1);
-    gain1.connect(audioContext.destination);
-
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(880, audioContext.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(1760, audioContext.currentTime + 0.08);
-
-    gain1.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-
-    osc1.start(audioContext.currentTime);
-    osc1.stop(audioContext.currentTime + 0.15);
-
-    // Chime 2
-    setTimeout(() => {
-      try {
-        const osc2 = audioContext.createOscillator();
-        const gain2 = audioContext.createGain();
-        osc2.connect(gain2);
-        gain2.connect(audioContext.destination);
-
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(1320, audioContext.currentTime);
-        osc2.frequency.exponentialRampToValueAtTime(2200, audioContext.currentTime + 0.1);
-
-        gain2.gain.setValueAtTime(0.2, audioContext.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-
-        osc2.start(audioContext.currentTime);
-        osc2.stop(audioContext.currentTime + 0.2);
-      } catch (e) {}
-    }, 80);
-  } catch (err) {
-    console.warn('Audio error:', err);
-  }
-};
 
 // Konfigurasi visual 4 tombol role (URUTAN: ADMIN -> PIMPINAN -> PENERIMA_TAMU -> PENJAGA_GERBANG)
 const ROLE_BUTTONS: {
@@ -151,64 +103,6 @@ export default function LandingPortalPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // State Multi-Tos Interaktif Usth. Halwaa (Bisa Di-spam Instan)
-  const [tosList, setTosList] = useState<
-    Array<{
-      id: string;
-      imgUrl: string;
-      bubbleText: string;
-      left: number;
-      top: number;
-      clickX: number;
-      clickY: number;
-    }>
-  >([]);
-
-  const triggerTos = useCallback((clientX: number, clientY: number) => {
-    const randomPose = TOS_FOTOS[Math.floor(Math.random() * TOS_FOTOS.length)];
-
-    // Dimensi gambar yang dirender setara 2x2 cm (~76px pada mobile, ~84px pada desktop)
-    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
-    const imgSize = isDesktop ? 84 : 76;
-
-    const relX = randomPose.handRelX ?? 0.35;
-    const relY = randomPose.handRelY ?? 0.4;
-    const handXRel = relX * imgSize;
-    const handYRel = relY * imgSize;
-
-    // Hitung posisi absolut kontainer gambar agar posisi tangan pas di kursor klik (clientX, clientY)
-    let posX = clientX - handXRel;
-    let posY = clientY - handYRel;
-
-    // Jaga agar kontainer tidak terpotong keluar layar
-    if (typeof window !== 'undefined') {
-      const maxX = window.innerWidth - imgSize - 10;
-      const maxY = window.innerHeight - imgSize - 10;
-      posX = Math.max(10, Math.min(maxX, posX));
-      posY = Math.max(10, Math.min(maxY, posY));
-    }
-
-    const id = Math.random().toString(36).substring(2, 9);
-    const newItem = {
-      id,
-      imgUrl: randomPose.src,
-      bubbleText: randomPose.caption,
-      left: posX,
-      top: posY,
-      clickX: clientX,
-      clickY: clientY,
-    };
-
-    // Tambahkan item baru ke tosList (simpan maks 15 item aktif sekaligus untuk performa)
-    setTosList((prev) => [...prev.slice(-14), newItem]);
-
-    playTosSound();
-
-    // Hapus item ini secara individual setelah 2 detik
-    setTimeout(() => {
-      setTosList((prev) => prev.filter((item) => item.id !== id));
-    }, 2000);
-  }, []);
 
   useEffect(() => {
     const role = getActiveRole();
@@ -216,13 +110,6 @@ export default function LandingPortalPage() {
       router.replace(ROLES_CONFIG[role].route);
     }
 
-    // Preload seluruh foto Halwaa saat landing page dimuat agar respon klik 100% instan
-    TOS_FOTOS.forEach((pose) => {
-      if (typeof window !== 'undefined') {
-        const img = new Image();
-        img.src = pose.src;
-      }
-    });
   }, [router]);
 
   const doLoginSubmit = useCallback((role: AppRole, pass: string) => {
@@ -282,14 +169,7 @@ export default function LandingPortalPage() {
 
   return (
     <div
-      className="isolate min-h-screen text-[#0F2C59] flex flex-col justify-between items-center selection:bg-[#1D4ED8]/20 selection:text-[#0F2C59] relative overflow-x-hidden cursor-pointer"
-      onClick={(e) => {
-        if (selectedRole) return;
-        const cardEl = document.getElementById('login-card');
-        if (cardEl && !cardEl.contains(e.target as Node)) {
-          triggerTos(e.clientX, e.clientY);
-        }
-      }}
+      className="isolate min-h-screen text-[#0F2C59] flex flex-col justify-between items-center selection:bg-[#1D4ED8]/20 selection:text-[#0F2C59] relative overflow-x-hidden"
     >
       {/* EFEK ORGANIC REVEAL MASK 2D (XIAOMI MIMO TECHNIQUE - LAYER TERBAWAH) */}
       <CanvasRevealMask />
@@ -297,7 +177,7 @@ export default function LandingPortalPage() {
       {/* ================================================================= */}
       {/* HERO SECTION: AKSES LOGIN KEPANITIAAN MELAYANG (FLOATING)         */}
       {/* ================================================================= */}
-      <div className="min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 w-full relative z-10">
+      <div className="min-h-screen flex flex-col justify-center items-center py-8 px-4 sm:px-6 w-full relative z-20">
         {/* KONTEN UTAMA: KARTU PEMBUNGKUS PUTIH DIHAPUS, TOMBOL MELAYANG MURNI */}
         <div id="login-card" className="w-full max-w-xl lg:max-w-2xl p-2 sm:p-4 space-y-4 text-center my-auto animate-in fade-in zoom-in-95 duration-300">
           {/* LOGO BERJAJAR */}
@@ -513,42 +393,6 @@ export default function LandingPortalPage() {
         </div>
       )}
 
-      {/* INTERAKTIF USTH. HALWAA TOS POP-OUT OVERLAY (BISA DI-SPAM INSTAN DARI SETIAP KLIK KURSOR) */}
-      {tosList.map((item) => (
-        <div
-          key={item.id}
-          style={{ left: `${item.left}px`, top: `${item.top}px` }}
-          className="fixed z-50 pointer-events-none animate-tos-pop flex flex-col items-center justify-center w-[76px] md:w-[84px] h-[76px] md:h-[84px]"
-        >
-          {/* Sparkle Emas di Titik Temu Tangan & Kursor (clickX, clickY) */}
-          <div
-            style={{
-              left: `${item.clickX - item.left}px`,
-              top: `${item.clickY - item.top}px`,
-            }}
-            className="absolute pointer-events-none overflow-visible -translate-x-1/2 -translate-y-1/2 z-20"
-          >
-            <span className="absolute -top-2 -left-2 text-amber-400 text-sm md:text-base animate-tos-sparkle">✨</span>
-            <span className="absolute -top-3 right-0 text-amber-300 text-xs md:text-sm animate-tos-sparkle">⭐</span>
-            <span className="absolute bottom-0 -left-3 text-amber-400 text-xs md:text-sm animate-tos-sparkle">✨</span>
-            <span className="absolute bottom-2 -right-2 text-amber-300 text-sm md:text-base animate-tos-sparkle">🌟</span>
-            <div className="w-5 h-5 rounded-full bg-amber-300/40 blur-sm animate-ping" />
-          </div>
-
-          {/* Bubble Chat "Tos!" */}
-          <div className="absolute -top-5 md:-top-6 bg-white border-2 border-[#BAE6FD] rounded-full px-2 py-0.5 md:px-2.5 md:py-1 shadow-md text-[10px] md:text-xs font-black text-[#1D4ED8] animate-tos-bounce flex items-center gap-0.5 z-30 whitespace-nowrap">
-            <span>{item.bubbleText}</span>
-          </div>
-
-          {/* Foto Usth. Halwaa */}
-          <img
-            src={item.imgUrl}
-            alt="Usth. Halwaa - Tos!"
-            className="w-full h-full drop-shadow-md select-none object-contain"
-            draggable={false}
-          />
-        </div>
-      ))}
     </div>
   );
 }

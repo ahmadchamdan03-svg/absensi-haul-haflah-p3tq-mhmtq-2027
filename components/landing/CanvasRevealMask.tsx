@@ -2,13 +2,14 @@
 
 import React, { useEffect, useRef } from 'react';
 
-// Konstanta parameter organic reveal mask (adaptasi presisi dari teknik Xiaomi MiMo)
-const R_START = 8; // Titik awal sapuan kursor
-const R_END = 120; // Radius singkap ~120px sesuai instruksi User
-const R_VARY = 0.45; // Variasi acak ukuran per-titik sapuan (efek kuas organik)
-const LIFETIME = 500; // Durasi pemudaran halus (~0.5 detik)
-const STAMP_STEP = 12; // Jarak interpolasi antar-titik sepanjang jalur kursor
-const MAX_STAMPS = 300; // Kapasitas titik aktif yang luas dan responsif
+// Konstanta parameter organic reveal mask persis seperti mekanisme Xiaomi MiMo Code
+const MASK_COLOR = '#FAF7F3'; // Tirai warna krem solid penutup gambar panggung
+const R_START = 8; // Setiap riak lahir kecil (radius 8px)
+const R_END = 128; // Radius maksimal singkap (~128px)
+const R_VARY = 0.45; // Variasi acak ukuran per titik sapuan (efek kuas organik)
+const LIFETIME = 520; // Durasi pemudaran halus (520ms)
+const STAMP_STEP = 12; // Jarak interpolasi antar-titik sepanjang jalur kursor (12px)
+const MAX_STAMPS = 200; // Kapasitas titik aktif yang luas dan responsif
 
 interface Stamp {
   x: number;
@@ -32,11 +33,10 @@ export default function CanvasRevealMask() {
     let h = 0;
     let dpr = 1;
 
-    // Lapisan tirai transparan tipis (warna gelap dengan opacity rendah ~0.18-0.20)
-    // Tanpa filter blur, sehingga gambar panggung di bawahnya 100% tajam & pop
+    // 1. Mengisi seluruh kanvas dengan tirai krem solid (#FAF7F3)
     function drawBaseFill() {
       if (!ctx) return;
-      ctx.fillStyle = 'rgba(15, 28, 63, 0.20)';
+      ctx.fillStyle = MASK_COLOR;
       ctx.fillRect(0, 0, w, h);
     }
 
@@ -76,6 +76,7 @@ export default function CanvasRevealMask() {
       });
     }
 
+    // Interpolasi (Path Stamping): menyisipkan titik setiap 12px agar sapuan cepat tidak putus
     function stampAlong(x: number, y: number) {
       if (lastX === null || lastY === null) {
         addStamp(x, y);
@@ -96,12 +97,12 @@ export default function CanvasRevealMask() {
       lastY = y;
     }
 
-    // Carve organic harmonic hole (lekukan riak air harmonik murni tanpa blur)
+    // Harmonic Wobble: 3 gelombang sinus (frekuensi 3, 7, 13) persis kode Xiaomi MiMo
     function carveInk(x: number, y: number, r: number, alpha: number, seed: number) {
       if (!ctx) return;
       const g = ctx.createRadialGradient(x, y, r * 0.25, x, y, r);
-      g.addColorStop(0, `rgba(0, 0, 0, ${1.0 * alpha})`);
-      g.addColorStop(0.6, `rgba(0, 0, 0, ${0.85 * alpha})`);
+      g.addColorStop(0, `rgba(0, 0, 0, ${0.95 * alpha})`);
+      g.addColorStop(0.55, `rgba(0, 0, 0, ${0.88 * alpha})`);
       g.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
       ctx.fillStyle = g;
@@ -110,9 +111,10 @@ export default function CanvasRevealMask() {
       for (let i = 0; i <= segs; i++) {
         const a = (i / segs) * Math.PI * 2;
         const wob =
-          0.85 +
-          0.10 * Math.sin(a * 3 + seed) +
-          0.05 * Math.sin(a * 7 + seed * 2.1);
+          0.78 +
+          0.14 * Math.sin(a * 3 + seed) +
+          0.08 * Math.sin(a * 7 + seed * 2.1) +
+          0.05 * Math.sin(a * 13 + seed * 0.7);
         const rr = r * wob;
         const px = x + Math.cos(a) * rr;
         const py = y + Math.sin(a) * rr;
@@ -123,16 +125,16 @@ export default function CanvasRevealMask() {
       ctx.fill();
     }
 
+    // Loop Animasi Utama dengan Smart Sleep Loop
     function loop() {
       if (!ctx) return;
       const now = performance.now();
 
-      // Lapisi ulang seluruh kanvas dengan tirai tipis transparan
+      // 1. Gambar ulang tirai krem solid
       ctx.globalCompositeOperation = 'source-over';
-      ctx.clearRect(0, 0, w, h);
       drawBaseFill();
 
-      // Kikis kanvas pada setiap titik riak air menggunakan destination-out
+      // 2. Kikis kanvas menggunakan destination-out pada setiap titik riak air
       ctx.globalCompositeOperation = 'destination-out';
       for (let i = stamps.length - 1; i >= 0; i--) {
         const t = (now - stamps[i].born) / LIFETIME;
@@ -140,12 +142,15 @@ export default function CanvasRevealMask() {
           stamps.splice(i, 1);
           continue;
         }
+        // Kurva perlambatan easeOutCubic: riak mengembang cepat lalu melambat lembut
         const ease = 1 - Math.pow(1 - t, 3);
         const r = R_START + (stamps[i].rmax - R_START) * ease;
+        // Pemudaran kuadratik hingga menutup kembali menjadi tirai krem utuh
         const alpha = 1 - t * t;
         carveInk(stamps[i].x, stamps[i].y, r, alpha, stamps[i].seed);
       }
 
+      // Optimasi CPU: hanya request frame berikutnya jika masih ada titik aktif
       if (stamps.length > 0) {
         animationFrameId = requestAnimationFrame(loop);
       } else {
@@ -200,24 +205,19 @@ export default function CanvasRevealMask() {
       className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* 1. Layer Background Gambar Panggung Aula Al-Muktamar (Tajam & Bebas Blur) */}
+      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Tertutup Tirai Krem Saat Pertama Kali Dimuat) */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div
-          className="relative shrink-0 overflow-hidden w-full h-full"
-        >
+        <div className="relative shrink-0 overflow-hidden w-full h-full">
           <img
             src="/images/panggung-aula.jpg"
             alt="Panggung Aula Al-Muktamar"
             className="w-full h-full object-cover object-center"
           />
 
-          {/* Overlay kontras sangat tipis agar foto panggung tetap tajam tanpa buram */}
-          <div className="absolute inset-0 bg-black/15 pointer-events-none" />
-
-          {/* 2. Interactive Canvas Reveal Mask Overlay (Riak air interaktif menyibak tirai) */}
+          {/* 2. Layer Canvas Tirai Krem Solid (#FAF7F3) yang dikikis kursor mouse (z-10) */}
           <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none"
+            className="absolute inset-0 w-full h-full pointer-events-none z-10"
           />
         </div>
       </div>
