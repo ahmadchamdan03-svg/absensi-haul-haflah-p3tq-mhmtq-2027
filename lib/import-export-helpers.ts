@@ -110,7 +110,7 @@ export const downloadTemplateSantriExcel = async (
         };
       }
     } else if (filterKat === 'BIN_NADZOR') {
-      const binNadzorOptions = '"2 Tsanawiyah,3 Tsanawiyah,1 Aliyah,2 Aliyah,3 Aliyah,Mutakhorijat"';
+      const binNadzorOptions = '"2 Tsanawiyah,3 Tsanawiyah,1 Aliyah,2 Aliyah,3 Aliyah,Mutakhorijat,Pondok Timur"';
       for (let r = 2; r <= 500; r++) {
         ws.getCell(`C${r}`).dataValidation = {
           type: 'list',
@@ -118,7 +118,7 @@ export const downloadTemplateSantriExcel = async (
           formulae: [binNadzorOptions],
           showErrorMessage: true,
           errorTitle: 'Pilihan Tidak Valid',
-          error: 'Silakan pilih kelas dari daftar opsi (2 Tsanawiyah, 3 Tsanawiyah, 1 Aliyah, 2 Aliyah, 3 Aliyah, Mutakhorijat).',
+          error: 'Silakan pilih kelas dari daftar opsi (2 Tsanawiyah, 3 Tsanawiyah, 1 Aliyah, 2 Aliyah, 3 Aliyah, Mutakhorijat, Pondok Timur).',
         };
       }
     }

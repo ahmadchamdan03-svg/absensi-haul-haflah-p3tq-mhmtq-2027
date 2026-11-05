@@ -55,6 +55,7 @@ export function computeSantriSubFilterOptions(
         { key: '1 Aliyah', label: '1 Aliyah' },
         { key: '2 Aliyah', label: '2 Aliyah' },
         { key: '3 Aliyah', label: '3 Aliyah & Mutakhorijat' },
+        { key: 'Pondok Timur', label: 'Pondok Timur' },
       ];
       const distinctKamar = Array.from(
         new Set(

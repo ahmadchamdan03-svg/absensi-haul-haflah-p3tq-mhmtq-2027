@@ -13,6 +13,7 @@ export const KELAS_BIN_NADZOR_LIST = [
   '2 Aliyah',
   '3 Aliyah',
   'Mutakhorijat',
+  'Pondok Timur',
 ] as const;
 
 export type KelasBinNadzor = (typeof KELAS_BIN_NADZOR_LIST)[number];

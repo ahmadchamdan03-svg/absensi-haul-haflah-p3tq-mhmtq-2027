@@ -31,7 +31,7 @@ export const BLOK_3_SUBKATEGORI_DEFINITIONS = [
   { no: 35, kategoriUtama: 'Tamu Umum', kategori: 'Tamu Umum / Lainnya', matchers: [], warna: 'Biru' },
 ];
 
-// Template 14 Kategori Santri
+// Template 15 Kategori Santri
 export const templateBlokSantri = [
   { no: 1, kategori: 'Bil Ghoib (Khadimatul Qur-an)', warna: 'Cream' },
   { no: 2, kategori: 'Bin Nadzori 2 Tsanawiyah', warna: 'Biru' },
@@ -40,13 +40,14 @@ export const templateBlokSantri = [
   { no: 5, kategori: 'Bin Nadzori 2 Aliyah', warna: 'Biru' },
   { no: 6, kategori: 'Bin Nadzori 3 Aliyah', warna: 'Biru' },
   { no: 7, kategori: 'Bin Nadzori Mutakhorijat', warna: 'Biru' },
-  { no: 8, kategori: 'Tamatan Bagian A.01', warna: 'Biru' },
-  { no: 9, kategori: 'Tamatan Bagian A.02', warna: 'Biru' },
-  { no: 10, kategori: 'Tamatan Bagian A.03', warna: 'Biru' },
-  { no: 11, kategori: 'Tamatan Bagian A.04', warna: 'Biru' },
-  { no: 12, kategori: 'Tamatan Bagian B.01', warna: 'Biru' },
-  { no: 13, kategori: 'Tamatan Bagian B.02', warna: 'Biru' },
-  { no: 14, kategori: 'Tamatan Bagian B.03', warna: 'Biru' },
+  { no: 8, kategori: 'Bin Nadzori Pondok Timur', warna: 'Biru' },
+  { no: 9, kategori: 'Tamatan Bagian A.01', warna: 'Biru' },
+  { no: 10, kategori: 'Tamatan Bagian A.02', warna: 'Biru' },
+  { no: 11, kategori: 'Tamatan Bagian A.03', warna: 'Biru' },
+  { no: 12, kategori: 'Tamatan Bagian A.04', warna: 'Biru' },
+  { no: 13, kategori: 'Tamatan Bagian B.01', warna: 'Biru' },
+  { no: 14, kategori: 'Tamatan Bagian B.02', warna: 'Biru' },
+  { no: 15, kategori: 'Tamatan Bagian B.03', warna: 'Biru' },
 ];
 
 export const getSantriIndex = (s: any) => {
@@ -62,20 +63,21 @@ export const getSantriIndex = (s: any) => {
     if (kelas.includes('1 aliyah') || kelas.includes('1 aly') || sub.includes('1 aly')) return 3;
     if (kelas.includes('2 aliyah') || kelas.includes('2 aly') || sub.includes('2 aly')) return 4;
     if (sub.includes('mutakhorijat') || kelas.includes('mutakhorijat')) return 6;
+    if (kelas.includes('pondok timur') || sub.includes('pondok timur')) return 7;
     if (kelas.includes('3 aliyah') || kelas.includes('3 aly') || sub.includes('3 aly')) return 5;
     return 1;
   }
 
   if (kat === 'TAMATAN') {
     const combined = (sub + ' ' + kelas).toUpperCase();
-    if (combined.includes('A.01')) return 7;
-    if (combined.includes('A.02')) return 8;
-    if (combined.includes('A.03')) return 9;
-    if (combined.includes('A.04')) return 10;
-    if (combined.includes('B.01')) return 11;
-    if (combined.includes('B.02')) return 12;
-    if (combined.includes('B.03')) return 13;
-    return 7;
+    if (combined.includes('A.01')) return 8;
+    if (combined.includes('A.02')) return 9;
+    if (combined.includes('A.03')) return 10;
+    if (combined.includes('A.04')) return 11;
+    if (combined.includes('B.01')) return 12;
+    if (combined.includes('B.02')) return 13;
+    if (combined.includes('B.03')) return 14;
+    return 8;
   }
 
   return 0;
