@@ -59,11 +59,32 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
   return (
     <div className="min-h-screen bg-transparent text-[#0F2C59] pb-24">
-      {/* HEADER RESPONSIF — Center Large Title with High Contrast White Drop Shadow */}
-      <header className="sticky top-0 z-20 px-3.5 sm:px-6 py-3 sm:py-4">
-        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center relative gap-2">
-          {/* Action Buttons: Positioned top-right on desktop, right-aligned on mobile */}
-          <div className="w-full flex items-center justify-end space-x-2 md:absolute md:right-0 md:top-1 z-10">
+      {/* HEADER RESPONSIF — Left-aligned Title Aligned with Cards Below & Soft Shadow */}
+      <header className="sticky top-0 z-20 px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between relative gap-3">
+          {/* Left-aligned Header Title */}
+          <div className="flex flex-col items-start justify-start text-left w-full md:w-auto pt-1 pb-2">
+            <div className="flex items-center justify-start gap-2.5 mb-1.5">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-white/20 text-white border-2 border-white/50 flex items-center justify-center font-bold shadow-xs shrink-0 backdrop-blur-sm">
+                <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
+              </div>
+              <span
+                className="text-xs sm:text-sm lg:text-base font-serif font-black tracking-widest text-white uppercase leading-tight drop-shadow-md"
+                style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}
+              >
+                POS PENERIMA TAMU · MEJA TRANSIT
+              </span>
+            </div>
+            <h1
+              className="font-serif font-black text-2xl sm:text-3xl lg:text-4xl text-white leading-tight tracking-wide drop-shadow-md"
+              style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}
+            >
+              Haul &amp; Haflah P3TQ - MHMTQ 2027
+            </h1>
+          </div>
+
+          {/* Action Buttons: Positioned right-aligned */}
+          <div className="flex items-center space-x-2 shrink-0 z-10 self-end md:self-center">
             <button
               type="button"
               onClick={() => handleOpenAddModal('ISTIMEWA')}
@@ -84,27 +105,6 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               </button>
             )}
           </div>
-
-          {/* Centered Large Header Title */}
-          <div className="flex flex-col items-center justify-center text-center w-full px-2 pt-1 pb-2">
-            <div className="flex items-center justify-center gap-2.5 mb-1.5">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-white/20 text-white border-2 border-white/50 flex items-center justify-center font-bold shadow-xs shrink-0 backdrop-blur-sm">
-                <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
-              </div>
-              <span
-                className="text-xs sm:text-sm lg:text-base font-serif font-black tracking-widest text-white uppercase leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)] drop-shadow-2xl"
-                style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.85), 0 4px 18px rgba(0, 0, 0, 0.7)' }}
-              >
-                POS PENERIMA TAMU · MEJA TRANSIT
-              </span>
-            </div>
-            <h1
-              className="font-serif font-black text-2xl sm:text-4xl lg:text-5xl text-white leading-tight tracking-wide drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)] drop-shadow-2xl"
-              style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.85), 0 4px 18px rgba(0, 0, 0, 0.7)' }}
-            >
-              Haul &amp; Haflah P3TQ - MHMTQ 2027
-            </h1>
-          </div>
         </div>
       </header>
 
@@ -119,50 +119,50 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-300">
-            <div className="p-4 rounded-3xl bg-white/50 backdrop-blur-md border border-white/60 shadow-sm space-y-1">
-              <span className="text-[10px] font-bold text-[#7A624E] uppercase tracking-wide">
+            <div className="p-4 rounded-3xl bg-white/85 backdrop-blur-md border border-white/80 shadow-md space-y-1">
+              <span className="text-[10px] font-bold text-[#0F2C59] uppercase tracking-wide">
                 Total Tamu Terdata
               </span>
               <div className="text-2xl font-serif font-black text-[#0F2C59]">
                 {totalKuotaTamu > 0 ? `${totalKuotaTamu} Kursi` : '—'}
               </div>
-              <p className="text-[11px] text-[#7A624E]">Total Kuota ({undanganList.length} Undangan)</p>
+              <p className="text-[11px] text-stone-600 font-medium">Total Kuota ({undanganList.length} Undangan)</p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-blue-50/70 backdrop-blur-md border border-blue-200/80 shadow-sm space-y-1">
-              <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">
+            <div className="p-4 rounded-3xl bg-blue-50/85 backdrop-blur-md border border-blue-200/80 shadow-md space-y-1">
+              <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wide">
                 Tamu Sudah Rawuh
               </span>
-              <div className="text-2xl font-serif font-black text-blue-900">
+              <div className="text-2xl font-serif font-black text-blue-950">
                 {totalHadirTamu > 0 || totalKuotaTamu > 0 ? `${totalHadirTamu} Hadir` : '—'}
               </div>
-              <p className="text-[11px] text-blue-700">
+              <p className="text-[11px] text-blue-800 font-medium">
                 Terpakai ({totalKuotaTamu > 0 ? `${totalHadirTamu}/${totalKuotaTamu} Kursi` : '—'})
               </p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-sky-50/70 backdrop-blur-md border border-sky-200/80 shadow-sm space-y-1">
+            <div className="p-4 rounded-3xl bg-sky-50/85 backdrop-blur-md border border-sky-200/80 shadow-md space-y-1">
               <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wide">
                 Belum Hadir
               </span>
               <div className="text-2xl font-serif font-black text-blue-950">
                 {totalBelumHadirTamu} Belum
               </div>
-              <p className="text-[11px] text-amber-700">Sisa Kuota Belum Terpakai</p>
+              <p className="text-[11px] text-amber-800 font-medium">Sisa Kuota Belum Terpakai</p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-blue-50/70 backdrop-blur-md border border-blue-200/80 shadow-sm space-y-1">
-              <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wide">
+            <div className="p-4 rounded-3xl bg-blue-50/85 backdrop-blur-md border border-blue-200/80 shadow-md space-y-1">
+              <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wide">
                 Registrasi Gerbang
               </span>
-              <div className="text-2xl font-serif font-black text-blue-900">06.30 WIB</div>
-              <p className="text-[11px] text-blue-700">07.00 Waktu Istiwa&apos; (WIs)</p>
+              <div className="text-2xl font-serif font-black text-blue-950">06.30 WIB</div>
+              <p className="text-[11px] text-blue-800 font-medium">07.00 Waktu Istiwa&apos; (WIs)</p>
             </div>
           </div>
         )}
 
         {/* TAB PILIHAN: ABSENSI CEPAT vs 8 POS JAGA */}
-        <div className="flex bg-white/40 backdrop-blur-md p-1 rounded-2xl border border-white/50 max-w-md shadow-xs">
+        <div className="flex bg-white/80 backdrop-blur-md p-1 rounded-2xl border border-white/60 max-w-md shadow-xs">
           <button
             onClick={() => setActiveTab('ABSENSI')}
             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -187,14 +187,14 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
         {/* PANEL ABSENSI CEPAT TAMU UNDANGAN */}
         {activeTab === 'ABSENSI' && (
-          <div className="bg-white/40 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/50 shadow-lg space-y-5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/40 pb-4">
+          <div className="bg-white/85 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-white/70 shadow-lg space-y-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-200/60 pb-4">
               <div>
                 <h3 className="font-serif font-black text-lg text-[#0F2C59]">
-                  absen cepat tamu undangan
+                  Absen Cepat Tamu Undangan
                 </h3>
-                <p className="text-xs text-[#7A624E] font-medium">
-                  haul haflah p3tq mhmtq 2027 M./ 1448 H.
+                <p className="text-xs text-[#0F2C59]/75 font-semibold">
+                  Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.
                 </p>
               </div>
               <button
