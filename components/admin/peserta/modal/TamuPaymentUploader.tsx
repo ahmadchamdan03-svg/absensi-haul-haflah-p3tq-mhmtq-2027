@@ -126,7 +126,8 @@ export async function submitTambahUndanganToSupabase(params: {
   }
 
   const isAsatidzSekalian =
-    selectedGolonganUndangan === 'UMUM' && finalKategori === 'Asatidz Mhmtq Sekalian';
+    selectedGolonganUndangan === 'UMUM' &&
+    (finalKategori.toUpperCase().includes('SEKALIAN') || finalKategori === 'Asatidz Mhmtq Sekalian');
 
   const p = (undanganForm.namaPutra || '').trim().toUpperCase();
   const w = (undanganForm.namaPutri || '').trim().toUpperCase();
@@ -365,7 +366,8 @@ export async function submitEditUndanganToSupabase(params: {
   }
 
   const isAsatidzSekalian =
-    editGolonganUndangan === 'UMUM' && finalKat === 'Asatidz Mhmtq Sekalian';
+    editGolonganUndangan === 'UMUM' &&
+    (finalKat.toUpperCase().includes('SEKALIAN') || finalKat === 'Asatidz Mhmtq Sekalian');
 
   let finalNama = (editingItem.nama || '').trim().toUpperCase();
   const p = (editingItem.namaPutra || '').trim().toUpperCase();

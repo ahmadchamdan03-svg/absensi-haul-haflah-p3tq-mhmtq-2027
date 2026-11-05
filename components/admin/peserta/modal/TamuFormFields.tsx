@@ -298,8 +298,9 @@ export default function TamuFormFields({
               onChange={(e) => {
                 const val = e.target.value;
                 setUndanganKategoriDropdown(val);
+                const isSekalian = val.toUpperCase().includes('SEKALIAN');
                 const newKuota =
-                  selectedGolonganUndangan === 'UMUM' && val === 'Asatidz Mhmtq Sekalian' ? 2 : 1;
+                  selectedGolonganUndangan === 'UMUM' && isSekalian ? 2 : 1;
                 if (val !== 'Lainnya (Ketik Sendiri...)') {
                   setUndanganForm({ ...undanganForm, kategori: val, kuotaDasar: newKuota });
                 } else {
@@ -600,10 +601,11 @@ export default function TamuFormFields({
               const val = e.target.value;
               setEditUndanganKategoriDropdown(val);
               if (editingItem.tipe === 'UNDANGAN' && editGolonganUndangan === 'UMUM') {
+                const isSekalian = val.toUpperCase().includes('SEKALIAN');
                 setEditingItem({
                   ...editingItem,
                   kategori: val,
-                  kuotaDasar: val === 'Asatidz Mhmtq Sekalian' ? 2 : 1,
+                  kuotaDasar: isSekalian ? 2 : 1,
                 });
               }
             }}

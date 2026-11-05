@@ -420,7 +420,7 @@ export default function RekonPage() {
         walkinForm.kategori === 'Lainnya (Ketik Sendiri...)'
           ? (walkinForm.customKategori || '').trim()
           : walkinForm.kategori.trim()
-      ) || (walkinForm.golongan === 'ISTIMEWA' ? 'VVIP' : 'Asatidz Mhmtq Sekalian');
+      ) || (walkinForm.golongan === 'ISTIMEWA' ? 'VVIP' : 'PENGUJI AL QUR-AN');
     }
 
     let finalAlamat = '';

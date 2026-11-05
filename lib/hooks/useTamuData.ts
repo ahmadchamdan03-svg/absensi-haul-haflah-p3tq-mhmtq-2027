@@ -412,7 +412,9 @@ export function useTamuData() {
       }
     }
 
-    const isAsatidzSekalian = selectedGolonganUndangan === 'UMUM' && finalKategori === 'Asatidz Mhmtq Sekalian';
+    const isAsatidzSekalian =
+      selectedGolonganUndangan === 'UMUM' &&
+      (finalKategori.toUpperCase().includes('SEKALIAN') || finalKategori === 'Asatidz Mhmtq Sekalian');
 
     const p = (undanganForm.namaPutra || '').trim().toUpperCase();
     const w = (undanganForm.namaPutri || '').trim().toUpperCase();
