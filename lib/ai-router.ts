@@ -273,3 +273,6 @@ export async function askAI(
   // Jika ketiga tier AI gagal, lemparkan error agar ditangkap oleh route handler
   throw new Error('Seluruh Tier AI (Clouvia, Vikey, Gemini) gagal merespons atau sedang offline.');
 }
+
+export { searchWebImages } from './image-search';
+

@@ -31,6 +31,7 @@ import {
   isTechnicalInfrastructureQuery,
   handleTechnicalInfrastructureQuery,
 } from './technical-knowledge';
+import { searchWebImages } from '@/lib/image-search';
 
 export {
   TECHNICAL_KNOWLEDGE_SECTION,
@@ -141,7 +142,7 @@ export const SECTION_ACARA_JADWAL = `TATA TERTIB, TEKNIS & JADWAL ACARA:
 
 export const SECTION_MULTIMEDIA_DOC = `ATURAN MULTIMEDIA & DOKUMEN:
 1. Jangan menawarkan gambar/file secara proaktif jika tidak diminta.
-2. Gambar: Format Markdown ![Deskripsi](https://image.pollinations.ai/prompt/deskripsi_gambar?width=600&height=400&nologo=true)
+2. Gambar: Format Markdown ![Deskripsi Gambar](URL_GAMBAR)
 3. Link: Format Markdown [Nama Website](https://url.com)
 4. Tabel / Excel: WAJIB format Markdown (| ... |). DILARANG tag HTML.
 5. PDF / Word: Berikan jawaban teks dokumen tertata rapi tanpa instruksi UI tombol unduh.`;
@@ -169,18 +170,21 @@ export async function generateLocalSmartResponseAsync(userQuery: string, isFirst
     return await getLiveRekapKehadiran(isFirstTurn);
   }
 
-  // 0. FITUR GENERASI GAMBAR (HANYA JIKA DIMINTA EKSPLISIT)
+  // 0. FITUR PENCARIAN GAMBAR WEB (HANYA JIKA DIMINTA EKSPLISIT)
   if (
     q.includes('gambar') &&
-    (q.includes('buat') || q.includes('bikin') || q.includes('tampil') || q.includes('ilustrasi') || q.includes('foto') || q.includes('desain'))
+    (q.includes('cari') || q.includes('buat') || q.includes('bikin') || q.includes('tampil') || q.includes('ilustrasi') || q.includes('foto') || q.includes('desain'))
   ) {
     const rawSubject = userQuery
       .replace(/tolong\s+/gi, '')
-      .replace(/(buatkan|bikinkan|tampilkan|minta|generate)\s+gambar\s*(ilustrasi)?/gi, '')
+      .replace(/(carikan|cari|buatkan|bikinkan|tampilkan|minta|generate)\s+gambar\s*(ilustrasi)?/gi, '')
       .replace(/gambar\s*(ilustrasi)?/gi, '')
-      .trim() || 'panggung haflah pesantren lirboyo kediri';
-    const cleanSubject = encodeURIComponent(rawSubject);
-    return `Berikut ilustrasi gambar yang Anda minta, Us:\n\n![${rawSubject}](https://image.pollinations.ai/prompt/${cleanSubject}?width=600&height=400&nologo=true)`;
+      .trim() || 'Pondok Pesantren Lirboyo Kediri';
+    const imageUrl = await searchWebImages(userQuery);
+    if (imageUrl) {
+      return `Ini Us, gambar yang saya temukan di internet:\n\n![${rawSubject}](${imageUrl})`;
+    }
+    return 'Mohon maaf Us, saya tidak menemukan gambar yang cocok di internet.';
   }
 
   // 0. FITUR PENCARIAN LINK (HANYA JIKA DIMINTA EKSPLISIT)

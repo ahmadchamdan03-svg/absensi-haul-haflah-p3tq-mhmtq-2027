@@ -22,7 +22,7 @@ async function testMultimediaFeatures() {
   // 1. Gambar generatif saat diminta
   const resImage = await generateLocalSmartResponseAsync('tolong buatkan gambar panggung utama haflah');
   assert(
-    resImage.includes('![') && resImage.includes('https://image.pollinations.ai/prompt/'),
+    resImage.includes('![') && (resImage.includes('http') || resImage.includes('/images/')),
     'Test 1: Menghasilkan gambar generatif via Markdown URL saat diminta eksplisit',
     resImage
   );

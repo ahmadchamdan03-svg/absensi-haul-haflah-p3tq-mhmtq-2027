@@ -343,17 +343,32 @@ export function renderFormattedContent(
               key={idx}
               className="block my-2 rounded-xl overflow-hidden border border-[#BAE6FD] bg-[#F0F9FF] shadow-xs"
             >
-              <img
-                src={url}
-                alt={alt || 'Ilustrasi Haflah'}
-                className="w-full max-h-64 object-cover"
-                loading="lazy"
-              />
-              {alt && (
-                <span className="block p-1.5 text-[10px] text-[#1E40AF] bg-[#F7F2EC] text-center font-medium">
-                  {alt}
-                </span>
-              )}
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block cursor-pointer"
+                title="Klik untuk melihat gambar dalam ukuran penuh"
+              >
+                <img
+                  src={url}
+                  alt={alt || 'Ilustrasi Haflah'}
+                  className="w-full max-h-64 object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
+                />
+              </a>
+              <div className="p-1.5 text-[10px] text-[#1E40AF] bg-[#F7F2EC] flex items-center justify-between border-t border-[#E0F2FE]">
+                <span className="truncate font-medium">{alt || 'Ilustrasi'}</span>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[10px] text-[#1D4ED8] hover:underline font-bold shrink-0 ml-2"
+                >
+                  <span>Lihat Ukuran Penuh</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </span>
           );
         }
@@ -463,28 +478,33 @@ export function renderFormattedContent(
           key={`img-card-${index}`}
           className="my-3 rounded-2xl overflow-hidden border border-[#BAE6FD] bg-[#F0F9FF] shadow-xs"
         >
-          <div className="relative w-full aspect-video max-h-[300px] bg-stone-100 flex items-center justify-center overflow-hidden">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block relative w-full aspect-video max-h-[300px] bg-stone-100 overflow-hidden cursor-pointer group/img"
+            title="Klik untuk melihat gambar dalam ukuran penuh"
+          >
             <img
               src={url}
               alt={alt || 'Ilustrasi Haflah'}
-              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105"
               loading="lazy"
             />
+          </a>
+          <div className="px-3 py-2 text-[11px] text-[#1E40AF] font-medium flex items-center justify-between border-t border-[#E0F2FE] bg-[#F7F2EC]">
+            <span className="truncate pr-2 font-medium">{alt || 'Ilustrasi'}</span>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[10px] text-[#1D4ED8] hover:underline font-bold shrink-0"
+              title="Buka gambar di tab baru"
+            >
+              <span>Lihat Ukuran Penuh</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
-          {alt && (
-            <div className="px-3 py-2 text-[11px] text-[#1E40AF] font-medium flex items-center justify-between border-t border-[#E0F2FE] bg-[#F7F2EC]">
-              <span className="truncate pr-2 font-medium">{alt}</span>
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[10px] text-[#1D4ED8] hover:underline font-bold shrink-0"
-              >
-                <span>Lihat Ukuran Penuh</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          )}
         </div>
       );
       return;

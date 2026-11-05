@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { askAI } from '@/lib/ai-router';
+import { searchWebImages } from '@/lib/image-search';
 import {
   detectMotivasiIntent,
   detectDiaSiapaIntent,
@@ -119,6 +120,44 @@ export async function POST(req: NextRequest) {
         avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
         source: 'supabase_live_query',
         model: 'Usth. Halwaa Smart Query',
+        responseTimeMs: Date.now() - startTime,
+      });
+    }
+
+    // =========================================================================
+    // FITUR PENCARIAN GAMBAR WEB (WEB IMAGE SEARCH)
+    // =========================================================================
+    const isImageSearchRequest =
+      /(carikan|cari|lihatkan|tampilkan|minta|lihat|temukan|bisa cari|buatkan|bikin).*?(gambar|foto|potret|citra)/i.test(prompt) ||
+      /(gambar|foto|potret)\s+(masjid|pesantren|pondok|lirboyo|panggung|aula|santri|gerbang|gedung|suasana)/i.test(prompt) ||
+      /\b(carikan\s+gambar|carikan\s+foto|cari\s+gambar|cari\s+foto|foto\s+panggung|gambar\s+masjid)\b/i.test(prompt) ||
+      (prompt.toLowerCase().includes('gambar') && (prompt.toLowerCase().includes('internet') || prompt.toLowerCase().includes('google') || prompt.toLowerCase().includes('web')));
+
+    if (isImageSearchRequest) {
+      console.log('[AI Ask Route] Mendeteksi permintaan pencarian gambar web...');
+      const rawSubject = prompt
+        .replace(/^(tolong|mohon|coba|bisa|tolongkan)\s+/gi, '')
+        .replace(/(carikan|cari|tampilkan|lihatkan|minta|lihat|temukan|buatkan|bikinkan)\s+(gambar|foto|potret|citra)?/gi, '')
+        .replace(/(gambar|foto|potret|citra)\s*(tentang|dari|suasana)?/gi, '')
+        .replace(/\s+(di|dari|pada)\s+(internet|google|web|bing|online)/gi, '')
+        .trim() || 'Hasil Pencarian';
+
+      const cleanSubject = rawSubject.charAt(0).toUpperCase() + rawSubject.slice(1);
+      const imageUrl = await searchWebImages(prompt);
+
+      let reply: string;
+      if (imageUrl) {
+        reply = `Ini Us, gambar yang saya temukan di internet:\n\n![${cleanSubject}](${imageUrl})`;
+      } else {
+        reply = 'Mohon maaf Us, saya tidak menemukan gambar yang cocok di internet.';
+      }
+
+      return NextResponse.json({
+        reply,
+        expression: imageUrl ? 'happy' : 'polite',
+        avatar: imageUrl ? '/images/avatar/ustadzah-avatar-happy.png' : '/images/avatar/ustadzah-avatar-polite.png',
+        source: 'web_image_search',
+        model: 'Web Image Search Engine',
         responseTimeMs: Date.now() - startTime,
       });
     }
