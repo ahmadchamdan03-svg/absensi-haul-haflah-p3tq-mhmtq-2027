@@ -241,13 +241,14 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                   return (
                     <div
                       key={u.id || u.kode}
-                      className={`p-4 rounded-2xl border backdrop-blur-xs transition-all flex items-center justify-between gap-3 shadow-xs ${
+                      className={`p-4 rounded-2xl border backdrop-blur-xs transition-all flex flex-col gap-2.5 shadow-xs ${
                         isHadir
                           ? 'bg-blue-50/70 border-blue-300'
                           : 'bg-white/60 hover:bg-white/80 border-white/60 hover:border-blue-500/70'
                       }`}
                     >
-                      <div className="space-y-1.5 flex-1 min-w-0">
+                      {/* Baris 1 (Atas): Kode QR, Kategori, & Status Hadir */}
+                      <div className="flex flex-wrap items-center justify-between gap-1.5 w-full">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100/80 text-stone-700 border border-stone-200">
                             {u.kode}
@@ -310,22 +311,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                             ))}
                           </div>
                         )}
-                        <h4 className="font-serif font-black text-sm text-[#0F2C59] truncate">
-                          {u.nama}
-                        </h4>
-                        <p className="text-[11px] text-[#7A624E] truncate flex items-center gap-1">
-                          <Building className="w-3 h-3 text-[#1D4ED8] shrink-0" />
-                          <span>{u.instansi || u.alamat || 'Kediri'}</span>
-                        </p>
-                        {u.noHp && (
-                          <p className="text-[10px] text-stone-500 truncate flex items-center gap-1">
-                            <Phone className="w-3 h-3 text-stone-400 shrink-0" />
-                            <span>{u.noHp}</span>
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="text-right shrink-0 space-y-1.5">
+                        {/* Status Hadir Pill */}
                         <div className="text-[11px] font-medium text-stone-500">
                           {isHadir ? (
                             <span className="px-2.5 py-1 rounded-full bg-blue-200/90 text-blue-950 font-black text-[10px] shadow-xs">
@@ -337,8 +323,32 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                             </span>
                           )}
                         </div>
+                      </div>
 
-                        <div className="flex items-center justify-end gap-1.5">
+                      {/* Baris 2 (Tengah): Nama Tamu (Anti-Truncate) */}
+                      <div className="w-full">
+                        <h4 className="w-full text-lg font-bold font-serif text-[#0F2C59] whitespace-normal break-words leading-snug">
+                          {u.nama}
+                        </h4>
+                      </div>
+
+                      {/* Baris 3 (Bawah): Tempatkan Instansi/Alamat di sisi kiri, dan Tombol Aksi di sisi kanan */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mt-2 pt-2.5 border-t border-stone-200/60 w-full">
+                        <div className="space-y-0.5 text-[#7A624E]">
+                          <p className="text-[11px] flex items-center gap-1 whitespace-normal break-words">
+                            <Building className="w-3 h-3 text-[#1D4ED8] shrink-0" />
+                            <span>{u.instansi || u.alamat || 'Kediri'}</span>
+                          </p>
+                          {u.noHp && (
+                            <p className="text-[10px] text-stone-500 flex items-center gap-1">
+                              <Phone className="w-3 h-3 text-stone-400 shrink-0" />
+                              <span>{u.noHp}</span>
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Tombol Aksi */}
+                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                           {!isHadir ? (
                             <button
                               type="button"
@@ -348,7 +358,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                               Tandai Hadir
                             </button>
                           ) : (
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center gap-2">
                               <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
                                 <Gift className="w-3 h-3 text-blue-600" />
                                 <span>Suvenir Siap</span>

@@ -151,7 +151,7 @@ async function main() {
     const searchInput = await page.$('input[placeholder*="Cari"], input[type="search"], input[type="text"]');
     if (searchInput) {
       console.log('Mengetik kata kunci pencarian "Budi Test Merged" ...');
-      await searchInput.click({ clickCount: 3 });
+      await searchInput.click({ count: 3 });
       await searchInput.type('Budi Test Merged', { delay: 20 });
       await sleep(2000);
     }
