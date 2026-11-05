@@ -59,11 +59,11 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
 
   return (
     <div className="min-h-screen bg-transparent text-[#0F2C59] pb-24">
-      {/* HEADER RESPONSIF — Left-aligned Title Aligned with Cards Below & Soft Shadow */}
-      <header className="sticky top-0 z-20 px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between relative gap-3">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-6">
+        {/* HEADER NORMAL FLOW — Ikut ter-scroll ke atas, tidak sticky/fixed */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 sm:mb-8">
           {/* Left-aligned Header Title */}
-          <div className="flex flex-col items-start justify-start text-left w-full md:w-auto pt-1 pb-2">
+          <div className="flex flex-col items-start justify-start text-left w-full md:w-auto">
             <div className="flex items-center justify-start gap-2.5 mb-1.5">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-white/20 text-white border-2 border-white/50 flex items-center justify-center font-bold shadow-xs shrink-0 backdrop-blur-sm">
                 <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
@@ -84,11 +84,11 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
           </div>
 
           {/* Action Buttons: Positioned right-aligned */}
-          <div className="flex items-center space-x-2 shrink-0 z-10 self-end md:self-center">
+          <div className="flex items-center space-x-2 shrink-0 self-start md:self-center">
             <button
               type="button"
               onClick={() => handleOpenAddModal('ISTIMEWA')}
-              className="px-3.5 py-2 sm:py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-md flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-2 sm:py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shadow-md flex items-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
             >
               <UserRoundPlus className="w-4 h-4" />
               <span>Tambah Tamu</span>
@@ -97,7 +97,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-3 py-2 sm:py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/40 text-xs font-bold shadow-xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
+                className="px-3 py-2 sm:py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/40 text-xs font-bold shadow-xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer whitespace-nowrap"
                 title="Keluar / Ganti Peran"
               >
                 <LogOut className="w-3.5 h-3.5 text-white/80" />
@@ -106,9 +106,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             )}
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* RINGKASAN LIVE DASBOR TAMU */}
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 animate-in fade-in duration-300">
