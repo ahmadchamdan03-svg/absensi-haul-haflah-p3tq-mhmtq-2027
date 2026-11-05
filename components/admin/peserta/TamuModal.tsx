@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Users, Sparkles, Building, Edit, X, History } from 'lucide-react';
+import { Users, Crown, Building, Edit, X, History } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { generateRandomKode } from '@/lib/utils';
 import TamuFormFields, {
@@ -191,7 +191,7 @@ export default function TamuModal({
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
                   {selectedGolonganUndangan === 'ISTIMEWA' ? (
-                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
+                    <Crown className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
                   ) : selectedGolonganUndangan === 'KEHORMATAN' ? (
                     <Building className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
                   ) : (

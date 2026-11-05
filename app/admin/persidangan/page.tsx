@@ -14,7 +14,6 @@ import {
   ChevronRight,
   FileCheck,
   AlertCircle,
-  Sparkles,
   ShieldAlert,
   Camera,
 } from 'lucide-react';
@@ -125,8 +124,7 @@ export default function PersidanganDashboardPage() {
       <div className="bg-white/50 backdrop-blur-md border border-[#BAE6FD] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 border-b border-[#E5D7C8] bg-gradient-to-b from-[#F0F9FF]/90 to-[#F5EFE8]/80">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/70 border border-[#BAE6FD] text-[10px] font-bold uppercase tracking-wider text-[#1D4ED8]">
-              <Sparkles className="w-3 h-3 text-[#D49B5B]" />
+            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/70 border border-[#BAE6FD] text-[10px] font-bold uppercase tracking-wider text-[#1D4ED8]">
               Modul Kepanitiaan
             </div>
             <h1 className="font-serif font-black text-xl sm:text-2xl text-[#0F2C59]">

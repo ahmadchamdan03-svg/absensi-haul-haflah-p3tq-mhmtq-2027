@@ -4,7 +4,6 @@ import React from 'react';
 import {
   X,
   Send,
-  Sparkles,
   RotateCcw,
   Copy,
   Check,
@@ -223,7 +222,6 @@ export function TanyaUsMessageList({
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3 h-3 text-[#D49B5B]" />
                       <span>Usth. Halwaa</span>
                       <span className="ml-1 text-[9px] px-1.5 py-0.5 rounded-md bg-[#E0F2FE] text-[#1D4ED8] font-semibold">
                         {msg.model || 'Clouvia'}

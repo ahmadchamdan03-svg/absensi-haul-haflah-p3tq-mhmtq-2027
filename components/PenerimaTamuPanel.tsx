@@ -12,7 +12,6 @@ import {
   Phone,
   Trash2,
   RotateCcw,
-  Sparkles,
 } from 'lucide-react';
 import { clearActiveRole } from '@/lib/auth-roles';
 import { useTamuData } from '@/lib/hooks/useTamuData';
@@ -370,13 +369,12 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
             <img
               src="/images/avatar/ustadzah-avatar-wave.png"
               alt="Usth. Halwaa"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
             />
           </div>
           <span className="font-serif tracking-wide text-amber-100 group-hover:text-white">
-            Tanya Usth. Halwaa
+            Usth. Halwaa
           </span>
-          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
         </button>
       )}
 

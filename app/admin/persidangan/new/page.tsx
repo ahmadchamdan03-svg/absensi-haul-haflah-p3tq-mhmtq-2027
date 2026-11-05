@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Sparkles, FilePlus } from 'lucide-react';
+import { ArrowLeft, FilePlus } from 'lucide-react';
 import PersidanganForm from '@/components/PersidanganForm';
 import { Persidangan } from '@/lib/persidangan';
 

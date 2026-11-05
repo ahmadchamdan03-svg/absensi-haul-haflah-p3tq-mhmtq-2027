@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Users, Sparkles, Building, Loader2 } from 'lucide-react';
+import { Users, Crown, Building, Loader2 } from 'lucide-react';
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
@@ -182,8 +182,8 @@ export default function TamuFormFields({
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-600" />
-              <span>🌟 Istimewa</span>
+              <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+              <span>Istimewa</span>
             </button>
 
             <button
@@ -238,9 +238,8 @@ export default function TamuFormFields({
         {/* NAMA TAMU UNDANGAN: INPUT PUTRA & PUTRI UNTUK SEMUA GOLONGAN */}
         <div className="p-4 md:p-5 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block font-bold text-blue-950 text-xs md:text-sm flex items-center space-x-1.5">
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>Nama Tamu Undangan *</span>
+            <label className="block font-bold text-blue-950 text-xs md:text-sm">
+              Nama Tamu Undangan *
             </label>
           </div>
 
@@ -461,8 +460,8 @@ export default function TamuFormFields({
                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>🌟 Istimewa</span>
+            <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>Istimewa</span>
           </button>
 
           <button
@@ -506,9 +505,8 @@ export default function TamuFormFields({
         editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian') ? (
         <div className="p-3.5 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block font-bold text-blue-950 text-xs flex items-center space-x-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Nama Tamu Undangan *</span>
+            <label className="block font-bold text-blue-950 text-xs">
+              Nama Tamu Undangan *
             </label>
           </div>
 

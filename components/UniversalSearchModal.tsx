@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search,
-  Sparkles,
   MapPin,
   Users,
   Compass,
@@ -513,8 +512,8 @@ export default function UniversalSearchModal({
                 : 'bg-white text-[#1D4ED8] hover:bg-[#F0F9FF] border-2 border-[#D49B5B]'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
-            <span>✨ Tanya Gemini AI</span>
+            <Bot className="w-3.5 h-3.5 text-[#D49B5B]" />
+            <span>Tanya Gemini AI</span>
           </button>
         </div>
 
@@ -690,7 +689,7 @@ export default function UniversalSearchModal({
                 {aiLoading && (
                   <div className="flex items-start space-x-2.5">
                     <div className="w-8 h-8 rounded-xl bg-[#1D4ED8] text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
-                      <Sparkles className="w-4 h-4" />
+                      <Bot className="w-4 h-4" />
                     </div>
                     <div className="p-3 rounded-2xl bg-white border border-[#BAE6FD] text-xs text-[#7A624E] flex items-center space-x-2">
                       <span className="w-2 h-2 rounded-full bg-[#1D4ED8] animate-ping"></span>

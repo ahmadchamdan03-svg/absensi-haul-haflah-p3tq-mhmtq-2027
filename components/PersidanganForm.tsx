@@ -7,7 +7,7 @@ import {
   MessageSquare,
   Save,
   ArrowLeft,
-  Sparkles,
+  CheckCircle2,
   Info,
   RotateCcw,
 } from 'lucide-react';
@@ -133,7 +133,7 @@ export default function PersidanganForm({
 
       {successMsg && (
         <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs flex items-start gap-2.5">
-          <Sparkles className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
           <div>{successMsg}</div>
         </div>
       )}

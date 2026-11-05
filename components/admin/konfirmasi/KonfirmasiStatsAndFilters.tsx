@@ -6,7 +6,8 @@ import {
   CheckCircle2,
   Clock,
   Search,
-  Sparkles,
+  Mail,
+  Armchair,
   XCircle,
 } from 'lucide-react';
 import {
@@ -67,8 +68,7 @@ export default function KonfirmasiStatsAndFilters({
       <div className="bg-gradient-to-r from-white/75 via-[#F0F9FF]/75 to-white/75 backdrop-blur-md text-[#0F2C59] rounded-3xl p-4 sm:p-6 shadow-sm border border-white/60 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="space-y-1">
-            <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#F0F9FF] text-[#1D4ED8] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
-              <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
+            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#F0F9FF] text-[#1D4ED8] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
               <span className="truncate">PANEL PANITIA · REKAPITULASI PRA-ACARA</span>
             </div>
             <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#0F2C59] leading-tight">
@@ -112,7 +112,7 @@ export default function KonfirmasiStatsAndFilters({
                   : 'text-[#7A624E] hover:bg-[#E0F2FE]'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#D49B5B]" />
+              <Mail className="w-3.5 h-3.5 text-[#D49B5B]" />
               <span>Tamu Undangan ({daftarTamuCount})</span>
             </button>
           </div>
@@ -253,7 +253,7 @@ export default function KonfirmasiStatsAndFilters({
                 ESTIMASI KURSI HADIR
               </span>
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0 bg-[#E0F2FE] group-hover:bg-[#1D4ED8] group-hover:text-white text-[#1D4ED8]">
-                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <Armchair className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div className="text-xl sm:text-2xl font-serif font-black my-1 text-[#0F2C59]">

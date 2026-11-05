@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Crown, Building, Users } from 'lucide-react';
 import {
   GolonganUndangan,
   OPSI_UNDANGAN_ISTIMEWA,
@@ -94,13 +94,16 @@ export default function TambahTamuModal({
                   key={gol}
                   type="button"
                   onClick={() => handleOpenAddModal(gol)}
-                  className={`py-2.5 px-2 rounded-xl font-bold border transition-all text-center text-xs md:text-sm cursor-pointer ${
+                  className={`py-2.5 px-2 rounded-xl font-bold border transition-all text-center text-xs md:text-sm cursor-pointer flex items-center justify-center gap-1.5 ${
                     selectedGolonganUndangan === gol
                       ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
                       : 'bg-white/50 text-[#0F2C59] border-white/70 hover:bg-white/80 backdrop-blur-xs'
                   }`}
                 >
-                  {gol}
+                  {gol === 'ISTIMEWA' && <Crown className="w-4 h-4 text-amber-400 shrink-0" />}
+                  {gol === 'KEHORMATAN' && <Building className="w-4 h-4 text-purple-400 shrink-0" />}
+                  {gol === 'UMUM' && <Users className="w-4 h-4 text-cyan-400 shrink-0" />}
+                  <span>{gol === 'ISTIMEWA' ? 'Istimewa' : gol === 'KEHORMATAN' ? 'Kehormatan' : 'Umum'}</span>
                 </button>
               ))}
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Printer, Download, Sparkles } from 'lucide-react';
+import { Printer, Download } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import {
   fetchLaporanDataFromSupabase,
@@ -97,8 +97,7 @@ export default function LaporanPage() {
       {/* HEADER DAN AKSI UTAMA (NO-PRINT) */}
       <div className="bg-gradient-to-r from-[#F0F9FF] via-[#E0F2FE] to-[#F0F9FF] text-[#0F2C59] rounded-3xl p-4 sm:p-6 shadow-sm border-2 border-[#1D4ED8]/40 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         <div className="min-w-0">
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#F0F9FF] text-[#1D4ED8] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
-            <Sparkles className="w-3 h-3 text-[#D49B5B] shrink-0" />
+          <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#F0F9FF] text-[#1D4ED8] text-[10px] sm:text-xs font-serif font-black border-2 border-[#D49B5B] max-w-full truncate">
             <span className="truncate">DOKUMEN RESMI REKAPITULASI PRESENSI</span>
           </div>
           <h1 className="text-lg sm:text-2xl font-serif font-black mt-2 tracking-tight text-[#0F2C59] leading-tight">

@@ -11,7 +11,6 @@ import {
   SwitchCamera,
   Users,
   Clock,
-  Sparkles,
 } from 'lucide-react';
 import { Persidangan, PersidanganPeserta } from '@/lib/persidangan';
 import { supabase } from '@/lib/supabase/client';

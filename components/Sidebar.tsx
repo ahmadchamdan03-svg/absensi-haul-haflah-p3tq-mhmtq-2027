@@ -14,7 +14,6 @@ import {
   RotateCcw,
   FileSpreadsheet,
   History,
-  Sparkles,
   X,
   Mail,
   ChevronLeft,
@@ -362,9 +361,8 @@ export default function Sidebar({
         </div>
         {!isCollapsed && (
           <div className="flex flex-col text-left pr-1">
-            <span className="text-xs font-bold tracking-wide leading-tight text-white flex items-center gap-1">
-              <span>Usth. Halwaa</span>
-              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <span className="text-xs font-bold tracking-wide leading-tight text-white">
+              Usth. Halwaa
             </span>
             <span className="text-[10px] font-medium text-blue-200 leading-none mt-0.5">
               Asisten AI

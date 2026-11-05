@@ -13,7 +13,6 @@ import {
   FileText,
   Eye,
   Maximize2,
-  Sparkles,
 } from 'lucide-react';
 import {
   Persidangan,
@@ -551,7 +550,7 @@ export default function PersidanganPDFUploader({
             <div className="space-y-4">
               <div className="bg-[#F0F9FF] border-2 border-[#BAE6FD] rounded-2xl p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#D49B5B]" />
+                  <FileText className="w-4 h-4 text-[#D49B5B]" />
                   <span className="text-xs font-bold text-[#0F2C59]">
                     Pratinjau Hasil Gambar ({persidangan.jpg_urls.length} Halaman)
                   </span>

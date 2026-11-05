@@ -6,7 +6,6 @@ import {
   Plus,
   Trash2,
   CheckCircle2,
-  Sparkles,
   ExternalLink,
   X,
   AlertTriangle,
@@ -54,7 +53,6 @@ export default function PesertaHeader({
               </div>
               <div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F0F9FF] text-[#1D4ED8] border border-[#D49B5B]">
-                  <Sparkles className="w-3 h-3 mr-1 text-[#D49B5B]" />
                   DATABASE RESMI SANTRI &amp; TAMU
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#0F2C59] tracking-wide">
