@@ -36,19 +36,36 @@ export async function POST(req: NextRequest) {
       } else {
         delQuery = delQuery.eq('kode_qr', cleanKode);
       }
+
+      // Cek apakah kode memiliki merged_group_id agar pembatalan berlaku atomik untuk seluruh grup
+      const [batalSantri, batalTamu] = await Promise.all([
+        supabaseServer.from('peserta_santri').select('merged_group_id').or(`kode.eq.${cleanKode}${cleanNis ? `,nis.eq.${cleanNis}` : ''}`).maybeSingle(),
+        supabaseServer.from('tamu_undangan').select('merged_group_id').eq('kode', cleanKode).maybeSingle(),
+      ]);
+      const mergedGroupId = batalSantri.data?.merged_group_id || batalTamu.data?.merged_group_id;
+
       // Reset kuota_terpakai = 0 di tabel peserta_santri dan tamu_undangan
       const now = new Date().toISOString();
-      await Promise.all([
-        delQuery,
-        supabaseServer
-          .from('peserta_santri')
-          .update({ kuota_terpakai: 0, updated_at: now })
-          .or(`kode.eq.${cleanKode}${cleanNis ? `,nis.eq.${cleanNis}` : ''}`),
-        supabaseServer
-          .from('tamu_undangan')
-          .update({ kuota_terpakai: 0, updated_at: now })
-          .eq('kode', cleanKode),
-      ]);
+      const resetPromises: PromiseLike<any>[] = [delQuery];
+
+      if (mergedGroupId) {
+        resetPromises.push(
+          supabaseServer.from('peserta_santri').update({ kuota_terpakai: 0, updated_at: now }).eq('merged_group_id', mergedGroupId),
+          supabaseServer.from('tamu_undangan').update({ kuota_terpakai: 0, updated_at: now }).eq('merged_group_id', mergedGroupId)
+        );
+      } else {
+        resetPromises.push(
+          supabaseServer
+            .from('peserta_santri')
+            .update({ kuota_terpakai: 0, updated_at: now })
+            .or(`kode.eq.${cleanKode}${cleanNis ? `,nis.eq.${cleanNis}` : ''}`),
+          supabaseServer
+            .from('tamu_undangan')
+            .update({ kuota_terpakai: 0, updated_at: now })
+            .eq('kode', cleanKode)
+        );
+      }
+      await Promise.all(resetPromises);
 
       // Mock store sync
       try {
@@ -142,11 +159,11 @@ export async function POST(req: NextRequest) {
     // 1. Parallel Roundtrip 1: Ambil data peserta + existing logs dalam SATU Promise.all
     const [resSantri, resTamu, resLogs] = await Promise.all([
       entityId && tipe_peserta === 'KELUARGA'
-        ? supabaseServer.from('peserta_santri').select('id, nama, kuota_dasar, kuota_tambahan, kuota_terpakai, tiket_panggung_diberi').eq('id', entityId).maybeSingle()
-        : supabaseServer.from('peserta_santri').select('id, nama, kuota_dasar, kuota_tambahan, kuota_terpakai, tiket_panggung_diberi').or(`kode.eq.${cleanKode},nis.eq.${cleanKode}`).maybeSingle(),
+        ? supabaseServer.from('peserta_santri').select('id, nama, kuota_dasar, kuota_tambahan, kuota_terpakai, tiket_panggung_diberi, merged_group_id').eq('id', entityId).maybeSingle()
+        : supabaseServer.from('peserta_santri').select('id, nama, kuota_dasar, kuota_tambahan, kuota_terpakai, tiket_panggung_diberi, merged_group_id').or(`kode.eq.${cleanKode},nis.eq.${cleanKode}`).maybeSingle(),
       entityId && tipe_peserta === 'UNDANGAN'
-        ? supabaseServer.from('tamu_undangan').select('id, nama, kuota_terpakai').eq('id', entityId).maybeSingle()
-        : supabaseServer.from('tamu_undangan').select('id, nama, kuota_terpakai').eq('kode', cleanKode).maybeSingle(),
+        ? supabaseServer.from('tamu_undangan').select('id, nama, kuota_terpakai, merged_group_id').eq('id', entityId).maybeSingle()
+        : supabaseServer.from('tamu_undangan').select('id, nama, kuota_terpakai, merged_group_id').eq('kode', cleanKode).maybeSingle(),
       existingId
         ? Promise.resolve({ data: [{ id: existingId, jumlah_l: 0, jumlah_p: 0 }], error: null })
         : supabaseServer.from('presensi_log').select('id, jumlah_l, jumlah_p').eq('kode_qr', cleanKode),
@@ -199,7 +216,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3c. Update data santri atau tamu langsung menggunakan indexed Primary Key (id)
+    // 3c. Update data santri atau tamu langsung menggunakan indexed Primary Key (id) atau merged_group_id
     if (santri) {
       const santriUpdatePayload: Record<string, any> = {
         kuota_terpakai: totalTerpakai,
@@ -209,16 +226,36 @@ export async function POST(req: NextRequest) {
       if (numTiketPanggung > 0) {
         santriUpdatePayload.tiket_panggung_diberi = 1;
       }
-      writePromises.push(
-        supabaseServer.from('peserta_santri').update(santriUpdatePayload).eq('id', santri.id)
-      );
+      if (santri.merged_group_id) {
+        writePromises.push(
+          supabaseServer.from('peserta_santri').update(santriUpdatePayload).eq('merged_group_id', santri.merged_group_id),
+          supabaseServer.from('tamu_undangan').update({ kuota_terpakai: totalTerpakai, updated_at: new Date().toISOString() }).eq('merged_group_id', santri.merged_group_id)
+        );
+      } else {
+        writePromises.push(
+          supabaseServer.from('peserta_santri').update(santriUpdatePayload).eq('id', santri.id)
+        );
+      }
     } else if (tamu) {
-      writePromises.push(
-        supabaseServer.from('tamu_undangan').update({
-          kuota_terpakai: totalTerpakai,
-          updated_at: new Date().toISOString(),
-        }).eq('id', tamu.id)
-      );
+      if (tamu.merged_group_id) {
+        writePromises.push(
+          supabaseServer.from('tamu_undangan').update({
+            kuota_terpakai: totalTerpakai,
+            updated_at: new Date().toISOString(),
+          }).eq('merged_group_id', tamu.merged_group_id),
+          supabaseServer.from('peserta_santri').update({
+            kuota_terpakai: totalTerpakai,
+            updated_at: new Date().toISOString(),
+          }).eq('merged_group_id', tamu.merged_group_id)
+        );
+      } else {
+        writePromises.push(
+          supabaseServer.from('tamu_undangan').update({
+            kuota_terpakai: totalTerpakai,
+            updated_at: new Date().toISOString(),
+          }).eq('id', tamu.id)
+        );
+      }
     }
 
     // Eksekusi seluruh operasi simpan secara paralel

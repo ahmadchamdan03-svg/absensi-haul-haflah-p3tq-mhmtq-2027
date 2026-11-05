@@ -296,20 +296,44 @@ export default function TamuTable({
     return allItems.filter((item) => {
       // 1. Tab filter
       if (activeTab === 'UNDANGAN' && item.tipe !== 'UNDANGAN') return false;
-      if (activeTab === 'UNDANGAN_ISTIMEWA' && (item.tipe !== 'UNDANGAN' || item.golonganUndangan !== 'ISTIMEWA')) return false;
-      if (activeTab === 'UNDANGAN_KEHORMATAN' && (item.tipe !== 'UNDANGAN' || item.golonganUndangan !== 'KEHORMATAN')) return false;
-      if (activeTab === 'UNDANGAN_UMUM' && (item.tipe !== 'UNDANGAN' || item.golonganUndangan !== 'UMUM')) return false;
+      if (activeTab === 'UNDANGAN_ISTIMEWA') {
+        if (item.tipe !== 'UNDANGAN') return false;
+        const matches =
+          item.golonganUndangan === 'ISTIMEWA' ||
+          (item.isMerged && item.mergedItems?.some((m: any) => m.golonganUndangan === 'ISTIMEWA' || m.golongan === 'ISTIMEWA'));
+        if (!matches) return false;
+      }
+      if (activeTab === 'UNDANGAN_KEHORMATAN') {
+        if (item.tipe !== 'UNDANGAN') return false;
+        const matches =
+          item.golonganUndangan === 'KEHORMATAN' ||
+          (item.isMerged && item.mergedItems?.some((m: any) => m.golonganUndangan === 'KEHORMATAN' || m.golongan === 'KEHORMATAN'));
+        if (!matches) return false;
+      }
+      if (activeTab === 'UNDANGAN_UMUM') {
+        if (item.tipe !== 'UNDANGAN') return false;
+        const matches =
+          item.golonganUndangan === 'UMUM' ||
+          (item.isMerged && item.mergedItems?.some((m: any) => m.golonganUndangan === 'UMUM' || m.golongan === 'UMUM'));
+        if (!matches) return false;
+      }
 
       // 2. Sub Filter dinamis (bagianFilter)
       if (bagianFilter && bagianFilter !== 'SEMUA') {
         if (activeTab === 'UNDANGAN') {
-          if (item.golonganUndangan !== bagianFilter) return false;
+          const matches =
+            item.golonganUndangan === bagianFilter ||
+            (item.isMerged && item.mergedItems?.some((m: any) => m.golonganUndangan === bagianFilter || m.golongan === bagianFilter));
+          if (!matches) return false;
         } else if (
           activeTab === 'UNDANGAN_ISTIMEWA' ||
           activeTab === 'UNDANGAN_KEHORMATAN' ||
           activeTab === 'UNDANGAN_UMUM'
         ) {
-          if (!matchUndanganCategory(item.kategori, bagianFilter)) return false;
+          const matches =
+            matchUndanganCategory(item.kategori, bagianFilter) ||
+            (item.isMerged && item.mergedItems?.some((m: any) => matchUndanganCategory(m.kategori, bagianFilter)));
+          if (!matches) return false;
         }
       }
 

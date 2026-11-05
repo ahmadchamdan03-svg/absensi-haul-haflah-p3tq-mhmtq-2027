@@ -142,6 +142,30 @@ export default function TambahTamuModal({
                 />
               </div>
             </div>
+
+            {/* Indikator Kuota Otomatis Real-time */}
+            {(() => {
+              const hasP = !!undanganForm.namaPutra?.trim();
+              const hasW = !!undanganForm.namaPutri?.trim();
+              const autoKuota = hasP && hasW ? 2 : hasP || hasW ? 1 : 0;
+              return (
+                <div className="mt-2.5 pt-2.5 border-t border-white/40 flex items-center justify-between text-xs font-semibold">
+                  <span className="text-[#0F2C59]">
+                    Estimasi Kuota:{' '}
+                    <strong className="text-sm font-bold text-blue-900">{autoKuota} Kursi</strong>
+                  </span>
+                  {autoKuota === 0 ? (
+                    <span className="text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 text-[11px]">
+                      ⚠️ Wajib mengisi minimal satu nama
+                    </span>
+                  ) : (
+                    <span className="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 text-[11px]">
+                      ✓ Kuota otomatis ({hasP && hasW ? 'Suami & Istri' : hasP ? 'Tamu Putra' : 'Tamu Putri'})
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {selectedGolonganUndangan !== 'KEHORMATAN' && (

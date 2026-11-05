@@ -39,13 +39,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ detected: false });
       }
 
-      // Cari yang kota asalnya (kata terakhir alamat) sama
+      // Cari yang kota asalnya (kata terakhir alamat) cocok persis
       const matched = rows.find(r => {
         const rAlamat = (r.alamat || '').trim().toUpperCase();
-        if (!rAlamat || !lastWordAlamat) return true; // jika salah satu kosong, cocokkan nama saja
+        if (!rAlamat || !lastWordAlamat) return true;
         const rLastWord = rAlamat.split(/\s+/).pop() || '';
         return rLastWord === lastWordAlamat || rAlamat.includes(lastWordAlamat) || lastWordAlamat.includes(rLastWord);
-      }) || rows[0];
+      });
+
+      if (!matched) {
+        return NextResponse.json({ detected: false });
+      }
 
       return NextResponse.json({
         detected: true,
@@ -73,22 +77,47 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Ambil seluruh data untuk validasi kuota_terpakai
+      // Ambil seluruh data untuk validasi nama, alamat, kuota_terpakai
       const tamuIds = items.filter(i => i.table === 'tamu_undangan').map(i => i.id);
       const santriIds = items.filter(i => i.table === 'peserta_santri').map(i => i.id);
 
       const [resTamu, resSantri] = await Promise.all([
-        tamuIds.length > 0 ? supabaseServer.from('tamu_undangan').select('id, nama, kuota_terpakai, merged_group_id').in('id', tamuIds) : { data: [], error: null },
-        santriIds.length > 0 ? supabaseServer.from('peserta_santri').select('id, nama, kuota_terpakai, merged_group_id').in('id', santriIds) : { data: [], error: null },
+        tamuIds.length > 0 ? supabaseServer.from('tamu_undangan').select('id, nama, alamat, kuota_terpakai, merged_group_id').in('id', tamuIds) : { data: [], error: null },
+        santriIds.length > 0 ? supabaseServer.from('peserta_santri').select('id, nama, alamat, kuota_terpakai, merged_group_id').in('id', santriIds) : { data: [], error: null },
       ]);
 
       const allRecords = [...(resTamu.data || []), ...(resSantri.data || [])];
 
-      // ⚠️ ATURAN KETAT: Merge HANYA bisa dilakukan jika peserta BELUM PERNAH SCAN (kuota_terpakai == 0)
+      // ⚠️ ATURAN KETAT 1: Merge HANYA bisa dilakukan jika peserta BELUM PERNAH SCAN (kuota_terpakai == 0)
       const hasScanned = allRecords.some(r => Number(r.kuota_terpakai || 0) > 0);
       if (hasScanned) {
         return NextResponse.json(
           { ok: false, error: 'Tidak dapat menggabungkan data yang sudah melakukan scan kehadiran.' },
+          { status: 400 }
+        );
+      }
+
+      // ⚠️ ATURAN KETAT 2: Validasi Syarat Merge — Nama & Alamat (Kota) harus cocok persis
+      const firstRec = allRecords[0];
+      const normFirstNama = (firstRec.nama || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      const getCity = (al?: string | null) => {
+        if (!al) return '';
+        const parts = al.trim().split(/[\s,.-]+/);
+        return parts.pop()?.toLowerCase() || '';
+      };
+      const firstCity = getCity(firstRec.alamat);
+
+      const isMismatched = allRecords.slice(1).some(r => {
+        const normNama = (r.nama || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        const city = getCity(r.alamat);
+        const nameMatch = normNama === normFirstNama || normNama.includes(normFirstNama) || normFirstNama.includes(normNama);
+        const cityMatch = !firstCity || !city || firstCity === city || firstCity.includes(city) || city.includes(firstCity);
+        return !nameMatch || !cityMatch;
+      });
+
+      if (isMismatched) {
+        return NextResponse.json(
+          { ok: false, error: 'Gagal menggabungkan: Nama dan Alamat (Kota) seluruh data harus cocok persis.' },
           { status: 400 }
         );
       }

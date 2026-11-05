@@ -44,7 +44,13 @@ export async function POST(req: NextRequest) {
     const finalAlamat = alamat || '-';
     const finalNoHp = noHp || '-';
     const finalWarna = warnaTiket || (finalSubKategori === 'ISTIMEWA' ? 'Cream' : 'Biru');
-    const finalKuota = Number(kuotaDasar) || (finalSubKategori === 'ISTIMEWA' ? 2 : (finalSubKategori === 'KEHORMATAN' ? 2 : 1));
+    const hasP = !!(namaPutra && String(namaPutra).trim());
+    const hasW = !!(namaPutri && String(namaPutri).trim());
+    let autoKuota = hasP && hasW ? 2 : (hasP || hasW ? 1 : 0);
+    if (autoKuota === 0 && finalNama) {
+      autoKuota = finalNama.includes('&') ? 2 : 1;
+    }
+    const finalKuota = autoKuota > 0 ? autoKuota : (Number(kuotaDasar) || 1);
 
     const insertPayload = {
       kode: newKode,

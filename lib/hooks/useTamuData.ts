@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
 import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
-import { getWarnaTiketUndangan } from '@/lib/types';
+import { getWarnaTiketUndangan, normalizePesertaString } from '@/lib/types';
 
 export type GolonganUndangan = 'ISTIMEWA' | 'KEHORMATAN' | 'UMUM';
 
@@ -45,6 +45,15 @@ export interface TamuUndanganItem {
   alamat: string;
   noHp: string;
   golongan: string;
+  merged_group_id?: string | null;
+  isMerged?: boolean;
+  mergedItems?: any[];
+  multiBadges?: Array<{
+    id: string;
+    kode: string;
+    kategori: string;
+    golongan: string;
+  }>;
   kuota: {
     id: string;
     kodeQr: string;
@@ -86,28 +95,114 @@ export function useTamuData() {
         .order('created_at', { ascending: false });
 
       if (!error && supaData) {
-        const mapped = supaData.map((d: any) => ({
-          id: d.id,
-          kode: d.kode,
-          nama: d.nama,
-          namaPutra: d.nama_putra || '',
-          namaPutri: d.nama_putri || '',
-          kategori: d.kategori || 'VIP IDS',
-          instansi: d.instansi || d.alamat || '',
-          alamat: d.alamat || '',
-          noHp: d.no_hp || '',
-          golongan: d.sub_kategori || 'ISTIMEWA',
-          kuota: {
+        const rawMapped = supaData.map((d: any) => {
+          const hasP = !!(d.nama_putra && String(d.nama_putra).trim());
+          const hasW = !!(d.nama_putri && String(d.nama_putri).trim());
+          let kBase = hasP && hasW ? 2 : (hasP || hasW ? 1 : 0);
+          if (kBase === 0 && d.nama && String(d.nama).trim()) {
+            kBase = String(d.nama).includes('&') ? 2 : 1;
+          }
+          return {
             id: d.id,
-            kodeQr: d.kode,
-            kuotaDasar:
-              (d.nama_putra && String(d.nama_putra).trim() ? 1 : 0) +
-              (d.nama_putri && String(d.nama_putri).trim() ? 1 : 0),
-            kuotaTambahan: 0,
-            terpakai: d.kuota_terpakai || 0,
-          },
-        }));
-        setUndanganList(mapped);
+            kode: d.kode,
+            nama: d.nama,
+            namaPutra: d.nama_putra || '',
+            namaPutri: d.nama_putri || '',
+            kategori: d.kategori || 'VIP IDS',
+            instansi: d.instansi || d.alamat || '',
+            alamat: d.alamat || '',
+            noHp: d.no_hp || '',
+            golongan: d.sub_kategori || 'ISTIMEWA',
+            merged_group_id: d.merged_group_id || null,
+            kuota: {
+              id: d.id,
+              kodeQr: d.kode,
+              kuotaDasar: kBase,
+              kuotaTambahan: 0,
+              terpakai: d.kuota_terpakai || 0,
+            },
+          };
+        });
+
+        // Grouping berdasarkan merged_group_id persis seperti usePesertaData
+        const getPriority = (item: any) => {
+          const gol = (item.golongan || '').toUpperCase();
+          if (gol === 'ISTIMEWA') return 30;
+          if (gol === 'KEHORMATAN') return 20;
+          return 10;
+        };
+
+        const groupMap = new Map<string, any[]>();
+        const unmergedList: any[] = [];
+
+        rawMapped.forEach((item: any) => {
+          if (item.merged_group_id) {
+            if (!groupMap.has(item.merged_group_id)) {
+              groupMap.set(item.merged_group_id, []);
+            }
+            groupMap.get(item.merged_group_id)!.push(item);
+          } else {
+            unmergedList.push({
+              ...item,
+              isMerged: false,
+              mergedItems: [item],
+            });
+          }
+        });
+
+        const mergedCards: any[] = [];
+        groupMap.forEach((groupItems, groupId) => {
+          if (groupItems.length === 1) {
+            unmergedList.push({
+              ...groupItems[0],
+              isMerged: false,
+              mergedItems: groupItems,
+            });
+            return;
+          }
+
+          groupItems.sort((a, b) => getPriority(b) - getPriority(a));
+          const primary = groupItems[0];
+
+          // Deduplikasi nama unik agar tidak terjadi double-counting kuota
+          const uniqueNames = new Set<string>();
+          groupItems.forEach((it) => {
+            const p = (it.namaPutra || '').trim();
+            const w = (it.namaPutri || '').trim();
+            if (p) uniqueNames.add(normalizePesertaString(p));
+            if (w) uniqueNames.add(normalizePesertaString(w));
+            if (!p && !w && it.nama) {
+              const parts = it.nama.split(/&|,/).map((s: string) => s.trim()).filter(Boolean);
+              parts.forEach((part: string) => uniqueNames.add(normalizePesertaString(part)));
+            }
+          });
+
+          const deduplicatedKuota =
+            uniqueNames.size > 0 ? uniqueNames.size : Math.max(...groupItems.map((it) => it.kuota.kuotaDasar || 1));
+          const maxTerpakai = Math.max(...groupItems.map((it) => it.kuota.terpakai || 0));
+
+          mergedCards.push({
+            ...primary,
+            isMerged: true,
+            merged_group_id: groupId,
+            mergedItems: groupItems,
+            multiBadges: groupItems.map((it) => ({
+              id: it.id,
+              kode: it.kode,
+              kategori: it.kategori,
+              golongan: it.golongan,
+            })),
+            kuota: {
+              id: primary.id,
+              kodeQr: primary.kode,
+              kuotaDasar: deduplicatedKuota,
+              kuotaTambahan: 0,
+              terpakai: maxTerpakai,
+            },
+          });
+        });
+
+        setUndanganList([...mergedCards, ...unmergedList]);
       } else {
         setUndanganList([]);
       }
@@ -223,7 +318,15 @@ export function useTamuData() {
       console.warn('Presensi network error:', e);
     }
 
-    store.checkin(u.kode, totalKuotaItem, 0, 'BARAT', 0, 'penerima-tamu');
+    if (u.isMerged && u.mergedItems) {
+      u.mergedItems.forEach((m) => {
+        try {
+          store.checkin(m.kode, totalKuotaItem, 0, 'BARAT', 0, 'penerima-tamu');
+        } catch {}
+      });
+    } else {
+      store.checkin(u.kode, totalKuotaItem, 0, 'BARAT', 0, 'penerima-tamu');
+    }
     await fetchTamuData();
   };
 
@@ -249,7 +352,15 @@ export function useTamuData() {
       console.warn('Batal presensi error:', e);
     }
 
-    (store as any).batalCheckin(u.kode);
+    if (u.isMerged && u.mergedItems) {
+      u.mergedItems.forEach((m) => {
+        try {
+          (store as any).batalCheckin(m.kode);
+        } catch {}
+      });
+    } else {
+      (store as any).batalCheckin(u.kode);
+    }
     await fetchTamuData();
   };
 
@@ -296,31 +407,26 @@ export function useTamuData() {
     const w = (undanganForm.namaPutri || '').trim().toUpperCase();
     const n = (undanganForm.nama || '').trim().toUpperCase();
 
-    if (!p && !w && !n) {
-      alert('Mohon isi minimal salah satu: Nama Tamu Putra (Kyai/Gus/Ust.) atau Nama Tamu Putri (Nyai/Ning/Ustazah)!');
+    // Logika Kuota Otomatis:
+    // Putra & Putri terisi -> Kuota = 2
+    // Salah satu terisi -> Kuota = 1
+    // Keduanya kosong -> Error (Kuota 0 tidak boleh submit)
+    const hasP = !!p;
+    const hasW = !!w;
+    const autoKuota = hasP && hasW ? 2 : (hasP || hasW ? 1 : (n ? (n.includes('&') ? 2 : 1) : 0));
+
+    if (autoKuota === 0) {
+      alert('Wajib mengisi minimal satu Nama Tamu (Putra atau Putri)!');
       return;
     }
 
     let finalNama = '';
-    let kuotaBase = 1;
+    if (p && w) finalNama = `${p} & ${w}`;
+    else if (p) finalNama = p;
+    else if (w) finalNama = w;
+    else finalNama = n;
 
-    if (p && w) {
-      finalNama = `${p} & ${w}`;
-      kuotaBase = 2;
-    } else if (p) {
-      finalNama = p;
-      kuotaBase = 1;
-    } else if (w) {
-      finalNama = w;
-      kuotaBase = 1;
-    } else {
-      finalNama = n;
-      kuotaBase = 1;
-    }
-
-    if (isAsatidzSekalian && p && w) {
-      kuotaBase = 2;
-    }
+    const kuotaBase = autoKuota;
 
     let finalAlamat = '';
     let finalInstansi = '';
@@ -439,12 +545,24 @@ export function useTamuData() {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return undanganList;
     return undanganList.filter((u) => {
-      return (
-        u.nama.toLowerCase().includes(q) ||
-        (u.instansi && u.instansi.toLowerCase().includes(q)) ||
-        u.kode.toLowerCase().includes(q) ||
-        (u.kategori && u.kategori.toLowerCase().includes(q))
-      );
+      const matchName = u.nama.toLowerCase().includes(q);
+      const matchInstansi = (u.instansi || '').toLowerCase().includes(q);
+      const matchAlamat = (u.alamat || '').toLowerCase().includes(q);
+      const matchKode = u.kode.toLowerCase().includes(q);
+      const matchKat = (u.kategori || '').toLowerCase().includes(q);
+      const matchGol = (u.golongan || '').toLowerCase().includes(q);
+      const matchMerged =
+        u.isMerged &&
+        u.mergedItems?.some(
+          (m: any) =>
+            (m.nama && m.nama.toLowerCase().includes(q)) ||
+            (m.kategori && m.kategori.toLowerCase().includes(q)) ||
+            (m.golongan && m.golongan.toLowerCase().includes(q)) ||
+            (m.instansi && m.instansi.toLowerCase().includes(q)) ||
+            (m.alamat && m.alamat.toLowerCase().includes(q)) ||
+            (m.kode && m.kode.toLowerCase().includes(q))
+        );
+      return matchName || matchInstansi || matchAlamat || matchKode || matchKat || matchGol || matchMerged;
     });
   }, [undanganList, searchQuery]);
 

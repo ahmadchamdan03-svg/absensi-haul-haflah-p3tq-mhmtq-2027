@@ -247,14 +247,39 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                           : 'bg-white/60 hover:bg-white/80 border-white/60 hover:border-blue-500/70'
                       }`}
                     >
-                      <div className="space-y-1 flex-1 min-w-0">
-                        <div className="flex items-center space-x-2">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100/80 text-stone-700 border border-stone-200">
                             {u.kode}
                           </span>
-                          <span className="text-[10px] text-blue-800 font-semibold truncate">
-                            {u.kategori}
-                          </span>
+                          {u.isMerged ? (
+                            <>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-900 border border-purple-200 text-[10px] font-bold">
+                                <Users className="w-3 h-3 text-purple-700" />
+                                <span>Gabungan ({u.mergedItems?.length} Kategori)</span>
+                              </span>
+                              <div className="flex flex-wrap gap-1">
+                                {u.multiBadges?.map((b) => (
+                                  <span
+                                    key={b.id || b.kode}
+                                    className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold border ${
+                                      b.golongan === 'ISTIMEWA'
+                                        ? 'bg-amber-100 text-amber-950 border-amber-300'
+                                        : b.golongan === 'KEHORMATAN'
+                                        ? 'bg-purple-100 text-purple-950 border-purple-300'
+                                        : 'bg-cyan-100 text-cyan-950 border-cyan-300'
+                                    }`}
+                                  >
+                                    {b.golongan} · {b.kategori}
+                                  </span>
+                                ))}
+                              </div>
+                            </>
+                          ) : (
+                            <span className="text-[10px] text-blue-800 font-semibold truncate">
+                              {u.golongan ? `${u.golongan} · ` : ''}{u.kategori}
+                            </span>
+                          )}
                         </div>
                         <h4 className="font-serif font-black text-sm text-[#0F2C59] truncate">
                           {u.nama}

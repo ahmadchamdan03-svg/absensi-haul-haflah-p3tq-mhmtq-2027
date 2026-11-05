@@ -8,6 +8,7 @@ import {
   extractBagianTamatan,
   getWarnaTiketSantri,
   getWarnaTiketUndangan,
+  normalizePesertaString,
 } from '@/lib/types';
 import QRCode from 'qrcode';
 import {
@@ -534,9 +535,21 @@ export function usePesertaData() {
       groupItems.sort((a, b) => getPriority(b) - getPriority(a));
       const primary = groupItems[0];
 
-      const sumKuotaDasar = groupItems.reduce((acc, it) => acc + (it.kuotaDasar || 0), 0);
+      // Deduplikasi nama unik agar tidak terjadi double-counting kuota saat merge
+      const uniqueNames = new Set<string>();
+      groupItems.forEach((it) => {
+        const p = (it.namaPutra || it.raw?.nama_putra || '').trim();
+        const w = (it.namaPutri || it.raw?.nama_putri || '').trim();
+        if (p) uniqueNames.add(normalizePesertaString(p));
+        if (w) uniqueNames.add(normalizePesertaString(w));
+        if (!p && !w && it.nama) {
+          const parts = it.nama.split(/&|,/).map((s: string) => s.trim()).filter(Boolean);
+          parts.forEach((part: string) => uniqueNames.add(normalizePesertaString(part)));
+        }
+      });
+      const resolvedKuotaDasar = uniqueNames.size > 0 ? uniqueNames.size : Math.max(...groupItems.map((it) => it.kuotaDasar || 1));
       const sumKuotaTambahan = groupItems.reduce((acc, it) => acc + (it.kuotaTambahan || 0), 0);
-      const totalKuota = sumKuotaDasar + sumKuotaTambahan;
+      const totalKuota = resolvedKuotaDasar + sumKuotaTambahan;
       const maxTerpakai = Math.max(...groupItems.map((it) => it.terpakai || 0));
 
       mergedCards.push({
@@ -546,7 +559,7 @@ export function usePesertaData() {
         isMerged: true,
         merged_group_id: groupId,
         mergedItems: groupItems,
-        kuotaDasar: sumKuotaDasar,
+        kuotaDasar: resolvedKuotaDasar,
         kuotaTambahan: sumKuotaTambahan,
         terpakai: maxTerpakai,
         sisa: Math.max(0, totalKuota - maxTerpakai),
