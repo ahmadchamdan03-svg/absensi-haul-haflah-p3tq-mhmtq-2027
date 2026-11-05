@@ -198,15 +198,80 @@ export default function AuditLogPage() {
   const [selectedAksi, setSelectedAksi] = useState<string>('SEMUA');
   const [selectedTabel, setSelectedTabel] = useState<string>('SEMUA');
   const [selectedPanitia, setSelectedPanitia] = useState<string>('SEMUA');
-  const [quickFilter, setQuickFilter] = useState<'SEMUA' | 'ABSENSI' | 'KOREKSI' | 'KUOTA' | 'DATA'>('SEMUA');
+  const [quickFilter, setQuickFilter] = useState<'SEMUA' | 'ABSENSI' | 'KOREKSI' | 'KUOTA' | 'DATA' | 'GAGAL'>('SEMUA');
   const [dateFilter, setDateFilter] = useState<string>(() => {
     // Default: Hari ini dalam format YYYY-MM-DD (Asia/Jakarta)
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
 
+  // Antrean Gagal State
+  const [failedQueue, setFailedQueue] = useState<any[]>([]);
+  const [loadingQueue, setLoadingQueue] = useState(false);
+  const [retryingId, setRetryingId] = useState<string | number | null>(null);
+  const [retrySuccessMsg, setRetrySuccessMsg] = useState<string | null>(null);
+
   // Modal Detail State
   const [selectedLogDetail, setSelectedLogDetail] = useState<AuditLogDbRow | null>(null);
+
+  const fetchFailedQueue = async () => {
+    setLoadingQueue(true);
+    try {
+      const { data, error } = await supabase
+        .from('antrean_presensi_gagal')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (!error && data) {
+        setFailedQueue(data);
+      } else {
+        setFailedQueue([]);
+      }
+    } catch (err) {
+      console.error('Error fetching failed queue:', err);
+    } finally {
+      setLoadingQueue(false);
+    }
+  };
+
+  const handleManualRetry = async (item: any) => {
+    setRetryingId(item.id);
+    setRetrySuccessMsg(null);
+    try {
+      const res = await fetch('/api/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kode_qr: item.kode_qr,
+          jalur: item.pintu_masuk,
+          panitia_id: item.operator,
+          catatan: 'Manual retry via Audit Log oleh admin',
+        }),
+      });
+
+      const resJson = await res.json();
+      if (res.ok && resJson.ok) {
+        await supabase
+          .from('antrean_presensi_gagal')
+          .update({
+            status: 'RESOLVED',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', item.id);
+
+        setRetrySuccessMsg(`Berhasil memproses presensi untuk kode ${item.kode_qr}!`);
+        await fetchFailedQueue();
+        await fetchAuditLogs();
+      } else {
+        alert(`Gagal retry: ${resJson.reason || resJson.pesan || 'Error server'}`);
+      }
+    } catch (err: any) {
+      alert(`Gagal retry: ${err.message || 'Error koneksi'}`);
+    } finally {
+      setRetryingId(null);
+    }
+  };
 
   const fetchAuditLogs = async () => {
     setLoading(true);
@@ -233,6 +298,7 @@ export default function AuditLogPage() {
 
   useEffect(() => {
     fetchAuditLogs();
+    fetchFailedQueue();
   }, []);
 
   // Filter list panitia unik untuk dropdown
@@ -480,6 +546,20 @@ export default function AuditLogPage() {
             >
               👤 Perubahan Data Peserta
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setQuickFilter('GAGAL');
+                fetchFailedQueue();
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                quickFilter === 'GAGAL'
+                  ? 'bg-rose-700 text-white shadow-xs'
+                  : 'bg-rose-50 text-rose-900 border border-rose-300 hover:bg-rose-100'
+              }`}
+            >
+              ⚠️ Gagal / Antrean ({failedQueue.filter((q) => q.status === 'PENDING').length})
+            </button>
           </div>
 
           {/* PANEL FILTER FORM DETAIL */}
@@ -551,130 +631,267 @@ export default function AuditLogPage() {
             </div>
           </div>
 
-          {/* TABEL HASIL AUDIT LOG */}
-          <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-2xl overflow-hidden">
-            <div className="px-4 py-3 bg-white/60 backdrop-blur-xs border-b border-white/50 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#1E3A8A]">
-                Menampilkan <span className="text-[#1D4ED8] font-extrabold">{filteredLogs.length}</span> catatan audit log
-              </span>
-              {dateFilter && (
+          {/* TABEL HASIL AUDIT LOG ATAU ANTREAN GAGAL */}
+          {quickFilter === 'GAGAL' ? (
+            <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-2xl overflow-hidden">
+              <div className="px-4 py-3 bg-white/60 backdrop-blur-xs border-b border-white/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span>Daftar Presensi Gagal / Masuk Antrean Auto-Retry (15 Menit)</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 border border-rose-300">
+                    {failedQueue.filter((q) => q.status === 'PENDING').length} Menunggu Retry
+                  </span>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setDateFilter('')}
-                  className="text-[11px] font-bold text-rose-700 hover:underline cursor-pointer"
+                  onClick={fetchFailedQueue}
+                  disabled={loadingQueue}
+                  className="px-3 py-1.5 rounded-xl bg-white/60 hover:bg-white/80 border border-white/70 text-xs font-bold text-stone-700 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
                 >
-                  Tampilkan Semua Tanggal ✕
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingQueue ? 'animate-spin' : ''}`} />
+                  <span>Refresh Antrean</span>
                 </button>
+              </div>
+
+              {retrySuccessMsg && (
+                <div className="mx-4 my-3 p-3 bg-blue-50 border border-blue-300 rounded-xl text-xs font-bold text-blue-900 flex items-center justify-between animate-in fade-in">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>{retrySuccessMsg}</span>
+                  </div>
+                  <button type="button" onClick={() => setRetrySuccessMsg(null)} className="text-blue-700 hover:text-blue-900">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {loadingQueue ? (
+                <div className="p-4">
+                  <SkeletonTable rows={4} cols={6} />
+                </div>
+              ) : failedQueue.length === 0 ? (
+                <div className="py-16 text-center text-stone-500">
+                  <CheckCircle2 className="w-10 h-10 text-blue-500 mx-auto mb-2" />
+                  <p className="font-bold text-stone-700">Tidak ada antrean presensi gagal</p>
+                  <p className="text-xs text-stone-400 mt-1">Semua absensi telah berhasil dicatat atau diselesaikan.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#F0F9FF] text-stone-600 font-bold uppercase tracking-wider text-[10px] border-b border-[#E8DFD5]">
+                      <tr>
+                        <th className="py-3 px-4">Waktu Terjadi</th>
+                        <th className="py-3 px-4">Kode QR</th>
+                        <th className="py-3 px-4">Pintu Masuk</th>
+                        <th className="py-3 px-4">Operator</th>
+                        <th className="py-3 px-4">Alasan Gagal / Error</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-center">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100 font-medium text-stone-800">
+                      {failedQueue.map((item) => {
+                        const dtStr = item.created_at
+                          ? new Date(item.created_at).toLocaleString('id-ID', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                              timeZone: 'Asia/Jakarta',
+                            })
+                          : '-';
+
+                        const isPending = item.status === 'PENDING';
+
+                        return (
+                          <tr key={item.id} className="hover:bg-stone-50/80 transition-colors">
+                            <td className="py-3 px-4 whitespace-nowrap font-mono text-[11px] text-stone-500">
+                              {dtStr}
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className="font-mono font-black text-[#1D4ED8] bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
+                                {item.kode_qr}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap font-semibold text-[#0F2C59]">
+                              {item.pintu_masuk || '-'}
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap text-stone-600">
+                              {item.operator || '-'}
+                            </td>
+                            <td className="py-3 px-4 max-w-xs">
+                              <span className="font-mono text-[11px] text-rose-700 font-semibold bg-rose-50 px-2 py-1 rounded-md border border-rose-200 block truncate" title={item.alasan_gagal}>
+                                {item.alasan_gagal || 'Timeout / Network Error'}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              {isPending ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                                  <Clock className="w-3 h-3 text-amber-700 animate-spin" />
+                                  <span>MENUNGGU RETRY</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-100 text-blue-900 border border-blue-300">
+                                  <Check className="w-3 h-3 text-blue-700" />
+                                  <span>TERSELESAIKAN</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-center whitespace-nowrap">
+                              {isPending ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleManualRetry(item)}
+                                  disabled={retryingId === item.id}
+                                  className="px-3 py-1.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-[11px] inline-flex items-center gap-1.5 transition-all shadow-xs cursor-pointer disabled:opacity-60"
+                                >
+                                  <RefreshCw className={`w-3.5 h-3.5 ${retryingId === item.id ? 'animate-spin' : ''}`} />
+                                  <span>{retryingId === item.id ? 'Memproses...' : 'Coba Lagi Sekarang'}</span>
+                                </button>
+                              ) : (
+                                <span className="text-[11px] font-semibold text-blue-800 flex items-center justify-center gap-1">
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Sudah Berhasil</span>
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
-
-            {loading ? (
-              <div className="p-4">
-                <SkeletonTable rows={6} cols={7} />
+          ) : (
+            <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-2xl overflow-hidden">
+              <div className="px-4 py-3 bg-white/60 backdrop-blur-xs border-b border-white/50 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#1E3A8A]">
+                  Menampilkan <span className="text-[#1D4ED8] font-extrabold">{filteredLogs.length}</span> catatan audit log
+                </span>
+                {dateFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setDateFilter('')}
+                    className="text-[11px] font-bold text-rose-700 hover:underline cursor-pointer"
+                  >
+                    Tampilkan Semua Tanggal ✕
+                  </button>
+                )}
               </div>
-            ) : filteredLogs.length === 0 ? (
-              <div className="py-20 text-center text-stone-500">
-                <History className="w-10 h-10 text-stone-300 mx-auto mb-2" />
-                <p className="font-bold text-stone-700">Tidak ada audit log yang sesuai filter</p>
-                <p className="text-xs text-stone-400 mt-1">Coba bersihkan kata kunci pencarian atau ubah rentang tanggal.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F0F9FF] text-stone-600 font-bold uppercase tracking-wider text-[10px] border-b border-[#E8DFD5]">
-                    <tr>
-                      <th className="py-3 px-4">Waktu (WIB)</th>
-                      <th className="py-3 px-4">Petugas / Role</th>
-                      <th className="py-3 px-4">Jenis Aksi</th>
-                      <th className="py-3 px-4">Kode &amp; Nama</th>
-                      <th className="py-3 px-4">Rincian (Lama ➔ Baru)</th>
-                      <th className="py-3 px-4">Catatan</th>
-                      <th className="py-3 px-4 text-center">Detail</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-100 font-medium text-stone-800">
-                    {filteredLogs.map((log) => {
-                      const dtStr = log.created_at
-                        ? new Date(log.created_at).toLocaleString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            timeZone: 'Asia/Jakarta',
-                          })
-                        : '-';
 
-                      return (
-                        <tr key={log.id} className="hover:bg-stone-50/80 transition-colors">
-                          {/* Waktu */}
-                          <td className="py-3 px-4 whitespace-nowrap font-mono text-[11px] text-stone-500">
-                            {dtStr}
-                          </td>
+              {loading ? (
+                <div className="p-4">
+                  <SkeletonTable rows={6} cols={7} />
+                </div>
+              ) : filteredLogs.length === 0 ? (
+                <div className="py-20 text-center text-stone-500">
+                  <History className="w-10 h-10 text-stone-300 mx-auto mb-2" />
+                  <p className="font-bold text-stone-700">Tidak ada audit log yang sesuai filter</p>
+                  <p className="text-xs text-stone-400 mt-1">Coba bersihkan kata kunci pencarian atau ubah rentang tanggal.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#F0F9FF] text-stone-600 font-bold uppercase tracking-wider text-[10px] border-b border-[#E8DFD5]">
+                      <tr>
+                        <th className="py-3 px-4">Waktu (WIB)</th>
+                        <th className="py-3 px-4">Petugas / Role</th>
+                        <th className="py-3 px-4">Jenis Aksi</th>
+                        <th className="py-3 px-4">Kode &amp; Nama</th>
+                        <th className="py-3 px-4">Rincian (Lama ➔ Baru)</th>
+                        <th className="py-3 px-4">Catatan</th>
+                        <th className="py-3 px-4 text-center">Detail</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100 font-medium text-stone-800">
+                      {filteredLogs.map((log) => {
+                        const dtStr = log.created_at
+                          ? new Date(log.created_at).toLocaleString('id-ID', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              timeZone: 'Asia/Jakarta',
+                            })
+                          : '-';
 
-                          {/* Panitia */}
-                          <td className="py-3 px-4 whitespace-nowrap">
-                            <div className="font-bold text-[#0F2C59]">{log.panitia_id || 'SYSTEM'}</div>
-                            <div className="text-[10px] text-stone-400 uppercase font-semibold">{log.panitia_role || 'PANITIA'}</div>
-                          </td>
+                        return (
+                          <tr key={log.id} className="hover:bg-stone-50/80 transition-colors">
+                            {/* Waktu */}
+                            <td className="py-3 px-4 whitespace-nowrap font-mono text-[11px] text-stone-500">
+                              {dtStr}
+                            </td>
 
-                          {/* Aksi Badge */}
-                          <td className="py-3 px-4 whitespace-nowrap">
-                            {renderAksiBadge(String(log.aksi))}
-                          </td>
+                            {/* Panitia */}
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <div className="font-bold text-[#0F2C59]">{log.panitia_id || 'SYSTEM'}</div>
+                              <div className="text-[10px] text-stone-400 uppercase font-semibold">{log.panitia_role || 'PANITIA'}</div>
+                            </td>
 
-                          {/* Kode & Nama */}
-                          <td className="py-3 px-4">
-                            {log.kode ? (
-                              <div>
-                                <span className="font-mono font-bold text-[#1D4ED8] text-xs">{log.kode}</span>
-                                <div className="font-semibold text-stone-800 line-clamp-1">{log.nama || '-'}</div>
-                              </div>
-                            ) : (
-                              <span className="text-stone-400 italic">-</span>
-                            )}
-                          </td>
+                            {/* Aksi Badge */}
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              {renderAksiBadge(String(log.aksi))}
+                            </td>
 
-                          {/* Detail Preview (Lama -> Baru) */}
-                          <td className="py-3 px-4 max-w-xs truncate">
-                            {log.field && <span className="font-bold text-[#1D4ED8] mr-1">{log.field}:</span>}
-                            {log.nilai_lama && (
-                              <span className="line-through text-rose-600 mr-1 font-mono text-[11px]">{log.nilai_lama}</span>
-                            )}
-                            {log.nilai_baru && (
-                              <span className="font-bold text-blue-700 font-mono text-[11px]">
-                                {log.nilai_baru.length > 40 ? log.nilai_baru.substring(0, 40) + '...' : log.nilai_baru}
-                              </span>
-                            )}
-                            {!log.field && !log.nilai_lama && !log.nilai_baru && (
-                              <span className="text-stone-400 italic">Lihat detail JSON</span>
-                            )}
-                          </td>
+                            {/* Kode & Nama */}
+                            <td className="py-3 px-4">
+                              {log.kode ? (
+                                <div>
+                                  <span className="font-mono font-bold text-[#1D4ED8] text-xs">{log.kode}</span>
+                                  <div className="font-semibold text-stone-800 line-clamp-1">{log.nama || '-'}</div>
+                                </div>
+                              ) : (
+                                <span className="text-stone-400 italic">-</span>
+                              )}
+                            </td>
 
-                          {/* Catatan */}
-                          <td className="py-3 px-4 text-stone-600 max-w-xs truncate italic">
-                            {log.catatan || '-'}
-                          </td>
+                            {/* Detail Preview (Lama -> Baru) */}
+                            <td className="py-3 px-4 max-w-xs truncate">
+                              {log.field && <span className="font-bold text-[#1D4ED8] mr-1">{log.field}:</span>}
+                              {log.nilai_lama && (
+                                <span className="line-through text-rose-600 mr-1 font-mono text-[11px]">{log.nilai_lama}</span>
+                              )}
+                              {log.nilai_baru && (
+                                <span className="font-bold text-blue-700 font-mono text-[11px]">
+                                  {log.nilai_baru.length > 40 ? log.nilai_baru.substring(0, 40) + '...' : log.nilai_baru}
+                                </span>
+                              )}
+                              {!log.field && !log.nilai_lama && !log.nilai_baru && (
+                                <span className="text-stone-400 italic">Lihat detail JSON</span>
+                              )}
+                            </td>
 
-                          {/* Aksi Lihat Detail */}
-                          <td className="py-3 px-4 text-center whitespace-nowrap">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedLogDetail(log)}
-                              className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-[11px] inline-flex items-center gap-1 transition-all cursor-pointer"
-                            >
-                              <Eye className="w-3.5 h-3.5 text-[#1D4ED8]" />
-                              <span>Lihat</span>
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                            {/* Catatan */}
+                            <td className="py-3 px-4 text-stone-600 max-w-xs truncate italic">
+                              {log.catatan || '-'}
+                            </td>
+
+                            {/* Aksi Lihat Detail */}
+                            <td className="py-3 px-4 text-center whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedLogDetail(log)}
+                                className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-[11px] inline-flex items-center gap-1 transition-all cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-[#1D4ED8]" />
+                                <span>Lihat</span>
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </main>
 
         {/* MODAL DETAIL AUDIT LOG */}

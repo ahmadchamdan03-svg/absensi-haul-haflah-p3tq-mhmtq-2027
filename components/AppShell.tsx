@@ -5,12 +5,71 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import TopHeader from '@/components/TopHeader';
 import { getActiveRole, AppRole } from '@/lib/auth-roles';
+import { supabase } from '@/lib/supabase/client';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeRole, setActiveRole] = useState<AppRole | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Background Worker: Auto-retry antrean presensi gagal setiap 15 menit (900.000 ms)
+  useEffect(() => {
+    let isCancelled = false;
+
+    const processQueue = async () => {
+      try {
+        const { data: pendingQueue, error } = await supabase
+          .from('antrean_presensi_gagal')
+          .select('*')
+          .eq('status', 'PENDING')
+          .limit(20);
+
+        if (error || !pendingQueue || pendingQueue.length === 0 || isCancelled) return;
+
+        console.log(`[Auto-Retry Worker] Memproses ${pendingQueue.length} antrean presensi gagal...`);
+
+        for (const item of pendingQueue) {
+          if (isCancelled) break;
+          try {
+            const res = await fetch('/api/checkin', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                kode_qr: item.kode_qr,
+                jalur: item.pintu_masuk,
+                panitia_id: item.operator,
+                catatan: `Auto-retry sistem antrean (${item.alasan_gagal || 'Pending'})`,
+              }),
+            });
+
+            const resJson = await res.json();
+            if (res.ok && resJson.ok) {
+              await supabase
+                .from('antrean_presensi_gagal')
+                .update({
+                  status: 'RESOLVED',
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('id', item.id);
+              console.log(`[Auto-Retry Worker] Sukses resolve antrean id=${item.id} kode=${item.kode_qr}`);
+            }
+          } catch (retryErr) {
+            console.warn(`[Auto-Retry Worker] Gagal retry id=${item.id}:`, retryErr);
+          }
+        }
+      } catch (err) {
+        console.error('[Auto-Retry Worker] Error querying queue:', err);
+      }
+    };
+
+    processQueue();
+    const interval = setInterval(processQueue, 15 * 60 * 1000);
+    return () => {
+      isCancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Ambil preferensi sidebar collapsed dari localStorage saat mount
   useEffect(() => {

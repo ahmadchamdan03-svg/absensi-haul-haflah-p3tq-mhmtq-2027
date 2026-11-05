@@ -381,27 +381,45 @@ export default function ScanPage() {
         : undefined;
 
       // 2. Upsert ke presensi_log + sync kuota_terpakai via server API secara paralel
+      let queued = false;
       try {
-        await upsertPresensiLog({
-          kode_qr: kodeTarget,
-          entityId: activeItem.id,
-          nama_peserta: activeItem.nama || activeItem.namaSantri || 'Peserta',
-          tipe_peserta: activeItem.tipe === 'KELUARGA' ? 'KELUARGA' : 'UNDANGAN',
-          jalur: jalur,
-          panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
-          jumlah_l: nextL,
-          jumlah_p: nextP,
-          jumlah_balita: prevBalita + jumlahBalita,
-          tiket_panggung: prevTiketPanggung || (isNewlyGivingGold ? 1 : 0),
-          catatan: `Scan Pintu ${jalur}`,
-          extraSantriData,
-          existingId: activeItem.kuota?.existingLogId,
-        });
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout 5000ms: Koneksi lambat')), 5000)
+        );
+        await Promise.race([
+          upsertPresensiLog({
+            kode_qr: kodeTarget,
+            entityId: activeItem.id,
+            nama_peserta: activeItem.nama || activeItem.namaSantri || 'Peserta',
+            tipe_peserta: activeItem.tipe === 'KELUARGA' ? 'KELUARGA' : 'UNDANGAN',
+            jalur: jalur,
+            panitia_id: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
+            jumlah_l: nextL,
+            jumlah_p: nextP,
+            jumlah_balita: prevBalita + jumlahBalita,
+            tiket_panggung: prevTiketPanggung || (isNewlyGivingGold ? 1 : 0),
+            catatan: `Scan Pintu ${jalur}`,
+            extraSantriData,
+            existingId: activeItem.kuota?.existingLogId,
+          }),
+          timeoutPromise,
+        ]);
       } catch (logErr: any) {
-        setErrorMsg(`Gagal mencatat presensi di Supabase: ${logErr.message || logErr}`);
-        playBuzzerError();
-        setIsSubmitting(false);
-        return;
+        queued = true;
+        console.warn('Checkin online gagal, memasukkan ke antrean_presensi_gagal:', logErr);
+        try {
+          await supabase.from('antrean_presensi_gagal').insert([
+            {
+              kode_qr: kodeTarget,
+              pintu_masuk: jalur,
+              operator: jalur === 'BARAT' ? 'panitia-putra' : 'panitia-putri',
+              alasan_gagal: logErr?.message || 'Timeout / Gangguan Koneksi',
+              status: 'PENDING',
+            },
+          ]);
+        } catch (queueErr) {
+          console.error('Gagal insert ke antrean_presensi_gagal:', queueErr);
+        }
       }
 
       const totalTerpakai = nextTotal;
@@ -420,7 +438,9 @@ export default function ScanPage() {
 
       setCheckinResult({
         ok: true,
-        pesan: `Presensi berhasil dicatat! Tambahan masuk: ${inputTotal} orang (L:${jumlahL}, P:${jumlahP}). Total kehadiran kini: ${nextTotal} orang (L:${nextL}, P:${nextP}).`,
+        pesan: queued
+          ? `Absen masuk antrean, akan diproses ulang otomatis. Tambahan masuk: ${inputTotal} orang (L:${jumlahL}, P:${jumlahP}).`
+          : `Presensi berhasil dicatat! Tambahan masuk: ${inputTotal} orang (L:${jumlahL}, P:${jumlahP}). Total kehadiran kini: ${nextTotal} orang (L:${nextL}, P:${nextP}).`,
         sisa: Math.max(0, totalKuota - totalTerpakai),
         detail: updatedItem,
       });
