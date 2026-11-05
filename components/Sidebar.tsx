@@ -199,8 +199,8 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Navigasi Menu Vertikal Terkelompok */}
-      <div className={`flex-1 overflow-y-auto ${collapsed ? 'px-2 py-4 space-y-4' : 'px-3 py-4 space-y-6'}`}>
+      {/* Navigasi Menu Vertikal Terkelompok — Clearance pb-36 agar menu terakhir tidak tertutup FAB */}
+      <div className={`flex-1 overflow-y-auto ${collapsed ? 'px-2 pt-4 pb-36 space-y-4' : 'px-3 pt-4 pb-36 space-y-6'}`}>
         {navGroups.map((group) => (
           <div key={group.groupTitle} className="space-y-1">
             {collapsed ? (
@@ -275,53 +275,6 @@ export default function Sidebar({
           </div>
         ))}
       </div>
-
-      {/* Footer Sidebar: Karakter Usth. Halwaa */}
-      {collapsed ? (
-        <div className="py-3 px-2 border-t border-white/50 bg-white/30 backdrop-blur-xs select-none flex items-center justify-center shrink-0">
-          <button
-            type="button"
-            onClick={() => setTanyaUsOpen(true)}
-            onMouseEnter={() => setIsUsHovered(true)}
-            onMouseLeave={() => setIsUsHovered(false)}
-            className="group relative w-11 h-11 rounded-2xl bg-white/60 hover:bg-white/90 border border-white/80 p-0.5 flex items-center justify-center shadow-xs cursor-pointer focus:outline-none transition-all hover:scale-110 active:scale-95"
-            title="Tanya Usth. Halwaa!"
-          >
-            <img
-              src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
-              alt="Usth. Halwaa"
-              className="w-full h-full object-contain rounded-xl"
-            />
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 ring-2 ring-white animate-pulse" />
-          </button>
-        </div>
-      ) : (
-        <div className="pt-2 pb-3 px-2 border-t border-white/50 bg-white/30 backdrop-blur-xs select-none flex flex-col items-center justify-center shrink-0">
-          <button
-            type="button"
-            onClick={() => setTanyaUsOpen(true)}
-            onMouseEnter={() => setIsUsHovered(true)}
-            onMouseLeave={() => setIsUsHovered(false)}
-            className="group relative flex flex-col items-center cursor-pointer focus:outline-none"
-            title="Klik untuk bertanya ke Usth. Halwaa"
-          >
-            {/* Area Gambar Karakter Ustadzah */}
-            <div className="relative w-20 h-20 sm:w-22 sm:h-20 flex items-end justify-center transition-transform duration-200 group-hover:scale-105">
-              <img
-                src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-half-standby.png'}
-                alt="Usth. Halwaa"
-                className="w-full h-full object-contain object-bottom filter drop-shadow-sm"
-              />
-            </div>
-
-            {/* Label Tanya Usth. Halwaa! */}
-            <div className="-mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-[#1D4ED8] via-[#9B7752] to-[#1D4ED8] group-hover:brightness-110 text-white text-[11px] font-bold shadow-xs border border-[#1E40AF] flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 z-10 whitespace-nowrap">
-              <Sparkles className="w-3 h-3 text-amber-200 animate-pulse shrink-0" />
-              <span>Tanya Usth. Halwaa!</span>
-            </div>
-          </button>
-        </div>
-      )}
     </div>
   );
 
@@ -382,6 +335,41 @@ export default function Sidebar({
         isOpen={tanyaUsOpen}
         onClose={() => setTanyaUsOpen(false)}
       />
+
+      {/* 5. Floating Action Button (FAB) Usth. Halwaa - Melayang di Kiri Bawah (Fixed) */}
+      <button
+        type="button"
+        onClick={() => setTanyaUsOpen(true)}
+        onMouseEnter={() => setIsUsHovered(true)}
+        onMouseLeave={() => setIsUsHovered(false)}
+        className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none ${
+          isCollapsed
+            ? 'left-3.5 w-12 h-12 rounded-2xl justify-center p-1'
+            : 'left-6 px-3.5 py-2.5 rounded-full gap-2.5'
+        }`}
+        title="Tanya Usth. Halwaa!"
+        aria-label="Tanya Usth. Halwaa AI Assistant"
+      >
+        <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white/20 p-0.5 border border-white/40 shrink-0">
+          <img
+            src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
+            alt="Usth. Halwaa"
+            className="w-full h-full object-contain"
+          />
+          <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0F2C59] animate-pulse" />
+        </div>
+        {!isCollapsed && (
+          <div className="flex flex-col text-left pr-1">
+            <span className="text-[11px] font-black tracking-wide leading-tight text-white flex items-center gap-1">
+              <span>Tanya Usth. Halwaa</span>
+              <Sparkles className="w-3 h-3 text-amber-300 animate-pulse" />
+            </span>
+            <span className="text-[9px] font-medium text-blue-200 leading-none">
+              AI Assistant
+            </span>
+          </div>
+        )}
+      </button>
     </>
   );
 }
