@@ -40,7 +40,7 @@ export default function PesertaHeader({
       <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md text-[#0F2C59] rounded-3xl p-6 sm:p-8 shadow-sm border border-white/70 relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-10 -translate-y-8 opacity-10 pointer-events-none">
           <img
-            src="/images/logo-haul-gold.png"
+            src="/images/logo-haul-blue.png"
             alt="Kaligrafi Haul Haflah"
             className="w-96 object-contain"
           />

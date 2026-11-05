@@ -303,28 +303,28 @@ export default function LandingPortalPage() {
           {/* LOGO BERJAJAR */}
           <div className="flex justify-center items-center gap-2 md:gap-3 mb-3">
             <img src="/images/logo-p3tq.png" alt="Logo P3TQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
-            <img src="/images/logo-haul-gold.png" alt="Logo Haul Haflah" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
+            <img src="/images/logo-haul-blue.png" alt="Logo Haul Haflah" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
             <img src="/images/logo-mhmtq.png" alt="Logo MHMTQ" className="h-9 md:h-12 w-auto object-contain drop-shadow-sm" />
           </div>
 
           {/* JUDUL & DESKRIPSI IDENTITAS */}
           <div className="w-full">
-            <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.18em] text-[#1D4ED8] uppercase mb-2 drop-shadow-xs">
+            <p className="text-[10px] md:text-xs font-serif font-black tracking-[0.18em] text-[#1D4ED8] uppercase mb-2 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)]">
               HAUL &amp; HAFLAH AKHIRUSSANAH 1448 H.
             </p>
 
-            <h1 className="text-xs sm:text-sm md:text-base font-bold text-[#0F2C59] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap">
+            <h1 className="text-xs sm:text-sm md:text-base font-extrabold text-[#0F2C59] leading-relaxed drop-shadow-[0_1px_3px_rgba(255,255,255,0.95)] sm:whitespace-nowrap">
               Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
             </h1>
-            <h1 className="text-[11px] sm:text-xs md:text-sm lg:text-base font-bold text-[#0F2C59] leading-relaxed drop-shadow-2xs sm:whitespace-nowrap tracking-tight sm:tracking-normal">
+            <h1 className="text-[11px] sm:text-xs md:text-sm lg:text-base font-extrabold text-[#0F2C59] leading-relaxed drop-shadow-[0_1px_3px_rgba(255,255,255,0.95)] sm:whitespace-nowrap tracking-tight sm:tracking-normal">
               Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
             </h1>
 
-            <p className="text-[10px] md:text-xs italic text-[#1D4ED8] mt-1.5 font-bold">
+            <p className="text-[10px] md:text-xs italic text-[#1D4ED8] mt-1.5 font-bold drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
               Lirboyo Kediri
             </p>
 
-            <p className="text-[11px] md:text-xs text-stone-700 mt-2 mb-4 font-medium leading-relaxed max-w-md mx-auto">
+            <p className="text-[11px] md:text-xs text-[#0F2C59] mt-2 mb-4 font-semibold leading-relaxed max-w-md mx-auto drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">
               Portal resmi kepanitiaan. Silakan masuk sesuai bagan dan otoritas tugas Anda.
             </p>
           </div>

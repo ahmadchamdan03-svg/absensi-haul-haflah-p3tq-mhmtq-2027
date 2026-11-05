@@ -18,7 +18,7 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
       <div className="max-w-md w-full p-6 sm:p-8 space-y-6 relative z-20">
         <div className="flex justify-center">
           <img
-            src="/images/logo-haul-gold.png"
+            src="/images/logo-haul-blue.png"
             alt="Logo Haul & Haflah P3TQ MHMTQ"
             className="h-16 sm:h-20 w-auto object-contain drop-shadow-sm"
           />

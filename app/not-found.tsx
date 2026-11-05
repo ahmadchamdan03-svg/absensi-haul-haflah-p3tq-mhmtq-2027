@@ -8,7 +8,7 @@ export default function NotFound() {
         {/* LOGO RESMI */}
         <div className="flex justify-center">
           <img
-            src="/images/logo-haul-gold.png"
+            src="/images/logo-haul-blue.png"
             alt="Logo Haul & Haflah P3TQ MHMTQ"
             className="h-16 sm:h-20 w-auto object-contain drop-shadow-sm"
           />

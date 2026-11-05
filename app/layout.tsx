@@ -37,10 +37,10 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/logo-haul-haflah-transparent.png',
-        width: 800,
-        height: 800,
-        alt: 'Haflah P3TQ Lirboyo Logo',
+        url: '/images/og-haflah-blue.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Haflah P3TQ Lirboyo 2027',
       },
     ],
   },
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: 'Haflah P3TQ Lirboyo 2027',
     description:
       'Web resmi Haflah Akhirussanah P3TQ & MHMTQ Lirboyo Kediri 1448 H / 2027 M.',
-    images: ['/logo-haul-haflah-transparent.png'],
+    images: ['/images/og-haflah-blue.jpg'],
   },
   robots: {
     index: true,

@@ -163,7 +163,7 @@ export default function Sidebar({
           >
             <div className="w-10 h-10 rounded-2xl bg-white/70 border border-white/80 p-1 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
               <img
-                src="/images/logo-haul-gold.png"
+                src="/images/logo-haul-blue.png"
                 alt="Logo Haul"
                 className="w-full h-full object-contain"
               />
