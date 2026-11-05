@@ -42,16 +42,16 @@ export function VerifikasiHeaderAndStats({
   return (
     <>
       {/* HEADER LOGO & JUDUL HALAMAN */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-[0_8px_32px_rgba(15,44,89,0.08)] rounded-3xl p-6">
         <div className="space-y-1">
           <div className="flex items-center space-x-2 text-xs font-bold text-[#1D4ED8] uppercase tracking-wider">
             <ShieldCheck className="w-4 h-4 text-[#1D4ED8]" />
             <span>Panel Verifikasi Panitia</span>
           </div>
-          <h1 className="font-serif font-black text-2xl text-[#322116]">
+          <h1 className="font-serif font-black text-2xl text-[#0F2C59]" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.8)' }}>
             Verifikasi Mutasi &amp; Kuota Tambahan
           </h1>
-          <p className="text-xs text-stone-600">
+          <p className="text-xs text-stone-700 font-medium">
             Kelola verifikasi pembayaran bukti transfer, entri manual kasir, dan alokasi pagu kuota tambahan kursi.
           </p>
         </div>
@@ -68,15 +68,15 @@ export function VerifikasiHeaderAndStats({
 
       {/* RINGKASAN STATISTIK PAGU KUOTA */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-xs rounded-3xl p-5 space-y-2">
-          <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+        <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-md rounded-3xl p-5 space-y-2">
+          <span className="text-[10px] text-[#0F2C59] font-bold uppercase tracking-wider block">
             PAGU TERJUAL (DIVERIFIKASI)
           </span>
           <div className="flex items-baseline space-x-2">
-            <span className="font-serif font-black text-3xl text-blue-700">{paguTerjual}</span>
-            <span className="text-xs text-stone-500 font-bold">/ 300 unit</span>
+            <span className="font-serif font-black text-3xl text-blue-800">{paguTerjual}</span>
+            <span className="text-xs text-stone-600 font-bold">/ 300 unit</span>
           </div>
-          <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden border border-stone-200">
+          <div className="w-full bg-blue-100 rounded-full h-2.5 overflow-hidden border border-blue-200">
             <div
               className="bg-blue-600 h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(100, (paguTerjual / 300) * 100)}%` }}
@@ -84,41 +84,41 @@ export function VerifikasiHeaderAndStats({
           </div>
         </div>
 
-        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-xs rounded-3xl p-5 space-y-2">
-          <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+        <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-md rounded-3xl p-5 space-y-2">
+          <span className="text-[10px] text-[#0F2C59] font-bold uppercase tracking-wider block">
             SISA TERSEDIA
           </span>
           <div className="flex items-baseline space-x-2">
             <span className="font-serif font-black text-3xl text-[#0F2C59]">{sisaPagu}</span>
-            <span className="text-xs text-stone-500 font-bold">unit pagu</span>
+            <span className="text-xs text-stone-600 font-bold">unit pagu</span>
           </div>
-          <p className="text-[11px] text-stone-500 font-medium">Kapasitas maksimal 300 kursi</p>
+          <p className="text-[11px] text-stone-600 font-semibold">Kapasitas maksimal 300 kursi</p>
         </div>
 
-        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-xs rounded-3xl p-5 space-y-2">
-          <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+        <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-md rounded-3xl p-5 space-y-2">
+          <span className="text-[10px] text-[#0F2C59] font-bold uppercase tracking-wider block">
             MENUNGGU VERIFIKASI
           </span>
           <div className="flex items-baseline space-x-2">
-            <span className="font-serif font-black text-3xl text-sky-700">
+            <span className="font-serif font-black text-3xl text-sky-800">
               {countMenungguVerifikasi}
             </span>
-            <span className="text-xs text-stone-500 font-bold">pesanan</span>
+            <span className="text-xs text-stone-600 font-bold">pesanan</span>
           </div>
-          <p className="text-[11px] text-stone-500 font-medium">Bukti transfer sudah diunggah</p>
+          <p className="text-[11px] text-sky-800 font-semibold">Bukti transfer sudah diunggah</p>
         </div>
 
-        <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-xs rounded-3xl p-5 space-y-2">
-          <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">
+        <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-md rounded-3xl p-5 space-y-2">
+          <span className="text-[10px] text-[#0F2C59] font-bold uppercase tracking-wider block">
             MENUNGGU PEMBAYARAN
           </span>
           <div className="flex items-baseline space-x-2">
-            <span className="font-serif font-black text-3xl text-amber-700">
+            <span className="font-serif font-black text-3xl text-amber-800">
               {countMenungguPembayaran}
             </span>
-            <span className="text-xs text-stone-500 font-bold">pesanan</span>
+            <span className="text-xs text-stone-600 font-bold">pesanan</span>
           </div>
-          <p className="text-[11px] text-stone-500 font-medium">Terkunci (Batas waktu 6 jam)</p>
+          <p className="text-[11px] text-amber-800 font-semibold">Menunggu transfer santri</p>
         </div>
       </div>
 
@@ -203,7 +203,7 @@ export function VerifikasiOrdersTable({
   handleTolakOrder: (order: any) => void;
 }) {
   return (
-    <div className="bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-3xl p-4 sm:p-5 space-y-4">
+    <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-[0_8px_32px_rgba(15,44,89,0.08)] rounded-3xl p-4 sm:p-5 space-y-4">
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Tab Filter Pills */}
         <div className="flex items-center gap-2 text-xs font-bold overflow-x-auto pb-2 md:pb-0 whitespace-nowrap no-scrollbar">
@@ -212,7 +212,7 @@ export function VerifikasiOrdersTable({
             className={`px-4 py-2.5 rounded-2xl transition-all shrink-0 cursor-pointer ${
               filterStatus === 'SEMUA'
                 ? 'bg-[#1D4ED8] text-white shadow-md'
-                : 'bg-white/50 hover:bg-white/70 backdrop-blur-sm text-[#0F2C59] border border-white/60'
+                : 'bg-white/80 hover:bg-white backdrop-blur-sm text-[#0F2C59] border border-blue-200/60 shadow-xs'
             }`}
           >
             Semua Transaksi ({pembelianListLength})
@@ -222,7 +222,7 @@ export function VerifikasiOrdersTable({
             className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
               filterStatus === 'MENUNGGU'
                 ? 'bg-sky-700 text-white shadow-md'
-                : 'bg-sky-50/70 hover:bg-sky-100/80 backdrop-blur-sm text-sky-900 border border-sky-300/60'
+                : 'bg-sky-100/70 hover:bg-sky-100 backdrop-blur-sm text-sky-950 border border-sky-300/80 shadow-xs'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -233,7 +233,7 @@ export function VerifikasiOrdersTable({
             className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
               filterStatus === 'DIVERIFIKASI'
                 ? 'bg-blue-700 text-white shadow-md'
-                : 'bg-blue-50/70 hover:bg-blue-100/80 backdrop-blur-sm text-blue-900 border border-blue-300/60'
+                : 'bg-blue-100/70 hover:bg-blue-100 backdrop-blur-sm text-blue-950 border border-blue-300/80 shadow-xs'
             }`}
           >
             <Check className="w-3.5 h-3.5" />
@@ -244,7 +244,7 @@ export function VerifikasiOrdersTable({
             className={`px-4 py-2.5 rounded-2xl flex items-center space-x-1.5 transition-all shrink-0 cursor-pointer ${
               filterStatus === 'BATAL'
                 ? 'bg-rose-700 text-white shadow-md'
-                : 'bg-rose-50/70 hover:bg-rose-100/80 backdrop-blur-sm text-rose-900 border border-rose-300/60'
+                : 'bg-rose-100/70 hover:bg-rose-100 backdrop-blur-sm text-rose-950 border border-rose-300/80 shadow-xs'
             }`}
           >
             <X className="w-3.5 h-3.5" />
@@ -254,13 +254,13 @@ export function VerifikasiOrdersTable({
 
         {/* Search Input */}
         <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#0F2C59]/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari ID pesanan, santri, wali..."
-            className="w-full pl-9 pr-8 py-2.5 text-xs rounded-2xl border border-white/60 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#1D4ED8]"
+            className="w-full pl-9 pr-8 py-2.5 text-xs rounded-2xl border border-blue-200/80 bg-white/90 backdrop-blur-xs focus:bg-white text-[#0F2C59] font-medium focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]"
           />
           {searchQuery && (
             <button
@@ -274,9 +274,9 @@ export function VerifikasiOrdersTable({
       </div>
 
       {/* TABEL TRANSAKSI KUOTA TAMBAHAN */}
-      <div className="overflow-x-auto rounded-2xl border border-white/50 bg-white/30 backdrop-blur-xs">
+      <div className="overflow-x-auto rounded-2xl border border-[#BAE6FD]/80 bg-white/90 backdrop-blur-sm shadow-xs">
         <table className="w-full min-w-[920px] text-xs text-left">
-          <thead className="bg-white/50 backdrop-blur-xs text-[#0F2C59] font-serif font-black border-b border-[#BAE6FD] uppercase tracking-wider text-[10px]">
+          <thead className="bg-blue-100/70 backdrop-blur-xs text-[#0F2C59] font-serif font-black border-b border-[#BAE6FD] uppercase tracking-wider text-[10px]">
             <tr>
               <th className="py-3.5 px-4 whitespace-nowrap">ID PESANAN</th>
               <th className="py-3.5 px-4 whitespace-nowrap">WALI &amp; SANTRI</th>

@@ -33,7 +33,7 @@ export interface SkeletonListProps extends SkeletonProps {
 export function SkeletonBase({ className = '', style, ...props }: SkeletonTextProps) {
   return (
     <div
-      className={`bg-white/30 backdrop-blur-sm animate-pulse border border-white/20 rounded-lg relative overflow-hidden ${className}`}
+      className={`bg-blue-900/10 backdrop-blur-sm animate-pulse border border-blue-900/15 rounded-lg relative overflow-hidden ${className}`}
       style={style}
       {...props}
     />
@@ -58,7 +58,7 @@ export function SkeletonText({
 
   return (
     <div
-      className={`bg-white/35 backdrop-blur-sm animate-pulse rounded-md border border-white/20 ${className}`}
+      className={`bg-blue-900/10 backdrop-blur-sm animate-pulse rounded-md border border-blue-900/15 ${className}`}
       style={customStyle}
       {...props}
     />
@@ -108,11 +108,11 @@ export function SkeletonCard({
  */
 export function SkeletonTableRow({ cols = 5, className = '' }: { cols?: number; className?: string }) {
   return (
-    <tr className={`border-b border-white/10 ${className}`}>
+    <tr className={`border-b border-blue-900/10 ${className}`}>
       {Array.from({ length: cols }).map((_, cIdx) => (
         <td key={cIdx} className="py-3.5 px-4">
           <div
-            className="h-4 bg-white/30 backdrop-blur-xs animate-pulse rounded-lg border border-white/20"
+            className="h-4 bg-blue-900/10 backdrop-blur-xs animate-pulse rounded-lg border border-blue-900/15"
             style={{ width: `${Math.floor(50 + ((cIdx * 17) % 45))}%` }}
           />
         </td>
@@ -133,18 +133,18 @@ export function SkeletonTable({
 }: SkeletonTableProps) {
   return (
     <div
-      className={`w-full bg-white/30 backdrop-blur-md rounded-2xl border border-white/30 shadow-xs overflow-hidden ${className}`}
+      className={`w-full bg-white/85 backdrop-blur-md rounded-2xl border border-blue-200/60 shadow-xs overflow-hidden ${className}`}
       {...props}
     >
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {showHeader && (
             <thead>
-              <tr className="bg-white/40 border-b border-white/25">
+              <tr className="bg-blue-100/60 border-b border-blue-200/50">
                 {Array.from({ length: cols }).map((_, idx) => (
                   <th key={idx} className="py-3.5 px-4">
                     <div
-                      className="h-3.5 bg-white/40 backdrop-blur-xs animate-pulse rounded-md border border-white/20"
+                      className="h-3.5 bg-blue-900/15 backdrop-blur-xs animate-pulse rounded-md border border-blue-900/20"
                       style={{ width: `${Math.floor(40 + ((idx * 23) % 45))}%` }}
                     />
                   </th>
@@ -152,7 +152,7 @@ export function SkeletonTable({
               </tr>
             </thead>
           )}
-          <tbody className="divide-y divide-white/15">
+          <tbody className="divide-y divide-blue-900/10">
             {Array.from({ length: rows }).map((_, rIdx) => (
               <SkeletonTableRow key={rIdx} cols={cols} />
             ))}
