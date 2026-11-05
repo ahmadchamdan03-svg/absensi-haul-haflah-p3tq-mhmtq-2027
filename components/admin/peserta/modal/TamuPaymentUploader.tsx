@@ -187,6 +187,40 @@ export async function submitTambahUndanganToSupabase(params: {
 
   if (res.ok) {
     try {
+      let mergedGroupId: string | null = null;
+      try {
+        const detectRes = await fetch('/api/peserta/merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'detect',
+            nama: finalNama,
+            alamat: finalAlamat,
+            type: 'TAMU',
+          }),
+        });
+        const detectJson = await detectRes.json();
+        if (detectJson.detected && detectJson.record) {
+          const rec = detectJson.record;
+          const kota = (rec.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
+          const wantsMerge = window.confirm(
+            `Terdeteksi data serupa: ${rec.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`
+          );
+          if (wantsMerge) {
+            mergedGroupId = rec.merged_group_id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `grp-${Date.now()}`);
+            if (!rec.merged_group_id) {
+              await fetch('/api/tamu', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: rec.id, merged_group_id: mergedGroupId }),
+              }).catch(() => {});
+            }
+          }
+        }
+      } catch (detErr) {
+        console.warn('Detect duplicate error:', detErr);
+      }
+
       const warnaTiketVal = getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori);
       const postRes = await fetch('/api/tamu', {
         method: 'POST',
@@ -202,6 +236,7 @@ export async function submitTambahUndanganToSupabase(params: {
           noHp: undanganForm.noHp || '-',
           kuotaDasar: kuotaBase,
           warnaTiket: warnaTiketVal,
+          merged_group_id: mergedGroupId,
         }),
       });
 

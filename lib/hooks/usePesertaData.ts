@@ -77,6 +77,7 @@ export function usePesertaData() {
         const mappedKeluarga = santriData.map((d: any) => ({
           id: d.id,
           kode: d.kode,
+          merged_group_id: d.merged_group_id || null,
           namaWali: d.nama_wali || '-',
           noHp: d.no_hp || '-',
           alamat: d.alamat || 'Kediri',
@@ -137,6 +138,7 @@ export function usePesertaData() {
           return {
             id: u.id,
             kode: u.kode,
+            merged_group_id: u.merged_group_id || null,
             nama: u.nama,
             namaPutra: u.nama_putra || '',
             namaPutri: u.nama_putri || '',
@@ -442,6 +444,7 @@ export function usePesertaData() {
         sisa: sisa,
         tiketPanggungJatah: kuota?.tiketPanggungJatah || 0,
         hangus: kuota?.hangus || false,
+        merged_group_id: k.merged_group_id || null,
         raw: k,
       });
     });
@@ -479,11 +482,87 @@ export function usePesertaData() {
         sisa: sisa,
         tiketPanggungJatah: 0,
         hangus: false,
+        merged_group_id: u.merged_group_id || null,
         raw: u,
       });
     });
 
-    return list;
+    const getPriority = (item: any) => {
+      if (item.tipe === 'UNDANGAN') {
+        const gol = (item.golonganUndangan || '').toUpperCase();
+        if (gol === 'ISTIMEWA') return 30;
+        if (gol === 'KEHORMATAN') return 20;
+        return 10;
+      } else {
+        const kat = (item.kategoriUtama || '').toUpperCase();
+        if (kat.includes('BIL_GHOIB') || kat.includes('GHOIB')) return 3;
+        if (kat.includes('BIN_NADZOR') || kat.includes('NADZOR')) return 2;
+        return 1;
+      }
+    };
+
+    const groupMap = new Map<string, any[]>();
+    const unmergedList: any[] = [];
+
+    list.forEach((item) => {
+      if (item.merged_group_id) {
+        if (!groupMap.has(item.merged_group_id)) {
+          groupMap.set(item.merged_group_id, []);
+        }
+        groupMap.get(item.merged_group_id)!.push(item);
+      } else {
+        unmergedList.push({
+          ...item,
+          isMerged: false,
+          mergedItems: [item],
+        });
+      }
+    });
+
+    const mergedCards: any[] = [];
+    groupMap.forEach((groupItems, groupId) => {
+      if (groupItems.length === 1) {
+        unmergedList.push({
+          ...groupItems[0],
+          isMerged: false,
+          mergedItems: groupItems,
+        });
+        return;
+      }
+
+      // Prioritas tertinggi: Tamu (Istimewa > Kehormatan > Umum), Santri (Bil Ghoib > Bin Nadzori > Tamatan)
+      groupItems.sort((a, b) => getPriority(b) - getPriority(a));
+      const primary = groupItems[0];
+
+      const sumKuotaDasar = groupItems.reduce((acc, it) => acc + (it.kuotaDasar || 0), 0);
+      const sumKuotaTambahan = groupItems.reduce((acc, it) => acc + (it.kuotaTambahan || 0), 0);
+      const totalKuota = sumKuotaDasar + sumKuotaTambahan;
+      const maxTerpakai = Math.max(...groupItems.map((it) => it.terpakai || 0));
+
+      mergedCards.push({
+        ...primary,
+        id: primary.id,
+        kode: primary.kode,
+        isMerged: true,
+        merged_group_id: groupId,
+        mergedItems: groupItems,
+        kuotaDasar: sumKuotaDasar,
+        kuotaTambahan: sumKuotaTambahan,
+        terpakai: maxTerpakai,
+        sisa: Math.max(0, totalKuota - maxTerpakai),
+        multiBadges: groupItems.map((it) => ({
+          id: it.id,
+          kode: it.kode,
+          tipe: it.tipe,
+          golonganUndangan: it.golonganUndangan,
+          kategoriUtama: it.kategoriUtama,
+          subKategori: it.subKategori,
+          kategori: it.kategori,
+        })),
+      });
+    });
+
+    return [...mergedCards, ...unmergedList];
   }, [keluargaList, undanganList]);
 
   return {

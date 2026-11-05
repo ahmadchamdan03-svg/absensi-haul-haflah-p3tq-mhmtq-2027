@@ -146,14 +146,13 @@ export function useSantriForm({
       }
 
       if (existing) {
-        // 2. TAMPILKAN POP-UP KONFIRMASI: KARENA NAMA DAN WALI COCOK
-        const confirmed = window.confirm(
-          `Santri dengan nama ${existing.nama} sudah ada. Apakah Anda ingin memperbarui datanya dan menggabungkan kategorinya?`
+        // 2. TAMPILKAN POP-UP KONFIRMASI: KARENA NAMA DAN WALI/ALAMAT COCOK
+        const kota = (existing.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
+        const wantsMerge = window.confirm(
+          `Terdeteksi data serupa: ${existing.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`
         );
 
-        if (!confirmed) {
-          return;
-        }
+        if (wantsMerge) {
 
         // 3. Jika Konfirmasi YA: LAKUKAN UPDATE
         const mergedSub = mergeSubKategori(existing.sub_kategori || '', incomingSubKat);
@@ -247,6 +246,7 @@ export function useSantriForm({
         });
         return;
       }
+    }
 
       // 2. SANTRI BELUM ADA ATAU NAMA WALI BEDA: LAKUKAN INSERT BARU
       const kuotaVal = calculateKuotaDasarSantri(formData.kategoriUtama, incomingSubKat);

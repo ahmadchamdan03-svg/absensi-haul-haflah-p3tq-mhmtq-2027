@@ -355,7 +355,23 @@ export default function UndanganWaliPage() {
 
         // Handle Tamu Undangan
         if (rawDataTamu) {
-          const t = rawDataTamu;
+          let t = rawDataTamu;
+          if (t.merged_group_id) {
+            const { data: groupTamu } = await supabase
+              .from('tamu_undangan')
+              .select('*')
+              .eq('merged_group_id', t.merged_group_id);
+            if (groupTamu && groupTamu.length > 1) {
+              const getPriority = (g: string) => {
+                const up = String(g || '').toUpperCase();
+                if (up.includes('ISTIMEWA')) return 3;
+                if (up.includes('KEHORMATAN')) return 2;
+                return 1;
+              };
+              groupTamu.sort((a, b) => getPriority(b.sub_kategori || b.kategori) - getPriority(a.sub_kategori || a.kategori));
+              t = groupTamu[0];
+            }
+          }
           setItemNotFound(false);
           const countL = t.nama_putra && String(t.nama_putra).trim() ? 1 : 0;
           const countP = t.nama_putri && String(t.nama_putri).trim() ? 1 : 0;
@@ -397,7 +413,23 @@ export default function UndanganWaliPage() {
         }
         // Handle Peserta Santri (Wali Santri)
         else if (rawDataSantri) {
-          const s = rawDataSantri;
+          let s = rawDataSantri;
+          if (s.merged_group_id) {
+            const { data: groupSantri } = await supabase
+              .from('peserta_santri')
+              .select('*')
+              .eq('merged_group_id', s.merged_group_id);
+            if (groupSantri && groupSantri.length > 1) {
+              const getPrioritySantri = (kat: string) => {
+                const up = String(kat || '').toUpperCase();
+                if (up.includes('BIL_GHOIB') || up.includes('GHOIB')) return 3;
+                if (up.includes('BIN_NADZOR') || up.includes('NADZOR')) return 2;
+                return 1;
+              };
+              groupSantri.sort((a, b) => getPrioritySantri(b.kategori_utama) - getPrioritySantri(a.kategori_utama));
+              s = groupSantri[0];
+            }
+          }
           setItemNotFound(false);
           const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
           const kDasar = Number(s.kuota_dasar && s.kuota_dasar >= calculatedKDasar ? s.kuota_dasar : calculatedKDasar);

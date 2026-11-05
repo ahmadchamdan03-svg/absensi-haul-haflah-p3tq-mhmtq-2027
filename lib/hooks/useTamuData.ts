@@ -342,6 +342,40 @@ export function useTamuData() {
     setIsSubmittingTamu(true);
 
     try {
+      let mergedGroupId: string | null = null;
+      try {
+        const detectRes = await fetch('/api/peserta/merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'detect',
+            nama: finalNama,
+            alamat: finalAlamat,
+            type: 'TAMU',
+          }),
+        });
+        const detectJson = await detectRes.json();
+        if (detectJson.detected && detectJson.record) {
+          const rec = detectJson.record;
+          const kota = (rec.alamat || '').trim().split(/\s+/).pop() || 'daerah serupa';
+          const wantsMerge = window.confirm(
+            `Terdeteksi data serupa: ${rec.nama} dari ${kota}.\n\nApakah Anda ingin menggabungkan data ini?`
+          );
+          if (wantsMerge) {
+            mergedGroupId = rec.merged_group_id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `grp-${Date.now()}`);
+            if (!rec.merged_group_id) {
+              await fetch('/api/tamu', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: rec.id, merged_group_id: mergedGroupId }),
+              }).catch(() => {});
+            }
+          }
+        }
+      } catch (detErr) {
+        console.warn('Detect duplicate error in penerima-tamu:', detErr);
+      }
+
       const res = await fetch('/api/tamu', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -355,6 +389,7 @@ export function useTamuData() {
           subKategori: selectedGolonganUndangan || 'ISTIMEWA',
           noHp: undanganForm.noHp || '-',
           kuotaDasar: kuotaBase,
+          merged_group_id: mergedGroupId,
         }),
       });
 

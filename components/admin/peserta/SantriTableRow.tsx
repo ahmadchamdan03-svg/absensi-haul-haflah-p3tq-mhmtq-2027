@@ -8,6 +8,8 @@ import {
   Phone,
   UserCheck,
   Check,
+  Link2,
+  Unlink,
 } from 'lucide-react';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase/client';
@@ -115,6 +117,7 @@ export interface SantriTableRowProps {
   setQrDetailItem: (item: any | null) => void;
   handleOpenEdit: (item: any) => void;
   setDeletingItem: (item: any | null) => void;
+  onOpenUnmerge?: (item: any) => void;
 }
 
 export default function SantriTableRow({
@@ -125,6 +128,7 @@ export default function SantriTableRow({
   setQrDetailItem,
   handleOpenEdit,
   setDeletingItem,
+  onOpenUnmerge,
 }: SantriTableRowProps) {
   const isBilGhoib = item.kategoriUtama === 'BIL_GHOIB';
   const isBinNadzor = item.kategoriUtama === 'BIN_NADZOR';
@@ -144,6 +148,11 @@ export default function SantriTableRow({
         >
           <QrCode className="w-3.5 h-3.5 text-slate-500 group-hover:text-opera-700" />
           <span>{item.kode}</span>
+          {item.isMerged && (
+            <span title="QR Code Prioritas Tertinggi (Grup Gabungan)">
+              <Link2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+            </span>
+          )}
         </button>
       </td>
 
@@ -167,53 +176,74 @@ export default function SantriTableRow({
 
       {/* Kategori & Bagian */}
       <td className="py-3 px-4">
-        <div className="flex items-center space-x-1.5">
-          <span
-            className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${
-              isBilGhoib || (item.subKategori && item.subKategori.toLowerCase().includes('ghoib'))
-                ? 'bg-blue-500'
-                : isBinNadzor || (item.subKategori && item.subKategori.toLowerCase().includes('nadzor'))
-                ? 'bg-blue-500'
-                : isTamatan
-                ? 'bg-amber-500'
-                : item.golonganUndangan === 'ISTIMEWA'
-                ? 'bg-amber-600'
-                : item.golonganUndangan === 'KEHORMATAN'
-                ? 'bg-purple-600'
-                : 'bg-cyan-600'
-            }`}
-          ></span>
-          <span className="font-bold text-slate-800 break-words leading-tight">
-            {!isUndangan
-              ? formatAdminKategoriSantri(item)
-              : item.golonganUndangan === 'ISTIMEWA'
-              ? 'Undangan Istimewa'
-              : item.golonganUndangan === 'KEHORMATAN'
-              ? 'Undangan Kehormatan'
-              : 'Undangan Umum'}
-          </span>
-        </div>
-        {!isUndangan && item.subKategori?.includes('&') && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-gradient-to-r from-emerald-100 to-amber-100 text-slate-800 border border-blue-300/80 shadow-xs">
-              ⭐ Kategori Dobel
-            </span>
+        {item.isMerged ? (
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+              <Link2 className="w-3 h-3 text-sky-600 shrink-0" />
+              <span>Gabungan ({item.mergedItems?.length} Kategori)</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-1">
+              {item.multiBadges?.map((b: any, idx: number) => (
+                <span
+                  key={idx}
+                  className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200"
+                >
+                  {b.kategoriUtama || b.subKategori}
+                </span>
+              ))}
+            </div>
           </div>
-        )}
-        {isUndangan && (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border mt-0.5 ${
-              item.golonganUndangan === 'ISTIMEWA'
-                ? 'bg-sky-50 text-blue-950 border-sky-300'
-                : item.golonganUndangan === 'KEHORMATAN'
-                ? 'bg-purple-50 text-purple-900 border-purple-300'
-                : 'bg-cyan-50 text-cyan-900 border-cyan-300'
-            }`}
-          >
-            {item.golonganUndangan === 'KEHORMATAN'
-              ? 'Tamu Kehormatan'
-              : item.kategori || 'VIP'}
-          </span>
+        ) : (
+          <>
+            <div className="flex items-center space-x-1.5">
+              <span
+                className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${
+                  isBilGhoib || (item.subKategori && item.subKategori.toLowerCase().includes('ghoib'))
+                    ? 'bg-blue-500'
+                    : isBinNadzor || (item.subKategori && item.subKategori.toLowerCase().includes('nadzor'))
+                    ? 'bg-blue-500'
+                    : isTamatan
+                    ? 'bg-amber-500'
+                    : item.golonganUndangan === 'ISTIMEWA'
+                    ? 'bg-amber-600'
+                    : item.golonganUndangan === 'KEHORMATAN'
+                    ? 'bg-purple-600'
+                    : 'bg-cyan-600'
+                }`}
+              ></span>
+              <span className="font-bold text-slate-800 break-words leading-tight">
+                {!isUndangan
+                  ? formatAdminKategoriSantri(item)
+                  : item.golonganUndangan === 'ISTIMEWA'
+                  ? 'Undangan Istimewa'
+                  : item.golonganUndangan === 'KEHORMATAN'
+                  ? 'Undangan Kehormatan'
+                  : 'Undangan Umum'}
+              </span>
+            </div>
+            {!isUndangan && item.subKategori?.includes('&') && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-gradient-to-r from-emerald-100 to-amber-100 text-slate-800 border border-blue-300/80 shadow-xs">
+                  ⭐ Kategori Dobel
+                </span>
+              </div>
+            )}
+            {isUndangan && (
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border mt-0.5 ${
+                  item.golonganUndangan === 'ISTIMEWA'
+                    ? 'bg-sky-50 text-blue-950 border-sky-300'
+                    : item.golonganUndangan === 'KEHORMATAN'
+                    ? 'bg-purple-50 text-purple-900 border-purple-300'
+                    : 'bg-cyan-50 text-cyan-900 border-cyan-300'
+                }`}
+              >
+                {item.golonganUndangan === 'KEHORMATAN'
+                  ? 'Tamu Kehormatan'
+                  : item.kategori || 'VIP'}
+              </span>
+            )}
+          </>
         )}
       </td>
 
@@ -372,6 +402,26 @@ export default function SantriTableRow({
           >
             <Edit className="w-4 h-4" />
           </button>
+
+          {item.isMerged && (
+            <button
+              type="button"
+              disabled={item.terpakai > 0}
+              onClick={() => onOpenUnmerge && onOpenUnmerge(item)}
+              title={
+                item.terpakai > 0
+                  ? 'Tidak dapat dipisahkan karena peserta sudah melakukan scan kehadiran.'
+                  : 'Pisahkan (Unmerge) data peserta ini'
+              }
+              className={`p-1.5 rounded-lg border transition-colors ${
+                item.terpakai > 0
+                  ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                  : 'bg-white hover:bg-amber-50 text-amber-700 border-amber-300 hover:border-amber-400 cursor-pointer'
+              }`}
+            >
+              <Unlink className="w-4 h-4" />
+            </button>
+          )}
 
           <button
             onClick={() => setDeletingItem(item)}

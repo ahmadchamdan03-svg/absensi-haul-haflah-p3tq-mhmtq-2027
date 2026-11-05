@@ -1,0 +1,1 @@
+﻿feat(peserta): implement auto/manual merge and unmerge with atomic checkin and validation

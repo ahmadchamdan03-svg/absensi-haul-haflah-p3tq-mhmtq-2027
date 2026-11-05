@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       status_konfirmasi: 'BELUM',
       warna_tiket: finalWarna,
       tiket_panggung_diberi: 0,
+      merged_group_id: body.merged_group_id || null,
       created_at: new Date().toISOString(),
     };
 

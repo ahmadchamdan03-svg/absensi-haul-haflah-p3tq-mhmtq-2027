@@ -12,6 +12,7 @@ import SantriTableFilter, {
   filterSantriTableItems,
 } from './SantriTableFilter';
 import SantriTableRow, { executeFastTrackVipHelper } from './SantriTableRow';
+import UnmergeModal from './modal/UnmergeModal';
 import { SkeletonTableRow } from '@/components/ui/GlassSkeleton';
 
 export interface SantriTableProps {
@@ -73,6 +74,26 @@ export default function SantriTable({
 }: SantriTableProps) {
   const [fastTrackLoading, setFastTrackLoading] = useState<string | null>(null);
   const [isMerging, setIsMerging] = useState<boolean>(false);
+  const [unmergeItem, setUnmergeItem] = useState<any | null>(null);
+
+  const handleUnmergeSantri = async (itemsToUnmerge: Array<{ id: string; table: 'tamu_undangan' | 'peserta_santri' }>) => {
+    const res = await fetch('/api/peserta/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'unmerge',
+        items: itemsToUnmerge,
+        groupId: unmergeItem?.merged_group_id,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) {
+      alert(json.error || 'Gagal memisahkan data.');
+      return;
+    }
+    showToast(`✓ ${json.pesan || 'Data peserta berhasil dipisahkan'}`);
+    await onRefreshData();
+  };
 
   // Deteksi kelompok santri dengan Nama & Wali sama yang belum digabung
   const duplicateGroups = useMemo(() => {
@@ -258,6 +279,7 @@ export default function SantriTable({
                       setQrDetailItem={setQrDetailItem}
                       handleOpenEdit={handleOpenEdit}
                       setDeletingItem={setDeletingItem}
+                      onOpenUnmerge={setUnmergeItem}
                     />
                   );
                 })
@@ -311,6 +333,16 @@ export default function SantriTable({
           </div>
         </div>
       </div>
+
+      {/* Modal Unmerge Santri */}
+      {unmergeItem && (
+        <UnmergeModal
+          isOpen={!!unmergeItem}
+          mergedCard={unmergeItem}
+          onUnmergeSelected={handleUnmergeSantri}
+          onClose={() => setUnmergeItem(null)}
+        />
+      )}
     </>
   );
 }

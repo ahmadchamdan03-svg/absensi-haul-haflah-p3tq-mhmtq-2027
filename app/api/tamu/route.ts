@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       no_hp: finalNoHp,
       kuota_terpakai: 0,
       warna_tiket: finalWarna,
+      merged_group_id: body.merged_group_id || null,
       created_at: new Date().toISOString(),
     };
 
