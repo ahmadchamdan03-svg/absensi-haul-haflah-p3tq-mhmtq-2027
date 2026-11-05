@@ -302,21 +302,21 @@ export function usePesertaData() {
 
     try {
       if (isUndangan) {
-        const { error } = await supabase
-          .from('tamu_undangan')
-          .delete()
-          .eq('kode', deletedKode);
-        if (error) {
-          alert(`Gagal menghapus tamu dari Supabase DB: ${error.message}`);
+        const res = await fetch(`/api/tamu?kode=${encodeURIComponent(deletedKode)}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          alert(`Gagal menghapus tamu: ${data.error || 'Kesalahan server'}`);
           return;
         }
       } else {
-        const { error } = await supabase
-          .from('peserta_santri')
-          .delete()
-          .eq('kode', deletedKode);
-        if (error) {
-          alert(`Gagal menghapus santri dari Supabase DB: ${error.message}`);
+        const res = await fetch(`/api/santri?kode=${encodeURIComponent(deletedKode)}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          alert(`Gagal menghapus santri: ${data.error || 'Kesalahan server'}`);
           return;
         }
       }

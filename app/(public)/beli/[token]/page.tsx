@@ -303,13 +303,19 @@ export default function BeliKuotaPage() {
         updated_at: now.toISOString(),
       };
 
-      const { error: insertErr } = await supabase
-        .from('pembelian_kuota')
-        .insert(newOrder);
+      const res = await fetch('/api/verifikasi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'order_public',
+          newOrder,
+        }),
+      });
+      const resJson = await res.json();
 
-      if (insertErr) {
-        console.error('Error inserting order to Supabase:', insertErr);
-        setStatusMsg({ tipe: 'error', text: `Gagal mengunci pesanan: ${insertErr.message}` });
+      if (!res.ok || !resJson.ok) {
+        console.error('Error inserting order to Supabase:', resJson.error);
+        setStatusMsg({ tipe: 'error', text: `Gagal mengunci pesanan: ${resJson.error || 'Server error'}` });
         return;
       }
 
@@ -399,20 +405,20 @@ export default function BeliKuotaPage() {
         publicUrl = selectedImage;
       }
 
-      const nowIso = new Date().toISOString();
-      const { error: updateErr } = await supabase
-        .from('pembelian_kuota')
-        .update({
-          status: 'MENUNGGU_VERIFIKASI',
+      const resProof = await fetch('/api/verifikasi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'upload_proof',
+          id_pesanan: activePendingOrder.id_pesanan,
           bukti_url: publicUrl,
-          uploaded_at: nowIso,
-          updated_at: nowIso,
-        })
-        .eq('id_pesanan', activePendingOrder.id_pesanan);
+        }),
+      });
+      const proofJson = await resProof.json();
 
-      if (updateErr) {
-        console.error('Error updating status in Supabase:', updateErr);
-        setStatusMsg({ tipe: 'error', text: `Gagal memperbarui database: ${updateErr.message}` });
+      if (!resProof.ok || !proofJson.ok) {
+        console.error('Error updating status in Supabase:', proofJson.error);
+        setStatusMsg({ tipe: 'error', text: `Gagal memperbarui database: ${proofJson.error || 'Server error'}` });
       } else {
         setSelectedFile(null);
         setSelectedImage(null);

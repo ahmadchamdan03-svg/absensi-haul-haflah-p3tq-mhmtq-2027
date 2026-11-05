@@ -198,32 +198,25 @@ export function useTamuData() {
     }
 
     try {
-      const { error: errUpdate } = await supabase
-        .from('tamu_undangan')
-        .update({ kuota_terpakai: newTerpakai })
-        .eq('kode', u.kode);
-
-      if (errUpdate) {
-        console.warn('Supabase checkin update error:', errUpdate);
-      }
-
-      await supabase.from('presensi_log').insert([
-        {
+      const res = await fetch('/api/presensi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'checkin',
           kode_qr: u.kode,
-          nama_peserta: u.nama,
-          tipe_peserta: 'UNDANGAN',
-          jalur: 'MEJA_TRANSIT',
-          panitia_id: 'penerima-tamu',
           jumlah_l: jumlahL,
           jumlah_p: jumlahP,
-          jumlah_balita: 0,
-          tiket_panggung: '0',
+          jalur: 'MEJA_TRANSIT',
+          panitia_id: 'penerima-tamu',
           catatan: 'Checkin via Penerima Tamu',
-          created_at: new Date().toISOString(),
-        },
-      ]);
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        console.warn('Presensi server error:', data.error || data.reason);
+      }
     } catch (e) {
-      console.warn('Supabase presensi_log error:', e);
+      console.warn('Presensi network error:', e);
     }
 
     store.checkin(u.kode, totalKuotaItem, 0, 'BARAT', 0, 'penerima-tamu');
@@ -236,18 +229,20 @@ export function useTamuData() {
     }
 
     try {
-      const { error: errUpdate } = await supabase
-        .from('tamu_undangan')
-        .update({ kuota_terpakai: 0 })
-        .eq('kode', u.kode);
-
-      if (errUpdate) {
-        console.warn('Supabase undo error:', errUpdate);
+      const res = await fetch('/api/presensi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'batal',
+          kode: u.kode,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        console.warn('Batal presensi server error:', data.error);
       }
-
-      await supabase.from('presensi_log').delete().eq('kode_qr', u.kode);
     } catch (e) {
-      console.warn('Supabase delete presensi_log error:', e);
+      console.warn('Batal presensi error:', e);
     }
 
     (store as any).batalCheckin(u.kode);
@@ -257,9 +252,16 @@ export function useTamuData() {
   const handleHapusTamu = async (u: TamuUndanganItem) => {
     if (!confirm(`Apakah Anda yakin ingin menghapus data tamu "${u.nama}"?`)) return;
     try {
-      await supabase.from('tamu_undangan').delete().eq('kode', u.kode);
+      const res = await fetch(`/api/tamu?kode=${encodeURIComponent(u.kode)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        alert(data.error || 'Gagal menghapus data tamu dari server.');
+        return;
+      }
     } catch (e) {
-      console.warn('Supabase delete error:', e);
+      console.warn('Delete tamu error:', e);
     }
     (store as any).batalCheckin(u.kode);
     await fetchTamuData();
@@ -331,32 +333,33 @@ export function useTamuData() {
       return;
     }
 
-    let newKode = generateRandomKode('UND');
+    let newKode = '';
 
     try {
-      newKode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase);
-      const { error } = await supabase.from('tamu_undangan').insert([
-        {
-          kode: newKode,
+      const res = await fetch('/api/tamu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           nama: finalNama,
-          nama_putra: p || null,
-          nama_putri: w || null,
+          namaPutra: p || null,
+          namaPutri: w || null,
           instansi: finalInstansi || '-',
           alamat: finalAlamat || '-',
           kategori: finalKategori,
-          sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
-          no_hp: undanganForm.noHp || '-',
-          kuota_terpakai: 0,
-          warna_tiket: getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori),
-        },
-      ]);
-      if (error) {
-        console.error('Supabase insert error (tamu_undangan):', error);
-        alert(`Gagal menyimpan Tamu Undangan ke Supabase DB: ${error.message}`);
+          subKategori: selectedGolonganUndangan || 'ISTIMEWA',
+          noHp: undanganForm.noHp || '-',
+          kuotaDasar: kuotaBase,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        alert(`Gagal menyimpan Tamu Undangan: ${json.error || 'Kesalahan server'}`);
         return;
       }
+      newKode = json.kode;
     } catch (err: any) {
-      console.warn('Supabase direct insert exception:', err);
+      console.warn('API /api/tamu exception:', err);
       alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
       return;
     }

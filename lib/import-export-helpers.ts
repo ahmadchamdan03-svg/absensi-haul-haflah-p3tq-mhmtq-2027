@@ -339,302 +339,44 @@ export async function executeBatchImportToSupabase({
   let failedCount = 0;
   const errorLogs: string[] = [];
 
-  const { data: existingRecords } = await supabase
-    .from(targetTable)
-    .select('kode');
-
-  const existingKodeSet = new Set(
-    (existingRecords || []).map((item: any) => String(item.kode).toUpperCase().trim())
-  );
-
-  // Ambil cache data santri yang ada untuk pengecekan Kategori Dobel berdasarkan Nama Santri & Nama Wali
-  const existingSantriList: any[] = [];
-  if (activeTab === 'SANTRI') {
-    const { data: existingSantriData } = await supabase
-      .from('peserta_santri')
-      .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas');
-
-    if (existingSantriData) {
-      existingSantriList.push(...existingSantriData);
-    }
+  const totalRows = parsedData.length;
+  if (totalRows === 0) {
+    return { total: 0, success: 0, skipped: 0, failed: 0, errors: [] };
   }
 
-  const totalRows = parsedData.length;
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < totalRows; i += BATCH_SIZE) {
+    const batchRows = parsedData.slice(i, i + BATCH_SIZE);
 
-  for (let i = 0; i < totalRows; i++) {
-    const row = parsedData[i];
+    try {
+      const res = await fetch('/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activeTab,
+          selectedKategoriUpload,
+          rows: batchRows,
+        }),
+      });
 
-    const getVal = (...keys: string[]) => {
-      for (const k of keys) {
-        if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
-          return String(row[k]).trim();
-        }
-      }
-      return '';
-    };
-
-    if (activeTab === 'SANTRI') {
-      const namaSantri = getVal(
-        'NAMA LENGKAP SANTRIWATI',
-        'NAMA LENGKAP',
-        'NAMA SANTRI',
-        'NAMA',
-        'nama_santri',
-        'nama'
-      );
-      const kamar = getVal('KAMAR PONDOK', 'KAMAR', 'kamar_pondok', 'kamar') || null;
-      const kelas = getVal('KELAS', 'TINGKAT', 'kelas', 'tingkat') || null;
-      const namaWali = getVal('NAMA WALI SANTRI', 'NAMA WALI', 'WALI', 'nama_wali') || null;
-      const noHp = getVal('NO WHATSAPP WALI', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
-      const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'ASAL KOTA', 'alamat') || null;
-      const bagianTamatan = getVal('BAGIAN TAMATAN', 'BAGIAN', 'bagian_tamatan') || null;
-
-      if (!namaSantri) {
-        skippedCount++;
-        errorLogs.push(`Baris #${i + 1}: Dilewati karena NAMA SANTRI kosong.`);
-        const percent = Math.round(((i + 1) / totalRows) * 100);
-        setProgressPercent(percent);
-        continue;
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || `HTTP ${res.status}`);
       }
 
-      const cleanNamaSantri = namaSantri.trim().replace(/\s+/g, ' ');
-      const cleanNamaWali = (namaWali || '').trim().replace(/\s+/g, ' ');
-
-      // Tentukan representasi kategori yang di-upload
-      const incomingKategoriUtama = selectedKategoriUpload;
-      let incomingSubKategori = 'Bil Ghoib';
-      if (incomingKategoriUtama === 'TAMATAN') {
-        const bg = bagianTamatan || 'A.01';
-        incomingSubKategori = `Tamatan (${bg})`;
-      } else if (incomingKategoriUtama === 'BIN_NADZOR') {
-        incomingSubKategori = 'Bin Nadzori';
-      } else {
-        incomingSubKategori = 'Bil Ghoib';
+      successCount += json.successCount || 0;
+      skippedCount += json.skippedCount || 0;
+      failedCount += json.failedCount || 0;
+      if (Array.isArray(json.errorLogs)) {
+        errorLogs.push(...json.errorLogs);
       }
-
-      // CEK JIKA NAMA SANTRI DAN NAMA WALI SUDAH ADA DI DATABASE (KATEGORI DOBEL)
-      // Menggunakan normalisasi ketat anti-spasi ganda & toleransi gelar wali
-      const existingSantri = cleanNamaWali
-        ? existingSantriList.find((s) => isDuplicateSantri(s.nama, s.nama_wali, cleanNamaSantri, cleanNamaWali))
-        : null;
-
-      if (existingSantri) {
-        // SANTRI SUDAH ADA DENGAN NAMA & WALI COCOK: LAKUKAN UPDATE (GABUNG KATEGORI, MAX KUOTA, TETAPKAN 1 KODE QR)
-        const mergedSub = mergeSubKategori(existingSantri.sub_kategori || '', incomingSubKategori);
-        const resolvedKatUtama = resolvePriorityKategoriUtama(
-          existingSantri.kategori_utama,
-          incomingKategoriUtama,
-          mergedSub
-        );
-        const resolvedKuota = Math.max(
-          Number(existingSantri.kuota_dasar || 0),
-          calculateKuotaDasarSantri(resolvedKatUtama, mergedSub)
-        );
-        const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, mergedSub);
-
-        const updatePayload: any = {
-          kategori_utama: resolvedKatUtama,
-          sub_kategori: mergedSub,
-          kuota_dasar: resolvedKuota,
-          warna_tiket: resolvedWarna,
-          updated_at: new Date().toISOString(),
-        };
-
-        // Lengkapi field jika sebelumnya masih kosong atau default
-        if ((!existingSantri.no_hp || existingSantri.no_hp === '-') && noHp) {
-          updatePayload.no_hp = noHp;
-        }
-        if ((!existingSantri.kamar || existingSantri.kamar === '-') && kamar) {
-          updatePayload.kamar = kamar;
-        }
-        if (
-          (!existingSantri.alamat || existingSantri.alamat === '-' || existingSantri.alamat === 'Kediri') &&
-          alamat
-        ) {
-          updatePayload.alamat = alamat;
-        }
-        if (incomingKategoriUtama === 'BIN_NADZOR' && kelas) {
-          updatePayload.kelas = kelas;
-        }
-
-        try {
-          const { error: updateError } = await supabase
-            .from('peserta_santri')
-            .update(updatePayload)
-            .eq('id', existingSantri.id);
-
-          if (updateError) throw updateError;
-
-          // Perbarui objek di memori cache agar baris berikutnya tetap sinkron
-          Object.assign(existingSantri, updatePayload);
-
-          successCount++;
-        } catch (err: any) {
-          failedCount++;
-          errorLogs.push(`Update Santri Dobel ${cleanNamaSantri} - Wali ${cleanNamaWali} (${existingSantri.kode}): ${err.message || err}`);
-        }
-
-        const percent = Math.round(((i + 1) / totalRows) * 100);
-        setProgressPercent(percent);
-        continue;
-      }
-
-      // JIKA NAMA BELUM ADA: Lanjutkan proses INSERT seperti biasa
-      let kode = getVal('KODE', 'kode').toUpperCase();
-      if (!kode) {
-        kode = generateRandomKode('SH');
-        while (existingKodeSet.has(kode)) {
-          kode = generateRandomKode('SH');
-        }
-        kode = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase, existingKodeSet);
-      } else if (existingKodeSet.has(kode)) {
-        skippedCount++;
-        const percent = Math.round(((i + 1) / totalRows) * 100);
-        setProgressPercent(percent);
-        continue;
-      }
-
-      const kategoriUtama = selectedKategoriUpload;
-      let subKategori = incomingSubKategori;
-
-      const warnaTiket = getWarnaTiketSantri(kategoriUtama, subKategori);
-      const kuotaDasar = calculateKuotaDasarSantri(kategoriUtama, subKategori);
-
-      const resolvedKelas =
-        incomingKategoriUtama === 'BIN_NADZOR'
-          ? (kelas || 'Belum Diisi')
-          : (incomingKategoriUtama === 'TAMATAN' ? `3 ALY ${bagianTamatan || 'A.01'}` : incomingKategoriUtama);
-
-      try {
-        const payload = {
-          kode,
-          nama: cleanNamaSantri,
-          nama_wali: namaWali,
-          kelas: resolvedKelas,
-          kamar,
-          alamat,
-          no_hp: noHp,
-          kategori_utama: kategoriUtama,
-          sub_kategori: subKategori,
-          kuota_dasar: kuotaDasar,
-          kuota_tambahan: 0,
-          kuota_terpakai: 0,
-          warna_tiket: warnaTiket,
-          status_konfirmasi: 'BELUM',
-          created_at: new Date().toISOString(),
-        };
-
-        const { data: insertedData, error } = await supabase
-          .from('peserta_santri')
-          .insert([payload])
-          .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas');
-
-        if (error) throw error;
-        successCount++;
-        existingKodeSet.add(kode);
-
-        if (cleanNamaWali) {
-          if (insertedData && insertedData[0]) {
-            existingSantriList.push(insertedData[0]);
-          } else {
-            existingSantriList.push({ ...payload, id: kode });
-          }
-        }
-      } catch (err: any) {
-        failedCount++;
-        errorLogs.push(`Kode ${kode}: ${err.message || err}`);
-      }
-    } else {
-      const p = getVal('NAMA TAMU PUTRA', 'NAMA PUTRA', 'PUTRA', 'nama_putra');
-      const w = getVal('NAMA TAMU PUTRI', 'NAMA PUTRI', 'PUTRI', 'nama_putri');
-      const rawNama = getVal('NAMA TAMU', 'NAMA', 'nama_tamu', 'nama');
-
-      let finalNama = '';
-      if (p && w) {
-        finalNama = `${p} & ${w}`;
-      } else if (p) {
-        finalNama = p;
-      } else if (w) {
-        finalNama = w;
-      } else if (rawNama) {
-        finalNama = rawNama;
-      }
-
-      if (!finalNama) {
-        skippedCount++;
-        errorLogs.push(`Baris #${i + 1}: Dilewati karena Nama Tamu (Putra/Putri) kosong.`);
-        const percent = Math.round(((i + 1) / totalRows) * 100);
-        setProgressPercent(percent);
-        continue;
-      }
-
-      const kategoriUndangan = getVal('KATEGORI UNDANGAN', 'KATEGORI', 'kategori_undangan', 'kategori') || null;
-      const instansi = getVal('INSTANSI / ASAL LEMBAGA', 'INSTANSI', 'ASAL LEMBAGA', 'instansi') || null;
-      const alamat = getVal('ALAMAT / ASAL KOTA', 'ALAMAT', 'alamat') || null;
-      const noHp = getVal('NO WHATSAPP / HP', 'NO WHATSAPP', 'NO WA', 'NO HP', 'HP', 'no_hp') || null;
-
-      let kode = getVal('KODE', 'kode').toUpperCase();
-      if (!kode) {
-        kode = generateRandomKode('UND');
-        while (existingKodeSet.has(kode)) {
-          kode = generateRandomKode('UND');
-        }
-        kode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase, existingKodeSet);
-      } else if (existingKodeSet.has(kode)) {
-        skippedCount++;
-        const percent = Math.round(((i + 1) / totalRows) * 100);
-        setProgressPercent(percent);
-        continue;
-      }
-
-      let kategori = 'UMUM';
-      let subKategori = selectedKategoriUpload || 'UMUM';
-
-      if (selectedKategoriUpload === 'ISTIMEWA') {
-        kategori = kategoriUndangan || 'VVIP';
-        subKategori = 'ISTIMEWA';
-      } else if (selectedKategoriUpload === 'KEHORMATAN') {
-        kategori = 'Tamu Kehormatan';
-        subKategori = 'KEHORMATAN';
-      } else {
-        kategori = kategoriUndangan || 'Pengajar Unit';
-        subKategori = 'UMUM';
-      }
-
-      const warnaTiketUnd = getWarnaTiketUndangan(subKategori, kategori);
-
-      try {
-        const payload = {
-          kode,
-          nama: finalNama,
-          nama_putra: p || null,
-          nama_putri: w || null,
-          instansi: instansi || null,
-          alamat: alamat || null,
-          no_hp: noHp || null,
-          kategori,
-          sub_kategori: subKategori,
-          warna_tiket: warnaTiketUnd,
-          status_konfirmasi: 'BELUM',
-          kuota_terpakai: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        const { error } = await supabase
-          .from('tamu_undangan')
-          .upsert(payload, { onConflict: 'kode' });
-
-        if (error) throw error;
-        successCount++;
-        existingKodeSet.add(kode);
-      } catch (err: any) {
-        failedCount++;
-        errorLogs.push(`Kode ${kode}: ${err.message || err}`);
-      }
+    } catch (err: any) {
+      failedCount += batchRows.length;
+      errorLogs.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${err.message || err}`);
     }
 
-    const percent = Math.round(((i + 1) / totalRows) * 100);
+    const currentProcessed = Math.min(i + BATCH_SIZE, totalRows);
+    const percent = Math.round((currentProcessed / totalRows) * 100);
     setProgressPercent(percent);
   }
 

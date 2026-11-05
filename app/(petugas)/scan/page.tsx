@@ -218,12 +218,18 @@ export default function ScanPage() {
     } else {
       setIsUpdatingKartuGold(true);
       try {
-        const { error } = await supabase
-          .from('peserta_santri')
-          .update({ tiket_panggung_diberi: 1 })
-          .eq('id', activeItem.id);
-
-        if (error) throw error;
+        const res = await fetch('/api/presensi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'toggle_tiket_panggung',
+            id: activeItem.id,
+            kode: activeItem.kode,
+            tiket_panggung_diberi: 1,
+          }),
+        });
+        const resJson = await res.json();
+        if (!res.ok || !resJson.ok) throw new Error(resJson.error || 'Gagal update tiket panggung');
 
         await logAudit({
           panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',
@@ -265,12 +271,18 @@ export default function ScanPage() {
     if (!activeItem || isUpdatingKartuGold) return;
     setIsUpdatingKartuGold(true);
     try {
-      const { error } = await supabase
-        .from('peserta_santri')
-        .update({ tiket_panggung_diberi: 0 })
-        .eq('id', activeItem.id);
-
-      if (error) throw error;
+      const res = await fetch('/api/presensi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'toggle_tiket_panggung',
+          id: activeItem.id,
+          kode: activeItem.kode,
+          tiket_panggung_diberi: 0,
+        }),
+      });
+      const resJson = await res.json();
+      if (!res.ok || !resJson.ok) throw new Error(resJson.error || 'Gagal reset tiket panggung');
 
       await logAudit({
         panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',

@@ -177,19 +177,21 @@ export default function KonfirmasiPage() {
 
     try {
       if (modalItem.tipe === 'TAMU_UNDANGAN') {
-        const { error } = await supabase
-          .from('tamu_undangan')
-          .update({
+        const patchRes = await fetch('/api/tamu', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kode: modalItem.kode,
             status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
             catatan_konfirmasi: editCatatan,
             confirmed_at: editL + editP > 0 ? new Date().toISOString() : null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('kode', modalItem.kode);
+          }),
+        });
+        const patchJson = await patchRes.json();
 
-        if (error) {
-          console.error('Error updating tamu konfirmasi in Supabase:', error);
-          setErrorMsg(`Gagal menyimpan ke Supabase DB: ${error.message}`);
+        if (!patchRes.ok || !patchJson.ok) {
+          console.error('Error updating tamu konfirmasi:', patchJson.error);
+          setErrorMsg(`Gagal menyimpan konfirmasi tamu: ${patchJson.error || 'Server error'}`);
           return;
         }
 
@@ -206,19 +208,22 @@ export default function KonfirmasiPage() {
           catatan: `Edit Konfirmasi Tamu Undangan (${modalItem.kode})`,
         });
       } else {
-        const { error } = await supabase
-          .from('peserta_santri')
-          .update({
+        const patchRes = await fetch('/api/santri', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kode: modalItem.kode,
             perkiraan_l: editL,
             perkiraan_p: editP,
             status_konfirmasi: editL + editP > 0 ? 'SUDAH' : 'BELUM',
             catatan_konfirmasi: editCatatan,
-          })
-          .eq('kode', modalItem.kode);
+          }),
+        });
+        const patchJson = await patchRes.json();
 
-        if (error) {
-          console.error('Error updating konfirmasi in Supabase:', error);
-          setErrorMsg(`Gagal menyimpan ke Supabase DB: ${error.message}`);
+        if (!patchRes.ok || !patchJson.ok) {
+          console.error('Error updating santri konfirmasi:', patchJson.error);
+          setErrorMsg(`Gagal menyimpan konfirmasi santri: ${patchJson.error || 'Server error'}`);
           return;
         }
       }

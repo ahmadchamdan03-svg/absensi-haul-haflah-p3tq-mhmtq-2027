@@ -187,8 +187,31 @@ export async function submitTambahUndanganToSupabase(params: {
 
   if (res.ok) {
     try {
-      let kodeBaru = generateRandomKode('UND');
-      kodeBaru = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabase);
+      const warnaTiketVal = getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori);
+      const postRes = await fetch('/api/tamu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nama: finalNama,
+          namaPutra: p || null,
+          namaPutri: w || null,
+          instansi: finalInstansi || '-',
+          alamat: finalAlamat || '-',
+          kategori: finalKategori,
+          subKategori: selectedGolonganUndangan || 'ISTIMEWA',
+          noHp: undanganForm.noHp || '-',
+          kuotaDasar: kuotaBase,
+          warnaTiket: warnaTiketVal,
+        }),
+      });
+
+      const json = await postRes.json();
+      if (!postRes.ok || !json.ok) {
+        alert(`Gagal menyimpan Tamu Undangan: ${json.error || 'Terjadi kesalahan server'}`);
+        return;
+      }
+
+      const kodeBaru = json.kode;
       res.code = kodeBaru;
       if (res.undangan) {
         res.undangan.kode = kodeBaru;
@@ -197,29 +220,7 @@ export async function submitTambahUndanganToSupabase(params: {
         }
       }
 
-      const warnaTiketVal = getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori);
-
-      const { data: uInsertData, error } = await supabase.from('tamu_undangan').insert([
-        {
-          kode: kodeBaru,
-          nama: finalNama,
-          nama_putra: p || null,
-          nama_putri: w || null,
-          instansi: finalInstansi || '-',
-          alamat: finalAlamat || '-',
-          kategori: finalKategori,
-          sub_kategori: selectedGolonganUndangan || 'ISTIMEWA',
-          no_hp: undanganForm.noHp || '-',
-          kuota_terpakai: 0,
-          status_konfirmasi: 'BELUM',
-          warna_tiket: warnaTiketVal,
-        },
-      ]);
-      if (error) {
-        console.error('Supabase insert error (tamu_undangan):', error);
-        alert(`Gagal menyimpan Tamu Undangan ke Supabase DB: ${error.message}`);
-        return;
-      }
+      const uInsertData = json.data ? [json.data] : [];
 
       const newUndanganItem = {
         id: uInsertData && (uInsertData as any)[0]?.id ? (uInsertData as any)[0].id : kodeBaru,
@@ -372,9 +373,11 @@ export async function submitEditUndanganToSupabase(params: {
   }
 
   try {
-    const { error } = await supabase
-      .from('tamu_undangan')
-      .update({
+    const patchRes = await fetch('/api/tamu', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kode: targetKode,
         nama: finalNama,
         nama_putra: p || null,
         nama_putri: w || null,
@@ -384,12 +387,13 @@ export async function submitEditUndanganToSupabase(params: {
         alamat: finalAlamat || '-',
         no_hp: (editingItem.noHp || '').trim() || '-',
         warna_tiket: getWarnaTiketUndangan(editGolonganUndangan, finalKat),
-      })
-      .eq('kode', targetKode);
+      }),
+    });
+    const patchJson = await patchRes.json();
 
-    if (error) {
-      console.error('Supabase update error (tamu_undangan):', error);
-      alert(`Gagal memperbarui data tamu di Supabase: ${error.message}`);
+    if (!patchRes.ok || !patchJson.ok) {
+      console.error('API /api/tamu update error:', patchJson.error);
+      alert(`Gagal memperbarui data tamu: ${patchJson.error || 'Server error'}`);
       return;
     }
   } catch (err: any) {

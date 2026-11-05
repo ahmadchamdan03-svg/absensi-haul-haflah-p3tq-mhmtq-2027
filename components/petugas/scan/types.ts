@@ -296,12 +296,18 @@ export const updateKartuHitamGoldInDb = async (
   giveCard: boolean
 ) => {
   const newVal = giveCard ? 1 : 0;
-  const { error } = await supabase
-    .from('peserta_santri')
-    .update({ tiket_panggung_diberi: newVal })
-    .eq('id', activeItem.id);
-
-  if (error) throw error;
+  const res = await fetch('/api/presensi', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'toggle_tiket_panggung',
+      id: activeItem.id,
+      kode: activeItem.kode,
+      tiket_panggung_diberi: newVal,
+    }),
+  });
+  const resJson = await res.json();
+  if (!res.ok || !resJson.ok) throw new Error(resJson.error || 'Gagal update tiket panggung');
 
   await logAudit({
     panitia_id: jalur === 'BARAT' ? 'PETUGAS_PUTRA' : 'PETUGAS_PUTRI',

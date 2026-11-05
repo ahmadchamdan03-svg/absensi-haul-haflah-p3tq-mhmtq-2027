@@ -612,10 +612,19 @@ export default function UndanganWaliPage() {
     };
 
     try {
-      await supabase
-        .from('tamu_undangan')
-        .update(payload)
-        .eq('kode', targetKode);
+      const res = await fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'TAMU',
+          kode: targetKode,
+          status_konfirmasi: status,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Gagal menyimpan konfirmasi');
+      }
 
       setItem((prev: any) => ({
         ...prev,
@@ -675,10 +684,23 @@ export default function UndanganWaliPage() {
     };
 
     try {
-      await supabase
-        .from('peserta_santri')
-        .update(payload)
-        .eq('kode', targetKode);
+      const res = await fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'SANTRI',
+          kode: targetKode,
+          perkiraan_l: Number(estL),
+          perkiraan_p: Number(estP),
+          hari_konfirmasi: hariKonfirmasi,
+          jam_konfirmasi: jamKonfirmasi,
+          catatan_konfirmasi: catatanRsvp ? catatanRsvp.trim() : null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Gagal menyimpan konfirmasi');
+      }
 
       if (item.kuota?.id) {
         store.simpanEstimasi(item.kuota.id, estL, estP, 'WALI_MANDIRI');

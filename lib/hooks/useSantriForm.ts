@@ -190,13 +190,19 @@ export function useSantriForm({
           updatePayload.alamat = formData.alamat.trim().toUpperCase();
         }
 
-        const { error: updateError } = await supabase
-          .from('peserta_santri')
-          .update(updatePayload)
-          .eq('id', existing.id);
+        const patchRes = await fetch('/api/santri', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: existing.id,
+            kode: existing.kode,
+            ...updatePayload,
+          }),
+        });
 
-        if (updateError) {
-          alert(`Gagal memperbarui data santri di Supabase: ${updateError.message}`);
+        const patchJson = await patchRes.json();
+        if (!patchRes.ok || !patchJson.ok) {
+          alert(`Gagal memperbarui data santri: ${patchJson.error || 'Kesalahan server'}`);
           return;
         }
 
@@ -246,37 +252,36 @@ export function useSantriForm({
       const kuotaVal = calculateKuotaDasarSantri(formData.kategoriUtama, incomingSubKat);
       const warna = getWarnaTiketSantri(formData.kategoriUtama, incomingSubKat);
 
-      let kodeBaru = generateRandomKode('SH');
-      kodeBaru = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabase);
-
       const resolvedKelas =
         formData.kategoriUtama === 'BIN_NADZOR'
           ? (formData.kelas || '2 Tsanawiyah')
           : (formData.kategoriUtama || '-');
 
-      const { data, error } = await supabase.from('peserta_santri').insert([
-        {
-          kode: kodeBaru,
+      const postRes = await fetch('/api/santri', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           nama: cleanNama,
-          kategori_utama: formData.kategoriUtama || 'BIL_GHOIB',
-          sub_kategori: incomingSubKat,
+          kategoriUtama: formData.kategoriUtama || 'BIL_GHOIB',
+          subKategori: incomingSubKat,
           kelas: resolvedKelas,
           kamar: formData.kamar.trim() || '-',
-          nama_wali: cleanWali || '-',
-          no_hp: formData.noHp.trim() || '-',
-          alamat: formData.alamat.trim().toUpperCase() || 'Kediri',
-          kuota_dasar: kuotaVal,
-          kuota_tambahan: 0,
-          kuota_terpakai: 0,
-          status_konfirmasi: 'BELUM',
-          warna_tiket: warna,
-        },
-      ]);
+          namaWali: cleanWali || '-',
+          noHp: formData.noHp.trim() || '-',
+          alamat: formData.alamat.trim().toUpperCase() || 'KEDIRI',
+          kuotaDasar: kuotaVal,
+          warnaTiket: warna,
+        }),
+      });
 
-      if (error) {
-        alert(`Gagal menambahkan data santri ke database Supabase: ${error.message}`);
+      const postJson = await postRes.json();
+      if (!postRes.ok || !postJson.ok) {
+        alert(`Gagal menambahkan santri baru: ${postJson.error || 'Kesalahan server'}`);
         return;
       }
+
+      const kodeBaru = postJson.kode;
+      const data = postJson.data ? [postJson.data] : [];
 
       const newSantriItem = {
         id: data && (data as any)[0]?.id ? (data as any)[0].id : kodeBaru,
@@ -393,25 +398,29 @@ export function useSantriForm({
     const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, subKat);
 
     try {
-      const { error } = await supabase
-        .from('peserta_santri')
-        .update({
+      const patchRes = await fetch('/api/santri', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kode: targetKode,
           nama: (editingItem.nama || '').trim().toUpperCase(),
-          kategori_utama: resolvedKatUtama,
-          sub_kategori: subKat,
+          kategoriUtama: resolvedKatUtama,
+          subKategori: subKat,
           kelas: kls,
-          nama_wali: (editingItem.namaWali || '').trim().toUpperCase() || '-',
-          no_hp: (editingItem.noHp || '').trim() || '-',
+          namaWali: (editingItem.namaWali || '').trim().toUpperCase() || '-',
+          noHp: (editingItem.noHp || '').trim() || '-',
           alamat: (editingItem.alamat || '').trim().toUpperCase() || 'KEDIRI',
           kamar: (editingItem.kamar || '').trim() || '-',
-          kuota_dasar: resolvedKuota,
-          warna_tiket: resolvedWarna,
-        })
-        .eq('kode', targetKode);
+          kuotaDasar: resolvedKuota,
+          warnaTiket: resolvedWarna,
+        }),
+      });
 
-      if (error) {
-        console.error('Supabase update error (peserta_santri):', error);
-        alert(`Gagal memperbarui data santri di Supabase: ${error.message}`);
+      const patchJson = await patchRes.json();
+      if (!patchRes.ok || !patchJson.ok) {
+        alert(`Gagal memperbarui data santri: ${patchJson.error || 'Kesalahan server'}`);
+        submitLockSantri.current = false;
+        setIsSubmittingSantri(false);
         return;
       }
     } catch (err: any) {

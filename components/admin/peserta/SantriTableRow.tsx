@@ -80,15 +80,11 @@ export async function executeFastTrackVipHelper(params: {
       }
     }
 
-    const { error: errUpdate } = await supabase
-      .from('tamu_undangan')
-      .update({ kuota_terpakai: totalKuotaItem })
-      .eq('kode', item.kode);
-
-    if (errUpdate) console.warn('Fast track update error:', errUpdate);
-
-    await supabase.from('presensi_log').insert([
-      {
+    await fetch('/api/presensi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'checkin',
         kode_qr: item.kode,
         nama_peserta: item.nama,
         tipe_peserta: 'UNDANGAN',
@@ -97,11 +93,9 @@ export async function executeFastTrackVipHelper(params: {
         jumlah_l: jumlahL,
         jumlah_p: jumlahP,
         jumlah_balita: 0,
-        tiket_panggung: '0',
         catatan: 'Fast-Track VIP Checkin',
-        created_at: new Date().toISOString(),
-      },
-    ]);
+      }),
+    });
 
     store.checkin(item.kode, totalKuotaItem, 0, 'BARAT', 0, 'fast-track-vip');
     await onRefreshData();

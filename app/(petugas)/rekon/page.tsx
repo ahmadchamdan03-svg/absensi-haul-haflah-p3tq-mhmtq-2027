@@ -103,19 +103,18 @@ export default function RekonPage() {
 
     try {
       if (isHadir) {
-        // Batalkan Hadir (Hapus SEMUA baris presensi_log untuk kode_qr ini tanpa limit 1)
-        let delQuery = supabase.from('presensi_log').delete();
-        if (d.nis && d.nis !== d.kode) {
-          delQuery = delQuery.or(`kode_qr.eq.${d.kode},kode_qr.eq.${d.nis}`);
-        } else {
-          delQuery = delQuery.eq('kode_qr', d.kode);
-        }
-        const { error: delErr } = await delQuery;
-
-        if (delErr) throw delErr;
-
-        // Reset kuota_terpakai = 0 di database via helper
-        await syncKuotaTerpakai(d.kode);
+        // Batalkan Hadir via Server API Route (Bypass RLS)
+        const res = await fetch('/api/presensi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'batal',
+            kode: d.kode,
+            nis: d.nis,
+          }),
+        });
+        const resJson = await res.json();
+        if (!res.ok || !resJson.ok) throw new Error(resJson.error || 'Gagal membatalkan presensi');
 
         // Log audit BATALKAN_HADIR
         await logAudit({
@@ -250,15 +249,21 @@ export default function RekonPage() {
       const prevP = (prevLogs || []).reduce((s, r: any) => s + Number(r.jumlah_p || 0), 0);
       const prevTotal = prevL + prevP;
 
-      // 2. Perform update ke Supabase
-      const { error } = await supabase
-        .from(targetTable)
-        .update(payload)
-        .eq('kode', editingItem.kode);
+      // 2. Perform update ke Server API Route (Bypass RLS)
+      const patchEndpoint = isSantri ? '/api/santri' : '/api/tamu';
+      const patchRes = await fetch(patchEndpoint, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kode: editingItem.kode,
+          ...payload,
+        }),
+      });
+      const patchJson = await patchRes.json();
 
-      if (error) {
-        console.error('Error updating rekon data in Supabase:', error);
-        alert(`Gagal memperbarui data: ${error.message} (Kode: ${error.code || 'PGRST'})`);
+      if (!patchRes.ok || !patchJson.ok) {
+        console.error('Error updating rekon data in Supabase:', patchJson.error);
+        alert(`Gagal memperbarui data: ${patchJson.error || 'Server error'}`);
         return;
       }
 
@@ -292,20 +297,20 @@ export default function RekonPage() {
           });
         }
       } else {
-        // Jumlah L & P = 0 -> HAPUS kehadiran dari presensi_log lalu kembalikan kuota
-        let delQuery = supabase.from('presensi_log').delete();
-        if (editingItem.nis && editingItem.nis !== editingItem.kode) {
-          delQuery = delQuery.or(`kode_qr.eq.${editingItem.kode},kode_qr.eq.${editingItem.nis}`);
-        } else {
-          delQuery = delQuery.eq('kode_qr', editingItem.kode);
+        // Jumlah L & P = 0 -> HAPUS kehadiran dari presensi_log lalu kembalikan kuota via Server API
+        const res = await fetch('/api/presensi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'batal',
+            kode: editingItem.kode,
+            nis: editingItem.nis,
+          }),
+        });
+        const resJson = await res.json();
+        if (!res.ok || !resJson.ok) {
+          throw new Error(`Gagal menghapus presensi_log: ${resJson.error || 'Server error'}`);
         }
-        const { error: delErr } = await delQuery;
-
-        if (delErr) {
-          throw new Error(`Gagal menghapus presensi_log: ${delErr.message}`);
-        }
-
-        await syncKuotaTerpakai(editingItem.kode);
 
         if ((prevLogs || []).length > 0) {
           await logAudit({
@@ -448,10 +453,27 @@ export default function RekonPage() {
         created_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('tamu_undangan').insert([payload]);
-      if (error) {
-        alert(`Gagal mendaftarkan walk-in: ${error.message} (Kode: ${error.code || 'PGRST'})`);
-        throw error;
+      const resTamu = await fetch('/api/tamu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kode: newKode,
+          nama: finalNama,
+          namaPutra: p || null,
+          namaPutri: w || null,
+          instansi: finalInstansi || '-',
+          alamat: finalAlamat || '-',
+          kategori: finalKategori,
+          subKategori: walkinForm.golongan,
+          noHp: walkinForm.noHp.trim() || '-',
+          kuotaDasar: (p && w) ? 2 : (walkinForm.golongan === 'ISTIMEWA' ? 2 : 1),
+          warnaTiket: getWarnaTiketUndangan(walkinForm.golongan, finalKategori),
+        }),
+      });
+      const tamuJson = await resTamu.json();
+      if (!resTamu.ok || !tamuJson.ok) {
+        alert(`Gagal mendaftarkan walk-in: ${tamuJson.error || 'Kesalahan server'}`);
+        throw new Error(tamuJson.error || 'Gagal mendaftarkan walk-in');
       }
 
       if (walkinForm.langsungCheckin) {

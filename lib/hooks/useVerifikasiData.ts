@@ -204,32 +204,25 @@ export function useVerifikasiData() {
     try {
       const nowIso = new Date().toISOString();
       const targetId = item.id_pesanan || item.id;
+      const targetKode = item.kode_santri || item.kode;
 
-      // 1. Update status pembelian_kuota ke 'DIVERIFIKASI'
-      const { error: updateOrderErr } = await supabase
-        .from('pembelian_kuota')
-        .update({
-          status: 'DIVERIFIKASI',
-          verified_at: nowIso,
-          updated_at: nowIso,
-        })
-        .eq('id_pesanan', targetId);
+      // 1. Verifikasi via Server API Route (Bypass RLS)
+      const res = await fetch('/api/verifikasi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify',
+          targetId,
+          targetKode,
+        }),
+      });
+      const resJson = await res.json();
 
-      if (updateOrderErr) {
-        console.error('Error updating status pembelian_kuota:', updateOrderErr);
-        setStatusMsg({ tipe: 'error', text: `Gagal memverifikasi pesanan: ${updateOrderErr.message}` });
+      if (!res.ok || !resJson.ok) {
+        console.error('Error updating status pembelian_kuota:', resJson.error);
+        setStatusMsg({ tipe: 'error', text: `Gagal memverifikasi pesanan: ${resJson.error || 'Server error'}` });
         return;
       }
-
-      // 2. Recalculate total kuota_tambahan di peserta_santri
-      const targetKode = item.kode_santri || item.kode;
-      const { data: verifiedRows } = await supabase
-        .from('pembelian_kuota')
-        .select('jumlah_kursi')
-        .eq('kode_santri', targetKode)
-        .in('status', ['DIVERIFIKASI', 'DITERIMA']);
-
-      const newTambah = (verifiedRows || []).reduce((sum, r) => sum + Number(r.jumlah_kursi || 0), 0);
 
       const { data: currentSantri } = await supabase
         .from('peserta_santri')
@@ -238,14 +231,6 @@ export function useVerifikasiData() {
         .maybeSingle();
 
       const numKursi = Number(item.jumlah_kursi || item.jumlah || 1);
-
-      await supabase
-        .from('peserta_santri')
-        .update({
-          kuota_tambahan: newTambah,
-          updated_at: nowIso,
-        })
-        .eq('kode', targetKode);
 
       // 3. Kirim Otomatis Pesan WA ke Wali Santri
       const targetHp = currentSantri?.no_hp || item.no_hp || '';
@@ -311,17 +296,18 @@ export function useVerifikasiData() {
     setStatusMsg(null);
 
     try {
-      const nowIso = new Date().toISOString();
-      const { error: updateErr } = await supabase
-        .from('pembelian_kuota')
-        .update({
-          status: 'DITOLAK',
-          updated_at: nowIso,
-        })
-        .eq('id_pesanan', targetId);
+      const res = await fetch('/api/verifikasi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reject',
+          targetId,
+        }),
+      });
+      const resJson = await res.json();
 
-      if (updateErr) {
-        setStatusMsg({ tipe: 'error', text: `Gagal menolak pesanan: ${updateErr.message}` });
+      if (!res.ok || !resJson.ok) {
+        setStatusMsg({ tipe: 'error', text: `Gagal menolak pesanan: ${resJson.error || 'Server error'}` });
       } else {
         await logAudit({
           panitia_id: 'ADMIN_VERIFIKASI',
@@ -387,24 +373,24 @@ export function useVerifikasiData() {
         updated_at: now.toISOString(),
       };
 
-      const { error: insertErr } = await supabase
-        .from('pembelian_kuota')
-        .insert(newOrder);
+      const res = await fetch('/api/verifikasi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_manual',
+          newOrder,
+          langsungVerifikasi: manualLangsungVerifikasi,
+          kodeSantri: selectedSantri.kode,
+          jumlahKursi: manualJumlah,
+        }),
+      });
+      const resJson = await res.json();
 
-      if (insertErr) {
-        console.error('Error inserting manual order:', insertErr);
-        setStatusMsg({ tipe: 'error', text: `Gagal membuat transaksi manual: ${insertErr.message}` });
+      if (!res.ok || !resJson.ok) {
+        console.error('Error inserting manual order:', resJson.error);
+        setStatusMsg({ tipe: 'error', text: `Gagal membuat transaksi manual: ${resJson.error || 'Server error'}` });
         setIsSubmittingManual(false);
         return;
-      }
-
-      if (manualLangsungVerifikasi) {
-        const currentTambah = Number(selectedSantri.kuota_tambahan || 0);
-        const newTambah = currentTambah + manualJumlah;
-        await supabase
-          .from('peserta_santri')
-          .update({ kuota_tambahan: newTambah, updated_at: now.toISOString() })
-          .eq('kode', selectedSantri.kode);
       }
 
       // Kirim WA Notifikasi ke Wali jika dicentang
