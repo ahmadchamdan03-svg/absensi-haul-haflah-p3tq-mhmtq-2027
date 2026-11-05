@@ -727,15 +727,24 @@ export default function TamuFormFields({
         <button
           type="button"
           onClick={onCancelEdit}
-          className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold"
+          disabled={isSubmittingTamu}
+          className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Batal
         </button>
         <button
           type="submit"
-          className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow"
+          disabled={isSubmittingTamu}
+          className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Simpan Perubahan
+          {isSubmittingTamu ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-white shrink-0" />
+              <span>Menyimpan...</span>
+            </>
+          ) : (
+            'Simpan Perubahan'
+          )}
         </button>
       </div>
     </form>

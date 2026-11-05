@@ -46,6 +46,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
     handleBatalkanHadir,
     handleHapusTamu,
     handleTambahTamu,
+    isSubmittingTamu,
     filteredUndangan,
     totalKuotaTamu,
     totalHadirTamu,
@@ -392,6 +393,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
         customKategoriInput={customKategoriInput}
         setCustomKategoriInput={setCustomKategoriInput}
         handleTambahTamu={handleTambahTamu}
+        isSubmitting={isSubmittingTamu}
       />
 
       {/* MODAL TANYA USTH. HALWAA */}

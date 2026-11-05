@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import {
   GolonganUndangan,
   OPSI_UNDANGAN_ISTIMEWA,
@@ -40,6 +40,7 @@ interface TambahTamuModalProps {
   customKategoriInput: string;
   setCustomKategoriInput: (val: string) => void;
   handleTambahTamu: (e: React.FormEvent) => Promise<void>;
+  isSubmitting?: boolean;
 }
 
 export default function TambahTamuModal({
@@ -54,6 +55,7 @@ export default function TambahTamuModal({
   customKategoriInput,
   setCustomKategoriInput,
   handleTambahTamu,
+  isSubmitting = false,
 }: TambahTamuModalProps) {
   if (!showAddModal) return null;
 
@@ -200,15 +202,24 @@ export default function TambahTamuModal({
             <button
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="flex-1 py-3 rounded-xl border border-white/70 bg-white/60 hover:bg-white/80 text-stone-700 font-bold text-xs md:text-sm transition-colors cursor-pointer backdrop-blur-xs"
+              disabled={isSubmitting}
+              className="flex-1 py-3 rounded-xl border border-white/70 bg-white/60 hover:bg-white/80 text-stone-700 font-bold text-xs md:text-sm transition-colors cursor-pointer backdrop-blur-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs md:text-sm shadow-md transition-colors cursor-pointer"
+              disabled={isSubmitting}
+              className="flex-1 py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs md:text-sm shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Simpan Tamu
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white shrink-0" />
+                  <span>Menyimpan...</span>
+                </>
+              ) : (
+                'Simpan Tamu'
+              )}
             </button>
           </div>
         </form>

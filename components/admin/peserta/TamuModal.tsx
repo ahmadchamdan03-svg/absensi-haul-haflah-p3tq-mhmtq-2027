@@ -165,14 +165,20 @@ export default function TamuModal({
 
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await submitEditUndanganToSupabase({
-      editingItem,
-      editGolonganUndangan,
-      editUndanganKategoriDropdown,
-      editCustomKategoriInput,
-      onEditSuccess,
-      setEditingItem,
-    });
+    if (submitLockTamu.current || isSubmittingTamu) return;
+    setIsSubmittingTamu(true);
+    try {
+      await submitEditUndanganToSupabase({
+        editingItem,
+        editGolonganUndangan,
+        editUndanganKategoriDropdown,
+        editCustomKategoriInput,
+        onEditSuccess,
+        setEditingItem,
+      });
+    } finally {
+      setIsSubmittingTamu(false);
+    }
   };
 
   return (
@@ -300,6 +306,7 @@ export default function TamuModal({
                 setEditUndanganKategoriDropdown={setEditUndanganKategoriDropdown}
                 editCustomKategoriInput={editCustomKategoriInput}
                 setEditCustomKategoriInput={setEditCustomKategoriInput}
+                isSubmittingTamu={isSubmittingTamu}
                 onCancelEdit={() => setEditingItem(null)}
                 onSubmitEdit={handleSaveEdit}
               />

@@ -63,6 +63,7 @@ export function useTamuData() {
 
   // Modal Tambah Tamu Baru State
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isSubmittingTamu, setIsSubmittingTamu] = useState(false);
   const [selectedGolonganUndangan, setSelectedGolonganUndangan] = useState<GolonganUndangan>('ISTIMEWA');
   const [undanganForm, setUndanganForm] = useState({
     nama: '',
@@ -272,6 +273,7 @@ export function useTamuData() {
 
   const handleTambahTamu = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingTamu) return;
 
     let finalKategori = '';
     if (selectedGolonganUndangan === 'KEHORMATAN') {
@@ -337,6 +339,7 @@ export function useTamuData() {
     }
 
     let newKode = '';
+    setIsSubmittingTamu(true);
 
     try {
       const res = await fetch('/api/tamu', {
@@ -361,39 +364,40 @@ export function useTamuData() {
         return;
       }
       newKode = json.kode;
+
+      store.tambahUndangan({
+        nama: finalNama,
+        namaPutra: p,
+        namaPutri: w,
+        kategori: finalKategori,
+        instansi: finalInstansi,
+        alamat: finalAlamat,
+        kuotaDasar: kuotaBase,
+        golongan: selectedGolonganUndangan,
+      });
+
+      await fetchTamuData();
+      setShowAddModal(false);
+      alert(`✓ Berhasil menambahkan Tamu Undangan ke Supabase: ${finalNama} (Kode: ${newKode})`);
+
+      setUndanganForm({
+        nama: '',
+        namaPutra: '',
+        namaPutri: '',
+        kategori: OPSI_UNDANGAN_ISTIMEWA[0],
+        instansi: '',
+        alamat: '',
+        noHp: '',
+        kuotaDasar: 1,
+      });
+      setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
+      setCustomKategoriInput('');
     } catch (err: any) {
       console.warn('API /api/tamu exception:', err);
       alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
-      return;
+    } finally {
+      setIsSubmittingTamu(false);
     }
-
-    store.tambahUndangan({
-      nama: finalNama,
-      namaPutra: p,
-      namaPutri: w,
-      kategori: finalKategori,
-      instansi: finalInstansi,
-      alamat: finalAlamat,
-      kuotaDasar: kuotaBase,
-      golongan: selectedGolonganUndangan,
-    });
-
-    await fetchTamuData();
-    setShowAddModal(false);
-    alert(`✓ Berhasil menambahkan Tamu Undangan ke Supabase: ${finalNama} (Kode: ${newKode})`);
-
-    setUndanganForm({
-      nama: '',
-      namaPutra: '',
-      namaPutri: '',
-      kategori: OPSI_UNDANGAN_ISTIMEWA[0],
-      instansi: '',
-      alamat: '',
-      noHp: '',
-      kuotaDasar: 1,
-    });
-    setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
-    setCustomKategoriInput('');
   };
 
   const filteredUndangan = useMemo(() => {
@@ -456,6 +460,7 @@ export function useTamuData() {
     handleBatalkanHadir,
     handleHapusTamu,
     handleTambahTamu,
+    isSubmittingTamu,
     filteredUndangan,
     totalKuotaTamu,
     totalHadirTamu,

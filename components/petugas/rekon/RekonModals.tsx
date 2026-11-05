@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Edit3, X, Save } from 'lucide-react';
+import { Edit3, X, Save, Loader2 } from 'lucide-react';
 import { GolonganUndangan, WalkinFormState } from './types';
 import { OPSI_UNDANGAN_ISTIMEWA, OPSI_UNDANGAN_UMUM } from '@/lib/hooks/useTamuData';
 
@@ -645,9 +645,16 @@ export default function RekonModals({
                 <button
                   type="submit"
                   disabled={savingWalkin}
-                  className="flex-1 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {savingWalkin ? 'Menyimpan...' : 'Daftarkan Walk-in'}
+                  {savingWalkin ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white shrink-0" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    'Daftarkan Walk-in'
+                  )}
                 </button>
               </div>
             </form>
