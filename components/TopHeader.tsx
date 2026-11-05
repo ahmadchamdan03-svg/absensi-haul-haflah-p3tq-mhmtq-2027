@@ -66,8 +66,9 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}
         <Link
           href="/scan"
-          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-2xs border border-[#1E40AF]"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-2xs border border-[#1E40AF] focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
           title="Buka Scanner QR Gerbang Masuk"
+          aria-label="Buka Scanner QR Gerbang Masuk"
         >
           <QrCode className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-amber-200" />
           <span className="hidden md:inline ml-1.5">Scan Gerbang</span>
@@ -76,8 +77,9 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Live Dasbor */}
         <Link
           href="/admin/dasbor"
-          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#1D4ED8] text-xs font-bold shadow-2xs border border-white/70"
+          className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#1D4ED8] text-xs font-bold shadow-2xs border border-white/70 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           title="Buka Live Dasbor Kedatangan"
+          aria-label="Buka Live Dasbor Kedatangan"
         >
           <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#1D4ED8]" />
           <span className="hidden md:inline ml-1.5">Live Dasbor</span>
@@ -87,8 +89,9 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         <button
           type="button"
           onClick={() => { clearActiveRole(); router.replace('/'); }}
-          className="btn-transition inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs border border-rose-200 cursor-pointer"
+          className="btn-transition inline-flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-2xs border border-rose-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
           title="Keluar dari sesi dan kembali ke halaman login"
+          aria-label="Keluar dari sesi dan kembali ke halaman login"
         >
           <LogOut className="w-3.5 h-3.5 text-rose-600" />
           <span className="text-[11px] sm:text-xs">Keluar</span>

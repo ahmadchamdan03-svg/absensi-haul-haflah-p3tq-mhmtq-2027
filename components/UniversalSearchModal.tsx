@@ -435,7 +435,8 @@ export default function UniversalSearchModal({
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded-lg text-[#7A624E] hover:text-[#0F2C59] hover:bg-[#E0F2FE]"
+              aria-label="Hapus kata kunci pencarian"
+              className="p-1 rounded-lg text-[#7A624E] hover:text-[#0F2C59] hover:bg-[#E0F2FE] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             >
               <X className="w-4 h-4" />
             </button>
@@ -449,7 +450,8 @@ export default function UniversalSearchModal({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-[#E0F2FE] text-[#7A624E] hover:text-[#0F2C59] transition-colors"
+            aria-label="Tutup pencarian"
+            className="p-1.5 rounded-xl hover:bg-[#E0F2FE] text-[#7A624E] hover:text-[#0F2C59] transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             <X className="w-5 h-5" />
           </button>
@@ -459,7 +461,7 @@ export default function UniversalSearchModal({
         <div className="flex items-center space-x-2 px-4 py-2.5 bg-[#E0F2FE]/80 border-b border-[#BAE6FD] overflow-x-auto text-xs font-bold">
           <button
             onClick={() => setActiveTab('SEMUA')}
-            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               activeTab === 'SEMUA'
                 ? 'bg-[#1D4ED8] text-white shadow-xs'
                 : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
@@ -470,38 +472,38 @@ export default function UniversalSearchModal({
 
           <button
             onClick={() => setActiveTab('FITUR')}
-            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
+            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               activeTab === 'FITUR'
                 ? 'bg-[#1D4ED8] text-white shadow-xs'
                 : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
-            <span>🚀 Fitur & Menu ({DAFTAR_FITUR.length})</span>
+            <span>Fitur &amp; Menu ({DAFTAR_FITUR.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('PESERTA')}
-            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
+            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               activeTab === 'PESERTA'
                 ? 'bg-[#1D4ED8] text-white shadow-xs'
                 : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>👤 Santri & Tamu ({pesertaItems.length})</span>
+            <span>Santri &amp; Tamu ({pesertaItems.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('LOKASI')}
-            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 ${
+            className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               activeTab === 'LOKASI'
                 ? 'bg-[#1D4ED8] text-white shadow-xs'
                 : 'bg-white text-[#7A624E] hover:text-[#0F2C59] border border-[#BAE6FD]'
             }`}
           >
             <MapPin className="w-3.5 h-3.5" />
-            <span>📍 Lokasi Acara ({DAFTAR_LOKASI.length})</span>
+            <span>Lokasi Acara ({DAFTAR_LOKASI.length})</span>
           </button>
 
           <button

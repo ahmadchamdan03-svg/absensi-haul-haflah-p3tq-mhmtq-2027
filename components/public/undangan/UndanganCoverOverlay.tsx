@@ -107,10 +107,10 @@ export function UndanganCoverTamu({
             <button
               type="button"
               onClick={onOpen}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-sky-200/50 cursor-pointer animate-pulse"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-sky-200/50 cursor-pointer animate-pulse focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
             >
               <MailOpen className="w-4 h-4 text-amber-200" />
-              <span>Buka Undangan ✉️</span>
+              <span>Buka Undangan</span>
             </button>
           </div>
         </div>
@@ -164,10 +164,10 @@ export function UndanganCoverWali({
             <button
               type="button"
               onClick={onOpen}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-sky-200/50 cursor-pointer animate-pulse"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-sm tracking-wide shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-2 border border-sky-200/50 cursor-pointer animate-pulse focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
             >
               <MailOpen className="w-4 h-4 text-amber-200" />
-              <span>Buka Undangan ✉️</span>
+              <span>Buka Undangan</span>
             </button>
           </div>
         </div>

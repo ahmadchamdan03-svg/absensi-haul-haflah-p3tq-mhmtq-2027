@@ -144,7 +144,7 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
                 Belum Hadir
               </span>
               <div className="text-2xl font-serif font-black text-blue-950">
-                {totalBelumHadirTamu} Belum
+                {totalBelumHadirTamu} Kursi
               </div>
               <p className="text-[11px] text-amber-800 font-medium">Sisa Kuota Belum Terpakai</p>
             </div>
@@ -220,9 +220,9 @@ export default function PenerimaTamuPanel({ showLogout = true }: { showLogout?: 
               <SkeletonList rows={4} className="pt-1" />
             ) : filteredUndangan.length === 0 ? (
               <div className="p-8 text-center text-[#7A624E] text-xs bg-white/30 backdrop-blur-sm rounded-2xl border border-dashed border-white/60 shadow-xs">
-                <p className="font-bold text-sm text-[#0F2C59]">Belum ada data peserta / tamu</p>
+                <p className="font-bold text-sm text-[#0F2C59]">Belum Ada Data Tamu</p>
                 <p className="mt-1 text-[#7A624E]">
-                  Silakan panitia menambahkan data tamu undangan via tombol &quot;+ Tambah Tamu Baru&quot;.
+                  Belum ada data tamu pada daftar ini. Silakan tambahkan data melalui tombol Tambah Tamu Baru di atas.
                 </p>
               </div>
             ) : (

@@ -48,7 +48,8 @@ export default function MergeConfirmModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+            aria-label="Tutup dialog"
+            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             <X className="w-5 h-5" />
           </button>
@@ -65,7 +66,7 @@ export default function MergeConfirmModal({
             {existingRecord.kode ? ` [${existingRecord.kode}]` : ''}.
           </p>
           <p className="text-[11px] text-slate-600 pt-1 border-t border-amber-200/60">
-            Apakah Anda ingin menggabungkan data ini agar memiliki 1 QR Code tunggal dan absensi memotong kuota secara atomik?
+            Apakah Anda ingin menggabungkan data ini ke dalam satu kartu terpadu agar kuota kehadiran terhubung secara bersamaan?
           </p>
         </div>
 
@@ -73,14 +74,14 @@ export default function MergeConfirmModal({
           <button
             type="button"
             onClick={onRejectSeparate}
-            className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none"
           >
             Tidak, Simpan Terpisah
           </button>
           <button
             type="button"
             onClick={onConfirmMerge}
-            className="px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center space-x-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             <Link2 className="w-4 h-4" />
             <span>Ya, Gabungkan</span>

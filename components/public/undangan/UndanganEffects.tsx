@@ -60,8 +60,9 @@ export function MusicToggle({
     <button
       onClick={toggleMusic}
       type="button"
-      className="fixed top-4 right-4 z-40 w-11 h-11 rounded-full bg-white/90 backdrop-blur-md border-2 border-[#BAE6FD] text-[#1D4ED8] shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
+      className="fixed top-4 right-4 z-40 w-11 h-11 rounded-full bg-white/90 backdrop-blur-md border-2 border-[#BAE6FD] text-[#1D4ED8] shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
       title={isPlayingMusic ? 'Jeda Musik' : 'Putar Musik'}
+      aria-label={isPlayingMusic ? 'Jeda musik latar' : 'Putar musik latar'}
     >
       {isPlayingMusic ? (
         <Volume2 className="w-5 h-5 text-[#1D4ED8] animate-pulse" />
@@ -78,8 +79,9 @@ export function FloatingUsthTanyaButton({ href }: { href: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-full bg-[#0F2C59] hover:bg-[#322116] text-white font-serif font-bold text-xs shadow-2xl flex items-center space-x-2 border-2 border-[#D49B5B] transition-all hover:scale-105 active:scale-95 cursor-pointer group"
+      className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-full bg-[#0F2C59] hover:bg-[#322116] text-white font-serif font-bold text-xs shadow-2xl flex items-center space-x-2 border-2 border-[#D49B5B] transition-all hover:scale-105 active:scale-95 cursor-pointer group focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
       title="Hubungi Panitia via WhatsApp"
+      aria-label="Hubungi Panitia via WhatsApp"
     >
       <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-ping" />
       <MessageCircle className="w-4.5 h-4.5 text-[#D49B5B] group-hover:scale-110 transition-transform" />

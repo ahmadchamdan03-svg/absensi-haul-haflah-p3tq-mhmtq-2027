@@ -369,8 +369,9 @@ export default function InteractiveDenah({
                   <button
                     type="button"
                     onClick={() => setSelectedZone(null)}
-                    className="w-6 h-6 rounded-lg bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0F2C59] flex items-center justify-center transition-colors shrink-0"
+                    className="w-6 h-6 rounded-lg bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0F2C59] flex items-center justify-center transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                     title="Tutup Info"
+                    aria-label="Tutup info lokasi"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

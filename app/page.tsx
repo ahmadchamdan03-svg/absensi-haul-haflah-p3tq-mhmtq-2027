@@ -237,7 +237,7 @@ export default function LandingPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenRoleModal(key)}
-                    className={`relative z-10 flex items-center h-full gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl ${color.border} ${color.hoverBorder} transition-all duration-300 text-left w-full cursor-pointer active:scale-[0.98] hover:-translate-y-0.5 min-w-0`}
+                    className={`relative z-10 flex items-center h-full gap-2 sm:gap-2.5 p-2.5 sm:p-3 md:p-4 ${color.bg} rounded-2xl ${color.border} ${color.hoverBorder} focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none transition-all duration-300 text-left w-full cursor-pointer active:scale-[0.98] hover:-translate-y-0.5 min-w-0`}
                   >
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl ${color.iconBg} ${color.iconText} border border-current/20 shrink-0 shadow-xs`}>
                       <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
@@ -257,8 +257,8 @@ export default function LandingPortalPage() {
             <p className="text-[10px] md:text-[11px] text-amber-300/90 font-bold">
               Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M. · Aula Al-Muktamar
             </p>
-            <p className="text-[10px] md:text-[11px] text-slate-400 font-medium">
-              Sistem Web Murni · Dibuka langsung melalui browser
+            <p className="text-[10px] md:text-[11px] text-slate-300 font-medium">
+              Sistem Presensi &amp; Administrasi Digital · Haflah P3TQ &amp; MHMTQ
             </p>
           </div>
         </div>
@@ -316,7 +316,8 @@ export default function LandingPortalPage() {
                 type="button"
                 onClick={handleCloseModal}
                 disabled={isSubmitting}
-                className="w-8 h-8 rounded-full hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Tutup dialog"
+                className="w-8 h-8 rounded-full hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
               >
                 ✕
               </button>
@@ -326,7 +327,7 @@ export default function LandingPortalPage() {
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-200 block">
-                  Kata Sandi:
+                  Kata Sandi
                 </label>
                 <div className="relative">
                   <input
@@ -339,7 +340,7 @@ export default function LandingPortalPage() {
                     placeholder={`Masukkan sandi ${ROLES_CONFIG[selectedRole].title}...`}
                     autoFocus
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-2xl border text-sm text-white bg-white/10 pr-12 focus:outline-none transition-all placeholder:text-white/40 disabled:opacity-70 disabled:bg-white/5 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm text-white bg-white/10 pr-12 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 transition-all placeholder:text-white/40 disabled:opacity-70 disabled:bg-white/5 disabled:cursor-not-allowed ${
                       passwordError
                         ? 'border-rose-500 bg-rose-500/10'
                         : 'border-white/20 focus:border-amber-400'
@@ -349,7 +350,8 @@ export default function LandingPortalPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isSubmitting}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 disabled:opacity-30"
+                    aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 disabled:opacity-30 rounded-lg focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -369,14 +371,14 @@ export default function LandingPortalPage() {
                   type="button"
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className="flex-1 py-3 rounded-2xl border border-white/20 text-slate-300 hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 rounded-2xl border border-white/20 text-slate-300 hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || inputPassword.length < 4}
-                  className="flex-1 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-[#0F2C59] text-xs font-black shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-[#0F2C59] text-xs font-black shadow-md transition-all cursor-pointer active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
                 >
                   {isSubmitting ? (
                     <>
@@ -384,7 +386,7 @@ export default function LandingPortalPage() {
                       <span>Memproses...</span>
                     </>
                   ) : (
-                    'Masuk Sekarang'
+                    'Masuk'
                   )}
                 </button>
               </div>

@@ -206,7 +206,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pulse" />
           <div className="space-y-1">
             <h5 className="font-serif font-black text-sm text-blue-950">
-              ⚠️ TERDETEKSI ANOMALI KEHADIRAN
+              Pemberitahuan Selisih Kuota Kehadiran
             </h5>
             <p className="text-xs text-blue-900 leading-relaxed">
               Total Hadir ({totalHadirCombined} orang) melebihi Total Kuota ({totalKuotaCombined} kursi). Silakan cek &amp; lakukan koreksi data via Meja Rekonsiliasi.
@@ -222,7 +222,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
             className="text-xl sm:text-2xl lg:text-3xl font-serif font-black tracking-tight text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)] drop-shadow-2xl"
             style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.85), 0 4px 18px rgba(0, 0, 0, 0.7)' }}
           >
-            Laporan Realtime Jumlah Kehadiran Peserta Haul Haflah P3TQ MHMTQ 2027 M./ 1448 H.
+            Laporan Kehadiran Peserta Haul &amp; Haflah 1448 H.
           </h1>
         </div>
 
@@ -230,7 +230,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={() => setIsDenahOpen(true)}
-            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#1E3A8A] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#1E3A8A] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
+            aria-label="Buka denah lapangan"
           >
             <Compass className="w-4 h-4 text-[#1D4ED8]" />
             <span>Denah Lapangan</span>
@@ -238,10 +239,11 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <button
             type="button"
             onClick={fetchLiveDasborData}
-            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#1D4ED8] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition"
+            className="p-2.5 rounded-xl bg-white/50 hover:bg-white/75 backdrop-blur-md text-[#1D4ED8] border border-white/60 shadow-xs flex items-center space-x-1.5 text-xs font-bold cursor-pointer btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
+            aria-label="Perbarui data kehadiran"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Refresh</span>
+            <span>Segarkan</span>
           </button>
         </div>
       </div>
@@ -325,10 +327,10 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
             <div>
               <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
-                Pencarian &amp; Filter Kehadiran Realtime
+                Pencarian &amp; Filter Kehadiran
               </h3>
               <p className="text-xs text-[#7A624E]">
-                Ketik nama santri, nama wali, atau kode barcode untuk menyaring data secara instan
+                Cari berdasarkan nama santri, nama wali, instansi, atau kode undangan
               </p>
             </div>
 
@@ -337,7 +339,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <button
                 type="button"
                 onClick={() => setTabCategory('SEMUA')}
-                className={`px-3 py-1.5 rounded-xl btn-transition ${
+                className={`px-3 py-1.5 rounded-xl btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none ${
                   tabCategory === 'SEMUA' ? 'bg-blue-800 text-white shadow-xs' : 'text-[#0F2C59]'
                 }`}
               >
@@ -346,7 +348,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <button
                 type="button"
                 onClick={() => setTabCategory('SANTRI')}
-                className={`px-3 py-1.5 rounded-xl btn-transition ${
+                className={`px-3 py-1.5 rounded-xl btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none ${
                   tabCategory === 'SANTRI' ? 'bg-blue-800 text-white shadow-xs' : 'text-[#0F2C59]'
                 }`}
               >
@@ -355,7 +357,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <button
                 type="button"
                 onClick={() => setTabCategory('UNDANGAN')}
-                className={`px-3 py-1.5 rounded-xl btn-transition ${
+                className={`px-3 py-1.5 rounded-xl btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none ${
                   tabCategory === 'UNDANGAN' ? 'bg-blue-800 text-white shadow-xs' : 'text-[#0F2C59]'
                 }`}
               >
@@ -373,8 +375,8 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama santri, wali, instansi, atau kode (cth: SH0001, KH. Abdullah)..."
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/60 bg-white/50 backdrop-blur-xs text-xs sm:text-sm focus:outline-none input-transition shadow-xs"
+              placeholder="Cari nama santri, wali, instansi, atau kode (contoh: SH0001, KH. Anwar)..."
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/60 bg-white/50 backdrop-blur-xs text-xs sm:text-sm focus:outline-none input-transition shadow-xs focus-visible:ring-2 focus-visible:ring-blue-600"
             />
           </div>
 
@@ -384,7 +386,7 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <button
                 type="button"
                 onClick={() => setStatusFilter('SEMUA')}
-                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
+                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition focus-visible:ring-2 focus-visible:ring-stone-600 focus-visible:outline-none ${
                   statusFilter === 'SEMUA'
                     ? 'bg-stone-800 text-white border-stone-800 shadow-xs'
                     : 'bg-white/60 backdrop-blur-xs text-stone-700 border-stone-300/80 hover:bg-white/80'
@@ -395,24 +397,24 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
               <button
                 type="button"
                 onClick={() => setStatusFilter('SUDAH')}
-                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
+                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none ${
                   statusFilter === 'SUDAH'
                     ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
                     : 'bg-white/60 backdrop-blur-xs text-blue-800 border-blue-300/80 hover:bg-white/80'
                 }`}
               >
-                ✓ Sudah Hadir
+                Sudah Hadir
               </button>
               <button
                 type="button"
                 onClick={() => setStatusFilter('BELUM')}
-                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition ${
+                className={`px-3.5 py-2.5 rounded-2xl text-xs font-bold border btn-transition focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none ${
                   statusFilter === 'BELUM'
                     ? 'bg-blue-800 text-white border-blue-800 shadow-xs'
                     : 'bg-white/60 backdrop-blur-xs text-blue-900 border-sky-300/80 hover:bg-white/80'
                 }`}
               >
-                ⏱ Belum Hadir
+                Belum Hadir
               </button>
             </div>
           )}

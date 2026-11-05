@@ -181,7 +181,7 @@ export default function Sidebar({
               P3TQ &amp; MHMTQ Lirboyo
             </div>
             <div className="pt-0.5">
-              <span className="inline-flex items-center px-2 py-0.2 rounded-full bg-[#F0F9FF] text-[#1D4ED8] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs whitespace-nowrap">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#F0F9FF] text-[#1D4ED8] border border-[#D49B5B] text-[10px] font-serif font-bold tracking-wider shadow-2xs whitespace-nowrap">
                 1448 H. / 2027 M.
               </span>
             </div>
@@ -294,7 +294,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={toggleCollapse}
-          className="absolute -right-3.5 top-7 bg-white/90 backdrop-blur-md rounded-full p-1.5 shadow-md border border-white/60 hover:scale-110 active:scale-95 transition-all z-50 cursor-pointer text-[#1D4ED8] hover:text-[#0F2C59]"
+          className="absolute -right-3.5 top-7 bg-white/90 backdrop-blur-md rounded-full p-1.5 shadow-md border border-white/60 hover:scale-110 active:scale-95 transition-all z-50 cursor-pointer text-[#1D4ED8] hover:text-[#0F2C59] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           title={isCollapsed ? 'Lebarkan Sidebar (260px)' : 'Kecilkan Sidebar (78px)'}
           aria-label={isCollapsed ? 'Lebarkan Sidebar' : 'Kecilkan Sidebar'}
         >
@@ -341,7 +341,7 @@ export default function Sidebar({
         onClick={() => setTanyaUsOpen(true)}
         onMouseEnter={() => setIsUsHovered(true)}
         onMouseLeave={() => setIsUsHovered(false)}
-        className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none ${
+        className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none ${
           isCollapsed
             ? 'left-3.5 w-12 h-12 rounded-2xl justify-center p-1'
             : 'left-6 pl-2 pr-5 py-2 rounded-full gap-2.5'

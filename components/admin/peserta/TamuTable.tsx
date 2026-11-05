@@ -463,6 +463,7 @@ export default function TamuTable({
                   <input
                     type="checkbox"
                     title="Pilih Semua Halaman Ini"
+                    aria-label="Pilih semua data pada halaman ini"
                     checked={paginatedItems.length > 0 && paginatedItems.every((i) => selectedIds.includes(i.id))}
                     onChange={(e) => {
                       if (e.target.checked) {
@@ -521,6 +522,7 @@ export default function TamuTable({
                       <td className="py-3 px-3 text-center">
                         <input
                           type="checkbox"
+                          aria-label={`Pilih ${item.nama}`}
                           checked={selectedIds.includes(item.id)}
                           onChange={() => toggleSelectItem(item.id)}
                           className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
@@ -717,8 +719,9 @@ export default function TamuTable({
                             <button
                               onClick={() => handleFastTrackVip(item)}
                               disabled={fastTrackLoading === item.kode}
-                              title="Fast-Track VIP: Hadirkan beliau langsung tanpa scan QR gerbang"
-                              className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-[11px] shadow-xs flex items-center space-x-1 transition-all active:scale-95 disabled:opacity-50"
+                              title="Tandai Kehadiran VIP Langsung"
+                              aria-label={`Tandai kehadiran VIP ${item.nama}`}
+                              className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-[11px] shadow-xs flex items-center space-x-1 transition-all active:scale-95 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
                             >
                               <UserCheck className="w-3.5 h-3.5" />
                               <span>Hadirkan VIP</span>
@@ -733,8 +736,9 @@ export default function TamuTable({
                           {/* Detail & QR */}
                           <button
                             onClick={() => setQrDetailItem(item)}
-                            title="Lihat QR & Kartu"
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors"
+                            title="Lihat QR &amp; Kartu"
+                            aria-label={`Lihat QR dan kartu ${item.nama}`}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                           >
                             <QrCode className="w-4 h-4" />
                           </button>
@@ -743,7 +747,8 @@ export default function TamuTable({
                           <button
                             onClick={() => handleOpenEdit(item)}
                             title="Edit Data Peserta"
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors"
+                            aria-label={`Ubah data ${item.nama}`}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -754,12 +759,13 @@ export default function TamuTable({
                               type="button"
                               onClick={() => setUnmergeItem(item)}
                               disabled={item.terpakai > 0}
+                              aria-label={`Pisahkan grup ${item.nama}`}
                               title={
                                 item.terpakai > 0
                                   ? 'Tidak dapat dipisahkan karena peserta sudah melakukan scan kehadiran.'
                                   : 'Pisahkan (Unmerge) data peserta ini'
                               }
-                              className={`p-1.5 rounded-lg border transition-colors ${
+                              className={`p-1.5 rounded-lg border transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none ${
                                 item.terpakai > 0
                                   ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                                   : 'bg-white hover:bg-amber-50 text-amber-700 border-amber-300 hover:border-amber-400 cursor-pointer'
@@ -773,7 +779,8 @@ export default function TamuTable({
                           <button
                             onClick={() => setDeletingItem(item)}
                             title="Hapus Peserta"
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors"
+                            aria-label={`Hapus data ${item.nama}`}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -834,15 +841,15 @@ export default function TamuTable({
 
       {/* Floating Toolbar: Gabungkan Terpilih (Merge) */}
       {selectedIds.length >= 2 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 text-white backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-sky-400/40 flex items-center space-x-4 animate-in slide-in-from-bottom-5">
-          <div className="text-xs font-medium">
-            <strong className="text-amber-300 font-bold">{selectedIds.length}</strong> tamu dipilih
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 text-white backdrop-blur-md px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl border border-sky-400/40 flex items-center space-x-3 sm:space-x-4 animate-in slide-in-from-bottom-5 max-w-[95vw]">
+          <div className="text-xs font-medium whitespace-nowrap">
+            <strong className="text-amber-300 font-bold">{selectedIds.length}</strong> data dipilih
           </div>
           <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={() => setSelectedIds([])}
-              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-medium transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-medium transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             >
               Batal
             </button>
@@ -850,7 +857,7 @@ export default function TamuTable({
               type="button"
               disabled={isMerging}
               onClick={handleMergeSelected}
-              className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md flex items-center space-x-1.5 transition-all cursor-pointer disabled:opacity-50"
+              className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md flex items-center space-x-1.5 transition-all cursor-pointer disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none whitespace-nowrap"
             >
               {isMerging ? (
                 <>
@@ -860,7 +867,7 @@ export default function TamuTable({
               ) : (
                 <>
                   <Link2 className="w-3.5 h-3.5" />
-                  <span>Gabungkan Terpilih (Merge)</span>
+                  <span>Gabungkan Data Terpilih</span>
                 </>
               )}
             </button>

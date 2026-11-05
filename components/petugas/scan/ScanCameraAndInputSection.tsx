@@ -190,7 +190,8 @@ export default function ScanCameraAndInputSection({
                       type="button"
                       onClick={onToggleFacingMode}
                       title="Ganti Kamera Depan/Belakang"
-                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs flex items-center space-x-1 transition-colors"
+                      aria-label="Ganti kamera depan atau belakang"
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs flex items-center space-x-1 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                     >
                       <SwitchCamera className="w-3.5 h-3.5" />
                       <span className="text-[10px] font-semibold hidden sm:inline">
@@ -201,7 +202,8 @@ export default function ScanCameraAndInputSection({
                       type="button"
                       onClick={onStopCamera}
                       title="Matikan Kamera"
-                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors"
+                      aria-label="Matikan kamera"
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                     >
                       <CameraOff className="w-3.5 h-3.5" />
                     </button>
@@ -261,9 +263,9 @@ export default function ScanCameraAndInputSection({
                   <button
                     type="button"
                     onClick={onStartCamera}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F5C26B] via-[#E5A845] to-[#F5C26B] hover:brightness-105 text-[#142234] font-black text-xs shadow-lg transition-all border border-[#FDF4E4]"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F5C26B] via-[#E5A845] to-[#F5C26B] hover:brightness-105 text-[#142234] font-black text-xs shadow-lg transition-all border border-[#FDF4E4] focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
                   >
-                    Buka Kamera Sekarang
+                    Nyalakan Kamera
                   </button>
                 </div>
               )}

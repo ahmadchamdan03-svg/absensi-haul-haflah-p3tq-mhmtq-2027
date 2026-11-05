@@ -374,8 +374,9 @@ export default function SantriTableRow({
               <button
                 onClick={() => handleFastTrackVip(item)}
                 disabled={fastTrackLoading === item.kode}
-                title="Fast-Track VIP: Hadirkan beliau langsung tanpa scan QR gerbang"
-                className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-[11px] shadow-xs flex items-center space-x-1 transition-all active:scale-95 disabled:opacity-50"
+                title="Tandai Kehadiran VIP Langsung"
+                aria-label={`Tandai kehadiran VIP ${item.nama}`}
+                className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-[11px] shadow-xs flex items-center space-x-1 transition-all active:scale-95 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
               >
                 <UserCheck className="w-3.5 h-3.5" />
                 <span>Hadirkan VIP</span>
@@ -389,8 +390,9 @@ export default function SantriTableRow({
 
           <button
             onClick={() => setQrDetailItem(item)}
-            title="Lihat QR & Kartu"
-            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors"
+            title="Lihat QR &amp; Kartu"
+            aria-label={`Lihat QR dan kartu ${item.nama}`}
+            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             <QrCode className="w-4 h-4" />
           </button>
@@ -398,7 +400,8 @@ export default function SantriTableRow({
           <button
             onClick={() => handleOpenEdit(item)}
             title="Edit Data Peserta"
-            className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors"
+            aria-label={`Ubah data ${item.nama}`}
+            className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             <Edit className="w-4 h-4" />
           </button>
@@ -408,12 +411,13 @@ export default function SantriTableRow({
               type="button"
               disabled={item.terpakai > 0}
               onClick={() => onOpenUnmerge && onOpenUnmerge(item)}
+              aria-label={`Pisahkan grup ${item.nama}`}
               title={
                 item.terpakai > 0
                   ? 'Tidak dapat dipisahkan karena peserta sudah melakukan scan kehadiran.'
                   : 'Pisahkan (Unmerge) data peserta ini'
               }
-              className={`p-1.5 rounded-lg border transition-colors ${
+              className={`p-1.5 rounded-lg border transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none ${
                 item.terpakai > 0
                   ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                   : 'bg-white hover:bg-amber-50 text-amber-700 border-amber-300 hover:border-amber-400 cursor-pointer'
@@ -426,7 +430,8 @@ export default function SantriTableRow({
           <button
             onClick={() => setDeletingItem(item)}
             title="Hapus Peserta"
-            className="p-1.5 rounded-lg text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors"
+            aria-label={`Hapus data ${item.nama}`}
+            className="p-1.5 rounded-lg text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
             <Trash2 className="w-4 h-4" />
           </button>

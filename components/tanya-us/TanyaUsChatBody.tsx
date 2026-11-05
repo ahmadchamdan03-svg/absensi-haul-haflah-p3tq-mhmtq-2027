@@ -75,27 +75,27 @@ export function TanyaUsHeaderAndSettings({
         <div className="flex items-center space-x-1 sm:space-x-2">
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className={`p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors ${
+            className={`p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               showSettings ? 'bg-white/60 text-[#1D4ED8]' : ''
             }`}
             title="Pengaturan API Key"
-            aria-label="Pengaturan"
+            aria-label="Pengaturan API Key"
           >
             <Settings className="w-4 h-4" />
           </button>
           <button
             onClick={handleResetChat}
-            className="p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors"
+            className="p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             title="Mulai Percakapan Baru"
-            aria-label="Reset Chat"
+            aria-label="Mulai percakapan baru"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors"
+            className="p-2 rounded-xl text-[#7A624E] hover:text-[#0F2C59] hover:bg-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             title="Tutup (Esc)"
-            aria-label="Tutup"
+            aria-label="Tutup jendela tanya Usth. Halwaa"
           >
             <X className="w-5 h-5" />
           </button>

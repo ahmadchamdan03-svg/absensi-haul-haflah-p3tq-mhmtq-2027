@@ -68,13 +68,14 @@ export default function TambahTamuModal({
               Tambah Tamu Undangan Baru
             </h3>
             <p className="text-xs text-[#7A624E] mt-0.5">
-              Data tersimpan langsung ke database Supabase Cloud
+              Data tersimpan langsung ke sistem presensi terpadu
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowAddModal(false)}
-            className="p-1.5 rounded-xl hover:bg-white/40 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
+            aria-label="Tutup form tambah tamu"
+            className="p-1.5 rounded-xl hover:bg-white/40 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
             <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
