@@ -66,7 +66,7 @@ export default function UndanganWaliRsvpSection({
   const totalInputWali = estL + estP;
 
   return (
-    <ScrollReveal delay={300}>
+    <ScrollReveal delay={300} variant="zoom-in">
       <GlassCard className="p-4 sm:p-6 md:p-8 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-1">

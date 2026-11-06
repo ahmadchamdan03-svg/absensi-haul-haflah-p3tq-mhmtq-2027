@@ -2,6 +2,7 @@
 
 import QRCode from 'react-qr-code';
 import { Calendar, Clock, MapPin, Compass, Users, ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { formatQrPayloadSync } from '@/lib/hmac';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
@@ -42,7 +43,7 @@ export function TamuHeroAndEventSections({
       </div>
 
       {/* 2. KARTU IDENTITAS TAMU UNDANGAN & SAMBUTAN FORMAL ISLAMI */}
-      <ScrollReveal delay={150}>
+      <ScrollReveal delay={150} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 relative overflow-hidden">
           <div
             dir="rtl"
@@ -69,7 +70,13 @@ export function TamuHeroAndEventSections({
 
           <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent my-2" />
 
-          <div className="space-y-3 font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-3 font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-center"
+          >
             <h3 className="font-bold text-sm sm:text-base text-[#0F2C59]">
               Assalamu'alaikum Warahmatullahi Wabarakatuh
             </h3>
@@ -85,7 +92,7 @@ export function TamuHeroAndEventSections({
             <p>
               serta <strong>Dzikrul Haul Al-maghfur Lahum</strong>:
             </p>
-          </div>
+          </motion.div>
 
           <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 text-xs font-serif font-bold text-[#1E3A8A] space-y-1.5 text-center">
             <p className="text-sm text-[#1D4ED8] font-black">• KH. ABDUL KARIM •</p>
@@ -99,7 +106,7 @@ export function TamuHeroAndEventSections({
       </ScrollReveal>
 
       {/* 3. KARTU DETAIL PELAKSANAAN ACARA */}
-      <ScrollReveal delay={200}>
+      <ScrollReveal delay={200} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4">
           <div className="text-center space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
@@ -139,7 +146,7 @@ export function TamuHeroAndEventSections({
       </ScrollReveal>
 
       {/* 4. ⬅️ KARTU HITUNG MUNDUR (COUNTDOWN TIMER) — DIPINDAH KE SINI */}
-      <ScrollReveal delay={250}>
+      <ScrollReveal delay={250} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 border-2 border-[#E8DFD5]/80 shadow-sm space-y-5 text-center">
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
@@ -254,7 +261,7 @@ export function WaliHeroAndIdentitySections({
       </div>
 
       {/* 2. PROFIL SANTRIWATI & WALI SANTRI (PERBAIKAN 3 & 5: RAPIKAN GRID MOBILE) */}
-      <ScrollReveal delay={100}>
+      <ScrollReveal delay={100} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4">
           <div className="text-center space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
@@ -288,7 +295,7 @@ export function WaliHeroAndIdentitySections({
       </ScrollReveal>
 
       {/* 3. KALIMAT SAMBUTAN FORMAL ISLAMI & INFO MAHSYAYIKH */}
-      <ScrollReveal delay={150}>
+      <ScrollReveal delay={150} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 text-[#0F2C59]">
           <div
             dir="rtl"
@@ -298,25 +305,33 @@ export function WaliHeroAndIdentitySections({
             بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
           </div>
 
-          <h3 className="font-serif font-bold text-center text-sm sm:text-base text-[#0F2C59]">
-            Assalamu'alaikum Warahmatullahi Wabarakatuh
-          </h3>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-3 font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-center"
+          >
+            <h3 className="font-serif font-bold text-center text-sm sm:text-base text-[#0F2C59]">
+              Assalamu'alaikum Warahmatullahi Wabarakatuh
+            </h3>
 
-          <p className="font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-justify sm:text-center">
-            Salam silaturahim kami sampaikan, semoga Bapak/Ibu/Saudara/i senantiasa berada dalam lindungan Allah SWT.
-          </p>
-
-          <div className="space-y-2 font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-center">
-            <p>
-              Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan</strong>:
+            <p className="font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-justify sm:text-center">
+              Salam silaturahim kami sampaikan, semoga Bapak/Ibu/Saudara/i senantiasa berada dalam lindungan Allah SWT.
             </p>
-            <div className="py-1">
-              <NamaLembaga align="center" size="xs" weight="bold" color="text-[#0F2C59]" />
+
+            <div className="space-y-2 font-serif text-xs sm:text-sm text-[#0F2C59] leading-relaxed text-center">
+              <p>
+                Dengan penuh rasa syukur kehadirat Allah SWT, kami mengharap kehadiran Bapak/Ibu/Saudara/i Wali Santri dalam acara <strong>Tasyakuran Takhtiman-Tamatan</strong>:
+              </p>
+              <div className="py-1">
+                <NamaLembaga align="center" size="xs" weight="bold" color="text-[#0F2C59]" />
+              </div>
+              <p>
+                serta <strong>Dzikrul Haul Al-maghfur Lahum</strong>:
+              </p>
             </div>
-            <p>
-              serta <strong>Dzikrul Haul Al-maghfur Lahum</strong>:
-            </p>
-          </div>
+          </motion.div>
 
           <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 text-xs font-serif font-bold text-[#1E3A8A] space-y-1.5 text-center">
             <p className="text-sm text-[#1D4ED8] font-black">• KH. ABDUL KARIM •</p>
@@ -330,7 +345,7 @@ export function WaliHeroAndIdentitySections({
       </ScrollReveal>
 
       {/* RANGKAIAN ADICARA UTAMA & TATA TERTIB SAMBANGAN */}
-      <ScrollReveal delay={200}>
+      <ScrollReveal delay={200} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5">
           <div className="space-y-3">
             <h3 className="font-serif font-black text-base text-[#0F2C59] border-b border-stone-100 pb-2">

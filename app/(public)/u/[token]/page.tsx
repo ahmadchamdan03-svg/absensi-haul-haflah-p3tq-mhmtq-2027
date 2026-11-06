@@ -29,6 +29,7 @@ import {
 import UndanganWaliRsvpSection from '@/components/public/undangan/UndanganWaliRsvpSection';
 import UndanganAcaraAndFooter from '@/components/public/undangan/UndanganAcaraAndFooter';
 import UndanganTamuRsvpAndFooter from '@/components/public/undangan/UndanganTamuRsvpAndFooter';
+import UndanganParallaxOrnaments from '@/components/public/undangan/UndanganParallaxOrnaments';
 import { SkeletonCard } from '@/components/ui/GlassSkeleton';
 
 export default function UndanganWaliPage() {
@@ -808,6 +809,9 @@ export default function UndanganWaliPage() {
     >
       {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR) */}
       <CanvasRevealMask />
+
+      {/* ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING */}
+      <UndanganParallaxOrnaments isOpened={isOpened} />
 
       {/* Audio Elemen Tersembunyi */}
       <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="none" />

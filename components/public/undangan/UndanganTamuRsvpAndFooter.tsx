@@ -30,7 +30,7 @@ export default function UndanganTamuRsvpAndFooter({
   return (
     <>
       {/* 6a. KARTU QR CODE GERBANG MASUK TAMU */}
-      <ScrollReveal delay={350}>
+      <ScrollReveal delay={350} variant="zoom-in">
         <div className="bg-white/50 backdrop-blur-md rounded-3xl p-5 sm:p-7 md:p-8 border border-white/60 shadow-[0_8px_32px_0_rgba(140,106,71,0.08)] text-center space-y-4">
           <p className="text-xs sm:text-sm font-semibold text-[#0F2C59]">
             Mohon tunjukkan QR Code kepada petugas saat memasuki lokasi acara.
@@ -60,7 +60,7 @@ export default function UndanganTamuRsvpAndFooter({
       </ScrollReveal>
 
       {/* 6b. KARTU KONFIRMASI KEHADIRAN (RSVP TAMU UNDANGAN) */}
-      <ScrollReveal delay={400}>
+      <ScrollReveal delay={400} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5 text-center">
           <div className="space-y-1">
             <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
@@ -138,7 +138,7 @@ export default function UndanganTamuRsvpAndFooter({
       </ScrollReveal>
 
       {/* 8. FOOTER TANDA TANGAN PANITIA */}
-      <ScrollReveal delay={450}>
+      <ScrollReveal delay={450} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 text-center space-y-5 text-xs font-serif text-[#0F2C59]">
           <p className="italic text-stone-600 leading-relaxed text-center">
             Atas perhatian dan kehadiran Bapak/Ibu/Saudara/i, kami sampaikan terima kasih.<br />

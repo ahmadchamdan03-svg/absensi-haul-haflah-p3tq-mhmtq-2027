@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { AlertCircle, MessageCircle, MailOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
 import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -76,8 +77,24 @@ export function UndanganCoverTamu({
 }) {
   return (
     <div className="min-h-screen h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 overflow-hidden">
-      <ScrollReveal>
-        <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
+      <ScrollReveal variant="zoom-in" duration={0.8}>
+        <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative">
+          {/* Kaligrafi Kufi Ornamen Elegan dari CDR */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7 }}
+            className="flex justify-center -mb-2"
+          >
+            <img
+              src="/images/undangan-assets/calligraphy-kufic.webp"
+              alt="Kaligrafi Kufi Haflah"
+              width={160}
+              height={85}
+              className="h-8 sm:h-10 w-auto object-contain opacity-80 drop-shadow-xs"
+            />
+          </motion.div>
+
           <HeaderUndangan titleType="UNDANGAN RESMI" />
 
           <div className="flex items-center justify-center gap-3 my-2 text-[#1D4ED8]/60">
@@ -130,8 +147,24 @@ export function UndanganCoverWali({
 }) {
   return (
     <div className="min-h-screen h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center relative z-20 overflow-hidden">
-      <ScrollReveal>
-        <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative animate-in fade-in zoom-in-95 duration-300">
+      <ScrollReveal variant="zoom-in" duration={0.8}>
+        <div className="max-w-md md:max-w-2xl lg:max-w-3xl w-full p-2 sm:p-4 md:px-6 space-y-6 text-center relative">
+          {/* Kaligrafi Kufi Ornamen Elegan dari CDR */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7 }}
+            className="flex justify-center -mb-2"
+          >
+            <img
+              src="/images/undangan-assets/calligraphy-kufic.webp"
+              alt="Kaligrafi Kufi Haflah"
+              width={160}
+              height={85}
+              className="h-8 sm:h-10 w-auto object-contain opacity-80 drop-shadow-xs"
+            />
+          </motion.div>
+
           <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#1D4ED8] uppercase text-center mb-1">
             UNDANGAN RESMI WALI SANTRI
           </div>

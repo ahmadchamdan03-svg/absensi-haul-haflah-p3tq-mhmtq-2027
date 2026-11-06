@@ -28,7 +28,7 @@ export default function UndanganAcaraAndFooter({
   return (
     <>
       {/* KARTU WAKTU, LOKASI & COUNTDOWN TIMER WALI */}
-      <ScrollReveal delay={350}>
+      <ScrollReveal delay={350} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5 text-center">
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
