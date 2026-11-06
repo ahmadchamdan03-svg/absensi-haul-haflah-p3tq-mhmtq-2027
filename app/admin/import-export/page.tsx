@@ -125,7 +125,7 @@ export default function ImportExportPage() {
 
   return (
     <AuthGuard allowedRoles={['ADMIN']}>
-      <div className="space-y-6 max-w-6xl mx-auto pb-12">
+      <div className="space-y-6 max-w-6xl mx-auto px-6 lg:px-8 py-6 pb-12">
         <ImportExportCards
           activeTab={activeTab}
           setActiveTab={setActiveTab}

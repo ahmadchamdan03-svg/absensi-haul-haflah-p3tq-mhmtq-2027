@@ -113,7 +113,7 @@ export function ImportExportCards({
       </div>
 
       {/* 2 KARTU UTAMA: DOWNLOAD TEMPLATE & UPLOAD DATA (KACA TERANG PEKAT) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         {/* KARTU 1: DOWNLOAD TEMPLATE PER KATEGORI */}
         <div className="bg-[#F0F9FF]/95 backdrop-blur-md border border-[#0F2C59]/20 shadow-md rounded-3xl p-6 space-y-4">
           <div className="flex items-center space-x-2 border-b border-[#0F2C59]/15 pb-3">

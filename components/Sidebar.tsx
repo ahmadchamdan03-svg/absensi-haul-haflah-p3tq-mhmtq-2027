@@ -241,7 +241,7 @@ export default function Sidebar({
                     key={item.href}
                     href={item.href}
                     onClick={onCloseMobile}
-                    className={`sidebar-transition flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide ${
+                    className={`sidebar-transition flex items-center justify-between pl-4 pr-3.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide ${
                       isActive
                         ? 'bg-[#1D4ED8] text-white shadow-sm font-bold border border-[#1E40AF]'
                         : 'text-[#0F2C59] hover:bg-white/50 hover:text-[#1D4ED8]'
