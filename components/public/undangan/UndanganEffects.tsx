@@ -5,42 +5,50 @@ import { Volume2, VolumeX, MessageCircle } from 'lucide-react';
 import { getNamaPenerima } from './types';
 
 // Helper Render Nama Tamu Undangan
-export function renderTamuName(item: any) {
+export function renderTamuName(item: any, isDark: boolean = true) {
   const namaPenerima = getNamaPenerima(item);
   return (
-    <h2 className="text-xl sm:text-2xl font-serif font-black text-[#322116] tracking-wide text-center leading-snug">
+    <h2 className={`text-xl sm:text-2xl font-serif font-black tracking-wide text-center leading-snug ${
+      isDark ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]' : 'text-[#0F2C59]'
+    }`}>
       {namaPenerima}
     </h2>
   );
 }
 
 // Helper Render Asal / Kota Tamu Undangan (Hanya Alamat/Kota, tanpa Instansi & Kategori)
-export function renderAlamatTamu(item: any) {
+export function renderAlamatTamu(item: any, isDark: boolean = true) {
   const alamat = item?.alamat && item.alamat !== '-' ? item.alamat.trim() : '';
   if (alamat) {
-    return <p className="text-xs text-stone-500 font-medium pt-0.5">{alamat}</p>;
+    return (
+      <p className={`text-xs font-medium pt-0.5 ${
+        isDark ? 'text-amber-200/90 drop-shadow-xs' : 'text-stone-500'
+      }`}>
+        {alamat}
+      </p>
+    );
   }
   return null;
 }
 
-// Komponen 3 Logo Resmi (P3TQ, Haul & Haflah, MHMTQ)
+// Komponen 3 Logo Resmi (P3TQ, Haul & Haflah, MHMTQ) - Logo Tengah Diperbesar Seimbang
 export function HeaderLogos() {
   return (
-    <div className="flex items-center justify-center gap-3 sm:gap-6 my-3">
+    <div className="flex items-center justify-center gap-3 sm:gap-5 my-3">
       <img
         src="/images/logo-p3tq.png"
         alt="Logo P3TQ"
-        className="h-14 sm:h-18 object-contain drop-shadow-sm"
+        className="h-10 sm:h-12 object-contain drop-shadow-md brightness-105"
       />
       <img
         src="/logo-haul-haflah-transparent.png"
         alt="Logo Haul & Haflah"
-        className="h-16 sm:h-20 object-contain drop-shadow-sm"
+        className="h-16 sm:h-20 scale-105 sm:scale-115 object-contain drop-shadow-[0_4px_12px_rgba(251,191,36,0.35)]"
       />
       <img
         src="/images/logo-mhmtq.png"
         alt="Logo MHMTQ"
-        className="h-14 sm:h-18 object-contain drop-shadow-sm"
+        className="h-10 sm:h-12 object-contain drop-shadow-md brightness-105"
       />
     </div>
   );

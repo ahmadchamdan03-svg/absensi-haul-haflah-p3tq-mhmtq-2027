@@ -205,16 +205,18 @@ export default function CanvasRevealMask() {
       className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Tertutup Tirai Krem Saat Pertama Kali Dimuat) */}
+      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Efek siluet mewah & redup agar tidak merusak keterbacaan teks) */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <div className="relative shrink-0 overflow-hidden w-full h-full">
           <img
             src="/images/panggung-aula.jpg"
             alt="Panggung Aula Al-Muktamar"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center opacity-30 mix-blend-luminosity filter brightness-75 contrast-125"
           />
+          {/* Overlay Deep Navy halus agar riak kuas singkap panggung berpadu harmonis dengan background */}
+          <div className="absolute inset-0 bg-[#0F2C59]/60 pointer-events-none" />
 
-          {/* 2. Layer Canvas Tirai Krem Solid (#FAF7F3) yang dikikis kursor mouse (z-10) */}
+          {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full pointer-events-none z-10"

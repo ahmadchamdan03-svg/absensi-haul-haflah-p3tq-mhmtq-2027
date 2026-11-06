@@ -200,7 +200,17 @@ export function BeliFooter() {
       <p className="font-serif font-bold text-[#0F2C59]">
         Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo
       </p>
-      <p>Jika membutuhkan bantuan, silakan hubungi Panitia di 0857-9063-3812</p>
+      <p>
+        Jika membutuhkan bantuan, silakan hubungi Sekretariat Haflah di{' '}
+        <a
+          href="https://wa.me/6285181805377?text=Assalamu%27alaikum%20Sekretariat%20Haflah%2C%20saya%20membutuhkan%20bantuan."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-700 font-bold hover:underline"
+        >
+          0851-8180-5377
+        </a>
+      </p>
     </div>
   );
 }

@@ -266,7 +266,7 @@ export default function BeliActiveOrderCard({
           </button>
         )}
 
-        {/* TOMBOL HUBUNGI PANITIA (WHATSAPP) */}
+        {/* TOMBOL HUBUNGI SEKRETARIAT HAFLAH (WHATSAPP) */}
         {activePendingOrder.status === 'MENUNGGU_VERIFIKASI' && (
           <div className="pt-2 space-y-2">
             <a
@@ -280,7 +280,7 @@ export default function BeliActiveOrderCard({
               className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
             >
               <MessageCircle className="w-4.5 h-4.5 text-emerald-200 shrink-0" />
-              <span className="truncate">Hubungi Panitia via WhatsApp</span>
+              <span className="truncate">Hubungi Sekretariat Haflah via WhatsApp</span>
             </a>
           </div>
         )}
