@@ -25,7 +25,7 @@ export function HeaderUndangan({
           className="h-10 sm:h-12 md:h-14 object-contain drop-shadow-md brightness-105"
         />
         <img
-          src="/logo-haul-haflah-transparent.png"
+          src="/images/logo-haul-white.png"
           alt="Logo Haul & Haflah"
           className="h-16 sm:h-20 md:h-24 scale-105 sm:scale-115 object-contain drop-shadow-[0_4px_12px_rgba(251,191,36,0.35)]"
         />
@@ -44,7 +44,7 @@ export function HeaderUndangan({
       </p>
 
       {/* 3. BARIS 2 — JUDUL UTAMA (EMAS BERKILAU DENGAN DROP SHADOW TIPIS) */}
-      <h1 className={`text-lg sm:text-2xl md:text-3xl font-serif font-black leading-tight text-center break-words max-w-full mx-auto mt-1 sm:mt-2 px-1 ${
+      <h1 className={`text-lg sm:text-2xl md:text-3xl font-serif font-bold leading-tight text-center break-words max-w-full mx-auto mt-1 sm:mt-2 px-1 ${
         isDark ? 'text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.35)]' : 'text-[#0F2C59]'
       }`}>
         <span className="inline-block">Haul &amp; Haflah</span>{' '}
@@ -59,8 +59,8 @@ export function HeaderUndangan({
       </p>
 
       {/* 5. BLOK NAMA LEMBAGA (PUTIH BERSIH & EMAS) */}
-      <div className={`w-full max-w-none md:max-w-2xl text-[11px] sm:text-xs leading-relaxed space-y-0.5 mt-2 sm:mt-2.5 text-center font-serif italic mx-auto px-1 ${
-        isDark ? 'text-white/85 drop-shadow-xs' : 'text-[#7A624E]'
+      <div className={`w-full max-w-none md:max-w-2xl text-[11px] sm:text-xs leading-relaxed space-y-0.5 mt-2 sm:mt-2.5 text-center font-serif mx-auto px-1 ${
+        isDark ? 'text-white font-bold drop-shadow-md' : 'text-[#7A624E]'
       }`}>
         <p className="whitespace-nowrap text-[10px] sm:text-xs">
           Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
@@ -68,8 +68,8 @@ export function HeaderUndangan({
         <p className="whitespace-nowrap text-[9px] sm:text-[11px] tracking-tight sm:tracking-normal">
           Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
         </p>
-        <p className={`font-semibold not-italic text-[11px] sm:text-xs pt-0.5 ${
-          isDark ? 'text-amber-300 font-bold' : 'text-[#1D4ED8]'
+        <p className={`text-[11px] sm:text-xs pt-0.5 ${
+          isDark ? 'text-amber-400 italic' : 'text-[#1D4ED8] font-semibold'
         }`}>
           Lirboyo Kediri
         </p>

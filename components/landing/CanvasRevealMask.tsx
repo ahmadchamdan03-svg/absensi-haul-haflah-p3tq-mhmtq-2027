@@ -19,7 +19,11 @@ interface Stamp {
   rmax: number;
 }
 
-export default function CanvasRevealMask() {
+export default function CanvasRevealMask({
+  className = 'absolute inset-0 pointer-events-none overflow-hidden',
+}: {
+  className?: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -202,25 +206,21 @@ export default function CanvasRevealMask() {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
+      className={className}
       aria-hidden="true"
     >
       {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Terang, Jelas, Warna Asli Tanpa Filter) */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="relative shrink-0 overflow-hidden w-full h-full">
-          <img
-            src="/images/panggung-aula.jpg"
-            alt="Panggung Aula Al-Muktamar"
-            className="w-full h-full object-cover object-center"
-          />
+      <img
+        src="/images/panggung-aula.jpg"
+        alt="Panggung Aula Al-Muktamar"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0"
+      />
 
-          {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none z-10"
-          />
-        </div>
-      </div>
+      {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-10"
+      />
     </div>
   );
 }

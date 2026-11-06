@@ -33,6 +33,27 @@ export function useSantriForm({
   // State & Ref Guard Anti-Duplikasi Submit
   const [isSubmittingSantri, setIsSubmittingSantri] = useState(false);
   const submitLockSantri = useRef(false);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
+  // Helper fetch dengan batas waktu (10 detik) anti-freeze
+  const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeoutMs = 10000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      return response;
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('Koneksi terputus atau batas waktu (10 detik) habis. Silakan periksa jaringan dan coba lagi.');
+      }
+      throw error;
+    } finally {
+      clearTimeout(id);
+    }
+  };
 
   // Form state tambah santri (tanpa Sub-Kategori / Juz / Tingkat)
   const [formData, setFormData] = useState({
@@ -80,14 +101,19 @@ export function useSantriForm({
     e.preventDefault();
     if (submitLockSantri.current || isSubmittingSantri) return;
 
+    const newErrors: { [key: string]: string } = {};
     if (!formData.nama.trim()) {
-      alert('Nama santri wajib diisi!');
-      return;
+      newErrors.nama = 'Nama lengkap santriwati wajib diisi';
     }
     if (!formData.namaWali.trim()) {
-      alert('Nama wali wajib diisi!');
+      newErrors.namaWali = 'Nama wali santri wajib diisi';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
       return;
     }
+    setFormErrors({});
 
     submitLockSantri.current = true;
     setIsSubmittingSantri(true);
@@ -189,7 +215,7 @@ export function useSantriForm({
           updatePayload.alamat = formData.alamat.trim().toUpperCase();
         }
 
-        const patchRes = await fetch('/api/santri', {
+        const patchRes = await fetchWithTimeout('/api/santri', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -257,7 +283,7 @@ export function useSantriForm({
           ? (formData.kelas || '2 Tsanawiyah')
           : (formData.kategoriUtama || '-');
 
-      const postRes = await fetch('/api/santri', {
+      const postRes = await fetchWithTimeout('/api/santri', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -366,6 +392,20 @@ export function useSantriForm({
     e.preventDefault();
     if (!editingItem || editingItem.tipe !== 'SANTRI' || submitLockSantri.current || isSubmittingSantri) return;
 
+    const newErrors: { [key: string]: string } = {};
+    if (!editingItem.nama?.trim()) {
+      newErrors.nama = 'Nama lengkap santriwati wajib diisi';
+    }
+    if (!editingItem.namaWali?.trim()) {
+      newErrors.namaWali = 'Nama wali santri wajib diisi';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      return;
+    }
+    setFormErrors({});
+
     submitLockSantri.current = true;
     setIsSubmittingSantri(true);
 
@@ -398,7 +438,7 @@ export function useSantriForm({
     const resolvedWarna = getWarnaTiketSantri(resolvedKatUtama, subKat);
 
     try {
-      const patchRes = await fetch('/api/santri', {
+      const patchRes = await fetchWithTimeout('/api/santri', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -419,52 +459,50 @@ export function useSantriForm({
       const patchJson = await patchRes.json();
       if (!patchRes.ok || !patchJson.ok) {
         alert(`Gagal memperbarui data santri: ${patchJson.error || 'Kesalahan server'}`);
-        submitLockSantri.current = false;
-        setIsSubmittingSantri(false);
         return;
       }
+
+      store.editPeserta(targetKode, {
+        nama: editingItem.nama?.trim().toUpperCase(),
+        namaWali: editingItem.namaWali?.trim().toUpperCase(),
+        noHp: editingItem.noHp?.trim(),
+        alamat: editingItem.alamat?.trim().toUpperCase(),
+        kamar: editingItem.kamar?.trim(),
+        kategoriUtama: editingItem.kategoriUtama,
+        subKategori: subKat,
+        kelas: kls,
+        kuotaDasar: Number(editingItem.kuotaDasar || 4),
+      });
+
+      logAudit({
+        panitia_id: 'ADMIN_SEKRETARIAT',
+        panitia_role: 'ADMIN',
+        aksi: 'EDIT_PESERTA',
+        tabel: 'peserta_santri',
+        kode: targetKode,
+        nama: editingItem.nama,
+        field: 'edit_santri',
+        nilai_baru: JSON.stringify(editingItem),
+        detail: editingItem,
+        catatan: `Perubahan Data Santri (${targetKode})`,
+      }).catch((err) => console.warn('Audit log error:', err));
+
+      onEditSuccess(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
+      setEditingItem(null);
     } catch (err: any) {
       console.error('Exception updating peserta_santri:', err);
       alert(`Terjadi kesalahan saat menyimpan: ${err.message || err}`);
+    } finally {
       submitLockSantri.current = false;
       setIsSubmittingSantri(false);
-      return;
     }
-
-    store.editPeserta(targetKode, {
-      nama: editingItem.nama?.trim().toUpperCase(),
-      namaWali: editingItem.namaWali?.trim().toUpperCase(),
-      noHp: editingItem.noHp?.trim(),
-      alamat: editingItem.alamat?.trim().toUpperCase(),
-      kamar: editingItem.kamar?.trim(),
-      kategoriUtama: editingItem.kategoriUtama,
-      subKategori: subKat,
-      kelas: kls,
-      kuotaDasar: Number(editingItem.kuotaDasar || 4),
-    });
-
-    logAudit({
-      panitia_id: 'ADMIN_SEKRETARIAT',
-      panitia_role: 'ADMIN',
-      aksi: 'EDIT_PESERTA',
-      tabel: 'peserta_santri',
-      kode: targetKode,
-      nama: editingItem.nama,
-      field: 'edit_santri',
-      nilai_baru: JSON.stringify(editingItem),
-      detail: editingItem,
-      catatan: `Perubahan Data Santri (${targetKode})`,
-    }).catch((err) => console.warn('Audit log error:', err));
-
-    onEditSuccess(`✓ Perubahan data santri ${targetKode} berhasil disimpan!`);
-    setEditingItem(null);
-    submitLockSantri.current = false;
-    setIsSubmittingSantri(false);
   };
 
   return {
     formData,
     setFormData,
+    formErrors,
+    setFormErrors,
     isSubmittingSantri,
     editModalTab,
     setEditModalTab,

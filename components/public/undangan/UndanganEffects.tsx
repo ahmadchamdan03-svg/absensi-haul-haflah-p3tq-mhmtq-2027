@@ -99,18 +99,17 @@ export function FloatingUsthTanyaButton({ href }: { href: string }) {
 }
 
 export function EventCountdownGrid({ targetDate }: { targetDate: string }) {
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
-    return {
-      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((diff / (1000 * 60)) % 60),
-      seconds: Math.floor((diff / 1000) % 60),
-    };
+  const [mounted, setMounted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
   });
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    setMounted(true);
+    const updateCountdown = () => {
       const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
       setTimeLeft({
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -118,33 +117,35 @@ export function EventCountdownGrid({ targetDate }: { targetDate: string }) {
         minutes: Math.floor((diff / (1000 * 60)) % 60),
         seconds: Math.floor((diff / 1000) % 60),
       });
-    }, 1000);
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [targetDate]);
 
   return (
-    <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+    <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto" suppressHydrationWarning>
       <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#BAE6FD]">
-        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]">
-          {timeLeft.days}
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]" suppressHydrationWarning>
+          {mounted ? timeLeft.days : 0}
         </div>
         <div className="text-[10px] text-stone-600 font-bold uppercase">Hari</div>
       </div>
       <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#BAE6FD]">
-        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]">
-          {timeLeft.hours}
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]" suppressHydrationWarning>
+          {mounted ? timeLeft.hours : 0}
         </div>
         <div className="text-[10px] text-stone-600 font-bold uppercase">Jam</div>
       </div>
       <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#BAE6FD]">
-        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]">
-          {timeLeft.minutes}
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]" suppressHydrationWarning>
+          {mounted ? timeLeft.minutes : 0}
         </div>
         <div className="text-[10px] text-stone-600 font-bold uppercase">Menit</div>
       </div>
       <div className="p-3 rounded-2xl bg-[#FAF0E6]/90 border border-[#BAE6FD]">
-        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]">
-          {timeLeft.seconds}
+        <div className="text-xl sm:text-2xl font-serif font-black text-[#1D4ED8]" suppressHydrationWarning>
+          {mounted ? timeLeft.seconds : 0}
         </div>
         <div className="text-[10px] text-stone-600 font-bold uppercase">Detik</div>
       </div>

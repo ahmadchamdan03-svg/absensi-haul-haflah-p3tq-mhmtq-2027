@@ -107,6 +107,124 @@ export const getBlok3Index = (und: any) => {
   return BLOK_3_SUBKATEGORI_DEFINITIONS.length - 1; // Index 19: Tamu Umum / Lainnya (no 35)
 };
 
+/**
+ * Menghitung skor pembobotan prioritas kategori & sub-kategori
+ * Hierarki:
+ * 1. Santri: BIL_GHOIB (3000) > TAMATAN (2000) > BIN_NADZOR (1000)
+ *    - Tamatan: A.01 (70) > A.02 (60) > A.03 (50) > A.04 (40) > B.01 (30) > B.02 (20) > B.03 (10)
+ *    - Bin Nadzor: 1 Aliyah (80) > 2 Aliyah (70) > 3 Aliyah (60) > 1 Tsanawiyah (50) > 2 Tsanawiyah (40) > 3 Tsanawiyah (30) > Mutakhorijat (20) > Pondok Timur (10)
+ * 2. Tamu: ISTIMEWA (3000) > KEHORMATAN (2000) > UMUM (1000)
+ *    - Tamu Istimewa: VVIP (100) > VIP (50)
+ */
+export function getCategoryPriorityScore(item: any): number {
+  if (!item) return 0;
+  const isTamu =
+    item.tipe === 'UNDANGAN' ||
+    item.kode?.startsWith('UND') ||
+    !!item.golonganUndangan ||
+    (!item.kategoriUtama && !item.kategori_utama && !!item.kategori);
+
+  if (isTamu) {
+    const gol = (item.sub_kategori || item.subKategori || item.golonganUndangan || item.golongan || '').toUpperCase();
+    const kat = (item.kategori || '').toUpperCase();
+
+    if (gol === 'ISTIMEWA' || kat.includes('VIP')) {
+      let score = 3000;
+      if (kat.includes('VVIP')) score += 100;
+      else score += 50;
+      return score;
+    }
+    if (gol === 'KEHORMATAN' || kat.includes('KEHORMATAN')) {
+      return 2000;
+    }
+    return 1000;
+  }
+
+  // Santri
+  const kat = (item.kategori_utama || item.kategoriUtama || '').toUpperCase();
+  const sub = (item.sub_kategori || item.subKategori || '').toUpperCase();
+  const kelas = (item.kelas || '').toUpperCase();
+  const combined = `${kat} ${sub} ${kelas}`;
+
+  if (kat.includes('BIL_GHOIB') || combined.includes('BIL GHOIB') || combined.includes('KHADIMATUL')) {
+    return 3000;
+  }
+
+  if (kat.includes('TAMATAN') || combined.includes('TAMATAN')) {
+    let score = 2000;
+    if (combined.includes('A.01')) score += 70;
+    else if (combined.includes('A.02')) score += 60;
+    else if (combined.includes('A.03')) score += 50;
+    else if (combined.includes('A.04')) score += 40;
+    else if (combined.includes('B.01')) score += 30;
+    else if (combined.includes('B.02')) score += 20;
+    else if (combined.includes('B.03')) score += 10;
+    return score;
+  }
+
+  if (kat.includes('BIN_NADZOR') || combined.includes('NADZOR')) {
+    let score = 1000;
+    if (combined.includes('1 ALIYAH') || combined.includes('1 ALY')) score += 80;
+    else if (combined.includes('2 ALIYAH') || combined.includes('2 ALY')) score += 70;
+    else if (combined.includes('3 ALIYAH') || combined.includes('3 ALY')) score += 60;
+    else if (combined.includes('1 TSANAWIYAH') || combined.includes('1 TSN')) score += 50;
+    else if (combined.includes('2 TSANAWIYAH') || combined.includes('2 TSN')) score += 40;
+    else if (combined.includes('3 TSANAWIYAH') || combined.includes('3 TSN')) score += 30;
+    else if (combined.includes('MUTAKHORIJAT')) score += 20;
+    else if (combined.includes('PONDOK TIMUR')) score += 10;
+    return score;
+  }
+
+  return 500;
+}
+
+/**
+ * Mendeduplikasi data peserta yang memiliki merged_group_id agar tidak dihitung ganda
+ * dan dialokasikan ke kategori dengan prioritas tertinggi.
+ */
+export function deduplicateMergedRecords(list: any[]): any[] {
+  if (!list || list.length === 0) return [];
+  const mergedGroups = new Map<string, any[]>();
+  const unmerged: any[] = [];
+
+  for (const item of list) {
+    const groupId = item.merged_group_id || item.mergedGroupId;
+    if (groupId) {
+      if (!mergedGroups.has(groupId)) {
+        mergedGroups.set(groupId, []);
+      }
+      mergedGroups.get(groupId)!.push(item);
+    } else {
+      unmerged.push(item);
+    }
+  }
+
+  const prioritizedRepresentatives: any[] = [];
+  mergedGroups.forEach((groupItems) => {
+    const sorted = [...groupItems].sort(
+      (a, b) => getCategoryPriorityScore(b) - getCategoryPriorityScore(a)
+    );
+    const rep = sorted[0];
+
+    const maxTerpakai = Math.max(...groupItems.map((g) => Number(g.kuota_terpakai || 0)));
+    const maxKuotaDasar = Math.max(...groupItems.map((g) => Number(g.kuota_dasar || g.kuotaDasar || 0)));
+    const sumKuotaTambahan = groupItems.reduce(
+      (acc, g) => acc + Number(g.kuota_tambahan || g.kuotaTambahan || 0),
+      0
+    );
+
+    prioritizedRepresentatives.push({
+      ...rep,
+      kuota_terpakai: maxTerpakai,
+      kuota_dasar: maxKuotaDasar > 0 ? maxKuotaDasar : rep.kuota_dasar,
+      kuota_tambahan: sumKuotaTambahan,
+      _allMergedKodes: groupItems.map((g) => g.kode),
+    });
+  });
+
+  return [...prioritizedRepresentatives, ...unmerged];
+}
+
 export async function fetchLaporanDataFromSupabase() {
   const [resSantri, resTamu, resLogs] = await Promise.all([
     supabase.from('peserta_santri').select('*').order('created_at', { ascending: false }),
@@ -189,6 +307,11 @@ export function computeLaporanThreeBlocks(
   tamuList: any[],
   presensiLogs: any[]
 ) {
+  // Anti Double-Counting: Filter & Dedup data peserta yang memiliki merged_group_id
+  // Alokasikan hanya 1 kali ke kategori dengan skor prioritas tertinggi.
+  const dedupedSantriList = deduplicateMergedRecords(santriList);
+  const dedupedTamuList = deduplicateMergedRecords(tamuList);
+
   // Kalkulasi Blok 1: Santri Sohibul Hajat
   const blokSantri = templateBlokSantri.map((tpl) => ({
     ...tpl,
@@ -200,7 +323,7 @@ export function computeLaporanThreeBlocks(
     pct: 0,
   }));
 
-  for (const s of santriList) {
+  for (const s of dedupedSantriList) {
     const idx = getSantriIndex(s);
     if (blokSantri[idx]) {
       blokSantri[idx].sh += 1;
@@ -212,7 +335,9 @@ export function computeLaporanThreeBlocks(
       }
 
       const terpakai = Number(s.kuota_terpakai || 0);
-      const logs = presensiLogs.filter((l) => l.kode_qr === s.kode);
+      const logs = presensiLogs.filter(
+        (l) => l.kode_qr === s.kode || (s._allMergedKodes && s._allMergedKodes.includes(l.kode_qr))
+      );
       let hadirL = 0;
       let hadirP = 0;
       if (logs.length > 0) {
@@ -256,7 +381,7 @@ export function computeLaporanThreeBlocks(
   let tambahanHadirP = 0;
   let tambahanHadirTotal = 0;
 
-  for (const s of santriList) {
+  for (const s of dedupedSantriList) {
     const kExtra = Number(s.kuota_tambahan || 0);
     const terpakai = Number(s.kuota_terpakai || 0);
     const kDasar = Number(s.kuota_dasar || 2);
@@ -304,7 +429,7 @@ export function computeLaporanThreeBlocks(
     pct: 0,
   }));
 
-  for (const und of tamuList) {
+  for (const und of dedupedTamuList) {
     const idx = getBlok3Index(und);
     if (blokUndangan[idx]) {
       blokUndangan[idx].sh += 1;
@@ -319,7 +444,9 @@ export function computeLaporanThreeBlocks(
       }
 
       const terpakai = Number(und.kuota_terpakai || 0);
-      const logs = presensiLogs.filter((l) => l.kode_qr === und.kode);
+      const logs = presensiLogs.filter(
+        (l) => l.kode_qr === und.kode || (und._allMergedKodes && und._allMergedKodes.includes(l.kode_qr))
+      );
       let hadirL = 0;
       let hadirP = 0;
       if (logs.length > 0) {

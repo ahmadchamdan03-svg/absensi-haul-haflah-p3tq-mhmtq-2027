@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Users, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Users, ChevronLeft, ChevronRight, Loader2, Link2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import {
   findDuplicateSantriInList,
-  autoMergeAllDuplicatesInSupabase,
 } from '@/lib/santri-merge-helper';
 import SantriTableFilter, {
   computeSantriSubFilterOptions,
@@ -75,6 +74,48 @@ export default function SantriTable({
   const [fastTrackLoading, setFastTrackLoading] = useState<string | null>(null);
   const [isMerging, setIsMerging] = useState<boolean>(false);
   const [unmergeItem, setUnmergeItem] = useState<any | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const toggleSelectItem = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleMergeSelectedSantri = async () => {
+    if (selectedIds.length < 2) return;
+    const selectedRecords = allItems.filter((it) => selectedIds.includes(it.id));
+    const hasScanned = selectedRecords.some((it) => (it.terpakai || 0) > 0);
+    if (hasScanned) {
+      alert('Tidak dapat menggabungkan data yang sudah melakukan scan kehadiran.');
+      return;
+    }
+
+    setIsMerging(true);
+    try {
+      const items = selectedRecords.map((it) => ({
+        id: it.id,
+        table: 'peserta_santri' as const,
+      }));
+      const res = await fetch('/api/peserta/merge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'merge', items }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        alert(json.error || 'Gagal menggabungkan data santri.');
+        return;
+      }
+      showToast(`✓ ${json.pesan || 'Berhasil menggabungkan santri'}`);
+      setSelectedIds([]);
+      await onRefreshData();
+    } catch (err: any) {
+      alert(err?.message || 'Terjadi kesalahan saat menggabungkan data');
+    } finally {
+      setIsMerging(false);
+    }
+  };
 
   const handleUnmergeSantri = async (itemsToUnmerge: Array<{ id: string; table: 'tamu_undangan' | 'peserta_santri' }>) => {
     const res = await fetch('/api/peserta/merge', {
@@ -114,11 +155,21 @@ export default function SantriTable({
 
     setIsMerging(true);
     try {
-      const res = await autoMergeAllDuplicatesInSupabase(supabase);
-      if (res.success) {
-        showToast(`✓ Berhasil menggabungkan ${res.mergedGroupsCount} grup santri kategori dobel.`);
-        await onRefreshData();
+      let mergedCount = 0;
+      for (const grp of duplicateGroups) {
+        const res = await fetch('/api/peserta/merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'merge',
+            items: grp.items.map((it: any) => ({ id: it.id, table: 'peserta_santri' })),
+          }),
+        });
+        const json = await res.json();
+        if (json.ok) mergedCount++;
       }
+      showToast(`✓ Berhasil menggabungkan ${mergedCount} grup santri kategori dobel.`);
+      await onRefreshData();
     } catch (e: any) {
       alert(`Gagal menggabungkan data: ${e.message || e}`);
     } finally {
@@ -222,6 +273,24 @@ export default function SantriTable({
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
               <tr>
+                <th className="py-3.5 px-3 w-10 text-center">
+                  <input
+                    type="checkbox"
+                    title="Pilih Semua Halaman Ini"
+                    aria-label="Pilih semua data santri pada halaman ini"
+                    checked={paginatedItems.length > 0 && paginatedItems.every((i) => selectedIds.includes(i.id))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const pageIds = paginatedItems.map((i) => i.id);
+                        setSelectedIds((prev) => Array.from(new Set([...prev, ...pageIds])));
+                      } else {
+                        const pageIds = new Set(paginatedItems.map((i) => i.id));
+                        setSelectedIds((prev) => prev.filter((id) => !pageIds.has(id)));
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </th>
                 <th className="py-3.5 px-4 w-12 text-center">No</th>
                 <th className="py-3.5 px-4">Kode QR</th>
                 <th className="py-3.5 px-4">Nama Santri &amp; Kamar</th>
@@ -235,11 +304,11 @@ export default function SantriTable({
             <tbody className="divide-y divide-slate-100 font-medium">
               {loading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
-                  <SkeletonTableRow key={idx} cols={8} />
+                  <SkeletonTableRow key={idx} cols={9} />
                 ))
               ) : paginatedItems.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                     {stats.totalSemua === 0 ? (
                       <div className="space-y-2 max-w-md mx-auto">
@@ -280,6 +349,8 @@ export default function SantriTable({
                       handleOpenEdit={handleOpenEdit}
                       setDeletingItem={setDeletingItem}
                       onOpenUnmerge={setUnmergeItem}
+                      isSelected={selectedIds.includes(item.id)}
+                      onToggleSelect={toggleSelectItem}
                     />
                   );
                 })
@@ -333,6 +404,42 @@ export default function SantriTable({
           </div>
         </div>
       </div>
+
+      {/* Floating Toolbar: Gabungkan Terpilih (Santri) */}
+      {selectedIds.length >= 2 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 text-white backdrop-blur-md px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl border border-sky-400/40 flex items-center space-x-3 sm:space-x-4 animate-in slide-in-from-bottom-5 max-w-[95vw]">
+          <div className="text-xs font-medium whitespace-nowrap">
+            <strong className="text-amber-300 font-bold">{selectedIds.length}</strong> data dipilih
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-medium transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              disabled={isMerging}
+              onClick={handleMergeSelectedSantri}
+              className="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md flex items-center space-x-1.5 transition-all cursor-pointer disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none whitespace-nowrap"
+            >
+              {isMerging ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Menggabungkan...</span>
+                </>
+              ) : (
+                <>
+                  <Link2 className="w-3.5 h-3.5" />
+                  <span>Gabungkan Data Terpilih</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal Unmerge Santri */}
       {unmergeItem && (

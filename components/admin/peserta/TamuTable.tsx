@@ -16,11 +16,13 @@ import {
   Link2,
   Unlink,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 import UnmergeModal from './modal/UnmergeModal';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase/client';
 import { getWarnaTiketUndangan } from '@/lib/types';
+import { findDuplicateTamuInList } from '@/lib/santri-merge-helper';
 import {
   OPSI_UNDANGAN_ISTIMEWA,
   OPSI_UNDANGAN_UMUM,
@@ -126,6 +128,46 @@ export default function TamuTable({
       await onRefreshData();
     } catch (err: any) {
       alert(err?.message || 'Terjadi kesalahan saat menggabungkan data');
+    } finally {
+      setIsMerging(false);
+    }
+  };
+
+  // Deteksi kelompok tamu undangan dengan nama dan kota serupa yang belum digabung
+  const duplicateTamuGroups = useMemo(() => {
+    return findDuplicateTamuInList(allItems);
+  }, [allItems]);
+
+  const handleMergeAllTamuDuplicates = async () => {
+    if (duplicateTamuGroups.length === 0) {
+      showToast('✓ Tidak ada data tamu dobel yang perlu digabung.');
+      return;
+    }
+
+    const confirm = window.confirm(
+      `Ditemukan ${duplicateTamuGroups.length} grup tamu undangan dengan nama dan kota yang cocok. Apakah Anda ingin menggabungkannya secara otomatis menjadi kategori dobel?`
+    );
+    if (!confirm) return;
+
+    setIsMerging(true);
+    try {
+      let mergedCount = 0;
+      for (const grp of duplicateTamuGroups) {
+        const res = await fetch('/api/peserta/merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'merge',
+            items: grp.items.map((it: any) => ({ id: it.id, table: 'tamu_undangan' })),
+          }),
+        });
+        const json = await res.json();
+        if (json.ok) mergedCount++;
+      }
+      showToast(`✓ Berhasil menggabungkan ${mergedCount} grup tamu undangan kategori dobel.`);
+      await onRefreshData();
+    } catch (e: any) {
+      alert(`Gagal menggabungkan data: ${e.message || e}`);
     } finally {
       setIsMerging(false);
     }
@@ -495,6 +537,41 @@ export default function TamuTable({
         </div>
       </div>
 
+      {/* Banner Deteksi Otomatis Tamu Dobel */}
+      {duplicateTamuGroups.length > 0 && (
+        <div className="max-w-7xl mx-auto mb-4 bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center space-x-3 text-amber-900">
+            <div className="w-10 h-10 rounded-xl bg-amber-200/80 text-amber-800 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-amber-700 animate-pulse" />
+            </div>
+            <div>
+              <div className="font-bold text-xs sm:text-sm">
+                Terdeteksi {duplicateTamuGroups.length} Grup Tamu Undangan Kategori Dobel Belum Bergabung
+              </div>
+              <div className="text-[11px] text-amber-800/80">
+                Data memiliki nama dan kota yang cocok di beberapa kategori berbeda. Klik untuk menggabungkan secara otomatis.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handleMergeAllTamuDuplicates}
+            disabled={isMerging}
+            className="shrink-0 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-2 disabled:opacity-50 cursor-pointer"
+          >
+            {isMerging ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Menggabungkan...</span>
+              </>
+            ) : (
+              <>
+                <span>⚡ Gabung Data Sekarang ({duplicateTamuGroups.length})</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Tabel Data Peserta (Tamu Undangan) */}
       <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md rounded-3xl shadow-sm border border-white/70 overflow-hidden">
         <div className="overflow-x-auto">
@@ -640,25 +717,35 @@ export default function TamuTable({
                               </span>
                             </div>
 
-                            {/* Daftar Sub-Kategori sebagai Label Kecil */}
+                            {/* Daftar Sub-Kategori Spesifik (misal: VVIP, VIP Bani Marzuqi, VIP IDS) */}
                             <div className="flex flex-wrap items-center gap-1">
-                              {(item.uniqueSubKategori && item.uniqueSubKategori.length > 0
-                                ? item.uniqueSubKategori
-                                : Array.from(
-                                    new Set(
-                                      (item.mergedItems || [])
-                                        .map((m: any) => (m.kategori || m.subKategori || '').trim())
-                                        .filter(Boolean)
-                                    )
+                              {Array.from(
+                                new Set<string>(
+                                  (item.mergedItems && item.mergedItems.length > 0
+                                    ? item.mergedItems.map((m: any) => m.kategori || m.subKategori)
+                                    : item.uniqueSubKategori || [item.kategori]
                                   )
-                              ).map((sub: string, sIdx: number) => (
-                                <span
-                                  key={sIdx}
-                                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs"
-                                >
-                                  {sub}
-                                </span>
-                              ))}
+                                    .map((k: string) => (k || '').trim())
+                                    .filter(Boolean)
+                                )
+                              ).map((katName: string, kIdx: number) => {
+                                const isVvip = katName.toUpperCase().includes('VVIP');
+                                const isVip = katName.toUpperCase().includes('VIP');
+                                return (
+                                  <span
+                                    key={kIdx}
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${
+                                      isVvip
+                                        ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                        : isVip
+                                        ? 'bg-sky-100 text-blue-900 border-sky-300'
+                                        : 'bg-slate-100 text-slate-700 border-slate-300'
+                                    }`}
+                                  >
+                                    {katName}
+                                  </span>
+                                );
+                              })}
                             </div>
                           </div>
                         ) : (
@@ -781,31 +868,12 @@ export default function TamuTable({
                       {/* Tombol Aksi */}
                       <td className="py-3 px-4 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center space-x-1.5">
-                          {/* Fast-Track VIP Check-in Button khusus Tamu Undangan */}
-                          {item.terpakai === 0 ? (
-                            <button
-                              onClick={() => handleFastTrackVip(item)}
-                              disabled={fastTrackLoading === item.kode}
-                              title="Tandai Kehadiran VIP Langsung"
-                              aria-label={`Tandai kehadiran VIP ${item.nama}`}
-                              className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-[11px] shadow-xs flex items-center space-x-1 transition-all active:scale-95 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
-                            >
-                              <UserCheck className="w-3.5 h-3.5" />
-                              <span>Hadirkan VIP</span>
-                            </button>
-                          ) : (
-                            <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-300 font-bold text-[10px] flex items-center space-x-1">
-                              <Check className="w-3 h-3 text-blue-600" />
-                              <span>Hadir</span>
-                            </span>
-                          )}
-
                           {/* Detail & QR */}
                           <button
                             onClick={() => setQrDetailItem(item)}
                             title="Lihat QR &amp; Kartu"
                             aria-label={`Lihat QR dan kartu ${item.nama}`}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
                           >
                             <QrCode className="w-4 h-4" />
                           </button>

@@ -118,6 +118,8 @@ export interface TamuFormFieldsProps {
   setEditCustomKategoriInput?: (val: string) => void;
   onCancelEdit?: () => void;
   onSubmitEdit?: (e: React.FormEvent) => void;
+  errors?: { [key: string]: string };
+  setErrors?: (errs: { [key: string]: string }) => void;
 }
 
 export default function TamuFormFields({
@@ -143,6 +145,8 @@ export default function TamuFormFields({
   setEditCustomKategoriInput = () => {},
   onCancelEdit = () => {},
   onSubmitEdit = () => {},
+  errors = {},
+  setErrors = () => {},
 }: TamuFormFieldsProps) {
   if (mode === 'ADD') {
     return (
@@ -231,7 +235,11 @@ export default function TamuFormFields({
           </div>
 
         {/* NAMA TAMU UNDANGAN: INPUT PUTRA & PUTRI UNTUK SEMUA GOLONGAN */}
-        <div className="p-3.5 sm:p-4 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
+        <div className={`p-3.5 sm:p-4 rounded-2xl space-y-3 transition-colors ${
+          errors.nama
+            ? 'bg-rose-50/70 border border-rose-300'
+            : 'bg-sky-50/70 border border-sky-200/80'
+        }`}>
           <div className="flex items-center justify-between">
             <label className="block font-bold text-blue-950 text-xs">
               Nama Tamu Undangan *
@@ -240,31 +248,53 @@ export default function TamuFormFields({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+              <label htmlFor="tamu-nama-putra" className="block font-semibold text-slate-700 text-[11px] mb-1">
                 👨 Nama Tamu Putra (Gus / Kyai / Ust.)
               </label>
               <input
+                id="tamu-nama-putra"
                 type="text"
+                aria-invalid={!!errors.nama}
+                aria-describedby={errors.nama ? 'error-tamu-nama' : undefined}
                 value={undanganForm.namaPutra}
-                onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
+                onChange={(e) => {
+                  setUndanganForm({ ...undanganForm, namaPutra: e.target.value });
+                  if (errors.nama) setErrors({ ...errors, nama: '' });
+                }}
                 placeholder="Nama tamu putra..."
-                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase font-semibold text-xs bg-white focus:outline-none focus:ring-2 transition-colors ${
+                  errors.nama ? 'border-rose-400 focus:ring-rose-500' : 'border-sky-300 focus:ring-amber-500'
+                }`}
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+              <label htmlFor="tamu-nama-putri" className="block font-semibold text-slate-700 text-[11px] mb-1">
                 👩 Nama Tamu Putri (Ning / Nyai / Ust.)
               </label>
               <input
+                id="tamu-nama-putri"
                 type="text"
+                aria-invalid={!!errors.nama}
+                aria-describedby={errors.nama ? 'error-tamu-nama' : undefined}
                 value={undanganForm.namaPutri}
-                onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
+                onChange={(e) => {
+                  setUndanganForm({ ...undanganForm, namaPutri: e.target.value });
+                  if (errors.nama) setErrors({ ...errors, nama: '' });
+                }}
                 placeholder="Nama tamu putri..."
-                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase font-semibold text-xs bg-white focus:outline-none focus:ring-2 transition-colors ${
+                  errors.nama ? 'border-rose-400 focus:ring-rose-500' : 'border-sky-300 focus:ring-amber-500'
+                }`}
               />
             </div>
           </div>
+
+          {errors.nama && (
+            <p id="error-tamu-nama" className="text-rose-500 text-xs font-medium animate-in fade-in">
+              {errors.nama}
+            </p>
+          )}
 
           {/* Indikator Kuota Otomatis Real-time */}
           {(() => {
@@ -299,6 +329,7 @@ export default function TamuFormFields({
               onChange={(e) => {
                 const val = e.target.value;
                 setUndanganKategoriDropdown(val);
+                if (errors.kategori) setErrors({ ...errors, kategori: '' });
                 const isSekalian = val.toUpperCase().includes('SEKALIAN');
                 const newKuota =
                   selectedGolonganUndangan === 'UMUM' && isSekalian ? 2 : 1;
@@ -326,22 +357,35 @@ export default function TamuFormFields({
 
             {undanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)' && (
               <div className="mt-2.5 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
-                <label className="block text-[11px] font-bold text-opera-900">
+                <label htmlFor="custom-kategori-input" className="block text-[11px] font-bold text-opera-900">
                   Ketik Kategori Undangan Sendiri *
                 </label>
                 <input
+                  id="custom-kategori-input"
                   type="text"
                   required
+                  aria-invalid={!!errors.kategori}
+                  aria-describedby={errors.kategori ? 'error-tamu-kategori' : undefined}
                   value={customKategoriInput}
                   onChange={(e) => {
                     const val = e.target.value;
                     setCustomKategoriInput(val);
                     setUndanganForm({ ...undanganForm, kategori: val });
+                    if (errors.kategori) setErrors({ ...errors, kategori: '' });
                   }}
                   placeholder=""
-                  className="w-full px-3.5 py-2.5 rounded-xl border-2 border-opera-500 bg-opera-50/50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium placeholder:text-slate-400"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border-2 bg-opera-50/50 text-slate-900 focus:outline-none focus:ring-2 font-medium transition-colors ${
+                    errors.kategori
+                      ? 'border-rose-400 focus:ring-rose-500'
+                      : 'border-opera-500 focus:ring-opera-700'
+                  }`}
                 />
               </div>
+            )}
+            {errors.kategori && (
+              <p id="error-tamu-kategori" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+                {errors.kategori}
+              </p>
             )}
           </div>
         )}
@@ -349,43 +393,71 @@ export default function TamuFormFields({
         {/* INSTANSI / ALAMAT SESUAI GOLONGAN */}
         {selectedGolonganUndangan === 'ISTIMEWA' && (
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Alamat *</label>
+            <label htmlFor="tamu-alamat-istimewa" className="block font-bold text-slate-700 mb-1">Alamat *</label>
             <input
+              id="tamu-alamat-istimewa"
               type="text"
+              aria-invalid={!!errors.alamat}
+              aria-describedby={errors.alamat ? 'error-tamu-alamat' : undefined}
               value={undanganForm.alamat}
-              onChange={(e) =>
+              onChange={(e) => {
                 setUndanganForm({
                   ...undanganForm,
                   alamat: e.target.value,
                   instansi: e.target.value,
-                })
-              }
+                });
+                if (errors.alamat) setErrors({ ...errors, alamat: '' });
+              }}
               placeholder=""
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
+              className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 font-medium transition-colors ${
+                errors.alamat
+                  ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
+                  : 'border-slate-300 focus:ring-opera-700'
+              }`}
             />
-            <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
+            {errors.alamat ? (
+              <p id="error-tamu-alamat" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+                {errors.alamat}
+              </p>
+            ) : (
+              <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
+            )}
           </div>
         )}
 
         {selectedGolonganUndangan === 'KEHORMATAN' && (
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Alamat *</label>
+            <label htmlFor="tamu-alamat-kehormatan" className="block font-bold text-slate-700 mb-1">Alamat *</label>
             <input
+              id="tamu-alamat-kehormatan"
               type="text"
+              aria-invalid={!!errors.instansi}
+              aria-describedby={errors.instansi ? 'error-tamu-instansi' : undefined}
               value={undanganForm.alamat}
-              onChange={(e) =>
+              onChange={(e) => {
                 setUndanganForm({
                   ...undanganForm,
                   alamat: e.target.value,
                   instansi: e.target.value,
-                })
-              }
+                });
+                if (errors.instansi) setErrors({ ...errors, instansi: '' });
+              }}
               placeholder=""
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
+              className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 font-medium transition-colors ${
+                errors.instansi
+                  ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
+                  : 'border-slate-300 focus:ring-opera-700'
+              }`}
             />
-            <p className="text-[10px] text-slate-400 mt-1">
-              Alamat asal / kediaman Masyayikh &amp; Ulama Sepuh
-            </p>
+            {errors.instansi ? (
+              <p id="error-tamu-instansi" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+                {errors.instansi}
+              </p>
+            ) : (
+              <p className="text-[10px] text-slate-400 mt-1">
+                Alamat asal / kediaman Masyayikh &amp; Ulama Sepuh
+              </p>
+            )}
           </div>
         )}
 
@@ -524,7 +596,9 @@ export default function TamuFormFields({
       {editGolonganUndangan === 'ISTIMEWA' ||
       (editGolonganUndangan === 'UMUM' &&
         editUndanganKategoriDropdown === 'Asatidz Mhmtq Sekalian') ? (
-        <div className="p-3.5 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
+        <div className={`p-3.5 rounded-2xl space-y-3 transition-colors ${
+          errors.nama ? 'bg-rose-50/70 border border-rose-300' : 'bg-sky-50/70 border border-sky-200/80'
+        }`}>
           <div className="flex items-center justify-between">
             <label className="block font-bold text-blue-950 text-xs">
               Nama Tamu Undangan *
@@ -533,11 +607,14 @@ export default function TamuFormFields({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+              <label htmlFor="edit-tamu-nama-putra" className="block font-semibold text-slate-700 text-[11px] mb-1">
                 👨 Nama Tamu Putra (Gus / Kyai / Ust.)
               </label>
               <input
+                id="edit-tamu-nama-putra"
                 type="text"
+                aria-invalid={!!errors.nama}
+                aria-describedby={errors.nama ? 'error-edit-tamu-nama' : undefined}
                 value={editingItem.namaPutra || ''}
                 onChange={(e) => {
                   const p = e.target.value;
@@ -547,18 +624,24 @@ export default function TamuFormFields({
                       ? `${p.trim()} & ${w.trim()}`
                       : p.trim() || w.trim();
                   setEditingItem({ ...editingItem, namaPutra: p, nama: combined });
+                  if (errors.nama) setErrors({ ...errors, nama: '' });
                 }}
                 placeholder="Nama tamu putra..."
-                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase font-semibold text-xs bg-white focus:outline-none focus:ring-2 transition-colors ${
+                  errors.nama ? 'border-rose-400 focus:ring-rose-500' : 'border-sky-300 focus:ring-amber-500'
+                }`}
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 text-[11px] mb-1">
+              <label htmlFor="edit-tamu-nama-putri" className="block font-semibold text-slate-700 text-[11px] mb-1">
                 👩 Nama Tamu Putri (Ning / Nyai / Ust.)
               </label>
               <input
+                id="edit-tamu-nama-putri"
                 type="text"
+                aria-invalid={!!errors.nama}
+                aria-describedby={errors.nama ? 'error-edit-tamu-nama' : undefined}
                 value={editingItem.namaPutri || ''}
                 onChange={(e) => {
                   const w = e.target.value;
@@ -568,29 +651,50 @@ export default function TamuFormFields({
                       ? `${p.trim()} & ${w.trim()}`
                       : p.trim() || w.trim();
                   setEditingItem({ ...editingItem, namaPutri: w, nama: combined });
+                  if (errors.nama) setErrors({ ...errors, nama: '' });
                 }}
                 placeholder="Nama tamu putri..."
-                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase font-semibold text-xs bg-white focus:outline-none focus:ring-2 transition-colors ${
+                  errors.nama ? 'border-rose-400 focus:ring-rose-500' : 'border-sky-300 focus:ring-amber-500'
+                }`}
               />
             </div>
           </div>
+          {errors.nama && (
+            <p id="error-edit-tamu-nama" className="text-rose-500 text-xs font-medium animate-in fade-in">
+              {errors.nama}
+            </p>
+          )}
         </div>
       ) : (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block font-bold text-slate-700">Nama Tamu / Tokoh / Kyai *</label>
+            <label htmlFor="edit-tamu-nama" className="block font-bold text-slate-700">Nama Tamu / Tokoh / Kyai *</label>
             <span className="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full font-semibold">
               Kuota otomatis: 1 kursi
             </span>
           </div>
           <input
+            id="edit-tamu-nama"
             type="text"
             required
+            aria-invalid={!!errors.nama}
+            aria-describedby={errors.nama ? 'error-edit-tamu-nama' : undefined}
             value={editingItem.nama || ''}
-            onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
+            onChange={(e) => {
+              setEditingItem({ ...editingItem, nama: e.target.value });
+              if (errors.nama) setErrors({ ...errors, nama: '' });
+            }}
             placeholder=""
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
+            className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 uppercase font-semibold transition-colors ${
+              errors.nama ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500' : 'border-slate-300 focus:ring-opera-700'
+            }`}
           />
+          {errors.nama && (
+            <p id="error-edit-tamu-nama" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+              {errors.nama}
+            </p>
+          )}
         </div>
       )}
 
@@ -603,6 +707,7 @@ export default function TamuFormFields({
             onChange={(e) => {
               const val = e.target.value;
               setEditUndanganKategoriDropdown(val);
+              if (errors.kategori) setErrors({ ...errors, kategori: '' });
               if (editingItem.tipe === 'UNDANGAN' && editGolonganUndangan === 'UMUM') {
                 const isSekalian = val.toUpperCase().includes('SEKALIAN');
                 setEditingItem({
@@ -626,18 +731,31 @@ export default function TamuFormFields({
 
           {editUndanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)' && (
             <div className="mt-2.5 space-y-1 animate-in fade-in slide-in-from-top-1 duration-200">
-              <label className="block text-[11px] font-bold text-opera-900">
+              <label htmlFor="edit-custom-kategori-input" className="block text-[11px] font-bold text-opera-900">
                 Ketik Kategori Undangan Sendiri *
               </label>
               <input
+                id="edit-custom-kategori-input"
                 type="text"
                 required
+                aria-invalid={!!errors.kategori}
+                aria-describedby={errors.kategori ? 'error-edit-tamu-kategori' : undefined}
                 value={editCustomKategoriInput}
-                onChange={(e) => setEditCustomKategoriInput(e.target.value)}
+                onChange={(e) => {
+                  setEditCustomKategoriInput(e.target.value);
+                  if (errors.kategori) setErrors({ ...errors, kategori: '' });
+                }}
                 placeholder="Ketik kategori baru"
-                className="w-full px-3.5 py-2.5 rounded-xl border-2 border-opera-500 bg-opera-50/50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
+                className={`w-full px-3.5 py-2.5 rounded-xl border-2 bg-opera-50/50 text-slate-900 focus:outline-none focus:ring-2 font-medium transition-colors ${
+                  errors.kategori ? 'border-rose-400 focus:ring-rose-500' : 'border-opera-500 focus:ring-opera-700'
+                }`}
               />
             </div>
+          )}
+          {errors.kategori && (
+            <p id="error-edit-tamu-kategori" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+              {errors.kategori}
+            </p>
           )}
         </div>
       )}
@@ -645,43 +763,71 @@ export default function TamuFormFields({
       {/* INSTANSI / ALAMAT SESUAI GOLONGAN */}
       {editGolonganUndangan === 'ISTIMEWA' && (
         <div>
-          <label className="block font-bold text-slate-700 mb-1">Alamat *</label>
+          <label htmlFor="edit-tamu-alamat-istimewa" className="block font-bold text-slate-700 mb-1">Alamat *</label>
           <input
+            id="edit-tamu-alamat-istimewa"
             type="text"
+            aria-invalid={!!errors.alamat}
+            aria-describedby={errors.alamat ? 'error-edit-tamu-alamat' : undefined}
             value={editingItem.alamat || editingItem.instansi || ''}
-            onChange={(e) =>
+            onChange={(e) => {
               setEditingItem({
                 ...editingItem,
                 alamat: e.target.value,
                 instansi: e.target.value,
-              })
-            }
+              });
+              if (errors.alamat) setErrors({ ...errors, alamat: '' });
+            }}
             placeholder=""
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
+            className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 font-medium transition-colors ${
+              errors.alamat
+                ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
+                : 'border-slate-300 focus:ring-opera-700'
+            }`}
           />
-          <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
+          {errors.alamat ? (
+            <p id="error-edit-tamu-alamat" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+              {errors.alamat}
+            </p>
+          ) : (
+            <p className="text-[10px] text-slate-400 mt-1">Alamat asal / daerah Tamu Istimewa</p>
+          )}
         </div>
       )}
 
       {editGolonganUndangan === 'KEHORMATAN' && (
         <div>
-          <label className="block font-bold text-slate-700 mb-1">Alamat *</label>
+          <label htmlFor="edit-tamu-alamat-kehormatan" className="block font-bold text-slate-700 mb-1">Alamat *</label>
           <input
+            id="edit-tamu-alamat-kehormatan"
             type="text"
+            aria-invalid={!!errors.instansi}
+            aria-describedby={errors.instansi ? 'error-edit-tamu-instansi' : undefined}
             value={editingItem.alamat || editingItem.instansi || ''}
-            onChange={(e) =>
+            onChange={(e) => {
               setEditingItem({
                 ...editingItem,
                 alamat: e.target.value,
                 instansi: e.target.value,
-              })
-            }
+              });
+              if (errors.instansi) setErrors({ ...errors, instansi: '' });
+            }}
             placeholder=""
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-medium"
+            className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 font-medium transition-colors ${
+              errors.instansi
+                ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
+                : 'border-slate-300 focus:ring-opera-700'
+            }`}
           />
-          <p className="text-[10px] text-slate-400 mt-1">
-            Alamat asal / kediaman Masyayikh &amp; Ulama Sepuh
-          </p>
+          {errors.instansi ? (
+            <p id="error-edit-tamu-instansi" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+              {errors.instansi}
+            </p>
+          ) : (
+            <p className="text-[10px] text-slate-400 mt-1">
+              Alamat asal / kediaman Masyayikh &amp; Ulama Sepuh
+            </p>
+          )}
         </div>
       )}
 

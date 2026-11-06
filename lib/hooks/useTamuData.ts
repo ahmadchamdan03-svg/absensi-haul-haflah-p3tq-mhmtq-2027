@@ -77,6 +77,27 @@ export function useTamuData() {
   });
   const [undanganKategoriDropdown, setUndanganKategoriDropdown] = useState<string>(OPSI_UNDANGAN_ISTIMEWA[0]);
   const [customKategoriInput, setCustomKategoriInput] = useState<string>('');
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
+  // Helper fetch dengan batas waktu (10 detik) anti-freeze
+  const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeoutMs = 10000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      return response;
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        throw new Error('Koneksi terputus atau batas waktu (10 detik) habis. Silakan periksa jaringan dan coba lagi.');
+      }
+      throw error;
+    } finally {
+      clearTimeout(id);
+    }
+  };
 
   const fetchTamuData = useCallback(async () => {
     try {
@@ -404,6 +425,8 @@ export function useTamuData() {
     e.preventDefault();
     if (isSubmittingTamu) return;
 
+    const newErrors: { [key: string]: string } = {};
+
     let finalKategori = '';
     if (selectedGolonganUndangan === 'KEHORMATAN') {
       finalKategori = 'Tamu Kehormatan';
@@ -414,8 +437,7 @@ export function useTamuData() {
           : undanganKategoriDropdown.trim();
 
       if (!finalKategori) {
-        alert('Kategori undangan wajib diisi atau diketik!');
-        return;
+        newErrors.kategori = 'Kategori undangan wajib diisi atau diketik!';
       }
     }
 
@@ -427,17 +449,12 @@ export function useTamuData() {
     const w = (undanganForm.namaPutri || '').trim().toUpperCase();
     const n = (undanganForm.nama || '').trim().toUpperCase();
 
-    // Logika Kuota Otomatis:
-    // Putra & Putri terisi -> Kuota = 2
-    // Salah satu terisi -> Kuota = 1
-    // Keduanya kosong -> Error (Kuota 0 tidak boleh submit)
     const hasP = !!p;
     const hasW = !!w;
     const autoKuota = hasP && hasW ? 2 : (hasP || hasW ? 1 : (n ? (n.includes('&') ? 2 : 1) : 0));
 
     if (autoKuota === 0) {
-      alert('Wajib mengisi minimal satu Nama Tamu (Putra atau Putri)!');
-      return;
+      newErrors.nama = 'Mohon isi minimal salah satu: Nama Tamu Putra atau Putri!';
     }
 
     let finalNama = '';
@@ -451,18 +468,28 @@ export function useTamuData() {
     let finalAlamat = '';
     let finalInstansi = '';
 
-    if (selectedGolonganUndangan === 'ISTIMEWA' || selectedGolonganUndangan === 'KEHORMATAN') {
+    if (selectedGolonganUndangan === 'ISTIMEWA') {
       finalAlamat = (undanganForm.alamat || undanganForm.instansi || '').trim();
+      if (!finalAlamat) {
+        newErrors.alamat = 'Alamat / Kota asal wajib diisi!';
+      }
       finalInstansi = finalAlamat;
+    } else if (selectedGolonganUndangan === 'KEHORMATAN') {
+      finalInstansi = (undanganForm.instansi || undanganForm.alamat || '').trim();
+      if (!finalInstansi) {
+        newErrors.instansi = 'Instansi / Lembaga kehormatan wajib diisi!';
+      }
+      finalAlamat = finalInstansi;
     } else {
       finalInstansi = (undanganForm.instansi || '').trim();
       finalAlamat = (undanganForm.alamat || '').trim();
     }
 
-    if (!p && !w && !finalNama) {
-      alert('Minimal salah satu nama (Putra atau Putri) harus diisi!');
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
       return;
     }
+    setFormErrors({});
 
     let newKode = '';
     setIsSubmittingTamu(true);
@@ -470,7 +497,7 @@ export function useTamuData() {
     try {
       let mergedGroupId: string | null = null;
       try {
-        const detectRes = await fetch('/api/peserta/merge', {
+        const detectRes = await fetchWithTimeout('/api/peserta/merge', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -496,7 +523,7 @@ export function useTamuData() {
           if (wantsMerge) {
             mergedGroupId = rec.merged_group_id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `grp-${Date.now()}`);
             if (!rec.merged_group_id) {
-              await fetch('/api/tamu', {
+              await fetchWithTimeout('/api/tamu', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: rec.id, merged_group_id: mergedGroupId }),
@@ -508,7 +535,7 @@ export function useTamuData() {
         console.warn('Detect duplicate error in penerima-tamu:', detErr);
       }
 
-      const res = await fetch('/api/tamu', {
+      const res = await fetchWithTimeout('/api/tamu', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -640,6 +667,8 @@ export function useTamuData() {
     handleHapusTamu,
     handleTambahTamu,
     isSubmittingTamu,
+    formErrors,
+    setFormErrors,
     filteredUndangan,
     totalKuotaTamu,
     totalHadirTamu,

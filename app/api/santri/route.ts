@@ -209,6 +209,8 @@ export async function PATCH(req: NextRequest) {
     if (updates.tiket_panggung_diberi !== undefined) dbPayload.tiket_panggung_diberi = updates.tiket_panggung_diberi;
     if (updates.dapat_qr !== undefined) dbPayload.dapat_qr = updates.dapat_qr;
     if (updates.status_wa !== undefined) dbPayload.status_wa = updates.status_wa;
+    if (updates.merged_group_id !== undefined) dbPayload.merged_group_id = updates.merged_group_id;
+    else if (updates.mergedGroupId !== undefined) dbPayload.merged_group_id = updates.mergedGroupId;
 
     let query = supabaseServer.from('peserta_santri').update(dbPayload);
     if (id) {

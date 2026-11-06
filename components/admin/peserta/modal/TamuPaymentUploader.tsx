@@ -83,6 +83,26 @@ export default function TamuPaymentUploader({
   );
 }
 
+// Helper fetch dengan batas waktu (10 detik) anti-freeze
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      throw new Error('Koneksi terputus atau batas waktu (10 detik) habis. Silakan periksa jaringan dan coba lagi.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 export async function submitTambahUndanganToSupabase(params: {
   selectedGolonganUndangan: GolonganUndangan;
   undanganKategoriDropdown: string;
@@ -95,6 +115,8 @@ export async function submitTambahUndanganToSupabase(params: {
   onAddSuccess: (newUndanganItem: any, message: string) => void;
   submitLockTamu: React.MutableRefObject<boolean>;
   setIsSubmittingTamu: (v: boolean) => void;
+  formErrors?: { [key: string]: string };
+  setFormErrors?: (errs: { [key: string]: string }) => void;
 }) {
   const {
     selectedGolonganUndangan,
@@ -108,7 +130,10 @@ export async function submitTambahUndanganToSupabase(params: {
     onAddSuccess,
     submitLockTamu,
     setIsSubmittingTamu,
+    setFormErrors,
   } = params;
+
+  const newErrors: { [key: string]: string } = {};
 
   let finalKategori = '';
   if (selectedGolonganUndangan === 'KEHORMATAN') {
@@ -120,28 +145,50 @@ export async function submitTambahUndanganToSupabase(params: {
         : undanganKategoriDropdown.trim();
 
     if (!finalKategori) {
-      alert('Kategori undangan wajib diisi atau diketik!');
-      return;
+      newErrors.kategori = 'Kategori undangan wajib diisi atau diketik!';
     }
   }
-
-  const isAsatidzSekalian =
-    selectedGolonganUndangan === 'UMUM' &&
-    (finalKategori.toUpperCase().includes('SEKALIAN') || finalKategori === 'Asatidz Mhmtq Sekalian');
 
   const p = (undanganForm.namaPutra || '').trim().toUpperCase();
   const w = (undanganForm.namaPutri || '').trim().toUpperCase();
   const n = (undanganForm.nama || '').trim().toUpperCase();
 
   if (!p && !w && !n) {
-    alert(
-      'Mohon isi minimal salah satu: Nama Tamu Putra (Kyai/Gus/Ust.) atau Nama Tamu Putri (Nyai/Ning/Ustazah)!'
-    );
+    newErrors.nama = 'Mohon isi minimal salah satu: Nama Tamu Putra atau Putri!';
+  }
+
+  let finalAlamat = '';
+  let finalInstansi = '';
+
+  if (selectedGolonganUndangan === 'ISTIMEWA') {
+    finalAlamat = (undanganForm.alamat || undanganForm.instansi || '').trim();
+    if (!finalAlamat) {
+      newErrors.alamat = 'Alamat / Kota asal wajib diisi!';
+    }
+    finalInstansi = finalAlamat;
+  } else if (selectedGolonganUndangan === 'KEHORMATAN') {
+    finalInstansi = (undanganForm.instansi || undanganForm.alamat || '').trim();
+    if (!finalInstansi) {
+      newErrors.instansi = 'Instansi / Lembaga kehormatan wajib diisi!';
+    }
+    finalAlamat = finalInstansi;
+  } else {
+    finalInstansi = (undanganForm.instansi || '').trim();
+    finalAlamat = (undanganForm.alamat || '').trim();
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setFormErrors?.(newErrors);
     return;
   }
+  setFormErrors?.({});
 
   submitLockTamu.current = true;
   setIsSubmittingTamu(true);
+
+  const isAsatidzSekalian =
+    selectedGolonganUndangan === 'UMUM' &&
+    (finalKategori.toUpperCase().includes('SEKALIAN') || finalKategori === 'Asatidz Mhmtq Sekalian');
 
   let finalNama = '';
   let kuotaBase = 1;
@@ -164,17 +211,6 @@ export async function submitTambahUndanganToSupabase(params: {
     kuotaBase = 2;
   }
 
-  let finalAlamat = '';
-  let finalInstansi = '';
-
-  if (selectedGolonganUndangan === 'ISTIMEWA' || selectedGolonganUndangan === 'KEHORMATAN') {
-    finalAlamat = (undanganForm.alamat || undanganForm.instansi || '').trim();
-    finalInstansi = finalAlamat;
-  } else {
-    finalInstansi = (undanganForm.instansi || '').trim();
-    finalAlamat = (undanganForm.alamat || '').trim();
-  }
-
   const res = store.tambahUndangan({
     nama: finalNama,
     namaPutra: p,
@@ -190,7 +226,7 @@ export async function submitTambahUndanganToSupabase(params: {
     try {
       let mergedGroupId: string | null = null;
       try {
-        const detectRes = await fetch('/api/peserta/merge', {
+        const detectRes = await fetchWithTimeout('/api/peserta/merge', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -216,7 +252,7 @@ export async function submitTambahUndanganToSupabase(params: {
           if (wantsMerge) {
             mergedGroupId = rec.merged_group_id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `grp-${Date.now()}`);
             if (!rec.merged_group_id) {
-              await fetch('/api/tamu', {
+              await fetchWithTimeout('/api/tamu', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: rec.id, merged_group_id: mergedGroupId }),
@@ -229,7 +265,7 @@ export async function submitTambahUndanganToSupabase(params: {
       }
 
       const warnaTiketVal = getWarnaTiketUndangan(selectedGolonganUndangan, finalKategori);
-      const postRes = await fetch('/api/tamu', {
+      const postRes = await fetchWithTimeout('/api/tamu', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -336,6 +372,7 @@ export async function submitEditUndanganToSupabase(params: {
   editCustomKategoriInput: string;
   onEditSuccess: (message: string) => Promise<void> | void;
   setEditingItem: (item: any | null) => void;
+  setFormErrors?: (errs: { [key: string]: string }) => void;
 }) {
   const {
     editingItem,
@@ -344,10 +381,12 @@ export async function submitEditUndanganToSupabase(params: {
     editCustomKategoriInput,
     onEditSuccess,
     setEditingItem,
+    setFormErrors,
   } = params;
 
   if (!editingItem || editingItem.tipe !== 'UNDANGAN') return;
 
+  const newErrors: { [key: string]: string } = {};
   const targetKode = editingItem.kode;
 
   let finalKat = '';
@@ -360,8 +399,7 @@ export async function submitEditUndanganToSupabase(params: {
         : editUndanganKategoriDropdown.trim();
 
     if (!finalKat) {
-      alert('Kategori undangan wajib diisi atau diketik!');
-      return;
+      newErrors.kategori = 'Kategori undangan wajib diisi atau diketik!';
     }
   }
 
@@ -376,8 +414,7 @@ export async function submitEditUndanganToSupabase(params: {
 
   if (editGolonganUndangan === 'ISTIMEWA') {
     if (!p && !w && !finalNama) {
-      alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
-      return;
+      newErrors.nama = 'Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!';
     }
     if (p && w) {
       finalNama = `${p} & ${w}`;
@@ -387,8 +424,7 @@ export async function submitEditUndanganToSupabase(params: {
     }
   } else if (isAsatidzSekalian) {
     if (!p && !w && !finalNama) {
-      alert('Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!');
-      return;
+      newErrors.nama = 'Mohon isi minimal salah satu: Nama Tamu Putra atau Nama Tamu Putri!';
     }
     if (p && w) {
       finalNama = `${p} & ${w}`;
@@ -398,8 +434,7 @@ export async function submitEditUndanganToSupabase(params: {
     kuotaBase = 2;
   } else {
     if (!finalNama) {
-      alert('Nama tamu undangan wajib diisi!');
-      return;
+      newErrors.nama = 'Nama tamu undangan wajib diisi!';
     }
     kuotaBase = 1;
   }
@@ -407,16 +442,31 @@ export async function submitEditUndanganToSupabase(params: {
   let finalAlamat = '';
   let finalInstansi = '';
 
-  if (editGolonganUndangan === 'ISTIMEWA' || editGolonganUndangan === 'KEHORMATAN') {
-    finalAlamat = (editingItem.alamat || editingItem.instansi || 'Kediri').trim();
+  if (editGolonganUndangan === 'ISTIMEWA') {
+    finalAlamat = (editingItem.alamat || editingItem.instansi || '').trim();
+    if (!finalAlamat) {
+      newErrors.alamat = 'Alamat / Kota asal wajib diisi!';
+    }
     finalInstansi = finalAlamat;
+  } else if (editGolonganUndangan === 'KEHORMATAN') {
+    finalInstansi = (editingItem.instansi || editingItem.alamat || '').trim();
+    if (!finalInstansi) {
+      newErrors.instansi = 'Instansi / Lembaga kehormatan wajib diisi!';
+    }
+    finalAlamat = finalInstansi;
   } else {
     finalInstansi = (editingItem.instansi || 'Pondok Pesantren Lirboyo').trim();
     finalAlamat = (editingItem.alamat || 'Kediri').trim();
   }
 
+  if (Object.keys(newErrors).length > 0) {
+    setFormErrors?.(newErrors);
+    return;
+  }
+  setFormErrors?.({});
+
   try {
-    const patchRes = await fetch('/api/tamu', {
+    const patchRes = await fetchWithTimeout('/api/tamu', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

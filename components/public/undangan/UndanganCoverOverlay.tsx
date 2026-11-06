@@ -79,11 +79,28 @@ export function UndanganCoverTamu({
 }) {
   return (
     <div
-      className="min-h-[100dvh] h-[100dvh] w-full bg-cover bg-center bg-no-repeat flex flex-col justify-between items-center px-4 py-4 sm:py-6 text-center relative overflow-hidden select-none"
-      style={{ backgroundImage: "url('/images/undangan-assets/cover.webp')" }}
+      className="min-h-[100dvh] h-[100dvh] w-full max-w-md mx-auto flex flex-col justify-between items-center px-4 py-4 sm:py-6 text-center relative overflow-hidden select-none bg-[#0F2C59] shadow-2xl"
     >
-      {/* OVERLAY GELAP ELEGAN AGAR TEKS DAN KOTAK KACA TERBACA DENGAN JELAS */}
-      <div className="absolute inset-0 bg-[#0F2C59]/50 backdrop-blur-[1px] pointer-events-none z-10" />
+      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR) */}
+      <CanvasRevealMask className="absolute inset-0 pointer-events-none overflow-hidden z-10" />
+
+      {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS) */}
+      <motion.img
+        src="/images/undangan-assets/lemon-branch.webp"
+        alt="Ornamen Lemon"
+        className="absolute -top-4 -left-4 w-28 sm:w-36 pointer-events-none z-20 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+        animate={{ rotate: [0, 3, 0, -3, 0] }}
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+      />
+
+      {/* ORNAMEN MANDALA EMAS BERPUTAR PELAN (POJOK KANAN BAWAH) */}
+      <motion.img
+        src="/images/undangan-assets/mandala-gold.webp"
+        alt="Pola Mandala Emas"
+        className="absolute -bottom-10 -right-10 w-36 sm:w-44 pointer-events-none z-20 opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+      />
 
       {/* 1. BAGIAN ATAS: ORNAMEN KUFI & HEADER RESMI (EMAS & PUTIH) */}
       <div className="w-full max-w-lg mx-auto pt-1 sm:pt-2 relative z-20">
@@ -167,11 +184,28 @@ export function UndanganCoverWali({
 }) {
   return (
     <div
-      className="min-h-[100dvh] h-[100dvh] w-full bg-cover bg-center bg-no-repeat flex flex-col justify-between items-center px-4 py-4 sm:py-6 text-center relative overflow-hidden select-none"
-      style={{ backgroundImage: "url('/images/undangan-assets/cover.webp')" }}
+      className="min-h-[100dvh] h-[100dvh] w-full max-w-md mx-auto flex flex-col justify-between items-center px-4 py-4 sm:py-6 text-center relative overflow-hidden select-none bg-[#0F2C59] shadow-2xl"
     >
-      {/* OVERLAY GELAP ELEGAN AGAR TEKS DAN KOTAK KACA TERBACA DENGAN JELAS */}
-      <div className="absolute inset-0 bg-[#0F2C59]/50 backdrop-blur-[1px] pointer-events-none z-10" />
+      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR) */}
+      <CanvasRevealMask className="absolute inset-0 pointer-events-none overflow-hidden z-10" />
+
+      {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS) */}
+      <motion.img
+        src="/images/undangan-assets/lemon-branch.webp"
+        alt="Ornamen Lemon"
+        className="absolute -top-4 -left-4 w-28 sm:w-36 pointer-events-none z-20 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+        animate={{ rotate: [0, 3, 0, -3, 0] }}
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+      />
+
+      {/* ORNAMEN MANDALA EMAS BERPUTAR PELAN (POJOK KANAN BAWAH) */}
+      <motion.img
+        src="/images/undangan-assets/mandala-gold.webp"
+        alt="Pola Mandala Emas"
+        className="absolute -bottom-10 -right-10 w-36 sm:w-44 pointer-events-none z-20 opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+      />
 
       {/* 1. BAGIAN ATAS: ORNAMEN KUFI & HEADER RESMI WALI (EMAS & PUTIH) */}
       <div className="w-full max-w-lg mx-auto pt-1 sm:pt-2 relative z-20">

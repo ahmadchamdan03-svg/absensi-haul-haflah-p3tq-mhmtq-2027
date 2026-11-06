@@ -170,14 +170,14 @@ export async function mergeDuplicateSantriGroupInSupabase(
       console.warn(`[Merge] Gagal mengalihkan pembelian_kuota ${dupKode}:`, e);
     }
 
-    // 3. Alihkan audit_logs ke primaryKode
+    // 3. Alihkan audit_log ke primaryKode
     try {
       await supabaseClient
-        .from('audit_logs')
+        .from('audit_log')
         .update({ kode: primaryKode })
         .eq('kode', dupKode);
     } catch (e) {
-      console.warn(`[Merge] Gagal mengalihkan audit_logs ${dupKode}:`, e);
+      console.warn(`[Merge] Gagal mengalihkan audit_log ${dupKode}:`, e);
     }
 
     // 4. Hapus baris duplikat dari peserta_santri
@@ -286,4 +286,113 @@ export async function autoMergeAllDuplicatesInSupabase(
     mergedGroupsCount: groups.length,
     details,
   };
+}
+
+export interface DuplicateTamuGroup {
+  key: string;
+  nama: string;
+  kota: string;
+  items: any[];
+}
+
+export function cleanHonorificTamuName(name?: string | null): string {
+  if (!name) return '';
+  return name
+    .toUpperCase()
+    .replace(/\b(KH|K|GUS|USTADZ|UST|USTAZAH|USTH|NYAI|NING|HJ|H|DRS|DRA|DR|PROF)\.?\b/gi, '')
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Memindai daftar tamu undangan dan mengelompokkan data yang memiliki
+ * Nama Utama (Putra/Putri/Tamu) dan Kota (Alamat) yang sama.
+ */
+export function findDuplicateTamuInList(items: any[]): DuplicateTamuGroup[] {
+  if (!items || items.length === 0) return [];
+
+  // Hanya periksa tamu yang BELUM digabung
+  const unmerged = items.filter(
+    (it) =>
+      (it.tipe === 'UNDANGAN' || it.kode?.startsWith('UND') || it.golonganUndangan) &&
+      !it.isMerged &&
+      !it.merged_group_id
+  );
+
+  const groups: any[][] = [];
+
+  for (const item of unmerged) {
+    const rawPutra = item.namaPutra || item.nama_putra || '';
+    const rawPutri = item.namaPutri || item.nama_putri || '';
+    const rawNama = item.nama || '';
+
+    // Ambil nama identitas: putra, putri (bukan 'ISTRI'), atau sebelum '&'
+    const nameCandidate =
+      rawPutra ||
+      (rawPutri && rawPutri.toUpperCase() !== 'ISTRI' ? rawPutri : '') ||
+      rawNama.split('&')[0];
+    const cleanName = cleanHonorificTamuName(nameCandidate);
+    if (!cleanName || cleanName.length < 3) continue;
+
+    const rawAlamat = (item.alamat || item.instansi || '').trim().toUpperCase();
+    const city = rawAlamat.split(/[\s,.-]+/).pop() || '';
+
+    let matchedGroup: any[] | null = null;
+    for (const grp of groups) {
+      const sample = grp[0];
+      const sPutra = sample.namaPutra || sample.nama_putra || '';
+      const sPutri = sample.namaPutri || sample.nama_putri || '';
+      const sNama = sample.nama || '';
+      const sNameCandidate =
+        sPutra ||
+        (sPutri && sPutri.toUpperCase() !== 'ISTRI' ? sPutri : '') ||
+        sNama.split('&')[0];
+      const sCleanName = cleanHonorificTamuName(sNameCandidate);
+
+      const nameMatches =
+        cleanName === sCleanName ||
+        (cleanName.length > 5 && sCleanName.includes(cleanName)) ||
+        (sCleanName.length > 5 && cleanName.includes(sCleanName));
+
+      if (nameMatches) {
+        const sAlamat = (sample.alamat || sample.instansi || '').trim().toUpperCase();
+        const sCity = sAlamat.split(/[\s,.-]+/).pop() || '';
+        const cityMatches =
+          !city ||
+          !sCity ||
+          city === '-' ||
+          sCity === '-' ||
+          city === sCity ||
+          city.includes(sCity) ||
+          sCity.includes(city);
+
+        if (cityMatches) {
+          matchedGroup = grp;
+          break;
+        }
+      }
+    }
+
+    if (matchedGroup) {
+      matchedGroup.push(item);
+    } else {
+      groups.push([item]);
+    }
+  }
+
+  const result: DuplicateTamuGroup[] = [];
+  for (const grp of groups) {
+    if (grp.length > 1) {
+      const sample = grp[0];
+      result.push({
+        key: `tamu-dup-${sample.id || sample.kode}`,
+        nama: sample.nama,
+        kota: (sample.alamat || '').trim().split(/[\s,.-]+/).pop() || 'Kediri',
+        items: grp,
+      });
+    }
+  }
+
+  return result;
 }

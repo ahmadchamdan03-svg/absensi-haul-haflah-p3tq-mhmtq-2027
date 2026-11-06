@@ -118,6 +118,8 @@ export interface SantriTableRowProps {
   handleOpenEdit: (item: any) => void;
   setDeletingItem: (item: any | null) => void;
   onOpenUnmerge?: (item: any) => void;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 export default function SantriTableRow({
@@ -129,6 +131,8 @@ export default function SantriTableRow({
   handleOpenEdit,
   setDeletingItem,
   onOpenUnmerge,
+  isSelected = false,
+  onToggleSelect,
 }: SantriTableRowProps) {
   const isBilGhoib = item.kategoriUtama === 'BIL_GHOIB';
   const isBinNadzor = item.kategoriUtama === 'BIN_NADZOR';
@@ -137,6 +141,17 @@ export default function SantriTableRow({
 
   return (
     <tr className="hover:bg-slate-50/80 transition-colors">
+      {/* Checkbox Select for Merge */}
+      <td className="py-3 px-3 text-center">
+        <input
+          type="checkbox"
+          aria-label={`Pilih ${item.nama}`}
+          checked={isSelected}
+          onChange={() => onToggleSelect?.(item.id)}
+          className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        />
+      </td>
+
       {/* No */}
       <td className="py-3 px-4 text-center text-slate-400 font-mono">{globalIndex}</td>
 
@@ -369,30 +384,11 @@ export default function SantriTableRow({
       {/* Tombol Aksi */}
       <td className="py-3 px-4 text-center whitespace-nowrap">
         <div className="flex items-center justify-center space-x-1.5">
-          {isUndangan &&
-            (item.terpakai === 0 ? (
-              <button
-                onClick={() => handleFastTrackVip(item)}
-                disabled={fastTrackLoading === item.kode}
-                title="Tandai Kehadiran VIP Langsung"
-                aria-label={`Tandai kehadiran VIP ${item.nama}`}
-                className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-[11px] shadow-xs flex items-center space-x-1 transition-all active:scale-95 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>Hadirkan VIP</span>
-              </button>
-            ) : (
-              <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-300 font-bold text-[10px] flex items-center space-x-1">
-                <Check className="w-3 h-3 text-blue-600" />
-                <span>Hadir</span>
-              </span>
-            ))}
-
           <button
             onClick={() => setQrDetailItem(item)}
             title="Lihat QR &amp; Kartu"
             aria-label={`Lihat QR dan kartu ${item.nama}`}
-            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
           >
             <QrCode className="w-4 h-4" />
           </button>

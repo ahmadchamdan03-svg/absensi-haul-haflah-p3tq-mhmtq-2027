@@ -48,6 +48,7 @@ export default function TamuModal({
 }: TamuModalProps) {
   const [isSubmittingTamu, setIsSubmittingTamu] = useState(false);
   const submitLockTamu = useRef(false);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
   // Form state tambah undangan
   const [undanganForm, setUndanganForm] = useState({
@@ -80,6 +81,7 @@ export default function TamuModal({
   // Reset form saat modal tambah undangan dibuka
   useEffect(() => {
     if (showAddUndanganModal) {
+      setFormErrors({});
       let defaultKategori = OPSI_UNDANGAN_ISTIMEWA[0];
       if (selectedGolonganUndangan === 'KEHORMATAN') defaultKategori = 'Tamu Kehormatan';
       else if (selectedGolonganUndangan === 'UMUM') defaultKategori = OPSI_UNDANGAN_UMUM[0];
@@ -106,6 +108,7 @@ export default function TamuModal({
   // Sinkronisasi state edit golongan & kategori ketika editingItem dibuka
   useEffect(() => {
     if (isEditingUndangan && editingItem) {
+      setFormErrors({});
       const raw = editingItem.raw || editingItem;
       const gol = editingItem.golonganUndangan || getGolonganUndangan(raw);
       setEditGolonganUndangan(gol);
@@ -160,6 +163,8 @@ export default function TamuModal({
       onAddSuccess,
       submitLockTamu,
       setIsSubmittingTamu,
+      formErrors,
+      setFormErrors,
     });
   };
 
@@ -175,6 +180,7 @@ export default function TamuModal({
         editCustomKategoriInput,
         onEditSuccess,
         setEditingItem,
+        setFormErrors,
       });
     } finally {
       setIsSubmittingTamu(false);
@@ -237,6 +243,8 @@ export default function TamuModal({
               isSubmittingTamu={isSubmittingTamu}
               onCancelAdd={() => setShowAddUndanganModal(false)}
               onSubmitAdd={handleTambahUndangan}
+              errors={formErrors}
+              setErrors={setFormErrors}
             />
           </div>
         </div>
@@ -309,6 +317,8 @@ export default function TamuModal({
                 isSubmittingTamu={isSubmittingTamu}
                 onCancelEdit={() => setEditingItem(null)}
                 onSubmitEdit={handleSaveEdit}
+                errors={formErrors}
+                setErrors={setFormErrors}
               />
             ) : (
               <TamuPaymentUploader

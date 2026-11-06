@@ -1,7 +1,7 @@
 'use client';
 
 import QRCode from 'react-qr-code';
-import { Calendar, Clock, MapPin, Compass, Users, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, MapPin, Compass, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatQrPayloadSync } from '@/lib/hmac';
 import NamaLembaga from '@/components/NamaLembaga';
@@ -35,17 +35,21 @@ export function TamuHeroAndEventSections({
         </div>
       </ScrollReveal>
 
-      {/* INDIKATOR SCROLL HANYA TAMPIL SETELAH UNDANGAN DIBUKA */}
-      <div className="flex flex-col items-center justify-center space-y-1 text-stone-500 animate-bounce py-1 select-none">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#1D4ED8]">
-          Scroll ke Bawah ✦
-        </span>
-        <ChevronDown className="w-3.5 h-3.5 text-[#1D4ED8]" />
-      </div>
-
       {/* 2. KARTU IDENTITAS TAMU UNDANGAN & SAMBUTAN FORMAL ISLAMI */}
       <ScrollReveal delay={150} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 relative overflow-hidden">
+          {/* Aksen Ornamen Lemon Cantik & Elegan dari CDR */}
+          <motion.img
+            src="/images/undangan-assets/lemon-branch.webp"
+            alt="Aksen Lemon"
+            className="absolute -top-3 -right-3 w-12 sm:w-16 pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            whileInView={{ opacity: 0.85, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            animate={{ rotate: [0, 4, 0, -4, 0] }}
+            whileHover={{ scale: 1.1, rotate: 8 }}
+          />
           <div
             dir="rtl"
             lang="ar"
@@ -250,17 +254,21 @@ export function WaliHeroAndIdentitySections({
         </div>
       </ScrollReveal>
 
-      {/* INDIKATOR SCROLL HANYA TAMPIL SETELAH UNDANGAN DIBUKA */}
-      <div className="flex flex-col items-center justify-center space-y-1 text-stone-500 animate-bounce py-1 select-none">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#1D4ED8]">
-          Scroll ke Bawah ✦
-        </span>
-        <ChevronDown className="w-3.5 h-3.5 text-[#1D4ED8]" />
-      </div>
-
       {/* 2. PROFIL SANTRIWATI & WALI SANTRI (PERBAIKAN 3 & 5: RAPIKAN GRID MOBILE) */}
       <ScrollReveal delay={100} variant="zoom-in">
-        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4">
+        <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 relative overflow-hidden">
+          {/* Aksen Ornamen Lemon Cantik & Elegan dari CDR */}
+          <motion.img
+            src="/images/undangan-assets/lemon-branch.webp"
+            alt="Aksen Lemon"
+            className="absolute -top-3 -right-3 w-12 sm:w-16 pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            whileInView={{ opacity: 0.85, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            animate={{ rotate: [0, -4, 0, 4, 0] }}
+            whileHover={{ scale: 1.1, rotate: 8 }}
+          />
           <div className="text-center space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
               Shohibul Hajat

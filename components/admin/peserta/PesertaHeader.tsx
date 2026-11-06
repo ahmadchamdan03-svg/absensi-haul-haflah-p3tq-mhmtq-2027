@@ -162,9 +162,23 @@ export function PesertaUtilityModals({
                 <div className="font-mono font-bold text-opera-900">{deletingItem.kode}</div>
                 <div className="font-bold text-slate-900 text-sm">{deletingItem.nama}</div>
                 <div className="text-slate-500 text-[11px]">
-                  Kategori: {deletingItem.kategoriUtama}{' '}
-                  {deletingItem.bagianTamatan && `· Bagian ${deletingItem.bagianTamatan}`} · Wali:{' '}
-                  {deletingItem.namaWali}
+                  {deletingItem.tipe === 'UNDANGAN' || deletingItem.kode?.startsWith('UND') || deletingItem.golonganUndangan ? (
+                    <>
+                      Kategori: {deletingItem.kategori || deletingItem.golonganUndangan || 'Tamu Undangan'}
+                      {deletingItem.instansi && deletingItem.instansi !== '-'
+                        ? ` · Instansi: ${deletingItem.instansi}`
+                        : deletingItem.alamat && deletingItem.alamat !== '-'
+                        ? ` · Alamat: ${deletingItem.alamat}`
+                        : ''}
+                    </>
+                  ) : (
+                    <>
+                      Kategori: {deletingItem.kategoriUtama || 'Santri'}{' '}
+                      {deletingItem.bagianTamatan && `· Bagian ${deletingItem.bagianTamatan}`}
+                      {deletingItem.subKategori && !deletingItem.bagianTamatan && `(${deletingItem.subKategori})`} · Wali:{' '}
+                      {deletingItem.namaWali || deletingItem.nama_wali || '-'}
+                    </>
+                  )}
                 </div>
               </div>
 

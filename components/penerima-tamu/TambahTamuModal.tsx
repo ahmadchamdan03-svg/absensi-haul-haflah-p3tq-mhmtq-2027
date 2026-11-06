@@ -41,6 +41,8 @@ interface TambahTamuModalProps {
   setCustomKategoriInput: (val: string) => void;
   handleTambahTamu: (e: React.FormEvent) => Promise<void>;
   isSubmitting?: boolean;
+  errors?: { [key: string]: string };
+  setErrors?: (errs: { [key: string]: string }) => void;
 }
 
 export default function TambahTamuModal({
@@ -56,6 +58,8 @@ export default function TambahTamuModal({
   setCustomKategoriInput,
   handleTambahTamu,
   isSubmitting = false,
+  errors = {},
+  setErrors = () => {},
 }: TambahTamuModalProps) {
   if (!showAddModal) return null;
 
@@ -111,38 +115,68 @@ export default function TambahTamuModal({
               </div>
             </div>
 
-            <div className="space-y-3 bg-white/40 backdrop-blur-xs p-3.5 sm:p-4 rounded-2xl border border-white/50">
+            <div className={`space-y-3 p-3.5 sm:p-4 rounded-2xl border transition-colors ${
+              errors.nama
+                ? 'bg-rose-50/70 border-rose-300'
+                : 'bg-white/40 backdrop-blur-xs border-white/50'
+            }`}>
               <label className="block font-bold text-[#0F2C59] text-xs mb-1">
                 Nama Tamu Undangan *
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#0F2C59] text-xs mb-1">
+                  <label htmlFor="penerima-nama-putra" className="block font-semibold text-[#0F2C59] text-xs mb-1">
                     👨 Nama Tamu Putra{' '}
                     <span className="text-stone-500 font-normal">(Gus / Kyai / Ust.)</span>:
                   </label>
                   <input
+                    id="penerima-nama-putra"
                     type="text"
+                    aria-invalid={!!errors.nama}
+                    aria-describedby={errors.nama ? 'error-penerima-tamu-nama' : undefined}
                     value={undanganForm.namaPutra}
-                    onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
+                    onChange={(e) => {
+                      setUndanganForm({ ...undanganForm, namaPutra: e.target.value });
+                      if (errors.nama) setErrors({ ...errors, nama: '' });
+                    }}
                     placeholder="Nama tamu putra..."
-                    className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
+                    className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border text-xs focus:ring-1 transition-colors ${
+                      errors.nama
+                        ? 'border-rose-400 bg-rose-50/50 focus:ring-rose-500'
+                        : 'border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:ring-emerald-700'
+                    }`}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#0F2C59] text-xs mb-1">
+                  <label htmlFor="penerima-nama-putri" className="block font-semibold text-[#0F2C59] text-xs mb-1">
                     👩 Nama Tamu Putri{' '}
                     <span className="text-stone-500 font-normal">(Ning / Nyai / Ust.)</span>:
                   </label>
                   <input
+                    id="penerima-nama-putri"
                     type="text"
+                    aria-invalid={!!errors.nama}
+                    aria-describedby={errors.nama ? 'error-penerima-tamu-nama' : undefined}
                     value={undanganForm.namaPutri}
-                    onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
+                    onChange={(e) => {
+                      setUndanganForm({ ...undanganForm, namaPutri: e.target.value });
+                      if (errors.nama) setErrors({ ...errors, nama: '' });
+                    }}
                     placeholder="Nama tamu putri..."
-                    className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
+                    className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border text-xs focus:ring-1 transition-colors ${
+                      errors.nama
+                        ? 'border-rose-400 bg-rose-50/50 focus:ring-rose-500'
+                        : 'border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:ring-emerald-700'
+                    }`}
                   />
                 </div>
               </div>
+
+              {errors.nama && (
+                <p id="error-penerima-tamu-nama" className="text-rose-500 text-xs font-medium animate-in fade-in">
+                  {errors.nama}
+                </p>
+              )}
 
               {/* Indikator Kuota Otomatis Real-time */}
               {(() => {
@@ -176,7 +210,10 @@ export default function TambahTamuModal({
                 </label>
                 <select
                   value={undanganKategoriDropdown}
-                  onChange={(e) => setUndanganKategoriDropdown(e.target.value)}
+                  onChange={(e) => {
+                    setUndanganKategoriDropdown(e.target.value);
+                    if (errors.kategori) setErrors({ ...errors, kategori: '' });
+                  }}
                   className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs font-medium text-[#0F2C59]"
                 >
                   {(selectedGolonganUndangan === 'ISTIMEWA' ? OPSI_UNDANGAN_ISTIMEWA : OPSI_UNDANGAN_UMUM).map(
@@ -188,30 +225,59 @@ export default function TambahTamuModal({
                   )}
                 </select>
                 {undanganKategoriDropdown === 'Lainnya (Ketik Sendiri...)' && (
-                  <input
-                    type="text"
-                    value={customKategoriInput}
-                    onChange={(e) => setCustomKategoriInput(e.target.value)}
-                    placeholder="Ketik nama kategori khusus..."
-                    className="w-full mt-2 px-3.5 py-2 sm:py-2.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
-                  />
+                  <div className="mt-2 space-y-1">
+                    <input
+                      type="text"
+                      aria-invalid={!!errors.kategori}
+                      aria-describedby={errors.kategori ? 'error-penerima-kategori' : undefined}
+                      value={customKategoriInput}
+                      onChange={(e) => {
+                        setCustomKategoriInput(e.target.value);
+                        if (errors.kategori) setErrors({ ...errors, kategori: '' });
+                      }}
+                      placeholder="Ketik nama kategori khusus..."
+                      className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border text-xs focus:ring-1 transition-colors ${
+                        errors.kategori
+                          ? 'border-rose-400 bg-rose-50/50 focus:ring-rose-500'
+                          : 'border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:ring-emerald-700'
+                      }`}
+                    />
+                    {errors.kategori && (
+                      <p id="error-penerima-kategori" className="text-rose-500 text-xs font-medium animate-in fade-in">
+                        {errors.kategori}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             )}
 
             <div>
-              <label className="block font-bold text-[#0F2C59] mb-1.5 text-xs">
+              <label htmlFor="penerima-tamu-alamat" className="block font-bold text-[#0F2C59] mb-1.5 text-xs">
                 Instansi / Alamat:
               </label>
               <input
+                id="penerima-tamu-alamat"
                 type="text"
+                aria-invalid={!!errors.alamat || !!errors.instansi}
+                aria-describedby={(errors.alamat || errors.instansi) ? 'error-penerima-alamat' : undefined}
                 value={undanganForm.instansi}
-                onChange={(e) =>
-                  setUndanganForm({ ...undanganForm, instansi: e.target.value, alamat: e.target.value })
-                }
+                onChange={(e) => {
+                  setUndanganForm({ ...undanganForm, instansi: e.target.value, alamat: e.target.value });
+                  if (errors.alamat || errors.instansi) setErrors({ ...errors, alamat: '', instansi: '' });
+                }}
                 placeholder="Contoh: PP. Lirboyo Kota Kediri"
-                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 text-xs focus:ring-1 focus:ring-emerald-700"
+                className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border text-xs focus:ring-1 transition-colors ${
+                  errors.alamat || errors.instansi
+                    ? 'border-rose-400 bg-rose-50/50 focus:ring-rose-500'
+                    : 'border-white/70 bg-white/60 backdrop-blur-xs focus:bg-white/90 focus:ring-emerald-700'
+                }`}
               />
+              {(errors.alamat || errors.instansi) && (
+                <p id="error-penerima-alamat" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+                  {errors.alamat || errors.instansi}
+                </p>
+              )}
             </div>
 
             <div>

@@ -28,6 +28,8 @@ export default function SantriModal({
   const {
     formData,
     setFormData,
+    formErrors,
+    setFormErrors,
     isSubmittingSantri,
     editModalTab,
     setEditModalTab,
@@ -88,18 +90,25 @@ export default function SantriModal({
                 {/* Biodata Fields Tab */}
                 <SantriBiodataTab
                   nama={formData.nama}
-                  onNamaChange={(val) => setFormData({ ...formData, nama: val })}
+                  onNamaChange={(val) => {
+                    setFormData({ ...formData, nama: val });
+                    if (formErrors.nama) setFormErrors({ ...formErrors, nama: '' });
+                  }}
                   kamar={formData.kamar}
                   onKamarChange={(val) => setFormData({ ...formData, kamar: val })}
                   kelas={formData.kelas}
                   onKelasChange={(val) => setFormData({ ...formData, kelas: val })}
                   kategoriUtama={formData.kategoriUtama}
                   namaWali={formData.namaWali}
-                  onNamaWaliChange={(val) => setFormData({ ...formData, namaWali: val })}
+                  onNamaWaliChange={(val) => {
+                    setFormData({ ...formData, namaWali: val });
+                    if (formErrors.namaWali) setFormErrors({ ...formErrors, namaWali: '' });
+                  }}
                   noHp={formData.noHp}
                   onNoHpChange={(val) => setFormData({ ...formData, noHp: val })}
                   alamat={formData.alamat}
                   onAlamatChange={(val) => setFormData({ ...formData, alamat: val })}
+                  errors={formErrors}
                 />
               </div>
 
@@ -189,14 +198,29 @@ export default function SantriModal({
                 <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
                   {/* Biodata & Kuota Components for Edit */}
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Nama Lengkap Santri *</label>
+                    <label htmlFor="edit-santri-nama" className="block font-bold text-slate-700 mb-1">Nama Lengkap Santri *</label>
                     <input
+                      id="edit-santri-nama"
                       type="text"
                       required
+                      aria-invalid={!!formErrors.nama}
+                      aria-describedby={formErrors.nama ? 'error-edit-santri-nama' : undefined}
                       value={editingItem.nama}
-                      onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
-                      className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
+                      onChange={(e) => {
+                        setEditingItem({ ...editingItem, nama: e.target.value });
+                        if (formErrors.nama) setFormErrors({ ...formErrors, nama: '' });
+                      }}
+                      className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase font-semibold focus:outline-none focus:ring-2 transition-colors ${
+                        formErrors.nama
+                          ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
+                          : 'border-slate-300 focus:ring-opera-700'
+                      }`}
                     />
+                    {formErrors.nama && (
+                      <p id="error-edit-santri-nama" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+                        {formErrors.nama}
+                      </p>
+                    )}
                   </div>
 
                   <SantriKuotaTab
@@ -220,13 +244,29 @@ export default function SantriModal({
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1">Nama Wali</label>
+                      <label htmlFor="edit-santri-wali" className="block font-bold text-slate-700 mb-1">Nama Wali *</label>
                       <input
+                        id="edit-santri-wali"
                         type="text"
+                        required
+                        aria-invalid={!!formErrors.namaWali}
+                        aria-describedby={formErrors.namaWali ? 'error-edit-santri-wali' : undefined}
                         value={editingItem.namaWali}
-                        onChange={(e) => setEditingItem({ ...editingItem, namaWali: e.target.value })}
-                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
+                        onChange={(e) => {
+                          setEditingItem({ ...editingItem, namaWali: e.target.value });
+                          if (formErrors.namaWali) setFormErrors({ ...formErrors, namaWali: '' });
+                        }}
+                        className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase focus:outline-none focus:ring-2 transition-colors ${
+                          formErrors.namaWali
+                            ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
+                            : 'border-slate-300 focus:ring-opera-700'
+                        }`}
                       />
+                      {formErrors.namaWali && (
+                        <p id="error-edit-santri-wali" className="text-rose-500 text-xs mt-1 font-medium animate-in fade-in">
+                          {formErrors.namaWali}
+                        </p>
+                      )}
                     </div>
                   </div>
 
