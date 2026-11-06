@@ -148,98 +148,99 @@ export default function TamuFormFields({
     return (
       <form
         onSubmit={onSubmitAdd}
-        className="p-4 sm:p-6 md:p-8 space-y-4 md:space-y-5 text-xs md:text-sm overflow-y-auto flex-1"
+        className="flex-1 flex flex-col min-h-0 overflow-hidden"
       >
-        {/* 3 Kotak Pemilih Golongan Undangan */}
-        <div>
-          <label className="block font-bold text-slate-700 mb-1.5 text-xs md:text-sm">
-            Pilih Golongan Tamu Undangan *
-          </label>
-          <div className="grid grid-cols-3 gap-2 md:gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedGolonganUndangan('ISTIMEWA');
-                setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
-                setUndanganForm({
-                  ...undanganForm,
-                  kategori: OPSI_UNDANGAN_ISTIMEWA[0],
-                  instansi: '',
-                  alamat: '',
-                  kuotaDasar: 2,
-                });
-                setCustomKategoriInput('');
-              }}
-              className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
-                selectedGolonganUndangan === 'ISTIMEWA'
-                  ? 'bg-sky-100 text-blue-950 border-sky-400 ring-2 ring-amber-400/30 shadow-sm'
-                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              <Crown className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>Istimewa</span>
-            </button>
+        <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+          {/* 3 Kotak Pemilih Golongan Undangan */}
+          <div>
+            <label className="block font-bold text-slate-700 mb-1.5 text-xs">
+              Pilih Golongan Tamu Undangan *
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedGolonganUndangan('ISTIMEWA');
+                  setUndanganKategoriDropdown(OPSI_UNDANGAN_ISTIMEWA[0]);
+                  setUndanganForm({
+                    ...undanganForm,
+                    kategori: OPSI_UNDANGAN_ISTIMEWA[0],
+                    instansi: '',
+                    alamat: '',
+                    kuotaDasar: 2,
+                  });
+                  setCustomKategoriInput('');
+                }}
+                className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                  selectedGolonganUndangan === 'ISTIMEWA'
+                    ? 'bg-sky-100 text-blue-950 border-sky-400 ring-2 ring-amber-400/30 shadow-sm'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Istimewa</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedGolonganUndangan('KEHORMATAN');
-                setUndanganForm({
-                  ...undanganForm,
-                  kategori: 'Tamu Kehormatan',
-                  instansi: '',
-                  alamat: '',
-                  kuotaDasar: 4,
-                });
-                setCustomKategoriInput('');
-              }}
-              className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
-                selectedGolonganUndangan === 'KEHORMATAN'
-                  ? 'bg-purple-100 text-purple-900 border-purple-400 ring-2 ring-purple-400/30 shadow-sm'
-                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              <Building className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-600" />
-              <span>🏛️ Kehormatan</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedGolonganUndangan('KEHORMATAN');
+                  setUndanganForm({
+                    ...undanganForm,
+                    kategori: 'Tamu Kehormatan',
+                    instansi: '',
+                    alamat: '',
+                    kuotaDasar: 4,
+                  });
+                  setCustomKategoriInput('');
+                }}
+                className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                  selectedGolonganUndangan === 'KEHORMATAN'
+                    ? 'bg-purple-100 text-purple-900 border-purple-400 ring-2 ring-purple-400/30 shadow-sm'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Building className="w-3.5 h-3.5 text-purple-600" />
+                <span>🏛️ Kehormatan</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedGolonganUndangan('UMUM');
-                setUndanganKategoriDropdown(OPSI_UNDANGAN_UMUM[0]);
-                setUndanganForm({
-                  ...undanganForm,
-                  kategori: OPSI_UNDANGAN_UMUM[0],
-                  instansi: '',
-                  alamat: '',
-                  kuotaDasar: 1,
-                });
-                setCustomKategoriInput('');
-              }}
-              className={`py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm border flex items-center justify-center space-x-1.5 transition-all ${
-                selectedGolonganUndangan === 'UMUM'
-                  ? 'bg-cyan-100 text-cyan-900 border-cyan-400 ring-2 ring-cyan-400/30 shadow-sm'
-                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5 md:w-4 md:h-4 text-cyan-700" />
-              <span>👥 Umum</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedGolonganUndangan('UMUM');
+                  setUndanganKategoriDropdown(OPSI_UNDANGAN_UMUM[0]);
+                  setUndanganForm({
+                    ...undanganForm,
+                    kategori: OPSI_UNDANGAN_UMUM[0],
+                    instansi: '',
+                    alamat: '',
+                    kuotaDasar: 1,
+                  });
+                  setCustomKategoriInput('');
+                }}
+                className={`py-2 px-2 rounded-xl font-bold text-xs border flex items-center justify-center space-x-1.5 transition-all ${
+                  selectedGolonganUndangan === 'UMUM'
+                    ? 'bg-cyan-100 text-cyan-900 border-cyan-400 ring-2 ring-cyan-400/30 shadow-sm'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-cyan-700" />
+                <span>👥 Umum</span>
+              </button>
+            </div>
           </div>
-        </div>
 
         {/* NAMA TAMU UNDANGAN: INPUT PUTRA & PUTRI UNTUK SEMUA GOLONGAN */}
-        <div className="p-4 md:p-5 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
+        <div className="p-3.5 sm:p-4 bg-sky-50/70 border border-sky-200/80 rounded-2xl space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block font-bold text-blue-950 text-xs md:text-sm">
+            <label className="block font-bold text-blue-950 text-xs">
               Nama Tamu Undangan *
             </label>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 text-[11px] md:text-xs mb-1">
+              <label className="block font-semibold text-slate-700 text-[11px] mb-1">
                 👨 Nama Tamu Putra (Gus / Kyai / Ust.)
               </label>
               <input
@@ -247,12 +248,12 @@ export default function TamuFormFields({
                 value={undanganForm.namaPutra}
                 onChange={(e) => setUndanganForm({ ...undanganForm, namaPutra: e.target.value })}
                 placeholder="Nama tamu putra..."
-                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
+                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 text-[11px] md:text-xs mb-1">
+              <label className="block font-semibold text-slate-700 text-[11px] mb-1">
                 👩 Nama Tamu Putri (Ning / Nyai / Ust.)
               </label>
               <input
@@ -260,7 +261,7 @@ export default function TamuFormFields({
                 value={undanganForm.namaPutri}
                 onChange={(e) => setUndanganForm({ ...undanganForm, namaPutri: e.target.value })}
                 placeholder="Nama tamu putri..."
-                className="w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs md:text-sm bg-white"
+                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
               />
             </div>
           </div>
@@ -424,44 +425,46 @@ export default function TamuFormFields({
             value={undanganForm.noHp}
             onChange={(e) => setUndanganForm({ ...undanganForm, noHp: e.target.value })}
             placeholder="08xxxxxxxxxx"
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+            className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
           />
         </div>
+      </div>
 
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
-          <button
-            type="button"
-            onClick={onCancelAdd}
-            disabled={isSubmittingTamu}
-            className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmittingTamu}
-            className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmittingTamu ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-gold-300 shrink-0" />
-                <span>Menyimpan...</span>
-              </>
-            ) : (
-              'Simpan Undangan'
-            )}
-          </button>
-        </div>
-      </form>
-    );
-  }
+      <div className="shrink-0 p-3.5 sm:px-6 sm:py-3.5 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end space-x-2">
+        <button
+          type="button"
+          onClick={onCancelAdd}
+          disabled={isSubmittingTamu}
+          className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Batal
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmittingTamu}
+          className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmittingTamu ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-gold-300 shrink-0" />
+              <span>Menyimpan...</span>
+            </>
+          ) : (
+            'Simpan Undangan'
+          )}
+        </button>
+      </div>
+    </form>
+  );
+}
 
   // EDIT MODE
   if (!editingItem) return null;
 
   return (
-    <form onSubmit={onSubmitEdit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
-      {/* 3 Kotak Pemilih Golongan Undangan Edit */}
+    <form onSubmit={onSubmitEdit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+        {/* 3 Kotak Pemilih Golongan Undangan Edit */}
       <div>
         <label className="block font-bold text-slate-700 mb-1">Golongan Tamu Undangan *</label>
         <div className="grid grid-cols-3 gap-2">
@@ -546,7 +549,7 @@ export default function TamuFormFields({
                   setEditingItem({ ...editingItem, namaPutra: p, nama: combined });
                 }}
                 placeholder="Nama tamu putra..."
-                className="w-full px-3 py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
               />
             </div>
 
@@ -567,7 +570,7 @@ export default function TamuFormFields({
                   setEditingItem({ ...editingItem, namaPutri: w, nama: combined });
                 }}
                 placeholder="Nama tamu putri..."
-                className="w-full px-3 py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
+                className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-sky-300 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase font-semibold text-xs bg-white"
               />
             </div>
           </div>
@@ -731,7 +734,7 @@ export default function TamuFormFields({
                 })
               }
               placeholder="08xxxxxxxxxx"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+              className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
             />
             <p className="text-[10px] text-slate-400 mt-1">
               Format: 08xx atau 628xx. Boleh kosong (opsional).
@@ -739,20 +742,21 @@ export default function TamuFormFields({
           </div>
         </>
       )}
+      </div>
 
-      <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+      <div className="shrink-0 p-3.5 sm:px-6 sm:py-3.5 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end space-x-2">
         <button
           type="button"
           onClick={onCancelEdit}
           disabled={isSubmittingTamu}
-          className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={isSubmittingTamu}
-          className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmittingTamu ? (
             <>

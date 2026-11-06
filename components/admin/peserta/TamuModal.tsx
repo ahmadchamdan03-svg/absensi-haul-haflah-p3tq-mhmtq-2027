@@ -185,9 +185,9 @@ export default function TamuModal({
     <>
       {/* MODAL 2: TAMBAH TAMU UNDANGAN */}
       {showAddUndanganModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
-            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 md:p-6 flex items-center justify-between border-b border-gold-500/40 shrink-0">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
+          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
+            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
                   {selectedGolonganUndangan === 'ISTIMEWA' ? (
@@ -199,7 +199,7 @@ export default function TamuModal({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-serif font-black text-base sm:text-lg md:text-xl text-gold-300 truncate">
+                  <h3 className="font-serif font-black text-base sm:text-lg text-gold-300 truncate">
                     Tambah Tamu{' '}
                     {selectedGolonganUndangan === 'ISTIMEWA'
                       ? 'Istimewa'
@@ -207,7 +207,7 @@ export default function TamuModal({
                       ? 'Kehormatan'
                       : 'Umum'}
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] md:text-xs text-opera-200 truncate mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-opera-200 truncate mt-0.5">
                     {selectedGolonganUndangan === 'ISTIMEWA'
                       ? 'VVIP & Dzurriyyah / Keluarga Mahrus / Kunir / Bandar'
                       : selectedGolonganUndangan === 'KEHORMATAN'
@@ -220,7 +220,7 @@ export default function TamuModal({
                 onClick={() => setShowAddUndanganModal(false)}
                 className="text-opera-200 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <X className="w-5 h-5 md:w-6 md:h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -244,8 +244,8 @@ export default function TamuModal({
 
       {/* MODAL 3 (UNDANGAN): EDIT TAMU UNDANGAN */}
       {isEditingUndangan && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
+          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 shrink-0">

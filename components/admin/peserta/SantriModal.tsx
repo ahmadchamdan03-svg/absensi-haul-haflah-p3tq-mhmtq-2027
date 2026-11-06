@@ -50,8 +50,8 @@ export default function SantriModal({
       {/* MODAL 1: TAMBAH SANTRI BARU */}
       {/* ========================================================================= */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in">
-          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-xl w-full max-h-[92dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
+          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5">
                 <div className="w-8 h-8 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400">
@@ -74,34 +74,36 @@ export default function SantriModal({
               </button>
             </div>
 
-            <form onSubmit={handleTambahPeserta} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
-              {/* Kategori & Bagian Tamatan Tab */}
-              <SantriKuotaTab
-                kategoriUtama={formData.kategoriUtama}
-                onKategoriUtamaChange={(kat) => setFormData({ ...formData, kategoriUtama: kat })}
-                bagianTamatan={formData.bagianTamatan}
-                onBagianTamatanChange={(bg) => setFormData({ ...formData, bagianTamatan: bg })}
-                isEditMode={false}
-              />
+            <form onSubmit={handleTambahPeserta} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+                {/* Kategori & Bagian Tamatan Tab */}
+                <SantriKuotaTab
+                  kategoriUtama={formData.kategoriUtama}
+                  onKategoriUtamaChange={(kat) => setFormData({ ...formData, kategoriUtama: kat })}
+                  bagianTamatan={formData.bagianTamatan}
+                  onBagianTamatanChange={(bg) => setFormData({ ...formData, bagianTamatan: bg })}
+                  isEditMode={false}
+                />
 
-              {/* Biodata Fields Tab */}
-              <SantriBiodataTab
-                nama={formData.nama}
-                onNamaChange={(val) => setFormData({ ...formData, nama: val })}
-                kamar={formData.kamar}
-                onKamarChange={(val) => setFormData({ ...formData, kamar: val })}
-                kelas={formData.kelas}
-                onKelasChange={(val) => setFormData({ ...formData, kelas: val })}
-                kategoriUtama={formData.kategoriUtama}
-                namaWali={formData.namaWali}
-                onNamaWaliChange={(val) => setFormData({ ...formData, namaWali: val })}
-                noHp={formData.noHp}
-                onNoHpChange={(val) => setFormData({ ...formData, noHp: val })}
-                alamat={formData.alamat}
-                onAlamatChange={(val) => setFormData({ ...formData, alamat: val })}
-              />
+                {/* Biodata Fields Tab */}
+                <SantriBiodataTab
+                  nama={formData.nama}
+                  onNamaChange={(val) => setFormData({ ...formData, nama: val })}
+                  kamar={formData.kamar}
+                  onKamarChange={(val) => setFormData({ ...formData, kamar: val })}
+                  kelas={formData.kelas}
+                  onKelasChange={(val) => setFormData({ ...formData, kelas: val })}
+                  kategoriUtama={formData.kategoriUtama}
+                  namaWali={formData.namaWali}
+                  onNamaWaliChange={(val) => setFormData({ ...formData, namaWali: val })}
+                  noHp={formData.noHp}
+                  onNoHpChange={(val) => setFormData({ ...formData, noHp: val })}
+                  alamat={formData.alamat}
+                  onAlamatChange={(val) => setFormData({ ...formData, alamat: val })}
+                />
+              </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+              <div className="shrink-0 p-3.5 sm:px-6 sm:py-3.5 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -134,8 +136,8 @@ export default function SantriModal({
       {/* MODAL 3 (SANTRI): EDIT PESERTA SANTRI */}
       {/* ========================================================================= */}
       {isEditingSantri && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-in fade-in">
-          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-full md:max-w-2xl lg:max-w-3xl w-full max-h-[92dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
+          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 shrink-0">
@@ -183,89 +185,91 @@ export default function SantriModal({
             </div>
 
             {editModalTab === 'FORM' ? (
-              <form onSubmit={handleSaveEdit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
-                {/* Biodata & Kuota Components for Edit */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Nama Lengkap Santri *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingItem.nama}
-                    onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
+              <form onSubmit={handleSaveEdit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+                  {/* Biodata & Kuota Components for Edit */}
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Nama Lengkap Santri *</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingItem.nama}
+                      onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
+                      className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase font-semibold"
+                    />
+                  </div>
+
+                  <SantriKuotaTab
+                    kategoriUtama={editingItem.kategoriUtama}
+                    onKategoriUtamaChange={(kat) => setEditingItem({ ...editingItem, kategoriUtama: kat })}
+                    bagianTamatan={editingItem.bagianTamatan}
+                    onBagianTamatanChange={(bg) => setEditingItem({ ...editingItem, bagianTamatan: bg })}
+                    kuotaDasar={editingItem.kuotaDasar}
+                    onKuotaDasarChange={(val) => setEditingItem({ ...editingItem, kuotaDasar: val })}
+                    isEditMode={true}
                   />
-                </div>
 
-                <SantriKuotaTab
-                  kategoriUtama={editingItem.kategoriUtama}
-                  onKategoriUtamaChange={(kat) => setEditingItem({ ...editingItem, kategoriUtama: kat })}
-                  bagianTamatan={editingItem.bagianTamatan}
-                  onBagianTamatanChange={(bg) => setEditingItem({ ...editingItem, bagianTamatan: bg })}
-                  kuotaDasar={editingItem.kuotaDasar}
-                  onKuotaDasarChange={(val) => setEditingItem({ ...editingItem, kuotaDasar: val })}
-                  isEditMode={true}
-                />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Kamar Pondok</label>
+                      <input
+                        type="text"
+                        value={editingItem.kamar}
+                        onChange={(e) => setEditingItem({ ...editingItem, kamar: e.target.value })}
+                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Nama Wali</label>
+                      <input
+                        type="text"
+                        value={editingItem.namaWali}
+                        onChange={(e) => setEditingItem({ ...editingItem, namaWali: e.target.value })}
+                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
+                      />
+                    </div>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Kamar Pondok</label>
-                    <input
-                      type="text"
-                      value={editingItem.kamar}
-                      onChange={(e) => setEditingItem({ ...editingItem, kamar: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Nama Wali</label>
-                    <input
-                      type="text"
-                      value={editingItem.namaWali}
-                      onChange={(e) => setEditingItem({ ...editingItem, namaWali: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
-                    />
-                  </div>
-                </div>
+                  {editingItem.kategoriUtama === 'BIN_NADZOR' && (
+                    <div className="animate-in fade-in">
+                      <label className="block font-bold text-slate-700 mb-1">Kelas *</label>
+                      <select
+                        value={editingItem.kelas || '2 Tsanawiyah'}
+                        onChange={(e) => setEditingItem({ ...editingItem, kelas: e.target.value })}
+                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800"
+                      >
+                        {KELAS_BIN_NADZOR_LIST.map((kls) => (
+                          <option key={kls} value={kls}>
+                            {kls}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-                {editingItem.kategoriUtama === 'BIN_NADZOR' && (
-                  <div className="animate-in fade-in">
-                    <label className="block font-bold text-slate-700 mb-1">Kelas *</label>
-                    <select
-                      value={editingItem.kelas || '2 Tsanawiyah'}
-                      onChange={(e) => setEditingItem({ ...editingItem, kelas: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800"
-                    >
-                      {KELAS_BIN_NADZOR_LIST.map((kls) => (
-                        <option key={kls} value={kls}>
-                          {kls}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">No. WhatsApp</label>
-                    <input
-                      type="text"
-                      value={editingItem.noHp}
-                      onChange={(e) => setEditingItem({ ...editingItem, noHp: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
-                    <input
-                      type="text"
-                      value={editingItem.alamat}
-                      onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">No. WhatsApp</label>
+                      <input
+                        type="text"
+                        value={editingItem.noHp}
+                        onChange={(e) => setEditingItem({ ...editingItem, noHp: e.target.value })}
+                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
+                      <input
+                        type="text"
+                        value={editingItem.alamat}
+                        onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
+                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+                <div className="shrink-0 p-3.5 sm:px-6 sm:py-3.5 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end space-x-2">
                   <button
                     type="button"
                     onClick={() => setEditingItem(null)}
@@ -291,7 +295,7 @@ export default function SantriModal({
                 </div>
               </form>
             ) : (
-              <div className="p-4 sm:p-6 space-y-3 text-xs overflow-y-auto flex-1 bg-sky-50/20">
+              <div className="p-5 sm:p-6 space-y-3 text-xs overflow-y-auto flex-1 bg-sky-50/20">
                 <SantriAuditHistoryTab
                   loading={loadingAuditHistory}
                   history={itemAuditHistory}
