@@ -86,7 +86,7 @@ export async function middleware(request: NextRequest) {
     'unknown-ip';
 
   // 2. RATE LIMITING
-  // AI Ask route: 10 req/min (Anti-Spam Kuota) | Admin routes: 200 req/min | Public routes & API: 60 req/min
+  // Localhost/dev/test: 1000 req/min | AI Ask route: 10 req/min | Admin routes: 200 req/min | Public routes & API: 60 req/min
   const isAiAskRoute = pathname.startsWith('/api/ai/ask');
   const isAdminRoute =
     pathname.startsWith('/admin') ||
@@ -96,7 +96,13 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/penerima-tamu') ||
     pathname.startsWith('/pimpinan');
 
-  const rateLimitMax = isAiAskRoute ? 10 : (isAdminRoute ? 200 : 60);
+  const isLocal =
+    clientIp === '127.0.0.1' ||
+    clientIp === '::1' ||
+    clientIp === 'unknown-ip' ||
+    request.nextUrl.hostname === 'localhost';
+
+  const rateLimitMax = isLocal ? 1000 : isAiAskRoute ? 10 : isAdminRoute ? 200 : 60;
   const rateLimitKey = isAiAskRoute ? `ai:${clientIp}` : clientIp;
   const isAllowed = checkRateLimit(rateLimitKey, rateLimitMax);
 
