@@ -8,6 +8,7 @@ import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
 import HeaderUndangan from '@/components/HeaderUndangan';
 import { cleanKategoriTamatan } from '@/lib/types';
+import { formatTitleCase } from '@/lib/utils';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
 import {
@@ -245,9 +246,6 @@ export function WaliHeroAndIdentitySections({
       {/* 1. HEADER RESMI WALI MELAYANG (FLOATING) */}
       <ScrollReveal delay={50}>
         <div className="w-full max-w-2xl lg:max-w-3xl mx-auto p-2 sm:p-4 md:px-6 text-center">
-          <div className="text-[10px] sm:text-xs font-serif font-black tracking-widest text-[#1D4ED8] uppercase text-center mb-1">
-            UNDANGAN RESMI WALI SANTRI
-          </div>
           <HeaderUndanganWali />
         </div>
       </ScrollReveal>
@@ -268,7 +266,7 @@ export function WaliHeroAndIdentitySections({
               Shohibul Hajat
             </span>
             <h2 className="text-xl sm:text-2xl font-serif font-black text-[#0F2C59]">
-              {santri?.nama || item?.entitas?.nama}
+              {formatTitleCase(santri?.nama || item?.entitas?.nama || '')}
             </h2>
             <p className="text-xs text-stone-600 font-medium max-w-full leading-relaxed break-words">
               {santri?.kamar && santri.kamar !== '-' ? (
@@ -284,11 +282,11 @@ export function WaliHeroAndIdentitySections({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-3 border-t border-stone-100 text-xs">
             <div className="p-3.5 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-0.5">
               <span className="text-stone-500 text-[10px] uppercase font-bold block">Nama Wali:</span>
-              <p className="font-bold text-[#0F2C59] leading-snug">{item?.entitas?.namaWali || item?.entitas?.nama}</p>
+              <p className="font-bold text-[#0F2C59] leading-snug">{formatTitleCase(item?.entitas?.namaWali || item?.entitas?.nama || '')}</p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 space-y-0.5">
               <span className="text-stone-500 text-[10px] uppercase font-bold block">Asal / Alamat:</span>
-              <p className="font-bold text-[#0F2C59] leading-snug">{item?.entitas?.alamat || 'Kediri'}</p>
+              <p className="font-bold text-[#0F2C59] leading-snug">{formatTitleCase(item?.entitas?.alamat || 'Kediri')}</p>
             </div>
           </div>
         </GlassCard>

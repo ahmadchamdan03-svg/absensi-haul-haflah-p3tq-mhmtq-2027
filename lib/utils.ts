@@ -11,7 +11,7 @@ export function generateRandomKode(prefix: string): string {
 
 export function normalizePortalToken(rawToken: string): string {
   const trimmed = (rawToken || '').trim().toUpperCase();
-  const legacyUndMatch = trimmed.match(/^(UND-\d+)/i);
+  const legacyUndMatch = trimmed.match(/^(UND-[A-Z0-9]+)/i);
   if (legacyUndMatch) {
     return legacyUndMatch[1].toUpperCase();
   }
@@ -69,4 +69,51 @@ export async function generateUniqueKodeFromDb(
     kodeBaru = generateRandomKode(prefix);
   }
   return kodeBaru;
+}
+
+/**
+ * Format string ke Title Case (Kapital di awal kata, kecil di tengah)
+ * Contoh: "bapak muhammad robi'ul huda" -> "Bapak Muhammad Robi'ul Huda"
+ */
+export function formatTitleCase(str: string): string {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/(^|[\s\(\)\-\/])([a-z0-9])/g, (_, p, c) => p + c.toUpperCase());
+}
+
+/**
+ * Format nama tamu undangan dengan Title Case dan etika "Sekalian"
+ * 1. Jika nama putri diisi "ISTRI", ubah menjadi "[Nama Putra] Sekalian"
+ * 2. Jika keduanya ada, gabungkan dengan " & "
+ * 3. Jika hanya putra, gunakan nama putra
+ */
+export function formatGuestDisplayName(item: any): string {
+  const rawPutra = (item?.namaPutra || item?.nama_putra || item?.entitas?.namaPutra || '').trim();
+  const rawPutri = (item?.namaPutri || item?.nama_putri || item?.entitas?.namaPutri || '').trim();
+  const rawNama = (item?.nama || item?.entitas?.nama || '').trim();
+
+  let targetPutra = rawPutra;
+  let targetPutri = rawPutri;
+
+  // Jika namaPutra kosong namun nama diisi (bukan placeholder default)
+  if (!targetPutra && rawNama && rawNama !== '-' && rawNama !== 'Tamu Undangan') {
+    targetPutra = rawNama;
+  }
+
+  const fmtPutra = formatTitleCase(targetPutra);
+  const fmtPutri = formatTitleCase(targetPutri);
+
+  let displayName = fmtPutra;
+
+  if (fmtPutri && fmtPutri.trim().toLowerCase() === 'istri') {
+    displayName = `${fmtPutra} Sekalian`;
+  } else if (fmtPutra && fmtPutri && fmtPutri !== '-') {
+    displayName = `${fmtPutra} & ${fmtPutri}`;
+  } else if (!fmtPutra && fmtPutri && fmtPutri !== '-') {
+    displayName = fmtPutri;
+  }
+
+  return displayName || 'Tamu Undangan';
 }

@@ -56,32 +56,9 @@ export interface UndanganItem {
 export type PesertaSantri = UndanganItem;
 export type TamuUndangan = UndanganItem;
 
-// Helper Ambil Nama Penerima Tamu Undangan
+import { formatGuestDisplayName } from '@/lib/utils';
+
+// Helper Ambil Nama Penerima Tamu Undangan (Format Title Case & "Sekalian")
 export function getNamaPenerima(item: any): string {
-  const namaDirect = (item?.nama || item?.entitas?.nama || '').trim();
-  const namaPutra = (item?.namaPutra || item?.nama_putra || item?.entitas?.namaPutra || '').trim();
-  const namaPutri = (item?.namaPutri || item?.nama_putri || item?.entitas?.namaPutri || '').trim();
-
-  if (namaDirect && namaDirect !== '-' && namaDirect !== 'Tamu Undangan') {
-    return namaDirect;
-  }
-
-  const hasPutra = namaPutra && namaPutra !== '-';
-  const hasPutri = namaPutri && namaPutri !== '-';
-
-  if (hasPutra && hasPutri) {
-    return `${namaPutra} & ${namaPutri}`;
-  }
-  if (hasPutra) {
-    return namaPutra;
-  }
-  if (hasPutri) {
-    return namaPutri;
-  }
-
-  if (namaDirect && namaDirect !== '-') {
-    return namaDirect;
-  }
-
-  return 'Tamu Undangan';
+  return formatGuestDisplayName(item);
 }
