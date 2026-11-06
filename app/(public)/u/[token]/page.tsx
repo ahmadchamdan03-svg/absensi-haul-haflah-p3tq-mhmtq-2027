@@ -810,8 +810,8 @@ export default function UndanganWaliPage() {
           !isOpened ? 'h-[100dvh] overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
         }`}
       >
-        {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR) */}
-        <CanvasRevealMask />
+        {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR MENYELURUH) */}
+        <CanvasRevealMask className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-0" />
 
         {/* ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING */}
         <UndanganParallaxOrnaments isOpened={isOpened} />
@@ -837,7 +837,7 @@ export default function UndanganWaliPage() {
                 opacity: 0.98,
                 transition: { duration: 0.95, ease: [0.22, 1, 0.36, 1] },
               }}
-              className="fixed inset-0 z-50 overflow-hidden"
+              className="fixed inset-0 z-50 overflow-hidden bg-[#0F2C59]"
             >
               <UndanganCoverOverlay
                 isTamu={isTamuUndangan || item?.tipe === 'UNDANGAN'}
@@ -853,7 +853,7 @@ export default function UndanganWaliPage() {
         {/* KONTEN PORTAL UNDANGAN (TAMPIL DI BAWAH COVER DENGAN TRANSISI ELEGAN)     */}
         {/* ========================================================================= */}
         {item?.tipe === 'UNDANGAN' || isTamuUndangan ? (
-          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28">
+          <div className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28">
             <TamuHeroAndEventSections
               item={item}
               onOpenDenah={() => setIsDenahOpen(true)}
@@ -878,7 +878,7 @@ export default function UndanganWaliPage() {
             )}
           </div>
         ) : (
-          <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 animate-in fade-in duration-500 pb-28">
+          <div className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 animate-in fade-in duration-500 pb-28">
             <WaliHeroAndIdentitySections
               item={item}
               santri={santri}

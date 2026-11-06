@@ -20,7 +20,7 @@ interface Stamp {
 }
 
 export default function CanvasRevealMask({
-  className = 'absolute inset-0 pointer-events-none overflow-hidden',
+  className = 'fixed inset-0 w-full h-full pointer-events-none overflow-hidden',
 }: {
   className?: string;
 }) {
@@ -46,8 +46,9 @@ export default function CanvasRevealMask({
 
     function resize() {
       if (!canvas || !ctx) return;
-      w = window.innerWidth;
-      h = window.innerHeight;
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width || window.innerWidth;
+      h = rect.height || window.innerHeight;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
 
       canvas.width = Math.round(w * dpr);
@@ -134,7 +135,7 @@ export default function CanvasRevealMask({
       if (!ctx) return;
       const now = performance.now();
 
-      // 1. Gambar ulang tirai krem solid
+      // 1. Gambar ulang tirai Deep Navy solid
       ctx.globalCompositeOperation = 'source-over';
       drawBaseFill();
 
@@ -149,7 +150,7 @@ export default function CanvasRevealMask({
         // Kurva perlambatan easeOutCubic: riak mengembang cepat lalu melambat lembut
         const ease = 1 - Math.pow(1 - t, 3);
         const r = R_START + (stamps[i].rmax - R_START) * ease;
-        // Pemudaran kuadratik hingga menutup kembali menjadi tirai krem utuh
+        // Pemudaran kuadratik hingga menutup kembali menjadi tirai navy utuh
         const alpha = 1 - t * t;
         carveInk(stamps[i].x, stamps[i].y, r, alpha, stamps[i].seed);
       }
@@ -171,15 +172,17 @@ export default function CanvasRevealMask({
     }
 
     function handleMouseMove(e: MouseEvent) {
-      stampAlong(e.clientX, e.clientY);
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      stampAlong(e.clientX - rect.left, e.clientY - rect.top);
       start();
     }
 
     function handleTouchMove(e: TouchEvent) {
-      if (e.touches && e.touches[0]) {
-        stampAlong(e.touches[0].clientX, e.touches[0].clientY);
-        start();
-      }
+      if (!canvas || !e.touches || !e.touches[0]) return;
+      const rect = canvas.getBoundingClientRect();
+      stampAlong(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+      start();
     }
 
     function handleMouseLeave() {
@@ -209,12 +212,14 @@ export default function CanvasRevealMask({
       className={className}
       aria-hidden="true"
     >
-      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Terang, Jelas, Warna Asli Tanpa Filter) */}
-      <img
-        src="/images/panggung-aula.jpg"
-        alt="Panggung Aula Al-Muktamar"
-        className="absolute inset-0 w-full h-full object-cover object-center z-0"
-      />
+      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Utuh, Terang, Tidak Ter-zoom Berlebihan dengan object-contain) */}
+      <div className="absolute inset-0 w-full h-full bg-[#0F2C59] z-0 flex items-center justify-center overflow-hidden">
+        <img
+          src="/images/panggung-aula.jpg"
+          alt="Panggung Aula Al-Muktamar"
+          className="w-full h-full object-contain object-center select-none"
+        />
+      </div>
 
       {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
       <canvas

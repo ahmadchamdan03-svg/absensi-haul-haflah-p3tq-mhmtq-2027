@@ -16,8 +16,8 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
   const targetWa = finalWaNo || '6285181805377';
 
   return (
-    <div className="min-h-[100dvh] h-[100dvh] bg-[#0F2C59] text-white flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10 overflow-hidden">
-      <CanvasRevealMask />
+    <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#0F2C59] text-white flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10 overflow-hidden">
+      <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
       <div className="max-w-md w-full bg-[#0F2C59]/80 backdrop-blur-xl border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.5)] rounded-3xl p-6 sm:p-8 space-y-6 relative z-20">
         <div className="flex justify-center">
           <img
@@ -79,10 +79,16 @@ export function UndanganCoverTamu({
 }) {
   return (
     <div
-      className="min-h-[100dvh] h-[100dvh] w-full max-w-md mx-auto flex flex-col justify-between items-center px-4 py-4 sm:py-6 text-center relative overflow-hidden select-none bg-[#0F2C59] shadow-2xl"
+      className="h-[100dvh] max-h-[100dvh] w-full flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
     >
       {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR) */}
-      <CanvasRevealMask className="absolute inset-0 pointer-events-none overflow-hidden z-10" />
+      <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
+
+      {/* OVERLAY GRADIEN DEEP NAVY ATAS (HILANGKAN BEKAS TEKS CDR & TONJOLKAN LOGO) */}
+      <div className="absolute top-0 inset-x-0 h-44 sm:h-60 bg-gradient-to-b from-[#0F2C59] via-[#0F2C59]/95 to-transparent pointer-events-none z-15" />
+
+      {/* OVERLAY GRADIEN DEEP NAVY BAWAH (TONJOLKAN TOMBOL) */}
+      <div className="absolute bottom-0 inset-x-0 h-28 sm:h-36 bg-gradient-to-t from-[#0F2C59] via-[#0F2C59]/80 to-transparent pointer-events-none z-15" />
 
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS) */}
       <motion.img
@@ -102,72 +108,59 @@ export function UndanganCoverTamu({
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
 
-      {/* 1. BAGIAN ATAS: ORNAMEN KUFI & HEADER RESMI (EMAS & PUTIH) */}
-      <div className="w-full max-w-lg mx-auto pt-1 sm:pt-2 relative z-20">
-        <ScrollReveal variant="zoom-in" duration={0.8}>
-          <div className="w-full space-y-2 text-center">
-            {/* Kaligrafi Kufi Ornamen Elegan dari CDR */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7 }}
-              className="flex justify-center -mb-1"
-            >
-              <img
-                src="/images/undangan-assets/calligraphy-kufic.webp"
-                alt="Kaligrafi Kufi Haflah"
-                width={160}
-                height={85}
-                className="h-7 sm:h-9 w-auto object-contain opacity-90 drop-shadow-[0_2px_6px_rgba(251,191,36,0.3)]"
-              />
-            </motion.div>
-
-            <HeaderUndangan titleType="UNDANGAN RESMI" variant="dark" />
-          </div>
-        </ScrollReveal>
-      </div>
-
-      {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS PENERIMA */}
-      <div className="w-full max-w-lg mx-auto my-auto py-2 relative z-20">
-        <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-          <div className="w-full bg-[#0F2C59]/80 backdrop-blur-xl border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.6)] rounded-3xl p-5 sm:p-6 space-y-3 relative z-20">
-            <span className="text-[11px] sm:text-xs text-amber-200/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
-              Kepada Yth. Bapak/Ibu/Saudara:
-            </span>
-
-            {item?.nama || item?.namaPutra || item?.namaPutri ? (
-              <div className="space-y-1">
-                {renderTamuName(item, true)}
-                {renderAlamatTamu(item, true)}
-              </div>
-            ) : (
-              <div className="space-y-2 py-1">
-                <SkeletonText width="70%" height="1.5rem" className="mx-auto" />
-                <SkeletonText width="40%" height="1rem" className="mx-auto" />
-              </div>
-            )}
-
-            <div className="flex items-center justify-center gap-3 pt-1 text-amber-400/60">
-              <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
-              <span className="text-xs">❖</span>
-              <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+      {/* KONTEN COVER (TERPUSAT, TINGGI TEPAT 100DVH, TOMBOL SELALU TERLIHAT DI PC) */}
+      <div className="w-full max-w-md mx-auto h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-2.5 sm:py-4 relative z-20 overflow-hidden">
+        {/* 1. BAGIAN ATAS: ORNAMEN KUFI & HEADER RESMI (EMAS & PUTIH) */}
+        <div className="w-full pt-1 relative z-20 shrink-0">
+          <ScrollReveal variant="zoom-in" duration={0.8}>
+            <div className="w-full space-y-1.5 text-center">
+              <HeaderUndangan titleType="UNDANGAN RESMI" variant="dark" />
             </div>
-          </div>
-        </ScrollReveal>
-      </div>
+          </ScrollReveal>
+        </div>
 
-      {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (GLASSMORPHISM MEWAH, SELALU DI BAWAH) */}
-      <div className="w-full max-w-lg mx-auto pb-4 sm:pb-6 relative z-20">
-        <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
-          <button
-            type="button"
-            onClick={onOpen}
-            className="w-full py-3.5 px-6 rounded-2xl bg-white/20 hover:bg-white/30 active:bg-white/35 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
-          >
-            <MailOpen className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span className="tracking-widest uppercase">Buka Undangan</span>
-          </button>
-        </ScrollReveal>
+        {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS PENERIMA */}
+        <div className="w-full my-auto py-1 sm:py-2 relative z-20 shrink-0">
+          <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
+            <div className="w-full bg-[#0F2C59]/85 backdrop-blur-xl border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.6)] rounded-3xl p-4 sm:p-5 space-y-2 relative z-20">
+              <span className="text-[11px] sm:text-xs text-amber-200/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
+                Kepada Yth. Bapak/Ibu/Saudara:
+              </span>
+
+              {item?.nama || item?.namaPutra || item?.namaPutri ? (
+                <div className="space-y-1">
+                  {renderTamuName(item, true)}
+                  {renderAlamatTamu(item, true)}
+                </div>
+              ) : (
+                <div className="space-y-2 py-1">
+                  <SkeletonText width="70%" height="1.5rem" className="mx-auto" />
+                  <SkeletonText width="40%" height="1rem" className="mx-auto" />
+                </div>
+              )}
+
+              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-400/60">
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+                <span className="text-xs">❖</span>
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+
+        {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (SELALU MUNCUL DI VIEWPORT) */}
+        <div className="w-full pb-2.5 sm:pb-4 relative z-20 shrink-0">
+          <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
+            <button
+              type="button"
+              onClick={onOpen}
+              className="w-full py-3 sm:py-3.5 px-6 rounded-2xl bg-white/20 hover:bg-white/30 active:bg-white/35 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+            >
+              <MailOpen className="w-4 h-4 text-amber-300 animate-pulse" />
+              <span className="tracking-widest uppercase">Buka Undangan</span>
+            </button>
+          </ScrollReveal>
+        </div>
       </div>
     </div>
   );
@@ -184,10 +177,16 @@ export function UndanganCoverWali({
 }) {
   return (
     <div
-      className="min-h-[100dvh] h-[100dvh] w-full max-w-md mx-auto flex flex-col justify-between items-center px-4 py-4 sm:py-6 text-center relative overflow-hidden select-none bg-[#0F2C59] shadow-2xl"
+      className="h-[100dvh] max-h-[100dvh] w-full flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
     >
       {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR) */}
-      <CanvasRevealMask className="absolute inset-0 pointer-events-none overflow-hidden z-10" />
+      <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
+
+      {/* OVERLAY GRADIEN DEEP NAVY ATAS (HILANGKAN BEKAS TEKS CDR & TONJOLKAN LOGO) */}
+      <div className="absolute top-0 inset-x-0 h-44 sm:h-60 bg-gradient-to-b from-[#0F2C59] via-[#0F2C59]/95 to-transparent pointer-events-none z-15" />
+
+      {/* OVERLAY GRADIEN DEEP NAVY BAWAH (TONJOLKAN TOMBOL) */}
+      <div className="absolute bottom-0 inset-x-0 h-28 sm:h-36 bg-gradient-to-t from-[#0F2C59] via-[#0F2C59]/80 to-transparent pointer-events-none z-15" />
 
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS) */}
       <motion.img
@@ -207,79 +206,65 @@ export function UndanganCoverWali({
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
 
-      {/* 1. BAGIAN ATAS: ORNAMEN KUFI & HEADER RESMI WALI (EMAS & PUTIH) */}
-      <div className="w-full max-w-lg mx-auto pt-1 sm:pt-2 relative z-20">
-        <ScrollReveal variant="zoom-in" duration={0.8}>
-          <div className="w-full space-y-2 text-center">
-            {/* Kaligrafi Kufi Ornamen Elegan dari CDR */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7 }}
-              className="flex justify-center -mb-1"
-            >
-              <img
-                src="/images/undangan-assets/calligraphy-kufic.webp"
-                alt="Kaligrafi Kufi Haflah"
-                width={160}
-                height={85}
-                className="h-7 sm:h-9 w-auto object-contain opacity-90 drop-shadow-[0_2px_6px_rgba(251,191,36,0.3)]"
-              />
-            </motion.div>
+      {/* KONTEN COVER WALI (TERPUSAT, TINGGI TEPAT 100DVH, TOMBOL SELALU TERLIHAT DI PC) */}
+      <div className="w-full max-w-md mx-auto h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-2.5 sm:py-4 relative z-20 overflow-hidden">
+        {/* 1. BAGIAN ATAS: ORNAMEN KUFI & HEADER RESMI WALI (EMAS & PUTIH) */}
+        <div className="w-full pt-1 relative z-20 shrink-0">
+          <ScrollReveal variant="zoom-in" duration={0.8}>
+            <div className="w-full space-y-1.5 text-center">
+              <HeaderUndanganWali />
+            </div>
+          </ScrollReveal>
+        </div>
 
-            {/* HEADER RESMI WALI SANTRI (TEKS GANDA TELAH DIHAPUS) */}
-            <HeaderUndanganWali />
-          </div>
-        </ScrollReveal>
-      </div>
+        {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS WALI SANTRI */}
+        <div className="w-full my-auto py-1 sm:py-2 relative z-20 shrink-0">
+          <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
+            <div className="w-full bg-[#0F2C59]/85 backdrop-blur-xl border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.6)] rounded-3xl p-4 sm:p-5 space-y-2 relative z-20">
+              <span className="text-[11px] sm:text-xs text-amber-200/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
+                Kepada Yth. Bapak/Ibu Wali Santri dari:
+              </span>
 
-      {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS WALI SANTRI */}
-      <div className="w-full max-w-lg mx-auto my-auto py-2 relative z-20">
-        <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-          <div className="w-full bg-[#0F2C59]/80 backdrop-blur-xl border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.6)] rounded-3xl p-5 sm:p-6 space-y-3 relative z-20">
-            <span className="text-[11px] sm:text-xs text-amber-200/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
-              Kepada Yth. Bapak/Ibu Wali Santri dari:
-            </span>
+              <h2 className="text-xl sm:text-2xl font-serif font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-snug">
+                {formatTitleCase(santri?.nama || item?.entitas?.nama || item?.nama || '') || (
+                  <SkeletonText width="65%" height="1.75rem" className="mx-auto my-1" />
+                )}
+              </h2>
 
-            <h2 className="text-xl sm:text-2xl font-serif font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-snug">
-              {formatTitleCase(santri?.nama || item?.entitas?.nama || item?.nama || '') || (
-                <SkeletonText width="65%" height="1.75rem" className="mx-auto my-1" />
-              )}
-            </h2>
+              <div>
+                <div className="inline-block px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-amber-300 text-xs font-bold shadow-md max-w-full leading-normal break-words text-center">
+                  {santri
+                    ? santri.kamar && santri.kamar !== '-'
+                      ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
+                      : (cleanKategoriTamatan(santri.subKategori) || 'Santri')
+                    : (
+                      <SkeletonText width="5rem" height="0.875rem" className="mx-auto" />
+                    )}
+                </div>
+              </div>
 
-            <div>
-              <div className="inline-block px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-amber-300 text-xs font-bold shadow-md max-w-full leading-normal break-words text-center">
-                {santri
-                  ? santri.kamar && santri.kamar !== '-'
-                    ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
-                    : (cleanKategoriTamatan(santri.subKategori) || 'Santri')
-                  : (
-                    <SkeletonText width="5rem" height="0.875rem" className="mx-auto" />
-                  )}
+              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-400/60">
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+                <span className="text-xs">❖</span>
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
               </div>
             </div>
+          </ScrollReveal>
+        </div>
 
-            <div className="flex items-center justify-center gap-3 pt-1 text-amber-400/60">
-              <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
-              <span className="text-xs">❖</span>
-              <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
-            </div>
-          </div>
-        </ScrollReveal>
-      </div>
-
-      {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (GLASSMORPHISM MEWAH, SELALU DI BAWAH) */}
-      <div className="w-full max-w-lg mx-auto pb-4 sm:pb-6 relative z-20">
-        <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
-          <button
-            type="button"
-            onClick={onOpen}
-            className="w-full py-3.5 px-6 rounded-2xl bg-white/20 hover:bg-white/30 active:bg-white/35 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
-          >
-            <MailOpen className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span className="tracking-widest uppercase">Buka Undangan</span>
-          </button>
-        </ScrollReveal>
+        {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (SELALU MUNCUL DI VIEWPORT) */}
+        <div className="w-full pb-2.5 sm:pb-4 relative z-20 shrink-0">
+          <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
+            <button
+              type="button"
+              onClick={onOpen}
+              className="w-full py-3 sm:py-3.5 px-6 rounded-2xl bg-white/20 hover:bg-white/30 active:bg-white/35 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+            >
+              <MailOpen className="w-4 h-4 text-amber-300 animate-pulse" />
+              <span className="tracking-widest uppercase">Buka Undangan</span>
+            </button>
+          </ScrollReveal>
+        </div>
       </div>
     </div>
   );
