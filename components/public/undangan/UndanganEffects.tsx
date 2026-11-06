@@ -9,7 +9,7 @@ export function renderTamuName(item: any, isDark: boolean = false) {
   const namaPenerima = getNamaPenerima(item);
   return (
     <h2 className={`text-xl sm:text-2xl font-serif font-black tracking-wide text-center leading-snug ${
-      isDark ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]' : 'text-[#0F2C59]'
+      isDark ? 'text-white drop-shadow-md' : 'text-[#0F2C59]'
     }`}>
       {namaPenerima}
     </h2>

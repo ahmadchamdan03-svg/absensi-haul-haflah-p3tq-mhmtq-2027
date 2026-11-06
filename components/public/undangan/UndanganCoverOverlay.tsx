@@ -18,7 +18,7 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
   return (
     <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#0F2C59] text-white flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10 overflow-hidden">
       <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
-      <div className="max-w-md w-full bg-[#0F2C59]/80 backdrop-blur-xl border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.5)] rounded-3xl p-6 sm:p-8 space-y-6 relative z-20">
+      <div className="max-w-sm w-full bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-6 relative z-20">
         <div className="flex justify-center">
           <img
             src="/logo-haul-haflah-transparent.png"
@@ -122,8 +122,8 @@ export function UndanganCoverTamu({
         {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS PENERIMA */}
         <div className="w-full my-auto py-1 sm:py-2 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full bg-[#0F2C59]/85 backdrop-blur-xl border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.6)] rounded-3xl p-4 sm:p-5 space-y-2 relative z-20">
-              <span className="text-[11px] sm:text-xs text-amber-200/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
+            <div className="w-full max-w-sm mx-auto bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-2 relative z-20">
+              <span className="text-[11px] sm:text-xs text-white/80 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu/Saudara:
               </span>
 
@@ -139,10 +139,10 @@ export function UndanganCoverTamu({
                 </div>
               )}
 
-              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-400/60">
-                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-300/60">
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
                 <span className="text-xs">❖</span>
-                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
               </div>
             </div>
           </ScrollReveal>
@@ -220,19 +220,19 @@ export function UndanganCoverWali({
         {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS WALI SANTRI */}
         <div className="w-full my-auto py-1 sm:py-2 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full bg-[#0F2C59]/85 backdrop-blur-xl border border-white/20 shadow-[0_16px_48px_rgba(0,0,0,0.6)] rounded-3xl p-4 sm:p-5 space-y-2 relative z-20">
-              <span className="text-[11px] sm:text-xs text-amber-200/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
+            <div className="w-full max-w-sm mx-auto bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-2 relative z-20">
+              <span className="text-[11px] sm:text-xs text-white/80 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu Wali Santri dari:
               </span>
 
-              <h2 className="text-xl sm:text-2xl font-serif font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-snug">
+              <h2 className="text-xl sm:text-2xl font-serif font-black text-white drop-shadow-md leading-snug">
                 {formatTitleCase(santri?.nama || item?.entitas?.nama || item?.nama || '') || (
                   <SkeletonText width="65%" height="1.75rem" className="mx-auto my-1" />
                 )}
               </h2>
 
               <div>
-                <div className="inline-block px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-amber-300 text-xs font-bold shadow-md max-w-full leading-normal break-words text-center">
+                <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-amber-300 text-xs font-bold shadow-md max-w-full leading-normal break-words text-center">
                   {santri
                     ? santri.kamar && santri.kamar !== '-'
                       ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
@@ -243,10 +243,10 @@ export function UndanganCoverWali({
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-400/60">
-                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-300/60">
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
                 <span className="text-xs">❖</span>
-                <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
               </div>
             </div>
           </ScrollReveal>
