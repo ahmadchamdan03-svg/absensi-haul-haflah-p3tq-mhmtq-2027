@@ -20,7 +20,7 @@ export function ScrollReveal({
   ...rest
 }: ScrollRevealProps) {
   const initialVariants = {
-    'fade-up': { opacity: 0, y: 30 },
+    'fade-up': { opacity: 0, y: 40 },
     'zoom-in': { opacity: 0, scale: 0.9 },
     'scale': { opacity: 0, scale: 0.93, y: 15 },
   };

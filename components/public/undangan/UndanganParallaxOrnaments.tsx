@@ -17,7 +17,7 @@ export default function UndanganParallaxOrnaments({ isOpened }: { isOpened?: boo
   const rotateRight = useTransform(scrollY, [0, 1200], [0, -6]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none select-none -z-10 overflow-hidden">
       {/* 1. Ornamen Ranting Lemon Kiri Atas (Parallax) */}
       <motion.div
         style={{ y: yTopLeft, rotate: rotateLeft }}

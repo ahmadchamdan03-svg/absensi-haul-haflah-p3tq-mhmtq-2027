@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ReactLenis } from 'lenis/react';
 import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
 import { formatQrPayload } from '@/lib/hmac';
@@ -802,38 +804,55 @@ export default function UndanganWaliPage() {
   }
 
   return (
-    <div
-      className={`min-h-screen text-[#0F2C59] selection:bg-[#1D4ED8]/20 relative ${
-        !isOpened ? 'h-screen overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
-      }`}
-    >
-      {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR) */}
-      <CanvasRevealMask />
+    <ReactLenis root options={{ lerp: 0.08, duration: 1.2, smoothWheel: true }}>
+      <div
+        className={`min-h-[100dvh] bg-[#0F2C59] text-white selection:bg-amber-400/30 selection:text-white relative ${
+          !isOpened ? 'h-[100dvh] overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
+        }`}
+      >
+        {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR) */}
+        <CanvasRevealMask />
 
-      {/* ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING */}
-      <UndanganParallaxOrnaments isOpened={isOpened} />
+        {/* ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING */}
+        <UndanganParallaxOrnaments isOpened={isOpened} />
 
-      {/* Audio Elemen Tersembunyi */}
-      <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="none" />
+        {/* Audio Elemen Tersembunyi */}
+        <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="none" />
 
-      {/* Floating Music Button */}
-      <MusicToggle
-        isOpened={isOpened}
-        isPlayingMusic={isPlayingMusic}
-        toggleMusic={toggleMusic}
-      />
+        {/* Floating Music Button */}
+        <MusicToggle
+          isOpened={isOpened}
+          isPlayingMusic={isPlayingMusic}
+          toggleMusic={toggleMusic}
+        />
 
-      {/* ========================================================================= */}
-      {/* SKENARIO A: UNDANGAN TAMU UNDANGAN (UNDxxxx)                              */}
-      {/* ========================================================================= */}
-      {item?.tipe === 'UNDANGAN' || isTamuUndangan ? (
-        !isOpened ? (
-          <UndanganCoverOverlay
-            isTamu={true}
-            item={item}
-            onOpen={handleOpenInvitation}
-          />
-        ) : (
+        {/* LAYAR COVER CINEMATIC (SLIDE-UP MEWAH DENGAN FRAMER MOTION) */}
+        <AnimatePresence>
+          {!isOpened && (
+            <motion.div
+              key="cinematic-cover-slideup"
+              initial={{ y: 0, opacity: 1 }}
+              exit={{
+                y: '-100%',
+                opacity: 0.98,
+                transition: { duration: 0.95, ease: [0.22, 1, 0.36, 1] },
+              }}
+              className="fixed inset-0 z-50 overflow-hidden"
+            >
+              <UndanganCoverOverlay
+                isTamu={isTamuUndangan || item?.tipe === 'UNDANGAN'}
+                item={item}
+                santri={santri}
+                onOpen={handleOpenInvitation}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ========================================================================= */}
+        {/* KONTEN PORTAL UNDANGAN (TAMPIL DI BAWAH COVER DENGAN TRANSISI ELEGAN)     */}
+        {/* ========================================================================= */}
+        {item?.tipe === 'UNDANGAN' || isTamuUndangan ? (
           <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28">
             <TamuHeroAndEventSections
               item={item}
@@ -858,18 +877,6 @@ export default function UndanganWaliPage() {
               />
             )}
           </div>
-        )
-      ) : (
-        /* ========================================================================= */
-        /* SKENARIO B: UNDANGAN WALI SANTRI (SHxxxx)                                 */
-        /* ========================================================================= */
-        !isOpened ? (
-          <UndanganCoverOverlay
-            isTamu={false}
-            item={item}
-            santri={santri}
-            onOpen={handleOpenInvitation}
-          />
         ) : (
           <div className="relative z-10 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 animate-in fade-in duration-500 pb-28">
             <WaliHeroAndIdentitySections
@@ -926,22 +933,22 @@ export default function UndanganWaliPage() {
               totalDiverifikasi={totalDiverifikasi}
             />
           </div>
-        )
-      )}
+        )}
 
-      {/* FLOATING "USTH TANYA" BUTTON */}
-      <FloatingUsthTanyaButton
-        href={isTamuUndangan ? waUsTanyaLinkTamu : waUsTanyaLink}
-      />
+        {/* FLOATING "USTH TANYA" BUTTON */}
+        <FloatingUsthTanyaButton
+          href={isTamuUndangan ? waUsTanyaLinkTamu : waUsTanyaLink}
+        />
 
-      {/* MODAL DENAH LOKASI */}
-      <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
+        {/* MODAL DENAH LOKASI */}
+        <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />
 
-      {/* MODAL DAFTAR SHOHIBUL HAJAT */}
-      <DaftarShohibulHajatModal
-        isOpen={isDaftarPesertaOpen}
-        onClose={() => setIsDaftarPesertaOpen(false)}
-      />
-    </div>
+        {/* MODAL DAFTAR SHOHIBUL HAJAT */}
+        <DaftarShohibulHajatModal
+          isOpen={isDaftarPesertaOpen}
+          onClose={() => setIsDaftarPesertaOpen(false)}
+        />
+      </div>
+    </ReactLenis>
   );
 }
