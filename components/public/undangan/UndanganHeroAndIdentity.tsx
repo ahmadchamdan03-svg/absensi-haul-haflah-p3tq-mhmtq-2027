@@ -65,12 +65,12 @@ export function TamuHeroAndEventSections({
           </div>
 
           <div className="text-center space-y-1.5">
-            <span className="text-xs text-stone-500 uppercase tracking-wider font-semibold block">
+            <span className="text-xs font-serif font-bold uppercase tracking-wider text-[#0F2C59] block">
               Kepada Yth. Bapak/Ibu/Saudara:
             </span>
-            {renderTamuName(item)}
+            {renderTamuName(item, false)}
 
-            {renderAlamatTamu(item)}
+            {renderAlamatTamu(item, false)}
           </div>
 
           <div className="h-px bg-gradient-to-r from-transparent via-[#BAE6FD] to-transparent my-2" />

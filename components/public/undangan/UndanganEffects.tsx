@@ -5,7 +5,7 @@ import { Volume2, VolumeX, MessageCircle } from 'lucide-react';
 import { getNamaPenerima } from './types';
 
 // Helper Render Nama Tamu Undangan
-export function renderTamuName(item: any, isDark: boolean = true) {
+export function renderTamuName(item: any, isDark: boolean = false) {
   const namaPenerima = getNamaPenerima(item);
   return (
     <h2 className={`text-xl sm:text-2xl font-serif font-black tracking-wide text-center leading-snug ${
@@ -17,12 +17,12 @@ export function renderTamuName(item: any, isDark: boolean = true) {
 }
 
 // Helper Render Asal / Kota Tamu Undangan (Hanya Alamat/Kota, tanpa Instansi & Kategori)
-export function renderAlamatTamu(item: any, isDark: boolean = true) {
+export function renderAlamatTamu(item: any, isDark: boolean = false) {
   const alamat = item?.alamat && item.alamat !== '-' ? item.alamat.trim() : '';
   if (alamat) {
     return (
-      <p className={`text-xs font-medium pt-0.5 ${
-        isDark ? 'text-amber-200/90 drop-shadow-xs' : 'text-stone-500'
+      <p className={`text-xs font-bold pt-0.5 tracking-wide ${
+        isDark ? 'text-amber-200/90 drop-shadow-xs' : 'text-blue-800'
       }`}>
         {alamat}
       </p>
