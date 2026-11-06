@@ -205,16 +205,14 @@ export default function CanvasRevealMask() {
       className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Efek siluet mewah & redup agar tidak merusak keterbacaan teks) */}
+      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Terang, Jelas, Warna Asli Tanpa Filter) */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <div className="relative shrink-0 overflow-hidden w-full h-full">
           <img
             src="/images/panggung-aula.jpg"
             alt="Panggung Aula Al-Muktamar"
-            className="w-full h-full object-cover object-center opacity-30 mix-blend-luminosity filter brightness-75 contrast-125"
+            className="w-full h-full object-cover object-center"
           />
-          {/* Overlay Deep Navy halus agar riak kuas singkap panggung berpadu harmonis dengan background */}
-          <div className="absolute inset-0 bg-[#0F2C59]/60 pointer-events-none" />
 
           {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
           <canvas
