@@ -4,6 +4,41 @@ import { getSessionRole } from '@/lib/auth-server';
 import { generateUniqueKodeFromDb } from '@/lib/utils';
 import { store } from '@/lib/mock-data';
 
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const kode = searchParams.get('kode');
+    const id = searchParams.get('id');
+
+    if (!kode && !id) {
+      const { data, error } = await supabaseServer
+        .from('tamu_undangan')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) {
+        return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      }
+      return NextResponse.json({ ok: true, data: data || [] });
+    }
+
+    let query = supabaseServer.from('tamu_undangan').select('*');
+    if (id) query = query.eq('id', id);
+    else if (kode) query = query.eq('kode', kode);
+
+    const { data, error } = await query.maybeSingle();
+    if (error) {
+      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    }
+    if (!data) {
+      return NextResponse.json({ ok: false, notFound: true, error: 'Data tamu tidak ditemukan atau telah dihapus.' }, { status: 200 });
+    }
+
+    return NextResponse.json({ ok: true, data });
+  } catch (err: any) {
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   const role = getSessionRole(req);
   if (!role) {

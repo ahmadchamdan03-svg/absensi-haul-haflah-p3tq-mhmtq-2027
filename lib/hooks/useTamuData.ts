@@ -227,15 +227,22 @@ export function useTamuData() {
   useEffect(() => {
     fetchTamuData();
 
+    const channelId = `penerima_tamu_realtime_${Math.random().toString(36).substring(2, 9)}`;
     const channel = supabase
-      .channel('penerima_tamu_realtime')
+      .channel(channelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchTamuData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchTamuData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchTamuData)
-      .subscribe();
+      .subscribe((status, err) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          // Graceful handling to prevent uncaught console websocket errors
+        }
+      });
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        supabase.removeChannel(channel);
+      } catch {}
     };
   }, [fetchTamuData]);
 

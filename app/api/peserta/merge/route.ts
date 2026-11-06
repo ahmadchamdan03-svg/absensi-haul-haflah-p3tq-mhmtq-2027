@@ -17,19 +17,23 @@ export async function POST(req: NextRequest) {
     const { action } = body;
 
     // =========================================================================
-    // 1. DETEKSI DUPLIKASI OTOMATIS (NAMA SAMA & KOTA ASAL SAMA)
+    // 1. DETEKSI DUPLIKASI OTOMATIS
+    // Santri: Nama Siswi sama DAN Nama Wali sama
+    // Tamu: Nama Tamu sama DAN Kota (kata terakhir alamat) sama
     // =========================================================================
     if (action === 'detect') {
-      const { nama, alamat, type } = body;
+      const { nama, alamat, nama_wali, namaWali, type } = body;
       if (!nama || !nama.trim()) {
         return NextResponse.json({ detected: false });
       }
 
-      const cleanNama = nama.trim().toUpperCase();
+      const cleanNama = nama.trim().toUpperCase().replace(/\s+/g, ' ');
       const rawAlamat = (alamat || '').trim().toUpperCase();
-      const lastWordAlamat = rawAlamat.split(/\s+/).pop() || '';
+      const lastWordAlamat = rawAlamat.split(/[\s,.-]+/).pop() || '';
+      const cleanWali = (nama_wali || namaWali || '').trim().toUpperCase().replace(/\s+/g, ' ');
 
-      const tableName = type === 'SANTRI' ? 'peserta_santri' : 'tamu_undangan';
+      const isSantri = type === 'SANTRI';
+      const tableName = isSantri ? 'peserta_santri' : 'tamu_undangan';
       const { data: rows, error } = await supabaseServer
         .from(tableName)
         .select('*')
@@ -39,12 +43,23 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ detected: false });
       }
 
-      // Cari yang kota asalnya (kata terakhir alamat) cocok persis
+      // Deteksi kecocokan berdasarkan aturan baru
       const matched = rows.find(r => {
-        const rAlamat = (r.alamat || '').trim().toUpperCase();
-        if (!rAlamat || !lastWordAlamat) return true;
-        const rLastWord = rAlamat.split(/\s+/).pop() || '';
-        return rLastWord === lastWordAlamat || rAlamat.includes(lastWordAlamat) || lastWordAlamat.includes(rLastWord);
+        const rNama = (r.nama || '').trim().toUpperCase().replace(/\s+/g, ' ');
+        if (rNama !== cleanNama) return false;
+
+        if (isSantri) {
+          // Aturan 1 (Santri): Nama Siswi sama DAN Nama Wali sama
+          const rWali = (r.nama_wali || '').trim().toUpperCase().replace(/\s+/g, ' ');
+          if (!cleanWali || !rWali || cleanWali === '-' || rWali === '-') return true;
+          return rWali === cleanWali || rWali.includes(cleanWali) || cleanWali.includes(rWali);
+        } else {
+          // Aturan 2 (Tamu): Nama Tamu sama DAN Kota (kata terakhir alamat) sama
+          const rAlamat = (r.alamat || '').trim().toUpperCase();
+          if (!rAlamat || !lastWordAlamat) return true;
+          const rLastWord = rAlamat.split(/[\s,.-]+/).pop() || '';
+          return rLastWord === lastWordAlamat || rAlamat.includes(lastWordAlamat) || lastWordAlamat.includes(rLastWord);
+        }
       });
 
       if (!matched) {
@@ -56,6 +71,7 @@ export async function POST(req: NextRequest) {
         record: {
           id: matched.id,
           nama: matched.nama,
+          nama_wali: matched.nama_wali || '-',
           alamat: matched.alamat,
           kode: matched.kode,
           kategori: matched.kategori || matched.sub_kategori || matched.kategori_utama,
@@ -66,7 +82,7 @@ export async function POST(req: NextRequest) {
     }
 
     // =========================================================================
-    // 2. MERGE DATA (GABUNGKAN PESERTA)
+    // 2. MERGE DATA (GABUNGKAN PESERTA DENGAN VALIDASI KETAT & PRIORITAS)
     // =========================================================================
     if (action === 'merge') {
       const { items } = body as { items: Array<{ id: string; table: 'tamu_undangan' | 'peserta_santri' }> };
@@ -82,11 +98,20 @@ export async function POST(req: NextRequest) {
       const santriIds = items.filter(i => i.table === 'peserta_santri').map(i => i.id);
 
       const [resTamu, resSantri] = await Promise.all([
-        tamuIds.length > 0 ? supabaseServer.from('tamu_undangan').select('id, nama, alamat, kategori, sub_kategori, kuota_terpakai, merged_group_id').in('id', tamuIds) : { data: [], error: null },
-        santriIds.length > 0 ? supabaseServer.from('peserta_santri').select('id, nama, alamat, sub_kategori, kategori_utama, kuota_terpakai, merged_group_id').in('id', santriIds) : { data: [], error: null },
+        tamuIds.length > 0 ? supabaseServer.from('tamu_undangan').select('id, nama, alamat, no_hp, instansi, kategori, sub_kategori, kuota_terpakai, merged_group_id').in('id', tamuIds) : { data: [], error: null },
+        santriIds.length > 0 ? supabaseServer.from('peserta_santri').select('id, nama, nama_wali, alamat, no_hp, kamar, kelas, sub_kategori, kategori_utama, kuota_terpakai, merged_group_id').in('id', santriIds) : { data: [], error: null },
       ]);
 
-      const allRecords = [...(resTamu.data || []), ...(resSantri.data || [])];
+      const tamuRecords = resTamu.data || [];
+      const santriRecords = resSantri.data || [];
+      const allRecords = [...tamuRecords, ...santriRecords];
+
+      if (allRecords.length < items.length) {
+        return NextResponse.json(
+          { ok: false, error: 'Sebagian data peserta tidak ditemukan atau telah dihapus.' },
+          { status: 404 }
+        );
+      }
 
       // Kumpulkan variasi sub-kategori
       const subKategoriVariations = Array.from(
@@ -106,29 +131,56 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // ⚠️ ATURAN KETAT 2: Validasi Syarat Merge — Nama & Alamat (Kota) harus cocok persis
-      const firstRec = allRecords[0];
-      const normFirstNama = (firstRec.nama || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      // Helper normalisasi
+      const normText = (s?: string | null) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
       const getCity = (al?: string | null) => {
         if (!al) return '';
         const parts = al.trim().split(/[\s,.-]+/);
         return parts.pop()?.toLowerCase() || '';
       };
-      const firstCity = getCity(firstRec.alamat);
 
-      const isMismatched = allRecords.slice(1).some(r => {
-        const normNama = (r.nama || '').trim().toLowerCase().replace(/\s+/g, ' ');
-        const city = getCity(r.alamat);
-        const nameMatch = normNama === normFirstNama || normNama.includes(normFirstNama) || normFirstNama.includes(normNama);
-        const cityMatch = !firstCity || !city || firstCity === city || firstCity.includes(city) || city.includes(firstCity);
-        return !nameMatch || !cityMatch;
-      });
+      // ⚠️ ATURAN KETAT 2: Validasi Syarat Merge Santri (Nama Siswi sama DAN Nama Wali sama)
+      if (santriRecords.length > 1) {
+        const firstSantri = santriRecords[0];
+        const firstNama = normText(firstSantri.nama);
+        const firstWali = normText(firstSantri.nama_wali);
 
-      if (isMismatched) {
-        return NextResponse.json(
-          { ok: false, error: 'Gagal menggabungkan: Nama dan Alamat (Kota) seluruh data harus cocok persis.' },
-          { status: 400 }
-        );
+        const santriMismatch = santriRecords.slice(1).some(r => {
+          const rNama = normText(r.nama);
+          const rWali = normText(r.nama_wali);
+          const nameMatches = rNama === firstNama || rNama.includes(firstNama) || firstNama.includes(rNama);
+          const waliMatches = !firstWali || !rWali || firstWali === '-' || rWali === '-' || firstWali === rWali || firstWali.includes(rWali) || rWali.includes(firstWali);
+          return !nameMatches || !waliMatches;
+        });
+
+        if (santriMismatch) {
+          return NextResponse.json(
+            { ok: false, error: 'Gagal menggabungkan: Nama Siswi dan Nama Wali seluruh data santri harus cocok.' },
+            { status: 400 }
+          );
+        }
+      }
+
+      // ⚠️ ATURAN KETAT 3: Validasi Syarat Merge Tamu (Nama Tamu sama DAN Kota/Alamat sama)
+      if (tamuRecords.length > 1) {
+        const firstTamu = tamuRecords[0];
+        const firstNama = normText(firstTamu.nama);
+        const firstCity = getCity(firstTamu.alamat);
+
+        const tamuMismatch = tamuRecords.slice(1).some(r => {
+          const rNama = normText(r.nama);
+          const rCity = getCity(r.alamat);
+          const nameMatches = rNama === firstNama || rNama.includes(firstNama) || firstNama.includes(rNama);
+          const cityMatches = !firstCity || !rCity || firstCity === rCity || firstCity.includes(rCity) || rCity.includes(firstCity);
+          return !nameMatches || !cityMatches;
+        });
+
+        if (tamuMismatch) {
+          return NextResponse.json(
+            { ok: false, error: 'Gagal menggabungkan: Nama Tamu dan Alamat (Kota) seluruh data tamu harus cocok.' },
+            { status: 400 }
+          );
+        }
       }
 
       // Tentukan target merged_group_id
@@ -136,20 +188,47 @@ export async function POST(req: NextRequest) {
       const targetGroupId = existingGroupId || crypto.randomUUID();
 
       const updatePromises: PromiseLike<any>[] = [];
+
+      // ⚠️ ATURAN KETAT 4: Prioritas Data Santri: BIL_GHOIB (3) > TAMATAN (2) > BIN_NADZOR (1)
+      // Timpa data dari kategori rendah dengan data dari kategori tertinggi (alamat, no_hp, kamar)
+      if (santriRecords.length > 0) {
+        const getSantriPriority = (kat: string = '') => {
+          const k = kat.toUpperCase();
+          if (k.includes('BIL_GHOIB') || k.includes('GHOIB')) return 3;
+          if (k.includes('TAMATAN')) return 2;
+          if (k.includes('BIN_NADZOR') || k.includes('NADZOR')) return 1;
+          return 0;
+        };
+
+        const sortedSantri = [...santriRecords].sort(
+          (a, b) => getSantriPriority(b.kategori_utama) - getSantriPriority(a.kategori_utama)
+        );
+        const masterSantri = sortedSantri[0];
+
+        const targetAlamat = masterSantri.alamat || 'Kediri';
+        const targetNoHp = masterSantri.no_hp || '-';
+        const targetKamar = masterSantri.kamar || '-';
+
+        updatePromises.push(
+          supabaseServer
+            .from('peserta_santri')
+            .update({
+              merged_group_id: targetGroupId,
+              alamat: targetAlamat,
+              no_hp: targetNoHp,
+              kamar: targetKamar,
+              updated_at: new Date().toISOString(),
+            })
+            .in('id', santriIds)
+        );
+      }
+
       if (tamuIds.length > 0) {
         updatePromises.push(
           supabaseServer
             .from('tamu_undangan')
             .update({ merged_group_id: targetGroupId, updated_at: new Date().toISOString() })
             .in('id', tamuIds)
-        );
-      }
-      if (santriIds.length > 0) {
-        updatePromises.push(
-          supabaseServer
-            .from('peserta_santri')
-            .update({ merged_group_id: targetGroupId, updated_at: new Date().toISOString() })
-            .in('id', santriIds)
         );
       }
 
@@ -159,7 +238,7 @@ export async function POST(req: NextRequest) {
         ok: true,
         merged_group_id: targetGroupId,
         sub_kategori_list: subKategoriVariations,
-        pesan: `Berhasil menggabungkan ${allRecords.length} data peserta.`,
+        pesan: `Berhasil menggabungkan ${allRecords.length} data peserta dengan sinkronisasi prioritas data.`,
       });
     }
 

@@ -215,16 +215,23 @@ export function usePesertaData() {
       }
     }
 
+    const channelId = `peserta_page_realtime_${Math.random().toString(36).substring(2, 9)}`;
     const channel = supabase
-      .channel('peserta_page_realtime')
+      .channel(channelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, refreshData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, refreshData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, refreshData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, refreshData)
-      .subscribe();
+      .subscribe((status, err) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          // Graceful handling to prevent uncaught console websocket errors
+        }
+      });
 
     return () => {
-      supabase.removeChannel(channel);
+      try {
+        supabase.removeChannel(channel);
+      } catch {}
     };
   }, []);
 
@@ -497,8 +504,9 @@ export function usePesertaData() {
       } else {
         const kat = (item.kategoriUtama || '').toUpperCase();
         if (kat.includes('BIL_GHOIB') || kat.includes('GHOIB')) return 3;
-        if (kat.includes('BIN_NADZOR') || kat.includes('NADZOR')) return 2;
-        return 1;
+        if (kat.includes('TAMATAN')) return 2;
+        if (kat.includes('BIN_NADZOR') || kat.includes('NADZOR')) return 1;
+        return 0;
       }
     };
 
