@@ -222,17 +222,13 @@ export function getWarnaTiketUndangan(golongan?: string, kategori?: string): str
   }
 
   if (gol === 'ISTIMEWA' || gol === 'UNDANGAN_ISTIMEWA') {
-    if (kat.includes('ids')) {
-      return 'Biru';
-    }
-    return '';
+    return 'Cream';
   }
 
   if (gol === 'KEHORMATAN' || gol === 'UNDANGAN_KEHORMATAN') {
     return '';
   }
 
-  if (kat.includes('ids')) return 'Biru';
   if (
     kat.includes('vvip') ||
     kat.includes('marzuqi') ||
@@ -244,8 +240,12 @@ export function getWarnaTiketUndangan(golongan?: string, kategori?: string): str
     kat.includes('bandar') ||
     kat.includes('kunir') ||
     kat.includes('blitar') ||
-    kat.includes('kehormatan')
+    kat.includes('ids')
   ) {
+    return 'Cream';
+  }
+
+  if (kat.includes('kehormatan')) {
     return '';
   }
 

@@ -5,15 +5,15 @@ import * as XLSX from 'xlsx';
 // Definisikan 20 Rincian Sub-Kategori Tamu Undangan (Blok 3) Terkelompok Berdasarkan 3 Kategori Utama
 export const BLOK_3_SUBKATEGORI_DEFINITIONS = [
   // ── KATEGORI UTAMA 1: TAMU ISTIMEWA ──
-  { no: 16, kategoriUtama: 'Tamu Istimewa', kategori: 'VVIP', matchers: ['vvip'], warna: '' },
-  { no: 17, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Marzuqi', matchers: ['marzuqi'], warna: '' },
-  { no: 18, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Qomariyah', matchers: ['qomariyah'], warna: '' },
-  { no: 19, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Mahrus (Zainab)', matchers: ['mahrus', 'zainab'], warna: '' },
-  { no: 20, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Salamah', matchers: ['salamah'], warna: '' },
-  { no: 21, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: '' },
-  { no: 22, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bandar', matchers: ['bandar'], warna: '' },
-  { no: 23, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: '' },
-  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Biru' },
+  { no: 16, kategoriUtama: 'Tamu Istimewa', kategori: 'VVIP', matchers: ['vvip'], warna: 'Cream' },
+  { no: 17, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Marzuqi', matchers: ['marzuqi'], warna: 'Cream' },
+  { no: 18, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Qomariyah', matchers: ['qomariyah'], warna: 'Cream' },
+  { no: 19, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Mahrus (Zainab)', matchers: ['mahrus', 'zainab'], warna: 'Cream' },
+  { no: 20, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Salamah', matchers: ['salamah'], warna: 'Cream' },
+  { no: 21, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bani Aisyah', matchers: ['aisyah'], warna: 'Cream' },
+  { no: 22, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Bandar', matchers: ['bandar'], warna: 'Cream' },
+  { no: 23, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP Keluarga Kunir – Blitar', matchers: ['kunir', 'blitar'], warna: 'Cream' },
+  { no: 24, kategoriUtama: 'Tamu Istimewa', kategori: 'VIP IDS', matchers: ['vip ids', 'ids'], warna: 'Cream' },
 
   // ── KATEGORI UTAMA 2: TAMU KEHORMATAN ──
   { no: 25, kategoriUtama: 'Tamu Kehormatan', kategori: 'Tamu Kehormatan', matchers: ['kehormatan', 'tamu kehormatan', 'undangan_kehormatan'], warna: '' },
@@ -283,17 +283,22 @@ export async function fetchLaporanDataFromSupabase() {
       );
   }
 
-  const santriList = rawSantri.map((s: any) => ({
-    ...s,
-    warna_tiket: getWarnaTiketSantri(s.kategori_utama, s.sub_kategori),
-  }));
+  const santriList = rawSantri.map((s: any) => {
+    const rawWarna = s.warna_tiket && String(s.warna_tiket).trim() !== '' && s.warna_tiket !== '-' ? s.warna_tiket : null;
+    return {
+      ...s,
+      warna_tiket: rawWarna || getWarnaTiketSantri(s.kategori_utama, s.sub_kategori),
+    };
+  });
 
   const tamuList = rawTamu.map((u: any) => {
+    // 100% baca nilai warna_tiket dari kolom database Supabase
+    const rawWarna = u.warna_tiket && String(u.warna_tiket).trim() !== '' && u.warna_tiket !== '-' ? u.warna_tiket : null;
     const gol = (u.sub_kategori || u.golongan || '').toUpperCase();
     const isUmum = gol === 'UMUM' || gol === 'UNDANGAN_UMUM' || gol === 'TAMU_UMUM';
     return {
       ...u,
-      warna_tiket: isUmum ? 'Biru' : (u.warna_tiket || getWarnaTiketUndangan(u.sub_kategori, u.kategori)),
+      warna_tiket: rawWarna || (isUmum ? 'Biru' : getWarnaTiketUndangan(u.sub_kategori, u.kategori)),
     };
   });
 
