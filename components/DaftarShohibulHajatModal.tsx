@@ -92,15 +92,18 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
     };
   }, [isOpen]);
 
-  // 1. Kunci scroll background saat modal terbuka & cegah scroll leak
+  // 1. Kunci scroll background saat modal terbuka & cegah scroll leak di PC & mobile
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -164,12 +167,15 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-[#BAE6FD] overflow-hidden animate-in zoom-in-95">
+      <div
+        onWheel={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl max-h-[85vh] flex flex-col bg-white rounded-3xl shadow-2xl border-2 border-[#BAE6FD] overflow-hidden animate-in zoom-in-95"
+      >
         {/* HEADER MODAL */}
         <div className="p-4 sm:p-5 border-b border-[#E8DFD5] bg-[#F0F9FF] flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-2.5">
@@ -256,8 +262,13 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
           </div>
         </div>
 
-        {/* LIST DAFTAR PESERTA (SCROLLABLE DENGAN OVERSCROLL-CONTAIN, MAKS 60VH) */}
-        <div className="flex-1 max-h-[60vh] overflow-y-auto overscroll-contain p-3 sm:p-4 space-y-2.5 bg-[#F0F9FF]">
+        {/* LIST DAFTAR PESERTA (DATA-LENIS-PREVENT, OVERSCROLL-CONTAIN, SCROLLABLE INTERNAL) */}
+        <div
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4 space-y-2.5 bg-[#F0F9FF]"
+        >
           {loading ? (
             <div className="py-12 text-center space-y-2">
               <Loader2 className="w-8 h-8 animate-spin text-[#1D4ED8] mx-auto" />
