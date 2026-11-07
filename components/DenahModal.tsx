@@ -19,6 +19,21 @@ export default function DenahModal({ isOpen, onClose, initialLocationId }: Denah
     setMounted(true);
   }, []);
 
+  // Kunci scroll background saat modal Denah terbuka di PC & mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!mounted) return null;
 
   const modalJSX = (
@@ -37,6 +52,7 @@ export default function DenahModal({ isOpen, onClose, initialLocationId }: Denah
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
+            onWheel={(e) => e.stopPropagation()}
             className="relative w-full max-w-6xl max-h-[94vh] flex flex-col rounded-3xl overflow-y-auto lg:overflow-hidden shadow-2xl bg-[#F0F9FF]/95 backdrop-blur-2xl border border-white/60 motion-reduce:transform-none"
             onClick={(e) => e.stopPropagation()}
           >

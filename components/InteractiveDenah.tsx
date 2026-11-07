@@ -329,6 +329,9 @@ export default function InteractiveDenah({
         <div className="w-full lg:w-2/3 lg:h-[70vh] flex flex-col rounded-2xl overflow-hidden border border-white/60 bg-stone-900/95 shadow-lg relative min-h-[380px] sm:min-h-[440px] shrink-0">
           <div
             ref={containerRef}
+            data-lenis-prevent
+            data-lenis-prevent-wheel
+            data-lenis-prevent-touch
             onWheel={handleWheel}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
@@ -405,8 +408,13 @@ export default function InteractiveDenah({
           </div>
         </div>
 
-        {/* SISI KANAN (AREA DAFTAR): 1/3 LAYAR DI PC DENGAN SCROLL MANDIRI, H-AUTO DI HP */}
-        <div className="w-full lg:w-1/3 h-auto lg:h-[70vh] lg:overflow-y-auto pr-1 sm:pr-2 mt-4 lg:mt-0 space-y-3">
+        {/* SISI KANAN (AREA DAFTAR): 1/3 LAYAR DI PC DENGAN SCROLL MANDIRI & DATA-LENIS-PREVENT */}
+        <div
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          className="w-full lg:w-1/3 h-auto lg:h-[70vh] lg:overflow-y-auto overscroll-contain pr-1 sm:pr-2 mt-4 lg:mt-0 space-y-3"
+        >
           {/* SEARCH & FILTER TAB */}
           <div className="flex flex-col gap-2.5">
             <div className="relative w-full">
