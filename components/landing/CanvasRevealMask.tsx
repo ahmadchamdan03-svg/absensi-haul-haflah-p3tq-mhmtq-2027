@@ -46,15 +46,15 @@ export default function CanvasRevealMask({
 
     function resize() {
       if (!canvas || !ctx) return;
-      const rect = canvas.getBoundingClientRect();
-      w = rect.width || window.innerWidth;
-      h = rect.height || window.innerHeight;
+      // Gunakan ukuran viewport window penuh agar menutupi 100% layar PC dan responsif saat resize
+      w = window.innerWidth;
+      h = window.innerHeight;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
 
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
@@ -63,6 +63,7 @@ export default function CanvasRevealMask({
 
     resize();
     window.addEventListener('resize', resize, { passive: true });
+    window.addEventListener('orientationchange', resize, { passive: true });
 
     const stamps: Stamp[] = [];
     let lastX: number | null = null;
@@ -197,6 +198,7 @@ export default function CanvasRevealMask({
 
     return () => {
       window.removeEventListener('resize', resize);
+      window.removeEventListener('orientationchange', resize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
@@ -212,14 +214,12 @@ export default function CanvasRevealMask({
       className={className}
       aria-hidden="true"
     >
-      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Utuh, Terang, Tidak Ter-zoom Berlebihan dengan object-contain) */}
-      <div className="absolute inset-0 w-full h-full bg-[#0F2C59] z-0 flex items-center justify-center overflow-hidden">
-        <img
-          src="/images/panggung-aula.jpg"
-          alt="Panggung Aula Al-Muktamar"
-          className="w-full h-full object-contain object-center select-none"
-        />
-      </div>
+      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Full-screen Cover di Seluruh Layar PC & Mobile) */}
+      <img
+        src="/images/panggung-aula.jpg"
+        alt="Panggung Aula Al-Muktamar"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0 select-none pointer-events-none"
+      />
 
       {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
       <canvas

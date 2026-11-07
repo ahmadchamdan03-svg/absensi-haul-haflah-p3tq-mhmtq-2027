@@ -79,16 +79,10 @@ export function UndanganCoverTamu({
 }) {
   return (
     <div
-      className="h-[100dvh] max-h-[100dvh] w-full flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
+      className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
     >
-      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR) */}
+      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR PENUH FULL SCREEN PC & MOBILE) */}
       <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
-
-      {/* OVERLAY GRADIEN DEEP NAVY ATAS (HILANGKAN BEKAS TEKS CDR & TONJOLKAN LOGO) */}
-      <div className="absolute top-0 inset-x-0 h-44 sm:h-60 bg-gradient-to-b from-[#0F2C59] via-[#0F2C59]/95 to-transparent pointer-events-none z-15" />
-
-      {/* OVERLAY GRADIEN DEEP NAVY BAWAH (TONJOLKAN TOMBOL) */}
-      <div className="absolute bottom-0 inset-x-0 h-28 sm:h-36 bg-gradient-to-t from-[#0F2C59] via-[#0F2C59]/80 to-transparent pointer-events-none z-15" />
 
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS) */}
       <motion.img
@@ -177,16 +171,10 @@ export function UndanganCoverWali({
 }) {
   return (
     <div
-      className="h-[100dvh] max-h-[100dvh] w-full flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
+      className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
     >
-      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR) */}
+      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR PENUH FULL SCREEN PC & MOBILE) */}
       <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
-
-      {/* OVERLAY GRADIEN DEEP NAVY ATAS (HILANGKAN BEKAS TEKS CDR & TONJOLKAN LOGO) */}
-      <div className="absolute top-0 inset-x-0 h-44 sm:h-60 bg-gradient-to-b from-[#0F2C59] via-[#0F2C59]/95 to-transparent pointer-events-none z-15" />
-
-      {/* OVERLAY GRADIEN DEEP NAVY BAWAH (TONJOLKAN TOMBOL) */}
-      <div className="absolute bottom-0 inset-x-0 h-28 sm:h-36 bg-gradient-to-t from-[#0F2C59] via-[#0F2C59]/80 to-transparent pointer-events-none z-15" />
 
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS) */}
       <motion.img
