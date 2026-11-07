@@ -112,9 +112,9 @@ export function UndanganCoverTamu({
         </div>
 
         {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS PENERIMA */}
-        <div className="w-full my-auto py-2 sm:py-3 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full max-w-md md:max-w-lg mx-auto bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
+            <div className="w-full bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
               <span className="text-[11px] sm:text-xs text-white/80 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu/Saudara:
               </span>
@@ -140,8 +140,8 @@ export function UndanganCoverTamu({
           </ScrollReveal>
         </div>
 
-        {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (SELALU MUNCUL DI VIEWPORT) */}
-        <div className="w-full max-w-xs sm:max-w-sm mx-auto mb-3 sm:mb-4 relative z-20 shrink-0">
+        {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (LEBAR SELARAS & SEJAJAR DENGAN KOTAK IDENTITAS) */}
+        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
             <button
               type="button"
@@ -202,9 +202,9 @@ export function UndanganCoverWali({
         </div>
 
         {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS WALI SANTRI */}
-        <div className="w-full my-auto py-2 sm:py-3 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full max-w-md md:max-w-lg mx-auto bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
+            <div className="w-full bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
               <span className="text-[11px] sm:text-xs text-white/80 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu Wali Santri dari:
               </span>
@@ -236,8 +236,8 @@ export function UndanganCoverWali({
           </ScrollReveal>
         </div>
 
-        {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (SELALU MUNCUL DI VIEWPORT) */}
-        <div className="w-full max-w-xs sm:max-w-sm mx-auto mb-3 sm:mb-4 relative z-20 shrink-0">
+        {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (LEBAR SELARAS & SEJAJAR DENGAN KOTAK IDENTITAS) */}
+        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
             <button
               type="button"
