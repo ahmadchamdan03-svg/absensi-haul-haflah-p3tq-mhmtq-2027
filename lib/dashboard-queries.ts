@@ -28,7 +28,7 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
       .order('created_at', { ascending: false }),
     supabase
       .from('tamu_undangan')
-      .select('id, kode, nama, nama_putra, nama_putri, instansi, alamat, kategori, sub_kategori, no_hp, kuota_terpakai, created_at, updated_at')
+      .select('id, kode, nama, nama_putra, nama_putri, instansi, alamat, kategori, sub_kategori, warna_tiket, no_hp, kuota_terpakai, created_at, updated_at')
       .order('created_at', { ascending: false }),
     supabase
       .from('presensi_log')
@@ -224,7 +224,9 @@ export async function fetchDashboardMetrics(): Promise<DashboardMetricsResult> {
       tipe: 'UNDANGAN',
       nama: u.nama,
       namaWali: u.instansi || u.alamat || 'Tamu Undangan',
-      subInfo: `Instansi: ${u.instansi || u.alamat || '-'} (${u.kategori || 'Tamu'})`,
+      subInfo: '', // Hapus teks Instansi untuk Tamu Undangan di live dashboard
+      instansi: u.instansi || '',
+      warnaTiket: u.warna_tiket || (u.sub_kategori === 'ISTIMEWA' ? 'Cream' : 'Biru'),
       kategori: u.kategori || 'Tamu Undangan',
       subKategori: u.sub_kategori || 'ISTIMEWA',
       kelas: u.sub_kategori || 'VIP IDS',

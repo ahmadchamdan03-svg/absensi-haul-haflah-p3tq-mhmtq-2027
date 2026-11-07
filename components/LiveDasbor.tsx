@@ -462,38 +462,60 @@ export default function LiveDasbor({ isPimpinanView = false }: LiveDasborProps) 
                           : 'bg-blue-100 text-blue-900 border border-blue-200'
                       }`}
                     >
-                      {item.tipe === 'UNDANGAN' ? 'Tamu Undangan' : 'Wali Santri'}
+                      {item.tipe === 'UNDANGAN'
+                        ? (item.subKategori ? `Tamu Undangan • ${item.subKategori}` : 'Tamu Undangan')
+                        : 'Wali Santri'}
                     </span>
+                    {item.tipe === 'UNDANGAN' && item.warnaTiket && (
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                          String(item.warnaTiket).toLowerCase() === 'cream'
+                            ? 'bg-amber-100 text-amber-900 border-amber-300'
+                            : 'bg-sky-100 text-sky-900 border-sky-300'
+                        }`}
+                      >
+                        Tiket: {item.warnaTiket}
+                      </span>
+                    )}
                   </div>
 
                   {/* Badge Status Kehadiran */}
-                  <div className="shrink-0 self-start sm:self-center">
+                  <div className="shrink-0 self-start sm:self-center text-right">
                     {(() => {
                       const totalK = item.kuotaTotal !== undefined ? item.kuotaTotal : (Number(item.kuotaDasar || 0) + Number(item.kuotaTambahan || 0));
-                      return item.isHadir ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-200 text-blue-950 font-black text-[11px] whitespace-nowrap shadow-2xs">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
-                          <span>HADIR ({item.terpakai}/{totalK} Kursi)</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-200 text-stone-700 font-semibold text-[11px] whitespace-nowrap shadow-2xs">
-                          <Clock className="w-3.5 h-3.5 text-stone-500" />
-                          <span>BELUM HADIR (0/{totalK} Kursi)</span>
-                        </span>
+                      return (
+                        <div className="flex flex-col items-end gap-0.5">
+                          {item.isHadir ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-200 text-blue-950 font-black text-[11px] whitespace-nowrap shadow-2xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
+                              <span>HADIR ({item.terpakai}/{totalK} Kursi)</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-200 text-stone-700 font-semibold text-[11px] whitespace-nowrap shadow-2xs">
+                              <Clock className="w-3.5 h-3.5 text-stone-500" />
+                              <span>BELUM HADIR (0/{totalK} Kursi)</span>
+                            </span>
+                          )}
+                          {item.isHadir && item.lastCheckinTime && (
+                            <span className="text-[10px] text-stone-500 font-mono">
+                              {new Date(item.lastCheckinTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB
+                            </span>
+                          )}
+                        </div>
                       );
                     })()}
                   </div>
                 </div>
 
                 {/* Baris 2 (Tengah): [Nama Lengkap Siswi / Tamu] - w-full mt-2 text-lg font-bold tanpa truncate */}
-                <div className="w-full mt-1">
+                <div className="w-full mt-0.5">
                   <h4 className="font-serif font-black text-base sm:text-lg text-[#0F2C59] whitespace-normal break-words leading-snug">
                     {item.nama}
                   </h4>
                 </div>
 
-                {/* Baris 3 (Bawah): [Info Wali: Nama Wali / Lembaga] - w-full mt-1 text-sm text-gray-600 tanpa truncate */}
-                {item.subInfo && (
+                {/* Baris 3 (Bawah): [Info Wali: Nama Wali / Lembaga] - Disembunyikan untuk Tamu Undangan, tetap tampil untuk Santri */}
+                {item.subInfo && item.tipe !== 'UNDANGAN' && !item.kode?.startsWith('UND') && (
                   <div className="w-full text-xs sm:text-sm text-stone-600 whitespace-normal break-words flex items-start gap-1.5 pt-0.5">
                     <Building className="w-3.5 h-3.5 text-stone-400 shrink-0 mt-0.5" />
                     <span className="leading-tight">{item.subInfo}</span>
