@@ -1,10 +1,63 @@
 'use client';
 
 import React from 'react';
-import { Smartphone, Check, X } from 'lucide-react';
+import { Smartphone, Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { normalkanNomorHp } from '@/lib/hmac';
 import { getTeksPesan, getTeksPesanTamu } from './WhatsAppStats';
+
+export function validateAndCleanPhoneNumber(input: string): {
+  cleanNumber: string;
+  isValid: boolean;
+  error?: string;
+} {
+  if (!input || !input.trim()) {
+    return {
+      cleanNumber: '',
+      isValid: false,
+      error: 'Nomor WhatsApp wajib diisi.',
+    };
+  }
+
+  // Bersihkan karakter non-angka (spasi, strip, dll)
+  let cleaned = input.replace(/\D/g, '');
+
+  // Jika diawali angka 8 (misal 857...), normalisasi menjadi 08
+  if (cleaned.startsWith('8')) {
+    cleaned = '0' + cleaned;
+  }
+
+  // Validasi format: wajib diawali 08 atau 628
+  if (!cleaned.startsWith('08') && !cleaned.startsWith('628')) {
+    return {
+      cleanNumber: cleaned,
+      isValid: false,
+      error: 'Nomor HP harus diawali dengan 08 atau 628 (contoh: 085790633812).',
+    };
+  }
+
+  // Validasi panjang digit nomor seluler
+  if (cleaned.length < 10) {
+    return {
+      cleanNumber: cleaned,
+      isValid: false,
+      error: 'Nomor HP terlalu pendek (minimal 10 digit angka).',
+    };
+  }
+
+  if (cleaned.length > 15) {
+    return {
+      cleanNumber: cleaned,
+      isValid: false,
+      error: 'Nomor HP terlalu panjang (maksimal 15 digit angka).',
+    };
+  }
+
+  return {
+    cleanNumber: cleaned,
+    isValid: true,
+  };
+}
 
 export async function updateStatusWaInSupabase(
   id: string,
@@ -199,11 +252,17 @@ export interface WhatsAppSendModalProps {
   newHpInput: string;
   setNewHpInput: (val: string) => void;
   handleSaveEditNoHp: () => void;
+  isSavingHp?: boolean;
+  hpValidationError?: string;
+  setHpValidationError?: (err: string) => void;
   editingTamuItem: any | null;
   setEditingTamuItem: (item: any | null) => void;
   newHpInputTamu: string;
   setNewHpInputTamu: (val: string) => void;
   handleSaveEditNoHpTamu: () => void;
+  isSavingHpTamu?: boolean;
+  hpValidationErrorTamu?: string;
+  setHpValidationErrorTamu?: (err: string) => void;
 }
 
 export default function WhatsAppSendModal({
@@ -212,18 +271,24 @@ export default function WhatsAppSendModal({
   newHpInput,
   setNewHpInput,
   handleSaveEditNoHp,
+  isSavingHp = false,
+  hpValidationError = '',
+  setHpValidationError,
   editingTamuItem,
   setEditingTamuItem,
   newHpInputTamu,
   setNewHpInputTamu,
   handleSaveEditNoHpTamu,
+  isSavingHpTamu = false,
+  hpValidationErrorTamu = '',
+  setHpValidationErrorTamu,
 }: WhatsAppSendModalProps) {
   return (
     <>
       {/* MODAL EDIT HP WALI */}
       {editingItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
@@ -239,8 +304,13 @@ export default function WhatsAppSendModal({
                 </div>
               </div>
               <button
-                onClick={() => setEditingItem(null)}
-                className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400"
+                type="button"
+                disabled={isSavingHp}
+                onClick={() => {
+                  setEditingItem(null);
+                  if (setHpValidationError) setHpValidationError('');
+                }}
+                className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400 disabled:opacity-40 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -261,31 +331,69 @@ export default function WhatsAppSendModal({
                   Nomor WhatsApp Baru:
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  disabled={isSavingHp}
                   value={newHpInput}
-                  onChange={(e) => setNewHpInput(e.target.value)}
-                  placeholder="Contoh: 081234567890"
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#BAE6FD] bg-[#F0F9FF] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  onChange={(e) => {
+                    setNewHpInput(e.target.value);
+                    if (setHpValidationError) setHpValidationError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !isSavingHp) {
+                      e.preventDefault();
+                      handleSaveEditNoHp();
+                    }
+                  }}
+                  placeholder="Contoh: 085790633812"
+                  className={`w-full px-3.5 py-2.5 rounded-2xl border bg-[#F0F9FF] focus:bg-white text-sm font-mono focus:outline-none transition-all ${
+                    hpValidationError
+                      ? 'border-rose-500 ring-2 ring-rose-200'
+                      : 'border-[#BAE6FD] focus:ring-2 focus:ring-blue-700'
+                  } disabled:opacity-60`}
+                  autoFocus
                 />
-                <p className="text-[10px] text-stone-400 mt-1">
-                  Format: 08xx atau 628xx. Status WA akan otomatis diset kembali ke "BELUM".
-                </p>
+                {hpValidationError ? (
+                  <p className="text-xs text-rose-600 font-semibold mt-1.5 flex items-center gap-1">
+                    <span>⚠️</span>
+                    <span>{hpValidationError}</span>
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-stone-500 mt-1">
+                    Format: diawali 08 atau 628 (contoh: 085790633812). Status WA akan diset ke "BELUM".
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
               <button
-                onClick={() => setEditingItem(null)}
-                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer"
+                type="button"
+                disabled={isSavingHp}
+                onClick={() => {
+                  setEditingItem(null);
+                  if (setHpValidationError) setHpValidationError('');
+                }}
+                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer disabled:opacity-40 transition-colors"
               >
                 Batal
               </button>
               <button
+                type="button"
+                disabled={isSavingHp}
                 onClick={handleSaveEditNoHp}
-                className="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
+                className="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1.5 disabled:opacity-60 transition-all"
               >
-                <Check className="w-4 h-4" />
-                <span>Simpan ke Supabase</span>
+                {isSavingHp ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Simpan ke Supabase</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -295,7 +403,7 @@ export default function WhatsAppSendModal({
       {/* MODAL EDIT HP TAMU UNDANGAN */}
       {editingTamuItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-white/80">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-xl bg-sky-100 text-blue-900 flex items-center justify-center font-bold">
@@ -311,8 +419,13 @@ export default function WhatsAppSendModal({
                 </div>
               </div>
               <button
-                onClick={() => setEditingTamuItem(null)}
-                className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400"
+                type="button"
+                disabled={isSavingHpTamu}
+                onClick={() => {
+                  setEditingTamuItem(null);
+                  if (setHpValidationErrorTamu) setHpValidationErrorTamu('');
+                }}
+                className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400 disabled:opacity-40 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -333,31 +446,69 @@ export default function WhatsAppSendModal({
                   Nomor WhatsApp Baru:
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  disabled={isSavingHpTamu}
                   value={newHpInputTamu}
-                  onChange={(e) => setNewHpInputTamu(e.target.value)}
-                  placeholder="Contoh: 081234567890"
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-[#BAE6FD] bg-[#F0F9FF] focus:bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  onChange={(e) => {
+                    setNewHpInputTamu(e.target.value);
+                    if (setHpValidationErrorTamu) setHpValidationErrorTamu('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !isSavingHpTamu) {
+                      e.preventDefault();
+                      handleSaveEditNoHpTamu();
+                    }
+                  }}
+                  placeholder="Contoh: 085790633812"
+                  className={`w-full px-3.5 py-2.5 rounded-2xl border bg-[#F0F9FF] focus:bg-white text-sm font-mono focus:outline-none transition-all ${
+                    hpValidationErrorTamu
+                      ? 'border-rose-500 ring-2 ring-rose-200'
+                      : 'border-[#BAE6FD] focus:ring-2 focus:ring-blue-700'
+                  } disabled:opacity-60`}
+                  autoFocus
                 />
-                <p className="text-[10px] text-stone-400 mt-1">
-                  Format: 08xx atau 628xx. Status WA akan otomatis diset kembali ke "BELUM".
-                </p>
+                {hpValidationErrorTamu ? (
+                  <p className="text-xs text-rose-600 font-semibold mt-1.5 flex items-center gap-1">
+                    <span>⚠️</span>
+                    <span>{hpValidationErrorTamu}</span>
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-stone-500 mt-1">
+                    Format: diawali 08 atau 628 (contoh: 085790633812). Status WA akan diset ke "BELUM".
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
               <button
-                onClick={() => setEditingTamuItem(null)}
-                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer"
+                type="button"
+                disabled={isSavingHpTamu}
+                onClick={() => {
+                  setEditingTamuItem(null);
+                  if (setHpValidationErrorTamu) setHpValidationErrorTamu('');
+                }}
+                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer disabled:opacity-40 transition-colors"
               >
                 Batal
               </button>
               <button
+                type="button"
+                disabled={isSavingHpTamu}
                 onClick={handleSaveEditNoHpTamu}
-                className="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1"
+                className="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-sm cursor-pointer flex items-center space-x-1.5 disabled:opacity-60 transition-all"
               >
-                <Check className="w-4 h-4" />
-                <span>Simpan ke Supabase</span>
+                {isSavingHpTamu ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Simpan ke Supabase</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

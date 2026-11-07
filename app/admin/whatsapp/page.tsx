@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Users, UserCheck } from 'lucide-react';
+import { Users, UserCheck, CheckCircle2, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
@@ -9,6 +9,7 @@ import AuthGuard from '@/components/AuthGuard';
 import WhatsAppStats from '@/components/admin/whatsapp/WhatsAppStats';
 import WhatsAppTable from '@/components/admin/whatsapp/WhatsAppTable';
 import WhatsAppSendModal, {
+  validateAndCleanPhoneNumber,
   updateTamuWaInSupabase,
   kirimFonnteWali,
   kirimManualWAWali,
@@ -40,6 +41,8 @@ export default function WhatsAppPage() {
   // Edit Phone Modal State (Wali)
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [newHpInput, setNewHpInput] = useState('');
+  const [isSavingHp, setIsSavingHp] = useState(false);
+  const [hpValidationError, setHpValidationError] = useState('');
 
   // Sending state per item (Wali)
   const [sendingKode, setSendingKode] = useState<string | null>(null);
@@ -66,6 +69,20 @@ export default function WhatsAppPage() {
   // Edit Phone Modal State (Tamu)
   const [editingTamuItem, setEditingTamuItem] = useState<any | null>(null);
   const [newHpInputTamu, setNewHpInputTamu] = useState('');
+  const [isSavingHpTamu, setIsSavingHpTamu] = useState(false);
+  const [hpValidationErrorTamu, setHpValidationErrorTamu] = useState('');
+
+  // Toast Notification State
+  const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showToast = (type: 'success' | 'error', message: string) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToastMsg({ type, message });
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMsg(null);
+    }, 4500);
+  };
 
   // Sending state per item (Tamu)
   const [tamuSendingKode, setTamuSendingKode] = useState<string | null>(null);
@@ -352,26 +369,108 @@ export default function WhatsAppPage() {
   // =========================================================================
 
   const handleSaveEditNoHp = async () => {
-    if (!editingItem || !newHpInput.trim()) return;
-    try {
-      const { error } = await supabase
-        .from('peserta_santri')
-        .update({
-          no_hp: newHpInput.trim(),
-          status_wa: 'BELUM',
-        })
-        .eq('id', editingItem.id);
+    if (!editingItem) return;
 
-      if (error) {
-        alert(`Gagal memperbarui nomor HP di database Supabase: ${error.message}`);
-      } else {
-        alert(`✓ Nomor HP untuk ${editingItem.namaWali} berhasil diperbarui di Supabase!`);
-        setEditingItem(null);
-        setNewHpInput('');
-        await fetchSantriWaData();
+    const validation = validateAndCleanPhoneNumber(newHpInput);
+    if (!validation.isValid) {
+      setHpValidationError(validation.error || 'Format nomor HP tidak valid.');
+      return;
+    }
+
+    setHpValidationError('');
+    setIsSavingHp(true);
+
+    try {
+      const cleanNo = validation.cleanNumber;
+      let success = false;
+      let errorMsg = '';
+
+      // 1. Coba update via API route server role (bypass RLS)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch('/api/santri', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingItem.id,
+            kode: editingItem.kode,
+            no_hp: cleanNo,
+            status_wa: 'BELUM',
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.ok) {
+            success = true;
+          } else {
+            errorMsg = json.error || 'Gagal update data via API';
+          }
+        }
+      } catch (apiErr: any) {
+        console.warn('API PATCH /api/santri warning, fallback direct Supabase client:', apiErr);
       }
+
+      // 2. Fallback direct Supabase client jika API belum berhasil
+      if (!success) {
+        const { error } = await supabase
+          .from('peserta_santri')
+          .update({
+            no_hp: cleanNo,
+            status_wa: 'BELUM',
+          })
+          .eq('id', editingItem.id);
+
+        if (error) {
+          throw new Error(errorMsg || error.message);
+        } else {
+          success = true;
+        }
+      }
+
+      // 3. Optimistic update di state tabel
+      setKeluargaList((prev) =>
+        prev.map((item) =>
+          item.id === editingItem.id
+            ? { ...item, noHp: cleanNo, statusWa: 'BELUM' }
+            : item
+        )
+      );
+
+      // Audit log
+      logAudit({
+        panitia_id: 'ADMIN_SISTEM',
+        panitia_role: 'ADMIN',
+        aksi: 'UPDATE_NO_HP_WALI',
+        tabel: 'peserta_santri',
+        kode: editingItem.kode,
+        nama: editingItem.namaWali,
+        field: 'no_hp',
+        nilai_lama: editingItem.noHp || '-',
+        nilai_baru: cleanNo,
+        catatan: `Update nomor HP wali santri via WA Gateway`,
+      }).catch(() => {});
+
+      // Tutup modal dan reset form
+      setEditingItem(null);
+      setNewHpInput('');
+      setHpValidationError('');
+
+      // Notifikasi sukses
+      showToast('success', `✓ Nomor WhatsApp ${editingItem.namaWali} (${cleanNo}) berhasil disimpan!`);
+
+      // Re-fetch sinkronisasi DB
+      fetchSantriWaData();
     } catch (err: any) {
-      alert(`Terjadi kesalahan sistem: ${err.message}`);
+      console.error('Error saving no HP wali:', err);
+      const errMsg = err.message || 'Terjadi kesalahan sistem saat menyimpan nomor HP.';
+      setHpValidationError(errMsg);
+      showToast('error', `Gagal menyimpan nomor HP: ${errMsg}`);
+    } finally {
+      setIsSavingHp(false);
     }
   };
 
@@ -503,26 +602,108 @@ export default function WhatsAppPage() {
   // =========================================================================
 
   const handleSaveEditNoHpTamu = async () => {
-    if (!editingTamuItem || !newHpInputTamu.trim()) return;
-    try {
-      const { error } = await supabase
-        .from('tamu_undangan')
-        .update({
-          no_hp: newHpInputTamu.trim(),
-          status_wa: 'BELUM',
-        })
-        .eq('id', editingTamuItem.id);
+    if (!editingTamuItem) return;
 
-      if (error) {
-        alert(`Gagal memperbarui nomor HP di database Supabase: ${error.message}`);
-      } else {
-        alert(`✓ Nomor HP untuk ${editingTamuItem.nama} berhasil diperbarui di Supabase!`);
-        setEditingTamuItem(null);
-        setNewHpInputTamu('');
-        await fetchTamuWaData();
+    const validation = validateAndCleanPhoneNumber(newHpInputTamu);
+    if (!validation.isValid) {
+      setHpValidationErrorTamu(validation.error || 'Format nomor HP tidak valid.');
+      return;
+    }
+
+    setHpValidationErrorTamu('');
+    setIsSavingHpTamu(true);
+
+    try {
+      const cleanNo = validation.cleanNumber;
+      let success = false;
+      let errorMsg = '';
+
+      // 1. Coba update via API route server role (bypass RLS)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch('/api/tamu', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingTamuItem.id,
+            kode: editingTamuItem.kode,
+            no_hp: cleanNo,
+            status_wa: 'BELUM',
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.ok) {
+            success = true;
+          } else {
+            errorMsg = json.error || 'Gagal update data via API';
+          }
+        }
+      } catch (apiErr: any) {
+        console.warn('API PATCH /api/tamu warning, fallback direct Supabase client:', apiErr);
       }
+
+      // 2. Fallback direct Supabase client jika API belum berhasil
+      if (!success) {
+        const { error } = await supabase
+          .from('tamu_undangan')
+          .update({
+            no_hp: cleanNo,
+            status_wa: 'BELUM',
+          })
+          .eq('id', editingTamuItem.id);
+
+        if (error) {
+          throw new Error(errorMsg || error.message);
+        } else {
+          success = true;
+        }
+      }
+
+      // 3. Optimistic update di state tabel
+      setTamuList((prev) =>
+        prev.map((item) =>
+          item.id === editingTamuItem.id
+            ? { ...item, noHp: cleanNo, statusWa: 'BELUM' }
+            : item
+        )
+      );
+
+      // Audit log
+      logAudit({
+        panitia_id: 'ADMIN_SISTEM',
+        panitia_role: 'ADMIN',
+        aksi: 'UPDATE_NO_HP_TAMU',
+        tabel: 'tamu_undangan',
+        kode: editingTamuItem.kode,
+        nama: editingTamuItem.nama,
+        field: 'no_hp',
+        nilai_lama: editingTamuItem.noHp || '-',
+        nilai_baru: cleanNo,
+        catatan: `Update nomor HP tamu undangan via WA Gateway`,
+      }).catch(() => {});
+
+      // Tutup modal dan reset form
+      setEditingTamuItem(null);
+      setNewHpInputTamu('');
+      setHpValidationErrorTamu('');
+
+      // Notifikasi sukses
+      showToast('success', `✓ Nomor WhatsApp ${editingTamuItem.nama} (${cleanNo}) berhasil disimpan!`);
+
+      // Re-fetch sinkronisasi DB
+      fetchTamuWaData();
     } catch (err: any) {
-      alert(`Terjadi kesalahan sistem: ${err.message}`);
+      console.error('Error saving no HP tamu:', err);
+      const errMsg = err.message || 'Terjadi kesalahan sistem saat menyimpan nomor HP.';
+      setHpValidationErrorTamu(errMsg);
+      showToast('error', `Gagal menyimpan nomor HP: ${errMsg}`);
+    } finally {
+      setIsSavingHpTamu(false);
     }
   };
 
@@ -743,12 +924,48 @@ export default function WhatsAppPage() {
           newHpInput={newHpInput}
           setNewHpInput={setNewHpInput}
           handleSaveEditNoHp={handleSaveEditNoHp}
+          isSavingHp={isSavingHp}
+          hpValidationError={hpValidationError}
+          setHpValidationError={setHpValidationError}
           editingTamuItem={editingTamuItem}
           setEditingTamuItem={setEditingTamuItem}
           newHpInputTamu={newHpInputTamu}
           setNewHpInputTamu={setNewHpInputTamu}
           handleSaveEditNoHpTamu={handleSaveEditNoHpTamu}
+          isSavingHpTamu={isSavingHpTamu}
+          hpValidationErrorTamu={hpValidationErrorTamu}
+          setHpValidationErrorTamu={setHpValidationErrorTamu}
         />
+
+        {/* TOAST NOTIFIKASI */}
+        {toastMsg && (
+          <div className="fixed bottom-6 right-6 z-50 animate-bounce-short">
+            <div
+              className={`flex items-center space-x-3 px-4 py-3 rounded-2xl shadow-2xl border backdrop-blur-md ${
+                toastMsg.type === 'success'
+                  ? 'bg-slate-900/95 text-white border-emerald-500/60 shadow-emerald-950/30'
+                  : 'bg-rose-950/95 text-white border-rose-500/60 shadow-rose-950/30'
+              }`}
+            >
+              {toastMsg.type === 'success' ? (
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+              )}
+              <span className="text-xs sm:text-sm font-semibold tracking-wide">{toastMsg.message}</span>
+              <button
+                onClick={() => setToastMsg(null)}
+                className="text-white/60 hover:text-white p-1 rounded-lg ml-2 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </AuthGuard>
   );
