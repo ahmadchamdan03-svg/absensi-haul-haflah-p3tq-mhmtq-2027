@@ -16,9 +16,9 @@ export function HeaderUndangan({
   const isDark = variant === 'dark';
 
   return (
-    <div className={`text-center space-y-1.5 sm:space-y-2 px-2 sm:px-4 py-0.5 sm:py-1 relative select-none ${className}`}>
+    <div className={`flex flex-col items-center justify-center text-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 relative select-none z-20 ${className}`}>
       {/* 1. 3 LOGO RESMI DI PALING ATAS - LOGO TENGAH DIPERBESAR PROPORSIONAL & SEIMBANG */}
-      <div className="flex items-center justify-center gap-2.5 sm:gap-4 mb-1.5 sm:mb-2">
+      <div className="flex items-center justify-center gap-2.5 sm:gap-4 mb-0.5 sm:mb-1">
         <img
           src="/images/logo-p3tq.png"
           alt="Logo P3TQ"
@@ -27,7 +27,7 @@ export function HeaderUndangan({
         <img
           src="/images/logo-haul-white.png"
           alt="Logo Haul & Haflah"
-          className="h-12 sm:h-16 md:h-18 w-auto max-h-18 object-contain drop-shadow-[0_4px_12px_rgba(251,191,36,0.35)]"
+          className="h-12 sm:h-14 md:h-16 w-auto max-h-16 object-contain drop-shadow-[0_4px_12px_rgba(251,191,36,0.35)]"
         />
         <img
           src="/images/logo-mhmtq.png"
@@ -43,33 +43,32 @@ export function HeaderUndangan({
         {titleType}
       </p>
 
-      {/* 3. BARIS 2 — JUDUL UTAMA (EMAS BERKILAU DENGAN DROP SHADOW TIPIS) */}
-      <h1 className={`text-base sm:text-xl md:text-2xl font-serif font-bold leading-tight text-center break-words max-w-full mx-auto mt-0.5 sm:mt-1 px-1 ${
+      {/* 3. BARIS 2 — JUDUL UTAMA (LEBIH BESAR, ELEGAN, WRAP RAPI DI HP) */}
+      <h1 className={`text-2xl sm:text-3xl font-serif font-black leading-tight sm:leading-snug text-center whitespace-normal break-words max-w-full mx-auto px-1 ${
         isDark ? 'text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.35)]' : 'text-[#0F2C59]'
       }`}>
-        <span className="inline-block">Haul &amp; Haflah</span>{' '}
-        <span className="inline-block">Akhirussanah</span>
+        Haul &amp; Haflah Akhirussanah
       </h1>
 
       {/* 4. BARIS 3 — TAHUN (PUTIH / EMAS MUDA) */}
-      <p className={`text-[11px] sm:text-xs md:text-sm font-serif font-medium text-center mt-0.5 ${
+      <p className={`text-xs sm:text-sm font-serif font-medium text-center ${
         isDark ? 'text-amber-200/95 drop-shadow-xs' : 'text-[#0F2C59]'
       }`}>
         1448 H. / 2027 M.
       </p>
 
-      {/* 5. BLOK NAMA LEMBAGA (PUTIH BERSIH & EMAS) */}
-      <div className={`w-full max-w-none md:max-w-2xl text-[9.5px] sm:text-[10.5px] leading-tight space-y-0.5 mt-1 sm:mt-1.5 text-center font-serif mx-auto px-1 ${
-        isDark ? 'text-white font-bold drop-shadow-md' : 'text-[#7A624E]'
+      {/* 5. BLOK NAMA LEMBAGA (TEKS INSTANSI PROPORSIONAL, TIDAK OVERFLOW) */}
+      <div className={`w-full max-w-sm sm:max-w-md text-xs sm:text-sm leading-snug space-y-0.5 text-center font-serif mx-auto px-2 ${
+        isDark ? 'text-white font-medium drop-shadow-md' : 'text-[#7A624E]'
       }`}>
-        <p className="whitespace-nowrap text-[9.5px] sm:text-[10.5px]">
+        <p className="whitespace-normal">
           Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ)
         </p>
-        <p className="whitespace-nowrap text-[8.5px] sm:text-[9.5px] tracking-tight">
+        <p className="whitespace-normal text-[11px] sm:text-xs text-white/90">
           Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ)
         </p>
-        <p className={`text-[9.5px] sm:text-[10.5px] pt-0.5 ${
-          isDark ? 'text-amber-400 italic' : 'text-[#1D4ED8] font-semibold'
+        <p className={`text-xs sm:text-sm pt-0.5 ${
+          isDark ? 'text-amber-400 italic font-semibold' : 'text-[#1D4ED8] font-semibold'
         }`}>
           Lirboyo Kediri
         </p>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { store } from '@/lib/mock-data';
 import { X, Search, Loader2, Users, MapPin, Award } from 'lucide-react';
 
 interface PesertaItem {
@@ -40,12 +41,45 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
           .select('id, kode, nama, nama_wali, alamat, kategori_utama, sub_kategori, kelas, kamar')
           .order('nama', { ascending: true });
 
-        if (error) throw error;
-        if (isMounted && data) {
-          setPesertaList(data);
+        if (!error && data && data.length > 0) {
+          if (isMounted) setPesertaList(data);
+        } else {
+          // Fallback lokal jika offline
+          const fallback = store.getKeluargaList();
+          if (fallback && fallback.length > 0 && isMounted) {
+            setPesertaList(
+              fallback.map((k: any) => ({
+                id: k.id,
+                kode: k.kode,
+                nama: k.nama,
+                nama_wali: k.namaWali,
+                alamat: k.alamat,
+                kategori_utama: k.kategori,
+                sub_kategori: k.subKategori,
+                kelas: k.kelas,
+                kamar: k.kamar,
+              }))
+            );
+          }
         }
       } catch (err) {
         console.warn('Error fetching peserta santri for modal:', err);
+        const fallback = store.getKeluargaList();
+        if (fallback && fallback.length > 0 && isMounted) {
+          setPesertaList(
+            fallback.map((k: any) => ({
+              id: k.id,
+              kode: k.kode,
+              nama: k.nama,
+              nama_wali: k.namaWali,
+              alamat: k.alamat,
+              kategori_utama: k.kategori,
+              sub_kategori: k.subKategori,
+              kelas: k.kelas,
+              kamar: k.kamar,
+            }))
+          );
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -55,6 +89,18 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
 
     return () => {
       isMounted = false;
+    };
+  }, [isOpen]);
+
+  // 1. Kunci scroll background saat modal terbuka & cegah scroll leak
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
@@ -172,7 +218,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
                   : 'bg-[#F0F9FF] text-stone-600 hover:bg-stone-200 border border-[#BAE6FD]'
               }`}
             >
-              Semua ({pesertaList.length})
+              Semua
             </button>
             <button
               type="button"
@@ -210,8 +256,8 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
           </div>
         </div>
 
-        {/* LIST DAFTAR PESERTA (SCROLLABLE) */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 bg-[#F0F9FF]">
+        {/* LIST DAFTAR PESERTA (SCROLLABLE DENGAN OVERSCROLL-CONTAIN, MAKS 60VH) */}
+        <div className="flex-1 max-h-[60vh] overflow-y-auto overscroll-contain p-3 sm:p-4 space-y-2.5 bg-[#F0F9FF]">
           {loading ? (
             <div className="py-12 text-center space-y-2">
               <Loader2 className="w-8 h-8 animate-spin text-[#1D4ED8] mx-auto" />
@@ -282,7 +328,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
         {/* FOOTER MODAL */}
         <div className="p-3 sm:p-4 border-t border-[#E8DFD5] bg-white flex items-center justify-between text-xs shrink-0">
           <span className="text-[11px] text-stone-500 font-medium">
-            Total Tampil: <strong>{filteredPeserta.length}</strong> dari {pesertaList.length} peserta
+            Menampilkan <strong>{filteredPeserta.length}</strong> peserta
           </span>
           <button
             type="button"
