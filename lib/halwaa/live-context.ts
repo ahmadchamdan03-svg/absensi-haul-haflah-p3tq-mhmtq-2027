@@ -1081,3 +1081,74 @@ export async function handleWaliSantriQueries(prompt: string, isFirstTurn: boole
     return null;
   }
 }
+
+export const HAFLAH_TARGET_DATE_ISO = '2027-01-02T06:30:00+07:00';
+
+export interface HaflahCountdownInfo {
+  targetDateISO: string;
+  currentDateFormatted: string;
+  currentTimeFormatted: string;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  calendarDays: number;
+  approxDays: number;
+  isEventStarted: boolean;
+}
+
+export function getHaflahCountdownInfo(now: Date = new Date()): HaflahCountdownInfo {
+  const targetMs = new Date(HAFLAH_TARGET_DATE_ISO).getTime();
+  const nowMs = now.getTime();
+  const diffMs = Math.max(0, targetMs - nowMs);
+  const isEventStarted = nowMs >= targetMs;
+
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+  const seconds = Math.floor((diffMs / 1000) % 60);
+
+  const jakartaDateParts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+  const [y, m, d] = jakartaDateParts.split('-').map(Number);
+  const currentUtcMidnight = Date.UTC(y, m - 1, d);
+  const targetUtcMidnight = Date.UTC(2027, 0, 2);
+  const calendarDays = Math.max(
+    0,
+    Math.round((targetUtcMidnight - currentUtcMidnight) / (1000 * 60 * 60 * 24))
+  );
+  const approxDays = isEventStarted
+    ? 0
+    : Math.max(days, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+
+  const currentDateFormatted = now.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Asia/Jakarta',
+  });
+  const currentTimeFormatted = now.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Asia/Jakarta',
+  });
+
+  return {
+    targetDateISO: HAFLAH_TARGET_DATE_ISO,
+    currentDateFormatted,
+    currentTimeFormatted,
+    days,
+    hours,
+    minutes,
+    seconds,
+    calendarDays,
+    approxDays,
+    isEventStarted,
+  };
+}

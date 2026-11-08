@@ -33,6 +33,8 @@ import {
   SECTION_MULTIMEDIA_DOC,
   HAFLAH_KNOWLEDGE_SYSTEM_PROMPT,
   generateLocalSmartResponseAsync,
+  isCountdownQuery,
+  getCountdownFallbackResponse,
   cleanReplyForSession,
   detectExpression,
 } from '@/lib/halwaa/knowledge-base';
@@ -53,6 +55,7 @@ import {
   handleWaliSantriQueries,
   detectKategoriDobelIntent,
   handleKategoriDobelQuery,
+  getHaflahCountdownInfo,
 } from '@/lib/halwaa/live-context';
 import { searchPersonInSupabase } from '@/lib/halwaa/search-person';
 
@@ -223,7 +226,7 @@ export async function POST(req: NextRequest) {
       /\b(biaya|bayar|uang|saldo|transfer|rekening|anggaran|dana|donasi|subsidi|nominal|rupiah|pos|pengeluaran|pemasukan|bri)\b/i.test(prompt);
 
     const isAcaraJadwalIntent =
-      /\b(acara|tanggal|jadwal|kapan|waktu|jam|lokasi|tempat|aula|muktamar|tiket|kartu|sambang|sambangan|gladi|kotor|bersih|rundown|tata tertib|tertib|aturan|larangan|syarat)\b/i.test(prompt);
+      /\b(acara|haflah|tanggal|jadwal|kapan|waktu|jam|lokasi|tempat|aula|muktamar|tiket|kartu|sambang|sambangan|gladi|kotor|bersih|rundown|tata tertib|tertib|aturan|larangan|syarat|countdown|hitung\s*mundur|hitungan\s*mundur|sisa\s*hari|sisa\s*waktu|hari\s*lagi|hari\s*ini|realtime|real-time)\b/i.test(prompt);
 
     const isLiveGuestOrStatsIntent =
       isStatsQuery(prompt) ||
@@ -235,9 +238,40 @@ export async function POST(req: NextRequest) {
 
     const isTechIntent = isTechnicalInfrastructureQuery(prompt);
 
+    // Selalu suntikkan tanggal sistem hari ini (WIB) & hasil hitung mundur realtime ke system prompt
+    const now = new Date();
+    const currentDateWib = now.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Asia/Jakarta',
+    });
+    const currentTimeWib = now.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'Asia/Jakarta',
+    });
+    const countdown = getHaflahCountdownInfo(now);
+
+    const realtimeClockAndCountdownDirective = `[KONTEKS TANGGAL HARI INI & HITUNG MUNDUR REAL-TIME]:
+- Tanggal Hari Ini (Server WIB): ${currentDateWib}, pukul ${currentTimeWib} WIB.
+- Target Waktu Puncak Acara Haflah: Sabtu, 02 Januari 2027 M. pukul 06.30 WIB (24 Rajab 1448 H.).
+- Sisa Waktu Real-Time Menuju Haflah Saat Ini: ${
+      countdown.isEventStarted
+        ? 'Acara Haul & Haflah 02 Januari 2027 telah dimulai / berlangsung.'
+        : `${countdown.days} hari, ${countdown.hours} jam, ${countdown.minutes} menit, ${countdown.seconds} detik lagi (kurang lebih ${countdown.days} hari lagi / ${countdown.calendarDays} hari kalender dari tanggal hari ini).`
+    }
+- ATURAN WAJIB COUNTDOWN & WAKTU REALTIME:
+  1. DILARANG menjawab "Saya tidak punya akses waktu realtime", "tidak tahu tanggal hari ini", atau "tidak bisa menghitung mundur". Server SUDAH menyuntikkan tanggal hari ini dan sisa waktu di atas.
+  2. Aplikasi Haflah P3TQ & MHMTQ memiliki fitur Hitung Mundur (Countdown / komponen EventCountdownGrid) yang berjalan secara real-time (Hari, Jam, Menit, Detik) di halaman Undangan Digital (UI).
+  3. Jika user meminta hitung mundur realtime (atau menanyakan berapa hari lagi), sampaikan perkiraan sisa hari di atas menggunakan tanggal hari ini ke tanggal 2 Januari 2027, dan arahkan user membuka halaman Undangan Digital di aplikasi untuk melihat kotak Hitung Mundur live setiap detik (Contoh: "Sisa waktu menuju Haflah adalah kurang lebih ${countdown.days} hari lagi, Us. Untuk melihat hitungan mundur yang bergerak setiap detik, silakan buka halaman Undangan Digital di aplikasi.").`;
+
     // Bangun prompt secara modular sesuai konteks yang ditanyakan user
     const promptParts: string[] = [BASE_PERSONA_PROMPT];
     promptParts.push(sessionPromptDirective);
+    promptParts.push(realtimeClockAndCountdownDirective);
 
     if (isPronounIntent) {
       const pronounAngleTurn = pickNextVariationAngle();
@@ -384,6 +418,21 @@ export async function POST(req: NextRequest) {
         avatar: '/images/avatar/ustadzah-avatar-polite.png',
         source: 'smart_knowledge_engine',
         model: 'Usth. Halwaa Architecture Engine',
+        responseTimeMs: Date.now() - startTime,
+      });
+    }
+
+    // 0B. Fallback Hitung Mundur / Countdown Real-Time
+    if (isCountdownQuery(prompt)) {
+      const replyText = getCountdownFallbackResponse(isFirstTurn);
+      const cleanReply = cleanReplyForSession(replyText, isFirstTurn, prompt);
+      const expr = detectExpression(cleanReply, prompt, isFirstTurn);
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'smart_knowledge_engine',
+        model: 'Local Smart Assistant',
         responseTimeMs: Date.now() - startTime,
       });
     }

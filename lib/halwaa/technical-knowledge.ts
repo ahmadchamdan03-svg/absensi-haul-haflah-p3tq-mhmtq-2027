@@ -17,6 +17,7 @@ export const TECHNICAL_KNOWLEDGE_SECTION = `
    - Database & Auth: Supabase PostgreSQL (menampung tabel peserta_santri, tamu_undangan, presensi_log, kuota_pembelian secara realtime dengan Row Level Security).
    - Hosting & Serverless: Vercel Cloud Platform (Fluid Compute & Serverless Edge Functions).
    - WhatsApp Gateway: Fonnte API (otomatisasi distribusi pesan konfirmasi kehadiran, e-ticket, dan broadcast QR barcode).
+   - Fitur UI Hitung Mundur Real-Time: Aplikasi Haflah P3TQ & MHMTQ memiliki fitur Hitung Mundur (Countdown / komponen EventCountdownGrid & CountdownBadge) yang berjalan secara real-time (Hari, Jam, Menit, Detik) di halaman Undangan Digital (/u/[token]) menuju Sabtu, 02 Januari 2027 pukul 06.30 WIB. Jika user meminta hitung mundur realtime, arahkan mereka ke halaman Undangan Digital dan berikan perkiraan sisa hari berdasarkan tanggal hari ini yang disuntikkan oleh server.
 
 3. PANDUAN MENJAWAB KENDALA TEKNIS / ERROR ENDPOINT:
    - Jika pengguna bertanya mengenai status error endpoint, seperti "https://router.clouvia.id/v1 error?", "clouvia error?", "api clouvia bermasalah", "supabase error", "kenapa respon AI lambat", dsb:

@@ -25,6 +25,7 @@ import {
 import {
   getGuestCategoryCountsLive,
   getKuotaTambahanMetricsLive,
+  getHaflahCountdownInfo,
 } from './live-context';
 import {
   TECHNICAL_KNOWLEDGE_SECTION,
@@ -49,7 +50,7 @@ PENTING: Acara ini adalah Haul & Haflah P3TQ dan MHMTQ 1448 H., BUKAN acara Ponp
 
 PANDUAN ETIKA & FORMAT:
 1. Sikap: Profesional, santun, takzim, cerdas. Selalu gunakan sapaan 'Us'. JANGAN berbicara seolah manusia hidup (DILARANG bucin/romantis/fans fanatik).
-2. Jawaban: To the point, santun, tanpa instruksi antarmuka (DILARANG tulis 'klik tombol unduh di bawah').
+2. Jawaban: To the point, santun, tanpa instruksi tombol ekspor buatan (DILARANG tulis 'klik tombol unduh di bawah'; pengecualian resmi: boleh mengarahkan user membuka halaman Undangan Digital untuk melihat fitur Hitung Mundur real-time).
 3. Format Data: Tabel WAJIB menggunakan format Markdown (| ... |), DILARANG tag HTML (<table>, <tr>, <td>).
 4. Identitas: Anda adalah Usth. Halwaa. JANGAN PERNAH mengaku sebagai AI lain (ChatGPT, Claude, Kiro, DeepSeek, dll).
 5. Sumber Dokumen: DILARANG menyebut nama dokumen sumber seperti '(USTH AL)', '(Koor 2)', 'dari PDF USTH AL'.
@@ -138,7 +139,12 @@ export const SECTION_ACARA_JADWAL = `TATA TERTIB, TEKNIS & JADWAL ACARA:
   * Lokasi: Halaman Al-Khodijah (Bil Ghoib & Bin Nadzori) & Rusunawa Baru (Tamatan Aliyah).
   * Waktu: Selesai acara s/d 18.00 WIs. Syarat: Mahrom, daftar di Gerbang Bola Dunia membawa KKS/KK & KTP.
 - Larangan Shohibul Hajat: Dilarang alat elektronik saat acara, dilarang buket, dilarang kutek/nail art, dilarang fotografer luar, dilarang menemui walisantri saat acara, dilarang sambangan di luar area/jam yang ditentukan.
-- Kalender Kerja: Pra Gladikotor (17 Nov 2026), Final Validasi (10 Des 2026), Gladikotor (12 Des 2026), Gladibersih (16 Des 2026), Hari H Haflah (02 Jan 2027).`;
+- Kalender Kerja: Pra Gladikotor (17 Nov 2026), Final Validasi (10 Des 2026), Gladikotor (12 Des 2026), Gladibersih (16 Des 2026), Hari H Haflah (02 Jan 2027).
+- Fitur Hitung Mundur Real-time (Countdown UI):
+  * Aplikasi Haflah P3TQ & MHMTQ memiliki fitur Hitung Mundur (Countdown) yang berjalan secara real-time (Hari, Jam, Menit, Detik) melalui komponen EventCountdownGrid di halaman Undangan Digital (UI).
+  * DILARANG menjawab "Saya tidak punya akses waktu realtime" atau menyatakan tidak bisa menghitung mundur. Anda selalu dibekali tanggal sistem hari ini dan data hitung mundur otomatis oleh server.
+  * Jika user meminta hitung mundur realtime (atau menanyakan berapa hari lagi menuju Haflah), hitung selisih waktu menggunakan tanggal hari ini yang disuntikkan sistem menuju tanggal 2 Januari 2027 (06.30 WIB), lalu arahkan user membuka halaman Undangan Digital untuk melihat kotak Hitung Mundur yang bergerak live detik demi detik.
+  * Contoh respons yang diharapkan: "Sisa waktu menuju Haflah adalah kurang lebih [X] hari lagi, Us. Untuk melihat hitungan mundur yang bergerak setiap detik (Hari, Jam, Menit, Detik), silakan buka halaman Undangan Digital di aplikasi."`;
 
 export const SECTION_MULTIMEDIA_DOC = `ATURAN MULTIMEDIA & DOKUMEN:
 1. Jangan menawarkan gambar/file secara proaktif jika tidak diminta.
@@ -157,12 +163,33 @@ ${SECTION_ACARA_JADWAL}
 
 ${SECTION_MULTIMEDIA_DOC}`;;
 
+export function isCountdownQuery(query: string): boolean {
+  const q = query.toLowerCase().trim();
+  return /\b(countdown|hitung\s*mundur|hitungan\s*mundur|sisa\s*hari|sisa\s*waktu|berapa\s*hari\s*lagi|tinggal\s*berapa\s*hari)\b/i.test(q);
+}
+
+export function getCountdownFallbackResponse(isFirstTurn: boolean = false): string {
+  const info = getHaflahCountdownInfo();
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : "";
+
+  if (info.isEventStarted) {
+    return `${greetingPrefix}Alhamdulillah Us, berdasarkan tanggal sistem hari ini (**${info.currentDateFormatted}** pukul **${info.currentTimeFormatted} WIB**), waktu pelaksanaan **Haul & Haflah P3TQ dan MHMTQ 1448 H. / 02 Januari 2027** telah tiba.\n\nSilakan buka halaman **Undangan Digital** di aplikasi untuk memantau tampilan Hitung Mundur dan informasi jadwal acara.`;
+  }
+
+  return `${greetingPrefix}Berdasarkan tanggal sistem hari ini (**${info.currentDateFormatted}** pukul **${info.currentTimeFormatted} WIB**), sisa waktu menuju Haul & Haflah P3TQ & MHMTQ (Sabtu, 02 Januari 2027 pukul 06.30 WIB) adalah kurang lebih **${info.days} hari lagi** (tepatnya **${info.days} hari, ${info.hours} jam, ${info.minutes} menit** lagi / ${info.calendarDays} hari kalender), Us.\n\nAplikasi Haflah P3TQ & MHMTQ sudah memiliki fitur **Hitung Mundur (Countdown)** yang berjalan secara real-time (**Hari, Jam, Menit, Detik**). Untuk melihat hitungan mundur yang bergerak setiap detik, silakan buka halaman **Undangan Digital** di aplikasi.`;
+}
+
 export async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
 
   // 0. FITUR KNOWLEDGE BASE TEKNIS & INFRASTRUKTUR SISTEM
   if (isTechnicalInfrastructureQuery(userQuery)) {
     return handleTechnicalInfrastructureQuery(userQuery);
+  }
+
+  // 0. FITUR HITUNG MUNDUR / COUNTDOWN REALTIME
+  if (isCountdownQuery(userQuery)) {
+    return getCountdownFallbackResponse(isFirstTurn);
   }
 
   // 0. FITUR REKAP KEHADIRAN REALTIME
@@ -642,6 +669,11 @@ export function generateLocalSmartResponse(userQuery: string, isFirstTurn: boole
 
 export function generateLocalSmartResponseSync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): string {
   const q = userQuery.toLowerCase().trim();
+
+  // 0. FITUR HITUNG MUNDUR / COUNTDOWN REALTIME
+  if (isCountdownQuery(userQuery)) {
+    return getCountdownFallbackResponse(isFirstTurn);
+  }
 
   // 0. FITUR MOTIVASI KONTEKSTUAL
   const motivasiIntent = detectMotivasiIntent(q);
