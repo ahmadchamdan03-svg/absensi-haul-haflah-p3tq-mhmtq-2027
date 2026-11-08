@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { askAI } from '@/lib/ai-router';
-import { searchWebImages } from '@/lib/image-search';
+import { searchWebImagesDetailed } from '@/lib/image-search';
 import {
   detectMotivasiIntent,
   detectDiaSiapaIntent,
@@ -139,26 +139,26 @@ export async function POST(req: NextRequest) {
     if (isImageSearchRequest) {
       console.log('[AI Ask Route] Mendeteksi permintaan pencarian gambar web...');
       const rawSubject = prompt
-        .replace(/^(tolong|mohon|coba|bisa|tolongkan)\s+/gi, '')
-        .replace(/(carikan|cari|tampilkan|lihatkan|minta|lihat|temukan|buatkan|bikinkan)\s+(gambar|foto|potret|citra)?/gi, '')
-        .replace(/(gambar|foto|potret|citra)\s*(tentang|dari|suasana)?/gi, '')
+        .replace(/^(tolong|mohon|coba|bisa|tolongkan|silakan)\s+/gi, '')
+        .replace(/(carikan|cari|tampilkan|lihatkan|minta|lihat|temukan|buatkan|bikinkan|bikin)\s+(gambar|foto|potret|citra|pemandangan)?/gi, '')
+        .replace(/(gambar|foto|potret|citra)\s*(tentang|dari|suasana|mengenai)?/gi, '')
         .replace(/\s+(di|dari|pada)\s+(internet|google|web|bing|online)/gi, '')
         .trim() || 'Hasil Pencarian';
 
       const cleanSubject = rawSubject.charAt(0).toUpperCase() + rawSubject.slice(1);
-      const imageUrl = await searchWebImages(prompt);
+      const imageResult = await searchWebImagesDetailed(prompt);
 
       let reply: string;
-      if (imageUrl) {
-        reply = `Ini Us, gambar yang saya temukan di internet:\n\n![${cleanSubject}](${imageUrl})`;
+      if (imageResult?.url) {
+        reply = `${imageResult.caption}\n\n![${cleanSubject}](${imageResult.url})`;
       } else {
         reply = 'Mohon maaf Us, saya tidak menemukan gambar yang cocok di internet.';
       }
 
       return NextResponse.json({
         reply,
-        expression: imageUrl ? 'happy' : 'polite',
-        avatar: imageUrl ? '/images/avatar/ustadzah-avatar-happy.png' : '/images/avatar/ustadzah-avatar-polite.png',
+        expression: imageResult?.url ? 'happy' : 'polite',
+        avatar: imageResult?.url ? '/images/avatar/ustadzah-avatar-happy.png' : '/images/avatar/ustadzah-avatar-polite.png',
         source: 'web_image_search',
         model: 'Web Image Search Engine',
         responseTimeMs: Date.now() - startTime,

@@ -32,7 +32,7 @@ import {
   isTechnicalInfrastructureQuery,
   handleTechnicalInfrastructureQuery,
 } from './technical-knowledge';
-import { searchWebImages } from '@/lib/image-search';
+import { searchWebImagesDetailed } from '@/lib/image-search';
 
 export {
   TECHNICAL_KNOWLEDGE_SECTION,
@@ -207,9 +207,9 @@ export async function generateLocalSmartResponseAsync(userQuery: string, isFirst
       .replace(/(carikan|cari|buatkan|bikinkan|tampilkan|minta|generate)\s+gambar\s*(ilustrasi)?/gi, '')
       .replace(/gambar\s*(ilustrasi)?/gi, '')
       .trim() || 'Pondok Pesantren Lirboyo Kediri';
-    const imageUrl = await searchWebImages(userQuery);
-    if (imageUrl) {
-      return `Ini Us, gambar yang saya temukan di internet:\n\n![${rawSubject}](${imageUrl})`;
+    const imageResult = await searchWebImagesDetailed(userQuery);
+    if (imageResult?.url) {
+      return `${imageResult.caption}\n\n![${rawSubject}](${imageResult.url})`;
     }
     return 'Mohon maaf Us, saya tidak menemukan gambar yang cocok di internet.';
   }
