@@ -16,7 +16,7 @@ export default function UndanganParallaxOrnaments({ isOpened }: { isOpened?: boo
   const rotateRight = useTransform(scrollY, [0, 1200], [0, -4]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none select-none z-10 overflow-hidden" aria-hidden="true">
+    <div className="fixed inset-0 pointer-events-none select-none z-20 overflow-hidden" aria-hidden="true">
       {/* 1. Ornamen Ranting Lemon Pojok Kiri Atas */}
       <motion.img
         src="/images/undangan-assets/lemon-branch-left.webp"

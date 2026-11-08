@@ -15,6 +15,7 @@ import {
 } from '@/lib/utils';
 import DenahModal from '@/components/DenahModal';
 import UndanganStageBackdrop from '@/components/public/undangan/UndanganStageBackdrop';
+import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import DaftarShohibulHajatModal from '@/components/DaftarShohibulHajatModal';
 import { getNamaPenerima } from '@/components/public/undangan/types';
 import {
@@ -814,10 +815,16 @@ export default function UndanganWaliPage() {
           !isOpened ? 'h-[100dvh] overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
         }`}
       >
-        {/* BACKGROUND PANGGUNG AULA AL-MUKTAMAR DENGAN OVERLAY DEEP NAVY TRANSPARAN */}
-        <UndanganStageBackdrop />
+        {/* 1. LAYER BACKGROUND PANGGUNG AULA TETAP (FIXED INSET-0 Z-0) */}
+        <UndanganStageBackdrop className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
 
-        {/* ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING */}
+        {/* 2. LAYER CANVAS REVEAL MASK (RIAK AIR DI SELURUH HALAMAN Z-10) */}
+        <CanvasRevealMask
+          renderImage={false}
+          className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-10"
+        />
+
+        {/* 3. ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING (Z-20) */}
         <UndanganParallaxOrnaments isOpened={isOpened} />
 
         {/* Audio Elemen Tersembunyi */}
@@ -848,7 +855,7 @@ export default function UndanganWaliPage() {
                 opacity: 0.98,
                 transition: { duration: 0.95, ease: [0.22, 1, 0.36, 1] },
               }}
-              className="fixed inset-0 z-50 overflow-hidden bg-[#0F2C59]"
+              className="fixed inset-0 z-30 overflow-hidden bg-transparent"
             >
               <UndanganCoverOverlay
                 isTamu={isTamuUndangan || item?.tipe === 'UNDANGAN'}
@@ -868,7 +875,9 @@ export default function UndanganWaliPage() {
             ref={mainContentRef}
             data-portal-content="true"
             aria-hidden={!isOpened}
-            className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28"
+            className={`relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 pb-28 ${
+              !isOpened ? 'hidden' : 'animate-in fade-in duration-500'
+            }`}
           >
             <TamuHeroAndEventSections
               item={item}
@@ -898,7 +907,9 @@ export default function UndanganWaliPage() {
             ref={mainContentRef}
             data-portal-content="true"
             aria-hidden={!isOpened}
-            className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 animate-in fade-in duration-500 pb-28"
+            className={`relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 pb-28 ${
+              !isOpened ? 'hidden' : 'animate-in fade-in duration-500'
+            }`}
           >
             <WaliHeroAndIdentitySections
               item={item}

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { AlertCircle, MessageCircle, MailOpen } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import UndanganStageBackdrop from './UndanganStageBackdrop';
-import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
 import ScrollReveal from '@/components/ScrollReveal';
 import HeaderUndangan from '@/components/HeaderUndangan';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
@@ -20,9 +19,6 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
     <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#0F2C59] text-white flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10 overflow-hidden">
       {/* LAYER 1 (PALING BAWAH): GAMBAR PANGGUNG AULA TANPA OVERLAY */}
       <UndanganStageBackdrop className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
-
-      {/* LAYER 2 (TENGAH): CANVAS REVEAL MASK (TIRAI DEEP NAVY SOLID + RIAK AIR) */}
-      <CanvasRevealMask renderImage={false} className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
 
       {/* LAYER 3 (PALING ATAS): KONTEN */}
       <div className="max-w-sm w-full bg-[#0F2C59]/65 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-6 relative z-20">
@@ -90,14 +86,8 @@ export function UndanganCoverTamu({
 
   return (
     <div
-      className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
+      className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-transparent"
     >
-      {/* LAYER 1 (PALING BAWAH): GAMBAR PANGGUNG AULA TANPA OVERLAY */}
-      <UndanganStageBackdrop className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
-
-      {/* LAYER 2 (TENGAH): CANVAS REVEAL MASK (TIRAI DEEP NAVY SOLID + RIAK AIR) */}
-      <CanvasRevealMask renderImage={false} className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
-
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS - TIDAK MENUTUPI TEKS) */}
       <motion.img
         src="/images/undangan-assets/lemon-branch.webp"
@@ -192,14 +182,8 @@ export function UndanganCoverWali({
 
   return (
     <div
-      className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
+      className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-transparent"
     >
-      {/* LAYER 1 (PALING BAWAH): GAMBAR PANGGUNG AULA TANPA OVERLAY */}
-      <UndanganStageBackdrop className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
-
-      {/* LAYER 2 (TENGAH): CANVAS REVEAL MASK (TIRAI DEEP NAVY SOLID + RIAK AIR) */}
-      <CanvasRevealMask renderImage={false} className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
-
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS - TIDAK MENUTUPI TEKS) */}
       <motion.img
         src="/images/undangan-assets/lemon-branch.webp"
