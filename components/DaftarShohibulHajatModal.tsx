@@ -151,8 +151,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
         return (
           (p.nama && p.nama.toLowerCase().includes(q)) ||
           (p.nama_wali && p.nama_wali.toLowerCase().includes(q)) ||
-          (p.alamat && p.alamat.toLowerCase().includes(q)) ||
-          (p.kode && p.kode.toLowerCase().includes(q))
+          (p.alamat && p.alamat.toLowerCase().includes(q))
         );
       })
       .sort((a, b) => {
@@ -299,37 +298,31 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               return (
                 <div
                   key={p.id || p.kode || idx}
-                  className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#E8DFD5] shadow-xs flex items-center justify-between gap-3 text-xs"
+                  className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#E8DFD5] shadow-xs text-xs space-y-1.5"
                 >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <span className="font-serif font-black text-sm text-[#322116] truncate">
-                        {p.nama}
-                      </span>
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}`}
-                      >
-                        {getCategoryLabel(p.kategori_utama, p.sub_kategori)}
-                      </span>
-                    </div>
-
-                    <div className="text-[11px] text-stone-600 flex items-center space-x-2">
-                      <span>Wali: <strong>{p.nama_wali || '-'}</strong></span>
-                      {p.alamat && (
-                        <>
-                          <span className="text-stone-300">•</span>
-                          <span className="inline-flex items-center space-x-0.5 text-stone-500">
-                            <MapPin className="w-3 h-3 text-[#1D4ED8] shrink-0" />
-                            <span>{p.alamat}</span>
-                          </span>
-                        </>
-                      )}
-                    </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-serif font-black text-sm text-[#322116] truncate">
+                      {p.nama}
+                    </span>
+                    <span
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass} shrink-0`}
+                    >
+                      {getCategoryLabel(p.kategori_utama, p.sub_kategori)}
+                    </span>
                   </div>
 
-                  <span className="font-mono text-[10px] font-bold text-stone-400 shrink-0">
-                    {p.kode}
-                  </span>
+                  <div className="text-[11px] text-stone-600 flex items-center space-x-2 flex-wrap gap-y-0.5">
+                    <span>Wali: <strong>{p.nama_wali || '-'}</strong></span>
+                    {p.alamat && (
+                      <>
+                        <span className="text-stone-300">•</span>
+                        <span className="inline-flex items-center space-x-0.5 text-stone-500">
+                          <MapPin className="w-3 h-3 text-[#1D4ED8] shrink-0" />
+                          <span>{p.alamat}</span>
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
               );
             })
