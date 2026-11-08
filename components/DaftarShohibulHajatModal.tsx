@@ -203,13 +203,13 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
         {/* SEARCH BAR & FILTER TABS */}
         <div className="p-3 sm:p-4 border-b border-[#E8DFD5] space-y-2.5 bg-white shrink-0">
           <div className="relative">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari nama santri, nama wali, atau daerah asal..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] text-xs focus:outline-hidden focus:ring-2 focus:ring-[#1D4ED8]"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
 
