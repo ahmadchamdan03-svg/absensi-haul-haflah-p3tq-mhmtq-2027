@@ -120,130 +120,11 @@ export default function UndanganWaliPage() {
   // State Estimasi Kehadiran (RSVP)
   const [estL, setEstL] = useState(1);
   const [estP, setEstP] = useState(1);
-  const [hariKonfirmasi, setHariKonfirmasi] = useState<'SABTU' | 'JUMAT' | string>('SABTU');
-  const [jamKonfirmasi, setJamKonfirmasi] = useState<string>('');
   const [catatanRsvp, setCatatanRsvp] = useState('');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
   const [estimasiSaved, setEstimasiSaved] = useState(false);
   const [savingRsvp, setSavingRsvp] = useState(false);
   const [rsvpError, setRsvpError] = useState<string | null>(null);
-  const [rsvpValidationErr, setRsvpValidationErr] = useState<string | null>(null);
-
-  // Deteksi Device untuk RSVP Time Picker
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // State interaktif Clock Picker Desktop (Pointer Click & Drag)
-  const [isClockOpen, setIsClockOpen] = useState(true);
-  const [clockMode, setClockMode] = useState<'hours' | 'minutes'>('hours');
-  const clockWrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setIsMounted(true);
-    const checkIsMobile = () => {
-      const isMobileWidth = window.innerWidth < 768;
-      const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setIsMobileDevice(isMobileWidth || isMobileUA);
-    };
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  // Event listener interaktif klik & drag untuk lingkaran jam analog Desktop
-  useEffect(() => {
-    if (!isMounted || isMobileDevice || !isClockOpen) return;
-
-    const wrapper = clockWrapperRef.current;
-    if (!wrapper) return;
-
-    const clockEl = wrapper.querySelector('.react-clock') as HTMLElement | null;
-    if (!clockEl) return;
-
-    let isDragging = false;
-
-    const handlePointerAction = (e: PointerEvent) => {
-      const rect = clockEl.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      const dist = Math.hypot(dx, dy);
-      const radius = rect.width / 2;
-
-      let rad = Math.atan2(dy, dx) + Math.PI / 2;
-      if (rad < 0) rad += 2 * Math.PI;
-      const deg = rad * (180 / Math.PI);
-
-      const currentVal = jamKonfirmasi && jamKonfirmasi.includes(':') ? jamKonfirmasi : '08:00';
-      const parts = currentVal.split(':');
-      let currentH = parseInt(parts[0], 10);
-      if (isNaN(currentH)) currentH = 8;
-      let currentM = parseInt(parts[1], 10);
-      if (isNaN(currentM)) currentM = 0;
-
-      const isPm = currentH >= 12;
-
-      const isMinute = clockMode === 'minutes' || (dist > radius * 0.75);
-
-      if (isMinute) {
-        let m = Math.round(deg / 6) % 60;
-        currentM = m;
-      } else {
-        let h12 = Math.round(deg / 30) % 12;
-        if (h12 === 0) h12 = 12;
-
-        if (isPm) {
-          currentH = h12 === 12 ? 12 : h12 + 12;
-        } else {
-          currentH = h12 === 12 ? 0 : h12;
-        }
-      }
-
-      const formatted = `${String(currentH).padStart(2, '0')}:${String(currentM).padStart(2, '0')}`;
-      setJamKonfirmasi(formatted);
-      setRsvpValidationErr(null);
-    };
-
-    const onPointerDown = (e: PointerEvent) => {
-      isDragging = true;
-      try {
-        clockEl.setPointerCapture(e.pointerId);
-      } catch (_) {}
-      handlePointerAction(e);
-    };
-
-    const onPointerMove = (e: PointerEvent) => {
-      if (isDragging) {
-        handlePointerAction(e);
-      }
-    };
-
-    const onPointerUp = (e: PointerEvent) => {
-      if (isDragging) {
-        handlePointerAction(e);
-        isDragging = false;
-        try {
-          clockEl.releasePointerCapture(e.pointerId);
-        } catch (_) {}
-        if (clockMode === 'hours') {
-          setClockMode('minutes');
-        }
-      }
-    };
-
-    clockEl.addEventListener('pointerdown', onPointerDown);
-    clockEl.addEventListener('pointermove', onPointerMove);
-    clockEl.addEventListener('pointerup', onPointerUp);
-    clockEl.addEventListener('pointercancel', onPointerUp);
-
-    return () => {
-      clockEl.removeEventListener('pointerdown', onPointerDown);
-      clockEl.removeEventListener('pointermove', onPointerMove);
-      clockEl.removeEventListener('pointerup', onPointerUp);
-      clockEl.removeEventListener('pointercancel', onPointerUp);
-    };
-  }, [isMounted, isMobileDevice, isClockOpen, clockMode, jamKonfirmasi]);
 
   // State RSVP Khusus Tamu Undangan
   const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
@@ -477,26 +358,12 @@ export default function UndanganWaliPage() {
               statusKonfirmasi: s.status_konfirmasi || 'BELUM',
               perkiraanL: Number(s.perkiraan_l || 0),
               perkiraanP: Number(s.perkiraan_p || 0),
-              hariKonfirmasi: s.hari_konfirmasi || '',
-              jamKonfirmasi: s.jam_konfirmasi || '',
               catatan: s.catatan_konfirmasi || '',
               diisiAt: s.updated_at || s.created_at,
             },
           };
 
           setItem(mappedItem);
-
-          if (s.hari_konfirmasi) {
-            const normH = String(s.hari_konfirmasi).toUpperCase();
-            setHariKonfirmasi(normH.includes('JUM') ? 'JUMAT' : 'SABTU');
-          } else {
-            setHariKonfirmasi('');
-          }
-          if (s.jam_konfirmasi) {
-            setJamKonfirmasi(String(s.jam_konfirmasi));
-          } else {
-            setJamKonfirmasi('');
-          }
 
           if (s.status_konfirmasi === 'SUDAH') {
             setEstL(Number(s.perkiraan_l || 0));
@@ -703,15 +570,11 @@ export default function UndanganWaliPage() {
 
     const targetKode = String(item.kuota?.kodeQr || item.kode || kodeSH).toUpperCase().trim();
     const nowIso = new Date().toISOString();
-    const effectiveHari = hariKonfirmasi || 'SABTU';
-    const effectiveJam = jamKonfirmasi || null;
 
     const payload = {
       status_konfirmasi: 'SUDAH',
       perkiraan_l: Number(estL),
       perkiraan_p: Number(estP),
-      hari_konfirmasi: effectiveHari,
-      jam_konfirmasi: effectiveJam,
       catatan_konfirmasi: catatanRsvp ? catatanRsvp.trim() : null,
       updated_at: nowIso,
     };
@@ -725,8 +588,6 @@ export default function UndanganWaliPage() {
           kode: targetKode,
           perkiraan_l: Number(estL),
           perkiraan_p: Number(estP),
-          hari_konfirmasi: effectiveHari,
-          jam_konfirmasi: effectiveJam,
           catatan_konfirmasi: catatanRsvp ? catatanRsvp.trim() : null,
         }),
       });
@@ -746,8 +607,6 @@ export default function UndanganWaliPage() {
           statusKonfirmasi: 'SUDAH',
           perkiraanL: Number(estL),
           perkiraanP: Number(estP),
-          hariKonfirmasi: effectiveHari,
-          jamKonfirmasi: effectiveJam || '',
           catatan: catatanRsvp ? catatanRsvp.trim() : '',
           diisiAt: nowIso,
         },
