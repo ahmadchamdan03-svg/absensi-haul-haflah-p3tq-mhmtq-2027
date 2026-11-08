@@ -821,7 +821,14 @@ export default function UndanganWaliPage() {
         <UndanganParallaxOrnaments isOpened={isOpened} />
 
         {/* Audio Elemen Tersembunyi */}
-        <audio ref={audioRef} src="/audio/backsound-haflah.wav" loop preload="none" />
+        <audio
+          ref={audioRef}
+          src="/audio/bgm-haflah.mp3"
+          loop
+          preload="metadata"
+          onPlay={() => setIsPlayingMusic(true)}
+          onPause={() => setIsPlayingMusic(false)}
+        />
 
         {/* Floating Music Button */}
         <MusicToggle
