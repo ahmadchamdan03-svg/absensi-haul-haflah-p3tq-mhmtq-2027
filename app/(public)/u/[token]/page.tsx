@@ -14,7 +14,7 @@ import {
   getAmbiguousKodeVariants,
 } from '@/lib/utils';
 import DenahModal from '@/components/DenahModal';
-import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
+import UndanganStageBackdrop from '@/components/public/undangan/UndanganStageBackdrop';
 import DaftarShohibulHajatModal from '@/components/DaftarShohibulHajatModal';
 import { getNamaPenerima } from '@/components/public/undangan/types';
 import {
@@ -114,6 +114,7 @@ export default function UndanganWaliPage() {
   const [isOpened, setIsOpened] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mainContentRef = useRef<HTMLDivElement | null>(null);
 
   // State Estimasi Kehadiran (RSVP)
   const [estL, setEstL] = useState(1);
@@ -610,17 +611,20 @@ export default function UndanganWaliPage() {
     }
   };
 
-  // Kunci scroll body saat cover belum dibuka, buka scroll saat sudah dibuka
+  // Kunci scroll body dan nonaktifkan interaksi konten utama saat cover belum dibuka
   useEffect(() => {
     if (!isOpened) {
       document.body.style.overflow = 'hidden';
+      mainContentRef.current?.setAttribute('inert', '');
     } else {
       document.body.style.overflow = 'unset';
+      mainContentRef.current?.removeAttribute('inert');
     }
     return () => {
       document.body.style.overflow = 'unset';
+      mainContentRef.current?.removeAttribute('inert');
     };
-  }, [isOpened]);
+  }, [isOpened, item?.tipe, itemNotFound]);
 
   const toggleMusic = () => {
     if (!audioRef.current) return;
@@ -810,8 +814,8 @@ export default function UndanganWaliPage() {
           !isOpened ? 'h-[100dvh] overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
         }`}
       >
-        {/* EFEK INTERAKTIF CANVAS REVEAL MASK (RIAK AIR PANGGUNG AULA AL-MUKTAMAR MENYELURUH) */}
-        <CanvasRevealMask className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-0" />
+        {/* BACKGROUND PANGGUNG AULA AL-MUKTAMAR DENGAN OVERLAY DEEP NAVY TRANSPARAN */}
+        <UndanganStageBackdrop />
 
         {/* ASET VISUAL DARI FILE CDR & ORNAMEN PARALLAX FLOATING */}
         <UndanganParallaxOrnaments isOpened={isOpened} />
@@ -853,7 +857,12 @@ export default function UndanganWaliPage() {
         {/* KONTEN PORTAL UNDANGAN (TAMPIL DI BAWAH COVER DENGAN TRANSISI ELEGAN)     */}
         {/* ========================================================================= */}
         {item?.tipe === 'UNDANGAN' || isTamuUndangan ? (
-          <div className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28">
+          <div
+            ref={mainContentRef}
+            data-portal-content="true"
+            aria-hidden={!isOpened}
+            className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-5 md:space-y-6 animate-in fade-in duration-500 pb-28"
+          >
             <TamuHeroAndEventSections
               item={item}
               onOpenDenah={() => setIsDenahOpen(true)}
@@ -878,7 +887,12 @@ export default function UndanganWaliPage() {
             )}
           </div>
         ) : (
-          <div className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 animate-in fade-in duration-500 pb-28">
+          <div
+            ref={mainContentRef}
+            data-portal-content="true"
+            aria-hidden={!isOpened}
+            className="relative z-20 max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-4 md:space-y-5 animate-in fade-in duration-500 pb-28"
+          >
             <WaliHeroAndIdentitySections
               item={item}
               santri={santri}
@@ -936,9 +950,11 @@ export default function UndanganWaliPage() {
         )}
 
         {/* FLOATING "USTH TANYA" BUTTON */}
-        <FloatingUsthTanyaButton
-          href={isTamuUndangan ? waUsTanyaLinkTamu : waUsTanyaLink}
-        />
+        {isOpened && (
+          <FloatingUsthTanyaButton
+            href={isTamuUndangan ? waUsTanyaLinkTamu : waUsTanyaLink}
+          />
+        )}
 
         {/* MODAL DENAH LOKASI */}
         <DenahModal isOpen={isDenahOpen} onClose={() => setIsDenahOpen(false)} />

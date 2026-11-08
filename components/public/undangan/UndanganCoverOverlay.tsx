@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { AlertCircle, MessageCircle, MailOpen } from 'lucide-react';
-import { motion } from 'framer-motion';
-import CanvasRevealMask from '@/components/landing/CanvasRevealMask';
+import { motion, useReducedMotion } from 'framer-motion';
+import UndanganStageBackdrop from './UndanganStageBackdrop';
 import ScrollReveal from '@/components/ScrollReveal';
 import HeaderUndangan from '@/components/HeaderUndangan';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
@@ -17,30 +17,32 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
 
   return (
     <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#0F2C59] text-white flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none relative z-10 overflow-hidden">
-      <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
-      <div className="max-w-sm w-full bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-6 relative z-20">
+      <UndanganStageBackdrop className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
+      <div className="max-w-sm w-full bg-[#0F2C59]/65 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-6 relative z-20">
         <div className="flex justify-center">
           <img
-            src="/logo-haul-haflah-transparent.png"
-            alt="Logo Haul & Haflah P3TQ MHMTQ"
+            src="/images/logo-haul-white.png"
+            alt="Logo Haul dan Haflah P3TQ MHMTQ"
+            width={538}
+            height={337}
             className="h-16 sm:h-20 w-auto object-contain drop-shadow-[0_4px_12px_rgba(251,191,36,0.35)]"
           />
         </div>
 
-        <div className="flex items-center justify-center gap-3 text-amber-400/60">
+        <div className="flex items-center justify-center gap-3 text-amber-400/60" aria-hidden="true">
           <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
           <span className="text-xs">❖</span>
           <div className="h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent flex-1" />
         </div>
 
         <div className="space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-amber-300 mb-1">
-            <AlertCircle className="w-6 h-6 animate-pulse" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#0F2C59]/80 border border-amber-300/30 text-amber-300 mb-1">
+            <AlertCircle className="w-6 h-6" aria-hidden="true" />
           </div>
           <h1 className="text-xl sm:text-2xl font-serif font-black text-amber-400 drop-shadow-sm">
             Kode Undangan Tidak Ditemukan
           </h1>
-          <p className="text-xs sm:text-sm text-white/80 leading-relaxed font-sans">
+          <p className="text-xs sm:text-sm text-white/95 leading-relaxed font-sans">
             Mohon maaf, kode undangan tidak ditemukan. Silakan periksa kembali tautan undangan resmi Anda atau hubungi Sekretariat Haflah di 0851-8180-5377.
           </p>
         </div>
@@ -50,22 +52,22 @@ export function UndanganNotFoundView({ finalWaNo }: { finalWaNo: string }) {
             href={`https://wa.me/${targetWa}?text=${encodeURIComponent("Assalamu'alaikum, saya ingin konfirmasi tautan undangan Haflah.")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3 px-6 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-medium text-xs sm:text-sm shadow-md transition-all active:scale-95 inline-flex items-center justify-center space-x-2 cursor-pointer hover:border-amber-400/50"
+            className="w-full min-h-[44px] py-3 px-6 rounded-2xl bg-[#0F2C59]/80 hover:bg-[#0F2C59]/95 border border-white/30 text-white font-medium text-xs sm:text-sm shadow-md transition-all active:scale-95 inline-flex items-center justify-center space-x-2 cursor-pointer hover:border-amber-400/50 focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
           >
-            <MessageCircle className="w-4 h-4 text-emerald-300" />
+            <MessageCircle className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden="true" />
             <span>Hubungi Sekretariat Haflah via WhatsApp</span>
           </a>
           <Link
             href="/"
-            className="w-full py-2.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 text-white/90 font-medium text-xs sm:text-sm border border-white/15 transition-all inline-flex items-center justify-center space-x-2"
+            className="w-full min-h-[44px] py-2.5 px-6 rounded-2xl bg-[#0F2C59]/60 hover:bg-[#0F2C59]/80 text-white font-medium text-xs sm:text-sm border border-white/25 transition-all inline-flex items-center justify-center space-x-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
           >
             <span>Kembali ke Beranda</span>
           </Link>
         </div>
       </div>
-      <p className="text-[11px] text-white/60 mt-6 font-medium relative z-20">
+      <footer className="text-[11px] text-white/90 mt-6 font-medium relative z-20">
         © 2027 Haflah Akhirussanah P3TQ &amp; MHMTQ Lirboyo Kediri
-      </p>
+      </footer>
     </div>
   );
 }
@@ -77,45 +79,53 @@ export function UndanganCoverTamu({
   item: any;
   onOpen: () => void;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <div
       className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
     >
-      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR PENUH FULL SCREEN PC & MOBILE) */}
-      <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
+      {/* BACKGROUND GAMBAR PANGGUNG AULA DENGAN OVERLAY DEEP NAVY TRANSPARAN */}
+      <UndanganStageBackdrop className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
 
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS - TIDAK MENUTUPI TEKS) */}
       <motion.img
         src="/images/undangan-assets/lemon-branch.webp"
-        alt="Ornamen Lemon"
-        className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 pointer-events-none z-10 opacity-75 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
-        animate={{ rotate: [0, 3, 0, -3, 0] }}
+        alt=""
+        aria-hidden="true"
+        width={334}
+        height={483}
+        className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 h-auto pointer-events-none z-10 opacity-75 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+        animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -3, 0] }}
         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
       />
 
       {/* ORNAMEN MANDALA EMAS BERPUTAR PELAN (POJOK KANAN BAWAH) */}
       <motion.img
         src="/images/undangan-assets/mandala-gold.webp"
-        alt="Pola Mandala Emas"
-        className="absolute -bottom-8 -right-8 w-24 sm:w-36 pointer-events-none z-10 opacity-60 sm:opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
-        animate={{ rotate: 360 }}
+        alt=""
+        aria-hidden="true"
+        width={462}
+        height={462}
+        className="absolute -bottom-8 -right-8 w-24 sm:w-36 h-auto pointer-events-none z-10 opacity-60 sm:opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
+        animate={shouldReduceMotion ? undefined : { rotate: 360 }}
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
 
       {/* KONTEN COVER (FLEXBOX SEIMBANG: HEADER ATAS, KARTU TENGAH, TOMBOL BAWAH - RESPONSIF MOBILE & PC) */}
       <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 relative z-20 overflow-hidden">
         {/* 1. BAGIAN ATAS: HEADER RESMI (LOGO, JUDUL HAUL HAFLAH, INSTANSI) */}
-        <div className="w-full mt-2 sm:mt-4 relative z-20 shrink-0">
+        <header className="w-full mt-2 sm:mt-4 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8}>
             <HeaderUndangan titleType="UNDANGAN RESMI" variant="dark" />
           </ScrollReveal>
-        </div>
+        </header>
 
-        {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS PENERIMA */}
+        {/* 2. BAGIAN TENGAH: FROSTED NAVY CARD IDENTITAS PENERIMA */}
         <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
-              <span className="text-[11px] sm:text-xs text-white/80 uppercase tracking-widest font-semibold block drop-shadow-xs">
+            <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
+              <span className="text-[11px] sm:text-xs text-white/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu/Saudara:
               </span>
 
@@ -131,7 +141,7 @@ export function UndanganCoverTamu({
                 </div>
               )}
 
-              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-300/60">
+              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-300/60" aria-hidden="true">
                 <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
                 <span className="text-xs">❖</span>
                 <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
@@ -146,9 +156,9 @@ export function UndanganCoverTamu({
             <button
               type="button"
               onClick={onOpen}
-              className="w-full py-3.5 px-6 rounded-2xl bg-white/20 hover:bg-white/30 active:bg-white/35 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+              className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#0F2C59]/65 hover:bg-[#0F2C59]/80 active:bg-[#0F2C59]/90 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
             >
-              <MailOpen className="w-4 h-4 text-amber-300 animate-pulse" />
+              <MailOpen className="w-4 h-4 text-amber-300 shrink-0" aria-hidden="true" />
               <span className="tracking-widest uppercase">Buka Undangan</span>
             </button>
           </ScrollReveal>
@@ -167,45 +177,53 @@ export function UndanganCoverWali({
   santri: any;
   onOpen: () => void;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <div
       className="h-[100dvh] max-h-[100dvh] w-full min-h-screen flex flex-col justify-between items-center text-center relative overflow-hidden select-none bg-[#0F2C59]"
     >
-      {/* BACKGROUND GAMBAR PANGGUNG AULA & EFEK REVEAL MASK (RIAK AIR PENUH FULL SCREEN PC & MOBILE) */}
-      <CanvasRevealMask className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-10" />
+      {/* BACKGROUND GAMBAR PANGGUNG AULA DENGAN OVERLAY DEEP NAVY TRANSPARAN */}
+      <UndanganStageBackdrop className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 select-none" />
 
       {/* ORNAMEN LEMON BERGOYANG PELAN (POJOK KIRI ATAS - TIDAK MENUTUPI TEKS) */}
       <motion.img
         src="/images/undangan-assets/lemon-branch.webp"
-        alt="Ornamen Lemon"
-        className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 pointer-events-none z-10 opacity-75 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
-        animate={{ rotate: [0, 3, 0, -3, 0] }}
+        alt=""
+        aria-hidden="true"
+        width={334}
+        height={483}
+        className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 h-auto pointer-events-none z-10 opacity-75 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+        animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -3, 0] }}
         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
       />
 
       {/* ORNAMEN MANDALA EMAS BERPUTAR PELAN (POJOK KANAN BAWAH) */}
       <motion.img
         src="/images/undangan-assets/mandala-gold.webp"
-        alt="Pola Mandala Emas"
-        className="absolute -bottom-8 -right-8 w-24 sm:w-36 pointer-events-none z-10 opacity-60 sm:opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
-        animate={{ rotate: 360 }}
+        alt=""
+        aria-hidden="true"
+        width={462}
+        height={462}
+        className="absolute -bottom-8 -right-8 w-24 sm:w-36 h-auto pointer-events-none z-10 opacity-60 sm:opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
+        animate={shouldReduceMotion ? undefined : { rotate: 360 }}
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
 
       {/* KONTEN COVER WALI (FLEXBOX SEIMBANG: HEADER ATAS, KARTU TENGAH, TOMBOL BAWAH - RESPONSIF MOBILE & PC) */}
       <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 relative z-20 overflow-hidden">
         {/* 1. BAGIAN ATAS: HEADER RESMI WALI (LOGO, JUDUL HAUL HAFLAH, INSTANSI) */}
-        <div className="w-full mt-2 sm:mt-4 relative z-20 shrink-0">
+        <header className="w-full mt-2 sm:mt-4 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8}>
             <HeaderUndanganWali />
           </ScrollReveal>
-        </div>
+        </header>
 
-        {/* 2. BAGIAN TENGAH: GLASSMORPHISM CARD IDENTITAS WALI SANTRI */}
+        {/* 2. BAGIAN TENGAH: FROSTED NAVY CARD IDENTITAS WALI SANTRI */}
         <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full bg-white/15 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
-              <span className="text-[11px] sm:text-xs text-white/80 uppercase tracking-widest font-semibold block drop-shadow-xs">
+            <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
+              <span className="text-[11px] sm:text-xs text-white/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu Wali Santri dari:
               </span>
 
@@ -216,7 +234,7 @@ export function UndanganCoverWali({
               </h2>
 
               <div>
-                <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-amber-300 text-xs font-bold shadow-md max-w-full leading-normal break-words text-center">
+                <div className="inline-block px-4 py-1.5 rounded-full bg-[#0F2C59]/85 border border-amber-300/40 text-amber-200 text-xs font-bold shadow-md max-w-full leading-normal break-words text-center">
                   {santri
                     ? santri.kamar && santri.kamar !== '-'
                       ? `${cleanKategoriTamatan(santri.subKategori) || 'Santri'} · ${santri.kamar}`
@@ -227,7 +245,7 @@ export function UndanganCoverWali({
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-300/60">
+              <div className="flex items-center justify-center gap-3 pt-0.5 text-amber-300/60" aria-hidden="true">
                 <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
                 <span className="text-xs">❖</span>
                 <div className="h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent flex-1" />
@@ -242,9 +260,9 @@ export function UndanganCoverWali({
             <button
               type="button"
               onClick={onOpen}
-              className="w-full py-3.5 px-6 rounded-2xl bg-white/20 hover:bg-white/30 active:bg-white/35 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+              className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#0F2C59]/65 hover:bg-[#0F2C59]/80 active:bg-[#0F2C59]/90 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
             >
-              <MailOpen className="w-4 h-4 text-amber-300 animate-pulse" />
+              <MailOpen className="w-4 h-4 text-amber-300 shrink-0" aria-hidden="true" />
               <span className="tracking-widest uppercase">Buka Undangan</span>
             </button>
           </ScrollReveal>
