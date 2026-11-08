@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import TimePicker from 'react-time-picker';
-import { Clock, CheckCircle2, MessageCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Loader2 } from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
 
@@ -13,19 +12,6 @@ interface UndanganWaliRsvpSectionProps {
   setEstL: React.Dispatch<React.SetStateAction<number>>;
   estP: number;
   setEstP: React.Dispatch<React.SetStateAction<number>>;
-  jamKonfirmasi: string;
-  setJamKonfirmasi: (val: string) => void;
-  hariKonfirmasi: '' | 'JUMAT' | 'SABTU' | string;
-  setHariKonfirmasi: React.Dispatch<React.SetStateAction<'' | 'JUMAT' | 'SABTU'>>;
-  rsvpValidationErr: string | null;
-  setRsvpValidationErr: (val: string | null) => void;
-  isMounted: boolean;
-  isMobileDevice: boolean;
-  clockWrapperRef: React.RefObject<HTMLDivElement>;
-  isClockOpen: boolean;
-  setIsClockOpen: (val: boolean) => void;
-  clockMode: 'hours' | 'minutes';
-  setClockMode: (val: 'hours' | 'minutes') => void;
   savingRsvp: boolean;
   isWaliRsvpExceeded: boolean;
   handleSimpanEstimasiWali: () => void;
@@ -42,19 +28,6 @@ export default function UndanganWaliRsvpSection({
   setEstL,
   estP,
   setEstP,
-  jamKonfirmasi,
-  setJamKonfirmasi,
-  hariKonfirmasi,
-  setHariKonfirmasi,
-  rsvpValidationErr,
-  setRsvpValidationErr,
-  isMounted,
-  isMobileDevice,
-  clockWrapperRef,
-  isClockOpen,
-  setIsClockOpen,
-  clockMode,
-  setClockMode,
   savingRsvp,
   isWaliRsvpExceeded,
   handleSimpanEstimasiWali,
@@ -68,6 +41,7 @@ export default function UndanganWaliRsvpSection({
   return (
     <ScrollReveal delay={300} variant="zoom-in">
       <GlassCard className="p-4 sm:p-6 md:p-8 space-y-4">
+        {/* HEADER KONFIRMASI */}
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-1">
             <h3 className="font-serif font-black text-base text-[#0F2C59]">
@@ -83,217 +57,6 @@ export default function UndanganWaliRsvpSection({
             </span>
           )}
         </div>
-
-        {/* FORMAT 2 KOLOM: JAM (KIRI) & HARI (KANAN) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-white/45 backdrop-blur-xs border border-white/80">
-          {/* KOLOM KIRI: CLOCK PICKER 24 JAM */}
-          <div
-            className={`p-3 rounded-xl bg-white/75 backdrop-blur-xs border transition-all ${
-              !jamKonfirmasi && rsvpValidationErr
-                ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300'
-                : 'border-[#BAE6FD]'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-serif font-black text-[#0F2C59] uppercase tracking-wide">
-                ⏰ Jam Kedatangan:
-              </label>
-              <div className="text-xs font-bold text-[#1D4ED8] px-2.5 py-1 bg-[#F0F9FF] rounded-xl border border-[#BAE6FD] shrink-0 font-mono shadow-2xs">
-                {jamKonfirmasi ? `${jamKonfirmasi} WIB` : 'Belum dipilih'}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="w-full">
-                {isMounted && !isMobileDevice ? (
-                  <div ref={clockWrapperRef} className="relative z-50 w-full">
-                    <TimePicker
-                      value={jamKonfirmasi || null}
-                      onChange={(val) => {
-                        if (val) {
-                          setJamKonfirmasi(String(val));
-                          setRsvpValidationErr(null);
-                        }
-                      }}
-                      format="HH:mm"
-                      disableClock={false}
-                      clearIcon={null}
-                      isOpen={isClockOpen}
-                      onClockOpen={() => setIsClockOpen(true)}
-                      onClockClose={() => setIsClockOpen(false)}
-                      clockIcon={<Clock className="w-4 h-4 text-[#1D4ED8]" />}
-                      className={`custom-time-picker z-50 w-full ${
-                        !jamKonfirmasi && rsvpValidationErr ? 'has-error' : ''
-                      }`}
-                      locale="id-ID"
-                      hourPlaceholder="00"
-                      minutePlaceholder="00"
-                      clockProps={{ renderNumbers: true }}
-                    />
-                  </div>
-                ) : (
-                  <div className="relative w-full">
-                    <Clock className="w-4 h-4 text-[#1D4ED8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      type="time"
-                      value={jamKonfirmasi}
-                      onChange={(e) => {
-                        setJamKonfirmasi(e.target.value);
-                        setRsvpValidationErr(null);
-                      }}
-                      className={`w-full pl-9 pr-3 py-2 text-sm font-mono font-bold rounded-xl bg-white border text-[#0F2C59] focus:outline-hidden focus:ring-2 focus:ring-[#1D4ED8] ${
-                        !jamKonfirmasi && rsvpValidationErr ? 'border-rose-400' : 'border-[#BAE6FD]'
-                      }`}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Toolbar Kontrol Clock Picker Interaktif (Desktop) */}
-              {isMounted && !isMobileDevice && isClockOpen && (
-                <div className="flex items-center justify-between w-full pt-1 px-1 text-xs">
-                  <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#BAE6FD]">
-                    <button
-                      type="button"
-                      onClick={() => setClockMode('hours')}
-                      className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
-                        clockMode === 'hours'
-                          ? 'bg-[#1D4ED8] text-white shadow-xs'
-                          : 'text-[#7A624E] hover:bg-stone-200/60'
-                      }`}
-                    >
-                      🕒 Jam
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setClockMode('minutes')}
-                      className={`px-2 py-0.5 text-[11px] font-bold rounded-md transition-all cursor-pointer ${
-                        clockMode === 'minutes'
-                          ? 'bg-[#1D4ED8] text-white shadow-xs'
-                          : 'text-[#7A624E] hover:bg-stone-200/60'
-                      }`}
-                    >
-                      ⏱️ Menit
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-1 bg-stone-100/90 p-0.5 rounded-lg border border-[#BAE6FD]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const parts = (jamKonfirmasi || '08:00').split(':');
-                        let h = parseInt(parts[0], 10);
-                        if (isNaN(h)) h = 8;
-                        if (h >= 12) h = h - 12;
-                        const m = parts[1] || '00';
-                        setJamKonfirmasi(`${String(h).padStart(2, '0')}:${m}`);
-                        setRsvpValidationErr(null);
-                      }}
-                      className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                        parseInt((jamKonfirmasi || '08:00').split(':')[0], 10) < 12
-                          ? 'bg-[#1D4ED8] text-white shadow-xs'
-                          : 'text-[#7A624E] hover:bg-stone-200/60'
-                      }`}
-                    >
-                      Pagi (00-11)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const parts = (jamKonfirmasi || '08:00').split(':');
-                        let h = parseInt(parts[0], 10);
-                        if (isNaN(h)) h = 8;
-                        if (h < 12) h = h + 12;
-                        const m = parts[1] || '00';
-                        setJamKonfirmasi(`${String(h).padStart(2, '0')}:${m}`);
-                        setRsvpValidationErr(null);
-                      }}
-                      className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                        parseInt((jamKonfirmasi || '08:00').split(':')[0], 10) >= 12
-                          ? 'bg-[#1D4ED8] text-white shadow-xs'
-                          : 'text-[#7A624E] hover:bg-stone-200/60'
-                      }`}
-                    >
-                      Siang/Malam (12-23)
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Hint Interaksi Desktop */}
-              {isMounted && !isMobileDevice && isClockOpen && (
-                <p className="text-[10px] text-[#1D4ED8] italic text-center -mt-1">
-                  *Klik atau geser/drag lingkaran jam analog untuk memutar jarum waktu
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* KOLOM KANAN: PILIHAN HARI KEDATANGAN */}
-          <div
-            className={`p-3 rounded-xl bg-white/75 backdrop-blur-xs border flex flex-col justify-between transition-all ${
-              !hariKonfirmasi && rsvpValidationErr
-                ? 'border-rose-400 bg-rose-50/30 ring-1 ring-rose-300'
-                : 'border-[#BAE6FD]'
-            }`}
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-serif font-black text-[#0F2C59] uppercase tracking-wide">
-                  🗓️ Hari Kedatangan:
-                </label>
-                <span className="text-[10px] text-stone-500">Pilih salah satu</span>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHariKonfirmasi('JUMAT');
-                    setRsvpValidationErr(null);
-                  }}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
-                    hariKonfirmasi === 'JUMAT'
-                      ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs ring-2 ring-[#1D4ED8]/30'
-                      : 'bg-white text-[#7A624E] border-[#BAE6FD] hover:bg-[#FAF0E6]'
-                  }`}
-                >
-                  Jum'at (23 Rajab)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHariKonfirmasi('SABTU');
-                    setRsvpValidationErr(null);
-                  }}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer text-center ${
-                    hariKonfirmasi === 'SABTU'
-                      ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-xs ring-2 ring-[#1D4ED8]/30'
-                      : 'bg-white text-[#7A624E] border-[#BAE6FD] hover:bg-[#FAF0E6]'
-                  }`}
-                >
-                  Sabtu (24 Rajab)
-                </button>
-              </div>
-            </div>
-
-            <div className="text-[10px] text-stone-500 pt-2 text-center">
-              {hariKonfirmasi ? (
-                <span className="text-blue-700 font-bold">
-                  ✓ Terpilih: {hariKonfirmasi === 'JUMAT' ? "Jum'at" : 'Sabtu'}
-                </span>
-              ) : (
-                <span className="text-stone-400 italic">Belum menentukan hari</span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* PESAN VALIDASI HARI & JAM */}
-        {rsvpValidationErr && (
-          <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs font-bold text-center animate-in fade-in">
-            ⚠️ {rsvpValidationErr}
-          </div>
-        )}
 
         {/* STACK VERTIKAL (PUTRA & PUTRI) */}
         <div className="space-y-4 md:space-y-5 pt-1">

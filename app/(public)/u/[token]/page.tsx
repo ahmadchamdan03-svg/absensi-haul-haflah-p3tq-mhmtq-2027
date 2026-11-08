@@ -120,7 +120,7 @@ export default function UndanganWaliPage() {
   // State Estimasi Kehadiran (RSVP)
   const [estL, setEstL] = useState(1);
   const [estP, setEstP] = useState(1);
-  const [hariKonfirmasi, setHariKonfirmasi] = useState<'SABTU' | 'JUMAT' | ''>('');
+  const [hariKonfirmasi, setHariKonfirmasi] = useState<'SABTU' | 'JUMAT' | string>('SABTU');
   const [jamKonfirmasi, setJamKonfirmasi] = useState<string>('');
   const [catatanRsvp, setCatatanRsvp] = useState('');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
@@ -693,15 +693,6 @@ export default function UndanganWaliPage() {
 
   const handleSimpanEstimasiWali = async () => {
     if (!item) return;
-    if (!hariKonfirmasi) {
-      setRsvpValidationErr('Mohon tentukan Hari Kedatangan Anda (Jum\'at atau Sabtu).');
-      return;
-    }
-    if (!jamKonfirmasi) {
-      setRsvpValidationErr('Mohon tentukan Perkiraan Jam Kedatangan Anda.');
-      return;
-    }
-    setRsvpValidationErr(null);
 
     if (isWaliRsvpExceeded) {
       setRsvpError(`Total konfirmasi (${totalInputWali}) melebihi kuota Anda (${totalKuotaSantri} kursi). Mohon kurangi jumlahnya.`);
@@ -712,13 +703,15 @@ export default function UndanganWaliPage() {
 
     const targetKode = String(item.kuota?.kodeQr || item.kode || kodeSH).toUpperCase().trim();
     const nowIso = new Date().toISOString();
+    const effectiveHari = hariKonfirmasi || 'SABTU';
+    const effectiveJam = jamKonfirmasi || null;
 
     const payload = {
       status_konfirmasi: 'SUDAH',
       perkiraan_l: Number(estL),
       perkiraan_p: Number(estP),
-      hari_konfirmasi: hariKonfirmasi,
-      jam_konfirmasi: jamKonfirmasi,
+      hari_konfirmasi: effectiveHari,
+      jam_konfirmasi: effectiveJam,
       catatan_konfirmasi: catatanRsvp ? catatanRsvp.trim() : null,
       updated_at: nowIso,
     };
@@ -732,8 +725,8 @@ export default function UndanganWaliPage() {
           kode: targetKode,
           perkiraan_l: Number(estL),
           perkiraan_p: Number(estP),
-          hari_konfirmasi: hariKonfirmasi,
-          jam_konfirmasi: jamKonfirmasi,
+          hari_konfirmasi: effectiveHari,
+          jam_konfirmasi: effectiveJam,
           catatan_konfirmasi: catatanRsvp ? catatanRsvp.trim() : null,
         }),
       });
@@ -753,8 +746,8 @@ export default function UndanganWaliPage() {
           statusKonfirmasi: 'SUDAH',
           perkiraanL: Number(estL),
           perkiraanP: Number(estP),
-          hariKonfirmasi: hariKonfirmasi,
-          jamKonfirmasi: jamKonfirmasi,
+          hariKonfirmasi: effectiveHari,
+          jamKonfirmasi: effectiveJam || '',
           catatan: catatanRsvp ? catatanRsvp.trim() : '',
           diisiAt: nowIso,
         },
@@ -933,19 +926,6 @@ export default function UndanganWaliPage() {
                 setEstL={setEstL}
                 estP={estP}
                 setEstP={setEstP}
-                jamKonfirmasi={jamKonfirmasi}
-                setJamKonfirmasi={setJamKonfirmasi}
-                hariKonfirmasi={hariKonfirmasi}
-                setHariKonfirmasi={setHariKonfirmasi}
-                rsvpValidationErr={rsvpValidationErr}
-                setRsvpValidationErr={setRsvpValidationErr}
-                isMounted={isMounted}
-                isMobileDevice={isMobileDevice}
-                clockWrapperRef={clockWrapperRef}
-                isClockOpen={isClockOpen}
-                setIsClockOpen={setIsClockOpen}
-                clockMode={clockMode}
-                setClockMode={setClockMode}
                 savingRsvp={savingRsvp}
                 isWaliRsvpExceeded={isWaliRsvpExceeded}
                 handleSimpanEstimasiWali={handleSimpanEstimasiWali}
