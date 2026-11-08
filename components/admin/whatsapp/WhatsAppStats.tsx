@@ -17,7 +17,7 @@ export function formatWhatsAppMarkdown(text: string): string {
   return text.replace(/\*\*(.*?)\*\*/g, '*$1*');
 }
 
-export function getTeksPesan(kel: any, gel: 1 | 2, linkGrupWa?: string) {
+export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa?: string) {
   const santri = kel.santri?.[0];
   const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
   const origin =
@@ -59,7 +59,7 @@ Wassalamu’alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
 
     return formatWhatsAppMarkdown(rawTemplate);
-  } else {
+  } else if (gel === 2) {
     return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
 
@@ -76,6 +76,15 @@ ${linkPembelian}
 
 Wassalamu'alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./ 2027 M.*`;
+  } else {
+    return `Kepada Yth. Bapak/Ibu Wali Santri *${namaSantri}*
+
+Menjelang pelaksanaan Haul & Haflah Akhirussanah P3TQ & MHMTQ, bagi Bapak/Ibu Wali Santri yang membutuhkan penginapan, harap segera menghubungi panitia.
+
+Terima kasih atas perhatiannya. Wassalamu'alaikum Wr. Wb.
+
+Jazakumullahu khairan katsiran.
+Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
   }
 }
 
@@ -120,8 +129,8 @@ export interface WhatsAppStatsProps {
   keluargaList: any[];
   loadingData: boolean;
   fetchSantriWaData: () => void;
-  gelombang: 1 | 2;
-  setGelombang: (g: 1 | 2) => void;
+  gelombang: 1 | 2 | 3;
+  setGelombang: (g: 1 | 2 | 3) => void;
   setFilterKonfirmasi: (f: 'SEMUA' | 'BELUM' | 'SUDAH') => void;
   kuotaTambahanBuka: boolean;
   savingKuotaConfig: boolean;
@@ -242,6 +251,20 @@ export default function WhatsAppStats({
             >
               <span>2. Kuota Tambahan</span>
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setGelombang(3);
+                setFilterKonfirmasi('SEMUA');
+              }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center space-x-1.5 shrink-0 ${
+                gelombang === 3
+                  ? 'bg-[#1D4ED8]/90 backdrop-blur-sm text-white shadow-md border border-[#1E40AF]'
+                  : 'text-[#0F2C59] hover:text-[#1D4ED8] hover:bg-white/50'
+              }`}
+            >
+              <span>3. Penginapan</span>
+            </button>
           </div>
 
           <div className="flex items-center justify-between sm:justify-start space-x-2.5 px-3.5 py-2 bg-white/40 backdrop-blur-sm rounded-xl border border-white/50 shadow-xs shrink-0">
@@ -333,7 +356,9 @@ export default function WhatsAppStats({
                 <span className="text-[#1D4ED8]">
                   {gelombang === 1
                     ? 'Gelombang 1 - Undangan Resmi & QR'
-                    : 'Gelombang 2 - Info Kuota Tambahan'}
+                    : gelombang === 2
+                    ? 'Gelombang 2 - Info Kuota Tambahan'
+                    : 'Gelombang 3 - Info Penginapan'}
                 </span>
               </span>
             </div>

@@ -106,7 +106,7 @@ export async function updateTamuWaInSupabase(
 
 export async function kirimFonnteWali(
   kel: any,
-  gelombang: 1 | 2,
+  gelombang: 1 | 2 | 3,
   linkGrupWa: string,
   setSendingKode: (val: string | null) => void,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
@@ -124,12 +124,14 @@ export async function kirimFonnteWali(
 
   try {
     const teks = getTeksPesan(kel, gelombang, activeLinkGrup);
+    const tipePesan = gelombang === 3 ? 'PENGINAPAN' : gelombang === 2 ? 'KUOTA_TAMBAHAN' : 'UNDANGAN';
     const res = await fetch('/api/whatsapp/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         target: rawHp,
         message: teks,
+        tipe_pesan: tipePesan,
       }),
     });
 
@@ -158,7 +160,7 @@ export async function kirimFonnteWali(
 
 export async function kirimManualWAWali(
   kel: any,
-  gelombang: 1 | 2,
+  gelombang: 1 | 2 | 3,
   linkGrupWa: string,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {

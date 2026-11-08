@@ -23,7 +23,7 @@ export default function WhatsAppPage() {
   // =========================================================================
   // STATE WALI SANTRI
   // =========================================================================
-  const [gelombang, setGelombang] = useState<1 | 2>(1);
+  const [gelombang, setGelombang] = useState<1 | 2 | 3>(1);
   const [kuotaTambahanBuka, setKuotaTambahanBuka] = useState(false);
   const [savingKuotaConfig, setSavingKuotaConfig] = useState(false);
   const [linkGrupWa, setLinkGrupWa] = useState('');
@@ -331,6 +331,8 @@ export default function WhatsAppPage() {
       }
       if (g === '2') {
         setGelombang(2);
+      } else if (g === '3') {
+        setGelombang(3);
       }
       if (fk === 'BELUM') {
         setFilterKonfirmasi('BELUM');
@@ -535,7 +537,9 @@ export default function WhatsAppPage() {
     const judulPesan =
       gelombang === 1
         ? 'Undangan Resmi & QR'
-        : 'Penawaran Kuota Tambahan';
+        : gelombang === 2
+        ? 'Penawaran Kuota Tambahan'
+        : 'Informasi Penginapan';
 
     if (
       !window.confirm(
