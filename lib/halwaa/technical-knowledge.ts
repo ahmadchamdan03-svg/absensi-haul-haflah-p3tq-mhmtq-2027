@@ -1,3 +1,5 @@
+import { isSelfAvatarRequest, isImageSearchIntent } from '@/lib/image-search';
+
 // =============================================================================
 // MODUL KNOWLEDGE BASE TEKNIS & INFRASTRUKTUR SISTEM — USTH. HALWAA
 // Haul & Haflah P3TQ & MHMTQ 1448 H. / 2027 M.
@@ -51,6 +53,7 @@ const TECH_KEYWORDS = [
 
 export function isTechnicalInfrastructureQuery(query: string): boolean {
   if (!query || typeof query !== 'string') return false;
+  if (isSelfAvatarRequest(query) || isImageSearchIntent(query)) return false;
   const q = query.toLowerCase().trim();
 
   // Keyword langsung

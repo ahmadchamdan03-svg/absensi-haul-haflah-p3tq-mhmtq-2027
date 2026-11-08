@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { askAI } from '@/lib/ai-router';
-import { searchWebImagesDetailed } from '@/lib/image-search';
+import {
+  OFFICIAL_AVATAR_WAVE_PATH,
+  isSelfAvatarRequest,
+  isImageSearchIntent,
+  extractImageSubject,
+  searchWebImagesDetailed,
+} from '@/lib/image-search';
 import {
   detectMotivasiIntent,
   detectDiaSiapaIntent,
@@ -33,6 +39,7 @@ import {
   SECTION_MULTIMEDIA_DOC,
   HAFLAH_KNOWLEDGE_SYSTEM_PROMPT,
   generateLocalSmartResponseAsync,
+  getSelfAvatarResponse,
   isCountdownQuery,
   getCountdownFallbackResponse,
   cleanReplyForSession,
@@ -111,40 +118,24 @@ export async function POST(req: NextRequest) {
     const isFirstTurn = userMessageCount === 0;
 
     // =========================================================================
-    // FIX INTENT KHUSUS: SANTRI KATEGORI DOBEL (DIRECT QUERY SUPABASE LIVE)
+    // PRIORITAS UTAMA: AVATAR RESMI USTH. HALWAA & WEB IMAGE SEARCH
+    // Diproses sebelum intent teknis/LLM agar tidak halusinasi atau menolak gambar.
     // =========================================================================
-    if (detectKategoriDobelIntent(prompt, history)) {
-      const dobelReply = await handleKategoriDobelQuery(prompt, isFirstTurn, history);
-      const cleanReply = cleanReplyForSession(dobelReply, isFirstTurn, prompt);
-      const expr = 'happy';
+    if (isSelfAvatarRequest(prompt)) {
+      const reply = getSelfAvatarResponse(isFirstTurn);
       return NextResponse.json({
-        reply: cleanReply,
-        expression: expr,
-        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
-        source: 'supabase_live_query',
-        model: 'Usth. Halwaa Smart Query',
+        reply,
+        expression: 'wave',
+        avatar: OFFICIAL_AVATAR_WAVE_PATH,
+        source: 'self_avatar',
+        model: 'Avatar Resmi Usth. Halwaa',
         responseTimeMs: Date.now() - startTime,
       });
     }
 
-    // =========================================================================
-    // FITUR PENCARIAN GAMBAR WEB (WEB IMAGE SEARCH)
-    // =========================================================================
-    const isImageSearchRequest =
-      /(carikan|cari|lihatkan|tampilkan|minta|lihat|temukan|bisa cari|buatkan|bikin).*?(gambar|foto|potret|citra)/i.test(prompt) ||
-      /(gambar|foto|potret)\s+(masjid|pesantren|pondok|lirboyo|panggung|aula|santri|gerbang|gedung|suasana)/i.test(prompt) ||
-      /\b(carikan\s+gambar|carikan\s+foto|cari\s+gambar|cari\s+foto|foto\s+panggung|gambar\s+masjid)\b/i.test(prompt) ||
-      (prompt.toLowerCase().includes('gambar') && (prompt.toLowerCase().includes('internet') || prompt.toLowerCase().includes('google') || prompt.toLowerCase().includes('web')));
-
-    if (isImageSearchRequest) {
+    if (isImageSearchIntent(prompt)) {
       console.log('[AI Ask Route] Mendeteksi permintaan pencarian gambar web...');
-      const rawSubject = prompt
-        .replace(/^(tolong|mohon|coba|bisa|tolongkan|silakan)\s+/gi, '')
-        .replace(/(carikan|cari|tampilkan|lihatkan|minta|lihat|temukan|buatkan|bikinkan|bikin)\s+(gambar|foto|potret|citra|pemandangan)?/gi, '')
-        .replace(/(gambar|foto|potret|citra)\s*(tentang|dari|suasana|mengenai)?/gi, '')
-        .replace(/\s+(di|dari|pada)\s+(internet|google|web|bing|online)/gi, '')
-        .trim() || 'Hasil Pencarian';
-
+      const rawSubject = extractImageSubject(prompt);
       const cleanSubject = rawSubject.charAt(0).toUpperCase() + rawSubject.slice(1);
       const imageResult = await searchWebImagesDetailed(prompt);
 
@@ -161,6 +152,23 @@ export async function POST(req: NextRequest) {
         avatar: imageResult?.url ? '/images/avatar/ustadzah-avatar-happy.png' : '/images/avatar/ustadzah-avatar-polite.png',
         source: 'web_image_search',
         model: 'Web Image Search Engine',
+        responseTimeMs: Date.now() - startTime,
+      });
+    }
+
+    // =========================================================================
+    // FIX INTENT KHUSUS: SANTRI KATEGORI DOBEL (DIRECT QUERY SUPABASE LIVE)
+    // =========================================================================
+    if (detectKategoriDobelIntent(prompt, history)) {
+      const dobelReply = await handleKategoriDobelQuery(prompt, isFirstTurn, history);
+      const cleanReply = cleanReplyForSession(dobelReply, isFirstTurn, prompt);
+      const expr = 'happy';
+      return NextResponse.json({
+        reply: cleanReply,
+        expression: expr,
+        avatar: `/images/avatar/ustadzah-avatar-${expr}.png`,
+        source: 'supabase_live_query',
+        model: 'Usth. Halwaa Smart Query',
         responseTimeMs: Date.now() - startTime,
       });
     }

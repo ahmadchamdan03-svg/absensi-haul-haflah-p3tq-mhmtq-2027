@@ -34,22 +34,74 @@ const LOGO_OR_ICON_REGEX =
 const USER_AGENT_CHROME =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
+export const OFFICIAL_AVATAR_WAVE_PATH = '/images/avatar/ustadzah-avatar-wave.png';
+
+export function isSelfAvatarRequest(prompt: string): boolean {
+  const q = prompt.toLowerCase().trim();
+  if (!q) return false;
+
+  const hasPossessiveSuffix = /\b(gambarmu|fotomu|wajahmu|mukamu|potretmu|avatarmu)\b/i.test(q);
+  const hasVisualTargetSelf =
+    /\b(gambar|foto|wajah|muka|potret|citra|avatar|selfie|penampilan|profil)\s+(?:resmi\s+|asli\s+|nya\s+|dari\s+)?(kamu|anda|dirimu|halwa|halwaa|usth\.?\s*halwaa?|ustadzah\s*halwaa?)\b/i.test(
+      q
+    );
+  const mentionsExternalTopic =
+    /\b(panggung|aula|muktamar|masjid|pondok|pesantren|haflah|gerbang|gedung|santri|suasana|rusunawa)\b/i.test(q);
+  const hasSelfWithVisual =
+    !mentionsExternalTopic &&
+    /\b(halwa|halwaa|usth\.?\s*halwaa?|ustadzah\s*halwaa?)\b/i.test(q) &&
+    /\b(foto|gambar|wajah|muka|avatar|potret|selfie)\b/i.test(q);
+  const hasFaceQuestion =
+    /\b(wajah|muka|avatar|selfie)\b/i.test(q) &&
+    /\b(kamu|dirimu|mu|anda|lihat|tampil|kaya|kayak|seperti|mana|punya)\b/i.test(q);
+
+  return hasPossessiveSuffix || hasVisualTargetSelf || hasSelfWithVisual || hasFaceQuestion;
+}
+
+export function isImageSearchIntent(prompt: string): boolean {
+  const q = prompt.toLowerCase().trim();
+  if (!q) return false;
+  if (isSelfAvatarRequest(q)) return false;
+
+  const isRuleOrLocationQuestion =
+    /\b(fotografer|stand foto|booth foto|spot foto|tempat foto|lokasi foto|jadwal foto|dilarang|larangan|aturan|bolehkah)\b/i.test(
+      q
+    );
+  if (isRuleOrLocationQuestion) return false;
+
+  const hasExplicitAction =
+    /(carikan|cari|lihatkan|tampilkan|minta|lihat|temukan|kirim|berikan|kasih|bisa cari|buatkan|bikinkan|bikin).*?(gambar|foto|potret|citra|ilustrasi)/i.test(
+      q
+    );
+  const hasImageNoun = /\b(gambar|foto|potret|citra|ilustrasi)\b/i.test(q);
+
+  return hasExplicitAction || hasImageNoun;
+}
+
+export function extractImageSubject(rawQuery: string): string {
+  const stripped = rawQuery
+    .replace(/^(tolong|mohon|coba|bisa|tolongkan|silakan)\s+/gi, '')
+    .replace(
+      /(carikan|cari|tampilkan|lihatkan|minta|lihat|temukan|kirim|berikan|kasih|buatkan|bikinkan|bikin|generate)\s+(gambar|foto|potret|citra|ilustrasi|pemandangan)?/gi,
+      ''
+    )
+    .replace(/\b(gambar|foto|potret|citra|ilustrasi)\s*(tentang|dari|suasana|mengenai)?/gi, '')
+    .replace(/\s+(di|dari|pada)\s+(internet|google|web|bing|online)/gi, '')
+    .replace(/[?!.,;:]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!stripped || /^(gambar|foto|potret|citra|ilustrasi|haflah|dong|ya|us)$/i.test(stripped)) {
+    return stripped && /^haflah$/i.test(stripped) ? 'haflah' : 'suasana haflah p3tq';
+  }
+  return stripped;
+}
+
 export function buildImageSearchQueries(rawQuery: string): {
   cleanSubject: string;
   searchQueries: string[];
 } {
-  const cleanSubject =
-    rawQuery
-      .replace(/^(tolong|mohon|coba|bisa|tolongkan|silakan)\s+/gi, '')
-      .replace(
-        /(carikan|cari|tampilkan|lihatkan|minta|lihat|temukan|buatkan|bikinkan|bikin|generate)\s+(gambar|foto|potret|citra|pemandangan)?/gi,
-        ''
-      )
-      .replace(/(gambar|foto|potret|citra)\s*(tentang|dari|suasana|mengenai)?/gi, '')
-      .replace(/\s+(di|dari|pada)\s+(internet|google|web|bing|online)/gi, '')
-      .replace(/[?!.,;:]+/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim() || rawQuery.trim();
+  const cleanSubject = extractImageSubject(rawQuery);
 
   const qLower = cleanSubject.toLowerCase();
   const hasPanggung = /\bpanggung\b/.test(qLower);

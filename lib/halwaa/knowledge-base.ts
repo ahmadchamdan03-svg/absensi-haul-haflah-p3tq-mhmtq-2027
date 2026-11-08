@@ -32,7 +32,13 @@ import {
   isTechnicalInfrastructureQuery,
   handleTechnicalInfrastructureQuery,
 } from './technical-knowledge';
-import { searchWebImagesDetailed } from '@/lib/image-search';
+import {
+  OFFICIAL_AVATAR_WAVE_PATH,
+  isSelfAvatarRequest,
+  isImageSearchIntent,
+  extractImageSubject,
+  searchWebImagesDetailed,
+} from '@/lib/image-search';
 
 export {
   TECHNICAL_KNOWLEDGE_SECTION,
@@ -50,7 +56,7 @@ PENTING: Acara ini adalah Haul & Haflah P3TQ dan MHMTQ 1448 H., BUKAN acara Ponp
 
 PANDUAN ETIKA & FORMAT:
 1. Sikap: Profesional, santun, takzim, cerdas. Selalu gunakan sapaan 'Us'. JANGAN berbicara seolah manusia hidup (DILARANG bucin/romantis/fans fanatik).
-2. Jawaban: To the point, santun, tanpa instruksi tombol ekspor buatan (DILARANG tulis 'klik tombol unduh di bawah'; pengecualian resmi: boleh mengarahkan user membuka halaman Undangan Digital untuk melihat fitur Hitung Mundur real-time).
+2. Jawaban & Fitur Visual: To the point, santun, tanpa instruksi tombol ekspor buatan (DILARANG tulis 'klik tombol unduh di bawah'; pengecualian resmi: boleh mengarahkan user membuka halaman Undangan Digital untuk melihat fitur Hitung Mundur real-time). Kamu memiliki fitur Web Image Search serta foto avatar resmi Usth. Halwaa (/images/avatar/ustadzah-avatar-wave.png). DILARANG menjawab "Saya tidak dapat menampilkan gambar secara langsung".
 3. Format Data: Tabel WAJIB menggunakan format Markdown (| ... |), DILARANG tag HTML (<table>, <tr>, <td>).
 4. Identitas: Anda adalah Usth. Halwaa. JANGAN PERNAH mengaku sebagai AI lain (ChatGPT, Claude, Kiro, DeepSeek, dll).
 5. Sumber Dokumen: DILARANG menyebut nama dokumen sumber seperti '(USTH AL)', '(Koor 2)', 'dari PDF USTH AL'.
@@ -148,7 +154,7 @@ export const SECTION_ACARA_JADWAL = `TATA TERTIB, TEKNIS & JADWAL ACARA:
 
 export const SECTION_MULTIMEDIA_DOC = `ATURAN MULTIMEDIA & DOKUMEN:
 1. Jangan menawarkan gambar/file secara proaktif jika tidak diminta.
-2. Gambar: Format Markdown ![Deskripsi Gambar](URL_GAMBAR)
+2. Kamu memiliki fitur Web Image Search dan foto avatar resmi (/images/avatar/ustadzah-avatar-wave.png). Jika user meminta gambar atau foto, JANGAN memberikan deskripsi teks panjang dan DILARANG menjawab "Saya tidak dapat menampilkan gambar secara langsung". Panggil fitur pencarian gambar dan tampilkan hasilnya dengan format Markdown ![Deskripsi Gambar](URL_GAMBAR). Jika user meminta gambar/foto/wajah dirimu ("gambar kamu", "foto kamu", "wajah kamu"), tampilkan ![Usth. Halwaa](/images/avatar/ustadzah-avatar-wave.png).
 3. Link: Format Markdown [Nama Website](https://url.com)
 4. Tabel / Excel: WAJIB format Markdown (| ... |). DILARANG tag HTML.
 5. PDF / Word: Berikan jawaban teks dokumen tertata rapi tanpa instruksi UI tombol unduh.`;
@@ -179,10 +185,31 @@ export function getCountdownFallbackResponse(isFirstTurn: boolean = false): stri
   return `${greetingPrefix}Berdasarkan tanggal sistem hari ini (**${info.currentDateFormatted}** pukul **${info.currentTimeFormatted} WIB**), sisa waktu menuju Haul & Haflah P3TQ & MHMTQ (Sabtu, 02 Januari 2027 pukul 06.30 WIB) adalah kurang lebih **${info.days} hari lagi** (tepatnya **${info.days} hari, ${info.hours} jam, ${info.minutes} menit** lagi / ${info.calendarDays} hari kalender), Us.\n\nAplikasi Haflah P3TQ & MHMTQ sudah memiliki fitur **Hitung Mundur (Countdown)** yang berjalan secara real-time (**Hari, Jam, Menit, Detik**). Untuk melihat hitungan mundur yang bergerak setiap detik, silakan buka halaman **Undangan Digital** di aplikasi.`;
 }
 
+export function getSelfAvatarResponse(isFirstTurn: boolean = false): string {
+  const greetingPrefix = isFirstTurn ? "Wa'alaikum Salam Wr. Wb.! 🙏✨\n\n" : '';
+  return `${greetingPrefix}Ini avatar resmi saya, Us! Saya **Usth. Halwaa**, asisten cerdas resmi Haul & Haflah P3TQ dan MHMTQ 1448 H. / 2027 M. 😊\n\n![Usth. Halwaa](${OFFICIAL_AVATAR_WAVE_PATH})`;
+}
+
 export async function generateLocalSmartResponseAsync(userQuery: string, isFirstTurn: boolean = true, role: string = 'PANITIA'): Promise<string> {
   const q = userQuery.toLowerCase().trim();
 
-  // 0. FITUR KNOWLEDGE BASE TEKNIS & INFRASTRUKTUR SISTEM
+  // 0A. PRIORITAS UTAMA: AVATAR RESMI USTH. HALWAA (SEBELUM TECHNICAL KNOWLEDGE)
+  if (isSelfAvatarRequest(userQuery)) {
+    return getSelfAvatarResponse(isFirstTurn);
+  }
+
+  // 0B. PRIORITAS UTAMA: PENCARIAN GAMBAR WEB (SEBELUM TECHNICAL KNOWLEDGE)
+  if (isImageSearchIntent(userQuery)) {
+    const rawSubject = extractImageSubject(userQuery);
+    const cleanSubject = rawSubject.charAt(0).toUpperCase() + rawSubject.slice(1);
+    const imageResult = await searchWebImagesDetailed(userQuery);
+    if (imageResult?.url) {
+      return `${imageResult.caption}\n\n![${cleanSubject}](${imageResult.url})`;
+    }
+    return 'Mohon maaf Us, saya tidak menemukan gambar yang cocok di internet.';
+  }
+
+  // 0C. FITUR KNOWLEDGE BASE TEKNIS & INFRASTRUKTUR SISTEM
   if (isTechnicalInfrastructureQuery(userQuery)) {
     return handleTechnicalInfrastructureQuery(userQuery);
   }
@@ -195,23 +222,6 @@ export async function generateLocalSmartResponseAsync(userQuery: string, isFirst
   // 0. FITUR REKAP KEHADIRAN REALTIME
   if (detectRekapKehadiranIntent(userQuery)) {
     return await getLiveRekapKehadiran(isFirstTurn);
-  }
-
-  // 0. FITUR PENCARIAN GAMBAR WEB (HANYA JIKA DIMINTA EKSPLISIT)
-  if (
-    q.includes('gambar') &&
-    (q.includes('cari') || q.includes('buat') || q.includes('bikin') || q.includes('tampil') || q.includes('ilustrasi') || q.includes('foto') || q.includes('desain'))
-  ) {
-    const rawSubject = userQuery
-      .replace(/tolong\s+/gi, '')
-      .replace(/(carikan|cari|buatkan|bikinkan|tampilkan|minta|generate)\s+gambar\s*(ilustrasi)?/gi, '')
-      .replace(/gambar\s*(ilustrasi)?/gi, '')
-      .trim() || 'Pondok Pesantren Lirboyo Kediri';
-    const imageResult = await searchWebImagesDetailed(userQuery);
-    if (imageResult?.url) {
-      return `${imageResult.caption}\n\n![${rawSubject}](${imageResult.url})`;
-    }
-    return 'Mohon maaf Us, saya tidak menemukan gambar yang cocok di internet.';
   }
 
   // 0. FITUR PENCARIAN LINK (HANYA JIKA DIMINTA EKSPLISIT)
