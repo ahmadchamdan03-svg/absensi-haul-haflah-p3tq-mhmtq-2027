@@ -95,8 +95,9 @@ export function UndanganCoverTamu({
         aria-hidden="true"
         width={334}
         height={483}
-        className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 h-auto pointer-events-none z-10 opacity-75 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
-        animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -3, 0] }}
+        style={{ transformOrigin: 'top left' }}
+        className="absolute top-0 left-0 w-20 sm:w-24 md:w-32 lg:w-40 h-auto object-contain pointer-events-none z-10 opacity-80 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+        animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -2, 0] }}
         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
       />
 
@@ -107,7 +108,7 @@ export function UndanganCoverTamu({
         aria-hidden="true"
         width={462}
         height={462}
-        className="absolute -bottom-8 -right-8 w-24 sm:w-36 h-auto pointer-events-none z-10 opacity-60 sm:opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
+        className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 w-20 sm:w-28 md:w-32 lg:w-40 h-auto object-contain pointer-events-none z-10 opacity-75 sm:opacity-85 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
         animate={shouldReduceMotion ? undefined : { rotate: 360 }}
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
@@ -193,8 +194,9 @@ export function UndanganCoverWali({
         aria-hidden="true"
         width={334}
         height={483}
-        className="absolute top-0 left-0 w-16 sm:w-24 md:w-32 h-auto pointer-events-none z-10 opacity-75 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
-        animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -3, 0] }}
+        style={{ transformOrigin: 'top left' }}
+        className="absolute top-0 left-0 w-20 sm:w-24 md:w-32 lg:w-40 h-auto object-contain pointer-events-none z-10 opacity-80 sm:opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+        animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -2, 0] }}
         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
       />
 
@@ -205,7 +207,7 @@ export function UndanganCoverWali({
         aria-hidden="true"
         width={462}
         height={462}
-        className="absolute -bottom-8 -right-8 w-24 sm:w-36 h-auto pointer-events-none z-10 opacity-60 sm:opacity-80 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
+        className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 w-20 sm:w-28 md:w-32 lg:w-40 h-auto object-contain pointer-events-none z-10 opacity-75 sm:opacity-85 drop-shadow-[0_4px_16px_rgba(251,191,36,0.3)]"
         animate={shouldReduceMotion ? undefined : { rotate: 360 }}
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />

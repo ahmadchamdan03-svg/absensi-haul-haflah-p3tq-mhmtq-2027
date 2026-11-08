@@ -7,80 +7,42 @@ export default function UndanganParallaxOrnaments({ isOpened }: { isOpened?: boo
   const shouldReduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
 
-  // Efek Parallax Floating: bergerak lebih lambat dari konten saat di-scroll
-  const yTopLeft = useTransform(scrollY, [0, 1000], [0, 80]);
-  const yTopRight = useTransform(scrollY, [0, 1000], [0, 110]);
-  const yMidRight = useTransform(scrollY, [200, 1400], [-40, 90]);
-  const yBottomLeft = useTransform(scrollY, [600, 2000], [20, -60]);
+  // Pergeseran parallax halus tanpa memotong tepi aset atau mengganggu teks/tombol
+  const yTopLeft = useTransform(scrollY, [0, 1200], [0, -24]);
+  const yBottomRight = useTransform(scrollY, [0, 1400], [0, -28]);
 
-  // Rotasi dinamis sangat halus saat di-scroll (efek melayang alami)
-  const rotateLeft = useTransform(scrollY, [0, 1200], [0, 6]);
-  const rotateRight = useTransform(scrollY, [0, 1200], [0, -6]);
+  // Rotasi lembut saat scroll dengan poros sudut
+  const rotateLeft = useTransform(scrollY, [0, 1200], [0, 3]);
+  const rotateRight = useTransform(scrollY, [0, 1200], [0, -4]);
 
   return (
     <div className="fixed inset-0 pointer-events-none select-none z-10 overflow-hidden" aria-hidden="true">
-      {/* 1. Ornamen Ranting Lemon Kiri Atas (Parallax) */}
-      <motion.div
-        style={shouldReduceMotion ? undefined : { y: yTopLeft, rotate: rotateLeft }}
-        className="absolute -top-6 -left-6 sm:top-2 sm:left-2 w-28 sm:w-40 md:w-48 lg:w-56 drop-shadow-md opacity-85 transition-opacity duration-700"
-      >
-        <img
-          src="/images/undangan-assets/lemon-branch-left.webp"
-          alt=""
-          width={334}
-          height={483}
-          className="w-full h-auto object-contain"
-          loading="eager"
-        />
-      </motion.div>
+      {/* 1. Ornamen Ranting Lemon Pojok Kiri Atas */}
+      <motion.img
+        src="/images/undangan-assets/lemon-branch-left.webp"
+        alt=""
+        width={334}
+        height={483}
+        loading="eager"
+        style={
+          shouldReduceMotion
+            ? { transformOrigin: 'top left' }
+            : { y: yTopLeft, rotate: rotateLeft, transformOrigin: 'top left' }
+        }
+        className="absolute top-0 left-0 w-20 sm:w-24 md:w-32 lg:w-40 h-auto object-contain opacity-85 drop-shadow-md transition-opacity duration-700"
+      />
 
-      {/* 2. Ornamen Ranting Lemon Kanan Atas (Parallax) */}
-      <motion.div
-        style={shouldReduceMotion ? undefined : { y: yTopRight, rotate: rotateRight }}
-        className="absolute -top-8 -right-6 sm:top-0 sm:right-2 w-28 sm:w-36 md:w-44 lg:w-52 drop-shadow-md opacity-80 transition-opacity duration-700"
-      >
-        <img
-          src="/images/undangan-assets/lemon-branch-right.webp"
-          alt=""
-          width={237}
-          height={419}
-          className="w-full h-auto object-contain"
-          loading="eager"
-        />
-      </motion.div>
-
-      {/* 3. Ornamen Buket Lemon Tengah Kanan (Muncul lembut saat scroll ke tengah) */}
+      {/* 2. Ornamen Buket Lemon Pojok Kanan Bawah: hanya di layar lebar (lg+), karena di HP/tablet margin samping terlalu sempit dan buket tertutup kartu */}
       {isOpened && (
-        <motion.div
-          style={shouldReduceMotion ? undefined : { y: yMidRight }}
-          className="hidden sm:block absolute top-[42%] -right-8 md:-right-4 w-32 md:w-44 lg:w-52 drop-shadow-lg opacity-75"
-        >
-          <img
-            src="/images/undangan-assets/lemon-bouquet.webp"
-            alt=""
-            width={591}
-            height={543}
-            className="w-full h-auto object-contain"
-            loading="lazy"
-          />
-        </motion.div>
-      )}
-
-      {/* 4. Ornamen Sudut Bunga Biru Kiri Bawah (Parallax halus) */}
-      {isOpened && (
-        <motion.div
-          style={shouldReduceMotion ? undefined : { y: yBottomLeft }}
-          className="absolute bottom-2 -left-6 sm:bottom-6 sm:left-2 w-32 sm:w-44 md:w-52 opacity-70 drop-shadow-sm"
-        >
-          <img
-            src="/images/undangan-assets/floral-corner.webp"
-            alt=""
-            width={533}
-            height={339}
-            className="w-full h-auto object-contain"
-            loading="lazy"
-          />
-        </motion.div>
+        <motion.img
+          src="/images/undangan-assets/lemon-bouquet.webp"
+          alt=""
+          width={591}
+          height={543}
+          loading="lazy"
+          style={shouldReduceMotion ? undefined : { y: yBottomRight, rotate: rotateRight }}
+          className="hidden lg:block absolute bottom-24 right-5 lg:w-36 xl:w-40 h-auto object-contain opacity-80 drop-shadow-lg transition-opacity duration-700"
+        />
       )}
     </div>
   );

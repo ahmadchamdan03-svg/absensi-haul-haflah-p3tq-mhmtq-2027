@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Compass, Users, ShoppingBag, ArrowRight, Info, AlertCircle, Loader2 } from 'lucide-react';
 import NamaLembaga from '@/components/NamaLembaga';
 import GlassCard from '@/components/GlassCard';
@@ -26,22 +26,26 @@ export default function UndanganAcaraAndFooter({
   kuotaSwitchAktif,
   totalDiverifikasi,
 }: UndanganAcaraAndFooterProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <>
       {/* KARTU WAKTU, LOKASI & COUNTDOWN TIMER WALI */}
       <ScrollReveal delay={350} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-5 text-center relative overflow-hidden">
-          {/* Aksen Ornamen Lemon Cantik & Elegan dari CDR */}
+          {/* Aksen Ornamen Lemon pada sudut kartu */}
           <motion.img
             src="/images/undangan-assets/lemon-branch.webp"
-            alt="Aksen Lemon"
-            className="absolute -top-3 -right-3 w-12 sm:w-16 pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
-            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            alt=""
+            aria-hidden="true"
+            width={334}
+            height={483}
+            className="absolute top-0 right-1 w-10 sm:w-14 h-auto object-contain pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
+            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 16, scale: 0.9 }}
             whileInView={{ opacity: 0.85, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            animate={{ rotate: [0, 4, 0, -4, 0] }}
-            whileHover={{ scale: 1.1, rotate: 8 }}
+            animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -3, 0] }}
           />
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">

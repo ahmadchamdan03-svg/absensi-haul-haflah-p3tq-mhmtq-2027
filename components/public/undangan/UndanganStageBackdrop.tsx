@@ -9,7 +9,7 @@ export default function UndanganStageBackdrop({
 }) {
   return (
     <div className={className} aria-hidden="true">
-      {/* 1. Foto Panggung Aula Al-Muktamar tampil langsung full-screen */}
+      {/* Foto Panggung Aula Al-Muktamar tampil full-screen, terang, tanpa lapisan overlay */}
       <img
         src="/images/panggung-aula.jpg"
         alt=""
@@ -19,12 +19,6 @@ export default function UndanganStageBackdrop({
         decoding="sync"
         className="absolute inset-0 w-full h-full object-cover object-center z-0 select-none pointer-events-none"
       />
-
-      {/* 2. Overlay gradient Deep Navy transparan untuk keterbacaan teks WCAG AA di seluruh viewport */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#0F2C59]/90 via-[#0F2C59]/65 to-[#0F2C59]/80" />
-
-      {/* 3. Vignette radial halus agar fokus visual tetap terjaga pada kartu konten */}
-      <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(15,44,89,0.55)_100%)]" />
     </div>
   );
 }

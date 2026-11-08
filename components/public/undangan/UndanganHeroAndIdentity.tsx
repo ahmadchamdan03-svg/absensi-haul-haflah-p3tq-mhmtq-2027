@@ -2,7 +2,7 @@
 
 import QRCode from 'react-qr-code';
 import { Calendar, Clock, MapPin, Compass, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { formatQrPayloadSync } from '@/lib/hmac';
 import NamaLembaga from '@/components/NamaLembaga';
 import HeaderUndanganWali from '@/components/HeaderUndanganWali';
@@ -26,6 +26,8 @@ export function TamuHeroAndEventSections({
   onOpenDenah: () => void;
   onOpenDaftarPeserta: () => void;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <>
       {/* 1. HEADER RESMI MELAYANG (FLOATING) */}
@@ -38,17 +40,19 @@ export function TamuHeroAndEventSections({
       {/* 2. KARTU IDENTITAS TAMU UNDANGAN & SAMBUTAN FORMAL ISLAMI */}
       <ScrollReveal delay={150} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 relative overflow-hidden">
-          {/* Aksen Ornamen Lemon Cantik & Elegan dari CDR */}
+          {/* Aksen Ornamen Lemon pada sudut kartu */}
           <motion.img
             src="/images/undangan-assets/lemon-branch.webp"
-            alt="Aksen Lemon"
-            className="absolute -top-3 -right-3 w-12 sm:w-16 pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
-            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            alt=""
+            aria-hidden="true"
+            width={334}
+            height={483}
+            className="absolute top-0 right-1 w-10 sm:w-14 h-auto object-contain pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
+            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 16, scale: 0.9 }}
             whileInView={{ opacity: 0.85, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            animate={{ rotate: [0, 4, 0, -4, 0] }}
-            whileHover={{ scale: 1.1, rotate: 8 }}
+            animate={shouldReduceMotion ? undefined : { rotate: [0, 3, 0, -3, 0] }}
           />
           <div
             dir="rtl"
@@ -245,6 +249,8 @@ export function WaliHeroAndIdentitySections({
   fullQrPayload: string;
   totalKuotaSantri: number;
 }) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <>
       {/* 1. HEADER RESMI WALI MELAYANG (FLOATING) */}
@@ -254,20 +260,22 @@ export function WaliHeroAndIdentitySections({
         </div>
       </ScrollReveal>
 
-      {/* 2. PROFIL SANTRIWATI & WALI SANTRI (PERBAIKAN 3 & 5: RAPIKAN GRID MOBILE) */}
+      {/* 2. PROFIL SANTRIWATI & WALI SANTRI */}
       <ScrollReveal delay={100} variant="zoom-in">
         <GlassCard className="p-5 sm:p-7 md:p-8 space-y-4 relative overflow-hidden">
-          {/* Aksen Ornamen Lemon Cantik & Elegan dari CDR */}
+          {/* Aksen Ornamen Lemon pada sudut kartu */}
           <motion.img
             src="/images/undangan-assets/lemon-branch.webp"
-            alt="Aksen Lemon"
-            className="absolute -top-3 -right-3 w-12 sm:w-16 pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
-            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            alt=""
+            aria-hidden="true"
+            width={334}
+            height={483}
+            className="absolute top-0 right-1 w-10 sm:w-14 h-auto object-contain pointer-events-none z-10 opacity-80 drop-shadow-sm select-none"
+            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 16, scale: 0.9 }}
             whileInView={{ opacity: 0.85, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            animate={{ rotate: [0, -4, 0, 4, 0] }}
-            whileHover={{ scale: 1.1, rotate: 8 }}
+            animate={shouldReduceMotion ? undefined : { rotate: [0, -3, 0, 3, 0] }}
           />
           <div className="text-center space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
