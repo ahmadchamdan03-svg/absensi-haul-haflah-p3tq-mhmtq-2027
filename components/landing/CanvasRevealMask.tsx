@@ -21,8 +21,10 @@ interface Stamp {
 
 export default function CanvasRevealMask({
   className = 'fixed inset-0 w-full h-full pointer-events-none overflow-hidden',
+  renderImage = true,
 }: {
   className?: string;
+  renderImage?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -179,6 +181,24 @@ export default function CanvasRevealMask({
       start();
     }
 
+    function handleMouseDown(e: MouseEvent) {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      lastX = null;
+      lastY = null;
+      stampAlong(e.clientX - rect.left, e.clientY - rect.top);
+      start();
+    }
+
+    function handleTouchStart(e: TouchEvent) {
+      if (!canvas || !e.touches || !e.touches[0]) return;
+      const rect = canvas.getBoundingClientRect();
+      lastX = null;
+      lastY = null;
+      stampAlong(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+      start();
+    }
+
     function handleTouchMove(e: TouchEvent) {
       if (!canvas || !e.touches || !e.touches[0]) return;
       const rect = canvas.getBoundingClientRect();
@@ -192,17 +212,23 @@ export default function CanvasRevealMask({
     }
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('mouseleave', handleMouseLeave, { passive: true });
     window.addEventListener('touchend', handleMouseLeave, { passive: true });
+    window.addEventListener('touchcancel', handleMouseLeave, { passive: true });
 
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('orientationchange', resize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('touchend', handleMouseLeave);
+      window.removeEventListener('touchcancel', handleMouseLeave);
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
@@ -214,14 +240,16 @@ export default function CanvasRevealMask({
       className={className}
       aria-hidden="true"
     >
-      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Full-screen Cover di Seluruh Layar PC & Mobile) */}
-      <img
-        src="/images/panggung-aula.jpg"
-        alt="Panggung Aula Al-Muktamar"
-        className="absolute inset-0 w-full h-full object-cover object-center z-0 select-none pointer-events-none"
-      />
+      {/* 1. Layer Gambar Panggung Aula Al-Muktamar (Jika renderImage aktif) */}
+      {renderImage && (
+        <img
+          src="/images/panggung-aula.jpg"
+          alt="Panggung Aula Al-Muktamar"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 select-none pointer-events-none"
+        />
+      )}
 
-      {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse (z-10) */}
+      {/* 2. Layer Canvas Tirai Deep Navy Solid (#0F2C59) yang dikikis kursor mouse/touch (z-10) */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none z-10"
