@@ -204,7 +204,9 @@ export function filterSantriTableItems(params: {
       const matchKamar = normalize(item.kamar).includes(q);
       const matchBagian = normalize(item.bagianTamatan).includes(q);
       const matchKelas = normalize(item.kelas || '').includes(q);
-      const matchSub = normalize(item.subKategori || item.kategori || '').includes(q);
+      const matchSub =
+        normalize(item.subKategori || item.kategori || '').includes(q) ||
+        (item.isMerged && item.uniqueSubKategori?.some((sub: string) => normalize(sub).includes(q)));
       return (
         matchKode ||
         matchNama ||

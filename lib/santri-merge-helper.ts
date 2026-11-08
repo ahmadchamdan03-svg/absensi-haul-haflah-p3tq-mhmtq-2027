@@ -396,3 +396,121 @@ export function findDuplicateTamuInList(items: any[]): DuplicateTamuGroup[] {
 
   return result;
 }
+
+const GENERIC_UNDANGAN_LABELS = new Set([
+  'ISTIMEWA',
+  'KEHORMATAN',
+  'UMUM',
+  'UNDANGAN',
+  '-',
+]);
+
+const GENERIC_SANTRI_KELAS = new Set([
+  'TAMATAN',
+  'BIL_GHOIB',
+  'BIN_NADZOR',
+  'SANTRI',
+  '-',
+]);
+
+export function resolveMergedMemberBadgeLabel(member: any): string {
+  if (!member) return '';
+
+  const tipe = String(member.tipe || '').toUpperCase();
+  const isSantri =
+    tipe === 'SANTRI' ||
+    (!tipe &&
+      ['TAMATAN', 'BIL_GHOIB', 'BIN_NADZOR'].includes(
+        String(member.kategoriUtama || '').toUpperCase()
+      ));
+
+  if (isSantri) {
+    const kelas = String(member.kelas || '').trim();
+    if (kelas && !GENERIC_SANTRI_KELAS.has(kelas.toUpperCase())) {
+      return kelas;
+    }
+
+    const sub = String(member.subKategori || member.sub_kategori || '').trim();
+    if (sub && !GENERIC_SANTRI_KELAS.has(sub.toUpperCase())) {
+      return sub;
+    }
+
+    const katUtama = String(member.kategoriUtama || member.kategori_utama || '').toUpperCase();
+    const bagian = String(member.bagianTamatan || '').trim();
+    if (katUtama === 'TAMATAN') {
+      return bagian ? `Tamatan (${bagian})` : 'Tamatan';
+    }
+    if (katUtama === 'BIL_GHOIB') return 'Bil Ghoib';
+    if (katUtama === 'BIN_NADZOR') return 'Bin Nadzori';
+    return 'Santri';
+  }
+
+  // Untuk Tamu Undangan, baca properti kategori spesifik bukan enum sub_kategori golongan.
+  const kategori = String(member.kategori || '').trim();
+  if (kategori && !GENERIC_UNDANGAN_LABELS.has(kategori.toUpperCase())) {
+    return kategori;
+  }
+
+  const subKat = String(member.subKategori || member.sub_kategori || '').trim();
+  if (subKat && !GENERIC_UNDANGAN_LABELS.has(subKat.toUpperCase())) {
+    return subKat;
+  }
+
+  const gol = String(member.golonganUndangan || member.golongan || '').toUpperCase();
+  if (gol === 'KEHORMATAN') return 'Tamu Kehormatan';
+  if (gol === 'UMUM') return 'Masyarakat Umum';
+  return 'VIP';
+}
+
+export function getMergedCategoryBadges(item: any): string[] {
+  if (!item) return [];
+
+  const sourceList: any[] =
+    Array.isArray(item.mergedItems) && item.mergedItems.length > 0
+      ? item.mergedItems
+      : Array.isArray(item.multiBadges) && item.multiBadges.length > 0
+      ? item.multiBadges
+      : [item];
+
+  const seen = new Set<string>();
+  const badges: string[] = [];
+
+  for (const member of sourceList) {
+    const label = resolveMergedMemberBadgeLabel(member).trim();
+    if (!label) continue;
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    badges.push(label);
+  }
+
+  if (badges.length === 0 && Array.isArray(item.uniqueSubKategori)) {
+    for (const raw of item.uniqueSubKategori) {
+      const label = String(raw || '').trim();
+      if (!label || GENERIC_UNDANGAN_LABELS.has(label.toUpperCase())) continue;
+      const key = label.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      badges.push(label);
+    }
+  }
+
+  return badges;
+}
+
+export function getMergedCategoryBadgeClass(label: string): string {
+  const upper = label.toUpperCase();
+  if (upper.includes('VVIP')) {
+    return 'bg-amber-100 text-amber-900 border-amber-300';
+  }
+  if (upper.includes('VIP')) {
+    return 'bg-sky-100 text-blue-900 border-sky-300';
+  }
+  if (upper.includes('TAMATAN') || upper.includes('GHOIB')) {
+    return 'bg-amber-50 text-amber-900 border-amber-300';
+  }
+  if (upper.includes('NADZOR') || upper.includes('ALIYAH') || upper.includes('TSANAWIY')) {
+    return 'bg-blue-50 text-blue-900 border-blue-200';
+  }
+  return 'bg-slate-100 text-slate-800 border-slate-300';
+}

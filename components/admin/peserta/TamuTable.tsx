@@ -22,7 +22,11 @@ import UnmergeModal from './modal/UnmergeModal';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase/client';
 import { getWarnaTiketUndangan } from '@/lib/types';
-import { findDuplicateTamuInList } from '@/lib/santri-merge-helper';
+import {
+  findDuplicateTamuInList,
+  getMergedCategoryBadges,
+  getMergedCategoryBadgeClass,
+} from '@/lib/santri-merge-helper';
 import {
   OPSI_UNDANGAN_ISTIMEWA,
   OPSI_UNDANGAN_UMUM,
@@ -687,66 +691,15 @@ export default function TamuTable({
                       {/* Kategori & Bagian (Multi-badge if Merged) */}
                       <td className="py-3 px-4">
                         {item.isMerged ? (
-                          <div className="space-y-1.5">
-                            {/* Kategori Utama (1 badge jika kategori utamanya sama) & Badge Gabungan */}
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              {(item.uniqueGolongan && item.uniqueGolongan.length > 0
-                                ? item.uniqueGolongan
-                                : [item.golonganUndangan || 'ISTIMEWA']
-                              ).map((gol: string, gIdx: number) => {
-                                const isIst = gol === 'ISTIMEWA';
-                                const isKeh = gol === 'KEHORMATAN';
-                                return (
-                                  <span
-                                    key={gIdx}
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                      isIst
-                                        ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                        : isKeh
-                                        ? 'bg-purple-100 text-purple-900 border-purple-300'
-                                        : 'bg-cyan-100 text-cyan-900 border-cyan-300'
-                                    }`}
-                                  >
-                                    {isIst ? '👑 Istimewa' : isKeh ? '🏛️ Kehormatan' : '👥 Umum'}
-                                  </span>
-                                );
-                              })}
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold">
-                                <Link2 className="w-3 h-3 text-blue-600 shrink-0" />
-                                <span>Gabungan ({item.mergedItems?.length || 2})</span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {getMergedCategoryBadges(item).map((katName: string, kIdx: number) => (
+                              <span
+                                key={`${katName}-${kIdx}`}
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${getMergedCategoryBadgeClass(katName)}`}
+                              >
+                                {katName}
                               </span>
-                            </div>
-
-                            {/* Daftar Sub-Kategori Spesifik (misal: VVIP, VIP Bani Marzuqi, VIP IDS) */}
-                            <div className="flex flex-wrap items-center gap-1">
-                              {Array.from(
-                                new Set<string>(
-                                  (item.mergedItems && item.mergedItems.length > 0
-                                    ? item.mergedItems.map((m: any) => m.kategori || m.subKategori)
-                                    : item.uniqueSubKategori || [item.kategori]
-                                  )
-                                    .map((k: string) => (k || '').trim())
-                                    .filter(Boolean)
-                                )
-                              ).map((katName: string, kIdx: number) => {
-                                const isVvip = katName.toUpperCase().includes('VVIP');
-                                const isVip = katName.toUpperCase().includes('VIP');
-                                return (
-                                  <span
-                                    key={kIdx}
-                                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${
-                                      isVvip
-                                        ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                        : isVip
-                                        ? 'bg-sky-100 text-blue-900 border-sky-300'
-                                        : 'bg-slate-100 text-slate-700 border-slate-300'
-                                    }`}
-                                  >
-                                    {katName}
-                                  </span>
-                                );
-                              })}
-                            </div>
+                            ))}
                           </div>
                         ) : (
                           <>

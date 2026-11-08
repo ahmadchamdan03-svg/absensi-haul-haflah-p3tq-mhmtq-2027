@@ -14,6 +14,10 @@ import {
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase/client';
 import { extractBagianTamatan, getWarnaTiketUndangan } from '@/lib/types';
+import {
+  getMergedCategoryBadges,
+  getMergedCategoryBadgeClass,
+} from '@/lib/santri-merge-helper';
 
 function formatAdminKategoriSantri(item: any): string {
   const rawSub = String(item.subKategori || '').trim();
@@ -192,21 +196,15 @@ export default function SantriTableRow({
       {/* Kategori & Bagian */}
       <td className="py-3 px-4">
         {item.isMerged ? (
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
-              <Link2 className="w-3 h-3 text-sky-600 shrink-0" />
-              <span>Gabungan ({item.mergedItems?.length} Kategori)</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-1">
-              {item.multiBadges?.map((b: any, idx: number) => (
-                <span
-                  key={idx}
-                  className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200"
-                >
-                  {b.kategoriUtama || b.subKategori}
-                </span>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {getMergedCategoryBadges(item).map((katName: string, idx: number) => (
+              <span
+                key={`${katName}-${idx}`}
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${getMergedCategoryBadgeClass(katName)}`}
+              >
+                {katName}
+              </span>
+            ))}
           </div>
         ) : (
           <>

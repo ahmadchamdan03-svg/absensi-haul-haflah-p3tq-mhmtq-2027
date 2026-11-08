@@ -598,6 +598,8 @@ export function usePesertaData() {
           golonganUndangan: it.golonganUndangan,
           kategoriUtama: it.kategoriUtama,
           subKategori: it.subKategori,
+          kelas: it.kelas,
+          bagianTamatan: it.bagianTamatan,
           kategori: it.kategori,
         })),
       });
