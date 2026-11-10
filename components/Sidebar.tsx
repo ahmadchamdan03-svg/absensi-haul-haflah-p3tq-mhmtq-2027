@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getActiveRole } from '@/lib/auth-roles';
 import {
   LayoutDashboard,
@@ -47,6 +47,7 @@ export default function Sidebar({
   setIsCollapsed,
 }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   // State Universal Search
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -55,6 +56,41 @@ export default function Sidebar({
   // State Tanya Usth.! (Gemini 3.5 AI Modal & Hover Animasi)
   const [tanyaUsOpen, setTanyaUsOpen] = useState(false);
   const [isUsHovered, setIsUsHovered] = useState(false);
+
+  // Idle Background Preloading untuk semua rute navigasi di Sidebar
+  useEffect(() => {
+    const prefetchRoutes = () => {
+      try {
+        const uniqueHrefs = Array.from(
+          new Set(allNavGroups.flatMap((g) => g.items.map((i) => i.href)))
+        );
+
+        uniqueHrefs.forEach((href) => {
+          try {
+            router.prefetch(href);
+          } catch (e) {
+            // Silently ignore prefetch errors
+          }
+        });
+      } catch (err) {
+        // Silently catch unexpected prefetch errors
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        const idleId = (window as any).requestIdleCallback(prefetchRoutes, { timeout: 3000 });
+        return () => {
+          if ('cancelIdleCallback' in window) {
+            (window as any).cancelIdleCallback(idleId);
+          }
+        };
+      } else {
+        const timerId = setTimeout(prefetchRoutes, 2500);
+        return () => clearTimeout(timerId);
+      }
+    }
+  }, [router]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -220,6 +256,7 @@ export default function Sidebar({
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={true}
                       onClick={onCloseMobile}
                       title={`${item.label}${item.badge ? ` (${item.badge})` : ''}`}
                       className={`relative w-11 h-11 mx-auto flex items-center justify-center rounded-2xl transition-all duration-200 group ${
@@ -240,6 +277,7 @@ export default function Sidebar({
                   <Link
                     key={item.href}
                     href={item.href}
+                    prefetch={true}
                     onClick={onCloseMobile}
                     className={`sidebar-transition flex items-center justify-between pl-4 pr-3.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide ${
                       isActive
