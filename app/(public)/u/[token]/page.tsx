@@ -115,7 +115,9 @@ export default function UndanganWaliPage() {
   const [isOpened, setIsOpened] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastAudioElRef = useRef<HTMLAudioElement | null>(null);
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isMountedRef = useRef(true);
   const mainContentRef = useRef<HTMLDivElement | null>(null);
 
   // State Estimasi Kehadiran (RSVP)
@@ -498,11 +500,68 @@ export default function UndanganWaliPage() {
     }
   };
 
+  /** Memutar elemen audio secara aman dan mengabaikan AbortError saat media dilepas dari DOM. */
+  const safePlayAudio = (
+    audio: HTMLAudioElement,
+    onSuccess: () => void,
+    onError?: () => void
+  ) => {
+    const handlePlayError = (error: unknown) => {
+      if (isMountedRef.current) {
+        onError?.();
+      }
+      const errName = (error as { name?: string } | null)?.name;
+      if (errName === 'AbortError') {
+        console.warn('[Audio] Playback interrupted by browser (AbortError), safely ignored.');
+      } else if (errName === 'NotAllowedError') {
+        console.warn('[Audio] Autoplay blocked by browser policy:', error);
+      } else {
+        console.error('[Audio] Playback failed:', error);
+      }
+    };
+
+    try {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            if (!isMountedRef.current) {
+              audio.pause();
+              return;
+            }
+            onSuccess();
+          })
+          .catch(handlePlayError);
+      } else {
+        onSuccess();
+      }
+    } catch (error) {
+      handlePlayError(error);
+    }
+  };
+
   useEffect(() => {
+    isMountedRef.current = true;
+    const audio = audioRef.current;
     return () => {
+      isMountedRef.current = false;
       clearAudioFade();
+      const targetAudio = audioRef.current || audio || lastAudioElRef.current;
+      if (targetAudio) {
+        targetAudio.pause();
+      }
     };
   }, []);
+
+  useEffect(() => {
+    if (!loadingSantri && itemNotFound) {
+      clearAudioFade();
+      const targetAudio = audioRef.current || lastAudioElRef.current;
+      if (targetAudio) {
+        targetAudio.pause();
+      }
+    }
+  }, [loadingSantri, itemNotFound]);
 
   // Handler Buka Undangan & Putar Backsound dengan Fade-In linear 0% -> 100% dalam 3 detik
   const handleOpenInvitation = () => {
@@ -513,14 +572,14 @@ export default function UndanganWaliPage() {
     clearAudioFade();
     audio.volume = 0;
 
-    audio
-      .play()
-      .then(() => {
+    safePlayAudio(
+      audio,
+      () => {
         setIsPlayingMusic(true);
         let vol = 0;
         fadeIntervalRef.current = setInterval(() => {
           const targetAudio = audioRef.current;
-          if (!targetAudio || targetAudio.paused) {
+          if (!targetAudio || targetAudio.paused || !isMountedRef.current) {
             clearAudioFade();
             return;
           }
@@ -532,13 +591,13 @@ export default function UndanganWaliPage() {
             clearAudioFade();
           }
         }, 150); // 150ms * 20 langkah = 3000ms (3 detik)
-      })
-      .catch((e) => {
+      },
+      () => {
         clearAudioFade();
         audio.volume = 1;
-        console.warn('Autoplay blocked by browser policy:', e);
         setIsPlayingMusic(false);
-      });
+      }
+    );
   };
 
   // Kunci scroll body dan nonaktifkan interaksi konten utama saat cover belum dibuka
@@ -566,7 +625,7 @@ export default function UndanganWaliPage() {
     } else {
       clearAudioFade();
       audio.volume = 1;
-      audio.play().then(() => setIsPlayingMusic(true)).catch(console.warn);
+      safePlayAudio(audio, () => setIsPlayingMusic(true));
     }
   };
 
@@ -747,12 +806,21 @@ export default function UndanganWaliPage() {
 
         {/* Audio Elemen Tersembunyi */}
         <audio
-          ref={audioRef}
+          ref={(el) => {
+            audioRef.current = el;
+            if (el) {
+              lastAudioElRef.current = el;
+            }
+          }}
           src="/audio/bgm-hubbun-nabi.mp3"
           loop
           preload="metadata"
-          onPlay={() => setIsPlayingMusic(true)}
-          onPause={() => setIsPlayingMusic(false)}
+          onPlay={() => {
+            if (isMountedRef.current) setIsPlayingMusic(true);
+          }}
+          onPause={() => {
+            if (isMountedRef.current) setIsPlayingMusic(false);
+          }}
         />
 
         {/* Floating Music Button */}
