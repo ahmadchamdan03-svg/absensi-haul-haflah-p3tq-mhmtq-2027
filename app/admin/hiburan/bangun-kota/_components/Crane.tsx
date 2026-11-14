@@ -61,10 +61,9 @@ export function BuildingBlockVisual({
             }}
           />
           <div
-            className="w-6 h-6 rounded-full flex items-center justify-center"
+            className="w-6 h-6 rounded-full flex items-center justify-center bg-emerald-50"
             style={{
-              backgroundColor: t.windowDark,
-              border: `1.5px solid ${t.border}`,
+              border: `1.5px solid ${t.leafAccent}`,
             }}
           >
             <svg
@@ -102,11 +101,9 @@ export function BuildingBlockVisual({
     const k = PALETTE.specialBlocks.kaca;
     return (
       <div
-        className="relative w-full h-full rounded-[3px] overflow-hidden flex flex-col justify-between backdrop-blur-xs"
+        className="relative w-full h-full rounded-[3px] overflow-hidden flex flex-col justify-between bg-white/30 backdrop-blur-sm border border-white/50"
         style={{
-          backgroundColor: k.fill,
-          border: `2px solid ${k.border}`,
-          boxShadow: 'inset 0 0 10px rgba(224, 242, 254, 0.45)',
+          boxShadow: 'inset 0 0 12px rgba(255, 255, 255, 0.55)',
         }}
       >
         <div
@@ -118,7 +115,7 @@ export function BuildingBlockVisual({
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-y-2 left-4 w-5 rotate-12 bg-white/30"
+          className="pointer-events-none absolute -inset-y-2 left-4 w-5 rotate-12 bg-white/40"
         />
 
         <div className="relative z-10 flex-1 flex items-center justify-evenly px-2 py-1">
@@ -141,7 +138,7 @@ export function BuildingBlockVisual({
 
         <div
           className="w-full h-1 shrink-0"
-          style={{ backgroundColor: k.border }}
+          style={{ backgroundColor: k.roof }}
         />
       </div>
     );

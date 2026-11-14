@@ -20,42 +20,33 @@ export default function JudgementFlash({ flash }: JudgementFlashProps) {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none absolute inset-x-0 top-[36%] z-30 flex flex-col items-center justify-center px-4"
+      className="pointer-events-none absolute right-4 sm:right-8 top-28 sm:top-20 z-30 flex flex-col items-end"
     >
       <AnimatePresence mode="wait">
         {flash && (
-          <motion.div
+          <motion.span
             key={flash.id}
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, y: -6, scale: 0.9 }}
             animate={{
               opacity: [0, 1, 1, 0],
-              scale: [0.8, 1.1, 1, 1],
+              y: [-6, 0, 0, -4],
+              scale: [0.9, 1.05, 1, 0.96],
             }}
-            exit={{ opacity: 0 }}
+            exit={{ opacity: 0, y: -4 }}
             transition={{
-              duration: 0.8,
-              times: [0, 0.22, 0.55, 1],
+              duration: 0.85,
+              times: [0, 0.2, 0.72, 1],
               ease: 'easeOut',
             }}
-            className="flex flex-col items-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-5 py-2.5 shadow-lg"
+            className="text-lg sm:text-2xl font-black tracking-wide"
+            style={{
+              color: getAccentColor(flash.judgement),
+              textShadow:
+                '0 2px 8px rgba(4, 11, 26, 0.95), 0 0 16px rgba(4, 11, 26, 0.85)',
+            }}
           >
-            <span
-              className="text-2xl sm:text-3xl font-black tracking-wide"
-              style={{ color: getAccentColor(flash.judgement) }}
-            >
-              {getJudgementLabel(flash.judgement)}
-            </span>
-
-            <span className="text-xs sm:text-sm font-bold mt-0.5 text-white">
-              {flash.shattered
-                ? 'Blok Kaca Pecah! (Wajib Jayyid)'
-                : flash.judgement === 'rodi'
-                  ? 'Blok Meleset (Kombo Reset)'
-                  : flash.blockType === 'taman'
-                    ? `Taman Stabil! +${flash.points.toLocaleString('id-ID')} Poin (${flash.combo}x Kombo)`
-                    : `+${flash.points.toLocaleString('id-ID')} Poin (${flash.combo}x Kombo)`}
-            </span>
-          </motion.div>
+            {getJudgementLabel(flash.judgement)}
+          </motion.span>
         )}
       </AnimatePresence>
     </div>

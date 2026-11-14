@@ -40,12 +40,12 @@ export default function HUD({
               e.stopPropagation();
               router.push('/admin/hiburan');
             }}
-            className="pointer-events-auto flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-sm font-black transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
+            className="pointer-events-auto flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-[#091936]/70 hover:bg-[#091936]/85 backdrop-blur-md border border-white/25 text-white text-sm font-black transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
           >
             X
           </button>
 
-          <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 text-white shadow-md">
+          <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-4 rounded-xl bg-[#091936]/70 backdrop-blur-md border border-white/25 px-3 py-1.5 sm:px-4 sm:py-2 text-white shadow-md">
             <div className="flex flex-col">
               <span
                 className="text-[10px] sm:text-[11px] font-bold tracking-wide"

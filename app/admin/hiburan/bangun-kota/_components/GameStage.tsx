@@ -85,22 +85,18 @@ export default function GameStage({
         />
       ))}
 
-      {/* Latar Belakang Panggung Statis (Tidak ikut bergeser saat menara bertambah tinggi) */}
+      {/* Latar Belakang Panggung Statis (Warna Asli, Zoom-In & Geser ke Bawah agar Lantai Panggung Terpotong) */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-35 mix-blend-luminosity"
-        style={{
-          backgroundImage: "url('/images/panggung-aula.jpg')",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(7, 20, 43, 0.55) 0%, rgba(15, 44, 89, 0.35) 55%, rgba(7, 20, 43, 0.72) 100%)',
-        }}
-      />
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+      >
+        <div
+          className="w-full h-full bg-cover bg-center bg-no-repeat scale-150 translate-y-[12%]"
+          style={{
+            backgroundImage: "url('/images/panggung-aula.jpg')",
+          }}
+        />
+      </div>
 
       <div
         aria-hidden="true"
