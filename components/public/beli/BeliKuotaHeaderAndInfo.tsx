@@ -94,7 +94,7 @@ export default function BeliKuotaHeaderAndInfo({
           <div className="p-2.5 rounded-2xl bg-[#F0F9FF] border border-[#E8DFD5]">
             <span className="text-stone-500 text-[10px] uppercase font-bold block">Kelas / Kamar:</span>
             <p className="font-bold text-[#0F2C59] truncate">
-              {santri.kelas || '-'} / Kamar {santri.kamar || '-'}
+              {santri.kelas || '-'} / {santri.kamar || '-'}
             </p>
           </div>
         </div>
