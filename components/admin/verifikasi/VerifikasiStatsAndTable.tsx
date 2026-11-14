@@ -203,7 +203,7 @@ export function VerifikasiOrdersTable({
   handleTolakOrder: (order: any) => void;
 }) {
   return (
-    <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-[0_8px_32px_rgba(15,44,89,0.08)] rounded-3xl p-4 sm:p-5 space-y-4">
+    <div className="bg-[#F0F9FF]/85 backdrop-blur-md border border-[#BAE6FD]/80 shadow-[0_8px_32px_rgba(15,44,89,0.08)] rounded-3xl p-3.5 sm:p-4 space-y-3.5">
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Tab Filter Pills */}
         <div className="flex items-center gap-2 text-xs font-bold overflow-x-auto pb-2 md:pb-0 whitespace-nowrap no-scrollbar">
@@ -274,28 +274,28 @@ export function VerifikasiOrdersTable({
       </div>
 
       {/* TABEL TRANSAKSI KUOTA TAMBAHAN */}
-      <div className="overflow-x-auto rounded-2xl border border-[#BAE6FD]/80 bg-white/90 backdrop-blur-sm shadow-xs">
-        <table className="w-full min-w-[920px] text-xs text-left">
-          <thead className="bg-blue-100/70 backdrop-blur-xs text-[#0F2C59] font-serif font-black border-b border-[#BAE6FD] uppercase tracking-wider text-[10px]">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#BAE6FD]/80 bg-white/90 backdrop-blur-sm shadow-xs">
+        <table className="w-full text-xs text-left">
+          <thead className="bg-blue-100/70 backdrop-blur-xs text-[#0F2C59] font-serif font-bold border-b border-[#BAE6FD] uppercase tracking-wider text-[11px]">
             <tr>
-              <th className="py-3.5 px-4 whitespace-nowrap">ID PESANAN</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">WALI &amp; SANTRI</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">KATEGORI</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">JUMLAH</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">TOTAL</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">BUKTI / METODE</th>
-              <th className="py-3.5 px-4 whitespace-nowrap">STATUS</th>
-              <th className="py-3.5 px-4 text-right whitespace-nowrap">AKSI VERIFIKASI &amp; WA</th>
+              <th className="py-2.5 px-2 whitespace-nowrap">ID PESANAN</th>
+              <th className="py-2.5 px-2">WALI &amp; SANTRI</th>
+              <th className="py-2.5 px-2 whitespace-nowrap">KATEGORI</th>
+              <th className="py-2.5 px-2 whitespace-nowrap">JUMLAH</th>
+              <th className="py-2.5 px-2 whitespace-nowrap">TOTAL</th>
+              <th className="py-2.5 px-2 whitespace-nowrap">BUKTI / METODE</th>
+              <th className="py-2.5 px-2 whitespace-nowrap">STATUS</th>
+              <th className="py-2.5 px-2 text-right whitespace-nowrap">AKSI</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-stone-100 text-xs">
             {loadingData ? (
               Array.from({ length: 5 }).map((_, idx) => (
                 <SkeletonTableRow key={idx} cols={8} />
               ))
             ) : filteredOrders.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-stone-400">
+                <td colSpan={8} className="py-10 text-center text-slate-500">
                   Tidak ada transaksi kuota tambahan yang cocok dengan filter.
                 </td>
               </tr>
@@ -310,9 +310,9 @@ export function VerifikasiOrdersTable({
                 return (
                   <tr key={orderId} className="hover:bg-[#F0F9FF]/70 transition-colors">
                     {/* ID PESANAN */}
-                    <td className="py-3.5 px-4 font-mono">
-                      <span className="font-bold text-[#322116] block text-xs">{orderId}</span>
-                      <span className="text-[10px] text-stone-400 block pt-0.5">
+                    <td className="py-2 px-2 font-mono whitespace-nowrap">
+                      <span className="font-bold text-[#322116] block text-xs leading-tight">{orderId}</span>
+                      <span className="text-[10px] text-slate-500 block pt-0.5 leading-tight">
                         {order.created_at
                           ? new Date(order.created_at).toLocaleDateString('id-ID', {
                               day: 'numeric',
@@ -325,35 +325,35 @@ export function VerifikasiOrdersTable({
                     </td>
 
                     {/* WALI & SANTRI */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-[#0F2C59]">
+                    <td className="py-2 px-2 max-w-[205px] leading-tight">
+                      <div className="font-bold text-[#0F2C59] text-xs leading-snug">
                         {order.nama_wali || santri?.nama_wali || 'Wali Santri'}
                       </div>
-                      <div className="text-[11px] text-stone-600 flex items-center space-x-1 pt-0.5">
+                      <div className="text-[11px] text-slate-600 flex flex-wrap items-center gap-x-1 mt-0.5">
                         <span className="font-semibold text-[#1D4ED8]">
                           {santri?.nama || order.kode_santri}
                         </span>
-                        <span className="text-stone-400">
-                          ({santri?.kelas ? `Kelas ${santri.kelas}` : order.kode_santri})
+                        <span className="text-slate-500">
+                          ({santri?.kelas ? `Kls ${santri.kelas}` : order.kode_santri})
                         </span>
                       </div>
                       {(santri?.no_hp || order.no_hp) && (
-                        <div className="text-[10px] text-stone-400 font-mono flex items-center space-x-1 mt-0.5">
-                          <Phone className="w-2.5 h-2.5 text-blue-600" />
+                        <div className="text-[10px] text-slate-500 font-mono flex items-center space-x-1 mt-0.5">
+                          <Phone className="w-2.5 h-2.5 text-blue-600 shrink-0" />
                           <span>{santri?.no_hp || order.no_hp}</span>
                         </div>
                       )}
                     </td>
 
                     {/* KATEGORI */}
-                    <td className="py-3.5 px-4">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF0E6] text-[#1D4ED8] border border-[#BAE6FD]">
+                    <td className="py-2 px-2 whitespace-nowrap">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF0E6] text-[#1D4ED8] border border-[#BAE6FD] whitespace-nowrap">
                         {santri?.sub_kategori || santri?.kategori_utama || 'Santri'}
                       </span>
                     </td>
 
                     {/* JUMLAH KURSI */}
-                    <td className="py-3.5 px-4 font-bold text-stone-800">
+                    <td className="py-2 px-2 font-bold text-stone-800 whitespace-nowrap">
                       <span className="text-sm font-serif font-black text-[#0F2C59]">
                         {numKursi}
                       </span>{' '}
@@ -361,17 +361,17 @@ export function VerifikasiOrdersTable({
                     </td>
 
                     {/* TOTAL BAYAR */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-serif font-black text-[#322116]">
+                    <td className="py-2 px-2 whitespace-nowrap">
+                      <div className="font-serif font-black text-[#322116] text-xs">
                         Rp {totalBayar.toLocaleString('id-ID')}
                       </div>
-                      <div className="text-[10px] text-stone-400">@ Rp 75.000</div>
+                      <div className="text-[10px] text-slate-500">@ Rp 75.000</div>
                     </td>
 
                     {/* BUKTI / METODE */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-2 px-2 whitespace-nowrap">
                       {order.bukti_url || order.buktiUrl ? (
-                        <div className="space-y-1">
+                        <div className="space-y-0.5">
                           <button
                             type="button"
                             onClick={() =>
@@ -380,12 +380,12 @@ export function VerifikasiOrdersTable({
                                 title: `Bukti Transfer - ${orderId} (${order.nama_wali || 'Wali'})`,
                               })
                             }
-                            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-800 hover:bg-sky-100 font-bold border border-sky-300 transition-colors shadow-xs cursor-pointer"
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded-xl bg-sky-50 text-sky-800 hover:bg-sky-100 font-bold text-[11px] border border-sky-300 transition-colors shadow-xs cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5 text-sky-600" />
                             <span>Lihat Bukti</span>
                           </button>
-                          <div className="text-[10px] text-stone-500 font-medium">
+                          <div className="text-[10px] text-slate-500 font-medium">
                             {order.uploaded_at
                               ? `Diperbarui: ${new Date(order.uploaded_at).toLocaleTimeString('id-ID', {
                                   hour: '2-digit',
@@ -395,34 +395,34 @@ export function VerifikasiOrdersTable({
                           </div>
                         </div>
                       ) : order.metode === 'TUNAI' ? (
-                        <span className="inline-flex items-center space-x-1 text-blue-800 font-bold bg-blue-50 px-2.5 py-1 rounded-xl border border-blue-300">
+                        <span className="inline-flex items-center space-x-1 text-blue-800 font-bold text-[11px] bg-blue-50 px-2 py-1 rounded-xl border border-blue-300">
                           <Banknote className="w-3.5 h-3.5 text-blue-600" />
                           <span>Kas Tunai</span>
                         </span>
                       ) : (
-                        <span className="text-stone-400 italic text-[11px]">Belum diunggah</span>
+                        <span className="text-slate-500 italic text-[11px]">Belum diunggah</span>
                       )}
                     </td>
 
                     {/* STATUS BADGE */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-2 px-2 whitespace-nowrap">
                       {order.status === 'DIVERIFIKASI' || order.status === 'DITERIMA' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 font-bold text-[11px]">
+                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-300 font-bold text-[11px] whitespace-nowrap">
                           <Check className="w-3 h-3 text-blue-700" />
                           <span>Diverifikasi</span>
                         </span>
                       ) : order.status === 'MENUNGGU_VERIFIKASI' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-sky-100 text-sky-900 border border-sky-300 font-bold text-[11px]">
+                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 border border-sky-300 font-bold text-[11px] whitespace-nowrap">
                           <Clock className="w-3 h-3 text-sky-700 animate-pulse" />
                           <span>Menunggu Verifikasi</span>
                         </span>
                       ) : order.status === 'MENUNGGU_PEMBAYARAN' ? (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-sky-100 text-blue-950 border border-sky-300 font-bold text-[11px]">
+                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-sky-100 text-blue-950 border border-sky-300 font-bold text-[11px] whitespace-nowrap">
                           <Clock className="w-3 h-3 text-amber-700" />
                           <span>Menunggu Bayar</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-bold text-[11px]">
+                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-bold text-[11px] whitespace-nowrap">
                           <X className="w-3 h-3 text-rose-700" />
                           <span>{order.status || 'Batal'}</span>
                         </span>
@@ -430,8 +430,8 @@ export function VerifikasiOrdersTable({
                     </td>
 
                     {/* AKSI VERIFIKASI & WA */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-2 px-2 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
                         {/* Tombol Verifikasi Langsung */}
                         {isMenunggu && (
                           <>
@@ -439,10 +439,10 @@ export function VerifikasiOrdersTable({
                               type="button"
                               disabled={isProcessing}
                               onClick={() => handleVerifikasiOrder(order)}
-                              className="px-3 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold text-xs flex items-center space-x-1 shadow-sm transition-all active:scale-95 cursor-pointer"
+                              className="px-2.5 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-bold text-[11px] inline-flex items-center space-x-1 shadow-sm transition-all active:scale-95 cursor-pointer"
                               title="Verifikasi dan tambahkan kuota ke QR santri"
                             >
-                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              <Check className="w-3 h-3 stroke-[3]" />
                               <span>Verifikasi</span>
                             </button>
 
@@ -450,7 +450,7 @@ export function VerifikasiOrdersTable({
                               type="button"
                               disabled={isProcessing}
                               onClick={() => handleTolakOrder(order)}
-                              className="p-1.5 rounded-xl bg-stone-100 hover:bg-rose-100 text-stone-500 hover:text-rose-700 border border-stone-200 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-xl bg-stone-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 border border-stone-200 transition-colors cursor-pointer"
                               title="Tolak Pesanan"
                               aria-label="Tolak Pesanan"
                             >
@@ -467,6 +467,7 @@ export function VerifikasiOrdersTable({
                             rel="noopener noreferrer"
                             className="p-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 transition-colors cursor-pointer"
                             title="Hubungi Wali via WhatsApp"
+                            aria-label="Hubungi Wali via WhatsApp"
                           >
                             <MessageSquare className="w-4 h-4" />
                           </a>
