@@ -106,8 +106,8 @@ export default function MergeDuplicateBanner({
         data-testid={`merge-banner-${mode.toLowerCase()}`}
         className={
           isSantri
-            ? 'max-w-7xl mx-auto my-3 bg-amber-500/15 border border-amber-500/40 backdrop-blur-md rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-blue-950 shadow-xs animate-in fade-in'
-            : 'max-w-7xl mx-auto mb-4 bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs animate-in fade-in'
+            ? 'max-w-7xl mx-auto my-3 bg-amber-500/15 border border-amber-500/40 backdrop-blur-md rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-blue-950 shadow-sm animate-in fade-in'
+            : 'max-w-7xl mx-auto mb-4 bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm animate-in fade-in'
         }
       >
         <div className={`flex items-center space-x-3 ${isSantri ? '' : 'text-amber-900'}`}>
@@ -132,14 +132,15 @@ export default function MergeDuplicateBanner({
           </div>
         </div>
 
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto shrink-0">
           <button
             type="button"
+            data-testid={`merge-detail-btn-${mode.toLowerCase()}`}
             onClick={() => setIsDetailModalOpen(true)}
             disabled={isMerging}
-            className="flex-1 sm:flex-none px-3.5 py-2.5 min-h-[42px] rounded-xl bg-white border border-amber-300 text-slate-700 hover:bg-slate-50 font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 font-bold text-xs shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
           >
-            <Eye className="w-3.5 h-3.5 text-amber-700 shrink-0" aria-hidden="true" />
+            <Eye className="w-4 h-4 text-slate-600 shrink-0" aria-hidden="true" />
             <span>Lihat Detail</span>
           </button>
 
@@ -147,7 +148,7 @@ export default function MergeDuplicateBanner({
             type="button"
             onClick={() => executeMergeAllDuplicates(false)}
             disabled={isMerging}
-            className="flex-1 sm:flex-none px-4 py-2.5 min-h-[42px] bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+            className="w-full sm:w-auto px-4 py-2 min-h-[44px] bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
           >
             {isMerging ? (
               <>
