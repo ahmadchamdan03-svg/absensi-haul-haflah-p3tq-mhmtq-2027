@@ -3,7 +3,6 @@
 import React from 'react';
 import {
   ShoppingBag,
-  AlertCircle,
   Info,
   X,
   Loader2,
@@ -11,6 +10,7 @@ import {
   Minus,
   History,
 } from 'lucide-react';
+import QuotaSoldOutCardContent from '@/components/public/QuotaSoldOutCardContent';
 import { formatTanggalIndo } from './types';
 
 /* ===================================================================== */
@@ -36,18 +36,8 @@ export function BeliClosedNotice() {
 
 export function BeliPaguHabisNotice() {
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-sky-300 shadow-md text-center space-y-4">
-      <div className="w-12 h-12 rounded-2xl bg-sky-50 text-amber-700 border border-sky-300 flex items-center justify-center mx-auto">
-        <AlertCircle className="w-6 h-6" />
-      </div>
-      <div className="space-y-1">
-        <h3 className="font-serif font-black text-base text-blue-950">
-          Kuota Tambahan Pagu Nasional Sudah Habis
-        </h3>
-        <p className="text-xs text-blue-950 leading-relaxed">
-          Pembelian kuota tambahan tersedia selama masa pemesanan aktif dan kuota masih tersedia.
-        </p>
-      </div>
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-md">
+      <QuotaSoldOutCardContent />
     </div>
   );
 }
@@ -70,6 +60,10 @@ export function BeliOrderForm({
   isSubmittingOrder,
   onKunciPesanan,
 }: BeliOrderFormProps) {
+  if (sisaPaguGlobal <= 0) {
+    return <BeliPaguHabisNotice />;
+  }
+
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E8DFD5] shadow-sm space-y-6">
       <div className="space-y-1">

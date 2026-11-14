@@ -3,10 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Compass, Users, ShoppingBag, ArrowRight, AlertCircle } from 'lucide-react';
+import { Compass, Users, ShoppingBag, ArrowRight } from 'lucide-react';
 import NamaLembaga from '@/components/NamaLembaga';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
+import QuotaSoldOutCardContent from '@/components/public/QuotaSoldOutCardContent';
 import { EventCountdownGrid } from './UndanganEffects';
 
 interface UndanganAcaraAndFooterProps {
@@ -27,6 +28,7 @@ export default function UndanganAcaraAndFooter({
   totalDiverifikasi,
 }: UndanganAcaraAndFooterProps) {
   const shouldReduceMotion = useReducedMotion();
+  const sisaKuota = Math.max(0, 300 - totalDiverifikasi);
 
   return (
     <>
@@ -118,24 +120,24 @@ export default function UndanganAcaraAndFooter({
       {/* KARTU PEMBELIAN KUOTA TAMBAHAN (HILANG TOTAL SAAT STATUS TUTUP) */}
       {!loadingKuotaControl && kuotaSwitchAktif && (
         <ScrollReveal delay={450}>
-          <GlassCard className="p-5 sm:p-7 space-y-3.5">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-xl bg-sky-100 border border-sky-300 text-blue-950 flex items-center justify-center shrink-0">
-                  <ShoppingBag className="w-4 h-4 text-amber-700" />
-                </div>
-                <div>
-                  <h3 className="font-serif font-black text-sm sm:text-base text-[#0F2C59]">
-                    Pembelian Kuota Tambahan Kursi
-                  </h3>
-                  <p className="text-[11px] text-stone-500">
-                    Sisa Kuota Pagu: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong> ({totalDiverifikasi}/300 terisi)
-                  </p>
+          {sisaKuota > 0 ? (
+            <GlassCard className="p-5 sm:p-7 space-y-3.5">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-xl bg-sky-100 border border-sky-300 text-blue-950 flex items-center justify-center shrink-0">
+                    <ShoppingBag className="w-4 h-4 text-amber-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-black text-sm sm:text-base text-[#0F2C59]">
+                      Pembelian Kuota Tambahan Kursi
+                    </h3>
+                    <p className="text-[11px] text-stone-500">
+                      Sisa Kuota Pagu: <strong>{sisaKuota} unit</strong> ({totalDiverifikasi}/300 terisi)
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {totalDiverifikasi < 300 ? (
               <div className="space-y-2.5 text-center">
                 <p className="text-xs text-stone-600 leading-relaxed font-medium">
                   Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
@@ -149,16 +151,15 @@ export default function UndanganAcaraAndFooter({
                   <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
                 </Link>
                 <p className="text-[11px] text-stone-500 font-semibold">
-                  Harga Rp 75.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
+                  Harga Rp 75.000 / kursi · Sisa kuota: <strong>{sisaKuota} unit</strong>
                 </p>
               </div>
-            ) : (
-              <div className="p-3.5 rounded-2xl bg-sky-50/90 border border-sky-200 text-blue-950 text-xs flex items-center space-x-2.5 font-medium">
-                <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
-                <span>Kuota tambahan sudah habis (300/300 terisi).</span>
-              </div>
-            )}
-          </GlassCard>
+            </GlassCard>
+          ) : (
+            <GlassCard className="p-5 sm:p-7">
+              <QuotaSoldOutCardContent />
+            </GlassCard>
+          )}
         </ScrollReveal>
       )}
 
