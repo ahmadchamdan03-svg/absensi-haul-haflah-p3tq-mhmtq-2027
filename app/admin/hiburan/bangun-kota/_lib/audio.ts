@@ -121,61 +121,6 @@ export function playDing(
   }
 }
 
-export function playGlassShatter(): void {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  try {
-    const now = ctx.currentTime;
-    const duration = 0.22;
-    const sampleRate = ctx.sampleRate;
-    const frameCount = Math.floor(sampleRate * duration);
-    const buffer = ctx.createBuffer(1, frameCount, sampleRate);
-    const data = buffer.getChannelData(0);
-
-    for (let i = 0; i < frameCount; i++) {
-      const decay = 1 - i / frameCount;
-      data[i] = (Math.random() * 2 - 1) * decay;
-    }
-
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.setValueAtTime(2400, now);
-
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.28, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    noise.start(now);
-    noise.stop(now + duration);
-
-    const chimeFreqs = [2100, 2650, 3200];
-    chimeFreqs.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const oscGain = ctx.createGain();
-      const startOffset = now + idx * 0.025;
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, startOffset);
-      oscGain.gain.setValueAtTime(0.08, startOffset);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, startOffset + 0.09);
-
-      osc.connect(oscGain);
-      oscGain.connect(ctx.destination);
-      osc.start(startOffset);
-      osc.stop(startOffset + 0.09);
-    });
-  } catch {
-    // Ignore audio errors
-  }
-}
-
 const LOFI_MELODY_HZ = [293.66, 329.63, 392.0, 440.0, 392.0, 329.63, 261.63, 293.66];
 
 export function playBGM(): void {

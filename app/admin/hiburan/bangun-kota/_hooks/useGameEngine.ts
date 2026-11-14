@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  BlockType,
   calculateLandingY,
   calculatePendulumAngle,
   checkAABB,
@@ -11,7 +10,6 @@ import {
   Judgement,
   nextCombo,
   PlacedBlock,
-  rollBlockType,
   scoreForJudgement,
   windAcceleration,
 } from '../_lib/engine';
@@ -19,7 +17,6 @@ import {
   initAudio,
   playBGM,
   playDing,
-  playGlassShatter,
   playWhoosh,
   stopBGM,
 } from '../_lib/audio';
@@ -48,7 +45,6 @@ export interface FallingBlockState {
   missed: boolean;
   rotation: number;
   colorIndex: number;
-  type: BlockType;
 }
 
 export interface FlashEvent {
@@ -56,14 +52,6 @@ export interface FlashEvent {
   judgement: Judgement;
   combo: number;
   points: number;
-  blockType?: BlockType;
-  shattered?: boolean;
-}
-
-export interface ShatterEvent {
-  id: number;
-  x: number;
-  y: number;
 }
 
 export function useGameEngine() {
@@ -79,10 +67,7 @@ export function useGameEngine() {
   });
   const [placedBlocks, setPlacedBlocks] = useState<PlacedBlock[]>([]);
   const [isBlockInCrane, setIsBlockInCrane] = useState<boolean>(true);
-  const [currentBlockType, setCurrentBlockType] = useState<BlockType>('normal');
-  const [fallingBlockType, setFallingBlockType] = useState<BlockType>('normal');
   const [lastFlash, setLastFlash] = useState<FlashEvent | null>(null);
-  const [shatterEvent, setShatterEvent] = useState<ShatterEvent | null>(null);
   const [wobbleKey, setWobbleKey] = useState<number>(0);
   const [currentWind, setCurrentWind] = useState<number>(0);
 
@@ -97,7 +82,6 @@ export function useGameEngine() {
     rodi: 0,
   });
   const placedBlocksRef = useRef<PlacedBlock[]>([]);
-  const currentBlockTypeRef = useRef<BlockType>('normal');
 
   const pendulumAngle = useRef<number>(0);
   const pendulumTime = useRef<number>(0);
@@ -110,12 +94,10 @@ export function useGameEngine() {
     missed: false,
     rotation: 0,
     colorIndex: 0,
-    type: 'normal',
   });
   const lastFrameTime = useRef<number | null>(null);
   const rafId = useRef<number | null>(null);
   const flashCounterRef = useRef<number>(0);
-  const shatterCounterRef = useRef<number>(0);
 
   const stageElRef = useRef<HTMLDivElement | null>(null);
   const craneGroupElRef = useRef<HTMLDivElement | null>(null);
@@ -144,129 +126,92 @@ export function useGameEngine() {
     }
   }, []);
 
-  const prepareNextCraneBlock = useCallback((nextFloorNumber: number) => {
-    const nextType = rollBlockType(nextFloorNumber);
-    currentBlockTypeRef.current = nextType;
-    setCurrentBlockType(nextType);
+  const finalizeDrop = useCallback((offsetX: number) => {
+    const judgement = classifyOffset(offsetX, BLOCK_WIDTH);
+
+    if (judgement === 'jayyid') {
+      playDing('jayyid', 1.2);
+    } else if (judgement === 'mutawasith') {
+      playDing('mutawasith', 1.0);
+    } else {
+      playDing('rodi', 0.8);
+    }
+
+    const updatedCombo = nextCombo(comboRef.current, judgement);
+    const earnedScore = scoreForJudgement(judgement, updatedCombo);
+
+    comboRef.current = updatedCombo;
+    setCombo(updatedCombo);
+
+    if (updatedCombo > longestComboRef.current) {
+      longestComboRef.current = updatedCombo;
+      setLongestCombo(updatedCombo);
+    }
+
+    const nextCounts = {
+      ...judgementCountsRef.current,
+      [judgement]: judgementCountsRef.current[judgement] + 1,
+    };
+    judgementCountsRef.current = nextCounts;
+    setJudgementCounts(nextCounts);
+
+    flashCounterRef.current += 1;
+    setLastFlash({
+      id: flashCounterRef.current,
+      judgement,
+      combo: updatedCombo,
+      points: earnedScore,
+    });
+
+    if (judgement === 'rodi') {
+      const fb = fallingBlock.current;
+      fb.missed = true;
+      fb.rotation = 0;
+      if (Math.abs(offsetX) < BLOCK_WIDTH) {
+        fb.x = offsetX >= 0 ? BLOCK_WIDTH + 6 : -(BLOCK_WIDTH + 6);
+      }
+      fb.vy = Math.max(fb.vy, 950);
+      fb.windBias += offsetX >= 0 ? 180 : -180;
+      return;
+    }
+
+    const nextScore = scoreRef.current + earnedScore;
+    scoreRef.current = nextScore;
+    setScore(nextScore);
+
+    const prevBlocks = placedBlocksRef.current;
+    const prevTopX =
+      prevBlocks.length > 0 ? prevBlocks[prevBlocks.length - 1].x : 0;
+    const placedX = prevBlocks.length === 0 ? 0 : prevTopX + offsetX;
+    const nextHeight = prevBlocks.length + 1;
+
+    const newBlock: PlacedBlock = {
+      id: `floor-${nextHeight}`,
+      x: placedX,
+      y: nextHeight * BLOCK_HEIGHT,
+      width: BLOCK_WIDTH,
+      height: BLOCK_HEIGHT,
+      judgement,
+      comboAtPlacement: updatedCombo,
+      type: 'normal',
+    };
+
+    const nextBlocks = [...prevBlocks, newBlock];
+    placedBlocksRef.current = nextBlocks;
+    heightRef.current = nextHeight;
+
+    setPlacedBlocks(nextBlocks);
+    setHeight(nextHeight);
+
+    if (judgement === 'mutawasith') {
+      setWobbleKey((prev) => prev + 1);
+    }
+
+    fallingBlock.current.active = false;
+    fallingBlock.current.missed = false;
+    fallingBlock.current.rotation = 0;
     setIsBlockInCrane(true);
   }, []);
-
-  const finalizeDrop = useCallback(
-    (offsetX: number) => {
-      const rawJudgement = classifyOffset(offsetX, BLOCK_WIDTH);
-      const droppedType = fallingBlock.current.type;
-
-      // Blok Kaca hanya menerima penilaian Jayyid; selain itu pecah dan dianggap Rodi'
-      const isGlassShattered =
-        droppedType === 'kaca' && rawJudgement !== 'jayyid';
-      const judgement: Judgement = isGlassShattered ? 'rodi' : rawJudgement;
-
-      if (isGlassShattered) {
-        playGlassShatter();
-        playDing('rodi', 0.8);
-        shatterCounterRef.current += 1;
-        setShatterEvent({
-          id: shatterCounterRef.current,
-          x: fallingBlock.current.x,
-          y: fallingBlock.current.y,
-        });
-      } else if (judgement === 'jayyid') {
-        playDing('jayyid', 1.2);
-      } else if (judgement === 'mutawasith') {
-        playDing('mutawasith', 1.0);
-      } else {
-        playDing('rodi', 0.8);
-      }
-
-      const updatedCombo = nextCombo(comboRef.current, judgement);
-      const earnedScore = scoreForJudgement(judgement, updatedCombo);
-
-      comboRef.current = updatedCombo;
-      setCombo(updatedCombo);
-
-      if (updatedCombo > longestComboRef.current) {
-        longestComboRef.current = updatedCombo;
-        setLongestCombo(updatedCombo);
-      }
-
-      const nextCounts = {
-        ...judgementCountsRef.current,
-        [judgement]: judgementCountsRef.current[judgement] + 1,
-      };
-      judgementCountsRef.current = nextCounts;
-      setJudgementCounts(nextCounts);
-
-      flashCounterRef.current += 1;
-      setLastFlash({
-        id: flashCounterRef.current,
-        judgement,
-        combo: updatedCombo,
-        points: earnedScore,
-        blockType: droppedType,
-        shattered: isGlassShattered,
-      });
-
-      if (judgement === 'rodi') {
-        const fb = fallingBlock.current;
-        if (isGlassShattered) {
-          // Blok kaca pecah berkeping-keping di lokasi jatuhnya
-          fb.active = false;
-          fb.missed = false;
-          fb.rotation = 0;
-          prepareNextCraneBlock(heightRef.current + 1);
-          return;
-        }
-        fb.missed = true;
-        fb.rotation = 0;
-        if (Math.abs(offsetX) < BLOCK_WIDTH) {
-          fb.x = offsetX >= 0 ? BLOCK_WIDTH + 6 : -(BLOCK_WIDTH + 6);
-        }
-        fb.vy = Math.max(fb.vy, 950);
-        fb.windBias += offsetX >= 0 ? 180 : -180;
-        return;
-      }
-
-      const nextScore = scoreRef.current + earnedScore;
-      scoreRef.current = nextScore;
-      setScore(nextScore);
-
-      const prevBlocks = placedBlocksRef.current;
-      const prevTopX =
-        prevBlocks.length > 0 ? prevBlocks[prevBlocks.length - 1].x : 0;
-      const placedX = prevBlocks.length === 0 ? 0 : prevTopX + offsetX;
-      const nextHeight = prevBlocks.length + 1;
-
-      const newBlock: PlacedBlock = {
-        id: `floor-${nextHeight}`,
-        x: placedX,
-        y: nextHeight * BLOCK_HEIGHT,
-        width: BLOCK_WIDTH,
-        height: BLOCK_HEIGHT,
-        judgement,
-        comboAtPlacement: updatedCombo,
-        type: droppedType,
-      };
-
-      const nextBlocks = [...prevBlocks, newBlock];
-      placedBlocksRef.current = nextBlocks;
-      heightRef.current = nextHeight;
-
-      setPlacedBlocks(nextBlocks);
-      setHeight(nextHeight);
-
-      // Blok Taman menetralkan goyangan menara kembali ke 0
-      if (droppedType === 'taman') {
-        setWobbleKey(0);
-      } else if (judgement === 'mutawasith') {
-        setWobbleKey((prev) => prev + 1);
-      }
-
-      fallingBlock.current.active = false;
-      fallingBlock.current.missed = false;
-      prepareNextCraneBlock(nextHeight + 1);
-    },
-    [prepareNextCraneBlock]
-  );
 
   useEffect(() => {
     if (phase !== 'playing') {
@@ -325,7 +270,7 @@ export function useGameEngine() {
           const isTowerEmpty = placedBlocksRef.current.length === 0;
           const targetBox = {
             x: -BLOCK_WIDTH / 2,
-            y: blockBelowTopY - 2,
+            y: blockBelowTopY,
             width: BLOCK_WIDTH,
             height: BLOCK_HEIGHT,
           };
@@ -351,7 +296,7 @@ export function useGameEngine() {
             fb.active = false;
             fb.missed = false;
             fb.rotation = 0;
-            prepareNextCraneBlock(heightRef.current + 1);
+            setIsBlockInCrane(true);
           }
         }
       }
@@ -368,7 +313,7 @@ export function useGameEngine() {
         rafId.current = null;
       }
     };
-  }, [phase, applyDomTransforms, finalizeDrop, prepareNextCraneBlock]);
+  }, [phase, applyDomTransforms, finalizeDrop]);
 
   const start = useCallback(() => {
     initAudio();
@@ -381,7 +326,6 @@ export function useGameEngine() {
     longestComboRef.current = 0;
     judgementCountsRef.current = { jayyid: 0, mutawasith: 0, rodi: 0 };
     placedBlocksRef.current = [];
-    currentBlockTypeRef.current = 'normal';
     pendulumTime.current = 0;
     pendulumAngle.current = 0;
     lastFrameTime.current = null;
@@ -394,7 +338,6 @@ export function useGameEngine() {
       missed: false,
       rotation: 0,
       colorIndex: 0,
-      type: 'normal',
     };
 
     setScore(0);
@@ -403,11 +346,8 @@ export function useGameEngine() {
     setLongestCombo(0);
     setJudgementCounts({ jayyid: 0, mutawasith: 0, rodi: 0 });
     setPlacedBlocks([]);
-    setCurrentBlockType('normal');
-    setFallingBlockType('normal');
     setIsBlockInCrane(true);
     setLastFlash(null);
-    setShatterEvent(null);
     setWobbleKey(0);
     setCurrentWind(0);
     setPhase('playing');
@@ -425,7 +365,6 @@ export function useGameEngine() {
     const startCenterX = swingRadius * Math.sin(angle);
     const startTopY =
       CRANE_PIVOT_Y + swingRadius * Math.cos(angle) - BLOCK_HEIGHT / 2;
-    const activeType = currentBlockTypeRef.current;
 
     fallingBlock.current = {
       active: true,
@@ -436,10 +375,8 @@ export function useGameEngine() {
       missed: false,
       rotation: 0,
       colorIndex: heightRef.current,
-      type: activeType,
     };
 
-    setFallingBlockType(activeType);
     setIsBlockInCrane(false);
     applyDomTransforms();
   }, [applyDomTransforms]);
@@ -465,10 +402,7 @@ export function useGameEngine() {
     judgementCounts,
     placedBlocks,
     isBlockInCrane,
-    currentBlockType,
-    fallingBlockType,
     lastFlash,
-    shatterEvent,
     wobbleKey,
     currentWind,
     cameraOffsetY,

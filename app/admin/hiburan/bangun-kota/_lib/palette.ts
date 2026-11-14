@@ -45,24 +45,6 @@ export const PALETTE = {
   blockWindowDark: '#091936',
   blockDoor: '#091936',
   blockAwning: '#F5C56B',
-  specialBlocks: {
-    taman: {
-      fill: '#F8F4EC',
-      roof: '#D49B5B',
-      border: '#0F2C59',
-      windowLit: '#FFFBEB',
-      windowDark: '#0F2C59',
-      leafAccent: '#16A34A',
-    },
-    kaca: {
-      fill: 'rgba(255, 255, 255, 0.30)',
-      roof: 'rgba(255, 255, 255, 0.65)',
-      border: 'rgba(255, 255, 255, 0.50)',
-      windowLit: 'rgba(255, 255, 255, 0.55)',
-      windowDark: 'rgba(255, 255, 255, 0.85)',
-      shardColor: '#FFFFFF',
-    },
-  },
   crane: {
     beam: '#091936',
     beamHighlight: '#F5C56B',

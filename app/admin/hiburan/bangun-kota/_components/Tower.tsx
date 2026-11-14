@@ -9,7 +9,6 @@ import {
   GROUND_HEIGHT,
   PALETTE,
 } from '../_lib/palette';
-import { BuildingBlockVisual } from './Crane';
 
 interface TowerProps {
   placedBlocks: PlacedBlock[];
@@ -78,10 +77,11 @@ export default function Tower({
                   transform: `translate3d(${block.x - block.width / 2}px, 0, 0)`,
                 }}
               >
-                <BuildingBlockVisual
-                  colorIndex={floorIndex}
-                  isBaseFloor={floorIndex === 0}
-                  blockType={block.type}
+                <img
+                  src="/images/blok-bangunan.png"
+                  alt=""
+                  draggable={false}
+                  className="w-full h-full object-cover object-center select-none pointer-events-none block"
                 />
               </div>
             );

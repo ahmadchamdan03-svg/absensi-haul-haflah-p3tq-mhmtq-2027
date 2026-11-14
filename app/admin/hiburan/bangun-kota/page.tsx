@@ -31,10 +31,7 @@ export default function BangunKotaAdminGamePage() {
     judgementCounts,
     placedBlocks,
     isBlockInCrane,
-    currentBlockType,
-    fallingBlockType,
     lastFlash,
-    shatterEvent,
     wobbleKey,
     currentWind,
     cameraOffsetY,
@@ -222,15 +219,12 @@ export default function BangunKotaAdminGamePage() {
             craneGroupElRef={craneGroupElRef}
             isBlockVisible={isBlockInCrane}
             nextFloorIndex={height}
-            blockType={currentBlockType}
           />
 
           <FallingBlock
             fallingBlockRef={fallingBlock}
             fallingBlockElRef={fallingBlockElRef}
             floorIndex={fallingBlock.current.colorIndex}
-            blockType={fallingBlockType}
-            shatterEvent={shatterEvent}
           />
 
           <Tower

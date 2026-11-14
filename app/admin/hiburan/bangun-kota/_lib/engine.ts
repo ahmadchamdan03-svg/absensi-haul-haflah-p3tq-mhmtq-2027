@@ -9,7 +9,7 @@ import {
 
 export type Judgement = 'jayyid' | 'mutawasith' | 'rodi';
 
-export type BlockType = 'normal' | 'taman' | 'kaca';
+export type BlockType = 'normal';
 
 export type PlacedBlock = {
   id: string;
@@ -21,20 +21,6 @@ export type PlacedBlock = {
   comboAtPlacement: number;
   type: BlockType;
 };
-
-export function rollBlockType(nextFloorNumber: number): BlockType {
-  if (nextFloorNumber < 10) {
-    return 'normal';
-  }
-  const r = Math.random();
-  if (r < 0.1) {
-    return 'taman';
-  }
-  if (r < 0.2) {
-    return 'kaca';
-  }
-  return 'normal';
-}
 
 export type GamePhase = 'idle' | 'playing' | 'surrendered';
 
