@@ -1,6 +1,17 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Brain, Puzzle, Play, Building2, Trophy } from 'lucide-react';
+import {
+  ArrowLeft,
+  Brain,
+  Puzzle,
+  Play,
+  Building2,
+  Trophy,
+} from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
+import { getTopScores, LeaderboardEntry } from './bangun-kota/_lib/db';
 
 interface GameItem {
   id: string;
@@ -14,13 +25,13 @@ interface GameItem {
   buttonText?: string;
 }
 
-// TODO: Add real game metadata and scores once individual game routes are implemented.
 const GAMES: GameItem[] = [
   {
     id: 'kuis',
     title: 'Kuis Kilat Haflah',
     category: 'Tanya Jawab',
-    description: 'Uji pengetahuanmu seputar Haflah, sejarah pondok, dan rangkaian acara.',
+    description:
+      'Uji pengetahuanmu seputar Haflah, sejarah pondok, dan rangkaian acara.',
     href: '/admin/hiburan/kuis',
     icon: 'brain',
     featured: true,
@@ -29,7 +40,8 @@ const GAMES: GameItem[] = [
     id: 'tebak-gambar',
     title: 'Tebak Gambar P3TQ',
     category: 'Permainan Visual',
-    description: 'Kenali lokasi, momen, dan simbol kegiatan P3TQ melalui petunjuk visual.',
+    description:
+      'Kenali lokasi, momen, dan simbol kegiatan P3TQ melalui petunjuk visual.',
     href: '/admin/hiburan/tebak-gambar',
     icon: 'puzzle',
   },
@@ -37,7 +49,8 @@ const GAMES: GameItem[] = [
     id: 'bangun-kota',
     title: 'Bangun Kota (City Bloxx)',
     category: 'Permainan Visual',
-    description: 'Susun menara setinggi mungkin. Seimbangkan presisi dan ritme.',
+    description:
+      'Susun menara setinggi mungkin. Seimbangkan presisi dan ritme.',
     href: '/admin/hiburan/bangun-kota',
     icon: 'city',
     featured: true,
@@ -56,6 +69,22 @@ const GAMES: GameItem[] = [
 ];
 
 export default function HiburanLobbyPage() {
+  const [topScoreEntry, setTopScoreEntry] = useState<LeaderboardEntry | null>(
+    null
+  );
+
+  useEffect(() => {
+    let active = true;
+    getTopScores(1).then((res) => {
+      if (active && res.length > 0) {
+        setTopScoreEntry(res[0]);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 lg:pb-10 space-y-8">
       <div className="bg-white/90 border border-[#D49B5B]/45 rounded-3xl p-5 sm:p-7 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -67,7 +96,8 @@ export default function HiburanLobbyPage() {
             Pusat Hiburan &amp; Kuis Haflah
           </h1>
           <p className="text-sm text-slate-700 max-w-2xl leading-relaxed">
-            Pilih permainan di bawah untuk membuka ruang bermain. Modul permainan sedang disiapkan bertahap.
+            Pilih permainan di bawah untuk membuka ruang bermain. Modul
+            permainan sedang disiapkan bertahap.
           </p>
         </div>
 
@@ -80,7 +110,10 @@ export default function HiburanLobbyPage() {
         </Link>
       </div>
 
-      <section aria-label="Daftar Game" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section
+        aria-label="Daftar Game"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         {GAMES.map((game) => {
           const IconComponent =
             game.icon === 'brain'
@@ -90,6 +123,8 @@ export default function HiburanLobbyPage() {
                 : game.icon === 'trophy'
                   ? Trophy
                   : Puzzle;
+
+          const isLeaderboardCard = game.id === 'leaderboard-bangun-kota';
 
           return (
             <GlassCard
@@ -103,7 +138,10 @@ export default function HiburanLobbyPage() {
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shrink-0 shadow-sm">
-                    <IconComponent className="w-7 h-7 text-[#F5C56B]" aria-hidden="true" />
+                    <IconComponent
+                      className="w-7 h-7 text-[#F5C56B]"
+                      aria-hidden="true"
+                    />
                   </div>
                   <span className="inline-block px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-bold text-[#1E3A8A]">
                     {game.category}
@@ -117,6 +155,20 @@ export default function HiburanLobbyPage() {
                   <p className="text-sm text-slate-700 leading-relaxed">
                     {game.description}
                   </p>
+
+                  {isLeaderboardCard && (
+                    <div className="pt-1">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-300 text-xs font-bold text-[#92400E]">
+                        <Trophy
+                          className="w-3.5 h-3.5 shrink-0"
+                          aria-hidden="true"
+                        />
+                        {topScoreEntry
+                          ? `Skor Tertinggi: ${topScoreEntry.name} (${topScoreEntry.score.toLocaleString('id-ID')} • ${topScoreEntry.floor} Lt)`
+                          : 'Skor Tertinggi: Belum ada rekor'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
