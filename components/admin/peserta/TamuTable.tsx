@@ -520,9 +520,9 @@ export default function TamuTable({
       <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md rounded-3xl shadow-sm border border-white/70 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wide text-[11px]">
               <tr>
-                <th className="py-3.5 px-3 w-10 text-center">
+                <th className="py-2 px-2 w-8 text-center">
                   <input
                     type="checkbox"
                     title="Pilih Semua Halaman Ini"
@@ -540,14 +540,14 @@ export default function TamuTable({
                     className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                 </th>
-                <th className="py-3.5 px-3 w-12 text-center">No</th>
-                <th className="py-3.5 px-4">Kode QR</th>
-                <th className="py-3.5 px-4">Nama Tamu</th>
-                <th className="py-3.5 px-4">Kategori Undangan</th>
-                <th className="py-3.5 px-4">Alamat &amp; Kontak</th>
-                <th className="py-3.5 px-4 text-center">Hak Kuota</th>
-                <th className="py-3.5 px-4 text-center">Status Hadir</th>
-                <th className="py-3.5 px-4 text-center">Aksi</th>
+                <th className="py-2 px-1.5 sm:px-2 w-9 text-center whitespace-nowrap">No</th>
+                <th className="py-2 px-2 sm:px-2.5 whitespace-nowrap">Kode QR</th>
+                <th className="py-2 px-2 sm:px-2.5">Nama Tamu</th>
+                <th className="py-2 px-2 sm:px-2.5">Kategori Undangan</th>
+                <th className="py-2 px-2 sm:px-2.5">Alamat &amp; Kontak</th>
+                <th className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">Hak Kuota</th>
+                <th className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">Status Hadir</th>
+                <th className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
@@ -582,7 +582,7 @@ export default function TamuTable({
                   return (
                     <tr key={item.kode} className="hover:bg-slate-50/80 transition-colors">
                       {/* Checkbox Select for Merge */}
-                      <td className="py-3 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <input
                           type="checkbox"
                           aria-label={`Pilih ${item.nama}`}
@@ -593,59 +593,61 @@ export default function TamuTable({
                       </td>
 
                       {/* No */}
-                      <td className="py-3 px-3 text-center text-slate-400 font-mono">
+                      <td className="py-2 px-1.5 sm:px-2 text-center text-slate-500 font-mono text-[11px] whitespace-nowrap">
                         {globalIndex}
                       </td>
 
                       {/* Kode QR & Kartu Modal */}
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-2 px-2 sm:px-2.5 whitespace-nowrap">
                         <button
                           onClick={() => setQrDetailItem(item)}
-                          className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg font-mono font-bold text-xs bg-slate-100 hover:bg-opera-50 hover:text-opera-850 hover:border-opera-300 border border-slate-200 transition-colors group"
+                          className="flex items-center space-x-1 px-2 py-0.5 rounded-md font-mono font-bold text-[11px] bg-slate-100 hover:bg-opera-50 hover:text-opera-850 hover:border-opera-300 border border-slate-200 transition-colors group"
                         >
                           <QrCode className="w-3.5 h-3.5 text-slate-500 group-hover:text-opera-700" />
                           <span>{item.kode}</span>
                           {item.isMerged && (
                             <span title="QR Code Prioritas Tertinggi (Grup Gabungan)">
-                              <Link2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                              <Link2 className="w-3 h-3 text-sky-600 shrink-0" />
                             </span>
                           )}
                         </button>
                       </td>
 
                       {/* Nama */}
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 leading-snug">{item.nama}</div>
-                        {item.kamar && item.kamar !== '-' && (
-                          <div className="text-[11px] text-slate-500">Kamar: {item.kamar}</div>
-                        )}
-                        {isUndangan && item.golonganUndangan === 'ISTIMEWA' && item.namaPutra && item.namaPutri && (
-                          <div className="text-[10px] text-blue-900/80 mt-0.5 font-medium flex items-center space-x-1">
-                            <span>🤵 {item.namaPutra}</span>
-                            <span>·</span>
-                            <span>🧕 {item.namaPutri}</span>
-                          </div>
-                        )}
+                      <td className="py-2 px-2 sm:px-2.5">
+                        <div className="space-y-0.5 leading-tight">
+                          <div className="font-bold text-slate-900 text-xs sm:text-[13px] leading-tight">{item.nama}</div>
+                          {item.kamar && item.kamar !== '-' && (
+                            <div className="text-[11px] text-slate-600 leading-tight">Kamar: {item.kamar}</div>
+                          )}
+                          {isUndangan && item.golonganUndangan === 'ISTIMEWA' && item.namaPutra && item.namaPutri && (
+                            <div className="text-[10px] text-blue-900/80 font-medium flex items-center space-x-1 leading-tight">
+                              <span>🤵 {item.namaPutra}</span>
+                              <span>·</span>
+                              <span>🧕 {item.namaPutri}</span>
+                            </div>
+                          )}
+                        </div>
                       </td>
 
                       {/* Kategori & Bagian (Multi-badge if Merged) */}
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-2 sm:px-2.5">
                         {item.isMerged ? (
-                          <div className="flex flex-wrap items-center gap-1.5">
+                          <div className="flex flex-wrap items-center gap-1 leading-tight">
                             {getMergedCategoryBadges(item).map((katName: string, kIdx: number) => (
                               <span
                                 key={`${katName}-${kIdx}`}
-                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${getMergedCategoryBadgeClass(katName)}`}
+                                className={`px-1.5 py-0.5 rounded text-[10px] font-bold border shadow-2xs leading-tight ${getMergedCategoryBadgeClass(katName)}`}
                               >
                                 {katName}
                               </span>
                             ))}
                           </div>
                         ) : (
-                          <>
+                          <div className="space-y-0.5 leading-tight">
                             <div className="flex items-center space-x-1.5">
                               <span
-                                className={`inline-block w-2.5 h-2.5 rounded-full ${
+                                className={`inline-block w-2 h-2 rounded-full shrink-0 ${
                                   item.golonganUndangan === 'ISTIMEWA'
                                     ? 'bg-amber-600'
                                     : item.golonganUndangan === 'KEHORMATAN'
@@ -653,7 +655,7 @@ export default function TamuTable({
                                     : 'bg-cyan-600'
                                 }`}
                               ></span>
-                              <span className="font-bold text-slate-800">
+                              <span className="font-bold text-slate-800 text-xs leading-tight">
                                 {item.golonganUndangan === 'ISTIMEWA'
                                   ? 'Undangan Istimewa'
                                   : item.golonganUndangan === 'KEHORMATAN'
@@ -663,7 +665,7 @@ export default function TamuTable({
                             </div>
                             {isUndangan && (
                               <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border mt-0.5 ${
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border leading-tight ${
                                   item.golonganUndangan === 'ISTIMEWA'
                                     ? 'bg-sky-50 text-blue-950 border-sky-300'
                                     : item.golonganUndangan === 'KEHORMATAN'
@@ -674,61 +676,63 @@ export default function TamuTable({
                                 {item.golonganUndangan === 'KEHORMATAN' ? 'Tamu Kehormatan' : (item.kategori || 'VIP')}
                               </span>
                             )}
-                          </>
+                          </div>
                         )}
                       </td>
 
                       {/* Wali Santri / Alamat & Kontak */}
-                      <td className="py-3 px-4">
-                        <div className="text-slate-800 font-medium">
-                          {item.golonganUndangan === 'ISTIMEWA' ? (
-                            <span className="text-blue-950 font-semibold flex items-center space-x-1">
-                              <span>📍 {item.alamat || item.instansi || 'Kediri'}</span>
-                            </span>
-                          ) : item.golonganUndangan === 'KEHORMATAN' ? (
-                            <span className="text-purple-950 font-semibold flex items-center space-x-1">
-                              <span>📍 {item.alamat || item.instansi || 'Kediri'}</span>
-                            </span>
-                          ) : (
-                            <div>
-                              <div className="font-semibold text-slate-800">{item.instansi || 'Pondok Pesantren Lirboyo'}</div>
-                              {item.alamat && item.alamat !== '-' && item.alamat !== item.instansi && (
-                                <div className="text-[11px] text-slate-500 font-normal">📍 {item.alamat}</div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5">
-                          {item.noHp && item.noHp !== '-' && (
-                            <a
-                              href={`https://wa.me/${item.noHp.replace(/^0/, '62')}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center text-blue-700 hover:underline"
-                            >
-                              <Phone className="w-3 h-3 mr-0.5" />
-                              <span>{item.noHp}</span>
-                            </a>
-                          )}
-                          {isUndangan && item.golonganUndangan === 'ISTIMEWA' && (item.namaPutra || item.namaPutri) && (
-                            <span className="text-[10px] text-amber-700 font-semibold bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
-                              {item.namaPutra && item.namaPutri ? 'Putra & Putri' : item.namaPutra ? 'Putra' : 'Putri'}
-                            </span>
-                          )}
+                      <td className="py-2 px-2 sm:px-2.5">
+                        <div className="space-y-0.5 leading-tight">
+                          <div className="text-slate-800 text-xs font-medium leading-tight">
+                            {item.golonganUndangan === 'ISTIMEWA' ? (
+                              <span className="text-blue-950 font-semibold flex items-center space-x-1">
+                                <span>📍 {item.alamat || item.instansi || 'Kediri'}</span>
+                              </span>
+                            ) : item.golonganUndangan === 'KEHORMATAN' ? (
+                              <span className="text-purple-950 font-semibold flex items-center space-x-1">
+                                <span>📍 {item.alamat || item.instansi || 'Kediri'}</span>
+                              </span>
+                            ) : (
+                              <div className="space-y-0.5 leading-tight">
+                                <div className="font-semibold text-slate-800">{item.instansi || 'Pondok Pesantren Lirboyo'}</div>
+                                {item.alamat && item.alamat !== '-' && item.alamat !== item.instansi && (
+                                  <div className="text-xs text-slate-600 font-normal">📍 {item.alamat}</div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-600 leading-tight">
+                            {item.noHp && item.noHp !== '-' && (
+                              <a
+                                href={`https://wa.me/${item.noHp.replace(/^0/, '62')}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center text-blue-700 hover:underline whitespace-nowrap"
+                              >
+                                <Phone className="w-3 h-3 mr-0.5" />
+                                <span>{item.noHp}</span>
+                              </a>
+                            )}
+                            {isUndangan && item.golonganUndangan === 'ISTIMEWA' && (item.namaPutra || item.namaPutri) && (
+                              <span className="text-[10px] text-amber-700 font-semibold bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 leading-tight">
+                                {item.namaPutra && item.namaPutri ? 'Putra & Putri' : item.namaPutra ? 'Putra' : 'Putri'}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
                       {/* Hak Kuota */}
-                      <td className="py-3 px-4 text-center whitespace-nowrap">
-                        <div className="font-bold text-slate-800">
+                      <td className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">
+                        <div className="font-bold text-slate-800 text-xs leading-tight">
                           {item.kuotaDasar + item.kuotaTambahan} Kursi
                         </div>
-                        <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5">
+                        <div className="text-[10px] text-slate-500 mt-0.5 space-y-0.5 leading-tight">
                           {(() => {
                             const rawWarna = item.warnaTiket || getWarnaTiketUndangan(item.golonganUndangan, item.kategori) || (item.golonganUndangan === 'ISTIMEWA' ? 'Cream' : 'Biru');
                             const isCream = String(rawWarna).toLowerCase().includes('cream');
                             return (
-                              <span className={`inline-block font-bold px-1.5 py-0.5 rounded text-[10px] border ${
+                              <span className={`inline-block font-bold px-1.5 py-0.5 rounded text-[10px] border leading-none ${
                                 isCream
                                   ? 'text-[#1E3A8A] bg-[#F5E6D3] border-[#D49B5B]'
                                   : 'text-blue-900 bg-blue-100 border-blue-300'
@@ -738,35 +742,35 @@ export default function TamuTable({
                             );
                           })()}
                           {item.kuotaTambahan > 0 && (
-                            <span className="text-rose-600 block font-semibold">+ {item.kuotaTambahan} Tambahan</span>
+                            <span className="text-rose-600 block font-semibold leading-tight">+ {item.kuotaTambahan} Tambahan</span>
                           )}
                         </div>
                       </td>
 
                       {/* Status Hadir */}
-                      <td className="py-3 px-4 text-center whitespace-nowrap">
+                      <td className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">
                         {item.terpakai > 0 ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300 leading-tight">
                             <Check className="w-3 h-3 mr-1" />
                             {item.terpakai} Masuk
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 leading-tight">
                             Belum Datang
                           </span>
                         )}
-                        <div className="text-[10px] text-slate-400 mt-0.5">Sisa: {item.sisa}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5 leading-tight">Sisa: {item.sisa}</div>
                       </td>
 
                       {/* Tombol Aksi */}
-                      <td className="py-3 px-4 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center space-x-1.5">
+                      <td className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center space-x-1">
                           {/* Detail & QR */}
                           <button
                             onClick={() => setQrDetailItem(item)}
                             title="Lihat QR &amp; Kartu"
                             aria-label={`Lihat QR dan kartu ${item.nama}`}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
+                            className="p-1 rounded-md text-slate-600 hover:text-opera-850 hover:bg-opera-50 border border-transparent hover:border-opera-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none cursor-pointer"
                           >
                             <QrCode className="w-4 h-4" />
                           </button>
@@ -776,7 +780,7 @@ export default function TamuTable({
                             onClick={() => handleOpenEdit(item)}
                             title="Edit Data Peserta"
                             aria-label={`Ubah data ${item.nama}`}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+                            className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -793,7 +797,7 @@ export default function TamuTable({
                                   ? 'Tidak dapat dipisahkan karena peserta sudah melakukan scan kehadiran.'
                                   : 'Pisahkan (Unmerge) data peserta ini'
                               }
-                              className={`p-1.5 rounded-lg border transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none ${
+                              className={`p-1 rounded-md border transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none ${
                                 item.terpakai > 0
                                   ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
                                   : 'bg-white hover:bg-amber-50 text-amber-700 border-amber-300 hover:border-amber-400 cursor-pointer'
@@ -808,7 +812,7 @@ export default function TamuTable({
                             onClick={() => setDeletingItem(item)}
                             title="Hapus Peserta"
                             aria-label={`Hapus data ${item.nama}`}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                            className="p-1 rounded-md text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

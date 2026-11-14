@@ -213,9 +213,9 @@ export default function SantriTable({
       <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md rounded-3xl shadow-sm border border-white/70 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+            <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wide text-[11px]">
               <tr>
-                <th className="py-3.5 px-3 w-10 text-center">
+                <th className="py-2 px-2 w-8 text-center">
                   <input
                     type="checkbox"
                     title="Pilih Semua Halaman Ini"
@@ -233,14 +233,14 @@ export default function SantriTable({
                     className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                 </th>
-                <th className="py-3.5 px-4 w-12 text-center">No</th>
-                <th className="py-3.5 px-4">Kode QR</th>
-                <th className="py-3.5 px-4">Nama Santri &amp; Kamar</th>
-                <th className="py-3.5 px-4">Kategori &amp; Bagian</th>
-                <th className="py-3.5 px-4">Wali Santri / Alamat &amp; Kontak</th>
-                <th className="py-3.5 px-4 text-center">Hak Kuota</th>
-                <th className="py-3.5 px-4 text-center">Status Hadir</th>
-                <th className="py-3.5 px-4 text-center">Aksi</th>
+                <th className="py-2 px-1.5 sm:px-2 w-9 text-center whitespace-nowrap">No</th>
+                <th className="py-2 px-2 sm:px-2.5 whitespace-nowrap">Kode QR</th>
+                <th className="py-2 px-2 sm:px-2.5">Nama Santri &amp; Kamar</th>
+                <th className="py-2 px-2 sm:px-2.5">Kategori &amp; Bagian</th>
+                <th className="py-2 px-2 sm:px-2.5">Wali Santri / Alamat &amp; Kontak</th>
+                <th className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">Hak Kuota</th>
+                <th className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">Status Hadir</th>
+                <th className="py-2 px-2 sm:px-2.5 text-center whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
