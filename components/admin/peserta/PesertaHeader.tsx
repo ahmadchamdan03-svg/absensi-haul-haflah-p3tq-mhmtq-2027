@@ -344,9 +344,9 @@ export function PesertaUtilityModals({
           <div
             role="dialog"
             aria-modal="true"
-            className="bg-white rounded-3xl max-w-md w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
+            className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
           >
-            <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white p-3.5 sm:p-4 text-center border-b border-gold-500/40 relative shrink-0 px-12">
+            <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white py-3 sm:py-3.5 text-center border-b border-gold-500/40 relative shrink-0 px-12">
               <button
                 type="button"
                 aria-label="Tutup Modal Kartu Peserta"
@@ -367,27 +367,27 @@ export function PesertaUtilityModals({
               </div>
             </div>
 
-            <div className="p-4 sm:p-5 text-center space-y-3 overflow-y-auto flex-1">
-              <div className="p-2.5 bg-white border-2 border-dashed border-opera-300 rounded-2xl inline-block shadow-sm">
+            <div className="px-4 py-4 sm:px-5 sm:py-4 text-center space-y-2.5 overflow-y-auto flex-1">
+              <div className="bg-white inline-block">
                 {qrDataUrl ? (
                   <img
                     src={qrDataUrl}
                     alt={`QR Code ${qrDetailItem.kode}`}
-                    width={192}
-                    height={192}
-                    className="w-44 h-44 sm:w-48 sm:h-48 max-w-[200px] max-h-[200px] mx-auto object-contain"
+                    width={160}
+                    height={160}
+                    className="w-36 h-36 sm:w-40 sm:h-40 max-w-[160px] max-h-[160px] mx-auto mb-2 object-contain"
                   />
                 ) : (
-                  <div className="w-44 h-44 sm:w-48 sm:h-48 max-w-[200px] mx-auto flex items-center justify-center text-slate-400 font-mono text-xs">
+                  <div className="w-36 h-36 sm:w-40 sm:h-40 max-w-[160px] max-h-[160px] mx-auto mb-2 flex items-center justify-center text-slate-400 font-mono text-xs">
                     Membuat QR...
                   </div>
                 )}
-                <div className="font-mono font-bold text-sm text-slate-800 mt-1.5">
+                <div className="font-mono font-bold text-sm text-slate-800">
                   {qrDetailItem.kode}
                 </div>
               </div>
 
-              <div className="text-xs space-y-1">
+              <div className="text-xs space-y-0.5">
                 <div className="font-serif font-black text-base text-slate-900">
                   {qrDetailItem.nama}
                 </div>
@@ -434,10 +434,10 @@ export function PesertaUtilityModals({
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-opera-50 border border-opera-200 grid grid-cols-2 gap-4 text-xs">
+              <div className="py-2.5 px-3 rounded-2xl bg-opera-50 border border-opera-200 grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <div className="text-slate-500 text-[10px]">TOTAL KUOTA</div>
-                  <div className="font-serif font-black text-slate-800 text-lg">
+                  <div className="font-serif font-black text-slate-800 text-base">
                     {qrDetailItem.kuotaDasar + qrDetailItem.kuotaTambahan} Kursi
                   </div>
                 </div>
@@ -461,62 +461,63 @@ export function PesertaUtilityModals({
                 </div>
               </div>
 
-              <div className="pt-1 flex gap-2">
-                <a
-                  href={`/u/${qrDetailItem.kode}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 py-2.5 min-h-[44px] rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-bold text-xs shadow border border-gold-500/40 flex items-center justify-center space-x-1"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>
-                    {qrDetailItem.tipe === 'UNDANGAN'
-                      ? 'Buka Portal Undangan'
-                      : 'Buka Portal Wali'}
-                  </span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const liveDomain =
-                      process.env.NEXT_PUBLIC_BASE_URL ||
-                      process.env.NEXT_PUBLIC_APP_URL ||
-                      'https://haflahp3tq.site';
-                    const origin =
-                      typeof window !== 'undefined' &&
-                      !window.location.hostname.includes('localhost') &&
-                      !window.location.hostname.includes('127.0.0.1')
-                        ? window.location.origin
-                        : liveDomain;
-                    navigator.clipboard.writeText(`${origin}/u/${qrDetailItem.kode}`);
-                    showToast(
-                      `✓ Link portal ${
-                        qrDetailItem.tipe === 'UNDANGAN' ? 'undangan' : 'wali'
-                      } berhasil disalin!`
-                    );
-                  }}
-                  className="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold cursor-pointer"
-                >
-                  Salin Link
-                </button>
-              </div>
+              <div className="space-y-2 pt-0.5">
+                <div className="flex gap-2">
+                  <a
+                    href={`/u/${qrDetailItem.kode}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-2.5 min-h-[44px] rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-bold text-xs shadow border border-gold-500/40 flex items-center justify-center space-x-1"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>
+                      {qrDetailItem.tipe === 'UNDANGAN'
+                        ? 'Buka Portal Undangan'
+                        : 'Buka Portal Wali'}
+                    </span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const liveDomain =
+                        process.env.NEXT_PUBLIC_BASE_URL ||
+                        process.env.NEXT_PUBLIC_APP_URL ||
+                        'https://haflahp3tq.site';
+                      const origin =
+                        typeof window !== 'undefined' &&
+                        !window.location.hostname.includes('localhost') &&
+                        !window.location.hostname.includes('127.0.0.1')
+                          ? window.location.origin
+                          : liveDomain;
+                      navigator.clipboard.writeText(`${origin}/u/${qrDetailItem.kode}`);
+                      showToast(
+                        `✓ Link portal ${
+                          qrDetailItem.tipe === 'UNDANGAN' ? 'undangan' : 'wali'
+                        } berhasil disalin!`
+                      );
+                    }}
+                    className="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold cursor-pointer"
+                  >
+                    Salin Link
+                  </button>
+                </div>
 
-              {qrDetailItem.tipe === 'UNDANGAN' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const liveDomain =
-                      process.env.NEXT_PUBLIC_BASE_URL ||
-                      process.env.NEXT_PUBLIC_APP_URL ||
-                      'https://haflahp3tq.site';
-                    const origin =
-                      typeof window !== 'undefined' &&
-                      !window.location.hostname.includes('localhost') &&
-                      !window.location.hostname.includes('127.0.0.1')
-                        ? window.location.origin
-                        : liveDomain;
-                    const link = `${origin}/u/${qrDetailItem.kode}`;
-                    const waText = `Assalamu'alaikum Wr. Wb.
+                {qrDetailItem.tipe === 'UNDANGAN' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const liveDomain =
+                        process.env.NEXT_PUBLIC_BASE_URL ||
+                        process.env.NEXT_PUBLIC_APP_URL ||
+                        'https://haflahp3tq.site';
+                      const origin =
+                        typeof window !== 'undefined' &&
+                        !window.location.hostname.includes('localhost') &&
+                        !window.location.hostname.includes('127.0.0.1')
+                          ? window.location.origin
+                          : liveDomain;
+                      const link = `${origin}/u/${qrDetailItem.kode}`;
+                      const waText = `Assalamu'alaikum Wr. Wb.
 
 Kepada Yth. *${qrDetailItem.nama}* (${qrDetailItem.instansi || qrDetailItem.kategori || 'Tamu Undangan'})
 
@@ -532,14 +533,15 @@ Mohon tunjukkan QR Code pada tautan di atas kepada petugas saat tiba di gerbang 
 Wassalamu'alaikum Wr. Wb.
 Pemerhati Haul & Haflah P3TQ - MHMTQ Lirboyo Kediri`;
 
-                    navigator.clipboard.writeText(waText);
-                    showToast(`✓ Pesan WA santun untuk ${qrDetailItem.nama} berhasil disalin!`);
-                  }}
-                  className="w-full py-2.5 min-h-[44px] rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer mt-2"
-                >
-                  <span>📋 Salin Template Chat WA Santun</span>
-                </button>
-              )}
+                      navigator.clipboard.writeText(waText);
+                      showToast(`✓ Pesan WA santun untuk ${qrDetailItem.nama} berhasil disalin!`);
+                    }}
+                    className="w-full py-2.5 min-h-[44px] rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>📋 Salin Template Chat WA Santun</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}
