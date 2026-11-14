@@ -59,23 +59,55 @@ export function validateAndCleanPhoneNumber(input: string): {
   };
 }
 
+async function persistStatusWa(
+  endpoint: string,
+  table: 'peserta_santri' | 'tamu_undangan',
+  id: string | number,
+  status: string,
+  setList: React.Dispatch<React.SetStateAction<any[]>>
+) {
+  try {
+    let persisted = false;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status_wa: status }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.ok) persisted = true;
+      }
+    } catch {
+      // Fallback to direct client update below
+    }
+
+    if (!persisted) {
+      const { error } = await supabase
+        .from(table)
+        .update({ status_wa: status, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) {
+        console.warn(`Error updating status_wa in ${table}:`, error.message);
+      }
+    }
+
+    setList((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, statusWa: status } : item))
+    );
+  } catch (e) {
+    console.warn(`Error updating status_wa in ${table}:`, e);
+  }
+}
+
 export async function updateStatusWaInSupabase(
   id: string,
   status: string,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  try {
-    await supabase
-      .from('peserta_santri')
-      .update({ status_wa: status })
-      .eq('id', id);
-
-    setKeluargaList((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, statusWa: status } : item))
-    );
-  } catch (e) {
-    console.warn('Error updating status_wa in Supabase:', e);
-  }
+  await persistStatusWa('/api/santri', 'peserta_santri', id, status, setKeluargaList);
 }
 
 export async function updateTamuWaInSupabase(
@@ -83,25 +115,7 @@ export async function updateTamuWaInSupabase(
   status: string,
   setTamuList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
-  try {
-    await supabase
-      .from('tamu_undangan')
-      .update({ status_wa: status })
-      .eq('id', id);
-
-    setTamuList((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              statusWa: status,
-            }
-          : item
-      )
-    );
-  } catch (e) {
-    console.warn('Error updating status_wa in Supabase:', e);
-  }
+  await persistStatusWa('/api/tamu', 'tamu_undangan', id, status, setTamuList);
 }
 
 export async function kirimFonnteWali(

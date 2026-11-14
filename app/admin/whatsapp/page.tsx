@@ -476,11 +476,28 @@ export default function WhatsAppPage() {
     }
   };
 
-  const handleKirimFonnte = (kel: any) =>
-    kirimFonnteWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setSendingKode, setKeluargaList);
+  const ensureLinkGrupWaFilled = () => {
+    if (gelombang === 1 && !linkGrupWa.trim()) {
+      showToast('error', 'Harap isi Link Grup WA terlebih dahulu!');
+      const inputEl = document.getElementById('input-link-grup-wa');
+      if (inputEl) {
+        inputEl.focus();
+        inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return false;
+    }
+    return true;
+  };
 
-  const handleKirimManualWA = (kel: any) =>
-    kirimManualWAWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setKeluargaList);
+  const handleKirimFonnte = async (kel: any) => {
+    if (!ensureLinkGrupWaFilled()) return false;
+    return kirimFonnteWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setSendingKode, setKeluargaList);
+  };
+
+  const handleKirimManualWA = async (kel: any) => {
+    if (!ensureLinkGrupWaFilled()) return;
+    return kirimManualWAWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setKeluargaList);
+  };
 
   const filteredList = useMemo(() => {
     return keluargaList.filter((kel) => {
@@ -525,6 +542,8 @@ export default function WhatsAppPage() {
   }, [keluargaList, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
 
   const handleStartBatchBlast = async () => {
+    if (!ensureLinkGrupWaFilled()) return;
+
     const unsentList = filteredList.filter(
       (k) => k.statusWa !== 'TERKIRIM' && k.noHp && k.noHp.trim().length >= 8
     );
@@ -943,7 +962,7 @@ export default function WhatsAppPage() {
 
         {/* TOAST NOTIFIKASI */}
         {toastMsg && (
-          <div className="fixed bottom-6 right-6 z-50 animate-bounce-short">
+          <div role="alert" aria-live="assertive" className="fixed bottom-6 right-6 z-50 animate-bounce-short">
             <div
               className={`flex items-center space-x-3 px-4 py-3 rounded-2xl shadow-2xl border backdrop-blur-md ${
                 toastMsg.type === 'success'
@@ -962,6 +981,8 @@ export default function WhatsAppPage() {
               )}
               <span className="text-xs sm:text-sm font-semibold tracking-wide">{toastMsg.message}</span>
               <button
+                type="button"
+                aria-label="Tutup notifikasi"
                 onClick={() => setToastMsg(null)}
                 className="text-white/60 hover:text-white p-1 rounded-lg ml-2 transition-colors cursor-pointer"
               >

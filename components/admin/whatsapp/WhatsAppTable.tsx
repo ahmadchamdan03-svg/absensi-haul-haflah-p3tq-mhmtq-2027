@@ -34,6 +34,35 @@ export interface WhatsAppTableProps extends WhatsAppFilterProps {
   setNewHpInputTamu: (val: string) => void;
 }
 
+function FonnteSendButton({
+  onClick,
+  disabled,
+  isTerkirim,
+  isSending,
+}: {
+  onClick: () => void;
+  disabled: boolean;
+  isTerkirim: boolean;
+  isSending: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
+        isTerkirim
+          ? 'bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200'
+          : 'bg-blue-600 text-white hover:bg-blue-700 shadow-xs'
+      } disabled:opacity-40 disabled:pointer-events-none`}
+      title={isTerkirim ? 'Kirim ulang pesan via WhatsApp Fonnte' : 'Kirim otomatis lewat WhatsApp Fonnte'}
+    >
+      <Zap className={`w-3 h-3 fill-current ${isTerkirim ? 'text-slate-500' : 'text-amber-300'}`} />
+      <span>{isSending ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
+    </button>
+  );
+}
+
 export default function WhatsAppTable(props: WhatsAppTableProps) {
   const {
     activeTab,
@@ -220,19 +249,12 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                       </td>
                       <td className="py-3 px-4 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center space-x-1.5">
-                          <button
+                          <FonnteSendButton
                             onClick={() => handleKirimFonnte(kel)}
                             disabled={isInvalidNum || isSendingThis || isBlasting}
-                            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
-                              isTerkirim
-                                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
-                                : 'bg-blue-800 hover:bg-blue-900 text-white shadow-xs'
-                            } disabled:opacity-40 disabled:pointer-events-none`}
-                            title="Kirim otomatis lewat WhatsApp Fonnte"
-                          >
-                            <Zap className="w-3 h-3 fill-current text-amber-300" />
-                            <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
-                          </button>
+                            isTerkirim={isTerkirim}
+                            isSending={isSendingThis}
+                          />
 
                           <button
                             onClick={() => handleKirimManualWA(kel)}
@@ -400,19 +422,12 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                     {/* Aksi Kirim */}
                     <td className="py-3 px-4 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center space-x-1.5">
-                        <button
+                        <FonnteSendButton
                           onClick={() => handleKirimFonnteTamu(tamu)}
                           disabled={isSendDisabled}
-                          className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
-                            isTerkirim
-                              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
-                              : 'bg-blue-800 hover:bg-blue-900 text-white shadow-xs'
-                          } disabled:opacity-40 disabled:pointer-events-none`}
-                          title="Kirim otomatis lewat WhatsApp Fonnte"
-                        >
-                          <Zap className="w-3 h-3 fill-current text-amber-300" />
-                          <span>{isSendingThis ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
-                        </button>
+                          isTerkirim={isTerkirim}
+                          isSending={isSendingThis}
+                        />
 
                         <button
                           onClick={() => handleKirimManualWATamu(tamu)}

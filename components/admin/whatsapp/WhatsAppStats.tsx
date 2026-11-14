@@ -402,13 +402,13 @@ export default function WhatsAppStats({
           <div
             className={`mt-4 p-4 rounded-2xl border transition-all ${
               !linkGrupWa.trim()
-                ? 'bg-white/40 backdrop-blur-sm border-white/50 shadow-xs'
+                ? 'bg-rose-50/45 backdrop-blur-sm border-rose-300/80 shadow-xs'
                 : 'bg-blue-50/50 backdrop-blur-sm border-blue-300 ring-2 ring-emerald-300/30 shadow-xs'
             } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
           >
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block font-bold text-[#0F2C59]">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <label htmlFor="input-link-grup-wa" className="block font-bold text-[#0F2C59]">
                   Link Grup WhatsApp Resmi Wali Santri:
                 </label>
                 {savingLinkGrup ? (
@@ -416,12 +416,18 @@ export default function WhatsAppStats({
                     Menyimpan...
                   </span>
                 ) : linkGrupSavedNotice ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
-                    {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : '✓ Dikosongkan untuk Sesi Ini'}
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      linkGrupWa.trim()
+                        ? 'bg-blue-100 text-blue-800 border-blue-300'
+                        : 'bg-rose-100 text-rose-700 border-rose-300'
+                    }`}
+                  >
+                    {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : '⚠ Link kosong (wajib diisi)'}
                   </span>
                 ) : !linkGrupWa.trim() ? (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/50 text-stone-600 border border-stone-300">
-                    Opsional (Dihapus dari pesan jika kosong)
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300">
+                    Wajib diisi
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
@@ -431,13 +437,19 @@ export default function WhatsAppStats({
               </div>
               <div className="flex gap-2">
                 <input
+                  id="input-link-grup-wa"
                   type="text"
                   autoComplete="off"
+                  aria-required="true"
                   value={linkGrupWa}
                   onChange={(e) => setLinkGrupWa(e.target.value)}
                   onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
-                  placeholder="https://chat.whatsapp.com/... (kosongkan jika tanpa grup)"
-                  className="w-full px-3 py-2 rounded-xl border border-white/60 bg-white/50 backdrop-blur-xs text-slate-900 focus:bg-white/80 focus:ring-2 focus:ring-[#1D4ED8]/40 focus:outline-none text-xs font-mono shadow-xs"
+                  placeholder="https://chat.whatsapp.com/... (wajib diisi)"
+                  className={`w-full px-3 py-2 rounded-xl border bg-white/75 backdrop-blur-xs text-slate-900 focus:bg-white focus:ring-2 focus:outline-none text-xs font-mono shadow-xs transition-colors ${
+                    !linkGrupWa.trim()
+                      ? 'border-rose-300 focus:ring-rose-500/30 focus:border-rose-500'
+                      : 'border-white/60 focus:ring-[#1D4ED8]/40'
+                  }`}
                 />
                 <button
                   type="button"
@@ -448,13 +460,13 @@ export default function WhatsAppStats({
                   {savingLinkGrup ? '...' : 'Simpan'}
                 </button>
               </div>
-              <p className="text-[10px] text-stone-500 mt-1.5 leading-relaxed">
-                Input ini selalu kosong setiap halaman dibuka (per sesi pengiriman). Tempelkan link grup terbaru sebelum mengirim; jika dikosongkan, paragraf ajakan grup WA otomatis ditiadakan.
+              <p className="text-[10px] text-slate-600 mt-1.5 leading-relaxed">
+                Input ini selalu kosong setiap halaman dibuka (per sesi pengiriman). Link Grup WA <span className="font-bold text-rose-700">wajib diisi</span> agar tautan grup resmi selalu tercantum dalam setiap pesan Undangan &amp; QR (satuan maupun massal).
               </p>
             </div>
             <div className="flex items-center p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 shadow-xs">
               <div className="text-[11px] text-[#7A624E] leading-relaxed">
-                <strong className="text-[#1D4ED8]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup bersifat sementara per sesi agar panitia selalu menempelkan link grup terbaru.
+                <strong className="text-[#1D4ED8]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup bersifat sementara per sesi agar panitia selalu menempelkan link grup terbaru sebelum mengirim.
               </div>
             </div>
           </div>
