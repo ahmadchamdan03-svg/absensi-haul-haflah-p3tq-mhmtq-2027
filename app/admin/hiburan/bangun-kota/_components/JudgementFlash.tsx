@@ -47,9 +47,13 @@ export default function JudgementFlash({ flash }: JudgementFlashProps) {
             </span>
 
             <span className="text-xs sm:text-sm font-bold mt-0.5 text-white">
-              {flash.judgement === 'rodi'
-                ? 'Blok Meleset (Kombo Reset)'
-                : `+${flash.points.toLocaleString('id-ID')} Poin (${flash.combo}x Kombo)`}
+              {flash.shattered
+                ? 'Blok Kaca Pecah! (Wajib Jayyid)'
+                : flash.judgement === 'rodi'
+                  ? 'Blok Meleset (Kombo Reset)'
+                  : flash.blockType === 'taman'
+                    ? `Taman Stabil! +${flash.points.toLocaleString('id-ID')} Poin (${flash.combo}x Kombo)`
+                    : `+${flash.points.toLocaleString('id-ID')} Poin (${flash.combo}x Kombo)`}
             </span>
           </motion.div>
         )}

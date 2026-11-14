@@ -81,6 +81,7 @@ export default function Tower({
                 <BuildingBlockVisual
                   colorIndex={floorIndex}
                   isBaseFloor={floorIndex === 0}
+                  blockType={block.type}
                 />
               </div>
             );
