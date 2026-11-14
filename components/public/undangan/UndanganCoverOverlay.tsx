@@ -114,18 +114,18 @@ export function UndanganCoverTamu({
       />
 
       {/* KONTEN COVER (FLEXBOX SEIMBANG: HEADER ATAS, KARTU TENGAH, TOMBOL BAWAH - RESPONSIF MOBILE & PC) */}
-      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 relative z-20 overflow-hidden">
+      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] min-h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 lg:py-4 xl:py-6 relative z-20 overflow-hidden">
         {/* 1. BAGIAN ATAS: HEADER RESMI (LOGO, JUDUL HAUL HAFLAH, INSTANSI) */}
-        <header className="w-full mt-2 sm:mt-4 relative z-20 shrink-0">
+        <header className="w-full mt-2 sm:mt-4 lg:mt-0 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8}>
-            <HeaderUndangan titleType="UNDANGAN RESMI" variant="dark" />
+            <HeaderUndangan titleType="UNDANGAN RESMI" variant="dark" compact />
           </ScrollReveal>
         </header>
 
         {/* 2. BAGIAN TENGAH: FROSTED NAVY CARD IDENTITAS PENERIMA */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 lg:py-1 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
+            <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-4 lg:px-6 space-y-2.5 lg:space-y-1.5 relative z-20">
               <span className="text-[11px] sm:text-xs text-white/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu/Saudara:
               </span>
@@ -152,12 +152,12 @@ export function UndanganCoverTamu({
         </div>
 
         {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (LEBAR SELARAS & SEJAJAR DENGAN KOTAK IDENTITAS) */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 lg:mb-2 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
             <button
               type="button"
               onClick={onOpen}
-              className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#0F2C59]/65 hover:bg-[#0F2C59]/80 active:bg-[#0F2C59]/90 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+              className="w-full min-h-[48px] py-3.5 lg:py-3 px-6 rounded-2xl bg-[#0F2C59]/65 hover:bg-[#0F2C59]/80 active:bg-[#0F2C59]/90 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
             >
               <MailOpen className="w-4 h-4 text-amber-300 shrink-0" aria-hidden="true" />
               <span className="tracking-widest uppercase">Buka Undangan</span>
@@ -210,18 +210,18 @@ export function UndanganCoverWali({
       />
 
       {/* KONTEN COVER WALI (FLEXBOX SEIMBANG: HEADER ATAS, KARTU TENGAH, TOMBOL BAWAH - RESPONSIF MOBILE & PC) */}
-      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 relative z-20 overflow-hidden">
+      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] min-h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 lg:py-4 xl:py-6 relative z-20 overflow-hidden">
         {/* 1. BAGIAN ATAS: HEADER RESMI WALI (LOGO, JUDUL HAUL HAFLAH, INSTANSI) */}
-        <header className="w-full mt-2 sm:mt-4 relative z-20 shrink-0">
+        <header className="w-full mt-2 sm:mt-4 lg:mt-0 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8}>
-            <HeaderUndanganWali />
+            <HeaderUndanganWali compact />
           </ScrollReveal>
         </header>
 
         {/* 2. BAGIAN TENGAH: FROSTED NAVY CARD IDENTITAS WALI SANTRI */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 lg:py-1 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
-            <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-2.5 relative z-20">
+            <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-4 lg:px-6 space-y-2.5 lg:space-y-1.5 relative z-20">
               <span className="text-[11px] sm:text-xs text-white/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
                 Kepada Yth. Bapak/Ibu Wali Santri dari:
               </span>
@@ -254,12 +254,12 @@ export function UndanganCoverWali({
         </div>
 
         {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (LEBAR SELARAS & SEJAJAR DENGAN KOTAK IDENTITAS) */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 lg:mb-2 relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
             <button
               type="button"
               onClick={onOpen}
-              className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-[#0F2C59]/65 hover:bg-[#0F2C59]/80 active:bg-[#0F2C59]/90 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
+              className="w-full min-h-[48px] py-3.5 lg:py-3 px-6 rounded-2xl bg-[#0F2C59]/65 hover:bg-[#0F2C59]/80 active:bg-[#0F2C59]/90 backdrop-blur-md border border-white/30 text-white font-serif font-black text-sm tracking-wider shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_30px_rgba(251,191,36,0.3)] hover:border-amber-400/60 transition-all active:scale-95 flex items-center justify-center space-x-2.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
             >
               <MailOpen className="w-4 h-4 text-amber-300 shrink-0" aria-hidden="true" />
               <span className="tracking-widest uppercase">Buka Undangan</span>
