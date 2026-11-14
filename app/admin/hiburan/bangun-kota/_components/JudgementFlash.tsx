@@ -20,7 +20,7 @@ export default function JudgementFlash({ flash }: JudgementFlashProps) {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none absolute right-4 sm:right-8 top-28 sm:top-20 z-30 flex flex-col items-end"
+      className="pointer-events-none absolute right-4 top-28 z-30 flex flex-col items-end"
     >
       <AnimatePresence mode="wait">
         {flash && (

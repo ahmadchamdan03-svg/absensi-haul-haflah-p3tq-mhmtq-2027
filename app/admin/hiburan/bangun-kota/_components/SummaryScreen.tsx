@@ -70,7 +70,7 @@ export default function SummaryScreen({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto select-none"
+      className="absolute inset-0 z-30 flex items-center justify-center p-4 overflow-y-auto select-none"
       style={{
         background: PALETTE.sky[0],
       }}
@@ -93,7 +93,7 @@ export default function SummaryScreen({
       />
 
       <div
-        className="absolute left-3 sm:left-6 top-0 z-20"
+        className="absolute left-3.5 top-0 z-20"
         style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
       >
         <button

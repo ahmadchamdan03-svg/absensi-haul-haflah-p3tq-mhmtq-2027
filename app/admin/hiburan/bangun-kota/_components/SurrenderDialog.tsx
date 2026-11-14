@@ -37,7 +37,7 @@ export default function SurrenderDialog({
           aria-describedby="surrender-dialog-desc"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
-          className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
+          className="absolute inset-0 z-50 flex items-center justify-center p-4"
           style={{
             backgroundColor: PALETTE.ui.surfaceDarkOverlay,
           }}

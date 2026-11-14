@@ -24,12 +24,12 @@ export default function HUD({
 
   return (
     <header
-      className="pointer-events-none absolute inset-x-0 top-0 z-30 px-3 sm:px-6"
+      className="pointer-events-none absolute inset-x-0 top-0 z-30 px-3.5"
       style={{
         paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
       }}
     >
-      <div className="mx-auto flex w-full max-w-5xl items-start justify-between gap-2">
+      <div className="mx-auto flex w-full items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -45,7 +45,7 @@ export default function HUD({
             X
           </button>
 
-          <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-4 rounded-xl bg-[#091936]/70 backdrop-blur-md border border-white/25 px-3 py-1.5 sm:px-4 sm:py-2 text-white shadow-md">
+          <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3.5 rounded-xl bg-[#091936]/70 backdrop-blur-md border border-white/25 px-3 py-1.5 sm:px-3.5 sm:py-2 text-white shadow-md">
             <div className="flex flex-col">
               <span
                 className="text-[10px] sm:text-[11px] font-bold tracking-wide"
@@ -53,7 +53,7 @@ export default function HUD({
               >
                 Skor
               </span>
-              <span className="text-sm sm:text-lg font-extrabold tabular-nums leading-tight text-white">
+              <span className="text-sm sm:text-base font-extrabold tabular-nums leading-tight text-white">
                 {score.toLocaleString('id-ID')}
               </span>
             </div>
@@ -70,7 +70,7 @@ export default function HUD({
               >
                 Lantai
               </span>
-              <span className="text-sm sm:text-lg font-extrabold tabular-nums leading-tight text-white">
+              <span className="text-sm sm:text-base font-extrabold tabular-nums leading-tight text-white">
                 {height}
               </span>
             </div>
@@ -88,7 +88,7 @@ export default function HUD({
                 Kombo
               </span>
               <span
-                className="text-sm sm:text-lg font-extrabold tabular-nums leading-tight"
+                className="text-sm sm:text-base font-extrabold tabular-nums leading-tight"
                 style={{
                   color:
                     combo > 0 ? PALETTE.accentJayyid : PALETTE.ui.textOnDark,

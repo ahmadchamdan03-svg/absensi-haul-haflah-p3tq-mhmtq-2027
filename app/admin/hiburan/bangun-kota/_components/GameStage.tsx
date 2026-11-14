@@ -68,7 +68,7 @@ export default function GameStage({
       onPointerDown={handleStagePointerDown}
       role="application"
       aria-label="Area permainan City Bloxx 2D. Ketuk layar atau tekan Spasi untuk menjatuhkan blok bangunan."
-      className="fixed inset-0 z-[9999] h-[100dvh] w-screen overflow-hidden touch-none select-none cursor-pointer"
+      className="relative w-full h-full overflow-hidden touch-none select-none cursor-pointer"
       style={{
         backgroundColor: PALETTE.skyBaseFallback,
       }}
