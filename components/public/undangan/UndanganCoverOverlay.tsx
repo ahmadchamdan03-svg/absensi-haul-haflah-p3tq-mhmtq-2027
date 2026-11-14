@@ -130,7 +130,7 @@ export function UndanganCoverTamu({
                 Kepada Yth. Bapak/Ibu/Saudara:
               </span>
 
-              {item?.nama || item?.namaPutra || item?.namaPutri ? (
+              {item?.nama || item?.namaPutra || item?.namaPutri || item?.nama_putra || item?.nama_putri ? (
                 <div className="space-y-1">
                   {renderTamuName(item, true)}
                   {renderAlamatTamu(item, true)}

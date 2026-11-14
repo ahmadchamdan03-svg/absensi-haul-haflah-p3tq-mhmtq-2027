@@ -83,37 +83,142 @@ export function formatTitleCase(str: string): string {
     .replace(/(^|[\s\(\)\-\/])([a-z0-9])/g, (_, p, c) => p + c.toUpperCase());
 }
 
+function getMergedGuestPriority(entry: any): number {
+  if (!entry) return 0;
+  const kat = String(entry.kategori || entry.kategoriUtama || entry.kategori_utama || '').toUpperCase();
+  const sub = String(
+    entry.subKategori || entry.sub_kategori || entry.golongan || entry.golonganUndangan || ''
+  ).toUpperCase();
+
+  // Prioritas Tamu Undangan: VVIP > VIP / Istimewa > Kehormatan > Umum
+  if (kat.includes('VVIP')) return 400;
+  if (kat.includes('VIP') || sub.includes('ISTIMEWA')) return 300;
+  if (sub.includes('KEHORMATAN') || kat.includes('KEHORMATAN')) return 200;
+  if (sub.includes('UMUM') || kat.includes('TAMU')) return 100;
+
+  // Prioritas Santri: Bil Ghoib > Tamatan > Bin Nadzori
+  if (kat.includes('BIL_GHOIB') || kat.includes('GHOIB')) return 3;
+  if (kat.includes('TAMATAN')) return 2;
+  if (kat.includes('BIN_NADZOR') || kat.includes('NADZOR')) return 1;
+
+  return 0;
+}
+
 /**
- * Format nama tamu undangan dengan Title Case dan etika "Sekalian"
- * 1. Jika nama putri diisi "ISTRI", ubah menjadi "[Nama Putra] Sekalian"
- * 2. Jika keduanya ada, gabungkan dengan " & "
- * 3. Jika hanya putra, gunakan nama putra
+ * Format nama tamu undangan dengan Title Case, anti-dobel, dan etika "Sekalian":
+ * 1. Untuk data gabungan (merged_group_id), gunakan hanya satu entitas prioritas tertinggi (Data Induk).
+ * 2. Anti-dobel: jika nama_putra dan nama_putri identik, tampilkan satu nama saja (tanpa "&").
+ * 3. Jika nama_putra ada & nama_putri "ISTRI", ubah menjadi "[Nama Putra] Sekalian".
+ * 4. Jika keduanya ada dan berbeda, gabungkan dengan " & ".
+ * 5. Jika hanya putra atau hanya putri, tampilkan yang tersedia saja.
  */
 export function formatGuestDisplayName(item: any): string {
-  const rawPutra = (item?.namaPutra || item?.nama_putra || item?.entitas?.namaPutra || '').trim();
-  const rawPutri = (item?.namaPutri || item?.nama_putri || item?.entitas?.namaPutri || '').trim();
-  const rawNama = (item?.nama || item?.entitas?.nama || '').trim();
+  if (!item) return 'Tamu Undangan';
 
-  let targetPutra = rawPutra;
-  let targetPutri = rawPutri;
-
-  // Jika namaPutra kosong namun nama diisi (bukan placeholder default)
-  if (!targetPutra && rawNama && rawNama !== '-' && rawNama !== 'Tamu Undangan') {
-    targetPutra = rawNama;
+  // 1. Jika data tamu memiliki merged_group_id / mergedItems (data gabungan),
+  // pilih HANYA satu entitas dengan prioritas tertinggi (Data Induk), jangan gabungkan lintas entitas.
+  let source = item;
+  if (
+    (item?.merged_group_id || item?.isMerged) &&
+    Array.isArray(item?.mergedItems) &&
+    item.mergedItems.length > 0
+  ) {
+    const sorted = [...item.mergedItems].sort(
+      (a, b) => getMergedGuestPriority(b) - getMergedGuestPriority(a)
+    );
+    source = sorted[0];
   }
 
-  const fmtPutra = formatTitleCase(targetPutra);
-  const fmtPutri = formatTitleCase(targetPutri);
+  const normalizeRaw = (val: any): string => {
+    if (typeof val !== 'string') return '';
+    const trimmed = val.trim().replace(/\s+/g, ' ');
+    if (!trimmed || trimmed === '-' || trimmed.toLowerCase() === 'tamu undangan') return '';
+    return trimmed;
+  };
 
-  let displayName = fmtPutra;
+  const targetPutra = normalizeRaw(
+    source?.namaPutra ?? source?.nama_putra ?? source?.entitas?.namaPutra ?? source?.entitas?.nama_putra
+  );
+  const targetPutri = normalizeRaw(
+    source?.namaPutri ?? source?.nama_putri ?? source?.entitas?.namaPutri ?? source?.entitas?.nama_putri
+  );
+  const targetNama = normalizeRaw(source?.nama ?? source?.entitas?.nama);
 
-  if (fmtPutri && fmtPutri.trim().toLowerCase() === 'istri') {
-    displayName = `${fmtPutra} Sekalian`;
-  } else if (fmtPutra && fmtPutri && fmtPutri !== '-') {
-    displayName = `${fmtPutra} & ${fmtPutri}`;
-  } else if (!fmtPutra && fmtPutri && fmtPutri !== '-') {
-    displayName = fmtPutri;
+  // 2. Jika nama_putra dan nama_putri keduanya terisi pada Data Induk
+  if (targetPutra && targetPutri) {
+    const cleanPutra = targetPutra.toLowerCase().trim();
+    const cleanPutri = targetPutri.toLowerCase().trim();
+    const fmtPutra = formatTitleCase(targetPutra);
+    const fmtPutri = formatTitleCase(targetPutri);
+
+    // Tetap pertahankan aturan "Sekalian" jika nama putri diisi "ISTRI"
+    if (cleanPutri === 'istri') {
+      return `${fmtPutra} Sekalian`;
+    }
+    // Pengecekan duplikasi (Anti-Dobel): jika identik, tampilkan satu nama saja
+    if (cleanPutra === cleanPutri) {
+      return fmtPutra;
+    }
+    return `${fmtPutra} & ${fmtPutri}`;
   }
 
-  return displayName || 'Tamu Undangan';
+  // 3. Jika hanya nama putra yang terisi
+  if (targetPutra) {
+    if (targetPutra.toLowerCase().trim() === 'istri' && targetNama) {
+      const stripped = targetNama.replace(/\s*&\s*istri$/i, '').trim();
+      return stripped && stripped.toLowerCase() !== 'istri'
+        ? `${formatTitleCase(stripped)} Sekalian`
+        : 'Tamu Undangan';
+    }
+    return formatTitleCase(targetPutra);
+  }
+
+  // 4. Jika hanya nama putri yang terisi
+  if (targetPutri) {
+    if (targetPutri.toLowerCase().trim() === 'istri') {
+      if (targetNama) {
+        const stripped = targetNama.replace(/\s*&\s*istri$/i, '').trim();
+        if (stripped && stripped.toLowerCase() !== 'istri') {
+          return `${formatTitleCase(stripped)} Sekalian`;
+        }
+      }
+      return 'Tamu Undangan';
+    }
+    return formatTitleCase(targetPutri);
+  }
+
+  // 5. Fallback ke properti nama apabila nama_putra dan nama_putri keduanya kosong
+  if (targetNama) {
+    if (targetNama.includes('&')) {
+      const parts = targetNama
+        .split('&')
+        .map((p) => p.trim())
+        .filter(Boolean);
+
+      if (parts.length === 2) {
+        const [p1, p2] = parts;
+        if (p2.toLowerCase().trim() === 'istri') {
+          return `${formatTitleCase(p1)} Sekalian`;
+        }
+        if (p1.toLowerCase().trim() === p2.toLowerCase().trim()) {
+          return formatTitleCase(p1);
+        }
+        return `${formatTitleCase(p1)} & ${formatTitleCase(p2)}`;
+      }
+
+      const seen = new Set<string>();
+      const uniqueParts: string[] = [];
+      for (const part of parts) {
+        const key = part.toLowerCase().trim();
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueParts.push(formatTitleCase(part));
+        }
+      }
+      return uniqueParts.length > 0 ? uniqueParts.join(' & ') : 'Tamu Undangan';
+    }
+    return formatTitleCase(targetNama);
+  }
+
+  return 'Tamu Undangan';
 }

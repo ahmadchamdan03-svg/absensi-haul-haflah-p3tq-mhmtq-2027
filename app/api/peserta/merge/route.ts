@@ -295,7 +295,11 @@ export async function POST(req: NextRequest) {
 
         let finalNama = masterTamu.nama;
         if (bestPutra && bestPutri) {
-          finalNama = `${bestPutra} & ${bestPutri}`;
+          if (bestPutra.toLowerCase().trim() === bestPutri.toLowerCase().trim()) {
+            finalNama = bestPutra;
+          } else {
+            finalNama = `${bestPutra} & ${bestPutri}`;
+          }
         } else if (bestPutra) {
           finalNama = bestPutra;
         } else if (bestPutri) {

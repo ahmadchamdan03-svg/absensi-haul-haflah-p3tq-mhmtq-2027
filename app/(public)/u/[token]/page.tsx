@@ -248,13 +248,26 @@ export default function UndanganWaliPage() {
               .select('*')
               .eq('merged_group_id', t.merged_group_id);
             if (groupTamu && groupTamu.length > 1) {
-              const getPriority = (g: string) => {
-                const up = String(g || '').toUpperCase();
-                if (up.includes('ISTIMEWA')) return 3;
-                if (up.includes('KEHORMATAN')) return 2;
-                return 1;
+              const getPriority = (row: any) => {
+                const kat = String(row?.kategori || '').toUpperCase();
+                const sub = String(row?.sub_kategori || '').toUpperCase();
+                if (kat.includes('VVIP')) return 400;
+                if (kat.includes('VIP') || sub.includes('ISTIMEWA')) return 300;
+                if (sub.includes('KEHORMATAN') || kat.includes('KEHORMATAN')) return 200;
+                return 100;
               };
-              groupTamu.sort((a, b) => getPriority(b.sub_kategori || b.kategori) - getPriority(a.sub_kategori || a.kategori));
+              const getCompleteness = (row: any) => {
+                let score = 0;
+                if (row?.alamat && String(row.alamat).trim() !== '' && String(row.alamat).trim() !== '-') score += 2;
+                if (row?.nama_putra && String(row.nama_putra).trim() !== '') score += 1;
+                if (row?.nama_putri && String(row.nama_putri).trim() !== '') score += 1;
+                return score;
+              };
+              groupTamu.sort((a, b) => {
+                const prioDiff = getPriority(b) - getPriority(a);
+                if (prioDiff !== 0) return prioDiff;
+                return getCompleteness(b) - getCompleteness(a);
+              });
               t = groupTamu[0];
             }
           }
@@ -266,6 +279,7 @@ export default function UndanganWaliPage() {
             id: t.id,
             kode: t.kode,
             tipe: 'UNDANGAN',
+            merged_group_id: t.merged_group_id || null,
             nama: t.nama || '',
             namaPutra: t.nama_putra || '',
             namaPutri: t.nama_putri || '',
