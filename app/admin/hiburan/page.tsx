@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, Brain, Puzzle, Play, Building2 } from 'lucide-react';
+import { ArrowLeft, Brain, Puzzle, Play, Building2, Trophy } from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
 
 interface GameItem {
@@ -8,9 +8,10 @@ interface GameItem {
   category: string;
   description: string;
   href: string;
-  icon: 'brain' | 'puzzle' | 'city';
+  icon: 'brain' | 'puzzle' | 'city' | 'trophy';
   featured?: boolean;
   ready?: boolean;
+  buttonText?: string;
 }
 
 // TODO: Add real game metadata and scores once individual game routes are implemented.
@@ -41,6 +42,16 @@ const GAMES: GameItem[] = [
     icon: 'city',
     featured: true,
     ready: true,
+  },
+  {
+    id: 'leaderboard-bangun-kota',
+    title: 'Papan Skor (Leaderboard)',
+    category: 'Peringkat Panitia',
+    description: 'Lihat siapa panitia dengan menara tertinggi.',
+    href: '/admin/hiburan/bangun-kota/leaderboard',
+    icon: 'trophy',
+    ready: true,
+    buttonText: 'Lihat',
   },
 ];
 
@@ -76,7 +87,9 @@ export default function HiburanLobbyPage() {
               ? Brain
               : game.icon === 'city'
                 ? Building2
-                : Puzzle;
+                : game.icon === 'trophy'
+                  ? Trophy
+                  : Puzzle;
 
           return (
             <GlassCard
@@ -121,8 +134,12 @@ export default function HiburanLobbyPage() {
                   href={game.href}
                   className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] text-white text-sm font-bold shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
                 >
-                  <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
-                  <span>Mainkan</span>
+                  {game.icon === 'trophy' ? (
+                    <Trophy className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  )}
+                  <span>{game.buttonText ?? 'Mainkan'}</span>
                 </Link>
               </div>
             </GlassCard>

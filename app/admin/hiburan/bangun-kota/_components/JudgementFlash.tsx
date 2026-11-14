@@ -37,11 +37,7 @@ export default function JudgementFlash({ flash }: JudgementFlashProps) {
               times: [0, 0.22, 0.55, 1],
               ease: 'easeOut',
             }}
-            className="flex flex-col items-center rounded-2xl px-5 py-2.5 shadow-lg"
-            style={{
-              backgroundColor: PALETTE.ui.surfaceHud,
-              border: `2px solid ${getAccentColor(flash.judgement)}`,
-            }}
+            className="flex flex-col items-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 px-5 py-2.5 shadow-lg"
           >
             <span
               className="text-2xl sm:text-3xl font-black tracking-wide"
@@ -50,10 +46,7 @@ export default function JudgementFlash({ flash }: JudgementFlashProps) {
               {getJudgementLabel(flash.judgement)}
             </span>
 
-            <span
-              className="text-xs sm:text-sm font-bold mt-0.5"
-              style={{ color: PALETTE.ui.textOnDark }}
-            >
+            <span className="text-xs sm:text-sm font-bold mt-0.5 text-white">
               {flash.judgement === 'rodi'
                 ? 'Blok Meleset (Kombo Reset)'
                 : `+${flash.points.toLocaleString('id-ID')} Poin (${flash.combo}x Kombo)`}

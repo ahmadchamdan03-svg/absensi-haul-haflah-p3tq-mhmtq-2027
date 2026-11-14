@@ -28,7 +28,6 @@ export default function GameStage({
   children,
 }: GameStageProps) {
   const activeSkyIndex = getSkyIndex(height);
-  const isNight = activeSkyIndex >= 3;
   const isWindActive = height >= WIND_MIN_HEIGHT;
 
   useEffect(() => {
@@ -86,56 +85,49 @@ export default function GameStage({
         />
       ))}
 
-      {isNight && (
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none transition-opacity duration-700"
-        >
-          {[
-            { top: '14%', left: '18%', size: 4 },
-            { top: '22%', left: '76%', size: 3 },
-            { top: '11%', left: '54%', size: 5 },
-            { top: '29%', left: '28%', size: 3 },
-            { top: '18%', left: '88%', size: 4 },
-            { top: '34%', left: '68%', size: 3 },
-            { top: '26%', left: '12%', size: 4 },
-          ].map((star, i) => (
-            <span
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                top: star.top,
-                left: star.left,
-                width: star.size,
-                height: star.size,
-                backgroundColor: PALETTE.ground.star,
-                opacity: 0.85,
-              }}
-            />
-          ))}
-        </div>
-      )}
+      {/* Latar Belakang Panggung Statis (Tidak ikut bergeser saat menara bertambah tinggi) */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-35 mix-blend-luminosity"
+        style={{
+          backgroundImage: "url('/images/panggung-aula.jpg')",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(7, 20, 43, 0.55) 0%, rgba(15, 44, 89, 0.35) 55%, rgba(7, 20, 43, 0.72) 100%)',
+        }}
+      />
 
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-24 pointer-events-none overflow-hidden h-56"
+        className="absolute inset-0 pointer-events-none"
       >
-        <div
-          className="absolute top-6 left-[8%] w-28 h-8 rounded-full"
-          style={{ backgroundColor: PALETTE.ground.cloud }}
-        />
-        <div
-          className="absolute top-3 left-[11%] w-16 h-8 rounded-full"
-          style={{ backgroundColor: PALETTE.ground.cloud }}
-        />
-        <div
-          className="absolute top-16 right-[10%] w-36 h-9 rounded-full"
-          style={{ backgroundColor: PALETTE.ground.cloud }}
-        />
-        <div
-          className="absolute top-12 right-[14%] w-20 h-9 rounded-full"
-          style={{ backgroundColor: PALETTE.ground.cloud }}
-        />
+        {[
+          { top: '14%', left: '18%', size: 3 },
+          { top: '22%', left: '76%', size: 3 },
+          { top: '11%', left: '54%', size: 4 },
+          { top: '29%', left: '28%', size: 3 },
+          { top: '18%', left: '88%', size: 3 },
+          { top: '34%', left: '68%', size: 2.5 },
+          { top: '26%', left: '12%', size: 3.5 },
+        ].map((star, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              top: star.top,
+              left: star.left,
+              width: star.size,
+              height: star.size,
+              backgroundColor: PALETTE.ground.star,
+              opacity: 0.65,
+            }}
+          />
+        ))}
       </div>
 
       {isWindActive && (
@@ -166,39 +158,16 @@ export default function GameStage({
           transform: `translate3d(0, ${groundTranslateY}px, 0)`,
         }}
       >
-        <div className="relative mx-auto w-full max-w-5xl h-32">
-          <div
-            className="absolute bottom-20 left-[6%] w-16 h-24 rounded-t-sm"
-            style={{ backgroundColor: PALETTE.ground.silhouetteFar }}
-          />
-          <div
-            className="absolute bottom-20 left-[18%] w-24 h-16 rounded-t-sm"
-            style={{ backgroundColor: PALETTE.ground.silhouetteFar }}
-          />
-          <div
-            className="absolute bottom-20 right-[16%] w-20 h-28 rounded-t-sm"
-            style={{ backgroundColor: PALETTE.ground.silhouetteFar }}
-          />
-          <div
-            className="absolute bottom-20 right-[6%] w-16 h-20 rounded-t-sm"
-            style={{ backgroundColor: PALETTE.ground.silhouetteNear }}
-          />
-          <div
-            className="absolute bottom-20 left-[29%] w-14 h-20 rounded-t-sm"
-            style={{ backgroundColor: PALETTE.ground.silhouetteNear }}
-          />
-        </div>
-
         <div
           className="w-full"
           style={{
             height: `${GROUND_HEIGHT}px`,
             backgroundColor: PALETTE.ground.soil,
-            borderTop: `6px solid ${PALETTE.ground.grass}`,
+            borderTop: `4px solid ${PALETTE.ground.grass}`,
           }}
         >
           <div
-            className="w-full h-3"
+            className="w-full h-2.5"
             style={{ backgroundColor: PALETTE.ground.curb }}
           />
         </div>
