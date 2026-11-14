@@ -40,6 +40,52 @@ interface NavGroup {
   items: NavItem[];
 }
 
+const ALL_NAV_GROUPS: NavGroup[] = [
+  {
+    groupTitle: 'MENU UTAMA',
+    items: [
+      { href: '/admin/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
+      { href: '/penerima-tamu', label: 'Penerima Tamu', icon: Users },
+    ],
+  },
+  {
+    groupTitle: 'OPERASIONAL GERBANG',
+    items: [
+      { href: '/scan', label: 'Scanner Gerbang', icon: QrCode },
+      { href: '/admin/verifikasi', label: 'Verifikasi Manual', icon: ShieldCheck },
+    ],
+  },
+  {
+    groupTitle: 'DATA & WALI SANTRI',
+    items: [
+      { href: '/admin/peserta', label: 'Data Peserta', icon: Users },
+      { href: '/admin/konfirmasi', label: 'Konfirmasi Hadir', icon: ClipboardCheck },
+      { href: '/admin/import-export', label: 'Import & Export Excel', icon: FileSpreadsheet, badge: 'Excel' },
+      { href: '/admin/whatsapp', label: 'WhatsApp Gateway', icon: Send, badge: 'Fonnte' },
+    ],
+  },
+  {
+    groupTitle: 'AUDIT & LAPORAN',
+    items: [
+      { href: '/rekon', label: 'Rekonsiliasi Kuota', icon: RotateCcw },
+      { href: '/admin/audit-log', label: 'Audit Log', icon: History },
+      { href: '/admin/laporan', label: 'Rekap & Ekspor', icon: FileSpreadsheet },
+      { href: '/admin/persidangan', label: 'Persidangan', icon: Mail },
+    ],
+  },
+];
+
+const GATE_NAV_GROUPS: NavGroup[] = [
+  {
+    groupTitle: 'MENU UTAMA',
+    items: [
+      { href: '/scan', label: 'Scanner Gerbang', icon: QrCode },
+      { href: '/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
+      { href: '/penerima-tamu', label: 'Penerima Tamu', icon: Users },
+    ],
+  },
+];
+
 export default function Sidebar({
   mobileOpen,
   onCloseMobile,
@@ -57,22 +103,24 @@ export default function Sidebar({
   const [tanyaUsOpen, setTanyaUsOpen] = useState(false);
   const [isUsHovered, setIsUsHovered] = useState(false);
 
-  // Idle Background Preloading untuk semua rute navigasi di Sidebar
+  // Idle Background Preloading untuk seluruh rute navigasi di Sidebar
   useEffect(() => {
     const prefetchRoutes = () => {
       try {
+        const currentRole = getActiveRole();
+        const targetGroups = currentRole === 'PENJAGA_GERBANG' ? GATE_NAV_GROUPS : ALL_NAV_GROUPS;
         const uniqueHrefs = Array.from(
-          new Set(allNavGroups.flatMap((g) => g.items.map((i) => i.href)))
+          new Set(targetGroups.flatMap((g) => g.items.map((i) => i.href)))
         );
 
         uniqueHrefs.forEach((href) => {
           try {
             router.prefetch(href);
-          } catch (e) {
+          } catch {
             // Silently ignore prefetch errors
           }
         });
-      } catch (err) {
+      } catch {
         // Silently catch unexpected prefetch errors
       }
     };
@@ -86,7 +134,7 @@ export default function Sidebar({
           }
         };
       } else {
-        const timerId = setTimeout(prefetchRoutes, 2500);
+        const timerId = setTimeout(prefetchRoutes, 3000);
         return () => clearTimeout(timerId);
       }
     }
@@ -135,54 +183,10 @@ export default function Sidebar({
     }
   };
 
-  const allNavGroups: NavGroup[] = [
-    {
-      groupTitle: 'MENU UTAMA',
-      items: [
-        { href: '/admin/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
-        { href: '/penerima-tamu', label: 'Penerima Tamu', icon: Users },
-      ],
-    },
-    {
-      groupTitle: 'OPERASIONAL GERBANG',
-      items: [
-        { href: '/scan', label: 'Scanner Gerbang', icon: QrCode },
-        { href: '/admin/verifikasi', label: 'Verifikasi Manual', icon: ShieldCheck },
-      ],
-    },
-    {
-      groupTitle: 'DATA & WALI SANTRI',
-      items: [
-        { href: '/admin/peserta', label: 'Data Peserta', icon: Users },
-        { href: '/admin/konfirmasi', label: 'Konfirmasi Hadir', icon: ClipboardCheck },
-        { href: '/admin/import-export', label: 'Import & Export Excel', icon: FileSpreadsheet, badge: 'Excel' },
-        { href: '/admin/whatsapp', label: 'WhatsApp Gateway', icon: Send, badge: 'Fonnte' },
-      ],
-    },
-    {
-      groupTitle: 'AUDIT & LAPORAN',
-      items: [
-        { href: '/rekon', label: 'Rekonsiliasi Kuota', icon: RotateCcw },
-        { href: '/admin/audit-log', label: 'Audit Log', icon: History },
-        { href: '/admin/laporan', label: 'Rekap & Ekspor', icon: FileSpreadsheet },
-        { href: '/admin/persidangan', label: 'Persidangan', icon: Mail },
-      ],
-    },
-  ];
-
   // Untuk role Penjaga Gerbang: Tampilkan Scanner Gerbang, Live Dasbor, dan Penerima Tamu
   const navGroups: NavGroup[] = activeRole === 'PENJAGA_GERBANG'
-    ? [
-        {
-          groupTitle: 'MENU UTAMA',
-          items: [
-            { href: '/scan', label: 'Scanner Gerbang', icon: QrCode },
-            { href: '/dasbor', label: 'Live Dasbor', icon: LayoutDashboard, badge: 'Live' },
-            { href: '/penerima-tamu', label: 'Penerima Tamu', icon: Users },
-          ],
-        },
-      ]
-    : allNavGroups;
+    ? GATE_NAV_GROUPS
+    : ALL_NAV_GROUPS;
 
   // Render konten sidebar fleksibel (mode collapsed vs expanded)
   const renderSidebarContent = (collapsed: boolean) => (
@@ -192,6 +196,7 @@ export default function Sidebar({
         {collapsed ? (
           <Link
             href="/"
+            prefetch={true}
             onClick={onCloseMobile}
             className="flex items-center justify-center group"
             title="HAUL & HAFLAH P3TQ & MHMTQ Lirboyo 1448 H. / 2027 M."
@@ -205,6 +210,7 @@ export default function Sidebar({
         ) : (
           <Link
             href="/"
+            prefetch={true}
             onClick={onCloseMobile}
             className="block group text-center space-y-0.5"
           >

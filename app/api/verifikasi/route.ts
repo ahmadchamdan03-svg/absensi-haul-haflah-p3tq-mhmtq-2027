@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getSessionRole } from '@/lib/auth-server';
+import { buildRejectQuotaMessage, sendFonnteServerMessage } from '@/lib/whatsapp';
+
+async function recalculateSantriExtraQuota(kodeSantri: string, nowIso: string): Promise<number> {
+  const { data: verifiedRows } = await supabaseServer
+    .from('pembelian_kuota')
+    .select('jumlah_kursi')
+    .eq('kode_santri', kodeSantri)
+    .in('status', ['DIVERIFIKASI', 'DITERIMA']);
+
+  const newTambah = (verifiedRows || []).reduce((sum, r) => sum + Number(r.jumlah_kursi || 0), 0);
+
+  const { error: updateSantriErr } = await supabaseServer
+    .from('peserta_santri')
+    .update({
+      kuota_tambahan: newTambah,
+      updated_at: nowIso,
+    })
+    .eq('kode', kodeSantri);
+
+  if (updateSantriErr) {
+    throw new Error(`Gagal update kuota santri: ${updateSantriErr.message}`);
+  }
+
+  return newTambah;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -104,28 +129,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Recalculate kuota_tambahan
-      const { data: verifiedRows } = await supabaseServer
-        .from('pembelian_kuota')
-        .select('jumlah_kursi')
-        .eq('kode_santri', targetKode)
-        .in('status', ['DIVERIFIKASI', 'DITERIMA']);
-
-      const newTambah = (verifiedRows || []).reduce((sum, r) => sum + Number(r.jumlah_kursi || 0), 0);
-
-      const { error: updateSantriErr } = await supabaseServer
-        .from('peserta_santri')
-        .update({
-          kuota_tambahan: newTambah,
-          updated_at: nowIso,
-        })
-        .eq('kode', targetKode);
-
-      if (updateSantriErr) {
-        return NextResponse.json(
-          { ok: false, error: `Gagal update kuota santri: ${updateSantriErr.message}` },
-          { status: 500 }
-        );
-      }
+      const newTambah = await recalculateSantriExtraQuota(targetKode, nowIso);
 
       return NextResponse.json({
         ok: true,
@@ -136,7 +140,7 @@ export async function POST(req: NextRequest) {
 
     // ACTION: REJECT
     if (action === 'reject') {
-      const { targetId } = body;
+      const { targetId, noHpOverride } = body;
       if (!targetId) {
         return NextResponse.json(
           { ok: false, error: 'ID pesanan wajib disertakan.' },
@@ -144,13 +148,45 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Ambil data pesanan terlebih dahulu untuk keperluan status, nama wali, dan santri
+      let { data: orderRow, error: orderFetchErr } = await supabaseServer
+        .from('pembelian_kuota')
+        .select('id, id_pesanan, kode_santri, nama_wali, status')
+        .eq('id_pesanan', targetId)
+        .maybeSingle();
+
+      if (!orderRow && !orderFetchErr) {
+        const fallbackRes = await supabaseServer
+          .from('pembelian_kuota')
+          .select('id, id_pesanan, kode_santri, nama_wali, status')
+          .eq('id', targetId)
+          .maybeSingle();
+        orderRow = fallbackRes.data;
+        orderFetchErr = fallbackRes.error;
+      }
+
+      if (orderFetchErr) {
+        return NextResponse.json(
+          { ok: false, error: `Gagal memuat pesanan: ${orderFetchErr.message}` },
+          { status: 500 }
+        );
+      }
+
+      if (!orderRow) {
+        return NextResponse.json(
+          { ok: false, error: `Pesanan ${targetId} tidak ditemukan.` },
+          { status: 404 }
+        );
+      }
+
+      const nextStatus = 'BATAL / REFUND';
       const { error: updateErr } = await supabaseServer
         .from('pembelian_kuota')
         .update({
-          status: 'DITOLAK',
+          status: nextStatus,
           updated_at: nowIso,
         })
-        .eq('id_pesanan', targetId);
+        .eq('id', orderRow.id);
 
       if (updateErr) {
         return NextResponse.json(
@@ -159,9 +195,43 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Jika pesanan sebelumnya sudah diverifikasi, hitung ulang kuota tambahan santri
+      if (orderRow.kode_santri && (orderRow.status === 'DIVERIFIKASI' || orderRow.status === 'DITERIMA')) {
+        await recalculateSantriExtraQuota(orderRow.kode_santri, nowIso);
+      }
+
+      // Ambil profil santri (nama santri, nama wali, dan nomor HP wali)
+      const { data: santriRow } = orderRow.kode_santri
+        ? await supabaseServer
+            .from('peserta_santri')
+            .select('nama, nama_wali, no_hp')
+            .eq('kode', orderRow.kode_santri)
+            .maybeSingle()
+        : { data: null };
+
+      const idPesananLabel = orderRow.id_pesanan || orderRow.id || targetId;
+      const namaWali = orderRow.nama_wali || santriRow?.nama_wali || 'Wali Santri';
+      const namaSantri = santriRow?.nama || orderRow.kode_santri || 'Santri';
+      const targetHp = noHpOverride || santriRow?.no_hp || '';
+
+      const pesanPenolakan = buildRejectQuotaMessage({
+        namaWali,
+        namaSantri,
+        idPesanan: idPesananLabel,
+      });
+
+      const waResult = await sendFonnteServerMessage({
+        target: targetHp,
+        message: pesanPenolakan,
+      });
+
       return NextResponse.json({
         ok: true,
-        pesan: `Pesanan ${targetId} telah DITOLAK.`,
+        status: nextStatus,
+        waSent: waResult.ok,
+        waTarget: waResult.target || null,
+        waReason: waResult.reason || null,
+        pesan: `Pesanan ${idPesananLabel} telah DITOLAK (${nextStatus}).`,
       });
     }
 

@@ -316,7 +316,7 @@ export default function AuditLogPage() {
       // 1. Quick Filter
       if (quickFilter === 'ABSENSI' && log.aksi !== 'TANDAI_HADIR') return false;
       if (quickFilter === 'KOREKSI' && log.aksi !== 'BATALKAN_HADIR') return false;
-      if (quickFilter === 'KUOTA' && !['VERIFIKASI_KUOTA', 'TOLAK_KUOTA', 'REFUND_KUOTA', 'TOGGLE_KUOTA_SWITCH'].includes(log.aksi)) return false;
+      if (quickFilter === 'KUOTA' && !['VERIFIKASI_KUOTA', 'TOLAK_KUOTA', 'REFUND_KUOTA', 'KEDALUWARSA_KUOTA', 'TOGGLE_KUOTA_SWITCH'].includes(log.aksi)) return false;
       if (quickFilter === 'DATA' && !['EDIT_PESERTA', 'EDIT_TAMU', 'TAMBAH_PESERTA', 'TAMBAH_TAMU', 'HAPUS_PESERTA', 'HAPUS_TAMU'].includes(log.aksi)) return false;
 
       // 2. Filter Aksi Specific
@@ -395,6 +395,7 @@ export default function AuditLogPage() {
       case 'BATALKAN_HADIR':
       case 'TOLAK_KUOTA':
       case 'REFUND_KUOTA':
+      case 'KEDALUWARSA_KUOTA':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-100 text-rose-900 border border-rose-300">
             <XCircle className="w-3 h-3 text-rose-700" />

@@ -15,6 +15,11 @@ export const getLiveBaseUrl = () => {
   return process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
 };
 
+const isBatalStatus = (status?: string | null): boolean => {
+  const s = String(status || '').toUpperCase().trim();
+  return s.startsWith('BATAL') || s === 'DITOLAK' || s === 'REFUND';
+};
+
 export function useVerifikasiData() {
   // State Data dari Supabase
   const [pembelianList, setPembelianList] = useState<any[]>([]);
@@ -138,7 +143,7 @@ export function useVerifikasiData() {
   }, [pembelianList]);
 
   const countBatal = useMemo(() => {
-    return pembelianList.filter((p) => ['REFUND', 'BATAL', 'DITOLAK'].includes(p.status)).length;
+    return pembelianList.filter((p) => isBatalStatus(p.status)).length;
   }, [pembelianList]);
 
   // Filter & Search List Transaksi
@@ -152,7 +157,7 @@ export function useVerifikasiData() {
       } else if (filterStatus === 'DIVERIFIKASI') {
         if (status !== 'DIVERIFIKASI' && status !== 'DITERIMA') return false;
       } else if (filterStatus === 'BATAL') {
-        if (status !== 'BATAL' && status !== 'DITOLAK' && status !== 'REFUND') return false;
+        if (!isBatalStatus(status)) return false;
       }
 
       // Search query
@@ -309,6 +314,7 @@ export function useVerifikasiData() {
       if (!res.ok || !resJson.ok) {
         setStatusMsg({ tipe: 'error', text: `Gagal menolak pesanan: ${resJson.error || 'Server error'}` });
       } else {
+        const nextStatus = resJson.status || 'BATAL / REFUND';
         await logAudit({
           panitia_id: 'ADMIN_VERIFIKASI',
           panitia_role: 'ADMIN',
@@ -318,12 +324,23 @@ export function useVerifikasiData() {
           nama: item.nama_wali || item.nama_santri,
           field: 'status',
           nilai_lama: item.status,
-          nilai_baru: 'DITOLAK',
-          detail: { id_pesanan: targetId, jumlah_kursi: item.jumlah_kursi },
+          nilai_baru: nextStatus,
+          detail: {
+            id_pesanan: targetId,
+            jumlah_kursi: item.jumlah_kursi,
+            wa_sent: Boolean(resJson.waSent),
+          },
           catatan: `Penolakan Pembelian Kuota Tambahan (ID: ${targetId})`,
         });
 
-        setStatusMsg({ tipe: 'success', text: `✓ Pesanan ${targetId} telah DITOLAK.` });
+        const waInfo = resJson.waSent
+          ? 'Notifikasi WA penolakan terkirim ke wali santri.'
+          : `WA tidak terkirim (${resJson.waReason || 'nomor HP belum tersedia'}).`;
+
+        setStatusMsg({
+          tipe: 'success',
+          text: `✓ Pesanan ${targetId} DITOLAK (${nextStatus}). ${waInfo}`,
+        });
         fetchData();
       }
     } catch (err: any) {

@@ -33,7 +33,7 @@ export interface SkeletonListProps extends SkeletonProps {
 export function SkeletonBase({ className = '', style, ...props }: SkeletonTextProps) {
   return (
     <div
-      className={`bg-blue-900/10 backdrop-blur-sm animate-pulse border border-blue-900/15 rounded-lg relative overflow-hidden ${className}`}
+      className={`bg-slate-300/65 backdrop-blur-sm animate-pulse border border-slate-300/60 rounded-lg relative overflow-hidden ${className}`}
       style={style}
       {...props}
     />
@@ -58,7 +58,7 @@ export function SkeletonText({
 
   return (
     <div
-      className={`bg-blue-900/10 backdrop-blur-sm animate-pulse rounded-md border border-blue-900/15 ${className}`}
+      className={`bg-slate-300/65 backdrop-blur-sm animate-pulse rounded-md border border-slate-300/60 ${className}`}
       style={customStyle}
       {...props}
     />
@@ -77,24 +77,24 @@ export function SkeletonCard({
 }: SkeletonCardProps) {
   return (
     <div
-      className={`p-5 sm:p-6 rounded-3xl bg-white/35 backdrop-blur-md border border-white/30 shadow-sm animate-pulse flex flex-col justify-between space-y-3 min-h-[140px] ${className}`}
+      className={`p-5 sm:p-6 rounded-3xl bg-white/75 backdrop-blur-md border border-slate-200/80 shadow-sm animate-pulse flex flex-col justify-between space-y-3 min-h-[140px] ${className}`}
       {...props}
     >
       {children || (
         <>
           <div className="flex items-center justify-between gap-3">
-            <SkeletonText width="45%" height="0.875rem" className="rounded-full bg-white/40" />
+            <SkeletonText width="45%" height="0.875rem" className="rounded-full bg-slate-300/70" />
             {hasBadge && (
-              <SkeletonText width="2.25rem" height="2.25rem" className="rounded-full bg-white/40 shrink-0" />
+              <SkeletonText width="2.25rem" height="2.25rem" className="rounded-full bg-slate-300/70 shrink-0" />
             )}
           </div>
           <div className="py-1">
-            <SkeletonText width="60%" height="2rem" className="rounded-xl bg-white/45" />
+            <SkeletonText width="60%" height="2rem" className="rounded-xl bg-slate-300/80" />
           </div>
           {hasSubtext && (
             <div className="flex items-center gap-2 pt-1">
-              <SkeletonText width="30%" height="0.75rem" className="rounded-full bg-white/30" />
-              <SkeletonText width="40%" height="0.75rem" className="rounded-full bg-white/30" />
+              <SkeletonText width="30%" height="0.75rem" className="rounded-full bg-slate-200/80" />
+              <SkeletonText width="40%" height="0.75rem" className="rounded-full bg-slate-200/80" />
             </div>
           )}
         </>
@@ -108,11 +108,11 @@ export function SkeletonCard({
  */
 export function SkeletonTableRow({ cols = 5, className = '' }: { cols?: number; className?: string }) {
   return (
-    <tr className={`border-b border-blue-900/10 ${className}`}>
+    <tr className={`border-b border-slate-200/70 ${className}`}>
       {Array.from({ length: cols }).map((_, cIdx) => (
         <td key={cIdx} className="py-3.5 px-4">
           <div
-            className="h-4 bg-blue-900/10 backdrop-blur-xs animate-pulse rounded-lg border border-blue-900/15"
+            className="h-4 bg-slate-300/65 backdrop-blur-xs animate-pulse rounded-lg border border-slate-300/50"
             style={{ width: `${Math.floor(50 + ((cIdx * 17) % 45))}%` }}
           />
         </td>
@@ -133,18 +133,18 @@ export function SkeletonTable({
 }: SkeletonTableProps) {
   return (
     <div
-      className={`w-full bg-white/85 backdrop-blur-md rounded-2xl border border-blue-200/60 shadow-xs overflow-hidden ${className}`}
+      className={`w-full bg-white/85 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden ${className}`}
       {...props}
     >
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {showHeader && (
             <thead>
-              <tr className="bg-blue-100/60 border-b border-blue-200/50">
+              <tr className="bg-slate-100/80 border-b border-slate-200/80">
                 {Array.from({ length: cols }).map((_, idx) => (
                   <th key={idx} className="py-3.5 px-4">
                     <div
-                      className="h-3.5 bg-blue-900/15 backdrop-blur-xs animate-pulse rounded-md border border-blue-900/20"
+                      className="h-3.5 bg-slate-300/80 backdrop-blur-xs animate-pulse rounded-md border border-slate-300/60"
                       style={{ width: `${Math.floor(40 + ((idx * 23) % 45))}%` }}
                     />
                   </th>
@@ -152,7 +152,7 @@ export function SkeletonTable({
               </tr>
             </thead>
           )}
-          <tbody className="divide-y divide-blue-900/10">
+          <tbody className="divide-y divide-slate-200/60">
             {Array.from({ length: rows }).map((_, rIdx) => (
               <SkeletonTableRow key={rIdx} cols={cols} />
             ))}
@@ -172,16 +172,16 @@ export function SkeletonList({ rows = 3, className = '', ...props }: SkeletonLis
       {Array.from({ length: rows }).map((_, idx) => (
         <div
           key={idx}
-          className="flex items-center justify-between p-3 rounded-2xl bg-white/30 backdrop-blur-xs border border-white/25 shadow-2xs animate-pulse"
+          className="flex items-center justify-between p-3 rounded-2xl bg-white/70 backdrop-blur-xs border border-slate-200/75 shadow-2xs animate-pulse"
         >
           <div className="flex items-center space-x-3 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-full bg-white/40 border border-white/25 shrink-0" />
+            <div className="w-8 h-8 rounded-full bg-slate-300/75 border border-slate-300/60 shrink-0" />
             <div className="space-y-1.5 flex-1 min-w-0 pr-2">
-              <SkeletonText width="65%" height="0.875rem" className="bg-white/40" />
-              <SkeletonText width="40%" height="0.75rem" className="bg-white/30" />
+              <SkeletonText width="65%" height="0.875rem" className="bg-slate-300/75" />
+              <SkeletonText width="40%" height="0.75rem" className="bg-slate-200/85" />
             </div>
           </div>
-          <div className="w-16 h-6 rounded-xl bg-white/35 border border-white/25 shrink-0" />
+          <div className="w-16 h-6 rounded-xl bg-slate-300/70 border border-slate-300/60 shrink-0" />
         </div>
       ))}
     </div>

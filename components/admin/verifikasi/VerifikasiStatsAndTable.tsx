@@ -452,6 +452,7 @@ export function VerifikasiOrdersTable({
                               onClick={() => handleTolakOrder(order)}
                               className="p-1.5 rounded-xl bg-stone-100 hover:bg-rose-100 text-stone-500 hover:text-rose-700 border border-stone-200 transition-colors cursor-pointer"
                               title="Tolak Pesanan"
+                              aria-label="Tolak Pesanan"
                             >
                               <X className="w-4 h-4" />
                             </button>

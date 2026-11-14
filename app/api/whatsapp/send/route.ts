@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sendFonnteServerMessage } from '@/lib/whatsapp';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,35 +22,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = process.env.FONNTE_TOKEN || 'qUYeuFbxZZPoTT6cniAj';
-
-    // Bersihkan nomor target
-    let cleanTarget = target.replace(/[^0-9]/g, '');
-    if (cleanTarget.startsWith('0')) {
-      cleanTarget = '62' + cleanTarget.slice(1);
-    }
-
-    const formData = new FormData();
-    formData.append('target', cleanTarget);
-    formData.append('message', finalMessage);
-    if (delay) {
-      formData.append('delay', String(delay));
-    }
-    formData.append('countryCode', '62');
-
-    const response = await fetch('https://api.fonnte.com/send', {
-      method: 'POST',
-      headers: {
-        Authorization: token,
-      },
-      body: formData,
+    const sendResult = await sendFonnteServerMessage({
+      target,
+      message: finalMessage,
+      delay,
     });
 
-    const result = await response.json();
+    if (!sendResult.data && !sendResult.ok) {
+      return NextResponse.json(
+        { ok: false, message: sendResult.reason || 'Nomor tujuan atau isi pesan tidak valid.' },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({
-      ok: result.status === true,
-      data: result,
+      ok: sendResult.ok,
+      data: sendResult.data,
     });
   } catch (error: any) {
     console.error('Error sending WhatsApp via Fonnte:', error);
