@@ -7,10 +7,10 @@ export const PENDULUM_AMPLITUDE = 0.6;
 export const PENDULUM_PERIOD_MS = 1800;
 export const GRAVITY = 2200;
 
-export const CRANE_PIVOT_Y = 96;
-export const CRANE_ROPE_LENGTH = 30;
+export const CRANE_PIVOT_Y = 92;
+export const CRANE_ROPE_LENGTH = 116;
 export const GROUND_HEIGHT = 84;
-export const MAX_VISIBLE_TOWER_BLOCKS = 6;
+export const MAX_VISIBLE_TOWER_BLOCKS = 5;
 
 export const PALETTE = {
   sky: [
@@ -66,9 +66,9 @@ export const PALETTE = {
   crane: {
     beam: '#091936',
     beamHighlight: '#F5C56B',
-    rope: '#D49B5B',
+    rope: '#E2E8F0',
     hook: '#F5C56B',
-    pivot: '#D49B5B',
+    pivot: '#F5C56B',
   },
   ground: {
     soil: '#07142B',
