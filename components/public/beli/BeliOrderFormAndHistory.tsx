@@ -196,17 +196,20 @@ export function BeliVerifiedHistory({ verifiedOrders }: { verifiedOrders: any[] 
 /* FOOTER INFORMASI BANTUAN */
 export function BeliFooter() {
   return (
-    <div className="text-center text-[11px] text-stone-500 space-y-1 pt-4">
-      <p className="font-serif font-bold text-[#0F2C59]">
+    <div
+      data-testid="beli-footer-card"
+      className="bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl p-4 sm:p-6 shadow-lg max-w-2xl mx-auto text-center !mt-8 mb-8 space-y-1.5"
+    >
+      <p className="font-serif font-bold text-xs sm:text-sm text-[#0F2C59]">
         Pondok Pesantren Putri Tahfizhil Qur-an &amp; MHMTQ Lirboyo
       </p>
-      <p>
+      <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed">
         Jika membutuhkan bantuan, silakan hubungi Sekretariat Haflah di{' '}
         <a
           href="https://wa.me/6285181805377?text=Assalamu%27alaikum%20Sekretariat%20Haflah%2C%20saya%20membutuhkan%20bantuan."
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-700 font-bold hover:underline"
+          className="text-blue-700 hover:text-blue-800 font-bold hover:underline cursor-pointer"
         >
           0851-8180-5377
         </a>
