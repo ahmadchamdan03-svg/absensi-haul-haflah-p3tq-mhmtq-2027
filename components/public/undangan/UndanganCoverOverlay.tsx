@@ -113,17 +113,17 @@ export function UndanganCoverTamu({
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
 
-      {/* KONTEN COVER (FLEXBOX SEIMBANG: HEADER ATAS, KARTU TENGAH, TOMBOL BAWAH - RESPONSIF MOBILE & PC) */}
-      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] min-h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 lg:py-4 xl:py-6 relative z-20 overflow-hidden">
+      {/* KONTEN COVER (FLEXBOX CENTER PROPORSIONAL: JARAK SEIMBANG MOBILE & PC) */}
+      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] min-h-[100dvh] max-h-[100dvh] flex flex-col justify-center items-center gap-6 sm:gap-7 lg:gap-5 px-4 pt-10 pb-8 sm:py-10 lg:py-5 relative z-20 overflow-hidden">
         {/* 1. BAGIAN ATAS: HEADER RESMI (LOGO, JUDUL HAUL HAFLAH, INSTANSI) */}
-        <header className="w-full mt-2 sm:mt-4 lg:mt-0 relative z-20 shrink-0">
+        <header className="w-full relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8}>
             <HeaderUndangan titleType="UNDANGAN RESMI" variant="dark" compact />
           </ScrollReveal>
         </header>
 
         {/* 2. BAGIAN TENGAH: FROSTED NAVY CARD IDENTITAS PENERIMA */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 lg:py-1 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
             <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-4 lg:px-6 space-y-2.5 lg:space-y-1.5 relative z-20">
               <span className="text-[11px] sm:text-xs text-white/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
@@ -152,7 +152,7 @@ export function UndanganCoverTamu({
         </div>
 
         {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (LEBAR SELARAS & SEJAJAR DENGAN KOTAK IDENTITAS) */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 lg:mb-2 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
             <button
               type="button"
@@ -209,17 +209,17 @@ export function UndanganCoverWali({
         transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
       />
 
-      {/* KONTEN COVER WALI (FLEXBOX SEIMBANG: HEADER ATAS, KARTU TENGAH, TOMBOL BAWAH - RESPONSIF MOBILE & PC) */}
-      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] min-h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center px-4 py-6 sm:py-8 lg:py-4 xl:py-6 relative z-20 overflow-hidden">
+      {/* KONTEN COVER WALI (FLEXBOX CENTER PROPORSIONAL: JARAK SEIMBANG MOBILE & PC) */}
+      <div className="w-full max-w-xl md:max-w-2xl mx-auto h-[100dvh] min-h-[100dvh] max-h-[100dvh] flex flex-col justify-center items-center gap-6 sm:gap-7 lg:gap-5 px-4 pt-10 pb-8 sm:py-10 lg:py-5 relative z-20 overflow-hidden">
         {/* 1. BAGIAN ATAS: HEADER RESMI WALI (LOGO, JUDUL HAUL HAFLAH, INSTANSI) */}
-        <header className="w-full mt-2 sm:mt-4 lg:mt-0 relative z-20 shrink-0">
+        <header className="w-full relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8}>
             <HeaderUndanganWali compact />
           </ScrollReveal>
         </header>
 
         {/* 2. BAGIAN TENGAH: FROSTED NAVY CARD IDENTITAS WALI SANTRI */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto py-2 sm:py-3 lg:py-1 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={100}>
             <div className="w-full bg-[#0F2C59]/55 backdrop-blur-md border border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-4 lg:px-6 space-y-2.5 lg:space-y-1.5 relative z-20">
               <span className="text-[11px] sm:text-xs text-white/90 uppercase tracking-widest font-semibold block drop-shadow-xs">
@@ -254,7 +254,7 @@ export function UndanganCoverWali({
         </div>
 
         {/* 3. BAGIAN BAWAH: TOMBOL BUKA UNDANGAN (LEBAR SELARAS & SEJAJAR DENGAN KOTAK IDENTITAS) */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4 lg:mb-2 relative z-20 shrink-0">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto relative z-20 shrink-0">
           <ScrollReveal variant="zoom-in" duration={0.8} delay={200}>
             <button
               type="button"
