@@ -77,9 +77,10 @@ export default function SummaryScreen({
     >
       <div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-35 mix-blend-luminosity"
+        className="absolute inset-0 pointer-events-none bg-cover bg-top bg-no-repeat"
         style={{
-          backgroundImage: "url('/images/panggung-aula.jpg')",
+          backgroundImage: "url('/images/aula-utama.jpg')",
+          backgroundPosition: 'center top',
         }}
       />
       <div

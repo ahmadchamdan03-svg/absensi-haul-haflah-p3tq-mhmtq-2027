@@ -73,17 +73,10 @@ export default function BangunKotaAdminGamePage() {
         >
           <div
             aria-hidden="true"
-            className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-35 mix-blend-luminosity"
+            className="absolute inset-0 pointer-events-none bg-cover bg-top bg-no-repeat"
             style={{
-              backgroundImage: "url('/images/panggung-aula.jpg')",
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'linear-gradient(180deg, rgba(7, 20, 43, 0.55) 0%, rgba(15, 44, 89, 0.35) 55%, rgba(7, 20, 43, 0.72) 100%)',
+              backgroundImage: "url('/images/aula-utama.jpg')",
+              backgroundPosition: 'center top',
             }}
           />
 

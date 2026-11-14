@@ -85,15 +85,16 @@ export default function GameStage({
         />
       ))}
 
-      {/* Latar Belakang Panggung Statis (Warna Asli, Zoom-In & Geser ke Bawah agar Lantai Panggung Terpotong) */}
+      {/* Latar Belakang Aula Utama (Panggung di Atas Tengah & Kursi di Bawah) */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none overflow-hidden"
       >
         <div
-          className="w-full h-full bg-cover bg-center bg-no-repeat scale-150 translate-y-[12%]"
+          className="w-full h-full bg-cover bg-top bg-no-repeat"
           style={{
-            backgroundImage: "url('/images/panggung-aula.jpg')",
+            backgroundImage: "url('/images/aula-utama.jpg')",
+            backgroundPosition: 'center top',
           }}
         />
       </div>
