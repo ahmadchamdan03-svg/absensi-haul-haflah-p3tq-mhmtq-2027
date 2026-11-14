@@ -1,38 +1,112 @@
 import Link from 'next/link';
-import { ArrowLeft, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, Brain, Puzzle, Play } from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
 
-// TODO: Replace Coming Soon placeholder with interactive game lobby in follow-up task.
-export default function HiburanPage() {
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 min-h-[calc(100vh-96px)] flex items-center justify-center">
-      <GlassCard className="w-full max-w-xl p-6 sm:p-10 text-center border-2 border-[#D49B5B]/45 bg-white/90 shadow-xl space-y-6">
-        <div className="mx-auto w-20 h-20 rounded-3xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shadow-md">
-          <Gamepad2 className="w-10 h-10 text-[#F5C56B]" aria-hidden="true" />
-        </div>
+interface GameItem {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  href: string;
+  icon: 'brain' | 'puzzle';
+  featured?: boolean;
+}
 
-        <div className="space-y-2.5">
+// TODO: Add real game metadata and scores once individual game routes are implemented.
+const GAMES: GameItem[] = [
+  {
+    id: 'kuis',
+    title: 'Kuis Kilat Haflah',
+    category: 'Tanya Jawab',
+    description: 'Uji pengetahuanmu seputar Haflah, sejarah pondok, dan rangkaian acara.',
+    href: '/admin/hiburan/kuis',
+    icon: 'brain',
+    featured: true,
+  },
+  {
+    id: 'tebak-gambar',
+    title: 'Tebak Gambar P3TQ',
+    category: 'Permainan Visual',
+    description: 'Kenali lokasi, momen, dan simbol kegiatan P3TQ melalui petunjuk visual.',
+    href: '/admin/hiburan/tebak-gambar',
+    icon: 'puzzle',
+  },
+];
+
+export default function HiburanLobbyPage() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 lg:pb-10 space-y-8">
+      <div className="bg-white/90 border border-[#D49B5B]/45 rounded-3xl p-5 sm:p-7 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1.5">
           <p className="text-xs font-bold uppercase tracking-widest text-[#92400E]">
-            Segera Hadir
+            Lobby Hiburan
           </p>
           <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#0F2C59] tracking-tight">
-            Pusat Hiburan Segera Hadir!
+            Pusat Hiburan &amp; Kuis Haflah
           </h1>
-          <p className="text-sm sm:text-base text-slate-700 max-w-md mx-auto leading-relaxed">
-            Panitia sedang menyiapkan game dan kuis seru untuk memeriahkan Haflah. Nantikan ya!
+          <p className="text-sm text-slate-700 max-w-2xl leading-relaxed">
+            Pilih permainan di bawah untuk membuka ruang bermain. Modul permainan sedang disiapkan bertahap.
           </p>
         </div>
 
-        <div className="pt-2">
-          <Link
-            href="/admin/dasbor"
-            className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] text-white text-sm font-bold shadow-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
-          >
-            <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <span>Kembali ke Dasbor</span>
-          </Link>
-        </div>
-      </GlassCard>
+        <Link
+          href="/admin/dasbor"
+          className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-xs sm:text-sm font-bold shrink-0 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
+        >
+          <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
+          <span>Kembali ke Dasbor</span>
+        </Link>
+      </div>
+
+      <section aria-label="Daftar Game" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {GAMES.map((game) => {
+          const IconComponent = game.icon === 'brain' ? Brain : Puzzle;
+
+          return (
+            <GlassCard
+              key={game.id}
+              className={`p-6 flex flex-col justify-between gap-6 border bg-white/90 transition-shadow hover:shadow-xl ${
+                game.featured
+                  ? 'border-[#D49B5B]/70 ring-1 ring-[#D49B5B]/30'
+                  : 'border-white/80'
+              }`}
+            >
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shrink-0 shadow-sm">
+                    <IconComponent className="w-7 h-7 text-[#F5C56B]" aria-hidden="true" />
+                  </div>
+                  <span className="inline-block px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-bold text-[#1E3A8A]">
+                    {game.category}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-xl font-serif font-black text-[#0F2C59] tracking-tight">
+                    {game.title}
+                  </h2>
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    {game.description}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-[#92400E]">
+                  Tahap Persiapan
+                </span>
+                <Link
+                  href={game.href}
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] text-white text-sm font-bold shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
+                >
+                  <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span>Mainkan</span>
+                </Link>
+              </div>
+            </GlassCard>
+          );
+        })}
+      </section>
     </div>
   );
 }
