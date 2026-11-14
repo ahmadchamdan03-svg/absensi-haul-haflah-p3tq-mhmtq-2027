@@ -17,6 +17,7 @@ import {
   X,
   Mail,
   ChevronLeft,
+  Gamepad2,
 } from 'lucide-react';
 import UniversalSearchModal from '@/components/UniversalSearchModal';
 import TanyaUsModal from '@/components/TanyaUsModal';
@@ -71,6 +72,12 @@ const ALL_NAV_GROUPS: NavGroup[] = [
       { href: '/admin/audit-log', label: 'Audit Log', icon: History },
       { href: '/admin/laporan', label: 'Rekap & Ekspor', icon: FileSpreadsheet },
       { href: '/admin/persidangan', label: 'Persidangan', icon: Mail },
+    ],
+  },
+  {
+    groupTitle: 'HIBURAN',
+    items: [
+      { href: '/admin/hiburan', label: 'Pusat Hiburan', icon: Gamepad2 },
     ],
   },
 ];
