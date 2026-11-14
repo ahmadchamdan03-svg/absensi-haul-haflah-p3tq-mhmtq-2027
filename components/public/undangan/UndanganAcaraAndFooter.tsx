@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Compass, Users, ShoppingBag, ArrowRight, Info, AlertCircle, Loader2 } from 'lucide-react';
+import { Compass, Users, ShoppingBag, ArrowRight, AlertCircle } from 'lucide-react';
 import NamaLembaga from '@/components/NamaLembaga';
 import GlassCard from '@/components/GlassCard';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -115,60 +115,52 @@ export default function UndanganAcaraAndFooter({
         </GlassCard>
       </ScrollReveal>
 
-      {/* KARTU PEMBELIAN KUOTA TAMBAHAN */}
-      <ScrollReveal delay={450}>
-        <GlassCard className="p-5 sm:p-7 space-y-3.5">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-xl bg-sky-100 border border-sky-300 text-blue-950 flex items-center justify-center shrink-0">
-                <ShoppingBag className="w-4 h-4 text-amber-700" />
+      {/* KARTU PEMBELIAN KUOTA TAMBAHAN (HILANG TOTAL SAAT STATUS TUTUP) */}
+      {!loadingKuotaControl && kuotaSwitchAktif && (
+        <ScrollReveal delay={450}>
+          <GlassCard className="p-5 sm:p-7 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-xl bg-sky-100 border border-sky-300 text-blue-950 flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-4 h-4 text-amber-700" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-black text-sm sm:text-base text-[#0F2C59]">
+                    Pembelian Kuota Tambahan Kursi
+                  </h3>
+                  <p className="text-[11px] text-stone-500">
+                    Sisa Kuota Pagu: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong> ({totalDiverifikasi}/300 terisi)
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-serif font-black text-sm sm:text-base text-[#0F2C59]">
-                  Pembelian Kuota Tambahan Kursi
-                </h3>
-                <p className="text-[11px] text-stone-500">
-                  Sisa Kuota Pagu: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong> ({totalDiverifikasi}/300 terisi)
+            </div>
+
+            {totalDiverifikasi < 300 ? (
+              <div className="space-y-2.5 text-center">
+                <p className="text-xs text-stone-600 leading-relaxed font-medium">
+                  Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
+                </p>
+                <Link
+                  href={`/beli/${kodeSH}`}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer border border-sky-200/40"
+                >
+                  <ShoppingBag className="w-4.5 h-4.5 text-amber-200" />
+                  <span>Beli Kuota Tambahan</span>
+                  <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
+                </Link>
+                <p className="text-[11px] text-stone-500 font-semibold">
+                  Harga Rp 75.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
                 </p>
               </div>
-            </div>
-          </div>
-
-          {loadingKuotaControl ? (
-            <div className="p-3.5 rounded-2xl bg-[#F0F9FF]/90 border border-[#E8DFD5] text-center text-xs text-stone-500 flex items-center justify-center space-x-2 font-medium">
-              <Loader2 className="w-4 h-4 animate-spin text-[#1D4ED8]" />
-              <span>Sedang memuat status kuota tambahan...</span>
-            </div>
-          ) : kuotaSwitchAktif && totalDiverifikasi < 300 ? (
-            <div className="space-y-2.5 text-center">
-              <p className="text-xs text-stone-600 leading-relaxed font-medium">
-                Panitia membuka kesempatan pembelian kuota tambahan kursi untuk wali santri.
-              </p>
-              <Link
-                href={`/beli/${kodeSH}`}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm tracking-wide shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer border border-sky-200/40"
-              >
-                <ShoppingBag className="w-4.5 h-4.5 text-amber-200" />
-                <span>Beli Kuota Tambahan</span>
-                <ArrowRight className="w-4.5 h-4.5 text-amber-200" />
-              </Link>
-              <p className="text-[11px] text-stone-500 font-semibold">
-                Harga Rp 75.000 / kursi · Sisa kuota: <strong>{Math.max(0, 300 - totalDiverifikasi)} unit</strong>
-              </p>
-            </div>
-          ) : !kuotaSwitchAktif ? (
-            <div className="p-3.5 rounded-2xl bg-slate-100/90 border border-slate-200 text-slate-700 text-xs flex items-center space-x-2.5 font-medium">
-              <Info className="w-4.5 h-4.5 text-slate-500 shrink-0" />
-              <span>Pembelian kuota tambahan sedang ditutup.</span>
-            </div>
-          ) : (
-            <div className="p-3.5 rounded-2xl bg-sky-50/90 border border-sky-200 text-blue-950 text-xs flex items-center space-x-2.5 font-medium">
-              <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
-              <span>Kuota tambahan sudah habis (300/300 terisi).</span>
-            </div>
-          )}
-        </GlassCard>
-      </ScrollReveal>
+            ) : (
+              <div className="p-3.5 rounded-2xl bg-sky-50/90 border border-sky-200 text-blue-950 text-xs flex items-center space-x-2.5 font-medium">
+                <AlertCircle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
+                <span>Kuota tambahan sudah habis (300/300 terisi).</span>
+              </div>
+            )}
+          </GlassCard>
+        </ScrollReveal>
+      )}
 
       {/* FOOTER WALI SANTRI */}
       <ScrollReveal delay={500}>

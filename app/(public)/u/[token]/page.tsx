@@ -422,19 +422,24 @@ export default function UndanganWaliPage() {
   // Fetch Beli Kuota Control Status + Realtime Subscription
   useEffect(() => {
     if (isTamuUndangan) return;
+    let isCancelled = false;
 
-    async function fetchKuotaControl() {
+    async function fetchKuotaControl(isInitial = false) {
       try {
-        setLoadingKuotaControl(true);
+        if (isInitial) {
+          setLoadingKuotaControl(true);
+        }
         const { data: configData } = await supabase
           .from('konfigurasi_sistem')
           .select('value')
           .eq('key', 'kuota_tambahan_status')
           .maybeSingle();
 
-        if (configData && configData.value) {
+        if (isCancelled) return;
+
+        if (configData && configData.value !== null && configData.value !== undefined) {
           let isAktif = false;
-          if (typeof configData.value === 'object' && configData.value !== null) {
+          if (typeof configData.value === 'object') {
             isAktif = Boolean(configData.value.aktif);
           } else if (typeof configData.value === 'string') {
             isAktif = configData.value === 'true' || configData.value === 'TRUE';
@@ -451,6 +456,8 @@ export default function UndanganWaliPage() {
           .select('jumlah_kursi, status')
           .in('status', ['DIVERIFIKASI', 'DITERIMA']);
 
+        if (isCancelled) return;
+
         if (pembelianData) {
           const sumDiverifikasi = pembelianData.reduce((acc: number, p: any) => {
             return acc + Number(p.jumlah_kursi || p.jumlah || 0);
@@ -460,23 +467,26 @@ export default function UndanganWaliPage() {
       } catch (e) {
         console.warn('Error fetching kuota tambahan control:', e);
       } finally {
-        setLoadingKuotaControl(false);
+        if (!isCancelled) {
+          setLoadingKuotaControl(false);
+        }
       }
     }
 
-    fetchKuotaControl();
+    fetchKuotaControl(true);
 
     const channel = supabase
       .channel(`u_page_kuota_control_${kodeSH}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
-        fetchKuotaControl();
+        fetchKuotaControl(false);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, () => {
-        fetchKuotaControl();
+        fetchKuotaControl(false);
       })
       .subscribe();
 
     return () => {
+      isCancelled = true;
       supabase.removeChannel(channel);
     };
   }, [kodeSH, isTamuUndangan]);
