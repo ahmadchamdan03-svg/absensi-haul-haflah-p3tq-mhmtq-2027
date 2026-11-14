@@ -344,12 +344,14 @@ export function PesertaUtilityModals({
           <div
             role="dialog"
             aria-modal="true"
-            className="bg-white rounded-3xl max-w-md sm:max-w-lg w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
+            className="bg-white rounded-3xl max-w-md w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
           >
-            <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white p-4 sm:p-5 text-center border-b border-gold-500/40 relative shrink-0 pr-12">
+            <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white p-3.5 sm:p-4 text-center border-b border-gold-500/40 relative shrink-0 px-12">
               <button
+                type="button"
+                aria-label="Tutup Modal Kartu Peserta"
                 onClick={() => setQrDetailItem(null)}
-                className="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer active:scale-95"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer active:scale-95"
                 title="Tutup Modal"
               >
                 <X className="w-5 h-5" />
@@ -365,20 +367,22 @@ export function PesertaUtilityModals({
               </div>
             </div>
 
-            <div className="p-4 sm:p-6 text-center space-y-4 overflow-y-auto flex-1">
-              <div className="p-3 bg-white border-2 border-dashed border-opera-300 rounded-2xl inline-block shadow-sm">
+            <div className="p-4 sm:p-5 text-center space-y-3 overflow-y-auto flex-1">
+              <div className="p-2.5 bg-white border-2 border-dashed border-opera-300 rounded-2xl inline-block shadow-sm">
                 {qrDataUrl ? (
                   <img
                     src={qrDataUrl}
                     alt={`QR Code ${qrDetailItem.kode}`}
-                    className="w-48 h-48 mx-auto"
+                    width={192}
+                    height={192}
+                    className="w-44 h-44 sm:w-48 sm:h-48 max-w-[200px] max-h-[200px] mx-auto object-contain"
                   />
                 ) : (
-                  <div className="w-48 h-48 flex items-center justify-center text-slate-400 font-mono text-xs">
+                  <div className="w-44 h-44 sm:w-48 sm:h-48 max-w-[200px] mx-auto flex items-center justify-center text-slate-400 font-mono text-xs">
                     Membuat QR...
                   </div>
                 )}
-                <div className="font-mono font-bold text-sm text-slate-800 mt-2">
+                <div className="font-mono font-bold text-sm text-slate-800 mt-1.5">
                   {qrDetailItem.kode}
                 </div>
               </div>
@@ -430,7 +434,7 @@ export function PesertaUtilityModals({
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-opera-50 border border-opera-200 grid grid-cols-2 gap-2 text-xs">
+              <div className="p-3 rounded-2xl bg-opera-50 border border-opera-200 grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <div className="text-slate-500 text-[10px]">TOTAL KUOTA</div>
                   <div className="font-serif font-black text-slate-800 text-lg">
@@ -457,12 +461,12 @@ export function PesertaUtilityModals({
                 </div>
               </div>
 
-              <div className="pt-2 flex gap-2">
+              <div className="pt-1 flex gap-2">
                 <a
                   href={`/u/${qrDetailItem.kode}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-bold text-xs shadow border border-gold-500/40 flex items-center justify-center space-x-1"
+                  className="flex-1 py-2.5 min-h-[44px] rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-bold text-xs shadow border border-gold-500/40 flex items-center justify-center space-x-1"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>
@@ -472,6 +476,7 @@ export function PesertaUtilityModals({
                   </span>
                 </a>
                 <button
+                  type="button"
                   onClick={() => {
                     const liveDomain =
                       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -490,7 +495,7 @@ export function PesertaUtilityModals({
                       } berhasil disalin!`
                     );
                   }}
-                  className="px-3 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold"
+                  className="px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold cursor-pointer"
                 >
                   Salin Link
                 </button>
@@ -498,6 +503,7 @@ export function PesertaUtilityModals({
 
               {qrDetailItem.tipe === 'UNDANGAN' && (
                 <button
+                  type="button"
                   onClick={() => {
                     const liveDomain =
                       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -529,7 +535,7 @@ Pemerhati Haul & Haflah P3TQ - MHMTQ Lirboyo Kediri`;
                     navigator.clipboard.writeText(waText);
                     showToast(`✓ Pesan WA santun untuk ${qrDetailItem.nama} berhasil disalin!`);
                   }}
-                  className="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer mt-2"
+                  className="w-full py-2.5 min-h-[44px] rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer mt-2"
                 >
                   <span>📋 Salin Template Chat WA Santun</span>
                 </button>
