@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Crane, { BuildingBlockVisual } from './_components/Crane';
+import Crane from './_components/Crane';
 import FallingBlock from './_components/FallingBlock';
 import GameStage from './_components/GameStage';
 import HUD from './_components/HUD';
@@ -14,8 +14,6 @@ import SurrenderDialog from './_components/SurrenderDialog';
 import Tower from './_components/Tower';
 import { useGameEngine } from './_hooks/useGameEngine';
 import {
-  BLOCK_HEIGHT,
-  BLOCK_WIDTH,
   GROUND_HEIGHT,
   PALETTE,
 } from './_lib/palette';
@@ -122,74 +120,16 @@ export default function BangunKotaAdminGamePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="relative z-10 w-full max-w-md rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-6 sm:p-7 text-white shadow-2xl"
+            className="relative z-10 w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-6 sm:p-8 text-white shadow-2xl flex flex-col items-center text-center gap-5"
           >
-            <div className="flex flex-col items-center text-center">
-              <div
-                className="mb-4 shadow-sm"
-                style={{
-                  width: `${BLOCK_WIDTH}px`,
-                  height: `${BLOCK_HEIGHT}px`,
-                }}
-              >
-                <BuildingBlockVisual colorIndex={0} isBaseFloor={true} />
-              </div>
-
-              <p
-                className="text-xs font-bold tracking-wider uppercase"
-                style={{ color: PALETTE.accentJayyid }}
-              >
-                Lobby Hiburan • Mode Tanpa Batas
-              </p>
-
-              <h1 className="mt-1 text-2xl sm:text-3xl font-serif font-black tracking-tight text-white">
-                Bangun Kota (City Bloxx)
-              </h1>
-
-              <p className="mt-2 text-sm leading-relaxed text-white/90">
-                Susun menara setinggi mungkin. Seimbangkan presisi dan ritme dengan mengetuk layar saat ayunan derek sejajar puncak menara.
-              </p>
-            </div>
-
-            <div className="mt-5 rounded-xl bg-white/10 border border-white/20 p-3.5 space-y-2 text-xs sm:text-sm">
-              <div className="flex items-center justify-between">
-                <span
-                  className="font-bold"
-                  style={{ color: PALETTE.accentJayyid }}
-                >
-                  Jayyid (&lt;5% selisih)
-                </span>
-                <span className="font-semibold text-white">
-                  Kombo 2x lipat • +100x
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-white">
-                  Mutawasith (5–25%)
-                </span>
-                <span className="font-semibold text-white">
-                  Kombo +1 • +50x
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span
-                  className="font-bold"
-                  style={{ color: PALETTE.accentRodi }}
-                >
-                  {"Rodi' (>25% selisih)"}
-                </span>
-                <span className="font-semibold text-white">
-                  Blok jatuh • Menara aman
-                </span>
-              </div>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight text-white">
+              Mari Membangun Kota
+            </h1>
 
             <button
               type="button"
               onClick={start}
-              className="mt-6 w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] border border-white/25 text-white text-base font-extrabold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
+              className="w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] border border-white/25 text-white text-base font-extrabold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
             >
               Mulai
             </button>
