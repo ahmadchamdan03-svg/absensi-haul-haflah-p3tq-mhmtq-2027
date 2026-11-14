@@ -245,9 +245,7 @@ export function useVerifikasiData() {
           `Assalamu'alaikum Bpk/Ibu *${item.nama_wali || currentSantri?.nama_wali || 'Wali Santri'}*,\n\n` +
           `Pembayaran kuota tambahan (ID: *${targetId}*) sebanyak *${numKursi} Kursi* telah *BERHASIL DIVERIFIKASI* dan kini *Aktif pada QR Code Santri*.\n\n` +
           `*Mohon Konfirmasi Ulang Kedatangan*\n` +
-          `Guna persiapan kursi dan penginapan, silakan buka link di bawah, scroll ke bagian Konfirmasi Kehadiran, dan isi:\n` +
-          `- Hari kedatangan (Jum'at/Sabtu)\n` +
-          `- Jam kedatangan\n` +
+          `Guna persiapan kursi dan penginapan, silakan buka link di bawah, scroll ke bagian Konfirmasi Kehadiran, dan isi:\n\n` +
           `- Jumlah wali santri putra & putri\n\n` +
           `Akses Kartu Presensi & QR Code:\n` +
           `🔗 *${origin}/u/${targetKode}*\n\n` +
@@ -423,7 +421,7 @@ export function useVerifikasiData() {
             `• Jumlah: +${manualJumlah} Kursi\n` +
             `• Status: *DIVERIFIKASI LANGSUNG (Aktif)*\n\n` +
             `*Konfirmasi Kehadiran Anda (RSVP)*\n` +
-            `Bantu panitia menyiapkan kursi dan penginapan dengan memperbarui konfirmasi kehadiran (pilihan hari Jum'at/Sabtu, jam kedatangan, dan perkiraan jumlah L/P) pada E-Undangan:\n\n` +
+            `Bantu panitia menyiapkan kursi dan penginapan dengan memperbarui konfirmasi kehadiran (jumlah wali santri putra & putri) pada E-Undangan:\n\n` +
             `Akses E-Undangan & QR Presensi:\n` +
             `🔗 ${origin}/u/${selectedSantri.kode}\n\n` +
             `_Panitia Haul & Haflah P3TQ - MHMTQ_`
