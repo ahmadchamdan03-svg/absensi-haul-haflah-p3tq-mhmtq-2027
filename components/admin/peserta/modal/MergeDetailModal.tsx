@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React from 'react';
+import ModalPortal from '../../../ui/ModalPortal';
 import { Eye, X, CheckCircle2, Layers, Loader2, MapPin, Tag } from 'lucide-react';
 
 export interface MergeDuplicateGroup {
@@ -78,24 +78,7 @@ export default function MergeDetailModal({
   isMerging,
   onConfirmMergeAll,
 }: MergeDetailModalProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isMerging) {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isMerging, onClose]);
-
-  if (!mounted || !isOpen) return null;
+  if (!isOpen) return <ModalPortal isOpen={false}>{null}</ModalPortal>;
 
   const modeLabel = mode === 'SANTRI' ? 'Santri Peserta' : 'Tamu Undangan';
 
@@ -106,18 +89,13 @@ export default function MergeDetailModal({
     }
   };
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in"
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !isMerging) onClose();
-      }}
-    >
+  return (
+    <ModalPortal isOpen={isOpen} onClose={onClose} disableClose={isMerging}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="merge-detail-modal-title"
-        className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/70 overflow-hidden"
+        className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border border-white/70 overflow-hidden"
       >
         {/* Header Modal */}
         <div className="bg-gradient-to-r from-[#0F2C59] to-[#1E3A8A] text-white px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-3 border-b border-amber-400/40 shrink-0">
@@ -313,7 +291,6 @@ export default function MergeDetailModal({
           </button>
         </div>
       </div>
-    </div>,
-    document.body
+    </ModalPortal>
   );
 }

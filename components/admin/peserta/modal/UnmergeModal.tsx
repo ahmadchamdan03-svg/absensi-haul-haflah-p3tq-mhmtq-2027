@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ModalPortal from '../../../ui/ModalPortal';
 import { Unlink, X, AlertTriangle, Loader2 } from 'lucide-react';
 
 export interface UnmergeModalProps {
@@ -28,7 +29,7 @@ export default function UnmergeModal({
     }
   }, [mergedCard]);
 
-  if (!isOpen || !mergedCard) return null;
+  if (!isOpen || !mergedCard) return <ModalPortal isOpen={false}>{null}</ModalPortal>;
 
   const items: any[] = mergedCard.mergedItems || [];
   const hasScanned = items.some((i: any) => Number(i.terpakai || i.kuota_terpakai || 0) > 0);
@@ -58,8 +59,12 @@ export default function UnmergeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-      <div className="bg-white/95 backdrop-blur-xl rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-sky-200 space-y-4 animate-in zoom-in-95">
+    <ModalPortal isOpen={Boolean(isOpen && mergedCard)} onClose={onClose} disableClose={isSubmitting}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="bg-white/95 backdrop-blur-xl rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-sky-200 space-y-4 animate-in zoom-in-95 max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto"
+      >
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-800 shrink-0">
@@ -163,6 +168,6 @@ export default function UnmergeModal({
           )}
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

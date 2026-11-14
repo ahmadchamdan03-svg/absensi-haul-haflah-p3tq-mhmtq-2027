@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React from 'react';
 import { Plus, Edit, X, History, Loader2 } from 'lucide-react';
+import ModalPortal from '@/components/ui/ModalPortal';
 import { useSantriForm } from '@/lib/hooks/useSantriForm';
 import { KELAS_BIN_NADZOR_LIST } from '@/lib/types';
 import SantriBiodataTab from './modal/SantriBiodataTab';
@@ -47,46 +47,22 @@ export default function SantriModal({
     onEditSuccess,
   });
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!showAddModal && !isEditingSantri) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmittingSantri) {
-        if (showAddModal) setShowAddModal(false);
-        if (isEditingSantri) setEditingItem(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showAddModal, isEditingSantri, isSubmittingSantri, setShowAddModal, setEditingItem]);
-
-  if (!mounted || (!showAddModal && !isEditingSantri)) {
-    return null;
-  }
-
-  return createPortal(
+  return (
     <>
       {/* ========================================================================= */}
       {/* MODAL 1: TAMBAH SANTRI BARU */}
       {/* ========================================================================= */}
-      {showAddModal && (
+      <ModalPortal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        disableClose={isSubmittingSantri}
+      >
         <div
-          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isSubmittingSantri) setShowAddModal(false);
-          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-tambah-santri-title"
+          className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border border-white/60 overflow-hidden"
         >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-tambah-santri-title"
-            className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden"
-          >
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-3 border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-3 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
@@ -173,24 +149,22 @@ export default function SantriModal({
               </div>
             </form>
           </div>
-        </div>
-      )}
+      </ModalPortal>
 
       {/* ========================================================================= */}
       {/* MODAL 3 (SANTRI): EDIT PESERTA SANTRI */}
       {/* ========================================================================= */}
-      {isEditingSantri && (
-        <div
-          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isSubmittingSantri) setEditingItem(null);
-          }}
-        >
+      <ModalPortal
+        isOpen={Boolean(isEditingSantri)}
+        onClose={() => setEditingItem(null)}
+        disableClose={isSubmittingSantri}
+      >
+        {isEditingSantri && (
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-edit-santri-title"
-            className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden"
+            className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border border-white/60 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-3 border-b border-gold-500/40 shrink-0">
               <div className="flex items-center space-x-3 min-w-0">
@@ -397,9 +371,8 @@ export default function SantriModal({
               </div>
             )}
           </div>
-        </div>
-      )}
-    </>,
-    document.body
+        )}
+      </ModalPortal>
+    </>
   );
 }

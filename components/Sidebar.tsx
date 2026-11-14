@@ -238,8 +238,8 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Navigasi Menu Vertikal Terkelompok — Clearance pb-36 agar menu terakhir tidak tertutup FAB */}
-      <div className={`flex-1 overflow-y-auto ${collapsed ? 'px-2 pt-4 pb-36 space-y-4' : 'px-3 pt-4 pb-36 space-y-6'}`}>
+      {/* Navigasi Menu Vertikal Terkelompok — Clearance pb-36 agar menu terakhir tidak tertutup FAB saat expanded */}
+      <div className={`flex-1 overflow-y-auto ${collapsed ? 'px-2 pt-4 pb-8 space-y-4' : 'px-3 pt-4 pb-36 space-y-6'}`}>
         {navGroups.map((group) => (
           <div key={group.groupTitle} className="space-y-1">
             {collapsed ? (
@@ -377,15 +377,16 @@ export default function Sidebar({
         onClose={() => setTanyaUsOpen(false)}
       />
 
-      {/* 5. Floating Action Button (FAB) Usth. Halwaa - Melayang di Kiri Bawah (Fixed) */}
+      {/* 5. Floating Action Button (FAB) Usth. Halwaa - Digeser ke kanan saat sidebar collapsed agar tidak menutupi menu */}
       <button
         type="button"
         onClick={() => setTanyaUsOpen(true)}
         onMouseEnter={() => setIsUsHovered(true)}
         onMouseLeave={() => setIsUsHovered(false)}
+        data-testid="halwaa-fab-button"
         className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none ${
           isCollapsed
-            ? 'left-3.5 w-12 h-12 rounded-2xl justify-center p-1'
+            ? 'left-6 lg:left-24 w-12 h-12 rounded-2xl justify-center p-1'
             : 'left-6 pl-2 pr-5 py-2 rounded-full gap-2.5'
         }`}
         title="Usth. Halwaa"

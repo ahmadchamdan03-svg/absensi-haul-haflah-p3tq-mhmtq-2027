@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, Loader2, Crown, Building, Users } from 'lucide-react';
+import ModalPortal from '@/components/ui/ModalPortal';
 import {
   GolonganUndangan,
   OPSI_UNDANGAN_ISTIMEWA,
@@ -61,14 +62,22 @@ export default function TambahTamuModal({
   errors = {},
   setErrors = () => {},
 }: TambahTamuModalProps) {
-  if (!showAddModal) return null;
-
   return (
-    <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
-      <div className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-white/60 max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95">
-        <div className="flex items-center justify-between border-b border-white/50 p-4 sm:p-5 bg-white/40 backdrop-blur-md shrink-0">
-          <div>
-            <h3 className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
+    <ModalPortal
+      isOpen={showAddModal}
+      onClose={() => setShowAddModal(false)}
+      disableClose={isSubmitting}
+      backdropClassName="bg-stone-900/60 backdrop-blur-sm"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-penerima-tamu-title"
+        className="bg-[#F0F9FF]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-white/60 max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col overflow-hidden animate-in zoom-in-95"
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-white/50 px-5 py-4 sm:px-7 sm:py-5 bg-white/40 backdrop-blur-md shrink-0">
+          <div className="min-w-0">
+            <h3 id="modal-penerima-tamu-title" className="font-serif font-black text-base sm:text-lg text-[#0F2C59]">
               Tambah Tamu Undangan Baru
             </h3>
             <p className="text-xs text-[#7A624E] mt-0.5">
@@ -79,9 +88,9 @@ export default function TambahTamuModal({
             type="button"
             onClick={() => setShowAddModal(false)}
             aria-label="Tutup form tambah tamu"
-            className="p-1.5 rounded-xl hover:bg-white/40 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-white/40 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -320,6 +329,6 @@ export default function TambahTamuModal({
           </div>
         </form>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

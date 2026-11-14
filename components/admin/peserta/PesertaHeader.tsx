@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import ModalPortal from '../../ui/ModalPortal';
 import {
   Users,
   Plus,
@@ -136,9 +137,13 @@ export function PesertaUtilityModals({
   return (
     <>
       {/* MODAL 4: KONFIRMASI HAPUS PESERTA */}
-      {deletingItem && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border-2 border-rose-500 overflow-hidden">
+      <ModalPortal isOpen={Boolean(deletingItem)} onClose={() => setDeletingItem(null)}>
+        {deletingItem && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="bg-white rounded-3xl max-w-md w-full shadow-2xl border-2 border-rose-500 overflow-hidden max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto"
+          >
             <div className="bg-rose-50 p-5 border-b border-rose-200 flex items-center space-x-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-5 h-5 text-rose-600" />
@@ -209,13 +214,17 @@ export function PesertaUtilityModals({
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </ModalPortal>
 
       {/* MODAL: KONFIRMASI HAPUS SEMUA PESERTA */}
-      {showClearModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full shadow-2xl border-2 border-rose-500 overflow-hidden">
+      <ModalPortal isOpen={Boolean(showClearModal)} onClose={() => setShowClearModal(false)}>
+        {showClearModal && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full shadow-2xl border-2 border-rose-500 overflow-hidden max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] overflow-y-auto"
+          >
             <div className="bg-rose-50 p-4 sm:p-5 border-b border-rose-200 flex items-center space-x-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5 text-rose-600" />
@@ -322,18 +331,20 @@ export function PesertaUtilityModals({
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </ModalPortal>
 
       {/* MODAL 5: DETAIL QR CODE & KARTU SANTRI */}
-      {qrDetailItem && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in"
-          onClick={() => setQrDetailItem(null)}
-        >
+      <ModalPortal
+        isOpen={Boolean(qrDetailItem)}
+        onClose={() => setQrDetailItem(null)}
+        backdropClassName="bg-black/70 backdrop-blur-sm"
+      >
+        {qrDetailItem && (
           <div
-            className="bg-white rounded-3xl max-w-md sm:max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
-            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            className="bg-white rounded-3xl max-w-md sm:max-w-lg w-full max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100dvh-5rem)] flex flex-col shadow-2xl border-2 border-opera-800 overflow-hidden relative"
           >
             <div className="bg-gradient-to-r from-opera-950 via-opera-900 to-opera-950 text-white p-4 sm:p-5 text-center border-b border-gold-500/40 relative shrink-0 pr-12">
               <button
@@ -525,8 +536,8 @@ Pemerhati Haul & Haflah P3TQ - MHMTQ Lirboyo Kediri`;
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </ModalPortal>
     </>
   );
 }
