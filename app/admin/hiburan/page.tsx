@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, Brain, Puzzle, Play } from 'lucide-react';
+import { ArrowLeft, Brain, Puzzle, Play, Building2 } from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
 
 interface GameItem {
@@ -8,8 +8,9 @@ interface GameItem {
   category: string;
   description: string;
   href: string;
-  icon: 'brain' | 'puzzle';
+  icon: 'brain' | 'puzzle' | 'city';
   featured?: boolean;
+  ready?: boolean;
 }
 
 // TODO: Add real game metadata and scores once individual game routes are implemented.
@@ -30,6 +31,16 @@ const GAMES: GameItem[] = [
     description: 'Kenali lokasi, momen, dan simbol kegiatan P3TQ melalui petunjuk visual.',
     href: '/admin/hiburan/tebak-gambar',
     icon: 'puzzle',
+  },
+  {
+    id: 'bangun-kota',
+    title: 'Bangun Kota (City Bloxx)',
+    category: 'Permainan Visual',
+    description: 'Susun menara setinggi mungkin. Seimbangkan presisi dan ritme.',
+    href: '/admin/hiburan/bangun-kota',
+    icon: 'city',
+    featured: true,
+    ready: true,
   },
 ];
 
@@ -60,7 +71,12 @@ export default function HiburanLobbyPage() {
 
       <section aria-label="Daftar Game" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {GAMES.map((game) => {
-          const IconComponent = game.icon === 'brain' ? Brain : Puzzle;
+          const IconComponent =
+            game.icon === 'brain'
+              ? Brain
+              : game.icon === 'city'
+                ? Building2
+                : Puzzle;
 
           return (
             <GlassCard
@@ -91,10 +107,16 @@ export default function HiburanLobbyPage() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-3">
-                <span className="text-xs font-semibold text-[#92400E]">
-                  Tahap Persiapan
-                </span>
+              <div
+                className={`pt-2 border-t border-slate-200/80 flex items-center ${
+                  game.ready ? 'justify-end' : 'justify-between'
+                } gap-3`}
+              >
+                {!game.ready && (
+                  <span className="text-xs font-semibold text-[#92400E]">
+                    Tahap Persiapan
+                  </span>
+                )}
                 <Link
                   href={game.href}
                   className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] text-white text-sm font-bold shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
