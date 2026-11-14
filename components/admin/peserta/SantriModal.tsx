@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Edit, X, History, Loader2 } from 'lucide-react';
 import { useSantriForm } from '@/lib/hooks/useSantriForm';
 import { KELAS_BIN_NADZOR_LIST } from '@/lib/types';
@@ -46,21 +47,53 @@ export default function SantriModal({
     onEditSuccess,
   });
 
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!showAddModal && !isEditingSantri) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmittingSantri) {
+        if (showAddModal) setShowAddModal(false);
+        if (isEditingSantri) setEditingItem(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAddModal, isEditingSantri, isSubmittingSantri, setShowAddModal, setEditingItem]);
+
+  if (!mounted || (!showAddModal && !isEditingSantri)) {
+    return null;
+  }
+
+  return createPortal(
     <>
       {/* ========================================================================= */}
       {/* MODAL 1: TAMBAH SANTRI BARU */}
       {/* ========================================================================= */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
-          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
-            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400">
-                  <Plus className="w-5 h-5" />
+        <div
+          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isSubmittingSantri) setShowAddModal(false);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-tambah-santri-title"
+            className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-3 border-b border-gold-500/40 shrink-0">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-gold-500/20 border border-gold-500/50 flex items-center justify-center text-gold-400 shrink-0">
+                  <Plus className="w-5 h-5" aria-hidden="true" />
                 </div>
-                <div>
-                  <h3 className="font-serif font-black text-base text-gold-300">
+                <div className="min-w-0">
+                  <h3 id="modal-tambah-santri-title" className="font-serif font-black text-base text-gold-300">
                     Tambah Santri Peserta Baru
                   </h3>
                   <p className="text-[11px] text-opera-200">
@@ -69,15 +102,17 @@ export default function SantriModal({
                 </div>
               </div>
               <button
+                type="button"
+                aria-label="Tutup modal"
                 onClick={() => setShowAddModal(false)}
-                className="text-opera-200 hover:text-white p-1"
+                className="text-opera-200 hover:text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors cursor-pointer shrink-0"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={handleTambahPeserta} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+              <div className="p-6 sm:px-8 sm:py-6 space-y-5 text-xs overflow-y-auto flex-1">
                 {/* Kategori & Bagian Tamatan Tab */}
                 <SantriKuotaTab
                   kategoriUtama={formData.kategoriUtama}
@@ -112,19 +147,19 @@ export default function SantriModal({
                 />
               </div>
 
-              <div className="shrink-0 p-3.5 sm:px-6 sm:py-3.5 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end space-x-2">
+              <div className="shrink-0 px-6 py-4 sm:px-8 sm:py-4 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end gap-3 text-xs sm:text-sm">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
                   disabled={isSubmittingSantri}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingSantri}
-                  className="px-6 py-2.5 rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 sm:px-6 py-2.5 min-h-[44px] rounded-xl bg-opera-850 hover:bg-opera-900 text-gold-300 font-serif font-black shadow border border-gold-500/40 flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmittingSantri ? (
                     <>
@@ -145,15 +180,25 @@ export default function SantriModal({
       {/* MODAL 3 (SANTRI): EDIT PESERTA SANTRI */}
       {/* ========================================================================= */}
       {isEditingSantri && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in">
-          <div className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-white/60 overflow-hidden">
-            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold-500/40 shrink-0">
-              <div className="flex items-center space-x-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 shrink-0">
-                  <Edit className="w-5 h-5" />
+        <div
+          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 md:p-8 animate-in fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isSubmittingSantri) setEditingItem(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-edit-santri-title"
+            className="bg-[#F0F9FF]/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90dvh] flex flex-col shadow-2xl border border-white/60 overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-opera-950 to-opera-900 text-white px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-3 border-b border-gold-500/40 shrink-0">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 shrink-0">
+                  <Edit className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-serif font-black text-sm sm:text-base text-gold-300 truncate">
+                  <h3 id="modal-edit-santri-title" className="font-serif font-black text-sm sm:text-base text-gold-300 truncate">
                     Edit Peserta: {editingItem.kode}
                   </h3>
                   <p className="text-[10px] sm:text-[11px] text-opera-200 truncate">
@@ -161,13 +206,18 @@ export default function SantriModal({
                   </p>
                 </div>
               </div>
-              <button onClick={() => setEditingItem(null)} className="text-opera-200 hover:text-white p-1">
-                <X className="w-5 h-5" />
+              <button
+                type="button"
+                aria-label="Tutup modal"
+                onClick={() => setEditingItem(null)}
+                className="text-opera-200 hover:text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
             {/* TAB NAVIGASI EDIT MODAL */}
-            <div className="flex border-b border-blue-900/10 bg-sky-50/50 backdrop-blur-xs px-4 pt-2 gap-2 text-xs font-bold shrink-0">
+            <div className="flex border-b border-blue-900/10 bg-sky-50/50 backdrop-blur-xs px-6 sm:px-8 pt-2 gap-2 text-xs font-bold shrink-0">
               <button
                 type="button"
                 onClick={() => setEditModalTab('FORM')}
@@ -195,10 +245,10 @@ export default function SantriModal({
 
             {editModalTab === 'FORM' ? (
               <form onSubmit={handleSaveEdit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                <div className="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+                <div className="p-6 sm:px-8 sm:py-6 space-y-5 text-xs overflow-y-auto flex-1">
                   {/* Biodata & Kuota Components for Edit */}
                   <div>
-                    <label htmlFor="edit-santri-nama" className="block font-bold text-slate-700 mb-1">Nama Lengkap Santri *</label>
+                    <label htmlFor="edit-santri-nama" className="block font-bold text-slate-700 mb-1.5">Nama Lengkap Santri *</label>
                     <input
                       id="edit-santri-nama"
                       type="text"
@@ -210,10 +260,10 @@ export default function SantriModal({
                         setEditingItem({ ...editingItem, nama: e.target.value });
                         if (formErrors.nama) setFormErrors({ ...formErrors, nama: '' });
                       }}
-                      className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase font-semibold focus:outline-none focus:ring-2 transition-colors ${
+                      className={`w-full px-3.5 py-2.5 rounded-xl border uppercase font-semibold focus:outline-none focus:ring-2 transition-colors ${
                         formErrors.nama
                           ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
-                          : 'border-slate-300 focus:ring-opera-700'
+                          : 'border-slate-300 bg-white/90 focus:ring-opera-700'
                       }`}
                     />
                     {formErrors.nama && (
@@ -233,18 +283,19 @@ export default function SantriModal({
                     isEditMode={true}
                   />
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1">Kamar Pondok</label>
+                      <label htmlFor="edit-santri-kamar" className="block font-bold text-slate-700 mb-1.5">Kamar Pondok</label>
                       <input
+                        id="edit-santri-kamar"
                         type="text"
                         value={editingItem.kamar}
                         onChange={(e) => setEditingItem({ ...editingItem, kamar: e.target.value })}
-                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white/90 focus:outline-none focus:ring-2 focus:ring-opera-700"
                       />
                     </div>
                     <div>
-                      <label htmlFor="edit-santri-wali" className="block font-bold text-slate-700 mb-1">Nama Wali *</label>
+                      <label htmlFor="edit-santri-wali" className="block font-bold text-slate-700 mb-1.5">Nama Wali *</label>
                       <input
                         id="edit-santri-wali"
                         type="text"
@@ -256,10 +307,10 @@ export default function SantriModal({
                           setEditingItem({ ...editingItem, namaWali: e.target.value });
                           if (formErrors.namaWali) setFormErrors({ ...formErrors, namaWali: '' });
                         }}
-                        className={`w-full px-3.5 py-2 sm:py-2.5 rounded-xl border uppercase focus:outline-none focus:ring-2 transition-colors ${
+                        className={`w-full px-3.5 py-2.5 rounded-xl border uppercase focus:outline-none focus:ring-2 transition-colors ${
                           formErrors.namaWali
                             ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
-                            : 'border-slate-300 focus:ring-opera-700'
+                            : 'border-slate-300 bg-white/90 focus:ring-opera-700'
                         }`}
                       />
                       {formErrors.namaWali && (
@@ -272,11 +323,12 @@ export default function SantriModal({
 
                   {editingItem.kategoriUtama === 'BIN_NADZOR' && (
                     <div className="animate-in fade-in">
-                      <label className="block font-bold text-slate-700 mb-1">Kelas *</label>
+                      <label htmlFor="edit-santri-kelas" className="block font-bold text-slate-700 mb-1.5">Kelas *</label>
                       <select
+                        id="edit-santri-kelas"
                         value={editingItem.kelas || '2 Tsanawiyah'}
                         onChange={(e) => setEditingItem({ ...editingItem, kelas: e.target.value })}
-                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800 cursor-pointer"
                       >
                         {KELAS_BIN_NADZOR_LIST.map((kls) => (
                           <option key={kls} value={kls}>
@@ -287,41 +339,43 @@ export default function SantriModal({
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1">No. WhatsApp</label>
+                      <label htmlFor="edit-santri-hp" className="block font-bold text-slate-700 mb-1.5">No. WhatsApp</label>
                       <input
+                        id="edit-santri-hp"
                         type="text"
                         value={editingItem.noHp}
                         onChange={(e) => setEditingItem({ ...editingItem, noHp: e.target.value })}
-                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white/90 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
+                      <label htmlFor="edit-santri-alamat" className="block font-bold text-slate-700 mb-1.5">Alamat / Asal Kota</label>
                       <input
+                        id="edit-santri-alamat"
                         type="text"
                         value={editingItem.alamat}
                         onChange={(e) => setEditingItem({ ...editingItem, alamat: e.target.value })}
-                        className="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white/90 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="shrink-0 p-3.5 sm:px-6 sm:py-3.5 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end space-x-2">
+                <div className="shrink-0 px-6 py-4 sm:px-8 sm:py-4 bg-white/80 backdrop-blur-sm border-t border-slate-200/80 flex items-center justify-end gap-3 text-xs sm:text-sm">
                   <button
                     type="button"
                     onClick={() => setEditingItem(null)}
                     disabled={isSubmittingSantri}
-                    className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingSantri}
-                    className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-5 sm:px-6 py-2.5 min-h-[44px] rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold shadow flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmittingSantri ? (
                       <>
@@ -335,7 +389,7 @@ export default function SantriModal({
                 </div>
               </form>
             ) : (
-              <div className="p-5 sm:p-6 space-y-3 text-xs overflow-y-auto flex-1 bg-sky-50/20">
+              <div className="p-6 sm:px-8 sm:py-6 space-y-3 text-xs overflow-y-auto flex-1 bg-sky-50/20">
                 <SantriAuditHistoryTab
                   loading={loadingAuditHistory}
                   history={itemAuditHistory}
@@ -345,6 +399,7 @@ export default function SantriModal({
           </div>
         </div>
       )}
-    </>
+    </>,
+    document.body
   );
 }

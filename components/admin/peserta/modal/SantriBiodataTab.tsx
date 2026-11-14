@@ -40,7 +40,7 @@ export default function SantriBiodataTab({
     <div className="space-y-4">
       {/* Nama Lengkap Santri */}
       <div>
-        <label htmlFor="input-santri-nama" className="block font-bold text-slate-700 mb-1">
+        <label htmlFor="input-santri-nama" className="block font-bold text-slate-700 mb-1.5">
           Nama Lengkap Santriwati *
         </label>
         <input
@@ -55,7 +55,7 @@ export default function SantriBiodataTab({
           className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 uppercase font-semibold transition-colors ${
             errors.nama
               ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
-              : 'border-slate-300 focus:ring-opera-700'
+              : 'border-slate-300 bg-white/90 focus:ring-opera-700'
           }`}
         />
         {errors.nama && (
@@ -67,26 +67,28 @@ export default function SantriBiodataTab({
 
       {/* Kamar Pondok */}
       <div>
-        <label className="block font-bold text-slate-700 mb-1">Kamar Pondok</label>
+        <label htmlFor="input-santri-kamar" className="block font-bold text-slate-700 mb-1.5">Kamar Pondok</label>
         <input
+          id="input-santri-kamar"
           type="text"
           value={kamar}
           onChange={(e) => onKamarChange(e.target.value)}
           placeholder=""
-          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white/90 focus:outline-none focus:ring-2 focus:ring-opera-700"
         />
       </div>
 
       {/* Field Kelas: Khusus Kategori BIN_NADZOR tepat di bawah Kamar Pondok */}
       {kategoriUtama === 'BIN_NADZOR' && (
         <div className="animate-in fade-in">
-          <label className="block font-bold text-slate-700 mb-1">
+          <label htmlFor="input-santri-kelas" className="block font-bold text-slate-700 mb-1.5">
             Kelas *
           </label>
           <select
+            id="input-santri-kelas"
             value={kelas || '2 Tsanawiyah'}
             onChange={(e) => onKelasChange?.(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-opera-700 font-semibold text-slate-800 cursor-pointer"
           >
             {KELAS_BIN_NADZOR_LIST.map((kls) => (
               <option key={kls} value={kls}>
@@ -98,9 +100,9 @@ export default function SantriBiodataTab({
       )}
 
       {/* Nama Wali & No WhatsApp */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="input-santri-wali" className="block font-bold text-slate-700 mb-1">Nama Wali Santri *</label>
+          <label htmlFor="input-santri-wali" className="block font-bold text-slate-700 mb-1.5">Nama Wali Santri *</label>
           <input
             id="input-santri-wali"
             type="text"
@@ -113,7 +115,7 @@ export default function SantriBiodataTab({
             className={`w-full px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 uppercase transition-colors ${
               errors.namaWali
                 ? 'border-rose-400 bg-rose-50/40 text-rose-950 focus:ring-rose-500'
-                : 'border-slate-300 focus:ring-opera-700'
+                : 'border-slate-300 bg-white/90 focus:ring-opera-700'
             }`}
           />
           {errors.namaWali && (
@@ -123,26 +125,28 @@ export default function SantriBiodataTab({
           )}
         </div>
         <div>
-          <label className="block font-bold text-slate-700 mb-1">No. WhatsApp Wali</label>
+          <label htmlFor="input-santri-hp" className="block font-bold text-slate-700 mb-1.5">No. WhatsApp Wali</label>
           <input
+            id="input-santri-hp"
             type="text"
             value={noHp}
             onChange={(e) => onNoHpChange(e.target.value)}
             placeholder=""
-            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white/90 focus:outline-none focus:ring-2 focus:ring-opera-700 font-mono"
           />
         </div>
       </div>
 
       {/* Alamat / Asal Kota */}
       <div>
-        <label className="block font-bold text-slate-700 mb-1">Alamat / Asal Kota</label>
+        <label htmlFor="input-santri-alamat" className="block font-bold text-slate-700 mb-1.5">Alamat / Asal Kota</label>
         <input
+          id="input-santri-alamat"
           type="text"
           value={alamat}
           onChange={(e) => onAlamatChange(e.target.value)}
           placeholder=""
-          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white/90 focus:outline-none focus:ring-2 focus:ring-opera-700 uppercase"
         />
       </div>
     </div>

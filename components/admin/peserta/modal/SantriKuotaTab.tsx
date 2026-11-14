@@ -26,17 +26,17 @@ export default function SantriKuotaTab({
     <div className="space-y-4">
       {/* Kategori Utama */}
       <div>
-        <label className="block font-bold text-slate-700 mb-1">
+        <label className="block font-bold text-slate-700 mb-1.5">
           Kategori Utama Santri *
         </label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => onKategoriUtamaChange('BIL_GHOIB')}
-            className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
+            className={`py-2.5 px-2 sm:px-3 min-h-[44px] rounded-xl font-bold border transition-all text-center cursor-pointer ${
               kategoriUtama === 'BIL_GHOIB'
                 ? 'bg-blue-700 text-white border-blue-800 shadow'
-                : 'bg-slate-50 text-slate-700 border-slate-300'
+                : 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100'
             }`}
           >
             Bil Ghoib
@@ -48,10 +48,10 @@ export default function SantriKuotaTab({
           <button
             type="button"
             onClick={() => onKategoriUtamaChange('BIN_NADZOR')}
-            className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
+            className={`py-2.5 px-2 sm:px-3 min-h-[44px] rounded-xl font-bold border transition-all text-center cursor-pointer ${
               kategoriUtama === 'BIN_NADZOR'
                 ? 'bg-blue-700 text-white border-blue-800 shadow'
-                : 'bg-slate-50 text-slate-700 border-slate-300'
+                : 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100'
             }`}
           >
             Bin Nadzori
@@ -63,10 +63,10 @@ export default function SantriKuotaTab({
           <button
             type="button"
             onClick={() => onKategoriUtamaChange('TAMATAN')}
-            className={`py-2 px-3 rounded-xl font-bold border transition-all text-center ${
+            className={`py-2.5 px-2 sm:px-3 min-h-[44px] rounded-xl font-bold border transition-all text-center cursor-pointer ${
               kategoriUtama === 'TAMATAN'
                 ? 'bg-amber-600 text-white border-amber-700 shadow'
-                : 'bg-slate-50 text-slate-700 border-slate-300'
+                : 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100'
             }`}
           >
             Tamatan
@@ -102,7 +102,7 @@ export default function SantriKuotaTab({
                   key={bg}
                   type="button"
                   onClick={() => onBagianTamatanChange?.(bg)}
-                  className={`py-1.5 px-2 rounded-lg font-bold text-center text-xs transition-all ${
+                  className={`py-2 px-2 rounded-lg font-bold text-center text-xs transition-all cursor-pointer ${
                     bagianTamatan === bg
                       ? 'bg-amber-600 text-white shadow'
                       : 'bg-white text-blue-950 border border-sky-200 hover:bg-sky-100'
