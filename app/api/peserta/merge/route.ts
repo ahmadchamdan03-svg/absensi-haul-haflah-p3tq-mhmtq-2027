@@ -306,8 +306,6 @@ export async function POST(req: NextRequest) {
           finalNama = bestPutri;
         }
 
-        const kuotaDasar = (bestPutra ? 1 : 0) + (bestPutri ? 1 : 0) || 1;
-
         for (const r of tamuRecords) {
           updatePromises.push(
             supabaseServer
@@ -320,7 +318,6 @@ export async function POST(req: NextRequest) {
                 alamat: r.alamat && r.alamat !== '-' ? r.alamat : bestAlamat,
                 no_hp: r.no_hp && r.no_hp !== '-' ? r.no_hp : bestNoHp,
                 instansi: r.instansi && r.instansi !== '-' ? r.instansi : bestInstansi,
-                kuota_dasar: kuotaDasar,
                 updated_at: new Date().toISOString(),
               })
               .eq('id', r.id)
@@ -328,7 +325,15 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      await Promise.all(updatePromises);
+      const updateResults = await Promise.all(updatePromises);
+      const updateErr = updateResults.find((res) => res?.error)?.error;
+      if (updateErr) {
+        console.error('[API Peserta Merge] Update error:', updateErr);
+        return NextResponse.json(
+          { ok: false, error: `Gagal memperbarui data merge: ${updateErr.message}` },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({
         ok: true,

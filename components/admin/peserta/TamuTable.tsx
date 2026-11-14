@@ -16,9 +16,9 @@ import {
   Link2,
   Unlink,
   Loader2,
-  Sparkles,
 } from 'lucide-react';
 import UnmergeModal from './modal/UnmergeModal';
+import MergeDuplicateBanner from './modal/MergeDuplicateBanner';
 import { store } from '@/lib/mock-data';
 import { supabase } from '@/lib/supabase/client';
 import { getWarnaTiketUndangan } from '@/lib/types';
@@ -141,41 +141,6 @@ export default function TamuTable({
   const duplicateTamuGroups = useMemo(() => {
     return findDuplicateTamuInList(allItems);
   }, [allItems]);
-
-  const handleMergeAllTamuDuplicates = async () => {
-    if (duplicateTamuGroups.length === 0) {
-      showToast('✓ Tidak ada data tamu dobel yang perlu digabung.');
-      return;
-    }
-
-    const confirm = window.confirm(
-      `Ditemukan ${duplicateTamuGroups.length} grup tamu undangan dengan nama dan kota yang cocok. Apakah Anda ingin menggabungkannya secara otomatis menjadi kategori dobel?`
-    );
-    if (!confirm) return;
-
-    setIsMerging(true);
-    try {
-      let mergedCount = 0;
-      for (const grp of duplicateTamuGroups) {
-        const res = await fetch('/api/peserta/merge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'merge',
-            items: grp.items.map((it: any) => ({ id: it.id, table: 'tamu_undangan' })),
-          }),
-        });
-        const json = await res.json();
-        if (json.ok) mergedCount++;
-      }
-      showToast(`✓ Berhasil menggabungkan ${mergedCount} grup tamu undangan kategori dobel.`);
-      await onRefreshData();
-    } catch (e: any) {
-      alert(`Gagal menggabungkan data: ${e.message || e}`);
-    } finally {
-      setIsMerging(false);
-    }
-  };
 
   const handleUnmerge = async (itemsToUnmerge: Array<{ id: string; table: 'tamu_undangan' | 'peserta_santri' }>) => {
     const res = await fetch('/api/peserta/merge', {
@@ -542,39 +507,14 @@ export default function TamuTable({
       </div>
 
       {/* Banner Deteksi Otomatis Tamu Dobel */}
-      {duplicateTamuGroups.length > 0 && (
-        <div className="max-w-7xl mx-auto mb-4 bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center space-x-3 text-amber-900">
-            <div className="w-10 h-10 rounded-xl bg-amber-200/80 text-amber-800 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-amber-700 animate-pulse" />
-            </div>
-            <div>
-              <div className="font-bold text-xs sm:text-sm">
-                Terdeteksi {duplicateTamuGroups.length} Grup Tamu Undangan Kategori Dobel Belum Bergabung
-              </div>
-              <div className="text-[11px] text-amber-800/80">
-                Data memiliki nama dan kota yang cocok di beberapa kategori berbeda. Klik untuk menggabungkan secara otomatis.
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleMergeAllTamuDuplicates}
-            disabled={isMerging}
-            className="shrink-0 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-2 disabled:opacity-50 cursor-pointer"
-          >
-            {isMerging ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Menggabungkan...</span>
-              </>
-            ) : (
-              <>
-                <span>⚡ Gabung Data Sekarang ({duplicateTamuGroups.length})</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
+      <MergeDuplicateBanner
+        mode="TAMU"
+        groups={duplicateTamuGroups}
+        isMerging={isMerging}
+        setIsMerging={setIsMerging}
+        onRefreshData={onRefreshData}
+        showToast={showToast}
+      />
 
       {/* Tabel Data Peserta (Tamu Undangan) */}
       <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md rounded-3xl shadow-sm border border-white/70 overflow-hidden">

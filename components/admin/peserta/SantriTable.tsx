@@ -12,6 +12,7 @@ import SantriTableFilter, {
 } from './SantriTableFilter';
 import SantriTableRow, { executeFastTrackVipHelper } from './SantriTableRow';
 import UnmergeModal from './modal/UnmergeModal';
+import MergeDuplicateBanner from './modal/MergeDuplicateBanner';
 import { SkeletonTableRow } from '@/components/ui/GlassSkeleton';
 
 export interface SantriTableProps {
@@ -142,41 +143,6 @@ export default function SantriTable({
     return findDuplicateSantriInList(santriItems);
   }, [allItems]);
 
-  const handleMergeAllDuplicates = async () => {
-    if (duplicateGroups.length === 0) {
-      showToast('✓ Tidak ada data santri dobel yang perlu digabung.');
-      return;
-    }
-
-    const confirm = window.confirm(
-      `Ditemukan ${duplicateGroups.length} grup santri dengan nama dan wali yang sama. Apakah Anda ingin menggabungkannya secara otomatis menjadi kategori dobel?`
-    );
-    if (!confirm) return;
-
-    setIsMerging(true);
-    try {
-      let mergedCount = 0;
-      for (const grp of duplicateGroups) {
-        const res = await fetch('/api/peserta/merge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'merge',
-            items: grp.items.map((it: any) => ({ id: it.id, table: 'peserta_santri' })),
-          }),
-        });
-        const json = await res.json();
-        if (json.ok) mergedCount++;
-      }
-      showToast(`✓ Berhasil menggabungkan ${mergedCount} grup santri kategori dobel.`);
-      await onRefreshData();
-    } catch (e: any) {
-      alert(`Gagal menggabungkan data: ${e.message || e}`);
-    } finally {
-      setIsMerging(false);
-    }
-  };
-
   const handleFastTrackVip = async (item: any) => {
     await executeFastTrackVipHelper({
       item,
@@ -234,38 +200,14 @@ export default function SantriTable({
       />
 
       {/* Banner Deteksi Kategori Dobel Belum Bergabung */}
-      {duplicateGroups.length > 0 && (
-        <div className="max-w-7xl mx-auto my-3 bg-amber-500/15 border border-amber-500/40 backdrop-blur-md rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-blue-950 shadow-xs animate-in fade-in">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl">⚠️</span>
-            <div>
-              <p className="font-bold text-xs sm:text-sm">
-                Terdeteksi {duplicateGroups.length} Grup Santri Kategori Dobel Belum Bergabung
-              </p>
-              <p className="text-[11px] text-blue-950/80">
-                Nama santri dan wali sama ({duplicateGroups.map((g) => g.nama).slice(0, 3).join(', ')}
-                {duplicateGroups.length > 3 ? '...' : ''}). Gabungkan menjadi 1 baris resmi dengan kuota otomatis.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleMergeAllDuplicates}
-            disabled={isMerging}
-            className="shrink-0 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-2 disabled:opacity-50 cursor-pointer"
-          >
-            {isMerging ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Menggabungkan...</span>
-              </>
-            ) : (
-              <>
-                <span>⚡ Gabung Data Sekarang ({duplicateGroups.length})</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
+      <MergeDuplicateBanner
+        mode="SANTRI"
+        groups={duplicateGroups}
+        isMerging={isMerging}
+        setIsMerging={setIsMerging}
+        onRefreshData={onRefreshData}
+        showToast={showToast}
+      />
 
       {/* Tabel Data Peserta */}
       <div className="max-w-7xl mx-auto bg-white/60 backdrop-blur-md rounded-3xl shadow-sm border border-white/70 overflow-hidden">
