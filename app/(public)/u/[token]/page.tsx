@@ -115,6 +115,7 @@ export default function UndanganWaliPage() {
   const [isOpened, setIsOpened] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mainContentRef = useRef<HTMLDivElement | null>(null);
 
   // State Estimasi Kehadiran (RSVP)
@@ -480,17 +481,54 @@ export default function UndanganWaliPage() {
     };
   }, [kodeSH, isTamuUndangan]);
 
-  // Handler Buka Undangan & Putar Backsound
+  const clearAudioFade = () => {
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current);
+      fadeIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearAudioFade();
+    };
+  }, []);
+
+  // Handler Buka Undangan & Putar Backsound dengan Fade-In linear 0% -> 100% dalam 3 detik
   const handleOpenInvitation = () => {
     setIsOpened(true);
-    if (audioRef.current) {
-      audioRef.current.play().then(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    clearAudioFade();
+    audio.volume = 0;
+
+    audio
+      .play()
+      .then(() => {
         setIsPlayingMusic(true);
-      }).catch((e) => {
+        let vol = 0;
+        fadeIntervalRef.current = setInterval(() => {
+          const targetAudio = audioRef.current;
+          if (!targetAudio || targetAudio.paused) {
+            clearAudioFade();
+            return;
+          }
+          if (vol < 1) {
+            vol = Math.min(1, Number((vol + 0.05).toFixed(2)));
+            targetAudio.volume = vol;
+          }
+          if (vol >= 1) {
+            clearAudioFade();
+          }
+        }, 150); // 150ms * 20 langkah = 3000ms (3 detik)
+      })
+      .catch((e) => {
+        clearAudioFade();
+        audio.volume = 1;
         console.warn('Autoplay blocked by browser policy:', e);
         setIsPlayingMusic(false);
       });
-    }
   };
 
   // Kunci scroll body dan nonaktifkan interaksi konten utama saat cover belum dibuka
@@ -509,12 +547,16 @@ export default function UndanganWaliPage() {
   }, [isOpened, item?.tipe, itemNotFound]);
 
   const toggleMusic = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (isPlayingMusic) {
-      audioRef.current.pause();
+      clearAudioFade();
+      audio.pause();
       setIsPlayingMusic(false);
     } else {
-      audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(console.warn);
+      clearAudioFade();
+      audio.volume = 1;
+      audio.play().then(() => setIsPlayingMusic(true)).catch(console.warn);
     }
   };
 
