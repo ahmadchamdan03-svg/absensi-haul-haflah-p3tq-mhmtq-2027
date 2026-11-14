@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BlockType,
+  calculateLandingY,
   calculatePendulumAngle,
   checkAABB,
   classifyOffset,
@@ -133,8 +134,9 @@ export function useGameEngine() {
     if (fallingBlockElRef.current) {
       const fb = fallingBlock.current;
       if (fb.active) {
+        const rotationDeg = fb.missed ? fb.rotation : 0;
         fallingBlockElRef.current.style.opacity = '1';
-        fallingBlockElRef.current.style.transform = `translate3d(${fb.x - BLOCK_WIDTH / 2}px, ${fb.y}px, 0) rotate(${fb.rotation}deg)`;
+        fallingBlockElRef.current.style.transform = `translate3d(${fb.x - BLOCK_WIDTH / 2}px, ${fb.y}px, 0) rotate(${rotationDeg}deg)`;
       } else {
         fallingBlockElRef.current.style.opacity = '0';
         fallingBlockElRef.current.style.transform = 'translate3d(-9999px, -9999px, 0)';
@@ -215,6 +217,10 @@ export function useGameEngine() {
           return;
         }
         fb.missed = true;
+        fb.rotation = 0;
+        if (Math.abs(offsetX) < BLOCK_WIDTH) {
+          fb.x = offsetX >= 0 ? BLOCK_WIDTH + 6 : -(BLOCK_WIDTH + 6);
+        }
         fb.vy = Math.max(fb.vy, 950);
         fb.windBias += offsetX >= 0 ? 180 : -180;
         return;
@@ -302,19 +308,24 @@ export function useGameEngine() {
         const stageHeight =
           stageElRef.current?.clientHeight ||
           (typeof window !== 'undefined' ? window.innerHeight : 844);
-        const groundTopY = stageHeight - GROUND_HEIGHT;
+        const foundationTopY = stageHeight - GROUND_HEIGHT - 10;
         const visibleTowerBlocks = Math.min(
           placedBlocksRef.current.length,
           MAX_VISIBLE_TOWER_BLOCKS
         );
-        const towerTopScreenY = groundTopY - visibleTowerBlocks * BLOCK_HEIGHT;
-        const landingTopY = towerTopScreenY - BLOCK_HEIGHT;
+        const { blockBelowTopY, landingY } = calculateLandingY(
+          foundationTopY,
+          visibleTowerBlocks,
+          BLOCK_HEIGHT,
+          0
+        );
 
         if (!fb.missed) {
+          fb.rotation = 0;
           const isTowerEmpty = placedBlocksRef.current.length === 0;
           const targetBox = {
             x: -BLOCK_WIDTH / 2,
-            y: towerTopScreenY - 4,
+            y: blockBelowTopY - 2,
             width: BLOCK_WIDTH,
             height: BLOCK_HEIGHT,
           };
@@ -325,14 +336,12 @@ export function useGameEngine() {
             height: BLOCK_HEIGHT,
           };
 
-          const hasReachedLandingLevel = fb.y >= landingTopY;
+          const hasReachedLandingLevel = fb.y >= landingY;
           const hasAABBOverlap = checkAABB(fallingBox, targetBox);
 
-          if (
-            hasReachedLandingLevel ||
-            (hasAABBOverlap && fb.y >= landingTopY - 2)
-          ) {
-            fb.y = landingTopY;
+          if (hasReachedLandingLevel || hasAABBOverlap) {
+            fb.y = landingY;
+            fb.rotation = 0;
             const offsetX = isTowerEmpty ? 0 : fb.x;
             finalizeDrop(offsetX);
           }

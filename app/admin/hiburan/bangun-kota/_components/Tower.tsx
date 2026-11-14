@@ -42,11 +42,11 @@ export default function Tower({
         }}
       >
         <div
-          className="absolute left-1/2 rounded-t-sm"
+          className="absolute left-1/2 rounded-t-sm box-border"
           style={{
             width: `${BLOCK_WIDTH + 28}px`,
-            height: '12px',
-            bottom: '-10px',
+            height: '10px',
+            bottom: '0px',
             transform: `translate3d(${-(BLOCK_WIDTH + 28) / 2}px, 0, 0)`,
             backgroundColor: PALETTE.ground.foundationFill,
             border: `2px solid ${PALETTE.ground.foundationBorder}`,
@@ -65,7 +65,7 @@ export default function Tower({
         >
           {visibleBlocks.map((block, localIdx) => {
             const floorIndex = startRenderIndex + localIdx;
-            const bottomPx = floorIndex * BLOCK_HEIGHT;
+            const bottomPx = 10 + floorIndex * BLOCK_HEIGHT;
 
             return (
               <div

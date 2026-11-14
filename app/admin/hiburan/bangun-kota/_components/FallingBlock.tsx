@@ -37,8 +37,9 @@ export default function FallingBlock({
     if (!el) return;
     const fb = fallingBlockRef.current;
     if (fb.active) {
+      const rotationDeg = fb.missed ? fb.rotation : 0;
       el.style.opacity = '1';
-      el.style.transform = `translate3d(${fb.x - BLOCK_WIDTH / 2}px, ${fb.y}px, 0) rotate(${fb.rotation}deg)`;
+      el.style.transform = `translate3d(${fb.x - BLOCK_WIDTH / 2}px, ${fb.y}px, 0) rotate(${rotationDeg}deg)`;
     } else {
       el.style.opacity = '0';
       el.style.transform = 'translate3d(-9999px, -9999px, 0)';

@@ -97,6 +97,17 @@ export function checkAABB(a: AABBBox, b: AABBBox): boolean {
   );
 }
 
+export function calculateLandingY(
+  groundTopY: number,
+  visibleTowerBlocks: number,
+  blockHeight: number,
+  borderOffset = 0
+): { blockBelowTopY: number; landingY: number } {
+  const blockBelowTopY = groundTopY - visibleTowerBlocks * blockHeight;
+  const landingY = blockBelowTopY - blockHeight - borderOffset;
+  return { blockBelowTopY, landingY };
+}
+
 export function getSkyIndex(height: number): number {
   if (height < 10) return 0;
   if (height < 20) return 1;

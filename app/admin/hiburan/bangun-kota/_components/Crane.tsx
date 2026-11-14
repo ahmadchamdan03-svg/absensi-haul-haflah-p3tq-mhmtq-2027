@@ -203,8 +203,8 @@ export function BuildingBlockVisual({
       </div>
 
       <div
-        className="w-full h-1 shrink-0"
-        style={{ backgroundColor: border }}
+        className="w-full h-[3px] shrink-0"
+        style={{ backgroundColor: '#07142B' }}
       />
     </div>
   );
