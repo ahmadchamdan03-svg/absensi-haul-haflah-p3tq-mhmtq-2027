@@ -10,7 +10,7 @@ export const GRAVITY = 2200;
 export const CRANE_PIVOT_Y = 92;
 export const CRANE_ROPE_LENGTH = 116;
 export const GROUND_HEIGHT = 84;
-export const MAX_VISIBLE_TOWER_BLOCKS = 5;
+export const MAX_VISIBLE_TOWER_BLOCKS = 4;
 
 export const PALETTE = {
   sky: [

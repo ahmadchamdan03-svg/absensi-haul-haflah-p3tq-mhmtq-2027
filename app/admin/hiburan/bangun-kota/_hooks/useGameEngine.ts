@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  calculateLandingY,
+  calculateCameraOffsetY,
   calculatePendulumAngle,
   checkAABB,
   classifyOffset,
@@ -254,16 +254,15 @@ export function useGameEngine() {
           stageElRef.current?.clientHeight ||
           (typeof window !== 'undefined' ? window.innerHeight : 844);
         const foundationTopY = stageHeight - GROUND_HEIGHT - 10;
-        const visibleTowerBlocks = Math.min(
+        const activeCameraOffsetY = calculateCameraOffsetY(
           placedBlocksRef.current.length,
-          MAX_VISIBLE_TOWER_BLOCKS
+          stageHeight
         );
-        const { blockBelowTopY, landingY } = calculateLandingY(
-          foundationTopY,
-          visibleTowerBlocks,
-          BLOCK_HEIGHT,
-          0
-        );
+        const blockBelowTopY =
+          foundationTopY -
+          placedBlocksRef.current.length * BLOCK_HEIGHT +
+          activeCameraOffsetY;
+        const landingY = blockBelowTopY - BLOCK_HEIGHT;
 
         if (!fb.missed) {
           fb.rotation = 0;
@@ -388,8 +387,13 @@ export function useGameEngine() {
     setPhase('surrendered');
   }, []);
 
-  const cameraOffsetY =
-    Math.max(0, placedBlocks.length - MAX_VISIBLE_TOWER_BLOCKS) * BLOCK_HEIGHT;
+  const currentStageHeight =
+    stageElRef.current?.clientHeight ||
+    (typeof window !== 'undefined' ? window.innerHeight : 844);
+  const cameraOffsetY = calculateCameraOffsetY(
+    placedBlocks.length,
+    currentStageHeight
+  );
   const topBlockWorldX =
     placedBlocks.length > 0 ? placedBlocks[placedBlocks.length - 1].x : 0;
 

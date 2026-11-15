@@ -74,6 +74,7 @@ export default function Tower({
                   width: `${block.width}px`,
                   height: `${block.height}px`,
                   bottom: `${bottomPx}px`,
+                  zIndex: floorIndex + 1,
                   transform: `translate3d(${block.x - block.width / 2}px, 0, 0)`,
                 }}
               >

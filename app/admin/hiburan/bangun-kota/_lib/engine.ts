@@ -1,4 +1,9 @@
 import {
+  BLOCK_HEIGHT,
+  CRANE_PIVOT_Y,
+  CRANE_ROPE_LENGTH,
+  GROUND_HEIGHT,
+  MAX_VISIBLE_TOWER_BLOCKS,
   PALETTE,
   PENDULUM_AMPLITUDE,
   PENDULUM_PERIOD_MS,
@@ -92,6 +97,24 @@ export function calculateLandingY(
   const blockBelowTopY = groundTopY - visibleTowerBlocks * blockHeight;
   const landingY = blockBelowTopY - blockHeight - borderOffset;
   return { blockBelowTopY, landingY };
+}
+
+export function calculateCameraOffsetY(
+  blockCount: number,
+  stageHeight: number
+): number {
+  const baseOffsetY =
+    Math.max(0, blockCount - MAX_VISIBLE_TOWER_BLOCKS) * BLOCK_HEIGHT;
+  const foundationTopY = stageHeight - GROUND_HEIGHT - 10;
+  const unshiftedTowerTopY = foundationTopY - blockCount * BLOCK_HEIGHT;
+  const craneSwingBottomY =
+    CRANE_PIVOT_Y + CRANE_ROPE_LENGTH + BLOCK_HEIGHT + 16;
+  const minAllowedTowerTopY = craneSwingBottomY + 2 * BLOCK_HEIGHT;
+  const dynamicGapOffsetY = Math.max(
+    0,
+    minAllowedTowerTopY - unshiftedTowerTopY
+  );
+  return Math.max(baseOffsetY, dynamicGapOffsetY);
 }
 
 export function getSkyIndex(height: number): number {
