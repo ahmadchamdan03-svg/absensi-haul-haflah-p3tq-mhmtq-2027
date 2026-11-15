@@ -1,13 +1,22 @@
 'use client';
 
 import React from 'react';
+import { Caveat } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FlashEvent } from '../_hooks/useGameEngine';
+import { FlashEvent, JudgementSide } from '../_hooks/useGameEngine';
 import { getJudgementLabel, Judgement } from '../_lib/engine';
 import { PALETTE } from '../_lib/palette';
 
+const caveatFont = Caveat({
+  subsets: ['latin'],
+  weight: ['700'],
+  display: 'swap',
+});
+
 interface JudgementFlashProps {
   flash: FlashEvent | null;
+  side?: JudgementSide;
+  tilt?: number;
 }
 
 function getAccentColor(judgement: Judgement): string {
@@ -16,37 +25,57 @@ function getAccentColor(judgement: Judgement): string {
   return PALETTE.accentRodi;
 }
 
-export default function JudgementFlash({ flash }: JudgementFlashProps) {
+export default function JudgementFlash({
+  flash,
+  side,
+  tilt,
+}: JudgementFlashProps) {
+  const resolvedSide: JudgementSide = side ?? flash?.side ?? 'right';
+  const resolvedTilt: number = tilt ?? flash?.tilt ?? 0;
+  const driftX = resolvedSide === 'left' ? -8 : 8;
+
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none absolute right-4 top-28 z-30 flex flex-col items-end"
+      data-testid="judgement-flash-container"
+      data-side={resolvedSide}
+      className={`pointer-events-none absolute top-[40%] z-30 flex flex-col ${
+        resolvedSide === 'left'
+          ? 'left-3 sm:left-[10%] items-start'
+          : 'right-3 sm:right-[10%] items-end'
+      }`}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {flash && (
-          <motion.span
+          <motion.div
             key={flash.id}
-            initial={{ opacity: 0, y: -6, scale: 0.9 }}
+            initial={{ opacity: 0, y: 8, x: 0, scale: 0.78 }}
             animate={{
               opacity: [0, 1, 1, 0],
-              y: [-6, 0, 0, -4],
-              scale: [0.9, 1.05, 1, 0.96],
+              y: [8, 0, -6, -18],
+              x: [0, 0, driftX * 0.4, driftX],
+              scale: [0.78, 1.12, 1.02, 0.94],
             }}
-            exit={{ opacity: 0, y: -4 }}
+            exit={{ opacity: 0, y: -14, scale: 0.92 }}
             transition={{
-              duration: 0.85,
-              times: [0, 0.2, 0.72, 1],
+              duration: 1.35,
+              times: [0, 0.12, 0.78, 1],
               ease: 'easeOut',
             }}
-            className="text-lg sm:text-2xl font-black tracking-wide"
-            style={{
-              color: getAccentColor(flash.judgement),
-              textShadow:
-                '0 2px 8px rgba(4, 11, 26, 0.95), 0 0 16px rgba(4, 11, 26, 0.85)',
-            }}
           >
-            {getJudgementLabel(flash.judgement)}
-          </motion.span>
+            <span
+              data-testid="judgement-flash-text"
+              className={`${caveatFont.className} inline-block text-4xl sm:text-5xl font-bold leading-none select-none`}
+              style={{
+                color: getAccentColor(flash.judgement),
+                transform: `rotate(${resolvedTilt}deg)`,
+                textShadow:
+                  '0 3px 10px rgba(4, 11, 26, 0.95), 0 0 18px rgba(4, 11, 26, 0.88)',
+              }}
+            >
+              {getJudgementLabel(flash.judgement)}
+            </span>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

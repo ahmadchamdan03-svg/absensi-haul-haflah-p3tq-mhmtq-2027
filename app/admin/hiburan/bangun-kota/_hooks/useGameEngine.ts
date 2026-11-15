@@ -47,11 +47,15 @@ export interface FallingBlockState {
   colorIndex: number;
 }
 
+export type JudgementSide = 'left' | 'right';
+
 export interface FlashEvent {
   id: number;
   judgement: Judgement;
   combo: number;
   points: number;
+  side: JudgementSide;
+  tilt: number;
 }
 
 export function useGameEngine() {
@@ -182,12 +186,17 @@ export function useGameEngine() {
     judgementCountsRef.current = nextCounts;
     setJudgementCounts(nextCounts);
 
+    const randomSide: JudgementSide = Math.random() < 0.5 ? 'left' : 'right';
+    const randomTilt = Math.floor(Math.random() * 31) - 15;
+
     flashCounterRef.current += 1;
     setLastFlash({
       id: flashCounterRef.current,
       judgement,
       combo: updatedCombo,
       points: earnedScore,
+      side: randomSide,
+      tilt: randomTilt,
     });
 
     if (judgement === 'rodi') {

@@ -171,7 +171,11 @@ export default function BangunKotaAdminGamePage() {
             blockHeight={blockHeight}
           />
 
-          <JudgementFlash flash={lastFlash} />
+          <JudgementFlash
+            flash={lastFlash}
+            side={lastFlash?.side}
+            tilt={lastFlash?.tilt}
+          />
 
           <UsthHalwaaPopUp flash={lastFlash} />
         </GameStage>
