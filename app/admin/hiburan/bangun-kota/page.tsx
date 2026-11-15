@@ -12,11 +12,9 @@ import JudgementFlash from './_components/JudgementFlash';
 import SummaryScreen from './_components/SummaryScreen';
 import SurrenderDialog from './_components/SurrenderDialog';
 import Tower from './_components/Tower';
+import UsthHalwaaPopUp from './_components/UsthHalwaaPopUp';
 import { useGameEngine } from './_hooks/useGameEngine';
-import {
-  GROUND_HEIGHT,
-  PALETTE,
-} from './_lib/palette';
+import { PALETTE } from './_lib/palette';
 
 export default function BangunKotaAdminGamePage() {
   const router = useRouter();
@@ -61,14 +59,14 @@ export default function BangunKotaAdminGamePage() {
 
   const gameLayer = (
     <div
-      className="fixed inset-0 z-[9999] w-full h-[100dvh] bg-[#07142B] overflow-hidden touch-none select-none"
+      className="fixed inset-0 z-[9999] w-full h-[100dvh] pb-0 bg-[#07142B] overflow-hidden touch-none select-none"
       style={{
         backgroundColor: PALETTE.skyBaseFallback,
       }}
     >
       {phase === 'idle' && (
         <div
-          className="relative w-full h-[100dvh] flex flex-col items-center justify-center p-4 overflow-hidden touch-none"
+          className="relative w-full h-[100dvh] pb-0 flex flex-col items-center justify-center p-4 overflow-hidden touch-none"
           style={{
             background: PALETTE.sky[0],
           }}
@@ -95,20 +93,6 @@ export default function BangunKotaAdminGamePage() {
             >
               X
             </button>
-          </div>
-
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0"
-          >
-            <div
-              className="w-full"
-              style={{
-                height: `${GROUND_HEIGHT}px`,
-                backgroundColor: PALETTE.ground.soil,
-                borderTop: `4px solid ${PALETTE.ground.grass}`,
-              }}
-            />
           </div>
 
           <motion.div
@@ -188,6 +172,8 @@ export default function BangunKotaAdminGamePage() {
           />
 
           <JudgementFlash flash={lastFlash} />
+
+          <UsthHalwaaPopUp flash={lastFlash} />
         </GameStage>
       )}
 

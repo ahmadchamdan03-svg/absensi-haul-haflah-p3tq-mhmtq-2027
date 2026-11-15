@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { getSkyIndex } from '../_lib/engine';
 import {
-  GROUND_HEIGHT,
   PALETTE,
   WIND_MIN_HEIGHT,
 } from '../_lib/palette';
@@ -21,7 +20,6 @@ interface GameStageProps {
 export default function GameStage({
   height,
   currentWind,
-  cameraOffsetY,
   stageRef,
   onTap,
   disabledTap = false,
@@ -60,15 +58,13 @@ export default function GameStage({
     onTap();
   };
 
-  const groundTranslateY = Math.min(cameraOffsetY, GROUND_HEIGHT + 120);
-
   return (
     <div
       ref={stageRef}
       onPointerDown={handleStagePointerDown}
       role="application"
       aria-label="Area permainan Bangun Kota. Ketuk layar atau tekan Spasi untuk menjatuhkan blok bangunan."
-      className="relative w-full h-[100dvh] overflow-hidden touch-none select-none cursor-pointer"
+      className="relative w-full h-[100dvh] pb-0 overflow-hidden touch-none select-none cursor-pointer"
       style={{
         backgroundColor: PALETTE.skyBaseFallback,
       }}
@@ -85,7 +81,7 @@ export default function GameStage({
         />
       ))}
 
-      {/* Latar Belakang Aula Utama (Panggung di Atas Tengah & Kursi di Bawah) */}
+      {/* Latar Belakang Aula Utama (Penuh hingga dasar layar tanpa garis bawah) */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none overflow-hidden"
@@ -147,28 +143,6 @@ export default function GameStage({
           ))}
         </div>
       )}
-
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 pointer-events-none transition-transform duration-300 ease-out"
-        style={{
-          transform: `translate3d(0, ${groundTranslateY}px, 0)`,
-        }}
-      >
-        <div
-          className="w-full"
-          style={{
-            height: `${GROUND_HEIGHT}px`,
-            backgroundColor: PALETTE.ground.soil,
-            borderTop: `4px solid ${PALETTE.ground.grass}`,
-          }}
-        >
-          <div
-            className="w-full h-2.5"
-            style={{ backgroundColor: PALETTE.ground.curb }}
-          />
-        </div>
-      </div>
 
       {children}
     </div>

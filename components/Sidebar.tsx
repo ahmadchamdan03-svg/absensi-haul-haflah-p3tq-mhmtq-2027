@@ -392,42 +392,44 @@ export default function Sidebar({
         onClose={() => setTanyaUsOpen(false)}
       />
 
-      {/* 5. Floating Action Button (FAB) Usth. Halwaa - Digeser ke kanan saat sidebar collapsed agar tidak menutupi menu */}
-      <button
-        type="button"
-        onClick={() => setTanyaUsOpen(true)}
-        onMouseEnter={() => setIsUsHovered(true)}
-        onMouseLeave={() => setIsUsHovered(false)}
-        data-testid="halwaa-fab-button"
-        className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none ${
-          isCollapsed
-            ? 'left-6 lg:left-24 w-12 h-12 rounded-2xl justify-center p-1'
-            : 'left-6 pl-2 pr-5 py-2 rounded-full gap-2.5'
-        }`}
-        title="Usth. Halwaa"
-        aria-label="Usth. Halwaa Asisten AI"
-      >
-        <div className="relative w-8 h-8 shrink-0">
-          <div className="w-full h-full rounded-full overflow-hidden bg-white/20 border border-white/40">
-            <img
-              src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
-              alt="Usth. Halwaa"
-              className="w-full h-full object-cover object-center"
-            />
+      {/* 5. Floating Action Button (FAB) Usth. Halwaa - Disembunyikan di halaman game Bangun Kota */}
+      {pathname !== '/admin/hiburan/bangun-kota' && (
+        <button
+          type="button"
+          onClick={() => setTanyaUsOpen(true)}
+          onMouseEnter={() => setIsUsHovered(true)}
+          onMouseLeave={() => setIsUsHovered(false)}
+          data-testid="halwaa-fab-button"
+          className={`fixed bottom-6 z-[60] group flex items-center bg-[#0F2C59] hover:bg-blue-700 text-white shadow-2xl border border-blue-400/30 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none ${
+            isCollapsed
+              ? 'left-6 lg:left-24 w-12 h-12 rounded-2xl justify-center p-1'
+              : 'left-6 pl-2 pr-5 py-2 rounded-full gap-2.5'
+          }`}
+          title="Usth. Halwaa"
+          aria-label="Usth. Halwaa Asisten AI"
+        >
+          <div className="relative w-8 h-8 shrink-0">
+            <div className="w-full h-full rounded-full overflow-hidden bg-white/20 border border-white/40">
+              <img
+                src={isUsHovered ? '/images/ustadzah-half-hover.png' : '/images/ustadzah-avatar.png'}
+                alt="Usth. Halwaa"
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+            <span className="absolute top-0 right-0 z-10 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0F2C59] animate-pulse" />
           </div>
-          <span className="absolute top-0 right-0 z-10 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0F2C59] animate-pulse" />
-        </div>
-        {!isCollapsed && (
-          <div className="flex flex-col text-left pr-1">
-            <span className="text-xs font-bold tracking-wide leading-tight text-white">
-              Usth. Halwaa
-            </span>
-            <span className="text-[10px] font-medium text-blue-200 leading-none mt-0.5">
-              Asisten AI
-            </span>
-          </div>
-        )}
-      </button>
+          {!isCollapsed && (
+            <div className="flex flex-col text-left pr-1">
+              <span className="text-xs font-bold tracking-wide leading-tight text-white">
+                Usth. Halwaa
+              </span>
+              <span className="text-[10px] font-medium text-blue-200 leading-none mt-0.5">
+                Asisten AI
+              </span>
+            </div>
+          )}
+        </button>
+      )}
     </>
   );
 }
