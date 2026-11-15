@@ -132,13 +132,25 @@ export default function BangunKotaAdminGamePage() {
                 Mari Membangun Kota
               </h1>
 
-              <button
-                type="button"
-                onClick={start}
-                className="w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] border border-white/25 text-white text-base font-extrabold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
-              >
-                Mulai
-              </button>
+              <div className="w-full flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={start}
+                  className="w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] border border-white/25 text-white text-base font-extrabold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
+                >
+                  Mulai
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push('/admin/hiburan/bangun-kota/leaderboard')
+                  }
+                  className="w-full min-h-[44px] px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-[#F5C56B] text-sm font-bold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-sm"
+                >
+                  Lihat Papan Skor
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
