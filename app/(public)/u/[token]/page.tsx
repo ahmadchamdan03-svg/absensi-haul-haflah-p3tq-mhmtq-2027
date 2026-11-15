@@ -504,20 +504,8 @@ export default function UndanganWaliPage() {
   const safePlayAudio = (
     audio: HTMLAudioElement,
     onSuccess: () => void,
-    onError?: () => void,
-    startTimeSeconds?: number
+    onError?: () => void
   ) => {
-    const seekToStartTime = () => {
-      if (typeof startTimeSeconds !== 'number') return;
-      try {
-        if (!Number.isFinite(audio.duration) || audio.duration > startTimeSeconds) {
-          audio.currentTime = startTimeSeconds;
-        }
-      } catch {
-        // Abaikan error seek sebelum metadata audio siap
-      }
-    };
-
     const handlePlayError = (error: unknown) => {
       if (isMountedRef.current) {
         onError?.();
@@ -534,13 +522,6 @@ export default function UndanganWaliPage() {
 
     try {
       const playPromise = audio.play();
-      if (typeof startTimeSeconds === 'number') {
-        if (audio.readyState >= 1) {
-          seekToStartTime();
-        } else {
-          audio.addEventListener('loadedmetadata', seekToStartTime, { once: true });
-        }
-      }
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
@@ -548,16 +529,10 @@ export default function UndanganWaliPage() {
               audio.pause();
               return;
             }
-            if (typeof startTimeSeconds === 'number' && audio.currentTime < startTimeSeconds) {
-              seekToStartTime();
-            }
             onSuccess();
           })
           .catch(handlePlayError);
       } else {
-        if (typeof startTimeSeconds === 'number' && audio.currentTime < startTimeSeconds) {
-          seekToStartTime();
-        }
         onSuccess();
       }
     } catch (error) {
@@ -588,7 +563,7 @@ export default function UndanganWaliPage() {
     }
   }, [loadingSantri, itemNotFound]);
 
-  // Handler Buka Undangan & Putar Backsound dengan Fade-In linear 0% -> 100% dalam 3 detik
+  // Handler Buka Undangan & Putar Backsound dengan Fade-In linear 0% -> 100% dalam 5 detik
   const handleOpenInvitation = () => {
     setIsOpened(true);
     const audio = audioRef.current;
@@ -601,6 +576,7 @@ export default function UndanganWaliPage() {
       audio,
       () => {
         setIsPlayingMusic(true);
+        clearAudioFade();
         let vol = 0;
         fadeIntervalRef.current = setInterval(() => {
           const targetAudio = audioRef.current;
@@ -609,20 +585,19 @@ export default function UndanganWaliPage() {
             return;
           }
           if (vol < 1) {
-            vol = Math.min(1, Number((vol + 0.05).toFixed(2)));
+            vol = Math.min(1, Number((vol + 0.02).toFixed(2)));
             targetAudio.volume = vol;
           }
           if (vol >= 1) {
             clearAudioFade();
           }
-        }, 150); // 150ms * 20 langkah = 3000ms (3 detik)
+        }, 100); // 100ms * 50 langkah = 5000ms (5 detik)
       },
       () => {
         clearAudioFade();
         audio.volume = 1;
         setIsPlayingMusic(false);
-      },
-      20
+      }
     );
   };
 
@@ -651,12 +626,7 @@ export default function UndanganWaliPage() {
     } else {
       clearAudioFade();
       audio.volume = 1;
-      safePlayAudio(
-        audio,
-        () => setIsPlayingMusic(true),
-        undefined,
-        audio.currentTime < 1 ? 20 : undefined
-      );
+      safePlayAudio(audio, () => setIsPlayingMusic(true));
     }
   };
 
@@ -843,13 +813,14 @@ export default function UndanganWaliPage() {
               lastAudioElRef.current = el;
             }
           }}
-          src="/audio/bgm-hubbun-nabi.mp3"
+          src="/audio/bgm-undangan-baru.mp3"
           loop
           preload="metadata"
           onPlay={() => {
             if (isMountedRef.current) setIsPlayingMusic(true);
           }}
           onPause={() => {
+            clearAudioFade();
             if (isMountedRef.current) setIsPlayingMusic(false);
           }}
         />
