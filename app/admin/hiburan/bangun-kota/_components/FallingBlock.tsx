@@ -8,11 +8,15 @@ interface FallingBlockProps {
   fallingBlockRef: React.MutableRefObject<FallingBlockState>;
   fallingBlockElRef: React.MutableRefObject<HTMLDivElement | null>;
   floorIndex: number;
+  blockWidth?: number;
+  blockHeight?: number;
 }
 
 export default function FallingBlock({
   fallingBlockRef,
   fallingBlockElRef,
+  blockWidth = BLOCK_WIDTH,
+  blockHeight = BLOCK_HEIGHT,
 }: FallingBlockProps) {
   useEffect(() => {
     const el = fallingBlockElRef.current;
@@ -21,12 +25,12 @@ export default function FallingBlock({
     if (fb.active) {
       const rotationDeg = fb.missed ? fb.rotation : 0;
       el.style.opacity = '1';
-      el.style.transform = `translate3d(${fb.x - BLOCK_WIDTH / 2}px, ${fb.y}px, 0) rotate(${rotationDeg}deg)`;
+      el.style.transform = `translate3d(${fb.x - blockWidth / 2}px, ${fb.y}px, 0) rotate(${rotationDeg}deg)`;
     } else {
       el.style.opacity = '0';
       el.style.transform = 'translate3d(-9999px, -9999px, 0)';
     }
-  }, [fallingBlockRef, fallingBlockElRef]);
+  }, [fallingBlockRef, fallingBlockElRef, blockWidth]);
 
   return (
     <div
@@ -37,8 +41,8 @@ export default function FallingBlock({
         ref={fallingBlockElRef}
         className="will-change-transform"
         style={{
-          width: `${BLOCK_WIDTH}px`,
-          height: `${BLOCK_HEIGHT}px`,
+          width: `${blockWidth}px`,
+          height: `${blockHeight}px`,
           opacity: 0,
           transform: 'translate3d(-9999px, -9999px, 0)',
         }}

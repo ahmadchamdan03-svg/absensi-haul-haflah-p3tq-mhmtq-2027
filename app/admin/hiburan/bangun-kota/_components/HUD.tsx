@@ -24,12 +24,12 @@ export default function HUD({
 
   return (
     <header
-      className="pointer-events-none absolute inset-x-0 top-0 z-30 px-3.5"
+      className="pointer-events-none absolute inset-x-0 top-0 z-30 px-4 sm:px-8"
       style={{
-        paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
+        paddingTop: 'max(1rem, env(safe-area-inset-top))',
       }}
     >
-      <div className="mx-auto flex w-full items-start justify-between gap-2">
+      <div className="flex w-full items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
             type="button"

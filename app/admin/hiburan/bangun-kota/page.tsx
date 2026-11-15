@@ -34,6 +34,8 @@ export default function BangunKotaAdminGamePage() {
     currentWind,
     cameraOffsetY,
     topBlockWorldX,
+    blockWidth,
+    blockHeight,
     pendulumAngle,
     fallingBlock,
     stageElRef,
@@ -59,162 +61,154 @@ export default function BangunKotaAdminGamePage() {
 
   const gameLayer = (
     <div
-      className="fixed inset-0 z-[9999] bg-[#07142B] overflow-hidden touch-none select-none"
+      className="fixed inset-0 z-[9999] w-full h-[100dvh] bg-[#07142B] overflow-hidden touch-none select-none"
       style={{
         backgroundColor: PALETTE.skyBaseFallback,
       }}
     >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat scale-105"
-        style={{
-          backgroundImage: "url('/images/aula-utama.jpg')",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none backdrop-blur-xl bg-black/50"
-      />
-
-      <div className="w-full h-[100dvh] max-w-[500px] mx-auto relative overflow-hidden bg-slate-900 shadow-2xl">
-        {phase === 'idle' && (
+      {phase === 'idle' && (
+        <div
+          className="relative w-full h-[100dvh] flex flex-col items-center justify-center p-4 overflow-hidden touch-none"
+          style={{
+            background: PALETTE.sky[0],
+          }}
+        >
           <div
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 overflow-hidden touch-none"
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none bg-cover bg-top bg-no-repeat"
             style={{
-              background: PALETTE.sky[0],
-            }}
-          >
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 pointer-events-none bg-cover bg-top bg-no-repeat"
-              style={{
-                backgroundImage: "url('/images/aula-utama.jpg')",
-                backgroundPosition: 'center top',
-              }}
-            />
-
-            <div
-              className="absolute left-3.5 top-0 z-20"
-              style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
-            >
-              <button
-                type="button"
-                aria-label="Keluar ke Lobby Hiburan"
-                title="Keluar ke Lobby Hiburan"
-                onClick={() => router.push('/admin/hiburan')}
-                className="flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-sm font-black transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
-              >
-                X
-              </button>
-            </div>
-
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 bottom-0"
-            >
-              <div
-                className="w-full"
-                style={{
-                  height: `${GROUND_HEIGHT}px`,
-                  backgroundColor: PALETTE.ground.soil,
-                  borderTop: `4px solid ${PALETTE.ground.grass}`,
-                }}
-              />
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="relative z-10 w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-6 sm:p-8 text-white shadow-2xl flex flex-col items-center text-center gap-5"
-            >
-              <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight text-white">
-                Mari Membangun Kota
-              </h1>
-
-              <div className="w-full flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={start}
-                  className="w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] border border-white/25 text-white text-base font-extrabold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
-                >
-                  Mulai
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push('/admin/hiburan/bangun-kota/leaderboard')
-                  }
-                  className="w-full min-h-[44px] px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-[#F5C56B] text-sm font-bold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-sm"
-                >
-                  Lihat Papan Skor
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        {phase === 'playing' && (
-          <GameStage
-            height={height}
-            currentWind={currentWind}
-            cameraOffsetY={cameraOffsetY}
-            stageRef={stageElRef}
-            onTap={tap}
-            disabledTap={surrenderDialogOpen}
-          >
-            <HUD
-              score={score}
-              combo={combo}
-              height={height}
-              currentWind={currentWind}
-              onRequestSurrender={() => setSurrenderDialogOpen(true)}
-            />
-
-            <Crane
-              angleRef={pendulumAngle}
-              craneGroupElRef={craneGroupElRef}
-              isBlockVisible={isBlockInCrane}
-              nextFloorIndex={height}
-            />
-
-            <FallingBlock
-              fallingBlockRef={fallingBlock}
-              fallingBlockElRef={fallingBlockElRef}
-              floorIndex={fallingBlock.current.colorIndex}
-            />
-
-            <Tower
-              placedBlocks={placedBlocks}
-              cameraOffsetY={cameraOffsetY}
-              topBlockWorldX={topBlockWorldX}
-              wobbleKey={wobbleKey}
-            />
-
-            <JudgementFlash flash={lastFlash} />
-          </GameStage>
-        )}
-
-        {phase === 'surrendered' && (
-          <SummaryScreen
-            score={score}
-            height={height}
-            longestCombo={longestCombo}
-            judgementCounts={judgementCounts}
-            onPlayAgain={() => {
-              setSurrenderDialogOpen(false);
-              start();
+              backgroundImage: "url('/images/aula-utama.jpg')",
+              backgroundPosition: 'center top',
             }}
           />
-        )}
 
-        <SurrenderDialog
-          open={surrenderDialogOpen}
-          onConfirm={handleConfirmSurrender}
-          onCancel={() => setSurrenderDialogOpen(false)}
+          <div
+            className="absolute left-4 sm:left-8 top-0 z-20"
+            style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+          >
+            <button
+              type="button"
+              aria-label="Keluar ke Lobby Hiburan"
+              title="Keluar ke Lobby Hiburan"
+              onClick={() => router.push('/admin/hiburan')}
+              className="flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-sm font-black transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
+            >
+              X
+            </button>
+          </div>
+
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0"
+          >
+            <div
+              className="w-full"
+              style={{
+                height: `${GROUND_HEIGHT}px`,
+                backgroundColor: PALETTE.ground.soil,
+                borderTop: `4px solid ${PALETTE.ground.grass}`,
+              }}
+            />
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="relative z-10 w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-6 sm:p-8 text-white shadow-2xl flex flex-col items-center text-center gap-5"
+          >
+            <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight text-white">
+              Mari Membangun Kota
+            </h1>
+
+            <div className="w-full flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={start}
+                className="w-full min-h-[48px] px-5 py-3 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] border border-white/25 text-white text-base font-extrabold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-md"
+              >
+                Mulai
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  router.push('/admin/hiburan/bangun-kota/leaderboard')
+                }
+                className="w-full min-h-[44px] px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-[#F5C56B] text-sm font-bold tracking-wide transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B] cursor-pointer shadow-sm"
+              >
+                Lihat Papan Skor
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {phase === 'playing' && (
+        <GameStage
+          height={height}
+          currentWind={currentWind}
+          cameraOffsetY={cameraOffsetY}
+          stageRef={stageElRef}
+          onTap={tap}
+          disabledTap={surrenderDialogOpen}
+        >
+          <HUD
+            score={score}
+            combo={combo}
+            height={height}
+            currentWind={currentWind}
+            onRequestSurrender={() => setSurrenderDialogOpen(true)}
+          />
+
+          <Crane
+            angleRef={pendulumAngle}
+            craneGroupElRef={craneGroupElRef}
+            isBlockVisible={isBlockInCrane}
+            nextFloorIndex={height}
+            blockWidth={blockWidth}
+            blockHeight={blockHeight}
+          />
+
+          <FallingBlock
+            fallingBlockRef={fallingBlock}
+            fallingBlockElRef={fallingBlockElRef}
+            floorIndex={fallingBlock.current.colorIndex}
+            blockWidth={blockWidth}
+            blockHeight={blockHeight}
+          />
+
+          <Tower
+            placedBlocks={placedBlocks}
+            cameraOffsetY={cameraOffsetY}
+            topBlockWorldX={topBlockWorldX}
+            wobbleKey={wobbleKey}
+            blockWidth={blockWidth}
+            blockHeight={blockHeight}
+          />
+
+          <JudgementFlash flash={lastFlash} />
+        </GameStage>
+      )}
+
+      {phase === 'surrendered' && (
+        <SummaryScreen
+          score={score}
+          height={height}
+          longestCombo={longestCombo}
+          judgementCounts={judgementCounts}
+          onPlayAgain={() => {
+            setSurrenderDialogOpen(false);
+            start();
+          }}
         />
-      </div>
+      )}
+
+      <SurrenderDialog
+        open={surrenderDialogOpen}
+        onConfirm={handleConfirmSurrender}
+        onCancel={() => setSurrenderDialogOpen(false)}
+      />
     </div>
   );
 

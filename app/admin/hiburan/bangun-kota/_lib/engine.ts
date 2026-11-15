@@ -101,15 +101,16 @@ export function calculateLandingY(
 
 export function calculateCameraOffsetY(
   blockCount: number,
-  stageHeight: number
+  stageHeight: number,
+  blockHeight: number = BLOCK_HEIGHT
 ): number {
   const baseOffsetY =
-    Math.max(0, blockCount - MAX_VISIBLE_TOWER_BLOCKS) * BLOCK_HEIGHT;
+    Math.max(0, blockCount - MAX_VISIBLE_TOWER_BLOCKS) * blockHeight;
   const foundationTopY = stageHeight - GROUND_HEIGHT - 10;
-  const unshiftedTowerTopY = foundationTopY - blockCount * BLOCK_HEIGHT;
+  const unshiftedTowerTopY = foundationTopY - blockCount * blockHeight;
   const craneSwingBottomY =
-    CRANE_PIVOT_Y + CRANE_ROPE_LENGTH + BLOCK_HEIGHT + 16;
-  const minAllowedTowerTopY = craneSwingBottomY + 2 * BLOCK_HEIGHT;
+    CRANE_PIVOT_Y + CRANE_ROPE_LENGTH + blockHeight + 16;
+  const minAllowedTowerTopY = craneSwingBottomY + 2 * blockHeight;
   const dynamicGapOffsetY = Math.max(
     0,
     minAllowedTowerTopY - unshiftedTowerTopY

@@ -14,6 +14,8 @@ interface CraneProps {
   craneGroupElRef: React.MutableRefObject<HTMLDivElement | null>;
   isBlockVisible: boolean;
   nextFloorIndex: number;
+  blockWidth?: number;
+  blockHeight?: number;
 }
 
 export function BuildingBlockVisual(_props?: {
@@ -35,6 +37,8 @@ export default function Crane({
   craneGroupElRef,
   isBlockVisible,
   nextFloorIndex,
+  blockWidth = BLOCK_WIDTH,
+  blockHeight = BLOCK_HEIGHT,
 }: CraneProps) {
   useEffect(() => {
     if (craneGroupElRef.current) {
@@ -49,7 +53,7 @@ export default function Crane({
     >
       {/* Batang Horizontal Utama Derek Konstruksi (Navy + Garis Emas di Tengah) */}
       <div
-        className="relative w-64 sm:w-80 h-5 rounded-md border border-[#F5C56B]/60 shadow-lg flex items-center justify-center overflow-hidden"
+        className="relative w-64 sm:w-80 lg:w-96 h-5 rounded-md border border-[#F5C56B]/60 shadow-lg flex items-center justify-center overflow-hidden"
         style={{
           marginTop: `${CRANE_PIVOT_Y - 18}px`,
           backgroundColor: PALETTE.crane.beam,
@@ -149,8 +153,8 @@ export default function Crane({
         <div
           className="transition-opacity duration-75"
           style={{
-            width: `${BLOCK_WIDTH}px`,
-            height: `${BLOCK_HEIGHT}px`,
+            width: `${blockWidth}px`,
+            height: `${blockHeight}px`,
             opacity: isBlockVisible ? 1 : 0,
           }}
         >

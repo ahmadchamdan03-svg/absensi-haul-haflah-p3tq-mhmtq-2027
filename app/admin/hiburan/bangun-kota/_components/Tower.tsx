@@ -15,6 +15,8 @@ interface TowerProps {
   cameraOffsetY: number;
   topBlockWorldX: number;
   wobbleKey: number;
+  blockWidth?: number;
+  blockHeight?: number;
 }
 
 export default function Tower({
@@ -22,6 +24,8 @@ export default function Tower({
   cameraOffsetY,
   topBlockWorldX,
   wobbleKey,
+  blockWidth = BLOCK_WIDTH,
+  blockHeight = BLOCK_HEIGHT,
 }: TowerProps) {
   const startRenderIndex = Math.max(0, placedBlocks.length - 18);
   const visibleBlocks = placedBlocks.slice(startRenderIndex);
@@ -43,10 +47,10 @@ export default function Tower({
         <div
           className="absolute left-1/2 rounded-t-sm box-border"
           style={{
-            width: `${BLOCK_WIDTH + 28}px`,
+            width: `${blockWidth + 32}px`,
             height: '10px',
             bottom: '0px',
-            transform: `translate3d(${-(BLOCK_WIDTH + 28) / 2}px, 0, 0)`,
+            transform: `translate3d(${-(blockWidth + 32) / 2}px, 0, 0)`,
             backgroundColor: PALETTE.ground.foundationFill,
             border: `2px solid ${PALETTE.ground.foundationBorder}`,
           }}
@@ -64,7 +68,7 @@ export default function Tower({
         >
           {visibleBlocks.map((block, localIdx) => {
             const floorIndex = startRenderIndex + localIdx;
-            const bottomPx = 10 + floorIndex * BLOCK_HEIGHT;
+            const bottomPx = 10 + floorIndex * blockHeight;
 
             return (
               <div

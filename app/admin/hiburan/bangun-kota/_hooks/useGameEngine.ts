@@ -25,9 +25,9 @@ import {
   BLOCK_WIDTH,
   CRANE_PIVOT_Y,
   CRANE_ROPE_LENGTH,
+  getResponsiveBlockDimensions,
   GRAVITY,
   GROUND_HEIGHT,
-  MAX_VISIBLE_TOWER_BLOCKS,
 } from '../_lib/palette';
 
 export interface JudgementCounts {
@@ -70,6 +70,17 @@ export function useGameEngine() {
   const [lastFlash, setLastFlash] = useState<FlashEvent | null>(null);
   const [wobbleKey, setWobbleKey] = useState<number>(0);
   const [currentWind, setCurrentWind] = useState<number>(0);
+  const [blockDims, setBlockDims] = useState<{
+    blockWidth: number;
+    blockHeight: number;
+  }>({
+    blockWidth: BLOCK_WIDTH,
+    blockHeight: BLOCK_HEIGHT,
+  });
+  const blockDimsRef = useRef<{ blockWidth: number; blockHeight: number }>({
+    blockWidth: BLOCK_WIDTH,
+    blockHeight: BLOCK_HEIGHT,
+  });
 
   const phaseRef = useRef<GamePhase>('idle');
   const scoreRef = useRef<number>(0);
@@ -104,7 +115,21 @@ export function useGameEngine() {
   const fallingBlockElRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const updateDims = () => {
+      if (typeof window === 'undefined') return;
+      const next = getResponsiveBlockDimensions(window.innerWidth);
+      blockDimsRef.current = next;
+      setBlockDims((prev) =>
+        prev.blockWidth === next.blockWidth &&
+        prev.blockHeight === next.blockHeight
+          ? prev
+          : next
+      );
+    };
+    updateDims();
+    window.addEventListener('resize', updateDims);
     return () => {
+      window.removeEventListener('resize', updateDims);
       stopBGM();
     };
   }, []);
@@ -115,10 +140,11 @@ export function useGameEngine() {
     }
     if (fallingBlockElRef.current) {
       const fb = fallingBlock.current;
+      const { blockWidth } = blockDimsRef.current;
       if (fb.active) {
         const rotationDeg = fb.missed ? fb.rotation : 0;
         fallingBlockElRef.current.style.opacity = '1';
-        fallingBlockElRef.current.style.transform = `translate3d(${fb.x - BLOCK_WIDTH / 2}px, ${fb.y}px, 0) rotate(${rotationDeg}deg)`;
+        fallingBlockElRef.current.style.transform = `translate3d(${fb.x - blockWidth / 2}px, ${fb.y}px, 0) rotate(${rotationDeg}deg)`;
       } else {
         fallingBlockElRef.current.style.opacity = '0';
         fallingBlockElRef.current.style.transform = 'translate3d(-9999px, -9999px, 0)';
@@ -127,7 +153,8 @@ export function useGameEngine() {
   }, []);
 
   const finalizeDrop = useCallback((offsetX: number) => {
-    const judgement = classifyOffset(offsetX, BLOCK_WIDTH);
+    const { blockWidth, blockHeight } = blockDimsRef.current;
+    const judgement = classifyOffset(offsetX, blockWidth);
 
     if (judgement === 'jayyid') {
       playDing('jayyid', 1.2);
@@ -167,8 +194,8 @@ export function useGameEngine() {
       const fb = fallingBlock.current;
       fb.missed = true;
       fb.rotation = 0;
-      if (Math.abs(offsetX) < BLOCK_WIDTH) {
-        fb.x = offsetX >= 0 ? BLOCK_WIDTH + 6 : -(BLOCK_WIDTH + 6);
+      if (Math.abs(offsetX) < blockWidth) {
+        fb.x = offsetX >= 0 ? blockWidth + 6 : -(blockWidth + 6);
       }
       fb.vy = Math.max(fb.vy, 950);
       fb.windBias += offsetX >= 0 ? 180 : -180;
@@ -188,9 +215,9 @@ export function useGameEngine() {
     const newBlock: PlacedBlock = {
       id: `floor-${nextHeight}`,
       x: placedX,
-      y: nextHeight * BLOCK_HEIGHT,
-      width: BLOCK_WIDTH,
-      height: BLOCK_HEIGHT,
+      y: nextHeight * blockHeight,
+      width: blockWidth,
+      height: blockHeight,
       judgement,
       comboAtPlacement: updatedCombo,
       type: 'normal',
@@ -253,31 +280,33 @@ export function useGameEngine() {
         const stageHeight =
           stageElRef.current?.clientHeight ||
           (typeof window !== 'undefined' ? window.innerHeight : 844);
+        const { blockWidth, blockHeight } = blockDimsRef.current;
         const foundationTopY = stageHeight - GROUND_HEIGHT - 10;
         const activeCameraOffsetY = calculateCameraOffsetY(
           placedBlocksRef.current.length,
-          stageHeight
+          stageHeight,
+          blockHeight
         );
         const blockBelowTopY =
           foundationTopY -
-          placedBlocksRef.current.length * BLOCK_HEIGHT +
+          placedBlocksRef.current.length * blockHeight +
           activeCameraOffsetY;
-        const landingY = blockBelowTopY - BLOCK_HEIGHT;
+        const landingY = blockBelowTopY - blockHeight;
 
         if (!fb.missed) {
           fb.rotation = 0;
           const isTowerEmpty = placedBlocksRef.current.length === 0;
           const targetBox = {
-            x: -BLOCK_WIDTH / 2,
+            x: -blockWidth / 2,
             y: blockBelowTopY,
-            width: BLOCK_WIDTH,
-            height: BLOCK_HEIGHT,
+            width: blockWidth,
+            height: blockHeight,
           };
           const fallingBox = {
-            x: fb.x - BLOCK_WIDTH / 2,
+            x: fb.x - blockWidth / 2,
             y: fb.y,
-            width: BLOCK_WIDTH,
-            height: BLOCK_HEIGHT,
+            width: blockWidth,
+            height: blockHeight,
           };
 
           const hasReachedLandingLevel = fb.y >= landingY;
@@ -291,7 +320,7 @@ export function useGameEngine() {
           }
         } else {
           fb.rotation += (fb.windBias >= 0 ? 140 : -140) * dt;
-          if (fb.y > stageHeight + BLOCK_HEIGHT) {
+          if (fb.y > stageHeight + blockHeight) {
             fb.active = false;
             fb.missed = false;
             fb.rotation = 0;
@@ -360,10 +389,11 @@ export function useGameEngine() {
     playWhoosh();
 
     const angle = pendulumAngle.current;
-    const swingRadius = CRANE_ROPE_LENGTH + BLOCK_HEIGHT / 2;
+    const { blockHeight } = blockDimsRef.current;
+    const swingRadius = CRANE_ROPE_LENGTH + blockHeight / 2;
     const startCenterX = swingRadius * Math.sin(angle);
     const startTopY =
-      CRANE_PIVOT_Y + swingRadius * Math.cos(angle) - BLOCK_HEIGHT / 2;
+      CRANE_PIVOT_Y + swingRadius * Math.cos(angle) - blockHeight / 2;
 
     fallingBlock.current = {
       active: true,
@@ -392,7 +422,8 @@ export function useGameEngine() {
     (typeof window !== 'undefined' ? window.innerHeight : 844);
   const cameraOffsetY = calculateCameraOffsetY(
     placedBlocks.length,
-    currentStageHeight
+    currentStageHeight,
+    blockDims.blockHeight
   );
   const topBlockWorldX =
     placedBlocks.length > 0 ? placedBlocks[placedBlocks.length - 1].x : 0;
@@ -411,6 +442,8 @@ export function useGameEngine() {
     currentWind,
     cameraOffsetY,
     topBlockWorldX,
+    blockWidth: blockDims.blockWidth,
+    blockHeight: blockDims.blockHeight,
     pendulumAngle,
     fallingBlock,
     stageElRef,

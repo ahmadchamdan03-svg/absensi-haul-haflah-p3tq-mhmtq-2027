@@ -1,5 +1,27 @@
 export const BLOCK_WIDTH = 96;
 export const BLOCK_HEIGHT = 48;
+
+export function getResponsiveBlockDimensions(viewportWidth: number): {
+  blockWidth: number;
+  blockHeight: number;
+} {
+  if (viewportWidth >= 1024) {
+    return {
+      blockWidth: Math.round(BLOCK_WIDTH * 1.5),
+      blockHeight: Math.round(BLOCK_HEIGHT * 1.5),
+    };
+  }
+  if (viewportWidth > 768) {
+    return {
+      blockWidth: Math.round(BLOCK_WIDTH * 1.25),
+      blockHeight: Math.round(BLOCK_HEIGHT * 1.25),
+    };
+  }
+  return {
+    blockWidth: BLOCK_WIDTH,
+    blockHeight: BLOCK_HEIGHT,
+  };
+}
 export const TOLERANCE_JAYYID = 0.05;
 export const TOLERANCE_MUTAWASITH = 0.25;
 export const WIND_MIN_HEIGHT = 20;
