@@ -38,10 +38,10 @@ export default function BangunKotaLeaderboardPage() {
           </div>
           <div className="space-y-1">
             <p className="text-xs font-bold uppercase tracking-widest text-[#92400E]">
-              Bangun Kota (City Bloxx)
+              Bangun Kota
             </p>
             <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#0F2C59] tracking-tight">
-              Papan Skor (Leaderboard)
+              Papan Skor Bangun Kota
             </h1>
             <p className="text-sm text-slate-700 leading-relaxed">
               Daftar 10 besar panitia dengan skor dan menara tertinggi.
@@ -79,7 +79,7 @@ export default function BangunKotaLeaderboardPage() {
               Belum ada skor tercatat di Papan Skor.
             </p>
             <p className="text-sm text-slate-600">
-              Mainkan Bangun Kota (City Bloxx) dan simpan skormu untuk menjadi peringkat pertama!
+              Mainkan Bangun Kota dan simpan skormu untuk menjadi peringkat pertama!
             </p>
           </div>
         ) : (

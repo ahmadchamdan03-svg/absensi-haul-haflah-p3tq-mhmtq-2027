@@ -51,7 +51,7 @@ export default function BangunKotaAdminGamePage() {
 
   useEffect(() => {
     setMounted(true);
-    document.title = 'Bangun Kota (City Bloxx) | Haflah P3TQ';
+    document.title = 'Bangun Kota | Haflah P3TQ';
   }, []);
 
   const handleConfirmSurrender = () => {

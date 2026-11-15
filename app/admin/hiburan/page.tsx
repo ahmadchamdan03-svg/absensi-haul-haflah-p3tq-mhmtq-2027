@@ -44,7 +44,7 @@ const GAMES: GameItem[] = [
   },
   {
     id: 'bangun-kota',
-    title: 'Bangun Kota (City Bloxx)',
+    title: 'Bangun Kota',
     category: 'Permainan Visual',
     description:
       'Susun menara setinggi mungkin. Seimbangkan presisi dan ritme.',
