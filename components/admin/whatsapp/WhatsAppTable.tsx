@@ -129,7 +129,9 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                   const isBilGhoib = santri?.kategoriUtama === 'BIL_GHOIB';
                   const isBinNadzor = santri?.kategoriUtama === 'BIN_NADZOR';
                   const isTamatan = santri?.kategoriUtama === 'TAMATAN';
-                  const bagian = isTamatan ? extractBagianTamatan(santri?.kelas || santri?.subKategori) : '';
+                  const bagian = isTamatan
+                    ? santri?.bagianTamatan || extractBagianTamatan(santri?.subKategori) || extractBagianTamatan(santri?.kelas)
+                    : '';
                   const isConfirmed = kel.estimasi?.statusKonfirmasi === 'SUDAH';
 
                   return (

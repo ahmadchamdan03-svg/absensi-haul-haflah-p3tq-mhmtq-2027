@@ -117,47 +117,87 @@ export default function WhatsAppPage() {
   // FETCH DATA SUPABASE
   // =========================================================================
 
+  const resolveSantriBagian = (santri?: { bagianTamatan?: string; subKategori?: string; kelas?: string }) => {
+    if (!santri) return '';
+    return santri.bagianTamatan || extractBagianTamatan(santri.subKategori) || extractBagianTamatan(santri.kelas) || '';
+  };
+
+  // Paginated fetch keeps WA dropdown counts complete even past PostgREST's 1000-row cap.
+  const fetchAllTableRows = async (table: 'peserta_santri' | 'tamu_undangan') => {
+    const pageSize = 1000;
+    const allRows: any[] = [];
+    let from = 0;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from(table)
+        .select('*')
+        .order('kode', { ascending: true })
+        .order('id', { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        return { data: null, error };
+      }
+      if (!data || data.length === 0) break;
+
+      allRows.push(...data);
+      if (data.length < pageSize) break;
+      from += pageSize;
+    }
+
+    return { data: allRows, error: null };
+  };
+
   const fetchSantriWaData = async () => {
     try {
       setLoadingData(true);
-      const { data, error } = await supabase
-        .from('peserta_santri')
-        .select('*')
-        .order('kode', { ascending: true });
+      const { data, error } = await fetchAllTableRows('peserta_santri');
 
       if (error) {
         console.error('Error fetching peserta_santri for WA:', error);
         setKeluargaList([]);
       } else if (data) {
         setKeluargaList(
-          data.map((s: any) => ({
-            id: s.id,
-            kode: s.kode,
-            namaWali: s.nama_wali || '-',
-            noHp: s.no_hp || '',
-            alamat: s.alamat || 'Kediri',
-            statusWa: s.status_wa || 'BELUM',
-            santri: [
-              {
-                id: s.id,
-                nama: s.nama,
-                kategoriUtama: s.kategori_utama || 'BIL_GHOIB',
-                subKategori: s.sub_kategori || 'Bil Ghoib',
-                kelas: s.kelas || '-',
-                kamar: s.kamar || '-',
+          data.map((s: any) => {
+            const katUtama = s.kategori_utama || 'BIL_GHOIB';
+            const subKat =
+              s.sub_kategori ||
+              (katUtama === 'TAMATAN' ? '' : katUtama === 'BIN_NADZOR' ? 'Bin Nadzori' : 'Bil Ghoib');
+            const bagianTamatan =
+              extractBagianTamatan(s.sub_kategori) || extractBagianTamatan(s.kelas) || '';
+
+            return {
+              id: s.id,
+              kode: s.kode,
+              merged_group_id: s.merged_group_id || null,
+              namaWali: s.nama_wali || '-',
+              noHp: s.no_hp || '',
+              alamat: s.alamat || 'Kediri',
+              statusWa: s.status_wa || 'BELUM',
+              santri: [
+                {
+                  id: s.id,
+                  nama: s.nama,
+                  kategoriUtama: katUtama,
+                  subKategori: subKat,
+                  bagianTamatan,
+                  kelas: s.kelas || '-',
+                  kamar: s.kamar || '-',
+                },
+              ],
+              kuota: {
+                kuotaDasar: s.kuota_dasar || 2,
+                kuotaTambahan: s.kuota_tambahan || 0,
+                terpakai: s.kuota_terpakai || 0,
               },
-            ],
-            kuota: {
-              kuotaDasar: s.kuota_dasar || 2,
-              kuotaTambahan: s.kuota_tambahan || 0,
-              terpakai: s.kuota_terpakai || 0,
-            },
-            estimasi: {
-              statusKonfirmasi: String(s.status_konfirmasi || '').toUpperCase() === 'SUDAH' ? 'SUDAH' : 'BELUM',
-              perkiraanL: Number(s.perkiraan_l || 0),
-              perkiraanP: Number(s.perkiraan_p || 0),
-            },
-          }))
+              estimasi: {
+                statusKonfirmasi: String(s.status_konfirmasi || '').toUpperCase() === 'SUDAH' ? 'SUDAH' : 'BELUM',
+                perkiraanL: Number(s.perkiraan_l || 0),
+                perkiraanP: Number(s.perkiraan_p || 0),
+              },
+            };
+          })
         );
       }
     } catch (e) {
@@ -171,34 +211,39 @@ export default function WhatsAppPage() {
   const fetchTamuWaData = async () => {
     try {
       setLoadingTamuData(true);
-      const { data, error } = await supabase
-        .from('tamu_undangan')
-        .select('*')
-        .order('kode', { ascending: true });
+      const { data, error } = await fetchAllTableRows('tamu_undangan');
 
       if (error) {
         console.error('Error fetching tamu_undangan for WA:', error);
         setTamuList([]);
       } else if (data) {
         setTamuList(
-          data.map((t: any) => ({
-            id: t.id,
-            kode: t.kode,
-            nama: t.nama,
-            namaPutra: t.nama_putra,
-            namaPutri: t.nama_putri,
-            kategori: t.kategori || 'Tamu Kehormatan',
-            subKategori: t.sub_kategori || 'UMUM',
-            instansi: t.instansi || '-',
-            alamat: t.alamat || '-',
-            noHp: t.no_hp || '',
-            kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0),
-            kuotaTambahan: 0,
-            statusKonfirmasi: t.status_konfirmasi || null,
-            warnaTiket: t.warna_tiket || 'Biru',
-            statusWa: t.status_wa || 'BELUM',
-            golongan: getGolonganUndangan(t),
-          }))
+          data.map((t: any) => {
+            const subKatUpper = String(t.sub_kategori || '').trim().toUpperCase();
+            const golongan = ['ISTIMEWA', 'KEHORMATAN', 'UMUM'].includes(subKatUpper)
+              ? subKatUpper
+              : getGolonganUndangan(t);
+
+            return {
+              id: t.id,
+              kode: t.kode,
+              merged_group_id: t.merged_group_id || null,
+              nama: t.nama,
+              namaPutra: t.nama_putra,
+              namaPutri: t.nama_putri,
+              kategori: t.kategori || 'Tamu Kehormatan',
+              subKategori: t.sub_kategori || 'UMUM',
+              instansi: t.instansi || '-',
+              alamat: t.alamat || '-',
+              noHp: t.no_hp || '',
+              kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0),
+              kuotaTambahan: 0,
+              statusKonfirmasi: t.status_konfirmasi || null,
+              warnaTiket: t.warna_tiket || 'Biru',
+              statusWa: t.status_wa || 'BELUM',
+              golongan,
+            };
+          })
         );
       }
     } catch (e) {
@@ -505,7 +550,7 @@ export default function WhatsAppPage() {
       const isProblem = kel.statusWa === 'NOMOR_TIDAK_TERDAFTAR' || kel.statusWa === 'GAGAL' || !kel.noHp || kel.noHp.trim().length < 8;
       const santri = kel.santri?.[0];
       const kat = santri?.kategoriUtama || 'BIN_NADZOR';
-      const bagian = kat === 'TAMATAN' ? extractBagianTamatan(santri?.kelas || santri?.subKategori) : '';
+      const bagian = kat === 'TAMATAN' ? resolveSantriBagian(santri) : '';
 
       if (filterStatus === 'BELUM' && isSent) return false;
       if (filterStatus === 'TERKIRIM' && !isSent) return false;
@@ -529,11 +574,11 @@ export default function WhatsAppPage() {
       if (search.trim()) {
         const q = search.toLowerCase();
         return (
-          kel.namaWali.toLowerCase().includes(q) ||
-          santri?.nama.toLowerCase().includes(q) ||
-          kel.kode.toLowerCase().includes(q) ||
-          kel.alamat.toLowerCase().includes(q) ||
-          kel.noHp.includes(q) ||
+          (kel.namaWali || '').toLowerCase().includes(q) ||
+          (santri?.nama || '').toLowerCase().includes(q) ||
+          (kel.kode || '').toLowerCase().includes(q) ||
+          (kel.alamat || '').toLowerCase().includes(q) ||
+          (kel.noHp || '').includes(q) ||
           bagian.toLowerCase().includes(q)
         );
       }
@@ -611,7 +656,7 @@ export default function WhatsAppPage() {
     for (const k of keluargaList) {
       const santri = k.santri?.[0];
       if (santri?.kategoriUtama === 'TAMATAN') {
-        const bg = extractBagianTamatan(santri?.kelas || santri?.subKategori);
+        const bg = resolveSantriBagian(santri);
         if (bg && map[bg] !== undefined) {
           map[bg]++;
         }
