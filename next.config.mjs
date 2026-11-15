@@ -20,7 +20,7 @@ const cspHeader = `
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
-  upgrade-insecure-requests;
+  ${process.env.VERCEL === '1' ? 'upgrade-insecure-requests;' : ''}
 `.replace(/\s{2,}/g, ' ').trim();
 
 /** @type {import('next').NextConfig} */

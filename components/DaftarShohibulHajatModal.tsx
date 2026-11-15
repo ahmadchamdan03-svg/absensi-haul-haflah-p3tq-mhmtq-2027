@@ -22,11 +22,14 @@ interface DaftarShohibulHajatModalProps {
   onClose: () => void;
 }
 
+const PAGE_SIZE = 20;
+
 export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShohibulHajatModalProps) {
   const [pesertaList, setPesertaList] = useState<PesertaItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'ALL' | 'BIL_GHOIB' | 'BIN_NADZOR' | 'TAMATAN'>('ALL');
+  const [displayLimit, setDisplayLimit] = useState<number>(PAGE_SIZE);
 
   // Fetch live peserta santri dari Supabase
   useEffect(() => {
@@ -162,6 +165,15 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
       });
   }, [pesertaList, searchQuery, activeTab]);
 
+  const displayedPeserta = useMemo(() => {
+    return filteredPeserta.slice(0, displayLimit);
+  }, [filteredPeserta, displayLimit]);
+
+  // Reset limit tampil setiap modal dibuka ulang atau filter berubah
+  useEffect(() => {
+    setDisplayLimit(PAGE_SIZE);
+  }, [isOpen, searchQuery, activeTab]);
+
   if (!isOpen) return null;
 
   return (
@@ -275,7 +287,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
                 Memuat Daftar Shohibul Hajat...
               </p>
             </div>
-          ) : filteredPeserta.length === 0 ? (
+          ) : displayedPeserta.length === 0 ? (
             <div className="py-12 text-center space-y-2">
               <Award className="w-10 h-10 text-stone-300 mx-auto" />
               <p className="font-serif font-bold text-sm text-[#0F2C59]">
@@ -286,53 +298,73 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
               </p>
             </div>
           ) : (
-            filteredPeserta.map((p, idx) => {
-              const catOrder = getCategoryOrder(p.kategori_utama, p.sub_kategori);
-              const badgeClass =
-                catOrder === 1
-                  ? 'bg-sky-100 text-blue-950 border-sky-300'
-                  : catOrder === 2
-                  ? 'bg-blue-100 text-blue-900 border-blue-300'
-                  : 'bg-stone-200 text-stone-800 border-stone-300';
+            <>
+              {displayedPeserta.map((p, idx) => {
+                const catOrder = getCategoryOrder(p.kategori_utama, p.sub_kategori);
+                const badgeClass =
+                  catOrder === 1
+                    ? 'bg-sky-100 text-blue-950 border-sky-300'
+                    : catOrder === 2
+                    ? 'bg-blue-100 text-blue-900 border-blue-300'
+                    : 'bg-stone-200 text-stone-800 border-stone-300';
 
-              return (
-                <div
-                  key={p.id || p.kode || idx}
-                  className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#E8DFD5] shadow-xs text-xs space-y-1.5"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-serif font-black text-sm text-[#322116] truncate">
-                      {p.nama}
-                    </span>
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass} shrink-0`}
-                    >
-                      {getCategoryLabel(p.kategori_utama, p.sub_kategori)}
-                    </span>
-                  </div>
+                return (
+                  <div
+                    key={p.id || p.kode || idx}
+                    className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#E8DFD5] shadow-xs text-xs space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-serif font-black text-sm text-[#322116] truncate">
+                        {p.nama}
+                      </span>
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass} shrink-0`}
+                      >
+                        {getCategoryLabel(p.kategori_utama, p.sub_kategori)}
+                      </span>
+                    </div>
 
-                  <div className="text-[11px] text-stone-600 flex items-center space-x-2 flex-wrap gap-y-0.5">
-                    <span>Wali: <strong>{p.nama_wali || '-'}</strong></span>
-                    {p.alamat && (
-                      <>
-                        <span className="text-stone-300">•</span>
-                        <span className="inline-flex items-center space-x-0.5 text-stone-500">
-                          <MapPin className="w-3 h-3 text-[#1D4ED8] shrink-0" />
-                          <span>{p.alamat}</span>
-                        </span>
-                      </>
-                    )}
+                    <div className="text-[11px] text-stone-600 flex items-center space-x-2 flex-wrap gap-y-0.5">
+                      <span>Wali: <strong>{p.nama_wali || '-'}</strong></span>
+                      {p.alamat && (
+                        <>
+                          <span className="text-stone-300">•</span>
+                          <span className="inline-flex items-center space-x-0.5 text-stone-500">
+                            <MapPin className="w-3 h-3 text-[#1D4ED8] shrink-0" />
+                            <span>{p.alamat}</span>
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
+                );
+              })}
+
+              {filteredPeserta.length > displayedPeserta.length && (
+                <div className="pt-2 pb-1 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setDisplayLimit((prev) => prev + PAGE_SIZE)}
+                    className="px-4 py-2 rounded-xl bg-white hover:bg-[#E0F2FE] border border-[#BAE6FD] text-xs font-bold text-[#1D4ED8] transition-colors cursor-pointer shadow-2xs"
+                  >
+                    Tampilkan lebih banyak
+                  </button>
                 </div>
-              );
-            })
+              )}
+            </>
           )}
         </div>
 
         {/* FOOTER MODAL */}
         <div className="p-3 sm:p-4 border-t border-[#E8DFD5] bg-white flex items-center justify-between text-xs shrink-0">
           <span className="text-[11px] text-stone-500 font-medium">
-            Menampilkan <strong>{filteredPeserta.length}</strong> peserta
+            {displayedPeserta.length === 0 ? (
+              'Tidak ada peserta yang cocok'
+            ) : (
+              <>
+                Menampilkan <strong>{displayedPeserta.length}</strong> peserta
+              </>
+            )}
           </span>
           <button
             type="button"

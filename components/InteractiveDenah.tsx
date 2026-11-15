@@ -93,14 +93,24 @@ export default function InteractiveDenah({
     setSelectedZone(null);
   };
 
-  // Mouse wheel zoom on container
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 0.15 : -0.15;
-    setScale((prev) => {
-      const newScale = Math.min(3.0, Math.max(0.5, prev + zoomFactor));
-      return Number(newScale.toFixed(2));
-    });
+  // Native non-passive wheel zoom listener agar preventDefault() tidak memicu passive listener warning
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 0.15 : -0.15;
+      setScale((prev) => {
+        const newScale = Math.min(3.0, Math.max(0.5, prev + zoomFactor));
+        return Number(newScale.toFixed(2));
+      });
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+    };
   }, []);
 
   // Window-level mouse move and mouse up listeners while dragging
@@ -152,7 +162,7 @@ export default function InteractiveDenah({
       touchStartDistRef.current = null;
     };
 
-    window.addEventListener('touchmove', onWindowTouchMove, { passive: true });
+    window.addEventListener('touchmove', onWindowTouchMove, { passive: false });
     window.addEventListener('touchend', onWindowTouchEnd);
     window.addEventListener('touchcancel', onWindowTouchEnd);
 
@@ -332,7 +342,6 @@ export default function InteractiveDenah({
             data-lenis-prevent
             data-lenis-prevent-wheel
             data-lenis-prevent-touch
-            onWheel={handleWheel}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
             style={{ touchAction: 'none' }}

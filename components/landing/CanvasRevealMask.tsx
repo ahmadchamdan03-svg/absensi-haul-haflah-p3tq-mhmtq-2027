@@ -211,10 +211,10 @@ export default function CanvasRevealMask({
       lastY = null;
     }
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('mousedown', handleMouseDown, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: false });
+    window.addEventListener('mousedown', handleMouseDown, { passive: false });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: false });
     window.addEventListener('mouseleave', handleMouseLeave, { passive: true });
     window.addEventListener('touchend', handleMouseLeave, { passive: true });
     window.addEventListener('touchcancel', handleMouseLeave, { passive: true });

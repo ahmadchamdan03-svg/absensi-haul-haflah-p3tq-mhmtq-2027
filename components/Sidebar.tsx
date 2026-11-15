@@ -115,10 +115,15 @@ export default function Sidebar({
     const prefetchRoutes = () => {
       try {
         const currentRole = getActiveRole();
-        const targetGroups = currentRole === 'PENJAGA_GERBANG' ? GATE_NAV_GROUPS : ALL_NAV_GROUPS;
-        const uniqueHrefs = Array.from(
-          new Set(targetGroups.flatMap((g) => g.items.map((i) => i.href)))
-        );
+        if (!currentRole) return;
+        const uniqueHrefs =
+          currentRole === 'PENJAGA_GERBANG'
+            ? Array.from(new Set(GATE_NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href))))
+            : currentRole === 'PENERIMA_TAMU'
+            ? ['/penerima-tamu', '/dasbor', '/scan']
+            : currentRole === 'PIMPINAN'
+            ? ['/pimpinan', '/dasbor']
+            : Array.from(new Set(ALL_NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href))));
 
         uniqueHrefs.forEach((href) => {
           try {
@@ -190,8 +195,11 @@ export default function Sidebar({
     }
   };
 
-  // Untuk role Penjaga Gerbang: Tampilkan Scanner Gerbang, Live Dasbor, dan Penerima Tamu
-  const navGroups: NavGroup[] = activeRole === 'PENJAGA_GERBANG'
+  // Untuk role Penjaga Gerbang: Tampilkan Scanner Gerbang, Live Dasbor, dan Penerima Tamu.
+  // Tunggu activeRole selesai dimuat sebelum merender link admin agar Next.js tidak melakukan prefetch terlarang.
+  const navGroups: NavGroup[] = !activeRole
+    ? []
+    : activeRole === 'PENJAGA_GERBANG'
     ? GATE_NAV_GROUPS
     : ALL_NAV_GROUPS;
 

@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { supabaseServer as supabase } from '@/lib/supabase/server';
 
-// Content Security Policy
-const CSP = [
+// Content Security Policy (base directives; upgrade-insecure-requests added only for HTTPS non-localhost)
+const CSP_BASE = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
   "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' blob:",
@@ -21,8 +21,22 @@ const CSP = [
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-  "upgrade-insecure-requests",
-].join('; ');
+];
+
+function buildCspHeader(upgradeInsecure: boolean): string {
+  const directives = upgradeInsecure
+    ? [...CSP_BASE, 'upgrade-insecure-requests']
+    : CSP_BASE;
+  return directives.join('; ');
+}
+
+function applySecurityHeaders(response: NextResponse, upgradeInsecure: boolean): NextResponse {
+  response.headers.set('Content-Security-Policy', buildCspHeader(upgradeInsecure));
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  return response;
+}
 
 // In-Memory Rate Limiting Cache
 // Map<ip, { count: number; expiresAt: number }>
@@ -103,6 +117,9 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.hostname === 'localhost';
 
   const rateLimitMax = isLocal ? 1000 : isAiAskRoute ? 10 : isAdminRoute ? 200 : 60;
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  const shouldUpgradeInsecure =
+    !isLocal && (request.nextUrl.protocol === 'https:' || forwardedProto === 'https');
   const rateLimitKey = isAiAskRoute ? `ai:${clientIp}` : clientIp;
   const isAllowed = checkRateLimit(rateLimitKey, rateLimitMax);
 
@@ -138,15 +155,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    // Role-specific granular checks:
-    // 1. Role ADMIN memiliki hak akses penuh ke seluruh rute (dasbor, scan, verifikasi, peserta, penerima-tamu, rekon, dll)
+    // Role ADMIN memiliki hak akses penuh ke seluruh rute
     if (roleCookie === 'ADMIN') {
-      const response = NextResponse.next();
-      response.headers.set('Content-Security-Policy', CSP);
-      response.headers.set('X-Content-Type-Options', 'nosniff');
-      response.headers.set('X-Frame-Options', 'DENY');
-      response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-      return response;
+      return applySecurityHeaders(NextResponse.next(), shouldUpgradeInsecure);
     }
 
     // PENJAGA_GERBANG hanya boleh akses /scan, /dasbor, /penerima-tamu, /admin/verifikasi (tidak boleh /admin/peserta, /admin/audit-log, /admin/laporan)
@@ -181,12 +192,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 4. SECURITY HEADERS RESPONSE
-  const response = NextResponse.next();
-  response.headers.set('Content-Security-Policy', CSP);
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  return response;
+  return applySecurityHeaders(NextResponse.next(), shouldUpgradeInsecure);
 }
 
 export const config = {

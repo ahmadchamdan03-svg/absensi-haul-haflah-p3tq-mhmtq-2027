@@ -504,8 +504,20 @@ export default function UndanganWaliPage() {
   const safePlayAudio = (
     audio: HTMLAudioElement,
     onSuccess: () => void,
-    onError?: () => void
+    onError?: () => void,
+    startTimeSeconds?: number
   ) => {
+    const seekToStartTime = () => {
+      if (typeof startTimeSeconds !== 'number') return;
+      try {
+        if (!Number.isFinite(audio.duration) || audio.duration > startTimeSeconds) {
+          audio.currentTime = startTimeSeconds;
+        }
+      } catch {
+        // Abaikan error seek sebelum metadata audio siap
+      }
+    };
+
     const handlePlayError = (error: unknown) => {
       if (isMountedRef.current) {
         onError?.();
@@ -522,6 +534,13 @@ export default function UndanganWaliPage() {
 
     try {
       const playPromise = audio.play();
+      if (typeof startTimeSeconds === 'number') {
+        if (audio.readyState >= 1) {
+          seekToStartTime();
+        } else {
+          audio.addEventListener('loadedmetadata', seekToStartTime, { once: true });
+        }
+      }
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
@@ -529,10 +548,16 @@ export default function UndanganWaliPage() {
               audio.pause();
               return;
             }
+            if (typeof startTimeSeconds === 'number' && audio.currentTime < startTimeSeconds) {
+              seekToStartTime();
+            }
             onSuccess();
           })
           .catch(handlePlayError);
       } else {
+        if (typeof startTimeSeconds === 'number' && audio.currentTime < startTimeSeconds) {
+          seekToStartTime();
+        }
         onSuccess();
       }
     } catch (error) {
@@ -596,7 +621,8 @@ export default function UndanganWaliPage() {
         clearAudioFade();
         audio.volume = 1;
         setIsPlayingMusic(false);
-      }
+      },
+      20
     );
   };
 
@@ -625,7 +651,12 @@ export default function UndanganWaliPage() {
     } else {
       clearAudioFade();
       audio.volume = 1;
-      safePlayAudio(audio, () => setIsPlayingMusic(true));
+      safePlayAudio(
+        audio,
+        () => setIsPlayingMusic(true),
+        undefined,
+        audio.currentTime < 1 ? 20 : undefined
+      );
     }
   };
 

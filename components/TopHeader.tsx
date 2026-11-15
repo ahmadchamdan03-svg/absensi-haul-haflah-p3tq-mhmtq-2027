@@ -26,6 +26,22 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
   }, [pathname]);
 
   const isRolePenerimaTamu = activeRole === 'PENERIMA_TAMU';
+  const isRolePenjagaGerbang = activeRole === 'PENJAGA_GERBANG';
+  const isRoleResolved = activeRole !== null;
+
+  const homeHref = isRolePenerimaTamu
+    ? '/penerima-tamu'
+    : isRolePenjagaGerbang
+    ? '/scan'
+    : isRoleResolved
+    ? '/admin/dasbor'
+    : pathname || '/scan';
+
+  const dasborHref = isRolePenjagaGerbang
+    ? '/dasbor'
+    : isRoleResolved
+    ? '/admin/dasbor'
+    : pathname || '/dasbor';
 
   return (
     <header className="h-16 sm:h-[72px] shrink-0 z-20 bg-white/40 backdrop-blur-md border-b border-white/50 text-[#0F2C59] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 no-print select-none shadow-xs">
@@ -43,9 +59,16 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
 
         {/* Logo Haul Haflah (Menggantikan Breadcrumb & Judul Halaman) */}
         <Link
-          href={isRolePenerimaTamu ? '/penerima-tamu' : '/admin/dasbor'}
+          href={homeHref}
+          prefetch={isRoleResolved}
           className="min-w-0 shrink-0 block group cursor-pointer"
-          title={isRolePenerimaTamu ? 'Pos Penerima Tamu' : 'Kembali ke Dasbor Admin'}
+          title={
+            isRolePenerimaTamu
+              ? 'Pos Penerima Tamu'
+              : isRolePenjagaGerbang
+              ? 'Scanner Gerbang'
+              : 'Kembali ke Dasbor Admin'
+          }
         >
           <img
             src="/images/logo-haul-white.png"
@@ -66,6 +89,7 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
         {/* Pintasan Aksi Cepat: Scanner Gerbang */}
         <Link
           href="/scan"
+          prefetch={isRoleResolved}
           className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold shadow-2xs border border-[#1E40AF] focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none"
           title="Buka Scanner QR Gerbang Masuk"
           aria-label="Buka Scanner QR Gerbang Masuk"
@@ -76,7 +100,8 @@ export default function TopHeader({ onOpenMobile }: TopHeaderProps) {
 
         {/* Pintasan Aksi Cepat: Live Dasbor */}
         <Link
-          href="/admin/dasbor"
+          href={dasborHref}
+          prefetch={isRoleResolved}
           className="btn-transition inline-flex items-center justify-center p-2 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl bg-white/60 hover:bg-white/85 backdrop-blur-xs text-[#1D4ED8] text-xs font-bold shadow-2xs border border-white/70 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           title="Buka Live Dasbor Kedatangan"
           aria-label="Buka Live Dasbor Kedatangan"
