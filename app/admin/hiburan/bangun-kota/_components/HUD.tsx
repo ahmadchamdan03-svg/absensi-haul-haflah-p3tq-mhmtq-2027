@@ -2,13 +2,13 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { PALETTE, WIND_MIN_HEIGHT } from '../_lib/palette';
+import { PALETTE } from '../_lib/palette';
 
 interface HUDProps {
   score: number;
   combo: number;
   height: number;
-  currentWind: number;
+  currentWind?: number;
   onRequestSurrender: () => void;
 }
 
@@ -16,11 +16,9 @@ export default function HUD({
   score,
   combo,
   height,
-  currentWind,
   onRequestSurrender,
 }: HUDProps) {
   const router = useRouter();
-  const isWindActive = height >= WIND_MIN_HEIGHT;
 
   return (
     <header
@@ -100,7 +98,7 @@ export default function HUD({
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-end">
           <button
             type="button"
             onPointerDown={(e) => e.stopPropagation()}
@@ -112,17 +110,6 @@ export default function HUD({
           >
             Menyerah
           </button>
-
-          {isWindActive && (
-            <div
-              className="rounded-lg bg-white/10 backdrop-blur-md border border-white/20 px-2.5 py-1 text-[11px] font-bold tracking-wide"
-              style={{
-                color: PALETTE.accentJayyid,
-              }}
-            >
-              Angin {currentWind >= 0 ? 'Kanan' : 'Kiri'} ({Math.abs(currentWind)})
-            </div>
-          )}
         </div>
       </div>
     </header>
