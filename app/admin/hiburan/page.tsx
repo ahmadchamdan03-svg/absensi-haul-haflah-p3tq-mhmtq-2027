@@ -8,6 +8,7 @@ import {
   Puzzle,
   Play,
   Building2,
+  Worm,
 } from 'lucide-react';
 import GlassCard from '@/components/GlassCard';
 
@@ -17,7 +18,7 @@ interface GameItem {
   category: string;
   description: string;
   href: string;
-  icon: 'brain' | 'puzzle' | 'city';
+  icon: 'brain' | 'puzzle' | 'city' | 'snake';
   featured?: boolean;
   ready?: boolean;
 }
@@ -50,6 +51,17 @@ const GAMES: GameItem[] = [
       'Susun menara setinggi mungkin. Seimbangkan presisi dan ritme.',
     href: '/admin/hiburan/bangun-kota',
     icon: 'city',
+    featured: true,
+    ready: true,
+  },
+  {
+    id: 'snake',
+    title: 'Snake P3TQ',
+    category: 'Permainan Klasik',
+    description:
+      'Ular tanpa akhir. Makan buah, raih skor tertinggi, dan hindari potongan tubuh.',
+    href: '/admin/hiburan/snake',
+    icon: 'snake',
     featured: true,
     ready: true,
   },
@@ -91,7 +103,9 @@ export default function HiburanLobbyPage() {
               ? Brain
               : game.icon === 'city'
                 ? Building2
-                : Puzzle;
+                : game.icon === 'snake'
+                  ? Worm
+                  : Puzzle;
 
           return (
             <GlassCard
