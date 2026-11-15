@@ -5,6 +5,7 @@ import { Users, UserCheck, CheckCircle2, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
+import { deduplicateMergedWaRecords } from '@/lib/wa-merge-priority';
 import AuthGuard from '@/components/AuthGuard';
 import WhatsAppStats from '@/components/admin/whatsapp/WhatsAppStats';
 import WhatsAppTable from '@/components/admin/whatsapp/WhatsAppTable';
@@ -158,47 +159,47 @@ export default function WhatsAppPage() {
         console.error('Error fetching peserta_santri for WA:', error);
         setKeluargaList([]);
       } else if (data) {
-        setKeluargaList(
-          data.map((s: any) => {
-            const katUtama = s.kategori_utama || 'BIL_GHOIB';
-            const subKat =
-              s.sub_kategori ||
-              (katUtama === 'TAMATAN' ? '' : katUtama === 'BIN_NADZOR' ? 'Bin Nadzori' : 'Bil Ghoib');
-            const bagianTamatan =
-              extractBagianTamatan(s.sub_kategori) || extractBagianTamatan(s.kelas) || '';
+        const mappedSantri = data.map((s: any) => {
+          const katUtama = s.kategori_utama || 'BIL_GHOIB';
+          const subKat =
+            s.sub_kategori ||
+            (katUtama === 'TAMATAN' ? '' : katUtama === 'BIN_NADZOR' ? 'Bin Nadzori' : 'Bil Ghoib');
+          const bagianTamatan =
+            extractBagianTamatan(s.sub_kategori) || extractBagianTamatan(s.kelas) || '';
 
-            return {
-              id: s.id,
-              kode: s.kode,
-              merged_group_id: s.merged_group_id || null,
-              namaWali: s.nama_wali || '-',
-              noHp: s.no_hp || '',
-              alamat: s.alamat || 'Kediri',
-              statusWa: s.status_wa || 'BELUM',
-              santri: [
-                {
-                  id: s.id,
-                  nama: s.nama,
-                  kategoriUtama: katUtama,
-                  subKategori: subKat,
-                  bagianTamatan,
-                  kelas: s.kelas || '-',
-                  kamar: s.kamar || '-',
-                },
-              ],
-              kuota: {
-                kuotaDasar: s.kuota_dasar || 2,
-                kuotaTambahan: s.kuota_tambahan || 0,
-                terpakai: s.kuota_terpakai || 0,
+          return {
+            id: s.id,
+            kode: s.kode,
+            merged_group_id: s.merged_group_id || null,
+            namaWali: s.nama_wali || '-',
+            noHp: s.no_hp || '',
+            alamat: s.alamat || 'Kediri',
+            statusWa: s.status_wa || 'BELUM',
+            santri: [
+              {
+                id: s.id,
+                nama: s.nama,
+                kategoriUtama: katUtama,
+                subKategori: subKat,
+                bagianTamatan,
+                kelas: s.kelas || '-',
+                kamar: s.kamar || '-',
               },
-              estimasi: {
-                statusKonfirmasi: String(s.status_konfirmasi || '').toUpperCase() === 'SUDAH' ? 'SUDAH' : 'BELUM',
-                perkiraanL: Number(s.perkiraan_l || 0),
-                perkiraanP: Number(s.perkiraan_p || 0),
-              },
-            };
-          })
-        );
+            ],
+            kuota: {
+              kuotaDasar: s.kuota_dasar || 2,
+              kuotaTambahan: s.kuota_tambahan || 0,
+              terpakai: s.kuota_terpakai || 0,
+            },
+            estimasi: {
+              statusKonfirmasi: String(s.status_konfirmasi || '').toUpperCase() === 'SUDAH' ? 'SUDAH' : 'BELUM',
+              perkiraanL: Number(s.perkiraan_l || 0),
+              perkiraanP: Number(s.perkiraan_p || 0),
+            },
+          };
+        });
+
+        setKeluargaList(deduplicateMergedWaRecords(mappedSantri, 'SANTRI'));
       }
     } catch (e) {
       console.warn('Error in fetchSantriWaData:', e);
@@ -217,34 +218,34 @@ export default function WhatsAppPage() {
         console.error('Error fetching tamu_undangan for WA:', error);
         setTamuList([]);
       } else if (data) {
-        setTamuList(
-          data.map((t: any) => {
-            const subKatUpper = String(t.sub_kategori || '').trim().toUpperCase();
-            const golongan = ['ISTIMEWA', 'KEHORMATAN', 'UMUM'].includes(subKatUpper)
-              ? subKatUpper
-              : getGolonganUndangan(t);
+        const mappedTamu = data.map((t: any) => {
+          const subKatUpper = String(t.sub_kategori || '').trim().toUpperCase();
+          const golongan = ['ISTIMEWA', 'KEHORMATAN', 'UMUM'].includes(subKatUpper)
+            ? subKatUpper
+            : getGolonganUndangan(t);
 
-            return {
-              id: t.id,
-              kode: t.kode,
-              merged_group_id: t.merged_group_id || null,
-              nama: t.nama,
-              namaPutra: t.nama_putra,
-              namaPutri: t.nama_putri,
-              kategori: t.kategori || 'Tamu Kehormatan',
-              subKategori: t.sub_kategori || 'UMUM',
-              instansi: t.instansi || '-',
-              alamat: t.alamat || '-',
-              noHp: t.no_hp || '',
-              kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0),
-              kuotaTambahan: 0,
-              statusKonfirmasi: t.status_konfirmasi || null,
-              warnaTiket: t.warna_tiket || 'Biru',
-              statusWa: t.status_wa || 'BELUM',
-              golongan,
-            };
-          })
-        );
+          return {
+            id: t.id,
+            kode: t.kode,
+            merged_group_id: t.merged_group_id || null,
+            nama: t.nama,
+            namaPutra: t.nama_putra,
+            namaPutri: t.nama_putri,
+            kategori: t.kategori || 'Tamu Kehormatan',
+            subKategori: t.sub_kategori || 'UMUM',
+            instansi: t.instansi || '-',
+            alamat: t.alamat || '-',
+            noHp: t.no_hp || '',
+            kuotaDasar: (t.nama_putra && String(t.nama_putra).trim() ? 1 : 0) + (t.nama_putri && String(t.nama_putri).trim() ? 1 : 0),
+            kuotaTambahan: 0,
+            statusKonfirmasi: t.status_konfirmasi || null,
+            warnaTiket: t.warna_tiket || 'Biru',
+            statusWa: t.status_wa || 'BELUM',
+            golongan,
+          };
+        });
+
+        setTamuList(deduplicateMergedWaRecords(mappedTamu, 'TAMU'));
       }
     } catch (e) {
       console.warn('Error in fetchTamuWaData:', e);
