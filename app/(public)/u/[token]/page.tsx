@@ -12,6 +12,7 @@ import {
   normalizePortalToken,
   isValidKodeUndangan,
   getAmbiguousKodeVariants,
+  formatTitleCase,
 } from '@/lib/utils';
 import DenahModal from '@/components/DenahModal';
 import UndanganStageBackdrop from '@/components/public/undangan/UndanganStageBackdrop';
@@ -752,7 +753,7 @@ export default function UndanganWaliPage() {
   const kuota = item?.kuota;
 
   // Custom WA Pre-filled Message untuk Wali Santri
-  const namaSantriTxt = santri?.nama || item?.entitas?.nama || item?.nama || 'Santri';
+  const namaSantriTxt = formatTitleCase(santri?.nama || item?.entitas?.nama || item?.nama || '') || 'Santri';
   const kodeSantriTxt = santri?.kode || item?.kode || kodeSH;
   const kategoriTxt = santri?.subKategori || santri?.kategoriUtama || item?.subKategori || item?.kategori || 'Santri';
   const kamarTxt = santri?.kamar || '-';

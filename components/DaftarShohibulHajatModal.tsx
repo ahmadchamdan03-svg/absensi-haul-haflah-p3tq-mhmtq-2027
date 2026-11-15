@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
+import { formatTitleCase } from '@/lib/utils';
 import { X, Search, Loader2, Users, MapPin, Award } from 'lucide-react';
 
 interface PesertaItem {
@@ -315,7 +316,7 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-serif font-black text-sm text-[#322116] truncate">
-                        {p.nama}
+                        {formatTitleCase(p.nama)}
                       </span>
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass} shrink-0`}
@@ -325,13 +326,18 @@ export default function DaftarShohibulHajatModal({ isOpen, onClose }: DaftarShoh
                     </div>
 
                     <div className="text-[11px] text-stone-600 flex items-center space-x-2 flex-wrap gap-y-0.5">
-                      <span>Wali: <strong>{p.nama_wali || '-'}</strong></span>
+                      <span>
+                        Wali:{' '}
+                        <strong>
+                          {p.nama_wali && p.nama_wali !== '-' ? formatTitleCase(p.nama_wali) : '-'}
+                        </strong>
+                      </span>
                       {p.alamat && (
                         <>
                           <span className="text-stone-300">•</span>
                           <span className="inline-flex items-center space-x-0.5 text-stone-500">
                             <MapPin className="w-3 h-3 text-[#1D4ED8] shrink-0" />
-                            <span>{p.alamat}</span>
+                            <span>{formatTitleCase(p.alamat)}</span>
                           </span>
                         </>
                       )}

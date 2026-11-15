@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import NamaLembaga from '@/components/NamaLembaga';
 import { cleanKategoriTamatan } from '@/lib/types';
+import { formatTitleCase } from '@/lib/utils';
 import { BeliStatusMsg } from './types';
 
 interface BeliKuotaHeaderAndInfoProps {
@@ -79,7 +80,7 @@ export default function BeliKuotaHeaderAndInfo({
             <span className="text-[10px] text-[#1D4ED8] font-bold uppercase tracking-wider whitespace-nowrap block">
               SHOHIBUL HAJAT (SANTRI):
             </span>
-            <h2 className="font-serif font-black text-lg text-[#322116]">{santri.nama}</h2>
+            <h2 className="font-serif font-black text-lg text-[#322116]">{formatTitleCase(santri.nama)}</h2>
           </div>
           <span className="px-3 py-1 rounded-xl bg-sky-50 text-blue-950 border border-sky-200 text-xs font-bold shrink-0">
             {cleanKategoriTamatan(santri.sub_kategori || santri.kategori_utama) || 'Santri'}
@@ -89,7 +90,7 @@ export default function BeliKuotaHeaderAndInfo({
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="p-2.5 rounded-2xl bg-[#F0F9FF] border border-[#E8DFD5]">
             <span className="text-stone-500 text-[10px] uppercase font-bold block">Nama Wali:</span>
-            <p className="font-bold text-[#0F2C59] truncate">{santri.nama_wali || santri.nama}</p>
+            <p className="font-bold text-[#0F2C59] truncate">{formatTitleCase(santri.nama_wali || santri.nama)}</p>
           </div>
           <div className="p-2.5 rounded-2xl bg-[#F0F9FF] border border-[#E8DFD5]">
             <span className="text-stone-500 text-[10px] uppercase font-bold block">Kelas / Kamar:</span>

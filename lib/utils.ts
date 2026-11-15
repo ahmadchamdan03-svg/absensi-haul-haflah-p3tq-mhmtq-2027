@@ -71,16 +71,75 @@ export async function generateUniqueKodeFromDb(
   return kodeBaru;
 }
 
+const GELAR_PENGECUALIAN = [
+  'KH',
+  'H',
+  'HJ',
+  'DR',
+  'DRS',
+  'PROF',
+  'NYAI',
+  'GUS',
+  'NING',
+  'UST',
+  'USTADZ',
+  'USTADZAH',
+  'LIRBOYO',
+] as const;
+
+const GELAR_FORMAT_STANDAR: Record<string, string> = {
+  KH: 'KH',
+  H: 'H',
+  HJ: 'Hj',
+  DR: 'Dr',
+  DRS: 'Drs',
+  PROF: 'Prof',
+  NYAI: 'Nyai',
+  GUS: 'Gus',
+  NING: 'Ning',
+  UST: 'Ust',
+  USTADZ: 'Ustadz',
+  USTADZAH: 'Ustadzah',
+  LIRBOYO: 'Lirboyo',
+};
+
+const GELAR_PENGECUALIAN_SET = new Set<string>(GELAR_PENGECUALIAN);
+
+function formatTitleCaseSegment(segment: string): string {
+  if (!segment || /^[()\-/.,]+$/.test(segment)) {
+    return segment;
+  }
+
+  // Pisahkan tanda baca pembuka/penutup sambil menjaga apostrof di tengah kata (mis. Syafi'i)
+  const match = segment.match(/^([^a-zA-Z0-9]*)(.*?)([^a-zA-Z0-9]*)$/);
+  if (!match || !match[2]) {
+    return segment;
+  }
+
+  const [, leading, core, trailing] = match;
+  const cleanedWord = core.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+  if (GELAR_PENGECUALIAN_SET.has(cleanedWord)) {
+    return `${leading}${GELAR_FORMAT_STANDAR[cleanedWord]}${trailing}`;
+  }
+
+  const titleCased = core.toLowerCase().replace(/[a-z]/, (c) => c.toUpperCase());
+  return `${leading}${titleCased}${trailing}`;
+}
+
 /**
- * Format string ke Title Case (Kapital di awal kata, kecil di tengah)
- * Contoh: "bapak muhammad robi'ul huda" -> "Bapak Muhammad Robi'ul Huda"
+ * Format string ke Title Case dengan pengecualian adab gelar kehormatan/akademik.
+ * Contoh: "KH. IMAM SYAFI'I" -> "KH. Imam Syafi'i", "HJ. SITI FATIMAH" -> "Hj. Siti Fatimah"
  */
 export function formatTitleCase(str: string): string {
   if (!str || typeof str !== 'string') return '';
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/(^|[\s\(\)\-\/])([a-z0-9])/g, (_, p, c) => p + c.toUpperCase());
+  const trimmed = str.trim();
+  if (!trimmed) return '';
+
+  return trimmed
+    .split(/\s+/)
+    .map((word) => word.split(/([()\-/.,])/).map(formatTitleCaseSegment).join(''))
+    .join(' ');
 }
 
 function getMergedGuestPriority(entry: any): number {
