@@ -118,40 +118,22 @@ export async function updateTamuWaInSupabase(
   await persistStatusWa('/api/tamu', 'tamu_undangan', id, status, setTamuList);
 }
 
-export interface FonnteSendRuntimeOptions {
-  silentAlert?: boolean;
-  onNotify?: (type: 'success' | 'error', message: string) => void;
-}
-
-function notifySendIssue(
-  message: string,
-  options?: FonnteSendRuntimeOptions
-) {
-  if (options?.silentAlert) return;
-  if (options?.onNotify) {
-    options.onNotify('error', message);
-    return;
-  }
-  alert(message);
-}
-
 export async function kirimFonnteWali(
   kel: any,
   gelombang: 1 | 2 | 3,
   linkGrupWa: string,
   setSendingKode: (val: string | null) => void,
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>,
-  options?: FonnteSendRuntimeOptions
+  silentAlert: boolean = false
 ) {
   const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
 
   const rawHp = kel.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
     await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList);
-    notifySendIssue(
-      `Nomor HP untuk ${kel.namaWali} tidak terdaftar atau tidak valid! Status telah diperbarui.`,
-      options
-    );
+    if (!silentAlert) {
+      alert(`Nomor HP untuk ${kel.namaWali} tidak terdaftar atau tidak valid! Status telah diperbarui.`);
+    }
     return false;
   }
 
@@ -173,9 +155,6 @@ export async function kirimFonnteWali(
     const json = await res.json();
     if (json.ok) {
       await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList);
-      if (!options?.silentAlert && options?.onNotify) {
-        options.onNotify('success', `✓ Pesan WA ke ${kel.namaWali} (${kel.kode}) berhasil dikirim.`);
-      }
       setSendingKode(null);
       return true;
     } else {
@@ -184,16 +163,17 @@ export async function kirimFonnteWali(
         json.data?.reason?.toLowerCase().includes('not registered');
       const newStatus = isNumInvalid ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
       await updateStatusWaInSupabase(kel.id, newStatus, setKeluargaList);
-      notifySendIssue(
-        `Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`,
-        options
-      );
+      if (!silentAlert) {
+        alert(`Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`);
+      }
       setSendingKode(null);
       return false;
     }
   } catch (err: any) {
     await updateStatusWaInSupabase(kel.id, 'GAGAL', setKeluargaList);
-    notifySendIssue(`Gagal menghubungi server Fonnte: ${err.message}`, options);
+    if (!silentAlert) {
+      alert(`Gagal menghubungi server Fonnte: ${err.message}`);
+    }
     setSendingKode(null);
     return false;
   }
@@ -226,15 +206,14 @@ export async function kirimFonnteTamu(
   tamu: any,
   setTamuSendingKode: (val: string | null) => void,
   setTamuList: React.Dispatch<React.SetStateAction<any[]>>,
-  options?: FonnteSendRuntimeOptions
+  silentAlert: boolean = false
 ) {
   const rawHp = tamu.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
     await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR', setTamuList);
-    notifySendIssue(
-      `Nomor HP untuk ${tamu.nama} tidak terdaftar atau tidak valid! Status diperbarui.`,
-      options
-    );
+    if (!silentAlert) {
+      alert(`Nomor HP untuk ${tamu.nama} tidak terdaftar atau tidak valid! Status diperbarui.`);
+    }
     return false;
   }
 
@@ -254,9 +233,6 @@ export async function kirimFonnteTamu(
     const json = await res.json();
     if (json.ok) {
       await updateTamuWaInSupabase(tamu.id, 'TERKIRIM', setTamuList);
-      if (!options?.silentAlert && options?.onNotify) {
-        options.onNotify('success', `✓ Pesan WA ke ${tamu.nama} (${tamu.kode}) berhasil dikirim.`);
-      }
       setTamuSendingKode(null);
       return true;
     } else {
@@ -265,16 +241,17 @@ export async function kirimFonnteTamu(
         json.data?.reason?.toLowerCase().includes('not registered');
       const newStatus = isNumInvalid ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
       await updateTamuWaInSupabase(tamu.id, newStatus, setTamuList);
-      notifySendIssue(
-        `Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`,
-        options
-      );
+      if (!silentAlert) {
+        alert(`Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`);
+      }
       setTamuSendingKode(null);
       return false;
     }
   } catch (err: any) {
     await updateTamuWaInSupabase(tamu.id, 'GAGAL', setTamuList);
-    notifySendIssue(`Gagal menghubungi server Fonnte: ${err.message}`, options);
+    if (!silentAlert) {
+      alert(`Gagal menghubungi server Fonnte: ${err.message}`);
+    }
     setTamuSendingKode(null);
     return false;
   }
