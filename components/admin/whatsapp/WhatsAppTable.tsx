@@ -18,6 +18,7 @@ export interface WhatsAppTableProps extends WhatsAppFilterProps {
   loadingData: boolean;
   filteredList: any[];
   sendingKode: string | null;
+  queuedKodes?: string[];
   isBlasting: boolean;
   handleKirimFonnte: (kel: any) => void;
   handleKirimManualWA: (kel: any) => void;
@@ -40,11 +41,13 @@ function FonnteSendButton({
   disabled,
   isTerkirim,
   isSending,
+  isQueued,
 }: {
   onClick: () => void;
   disabled: boolean;
   isTerkirim: boolean;
   isSending: boolean;
+  isQueued?: boolean;
 }) {
   return (
     <button
@@ -52,18 +55,32 @@ function FonnteSendButton({
       onClick={onClick}
       disabled={disabled}
       className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
-        isTerkirim
+        isSending
+          ? 'bg-blue-700 text-white shadow-xs'
+          : isQueued
+          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+          : isTerkirim
           ? 'bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200'
           : 'bg-blue-600 text-white hover:bg-blue-700 shadow-xs'
-      } disabled:opacity-40 disabled:pointer-events-none`}
+      } disabled:opacity-75 disabled:pointer-events-none`}
       title={isTerkirim ? 'Kirim ulang pesan via WhatsApp Fonnte' : 'Kirim otomatis lewat WhatsApp Fonnte'}
     >
       {isSending ? (
-        <Loader2 className={`w-3 h-3 animate-spin ${isTerkirim ? 'text-slate-500' : 'text-amber-300'}`} />
+        <Loader2 className="w-3 h-3 animate-spin text-amber-300" />
+      ) : isQueued ? (
+        <Clock className="w-3 h-3 text-amber-700" />
       ) : (
         <Zap className={`w-3 h-3 fill-current ${isTerkirim ? 'text-slate-500' : 'text-amber-300'}`} />
       )}
-      <span>{isSending ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
+      <span>
+        {isSending
+          ? 'Mengirim...'
+          : isQueued
+          ? 'Menunggu Antrean'
+          : isTerkirim
+          ? 'Kirim Ulang'
+          : 'Kirim Fonnte'}
+      </span>
     </button>
   );
 }
@@ -74,6 +91,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
     loadingData,
     filteredList,
     sendingKode,
+    queuedKodes = [],
     isBlasting,
     handleKirimFonnte,
     handleKirimManualWA,
@@ -130,6 +148,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                   const isFailed = kel.statusWa === 'GAGAL';
                   const isTerkirim = kel.statusWa === 'TERKIRIM';
                   const isSendingThis = sendingKode === kel.kode;
+                  const isQueuedThis = !isSendingThis && queuedKodes.includes(kel.kode);
 
                   const isBilGhoib = santri?.kategoriUtama === 'BIL_GHOIB';
                   const isBinNadzor = santri?.kategoriUtama === 'BIN_NADZOR';
@@ -258,9 +277,10 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                         <div className="flex items-center justify-center space-x-1.5">
                           <FonnteSendButton
                             onClick={() => handleKirimFonnte(kel)}
-                            disabled={isInvalidNum || isSendingThis || isBlasting}
+                            disabled={isInvalidNum || isSendingThis || isQueuedThis}
                             isTerkirim={isTerkirim}
                             isSending={isSendingThis}
+                            isQueued={isQueuedThis}
                           />
 
                           <button
@@ -336,7 +356,8 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                 const isFailed = tamu.statusWa === 'GAGAL';
                 const isTerkirim = tamu.statusWa === 'TERKIRIM';
                 const isSendingThis = tamuSendingKode === tamu.kode;
-                const isSendDisabled = isInvalidNum || isSendingThis || isTamuBlasting;
+                const isQueuedThis = !isSendingThis && queuedKodes.includes(tamu.kode);
+                const isSendDisabled = isInvalidNum || isSendingThis || isQueuedThis;
 
                 const isIstimewa = tamu.golongan === 'ISTIMEWA';
                 const isKehormatan = tamu.golongan === 'KEHORMATAN';
@@ -434,6 +455,7 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
                           disabled={isSendDisabled}
                           isTerkirim={isTerkirim}
                           isSending={isSendingThis}
+                          isQueued={isQueuedThis}
                         />
 
                         <button

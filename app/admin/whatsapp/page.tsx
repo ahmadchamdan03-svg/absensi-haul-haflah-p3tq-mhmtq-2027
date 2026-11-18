@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Users, UserCheck, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { Users, UserCheck, CheckCircle2, AlertTriangle, X, Loader2, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
@@ -47,6 +47,12 @@ export default function WhatsAppPage() {
 
   // Sending state per item (Wali)
   const [sendingKode, setSendingKode] = useState<string | null>(null);
+
+  // Background Send Queue (Jeda 5 Detik Antar Pesan)
+  const [sendQueue, setSendQueue] = useState<any[]>([]);
+  const [isSendingQueue, setIsSendingQueue] = useState(false);
+  const [currentQueueItem, setCurrentQueueItem] = useState<string | null>(null);
+  const processingQueueRef = useRef(false);
 
   // Batch Blasting state (Wali)
   const [isBlasting, setIsBlasting] = useState(false);
@@ -539,16 +545,91 @@ export default function WhatsAppPage() {
     return true;
   };
 
-  const handleKirimFonnte = async (kel: any, silentAlert: boolean = false) => {
+  // Background Queue Processor: mengirim 1 pesan lalu jeda 5000 ms (5 detik) sebelum pesan berikutnya
+  useEffect(() => {
+    if (sendQueue.length === 0) {
+      if (!isSendingQueue && !processingQueueRef.current) {
+        setIsBlasting(false);
+        setIsTamuBlasting(false);
+      }
+      return;
+    }
+
+    if (isSendingQueue || processingQueueRef.current) return;
+
+    const processNextQueueItem = async () => {
+      processingQueueRef.current = true;
+      setIsSendingQueue(true);
+
+      const item = sendQueue[0];
+      const itemName = item.nama || item.namaWali || item.santri?.[0]?.nama || item.kode || 'Peserta';
+      setCurrentQueueItem(itemName);
+
+      const isTamuItem = item.__queueType === 'TAMU' || (!item.santri && Boolean(item.golongan));
+
+      if (isTamuItem) {
+        setTamuSendingKode(item.kode);
+        const ok = await kirimFonnteTamu(item, undefined, setTamuList, { silentAlert: true });
+        setTamuBlastProgress((prev) =>
+          prev.total > 0
+            ? {
+                ...prev,
+                current: Math.min(prev.total, prev.current + 1),
+                success: prev.success + (ok ? 1 : 0),
+                failed: prev.failed + (ok ? 0 : 1),
+              }
+            : prev
+        );
+      } else {
+        setSendingKode(item.kode);
+        const gel: 1 | 2 | 3 = item.__gelombang || gelombang;
+        const link = item.__linkGrupWa !== undefined ? item.__linkGrupWa : gel === 1 ? linkGrupWa : '';
+        const ok = await kirimFonnteWali(item, gel, link, undefined, setKeluargaList, { silentAlert: true });
+        setBlastProgress((prev) =>
+          prev.total > 0
+            ? {
+                ...prev,
+                current: Math.min(prev.total, prev.current + 1),
+                success: prev.success + (ok ? 1 : 0),
+                failed: prev.failed + (ok ? 0 : 1),
+              }
+            : prev
+        );
+      }
+
+      // Tunggu 5000 ms (5 detik) sebelum memproses antrean berikutnya agar tidak diblokir Fonnte
+      await new Promise((res) => setTimeout(res, 5000));
+
+      setSendingKode(null);
+      setTamuSendingKode(null);
+      setSendQueue((prev) => prev.slice(1));
+      setCurrentQueueItem(null);
+      processingQueueRef.current = false;
+      setIsSendingQueue(false);
+    };
+
+    processNextQueueItem();
+  }, [sendQueue, isSendingQueue, gelombang, linkGrupWa]);
+
+  const queuedKodes = useMemo(() => sendQueue.slice(1).map((item) => item.kode).filter(Boolean), [sendQueue]);
+
+  const handleKirimFonnte = (kel: any) => {
     if (!ensureLinkGrupWaFilled()) return false;
-    return kirimFonnteWali(
-      kel,
-      gelombang,
-      gelombang === 1 ? linkGrupWa : '',
-      setSendingKode,
-      setKeluargaList,
-      silentAlert
-    );
+    const namaPeserta = kel.namaWali || kel.santri?.[0]?.nama || kel.kode;
+    const dataPeserta = {
+      ...kel,
+      nama: namaPeserta,
+      __queueType: 'WALI' as const,
+      __gelombang: gelombang,
+      __linkGrupWa: gelombang === 1 ? linkGrupWa : '',
+    };
+
+    setSendQueue((prev) => {
+      if (prev.some((q) => q.kode === dataPeserta.kode)) return prev;
+      return [...prev, dataPeserta];
+    });
+    showToast('success', `Pesan untuk ${namaPeserta} masuk antrean pengiriman.`);
+    return true;
   };
 
   const handleKirimManualWA = async (kel: any) => {
@@ -598,12 +679,18 @@ export default function WhatsAppPage() {
     });
   }, [keluargaList, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
 
-  const handleStartBatchBlast = async () => {
+  const handleStartBatchBlast = () => {
     if (!ensureLinkGrupWaFilled()) return;
 
-    const unsentList = filteredList.filter(
-      (k) => k.statusWa !== 'TERKIRIM' && k.noHp && k.noHp.trim().length >= 8
-    );
+    const unsentList = filteredList
+      .filter((k) => k.statusWa !== 'TERKIRIM' && k.noHp && k.noHp.trim().length >= 8)
+      .map((kel) => ({
+        ...kel,
+        nama: kel.namaWali || kel.santri?.[0]?.nama || kel.kode,
+        __queueType: 'WALI' as const,
+        __gelombang: gelombang,
+        __linkGrupWa: gelombang === 1 ? linkGrupWa : '',
+      }));
 
     if (unsentList.length === 0) {
       alert('Semua nomor pada filter saat ini sudah terkirim!');
@@ -619,7 +706,7 @@ export default function WhatsAppPage() {
 
     if (
       !window.confirm(
-        `Mulai pengiriman otomatis [${judulPesan}] via Fonnte untuk ${unsentList.length} wali santri?\nPesan akan dikirim dengan jeda 1.5 detik per pesan.`
+        `Mulai pengiriman otomatis [${judulPesan}] via Fonnte untuk ${unsentList.length} wali santri?\nPesan akan masuk antrean dan dikirim dengan jeda 5 detik per pesan.`
       )
     ) {
       return;
@@ -628,38 +715,19 @@ export default function WhatsAppPage() {
     setIsBlasting(true);
     stopBlastingRef.current = false;
     setBlastProgress({ current: 0, total: unsentList.length, success: 0, failed: 0 });
-
-    let successCount = 0;
-    let failedCount = 0;
-
-    for (let i = 0; i < unsentList.length; i++) {
-      if (stopBlastingRef.current) break;
-
-      const kel = unsentList[i];
-      setBlastProgress((prev) => ({ ...prev, current: i + 1 }));
-
-      const ok = await handleKirimFonnte(kel, true);
-      if (ok) {
-        successCount++;
-        setBlastProgress((prev) => ({ ...prev, success: prev.success + 1 }));
-      } else {
-        failedCount++;
-        setBlastProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    }
-
-    setIsBlasting(false);
-    showToast(
-      failedCount > 0 && successCount === 0 ? 'error' : 'success',
-      `✓ Pengiriman Massal Wali Selesai! Terkirim: ${successCount}, Gagal: ${failedCount}`
-    );
+    setSendQueue((prev) => {
+      const existingKodes = new Set(prev.map((q) => q.kode));
+      const newItems = unsentList.filter((item) => !existingKodes.has(item.kode));
+      return [...prev, ...newItems];
+    });
+    showToast('success', `${unsentList.length} pesan wali santri dimasukkan ke antrean pengiriman.`);
   };
 
   const handleStopBatchBlast = () => {
     stopBlastingRef.current = true;
     setIsBlasting(false);
+    setSendQueue((prev) => (isSendingQueue ? prev.slice(0, 1) : []));
+    showToast('success', 'Antrean pengiriman massal dihentikan.');
   };
 
   const totalTerkirim = keluargaList.filter((k) => k.statusWa === 'TERKIRIM').length;
@@ -796,8 +864,21 @@ export default function WhatsAppPage() {
     }
   };
 
-  const handleKirimFonnteTamu = (tamu: any, silentAlert: boolean = false) =>
-    kirimFonnteTamu(tamu, setTamuSendingKode, setTamuList, silentAlert);
+  const handleKirimFonnteTamu = (tamu: any) => {
+    const namaPeserta = tamu.nama || tamu.kode || 'Tamu Undangan';
+    const dataPeserta = {
+      ...tamu,
+      nama: namaPeserta,
+      __queueType: 'TAMU' as const,
+    };
+
+    setSendQueue((prev) => {
+      if (prev.some((q) => q.kode === dataPeserta.kode)) return prev;
+      return [...prev, dataPeserta];
+    });
+    showToast('success', `Pesan untuk ${namaPeserta} masuk antrean pengiriman.`);
+    return true;
+  };
 
   const handleKirimManualWATamu = (tamu: any) =>
     kirimManualWATamu(tamu, setTamuList);
@@ -828,17 +909,21 @@ export default function WhatsAppPage() {
     });
   }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuSearch]);
 
-  const handleStartBatchBlastTamu = async () => {
-    const validList = filteredTamuList.filter(
-      (t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8
-    );
+  const handleStartBatchBlastTamu = () => {
+    const validList = filteredTamuList
+      .filter((t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8)
+      .map((tamu) => ({
+        ...tamu,
+        nama: tamu.nama || tamu.kode || 'Tamu Undangan',
+        __queueType: 'TAMU' as const,
+      }));
 
     if (validList.length === 0) {
       alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
       return;
     }
 
-    const promptMsg = `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu undangan via Fonnte?`;
+    const promptMsg = `Mulai pengiriman otomatis WA undangan ke ${validList.length} tamu undangan via Fonnte?\nPesan akan masuk antrean dan dikirim dengan jeda 5 detik per pesan.`;
 
     if (!window.confirm(promptMsg)) {
       return;
@@ -847,38 +932,19 @@ export default function WhatsAppPage() {
     setIsTamuBlasting(true);
     stopTamuBlastingRef.current = false;
     setTamuBlastProgress({ current: 0, total: validList.length, success: 0, failed: 0 });
-
-    let successCount = 0;
-    let failedCount = 0;
-
-    for (let i = 0; i < validList.length; i++) {
-      if (stopTamuBlastingRef.current) break;
-
-      const tamu = validList[i];
-      setTamuBlastProgress((prev) => ({ ...prev, current: i + 1 }));
-
-      const ok = await handleKirimFonnteTamu(tamu, true);
-      if (ok) {
-        successCount++;
-        setTamuBlastProgress((prev) => ({ ...prev, success: prev.success + 1 }));
-      } else {
-        failedCount++;
-        setTamuBlastProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-    }
-
-    setIsTamuBlasting(false);
-    showToast(
-      failedCount > 0 && successCount === 0 ? 'error' : 'success',
-      `✓ Pengiriman Massal Tamu Selesai! Terkirim: ${successCount}, Gagal: ${failedCount}`
-    );
+    setSendQueue((prev) => {
+      const existingKodes = new Set(prev.map((q) => q.kode));
+      const newItems = validList.filter((item) => !existingKodes.has(item.kode));
+      return [...prev, ...newItems];
+    });
+    showToast('success', `${validList.length} pesan tamu undangan dimasukkan ke antrean pengiriman.`);
   };
 
   const handleStopBatchBlastTamu = () => {
     stopTamuBlastingRef.current = true;
     setIsTamuBlasting(false);
+    setSendQueue((prev) => (isSendingQueue ? prev.slice(0, 1) : []));
+    showToast('success', 'Antrean pengiriman massal tamu dihentikan.');
   };
 
   const totalTamuTerkirim = tamuList.filter((t) => t.statusWa === 'TERKIRIM').length;
@@ -957,6 +1023,42 @@ export default function WhatsAppPage() {
             handleStopBatchBlastTamu={handleStopBatchBlastTamu}
           />
 
+          {/* INDIKATOR ANTREAN PENGIRIMAN LATAR BELAKANG (JEDA 5 DETIK) */}
+          {(sendQueue.length > 0 || isSendingQueue) && (
+            <div className="p-4 rounded-2xl bg-[#0F2C59] text-white border border-sky-400/50 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-amber-300 shrink-0">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                </div>
+                <div>
+                  <div className="text-xs sm:text-sm font-bold tracking-wide">
+                    Mengirim antrean: {currentQueueItem || sendQueue[0]?.nama || sendQueue[0]?.namaWali || '-'}{' '}
+                    <span className="text-amber-300 font-black">(Sisa: {sendQueue.length} pesan)</span>
+                  </div>
+                  <div className="text-[11px] text-sky-200 mt-0.5 flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Jeda aman otomatis 5 detik antar pesan untuk mencegah pemblokiran Fonnte.</span>
+                  </div>
+                </div>
+              </div>
+
+              {sendQueue.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSendQueue((prev) => (isSendingQueue ? prev.slice(0, 1) : []));
+                    setIsBlasting(false);
+                    setIsTamuBlasting(false);
+                    showToast('success', 'Sisa antrean pengiriman dibersihkan.');
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer shrink-0"
+                >
+                  Hentikan Sisa Antrean ({sendQueue.length - 1})
+                </button>
+              )}
+            </div>
+          )}
+
           <WhatsAppTable
             activeTab={activeTab}
             gelombang={gelombang}
@@ -992,6 +1094,7 @@ export default function WhatsAppPage() {
             loadingData={loadingData}
             filteredList={filteredList}
             sendingKode={sendingKode}
+            queuedKodes={queuedKodes}
             isBlasting={isBlasting}
             handleKirimFonnte={handleKirimFonnte}
             handleKirimManualWA={handleKirimManualWA}
@@ -1008,6 +1111,17 @@ export default function WhatsAppPage() {
             setNewHpInputTamu={setNewHpInputTamu}
           />
         </div>
+
+        {/* FLOATING QUEUE INDICATOR SAAT SCROLL KE BAWAH */}
+        {(sendQueue.length > 0 || isSendingQueue) && (
+          <div className="fixed bottom-6 left-6 z-40 max-w-md bg-[#0F2C59]/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl border border-sky-400/50 flex items-center space-x-3">
+            <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
+            <span className="text-xs font-bold leading-snug">
+              Mengirim antrean: {currentQueueItem || sendQueue[0]?.nama || sendQueue[0]?.namaWali || '-'}{' '}
+              <span className="text-amber-300">(Sisa: {sendQueue.length} pesan)</span>
+            </span>
+          </div>
+        )}
 
         {/* MODAL EDIT HP WALI & TAMU */}
         <WhatsAppSendModal

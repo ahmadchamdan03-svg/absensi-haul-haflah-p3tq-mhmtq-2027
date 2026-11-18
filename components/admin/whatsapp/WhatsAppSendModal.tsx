@@ -120,24 +120,28 @@ export async function updateTamuWaInSupabase(
 
 export async function kirimFonnteWali(
   kel: any,
-  gelombang: 1 | 2 | 3,
-  linkGrupWa: string,
-  setSendingKode: (val: string | null) => void,
-  setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>,
-  silentAlert: boolean = false
+  gelombang: 1 | 2 | 3 = 1,
+  linkGrupWa: string = '',
+  setSendingKode?: (val: string | null) => void,
+  setKeluargaList?: React.Dispatch<React.SetStateAction<any[]>>,
+  silentAlert: boolean | { silentAlert?: boolean } = false
 ) {
+  const isSilentAlert =
+    typeof silentAlert === 'object' ? Boolean(silentAlert?.silentAlert) : Boolean(silentAlert);
   const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
 
   const rawHp = kel.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
-    await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList);
-    if (!silentAlert) {
+    if (setKeluargaList) {
+      await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList);
+    }
+    if (!isSilentAlert) {
       alert(`Nomor HP untuk ${kel.namaWali} tidak terdaftar atau tidak valid! Status telah diperbarui.`);
     }
     return false;
   }
 
-  setSendingKode(kel.kode);
+  setSendingKode?.(kel.kode);
 
   try {
     const teks = getTeksPesan(kel, gelombang, activeLinkGrup);
@@ -154,27 +158,33 @@ export async function kirimFonnteWali(
 
     const json = await res.json();
     if (json.ok) {
-      await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList);
-      setSendingKode(null);
+      if (setKeluargaList) {
+        await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList);
+      }
+      setSendingKode?.(null);
       return true;
     } else {
       const isNumInvalid =
         json.data?.reason?.toLowerCase().includes('invalid') ||
         json.data?.reason?.toLowerCase().includes('not registered');
       const newStatus = isNumInvalid ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
-      await updateStatusWaInSupabase(kel.id, newStatus, setKeluargaList);
-      if (!silentAlert) {
+      if (setKeluargaList) {
+        await updateStatusWaInSupabase(kel.id, newStatus, setKeluargaList);
+      }
+      if (!isSilentAlert) {
         alert(`Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`);
       }
-      setSendingKode(null);
+      setSendingKode?.(null);
       return false;
     }
   } catch (err: any) {
-    await updateStatusWaInSupabase(kel.id, 'GAGAL', setKeluargaList);
-    if (!silentAlert) {
+    if (setKeluargaList) {
+      await updateStatusWaInSupabase(kel.id, 'GAGAL', setKeluargaList);
+    }
+    if (!isSilentAlert) {
       alert(`Gagal menghubungi server Fonnte: ${err.message}`);
     }
-    setSendingKode(null);
+    setSendingKode?.(null);
     return false;
   }
 }
@@ -204,20 +214,24 @@ export async function kirimManualWAWali(
 
 export async function kirimFonnteTamu(
   tamu: any,
-  setTamuSendingKode: (val: string | null) => void,
-  setTamuList: React.Dispatch<React.SetStateAction<any[]>>,
-  silentAlert: boolean = false
+  setTamuSendingKode?: (val: string | null) => void,
+  setTamuList?: React.Dispatch<React.SetStateAction<any[]>>,
+  silentAlert: boolean | { silentAlert?: boolean } = false
 ) {
+  const isSilentAlert =
+    typeof silentAlert === 'object' ? Boolean(silentAlert?.silentAlert) : Boolean(silentAlert);
   const rawHp = tamu.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
-    await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR', setTamuList);
-    if (!silentAlert) {
+    if (setTamuList) {
+      await updateTamuWaInSupabase(tamu.id, 'NOMOR_TIDAK_TERDAFTAR', setTamuList);
+    }
+    if (!isSilentAlert) {
       alert(`Nomor HP untuk ${tamu.nama} tidak terdaftar atau tidak valid! Status diperbarui.`);
     }
     return false;
   }
 
-  setTamuSendingKode(tamu.kode);
+  setTamuSendingKode?.(tamu.kode);
 
   try {
     const teks = getTeksPesanTamu(tamu);
@@ -232,27 +246,33 @@ export async function kirimFonnteTamu(
 
     const json = await res.json();
     if (json.ok) {
-      await updateTamuWaInSupabase(tamu.id, 'TERKIRIM', setTamuList);
-      setTamuSendingKode(null);
+      if (setTamuList) {
+        await updateTamuWaInSupabase(tamu.id, 'TERKIRIM', setTamuList);
+      }
+      setTamuSendingKode?.(null);
       return true;
     } else {
       const isNumInvalid =
         json.data?.reason?.toLowerCase().includes('invalid') ||
         json.data?.reason?.toLowerCase().includes('not registered');
       const newStatus = isNumInvalid ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
-      await updateTamuWaInSupabase(tamu.id, newStatus, setTamuList);
-      if (!silentAlert) {
+      if (setTamuList) {
+        await updateTamuWaInSupabase(tamu.id, newStatus, setTamuList);
+      }
+      if (!isSilentAlert) {
         alert(`Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`);
       }
-      setTamuSendingKode(null);
+      setTamuSendingKode?.(null);
       return false;
     }
   } catch (err: any) {
-    await updateTamuWaInSupabase(tamu.id, 'GAGAL', setTamuList);
-    if (!silentAlert) {
+    if (setTamuList) {
+      await updateTamuWaInSupabase(tamu.id, 'GAGAL', setTamuList);
+    }
+    if (!isSilentAlert) {
       alert(`Gagal menghubungi server Fonnte: ${err.message}`);
     }
-    setTamuSendingKode(null);
+    setTamuSendingKode?.(null);
     return false;
   }
 }
