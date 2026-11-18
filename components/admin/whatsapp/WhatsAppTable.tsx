@@ -88,6 +88,7 @@ function FonnteSendButton({
 export default function WhatsAppTable(props: WhatsAppTableProps) {
   const {
     activeTab,
+    gelombang,
     loadingData,
     filteredList,
     sendingKode,
@@ -143,10 +144,16 @@ export default function WhatsAppTable(props: WhatsAppTableProps) {
               ) : (
                 filteredList.map((kel) => {
                   const santri = kel.santri?.[0];
+                  const activeStatusWa =
+                    gelombang === 2
+                      ? kel.status_wa_kuota || 'BELUM'
+                      : gelombang === 3
+                      ? kel.status_wa_penginapan || 'BELUM'
+                      : kel.status_wa_undangan || kel.statusWa || 'BELUM';
                   const isInvalidNum = !kel.noHp || kel.noHp.trim().length < 8;
-                  const isNoWaNotRegistered = kel.statusWa === 'NOMOR_TIDAK_TERDAFTAR';
-                  const isFailed = kel.statusWa === 'GAGAL';
-                  const isTerkirim = kel.statusWa === 'TERKIRIM';
+                  const isNoWaNotRegistered = activeStatusWa === 'NOMOR_TIDAK_TERDAFTAR';
+                  const isFailed = activeStatusWa === 'GAGAL';
+                  const isTerkirim = activeStatusWa === 'TERKIRIM';
                   const isSendingThis = sendingKode === kel.kode;
                   const isQueuedThis = !isSendingThis && queuedKodes.includes(kel.kode);
 

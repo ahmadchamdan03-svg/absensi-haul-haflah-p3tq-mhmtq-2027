@@ -4,6 +4,7 @@ import React from 'react';
 import { Smartphone, Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { normalkanNomorHp } from '@/lib/hmac';
+import { WaSantriStatusColumn, getWaStatusColumnByGelombang } from '@/lib/types';
 import { getTeksPesan, getTeksPesanTamu } from './WhatsAppStats';
 
 export function validateAndCleanPhoneNumber(input: string): {
@@ -64,16 +65,28 @@ async function persistStatusWa(
   table: 'peserta_santri' | 'tamu_undangan',
   id: string | number,
   status: string,
-  setList: React.Dispatch<React.SetStateAction<any[]>>
+  setList: React.Dispatch<React.SetStateAction<any[]>>,
+  targetColumn?: WaSantriStatusColumn
 ) {
   try {
     let persisted = false;
+    const isSantriTable = table === 'peserta_santri';
+    const col: WaSantriStatusColumn = targetColumn || 'status_wa_undangan';
 
     try {
+      const patchBody = isSantriTable
+        ? {
+            id,
+            status_wa: status,
+            [col]: status,
+            target_column: col,
+          }
+        : { id, status_wa: status };
+
       const res = await fetch(endpoint, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status_wa: status }),
+        body: JSON.stringify(patchBody),
       });
       if (res.ok) {
         const json = await res.json();
@@ -84,30 +97,49 @@ async function persistStatusWa(
     }
 
     if (!persisted) {
+      const dbUpdate = isSantriTable
+        ? {
+            [col]: status,
+            ...(col === 'status_wa_undangan' ? { status_wa: status } : {}),
+            updated_at: new Date().toISOString(),
+          }
+        : { status_wa: status, updated_at: new Date().toISOString() };
+
       const { error } = await supabase
         .from(table)
-        .update({ status_wa: status, updated_at: new Date().toISOString() })
+        .update(dbUpdate)
         .eq('id', id);
 
       if (error) {
-        console.warn(`Error updating status_wa in ${table}:`, error.message);
+        console.warn(`Error updating status in ${table}:`, error.message);
       }
     }
 
     setList((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, statusWa: status } : item))
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        if (!isSantriTable) {
+          return { ...item, statusWa: status, status_wa: status };
+        }
+        return {
+          ...item,
+          [col]: status,
+          ...(col === 'status_wa_undangan' ? { statusWa: status, status_wa: status } : {}),
+        };
+      })
     );
   } catch (e) {
-    console.warn(`Error updating status_wa in ${table}:`, e);
+    console.warn(`Error updating status in ${table}:`, e);
   }
 }
 
 export async function updateStatusWaInSupabase(
   id: string,
   status: string,
-  setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
+  setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>,
+  targetColumn: WaSantriStatusColumn = 'status_wa_undangan'
 ) {
-  await persistStatusWa('/api/santri', 'peserta_santri', id, status, setKeluargaList);
+  await persistStatusWa('/api/santri', 'peserta_santri', id, status, setKeluargaList, targetColumn);
 }
 
 export async function updateTamuWaInSupabase(
@@ -129,11 +161,12 @@ export async function kirimFonnteWali(
   const isSilentAlert =
     typeof silentAlert === 'object' ? Boolean(silentAlert?.silentAlert) : Boolean(silentAlert);
   const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
+  const targetColumn = getWaStatusColumnByGelombang(gelombang);
 
   const rawHp = kel.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
     if (setKeluargaList) {
-      await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList);
+      await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList, targetColumn);
     }
     if (!isSilentAlert) {
       alert(`Nomor HP untuk ${kel.namaWali} tidak terdaftar atau tidak valid! Status telah diperbarui.`);
@@ -153,13 +186,14 @@ export async function kirimFonnteWali(
         target: rawHp,
         message: teks,
         tipe_pesan: tipePesan,
+        target_column: targetColumn,
       }),
     });
 
     const json = await res.json();
     if (json.ok) {
       if (setKeluargaList) {
-        await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList);
+        await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList, targetColumn);
       }
       setSendingKode?.(null);
       return true;
@@ -169,7 +203,7 @@ export async function kirimFonnteWali(
         json.data?.reason?.toLowerCase().includes('not registered');
       const newStatus = isNumInvalid ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
       if (setKeluargaList) {
-        await updateStatusWaInSupabase(kel.id, newStatus, setKeluargaList);
+        await updateStatusWaInSupabase(kel.id, newStatus, setKeluargaList, targetColumn);
       }
       if (!isSilentAlert) {
         alert(`Gagal mengirim via Fonnte: ${json.data?.reason || json.message || 'Error'}`);
@@ -179,7 +213,7 @@ export async function kirimFonnteWali(
     }
   } catch (err: any) {
     if (setKeluargaList) {
-      await updateStatusWaInSupabase(kel.id, 'GAGAL', setKeluargaList);
+      await updateStatusWaInSupabase(kel.id, 'GAGAL', setKeluargaList, targetColumn);
     }
     if (!isSilentAlert) {
       alert(`Gagal menghubungi server Fonnte: ${err.message}`);
@@ -196,10 +230,11 @@ export async function kirimManualWAWali(
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
   const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
+  const targetColumn = getWaStatusColumnByGelombang(gelombang);
 
   const rawHp = kel.noHp;
   if (!rawHp || rawHp.trim() === '' || rawHp.trim().length < 8) {
-    await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList);
+    await updateStatusWaInSupabase(kel.id, 'NOMOR_TIDAK_TERDAFTAR', setKeluargaList, targetColumn);
     alert('Nomor HP tidak terdaftar atau tidak valid!');
     return;
   }
@@ -209,7 +244,7 @@ export async function kirimManualWAWali(
   const url = `https://wa.me/${nomorBersih}?text=${encodeURIComponent(teks)}`;
 
   window.open(url, '_blank');
-  await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList);
+  await updateStatusWaInSupabase(kel.id, 'TERKIRIM', setKeluargaList, targetColumn);
 }
 
 export async function kirimFonnteTamu(
