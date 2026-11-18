@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Users, UserCheck, CheckCircle2, AlertTriangle, X, Loader2, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
-import { extractBagianTamatan, getGolonganUndangan } from '@/lib/types';
+import { extractBagianTamatan, getGolonganUndangan, getWaStatusColumnByGelombang } from '@/lib/types';
 import { deduplicateMergedWaRecords } from '@/lib/wa-merge-priority';
 import AuthGuard from '@/components/AuthGuard';
 import WhatsAppStats from '@/components/admin/whatsapp/WhatsAppStats';
@@ -129,6 +129,13 @@ export default function WhatsAppPage() {
     return santri.bagianTamatan || extractBagianTamatan(santri.subKategori) || extractBagianTamatan(santri.kelas) || '';
   };
 
+  const getStatusWaByGelombang = (kel: any, gel: 1 | 2 | 3 = gelombang): string => {
+    if (!kel) return 'BELUM';
+    if (gel === 2) return kel.status_wa_kuota || 'BELUM';
+    if (gel === 3) return kel.status_wa_penginapan || 'BELUM';
+    return kel.status_wa_undangan || kel.statusWa || 'BELUM';
+  };
+
   // Paginated fetch keeps WA dropdown counts complete even past PostgREST's 1000-row cap.
   const fetchAllTableRows = async (table: 'peserta_santri' | 'tamu_undangan') => {
     const pageSize = 1000;
@@ -182,7 +189,10 @@ export default function WhatsAppPage() {
             namaWali: s.nama_wali || '-',
             noHp: s.no_hp || '',
             alamat: s.alamat || 'Kediri',
-            statusWa: s.status_wa || 'BELUM',
+            statusWa: s.status_wa_undangan || s.status_wa || 'BELUM',
+            status_wa_undangan: s.status_wa_undangan || s.status_wa || 'BELUM',
+            status_wa_kuota: s.status_wa_kuota || 'BELUM',
+            status_wa_penginapan: s.status_wa_penginapan || 'BELUM',
             santri: [
               {
                 id: s.id,
@@ -251,6 +261,7 @@ export default function WhatsAppPage() {
             statusKonfirmasi: t.status_konfirmasi || null,
             warnaTiket: t.warna_tiket || 'Biru',
             statusWa: t.status_wa || 'BELUM',
+            status_wa: t.status_wa || 'BELUM',
             golongan,
           };
         });
@@ -440,6 +451,7 @@ export default function WhatsAppPage() {
 
     try {
       const cleanNo = validation.cleanNumber;
+      const targetColumn = getWaStatusColumnByGelombang(gelombang);
       let success = false;
       let errorMsg = '';
 
@@ -455,6 +467,8 @@ export default function WhatsAppPage() {
             kode: editingItem.kode,
             no_hp: cleanNo,
             status_wa: 'BELUM',
+            [targetColumn]: 'BELUM',
+            target_column: targetColumn,
           }),
           signal: controller.signal,
         });
@@ -478,7 +492,8 @@ export default function WhatsAppPage() {
           .from('peserta_santri')
           .update({
             no_hp: cleanNo,
-            status_wa: 'BELUM',
+            [targetColumn]: 'BELUM',
+            ...(targetColumn === 'status_wa_undangan' ? { status_wa: 'BELUM' } : {}),
           })
           .eq('id', editingItem.id);
 
@@ -493,7 +508,12 @@ export default function WhatsAppPage() {
       setKeluargaList((prev) =>
         prev.map((item) =>
           item.id === editingItem.id
-            ? { ...item, noHp: cleanNo, statusWa: 'BELUM' }
+            ? {
+                ...item,
+                noHp: cleanNo,
+                [targetColumn]: 'BELUM',
+                ...(targetColumn === 'status_wa_undangan' ? { statusWa: 'BELUM' } : {}),
+              }
             : item
         )
       );
@@ -639,8 +659,13 @@ export default function WhatsAppPage() {
 
   const filteredList = useMemo(() => {
     return keluargaList.filter((kel) => {
-      const isSent = kel.statusWa === 'TERKIRIM';
-      const isProblem = kel.statusWa === 'NOMOR_TIDAK_TERDAFTAR' || kel.statusWa === 'GAGAL' || !kel.noHp || kel.noHp.trim().length < 8;
+      const currentStatusWa = getStatusWaByGelombang(kel, gelombang);
+      const isSent = currentStatusWa === 'TERKIRIM';
+      const isProblem =
+        currentStatusWa === 'NOMOR_TIDAK_TERDAFTAR' ||
+        currentStatusWa === 'GAGAL' ||
+        !kel.noHp ||
+        kel.noHp.trim().length < 8;
       const santri = kel.santri?.[0];
       const kat = santri?.kategoriUtama || 'BIN_NADZOR';
       const bagian = kat === 'TAMATAN' ? resolveSantriBagian(santri) : '';
@@ -677,30 +702,40 @@ export default function WhatsAppPage() {
       }
       return true;
     });
-  }, [keluargaList, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
+  }, [keluargaList, gelombang, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
 
-  const handleStartBatchBlast = () => {
-    if (!ensureLinkGrupWaFilled()) return;
+  const runBatchBlastForTab = (targetGelombang: 1 | 2 | 3) => {
+    if (targetGelombang === 1 && !ensureLinkGrupWaFilled()) return;
+    const statusColumn = getWaStatusColumnByGelombang(targetGelombang);
 
     const unsentList = filteredList
-      .filter((k) => k.statusWa !== 'TERKIRIM' && k.noHp && k.noHp.trim().length >= 8)
+      .filter((k) => {
+        const currentTabStatus =
+          targetGelombang === 2
+            ? k.status_wa_kuota || 'BELUM'
+            : targetGelombang === 3
+            ? k.status_wa_penginapan || 'BELUM'
+            : k.status_wa_undangan || k.statusWa || 'BELUM';
+        return currentTabStatus !== 'TERKIRIM' && Boolean(k.noHp && k.noHp.trim().length >= 8);
+      })
       .map((kel) => ({
         ...kel,
         nama: kel.namaWali || kel.santri?.[0]?.nama || kel.kode,
         __queueType: 'WALI' as const,
-        __gelombang: gelombang,
-        __linkGrupWa: gelombang === 1 ? linkGrupWa : '',
+        __gelombang: targetGelombang,
+        __targetColumn: statusColumn,
+        __linkGrupWa: targetGelombang === 1 ? linkGrupWa : '',
       }));
 
     if (unsentList.length === 0) {
-      alert('Semua nomor pada filter saat ini sudah terkirim!');
+      alert('Semua nomor pada filter dan tab saat ini sudah terkirim!');
       return;
     }
 
     const judulPesan =
-      gelombang === 1
+      targetGelombang === 1
         ? 'Undangan Resmi & QR'
-        : gelombang === 2
+        : targetGelombang === 2
         ? 'Penawaran Kuota Tambahan'
         : 'Informasi Penginapan';
 
@@ -716,11 +751,23 @@ export default function WhatsAppPage() {
     stopBlastingRef.current = false;
     setBlastProgress({ current: 0, total: unsentList.length, success: 0, failed: 0 });
     setSendQueue((prev) => {
-      const existingKodes = new Set(prev.map((q) => q.kode));
-      const newItems = unsentList.filter((item) => !existingKodes.has(item.kode));
+      const existingKeys = new Set(prev.map((q) => `${q.__gelombang || 1}:${q.kode}`));
+      const newItems = unsentList.filter(
+        (item) => !existingKeys.has(`${item.__gelombang}:${item.kode}`)
+      );
       return [...prev, ...newItems];
     });
     showToast('success', `${unsentList.length} pesan wali santri dimasukkan ke antrean pengiriman.`);
+  };
+
+  const handleStartBatchBlastUndangan = () => runBatchBlastForTab(1);
+  const handleStartBatchBlastKuota = () => runBatchBlastForTab(2);
+  const handleStartBatchBlastPenginapan = () => runBatchBlastForTab(3);
+
+  const handleStartBatchBlast = () => {
+    if (gelombang === 2) return handleStartBatchBlastKuota();
+    if (gelombang === 3) return handleStartBatchBlastPenginapan();
+    return handleStartBatchBlastUndangan();
   };
 
   const handleStopBatchBlast = () => {
@@ -730,8 +777,17 @@ export default function WhatsAppPage() {
     showToast('success', 'Antrean pengiriman massal dihentikan.');
   };
 
-  const totalTerkirim = keluargaList.filter((k) => k.statusWa === 'TERKIRIM').length;
-  const pctTerkirim = keluargaList.length > 0 ? Math.min(100, Math.round((totalTerkirim / keluargaList.length) * 100)) : 0;
+  // Nominator (X) & Denominator (Y) responsif terhadap tab aktif (gelombang 1/2/3) dan filter aktif (filteredList)
+  const totalTerkirim = useMemo(() => {
+    return filteredList.filter((item) => {
+      if (gelombang === 2) return item.status_wa_kuota === 'TERKIRIM';
+      if (gelombang === 3) return item.status_wa_penginapan === 'TERKIRIM';
+      return (item.status_wa_undangan || item.statusWa) === 'TERKIRIM';
+    }).length;
+  }, [filteredList, gelombang]);
+
+  const pctTerkirim =
+    filteredList.length > 0 ? Math.min(100, Math.round((totalTerkirim / filteredList.length) * 100)) : 0;
 
   const countBilGhoib = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'BIL_GHOIB').length;
   const countBinNadzor = keluargaList.filter((k) => k.santri?.[0]?.kategoriUtama === 'BIN_NADZOR').length;
@@ -910,13 +966,16 @@ export default function WhatsAppPage() {
   }, [tamuList, tamuFilterStatus, tamuFilterGolongan, tamuSearch]);
 
   const handleStartBatchBlastTamu = () => {
-    const validList = filteredTamuList
-      .filter((t) => t.statusWa !== 'TERKIRIM' && t.noHp && t.noHp.trim().length >= 8)
-      .map((tamu) => ({
+    const validList: any[] = [];
+    for (const tamu of filteredTamuList) {
+      if ((tamu.status_wa || tamu.statusWa) === 'TERKIRIM') continue;
+      if (!tamu.noHp || tamu.noHp.trim().length < 8) continue;
+      validList.push({
         ...tamu,
         nama: tamu.nama || tamu.kode || 'Tamu Undangan',
         __queueType: 'TAMU' as const,
-      }));
+      });
+    }
 
     if (validList.length === 0) {
       alert('Semua nomor tamu undangan pada filter saat ini sudah terkirim!');
@@ -947,8 +1006,14 @@ export default function WhatsAppPage() {
     showToast('success', 'Antrean pengiriman massal tamu dihentikan.');
   };
 
-  const totalTamuTerkirim = tamuList.filter((t) => t.statusWa === 'TERKIRIM').length;
-  const pctTamuTerkirim = tamuList.length > 0 ? Math.min(100, Math.round((totalTamuTerkirim / tamuList.length) * 100)) : 0;
+  const totalTamuTerkirim = useMemo(
+    () => filteredTamuList.filter((t) => (t.status_wa || t.statusWa) === 'TERKIRIM').length,
+    [filteredTamuList]
+  );
+  const pctTamuTerkirim =
+    filteredTamuList.length > 0
+      ? Math.min(100, Math.round((totalTamuTerkirim / filteredTamuList.length) * 100))
+      : 0;
 
   const countTamuIstimewa = tamuList.filter((t) => t.golongan === 'ISTIMEWA').length;
   const countTamuKehormatan = tamuList.filter((t) => t.golongan === 'KEHORMATAN').length;
@@ -1064,6 +1129,7 @@ export default function WhatsAppPage() {
             gelombang={gelombang}
             totalTerkirim={totalTerkirim}
             keluargaCount={keluargaList.length}
+            progressTotalCount={filteredList.length}
             pctTerkirim={pctTerkirim}
             filterKonfirmasi={filterKonfirmasi}
             setFilterKonfirmasi={setFilterKonfirmasi}
@@ -1081,6 +1147,7 @@ export default function WhatsAppPage() {
             countPerBagian={countPerBagian}
             totalTamuTerkirim={totalTamuTerkirim}
             tamuCount={tamuList.length}
+            tamuProgressTotalCount={filteredTamuList.length}
             pctTamuTerkirim={pctTamuTerkirim}
             tamuFilterGolongan={tamuFilterGolongan}
             setTamuFilterGolongan={setTamuFilterGolongan}

@@ -10,6 +10,7 @@ export interface WhatsAppFilterProps {
   gelombang: 1 | 2 | 3;
   totalTerkirim: number;
   keluargaCount: number;
+  progressTotalCount?: number;
   pctTerkirim: number;
   filterKonfirmasi: 'SEMUA' | 'BELUM' | 'SUDAH';
   setFilterKonfirmasi: (val: 'SEMUA' | 'BELUM' | 'SUDAH') => void;
@@ -28,6 +29,7 @@ export interface WhatsAppFilterProps {
   // Tamu Undangan Filter Props
   totalTamuTerkirim: number;
   tamuCount: number;
+  tamuProgressTotalCount?: number;
   pctTamuTerkirim: number;
   tamuFilterGolongan: string;
   setTamuFilterGolongan: (val: string) => void;
@@ -45,6 +47,7 @@ export default function WhatsAppFilter({
   gelombang,
   totalTerkirim,
   keluargaCount,
+  progressTotalCount,
   pctTerkirim,
   filterKonfirmasi,
   setFilterKonfirmasi,
@@ -62,6 +65,7 @@ export default function WhatsAppFilter({
   countPerBagian,
   totalTamuTerkirim,
   tamuCount,
+  tamuProgressTotalCount,
   pctTamuTerkirim,
   tamuFilterGolongan,
   setTamuFilterGolongan,
@@ -73,6 +77,9 @@ export default function WhatsAppFilter({
   countTamuKehormatan,
   countTamuUmum,
 }: WhatsAppFilterProps) {
+  const denomWali = progressTotalCount ?? keluargaCount;
+  const denomTamu = tamuProgressTotalCount ?? tamuCount;
+
   if (activeTab === 'WALI_SANTRI') {
     return (
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -81,7 +88,7 @@ export default function WhatsAppFilter({
             PROGRES PENGIRIMAN ({gelombang === 1 ? 'UNDANGAN MASUK' : gelombang === 2 ? 'KUOTA TAMBAHAN' : 'INFO PENGINAPAN'}):
           </div>
           <div className="text-lg font-black text-slate-900 mt-0.5">
-            Terkirim {totalTerkirim} / {keluargaCount}{' '}
+            Terkirim {totalTerkirim} / {denomWali}{' '}
             <span className="text-sm font-semibold text-blue-700">({pctTerkirim}%)</span>
           </div>
         </div>
@@ -167,7 +174,7 @@ export default function WhatsAppFilter({
           PROGRES PENGIRIMAN TAMU UNDANGAN:
         </div>
         <div className="text-lg font-black text-slate-900 mt-0.5">
-          Terkirim {totalTamuTerkirim} / {tamuCount}{' '}
+          Terkirim {totalTamuTerkirim} / {denomTamu}{' '}
           <span className="text-sm font-semibold text-blue-700">({pctTamuTerkirim}%)</span>
         </div>
       </div>
