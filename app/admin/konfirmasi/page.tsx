@@ -250,6 +250,120 @@ export default function KonfirmasiPage() {
   const [sentFonnteKodes, setSentFonnteKodes] = useState<Record<string, string>>({});
   const [isBlasting, setIsBlasting] = useState(false);
 
+  // State Pengingat Massal (Jeda 5 Detik)
+  const [isSendingReminder, setIsSendingReminder] = useState(false);
+  const [progressReminder, setProgressReminder] = useState(0);
+  const [totalReminder, setTotalReminder] = useState(0);
+  const [reminderSuccess, setReminderSuccess] = useState(0);
+  const [reminderFailed, setReminderFailed] = useState(0);
+  const stopReminderRef = useRef(false);
+
+  const handleStopPengingatMassal = () => {
+    stopReminderRef.current = true;
+    setIsSendingReminder(false);
+    setIsBlasting(false);
+  };
+
+  // Kirim Pengingat Massal kepada Wali Santri yang Belum Konfirmasi (Antrean Jeda 5 Detik)
+  const handleKirimPengingatMassal = async () => {
+    if (isSendingReminder) return;
+
+    const baseCandidates =
+      activeMainTab === 'WALI_SANTRI' && (filterKategori !== 'SEMUA' || searchQuery.trim() !== '')
+        ? filteredList
+        : daftarSantri;
+
+    const targetList = baseCandidates.filter((item) => {
+      const isUnconfirmed = String(item.statusKonfirmasi || 'BELUM').toUpperCase() === 'BELUM';
+      const digitsOnly = String(item.noHp || '').replace(/\D/g, '');
+      return isUnconfirmed && digitsOnly.length >= 9;
+    });
+
+    if (targetList.length === 0) {
+      alert('Tidak ada wali santri berstatus Belum Konfirmasi dengan nomor HP valid (minimal 9 digit).');
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Kirim pengingat kehadiran via Fonnte kepada ${targetList.length} Wali Santri yang belum konfirmasi?\nPengiriman menggunakan antrean jeda 5 detik antar pesan.`
+      )
+    ) {
+      return;
+    }
+
+    setIsSendingReminder(true);
+    setIsBlasting(true);
+    stopReminderRef.current = false;
+    setProgressReminder(0);
+    setTotalReminder(targetList.length);
+    setReminderSuccess(0);
+    setReminderFailed(0);
+
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < targetList.length; i++) {
+      if (stopReminderRef.current) break;
+
+      const item = targetList[i];
+      setProgressReminder(i + 1);
+      setSendingFonnteKode(item.kode);
+
+      const namaWali = (item.namaWali && item.namaWali !== '-' ? item.namaWali : 'Wali Santri').trim();
+      const namaSantri = (item.namaSantri && item.namaSantri !== '-' ? item.namaSantri : namaWali).trim();
+
+      const teksPesan = `Kepada Yth. Bapak/Ibu Wali Santri *${namaWali}*
+
+Kami mengingatkan bahwa Wali Santri dari *${namaSantri}* belum mengisi konfirmasi kehadiran untuk acara Haul & Haflah Akhirussanah P3TQ & MHMTQ.
+
+Mohon kesediaannya untuk membuka link undangan di bawah ini, scroll ke bagian Konfirmasi Kehadiran, dan mengisi jumlah rombongan (Putra & Putri) agar panitia dapat menyiapkan kursi dan konsumsi yang sesuai.
+
+🔗 https://www.haflahp3tq.site/u/${item.kode}
+
+Terima kasih atas kerja samanya.
+Jazakumullahu khairan katsiran.
+Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
+
+      try {
+        const res = await fetch('/api/whatsapp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target: item.noHp,
+            message: teksPesan,
+          }),
+        });
+        const json = await res.json();
+        if (json.ok) {
+          successCount++;
+          setReminderSuccess((prev) => prev + 1);
+          const timeStr = new Date().toTimeString().split(' ')[0] + ' WIB';
+          setSentFonnteKodes((prev) => ({ ...prev, [item.kode]: timeStr }));
+        } else {
+          failedCount++;
+          setReminderFailed((prev) => prev + 1);
+        }
+      } catch {
+        failedCount++;
+        setReminderFailed((prev) => prev + 1);
+      }
+
+      setSendingFonnteKode(null);
+
+      // Jeda wajib 5000 ms (5 detik) sebelum melanjutkan ke pesan berikutnya
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+
+    setSendingFonnteKode(null);
+    setIsSendingReminder(false);
+    setIsBlasting(false);
+
+    const summaryMsg = `Selesai mengirim ${successCount + failedCount} pesan. Berhasil: ${successCount}, Gagal: ${failedCount}.`;
+    setSuccessToast(summaryMsg);
+    setTimeout(() => setSuccessToast(''), 6000);
+  };
+
   // Kirim Pengingat Fonnte Satuan
   const handleKirimFonnte = async (item: KonfirmasiItem) => {
     if (!item.noHp || item.noHp.trim().length < 8 || item.noHp === '-') {
@@ -328,6 +442,13 @@ export default function KonfirmasiPage() {
         currentDatasetCount={currentDataset.length}
         onResetPage={() => setCurrentPage(1)}
         onRefreshData={fetchKonfirmasiData}
+        isSendingReminder={isSendingReminder}
+        progressReminder={progressReminder}
+        totalReminder={totalReminder}
+        reminderSuccess={reminderSuccess}
+        reminderFailed={reminderFailed}
+        onStartMassReminder={handleKirimPengingatMassal}
+        onStopMassReminder={handleStopPengingatMassal}
       >
         {/* TABEL DATA KONFIRMASI */}
         <KonfirmasiTableSection

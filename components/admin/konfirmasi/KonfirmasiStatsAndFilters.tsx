@@ -9,6 +9,9 @@ import {
   Mail,
   Armchair,
   XCircle,
+  Zap,
+  Loader2,
+  Pause,
 } from 'lucide-react';
 import {
   MainTabType,
@@ -35,6 +38,13 @@ interface KonfirmasiStatsAndFiltersProps {
   currentDatasetCount: number;
   onResetPage: () => void;
   onRefreshData: () => void;
+  isSendingReminder?: boolean;
+  progressReminder?: number;
+  totalReminder?: number;
+  reminderSuccess?: number;
+  reminderFailed?: number;
+  onStartMassReminder?: () => void;
+  onStopMassReminder?: () => void;
   children?: React.ReactNode;
 }
 
@@ -55,6 +65,13 @@ export default function KonfirmasiStatsAndFilters({
   currentDatasetCount,
   onResetPage,
   onRefreshData,
+  isSendingReminder = false,
+  progressReminder = 0,
+  totalReminder = 0,
+  reminderSuccess = 0,
+  reminderFailed = 0,
+  onStartMassReminder,
+  onStopMassReminder,
   children,
 }: KonfirmasiStatsAndFiltersProps) {
   const scrollToTable = () => {
@@ -541,25 +558,70 @@ export default function KonfirmasiStatsAndFilters({
             )}
           </div>
 
-          {/* Filter Kategori Dropdown */}
+          {/* Filter Kategori Dropdown & Tombol Kirim Pengingat Massal */}
           {activeMainTab === 'WALI_SANTRI' && (
-            <div className="flex items-center space-x-2 w-full md:w-auto">
-              <span className="text-xs font-bold text-[#7A624E] hidden sm:inline shrink-0">
-                Kategori:
-              </span>
-              <select
-                value={filterKategori}
-                onChange={(e) => setFilterKategori(e.target.value as FilterKategoriType)}
-                className="w-full md:w-auto px-3 py-2.5 rounded-2xl bg-white border-2 border-[#BAE6FD] text-xs font-semibold text-[#0F2C59] focus:outline-none focus:border-[#1D4ED8]"
-              >
-                <option value="SEMUA">Semua Kategori ({rekap.totalSantri})</option>
-                <option value="BIL_GHOIB">Bil Ghoib ({rekap.bilGhoibCount} Santri)</option>
-                <option value="BIN_NADZOR">Bin Nadzori ({rekap.binNadzorCount} Santri)</option>
-                <option value="TAMATAN">Tamatan III Aliyah ({rekap.tamatanCount} Santri)</option>
-              </select>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                <span className="text-xs font-bold text-[#7A624E] hidden sm:inline shrink-0">
+                  Kategori:
+                </span>
+                <select
+                  value={filterKategori}
+                  onChange={(e) => setFilterKategori(e.target.value as FilterKategoriType)}
+                  className="w-full sm:w-auto px-3 py-2.5 rounded-2xl bg-white border-2 border-[#BAE6FD] text-xs font-semibold text-[#0F2C59] focus:outline-none focus:border-[#1D4ED8]"
+                >
+                  <option value="SEMUA">Semua Kategori ({rekap.totalSantri})</option>
+                  <option value="BIL_GHOIB">Bil Ghoib ({rekap.bilGhoibCount} Santri)</option>
+                  <option value="BIN_NADZOR">Bin Nadzori ({rekap.binNadzorCount} Santri)</option>
+                  <option value="TAMATAN">Tamatan III Aliyah ({rekap.tamatanCount} Santri)</option>
+                </select>
+              </div>
+
+              {!isSendingReminder ? (
+                <button
+                  type="button"
+                  onClick={onStartMassReminder}
+                  className="px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 transition-all cursor-pointer shrink-0 border border-amber-700"
+                >
+                  <Zap className="w-4 h-4 fill-current text-amber-200" />
+                  <span>Kirim Pengingat Massal (Fonnte)</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onStopMassReminder}
+                  className="px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 transition-all cursor-pointer shrink-0"
+                >
+                  <Pause className="w-4 h-4" />
+                  <span>Hentikan ({progressReminder}/{totalReminder})</span>
+                </button>
+              )}
             </div>
           )}
         </div>
+
+        {/* Progress Bar Pengingat Massal */}
+        {activeMainTab === 'WALI_SANTRI' && isSendingReminder && (
+          <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-300 space-y-2 text-xs text-blue-950">
+            <div className="flex items-center justify-between font-bold">
+              <span className="flex items-center space-x-2">
+                <Loader2 className="w-4 h-4 animate-spin text-[#1D4ED8]" />
+                <span>Mengirim {progressReminder} dari {totalReminder} pengingat...</span>
+              </span>
+              <span>
+                Berhasil: {reminderSuccess} · Gagal: {reminderFailed}
+              </span>
+            </div>
+            <div className="w-full bg-sky-200 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="bg-[#1D4ED8] h-2.5 rounded-full transition-all duration-300"
+                style={{
+                  width: `${totalReminder > 0 ? Math.round((progressReminder / totalReminder) * 100) : 0}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {children}
       </div>
