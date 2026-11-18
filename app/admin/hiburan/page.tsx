@@ -21,6 +21,7 @@ interface GameItem {
   icon: 'brain' | 'puzzle' | 'city' | 'snake';
   featured?: boolean;
   ready?: boolean;
+  openInNewTab?: boolean;
 }
 
 const GAMES: GameItem[] = [
@@ -64,6 +65,7 @@ const GAMES: GameItem[] = [
     icon: 'snake',
     featured: true,
     ready: true,
+    openInNewTab: true,
   },
 ];
 
@@ -151,6 +153,8 @@ export default function HiburanLobbyPage() {
                 )}
                 <Link
                   href={game.href}
+                  target={game.openInNewTab ? '_blank' : undefined}
+                  rel={game.openInNewTab ? 'noopener noreferrer' : undefined}
                   className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] text-white text-sm font-bold shadow-sm transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
                 >
                   <Play className="w-4 h-4 shrink-0" aria-hidden="true" />

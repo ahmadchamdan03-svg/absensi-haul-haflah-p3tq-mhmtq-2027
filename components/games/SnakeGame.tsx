@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowDown,
@@ -9,6 +10,8 @@ import {
   ArrowRight,
   ArrowUp,
   Flag,
+  Maximize2,
+  Minimize2,
   Pause,
   Play,
   RotateCcw,
@@ -16,7 +19,6 @@ import {
   VolumeX,
   Worm,
 } from 'lucide-react';
-import GlassCard from '@/components/GlassCard';
 import {
   initSnakeAudio,
   playCutSlash,
@@ -80,6 +82,7 @@ function createRandomFruit(snakeBody: Point[]): Point {
 }
 
 export default function SnakeGame() {
+  const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const boardTouchRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,6 +100,8 @@ export default function SnakeGame() {
   const isPausedRef = useRef<boolean>(false);
   const isSurrenderedRef = useRef<boolean>(false);
 
+  const [mounted, setMounted] = useState<boolean>(false);
+  const [isNativeFullscreen, setIsNativeFullscreen] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [peakScore, setPeakScore] = useState<number>(0);
   const [snakeLength, setSnakeLength] = useState<number>(INITIAL_SNAKE.length);
@@ -108,6 +113,33 @@ export default function SnakeGame() {
   const [cutBanner, setCutBanner] = useState<CutFeedbackBanner | null>(null);
 
   const speedLevel = 1 + Math.floor(fruitsEaten / FRUITS_PER_SPEED_UP);
+
+  const tryEnterBrowserFullscreen = useCallback(() => {
+    if (typeof document === 'undefined') return;
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, []);
+
+  const toggleBrowserFullscreen = useCallback(() => {
+    if (typeof document === 'undefined') return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }, []);
+
+  const handleExitToLobby = useCallback(() => {
+    if (typeof document !== 'undefined' && document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {});
+    }
+    if (typeof window !== 'undefined' && window.opener) {
+      window.close();
+      return;
+    }
+    router.push('/admin/hiburan');
+  }, [router]);
 
   const enqueueDirection = useCallback((nextDir: Point) => {
     if (isPausedRef.current || isSurrenderedRef.current) return;
@@ -181,9 +213,19 @@ export default function SnakeGame() {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
     fruitRef.current = createRandomFruit(snakeRef.current);
     document.title = 'Snake P3TQ | Pusat Hiburan Haflah';
-  }, []);
+    tryEnterBrowserFullscreen();
+
+    const handleFullscreenChange = () => {
+      setIsNativeFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [tryEnterBrowserFullscreen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -582,418 +624,394 @@ export default function SnakeGame() {
     return () => window.clearTimeout(timer);
   }, [cutBanner]);
 
-  return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 lg:pb-12 space-y-6">
-      {/* Top Bar matching Hiburan Lobby Card Aesthetics */}
-      <div className="bg-white/95 border border-[#D49B5B]/45 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shrink-0 shadow-sm">
-            <Worm
-              className="w-6 h-6 sm:w-7 sm:h-7 text-[#F5C56B]"
-              aria-hidden="true"
-            />
-          </div>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#92400E]">
-                Mode Zen Tanpa Akhir
-              </span>
-              <span className="inline-block px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-[11px] font-bold text-[#1E3A8A]">
-                Kecepatan Lv. {speedLevel}
-              </span>
+  const gameLayer = (
+    <div
+      ref={boardTouchRef}
+      className="fixed inset-0 z-[9999] w-full h-[100dvh] bg-[#07142B] overflow-hidden touch-none select-none flex flex-col justify-between"
+      style={{
+        background:
+          'linear-gradient(180deg, #07142B 0%, #0F2C59 52%, #07142B 100%)',
+      }}
+    >
+      {/* Fullscreen Top Header & HUD */}
+      <header
+        className="relative z-20 w-full px-3 sm:px-6 pb-2"
+        style={{
+          paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
+        }}
+      >
+        <div className="max-w-6xl mx-auto bg-white/95 border border-[#D49B5B]/60 rounded-2xl px-3 py-2.5 sm:px-5 sm:py-3 shadow-lg flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
+          {/* Left: Lobby Exit + Identity */}
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
+            <button
+              type="button"
+              onClick={handleExitToLobby}
+              aria-label="Kembali ke Lobby Hiburan"
+              title="Kembali ke Lobby Hiburan"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-xs sm:text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+            >
+              <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span className="hidden sm:inline">Lobby</span>
+            </button>
+
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shrink-0 shadow-sm">
+              <Worm
+                className="w-5 h-5 sm:w-6 sm:h-6 text-[#F5C56B]"
+                aria-hidden="true"
+              />
             </div>
-            <h1 className="text-xl sm:text-2xl font-serif font-black text-[#0F2C59] tracking-tight">
-              Snake P3TQ
-            </h1>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-end gap-2 flex-wrap">
-          <Link
-            href="/admin/hiburan"
-            className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-xs sm:text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-          >
-            <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <span>Lobby</span>
-          </Link>
-
-          <button
-            type="button"
-            onClick={toggleSound}
-            aria-label={soundEnabled ? 'Matikan suara' : 'Nyalakan suara'}
-            title={soundEnabled ? 'Matikan suara' : 'Nyalakan suara'}
-            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-xs sm:text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-          >
-            {soundEnabled ? (
-              <Volume2 className="w-4 h-4 text-[#0F2C59]" aria-hidden="true" />
-            ) : (
-              <VolumeX className="w-4 h-4 text-slate-600" aria-hidden="true" />
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={togglePause}
-            disabled={isSurrendered}
-            aria-label={isPaused ? 'Lanjutkan permainan' : 'Jeda permainan'}
-            className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-[#0F2C59] border border-slate-300 text-xs sm:text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-          >
-            {isPaused ? (
-              <>
-                <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
-                <span>Lanjut</span>
-              </>
-            ) : (
-              <>
-                <Pause className="w-4 h-4 shrink-0" aria-hidden="true" />
-                <span>Jeda</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Main Game Arena & Telemetry Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Canvas Container (Left / Center Column) */}
-        <GlassCard className="relative overflow-hidden lg:col-span-8 p-4 sm:p-5 border border-[#D49B5B]/45 bg-white/95 shadow-sm space-y-3.5">
-          {/* HUD Bar Directly Above Canvas with Top-Right Surrender Button */}
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-200/80">
-            <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                  Skor
-                </p>
-                <p
-                  data-testid="snake-current-score"
-                  className="text-xl sm:text-2xl font-black tabular-nums text-[#0F2C59]"
-                >
-                  {score.toLocaleString('id-ID')}
-                </p>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-base sm:text-xl font-serif font-black text-[#0F2C59] tracking-tight leading-none">
+                  Snake P3TQ
+                </h1>
+                <span className="inline-block px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-[10px] sm:text-[11px] font-bold text-[#1E3A8A]">
+                  Lv. {speedLevel}
+                </span>
               </div>
-
-              <div className="h-7 w-[1px] bg-slate-200" aria-hidden="true" />
-
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                  Panjang
-                </p>
-                <p
-                  data-testid="snake-current-length"
-                  className="text-base sm:text-lg font-extrabold tabular-nums text-[#0F2C59]"
-                >
-                  {snakeLength} Segmen
-                </p>
-              </div>
-
-              <div className="h-7 w-[1px] bg-slate-200" aria-hidden="true" />
-
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                  Buah
-                </p>
-                <p
-                  data-testid="snake-fruits-eaten"
-                  className="text-base sm:text-lg font-extrabold tabular-nums text-[#92400E]"
-                >
-                  {fruitsEaten}
-                </p>
-              </div>
+              <p className="text-[11px] font-semibold text-[#92400E] hidden sm:block mt-0.5">
+                Mode Zen Tanpa Akhir • Tembus Dinding
+              </p>
             </div>
+          </div>
+
+          {/* Center: Live Telemetry Counters */}
+          <div className="flex items-center gap-3 sm:gap-6 bg-[#F0F9FF] border border-blue-200 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                Skor
+              </p>
+              <p
+                data-testid="snake-current-score"
+                className="text-base sm:text-xl font-black tabular-nums text-[#0F2C59] leading-tight"
+              >
+                {score.toLocaleString('id-ID')}
+              </p>
+            </div>
+
+            <div className="h-6 w-[1px] bg-blue-200" aria-hidden="true" />
+
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                Panjang
+              </p>
+              <p
+                data-testid="snake-current-length"
+                className="text-sm sm:text-base font-extrabold tabular-nums text-[#0F2C59] leading-tight"
+              >
+                {snakeLength}
+              </p>
+            </div>
+
+            <div className="h-6 w-[1px] bg-blue-200" aria-hidden="true" />
+
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                Buah
+              </p>
+              <p
+                data-testid="snake-fruits-eaten"
+                className="text-sm sm:text-base font-extrabold tabular-nums text-[#92400E] leading-tight"
+              >
+                {fruitsEaten}
+              </p>
+            </div>
+          </div>
+
+          {/* Right: Controls & Top-Right Surrender ("Menyerah") Button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0">
+            <button
+              type="button"
+              onClick={toggleSound}
+              aria-label={soundEnabled ? 'Matikan suara' : 'Nyalakan suara'}
+              title={soundEnabled ? 'Matikan suara' : 'Nyalakan suara'}
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-xs font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+            >
+              {soundEnabled ? (
+                <Volume2 className="w-4 h-4 text-[#0F2C59]" aria-hidden="true" />
+              ) : (
+                <VolumeX className="w-4 h-4 text-slate-600" aria-hidden="true" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleBrowserFullscreen}
+              aria-label={
+                isNativeFullscreen ? 'Keluar layar penuh' : 'Layar penuh'
+              }
+              title={isNativeFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+              className="hidden sm:inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-2.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-xs font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+            >
+              {isNativeFullscreen ? (
+                <Minimize2 className="w-4 h-4 text-[#0F2C59]" aria-hidden="true" />
+              ) : (
+                <Maximize2 className="w-4 h-4 text-[#0F2C59]" aria-hidden="true" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={togglePause}
+              disabled={isSurrendered}
+              aria-label={isPaused ? 'Lanjutkan permainan' : 'Jeda permainan'}
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-[#0F2C59] border border-slate-300 text-xs sm:text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+            >
+              {isPaused ? (
+                <>
+                  <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span className="hidden md:inline">Lanjut</span>
+                </>
+              ) : (
+                <>
+                  <Pause className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span className="hidden md:inline">Jeda</span>
+                </>
+              )}
+            </button>
 
             <button
               type="button"
               data-testid="snake-surrender-btn"
               onClick={handleSurrender}
               disabled={isSurrendered}
-              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold shadow-sm transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold shadow-sm transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B]"
             >
               <Flag className="w-4 h-4 shrink-0" aria-hidden="true" />
               <span>Menyerah</span>
             </button>
           </div>
+        </div>
+      </header>
 
-          {/* Interactive Board Area with Touch Swipe Listener */}
-          <div
-            ref={boardTouchRef}
-            className="relative w-full max-w-[380px] sm:max-w-[410px] mx-auto aspect-square rounded-2xl overflow-hidden border-2 border-[#0F2C59] bg-[#0B2247] shadow-inner touch-none select-none"
-          >
-            <canvas
-              ref={canvasRef}
-              aria-label="Papan permainan Snake P3TQ"
-              className="w-full h-full block"
-            />
+      {/* Center Stage: Responsive Square Canvas Arena */}
+      <main className="relative z-10 flex-1 min-h-0 w-full flex flex-col items-center justify-center px-3 py-1 sm:p-4 gap-2.5">
+        <div
+          className="relative aspect-square w-full rounded-2xl overflow-hidden border-2 border-[#D49B5B] bg-[#0B2247] shadow-2xl"
+          style={{
+            maxWidth: 'min(92vw, calc(100dvh - 230px))',
+            maxHeight: 'min(92vw, calc(100dvh - 230px))',
+          }}
+        >
+          <canvas
+            ref={canvasRef}
+            aria-label="Papan permainan Snake P3TQ"
+            className="w-full h-full block"
+          />
 
-            {/* Framer Motion Fade-Out Notification when Body is Cut */}
-            <AnimatePresence>
-              {cutBanner && !isSurrendered && (
-                <motion.div
-                  key={cutBanner.id}
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -12, scale: 0.95 }}
-                  transition={{ duration: 0.25 }}
-                  className="pointer-events-none absolute top-3 inset-x-3 flex justify-center z-10"
-                >
-                  <div className="px-3.5 py-2 rounded-xl bg-[#0F2C59]/95 border border-[#F5C56B] text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                    <span className="text-[#FDA4AF]">
-                      Tubuh Terpotong (-{cutBanner.lostSegments} segmen)
-                    </span>
-                    <span>•</span>
-                    <span className="text-[#F5C56B]">
-                      Skor: {cutBanner.oldScore} ke {cutBanner.newScore}
-                    </span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Pause Overlay */}
-            <AnimatePresence>
-              {isPaused && !isSurrendered && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  className="absolute inset-0 z-20 bg-[#07142B]/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
-                >
-                  <div className="w-full max-w-xs rounded-2xl bg-white p-6 border-2 border-[#D49B5B] shadow-xl space-y-4">
-                    <h2 className="text-xl font-serif font-black text-[#0F2C59]">
-                      Permainan Dijeda
-                    </h2>
-                    <p className="text-xs text-slate-700 leading-relaxed">
-                      Tekan tombol Lanjutkan atau bilah Spasi untuk kembali
-                      menggerakkan ular.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={togglePause}
-                      className="w-full inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
-                    >
-                      <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
-                      <span>Lanjutkan Permainan</span>
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Final Score Summary Overlay on Surrender */}
+          {/* Framer Motion Fade-Out Notification when Body is Cut */}
           <AnimatePresence>
-            {isSurrendered && (
+            {cutBanner && !isSurrendered && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.22 }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="snake-summary-title"
-                className="absolute inset-0 z-30 bg-[#07142B]/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+                key={cutBanner.id}
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -12, scale: 0.95 }}
+                transition={{ duration: 0.25 }}
+                className="pointer-events-none absolute top-3 inset-x-3 flex justify-center z-10"
               >
-                <div className="w-full max-w-sm rounded-2xl bg-white border-2 border-[#D49B5B] p-5 sm:p-6 text-center shadow-2xl space-y-4">
-                  <div className="mx-auto w-12 h-12 rounded-2xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shadow-sm">
-                    <Worm
-                      className="w-6 h-6 text-[#F5C56B]"
-                      aria-hidden="true"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-[#92400E]">
-                      Sesi Berakhir
-                    </p>
-                    <h2
-                      id="snake-summary-title"
-                      className="text-2xl font-serif font-black text-[#0F2C59]"
-                    >
-                      Hasil Akhir Snake P3TQ
-                    </h2>
-                  </div>
-
-                  <div className="rounded-xl bg-[#F0F9FF] border border-blue-200 p-3.5">
-                    <p className="text-xs font-bold text-[#1E3A8A]">
-                      Skor Akhir
-                    </p>
-                    <p
-                      data-testid="snake-final-score"
-                      className="text-3xl font-black tabular-nums text-[#0F2C59] mt-0.5"
-                    >
-                      {score.toLocaleString('id-ID')}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2.5 text-left">
-                    <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
-                      <p className="text-[11px] font-bold text-slate-600">
-                        Skor Tertinggi
-                      </p>
-                      <p className="text-base font-extrabold tabular-nums text-[#0F2C59]">
-                        {peakScore.toLocaleString('id-ID')}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
-                      <p className="text-[11px] font-bold text-slate-600">
-                        Buah Dimakan
-                      </p>
-                      <p className="text-base font-extrabold tabular-nums text-[#92400E]">
-                        {fruitsEaten} Buah
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
-                      <p className="text-[11px] font-bold text-slate-600">
-                        Panjang Akhir
-                      </p>
-                      <p className="text-base font-extrabold tabular-nums text-[#0F2C59]">
-                        {snakeLength} Segmen
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
-                      <p className="text-[11px] font-bold text-slate-600">
-                        Terpotong
-                      </p>
-                      <p className="text-base font-extrabold tabular-nums text-[#0F2C59]">
-                        {cutCount} Kali
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-1 flex flex-col sm:flex-row gap-2.5">
-                    <button
-                      type="button"
-                      onClick={resetGame}
-                      className="flex-1 inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59] focus-visible:ring-offset-2"
-                    >
-                      <RotateCcw
-                        className="w-4 h-4 shrink-0"
-                        aria-hidden="true"
-                      />
-                      <span>Main Lagi</span>
-                    </button>
-
-                    <Link
-                      href="/admin/hiburan"
-                      className="flex-1 inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-                    >
-                      <span>Kembali ke Lobby</span>
-                    </Link>
-                  </div>
+                <div className="px-3.5 py-2 rounded-xl bg-[#0F2C59]/95 border border-[#F5C56B] text-white text-xs font-bold shadow-lg flex items-center gap-2">
+                  <span className="text-[#FDA4AF]">
+                    Tubuh Terpotong (-{cutBanner.lostSegments} segmen)
+                  </span>
+                  <span>•</span>
+                  <span className="text-[#F5C56B]">
+                    Skor: {cutBanner.oldScore} ke {cutBanner.newScore}
+                  </span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Mobile & Touch Directional Pad + Swipe Hint */}
-          <div className="pt-1 flex flex-col items-end sm:items-center gap-2.5">
-            <p className="w-full text-xs font-semibold text-slate-700 text-center">
-              Geser layar (swipe) pada papan atau gunakan tombol arah di bawah:
-            </p>
-            <div className="grid grid-cols-3 gap-2 w-44 mr-1 sm:mr-0">
-              <div />
-              <button
-                type="button"
-                aria-label="Gerak ke atas"
-                onClick={() => enqueueDirection({ x: 0, y: -1 })}
-                className="flex items-center justify-center min-h-[48px] min-w-[48px] rounded-xl bg-[#0F2C59] hover:bg-[#1E3A8A] active:scale-95 text-[#F5C56B] border border-[#D49B5B] shadow-sm transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
+          {/* Pause Overlay */}
+          <AnimatePresence>
+            {isPaused && !isSurrendered && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="absolute inset-0 z-20 bg-[#07142B]/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
               >
-                <ArrowUp className="w-5 h-5" aria-hidden="true" />
-              </button>
-              <div />
-              <button
-                type="button"
-                aria-label="Gerak ke kiri"
-                onClick={() => enqueueDirection({ x: -1, y: 0 })}
-                className="flex items-center justify-center min-h-[48px] min-w-[48px] rounded-xl bg-[#0F2C59] hover:bg-[#1E3A8A] active:scale-95 text-[#F5C56B] border border-[#D49B5B] shadow-sm transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-              >
-                <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                aria-label="Gerak ke bawah"
-                onClick={() => enqueueDirection({ x: 0, y: 1 })}
-                className="flex items-center justify-center min-h-[48px] min-w-[48px] rounded-xl bg-[#0F2C59] hover:bg-[#1E3A8A] active:scale-95 text-[#F5C56B] border border-[#D49B5B] shadow-sm transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-              >
-                <ArrowDown className="w-5 h-5" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                aria-label="Gerak ke kanan"
-                onClick={() => enqueueDirection({ x: 1, y: 0 })}
-                className="flex items-center justify-center min-h-[48px] min-w-[48px] rounded-xl bg-[#0F2C59] hover:bg-[#1E3A8A] active:scale-95 text-[#F5C56B] border border-[#D49B5B] shadow-sm transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] focus-visible:ring-offset-2"
-              >
-                <ArrowRight className="w-5 h-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </GlassCard>
+                <div className="w-full max-w-xs rounded-2xl bg-white p-6 border-2 border-[#D49B5B] shadow-xl space-y-4">
+                  <h2 className="text-xl font-serif font-black text-[#0F2C59]">
+                    Permainan Dijeda
+                  </h2>
+                  <p className="text-xs text-slate-700 leading-relaxed">
+                    Tekan tombol Lanjutkan atau bilah Spasi untuk kembali
+                    menggerakkan ular.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={togglePause}
+                    className="w-full inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59]"
+                  >
+                    <Play className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <span>Lanjutkan Permainan</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
 
-        {/* Right Info & Rules Panel */}
-        <GlassCard className="lg:col-span-4 p-5 sm:p-6 border border-[#D49B5B]/45 bg-white/95 shadow-sm space-y-5">
-          <div className="space-y-1.5">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#92400E]">
-              Panduan Arena
-            </p>
-            <h2 className="text-lg font-serif font-black text-[#0F2C59]">
-              Aturan Zen Endless
-            </h2>
-          </div>
+      {/* Bottom Control Bar: Touch D-Pad & Keyboard Hint */}
+      <footer
+        className="relative z-20 w-full px-4 pt-1 flex flex-col items-center gap-1.5"
+        style={{
+          paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
+        }}
+      >
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            aria-label="Gerak ke kiri"
+            onClick={() => enqueueDirection({ x: -1, y: 0 })}
+            className="flex items-center justify-center min-h-[46px] min-w-[54px] rounded-xl bg-white/95 hover:bg-white active:scale-95 text-[#0F2C59] border-2 border-[#D49B5B] shadow-md transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B]"
+          >
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Gerak ke atas"
+            onClick={() => enqueueDirection({ x: 0, y: -1 })}
+            className="flex items-center justify-center min-h-[46px] min-w-[54px] rounded-xl bg-white/95 hover:bg-white active:scale-95 text-[#0F2C59] border-2 border-[#D49B5B] shadow-md transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B]"
+          >
+            <ArrowUp className="w-5 h-5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Gerak ke bawah"
+            onClick={() => enqueueDirection({ x: 0, y: 1 })}
+            className="flex items-center justify-center min-h-[46px] min-w-[54px] rounded-xl bg-white/95 hover:bg-white active:scale-95 text-[#0F2C59] border-2 border-[#D49B5B] shadow-md transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B]"
+          >
+            <ArrowDown className="w-5 h-5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="Gerak ke kanan"
+            onClick={() => enqueueDirection({ x: 1, y: 0 })}
+            className="flex items-center justify-center min-h-[46px] min-w-[54px] rounded-xl bg-white/95 hover:bg-white active:scale-95 text-[#0F2C59] border-2 border-[#D49B5B] shadow-md transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C56B]"
+          >
+            <ArrowRight className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
+        <p className="text-[11px] font-semibold text-[#F5C56B] text-center">
+          PC: Tombol Panah / WASD • Ponsel: Geser Layar (Swipe) atau Tombol Arah
+        </p>
+      </footer>
 
-          <ul className="space-y-3 text-sm text-slate-700 leading-relaxed">
-            <li className="p-3 rounded-xl bg-[#F0F9FF] border border-blue-200">
-              <p className="font-bold text-[#0F2C59]">Tanpa Dinding Mematikan</p>
-              <p className="text-xs text-slate-700 mt-0.5">
-                Ular menembus sisi kiri ke kanan dan atas ke bawah tanpa
-                berhenti.
-              </p>
-            </li>
-            <li className="p-3 rounded-xl bg-[#F0F9FF] border border-blue-200">
-              <p className="font-bold text-[#0F2C59]">Makan Buah (+10 Poin)</p>
-              <p className="text-xs text-slate-700 mt-0.5">
-                Setiap buah menambah panjang 1 segmen dan skor 10 poin.
-                Kecepatan meningkat setiap kelipatan 100 buah.
-              </p>
-            </li>
-            <li className="p-3 rounded-xl bg-amber-50/80 border border-amber-200">
-              <p className="font-bold text-[#92400E]">
-                Tabrakan Tubuh &amp; Potong Ekor
-              </p>
-              <p className="text-xs text-slate-700 mt-0.5">
-                Menabrak badan sendiri tidak mengakhiri permainan. Bagian tubuh
-                dari titik tabrakan hingga ekor akan memudar dan skor
-                disesuaikan proporsional terhadap sisa panjang tubuh.
-              </p>
-            </li>
-          </ul>
+      {/* Fullscreen Final Score Summary Modal on Surrender */}
+      <AnimatePresence>
+        {isSurrendered && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.22 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="snake-summary-title"
+            className="fixed inset-0 z-50 bg-[#07142B]/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <div className="w-full max-w-sm rounded-3xl bg-white border-2 border-[#D49B5B] p-6 text-center shadow-2xl space-y-4">
+              <div className="mx-auto w-14 h-14 rounded-2xl bg-[#0F2C59] border-2 border-[#D49B5B] flex items-center justify-center shadow-sm">
+                <Worm
+                  className="w-7 h-7 text-[#F5C56B]"
+                  aria-hidden="true"
+                />
+              </div>
 
-          <div className="pt-2 border-t border-slate-200/80 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-600">Kontrol PC</span>
-              <span className="font-bold text-[#0F2C59]">
-                Panah / WASD / Spasi
-              </span>
+              <div className="space-y-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#92400E]">
+                  Sesi Berakhir
+                </p>
+                <h2
+                  id="snake-summary-title"
+                  className="text-2xl font-serif font-black text-[#0F2C59]"
+                >
+                  Hasil Akhir Snake P3TQ
+                </h2>
+              </div>
+
+              <div className="rounded-2xl bg-[#F0F9FF] border border-blue-200 p-4">
+                <p className="text-xs font-bold text-[#1E3A8A]">Skor Akhir</p>
+                <p
+                  data-testid="snake-final-score"
+                  className="text-3xl sm:text-4xl font-black tabular-nums text-[#0F2C59] mt-0.5"
+                >
+                  {score.toLocaleString('id-ID')}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 text-left">
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
+                  <p className="text-[11px] font-bold text-slate-600">
+                    Skor Tertinggi
+                  </p>
+                  <p className="text-base font-extrabold tabular-nums text-[#0F2C59]">
+                    {peakScore.toLocaleString('id-ID')}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
+                  <p className="text-[11px] font-bold text-slate-600">
+                    Buah Dimakan
+                  </p>
+                  <p className="text-base font-extrabold tabular-nums text-[#92400E]">
+                    {fruitsEaten} Buah
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
+                  <p className="text-[11px] font-bold text-slate-600">
+                    Panjang Akhir
+                  </p>
+                  <p className="text-base font-extrabold tabular-nums text-[#0F2C59]">
+                    {snakeLength} Segmen
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5">
+                  <p className="text-[11px] font-bold text-slate-600">
+                    Terpotong
+                  </p>
+                  <p className="text-base font-extrabold tabular-nums text-[#0F2C59]">
+                    {cutCount} Kali
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-1 flex flex-col sm:flex-row gap-2.5">
+                <button
+                  type="button"
+                  onClick={resetGame}
+                  className="flex-1 inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-bold shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F2C59]"
+                >
+                  <RotateCcw
+                    className="w-4 h-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>Main Lagi</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleExitToLobby}
+                  className="flex-1 inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#0F2C59] border border-slate-300 text-sm font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+                >
+                  <span>Kembali ke Lobby</span>
+                </button>
+              </div>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-600">
-                Kontrol Ponsel
-              </span>
-              <span className="font-bold text-[#0F2C59]">
-                Swipe Layar / Tombol Arah
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-600">
-                Target Kecepatan Berikutnya
-              </span>
-              <span className="font-bold text-[#92400E]">
-                {FRUITS_PER_SPEED_UP - (fruitsEaten % FRUITS_PER_SPEED_UP)} Buah
-                Lagi
-              </span>
-            </div>
-          </div>
-        </GlassCard>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
+
+  if (mounted && typeof document !== 'undefined') {
+    return createPortal(gameLayer, document.body);
+  }
+
+  return gameLayer;
 }
