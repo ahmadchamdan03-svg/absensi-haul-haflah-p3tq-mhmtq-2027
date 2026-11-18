@@ -8,6 +8,7 @@ import {
   Clock,
   Zap,
   Edit2,
+  Loader2,
 } from 'lucide-react';
 import { extractBagianTamatan } from '@/lib/types';
 import WhatsAppFilter, { WhatsAppFilterProps } from './WhatsAppFilter';
@@ -57,7 +58,11 @@ function FonnteSendButton({
       } disabled:opacity-40 disabled:pointer-events-none`}
       title={isTerkirim ? 'Kirim ulang pesan via WhatsApp Fonnte' : 'Kirim otomatis lewat WhatsApp Fonnte'}
     >
-      <Zap className={`w-3 h-3 fill-current ${isTerkirim ? 'text-slate-500' : 'text-amber-300'}`} />
+      {isSending ? (
+        <Loader2 className={`w-3 h-3 animate-spin ${isTerkirim ? 'text-slate-500' : 'text-amber-300'}`} />
+      ) : (
+        <Zap className={`w-3 h-3 fill-current ${isTerkirim ? 'text-slate-500' : 'text-amber-300'}`} />
+      )}
       <span>{isSending ? 'Mengirim...' : isTerkirim ? 'Kirim Ulang' : 'Kirim Fonnte'}</span>
     </button>
   );

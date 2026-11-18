@@ -150,14 +150,15 @@ export default function WhatsAppPage() {
     return { data: allRows, error: null };
   };
 
-  const fetchSantriWaData = async () => {
+  const fetchSantriWaData = async (options?: { silent?: boolean }) => {
+    const isSilent = Boolean(options?.silent);
     try {
-      setLoadingData(true);
+      if (!isSilent) setLoadingData(true);
       const { data, error } = await fetchAllTableRows('peserta_santri');
 
       if (error) {
         console.error('Error fetching peserta_santri for WA:', error);
-        setKeluargaList([]);
+        if (!isSilent) setKeluargaList([]);
       } else if (data) {
         const mappedSantri = data.map((s: any) => {
           const katUtama = s.kategori_utama || 'BIL_GHOIB';
@@ -203,20 +204,21 @@ export default function WhatsAppPage() {
       }
     } catch (e) {
       console.warn('Error in fetchSantriWaData:', e);
-      setKeluargaList([]);
+      if (!isSilent) setKeluargaList([]);
     } finally {
-      setLoadingData(false);
+      if (!isSilent) setLoadingData(false);
     }
   };
 
-  const fetchTamuWaData = async () => {
+  const fetchTamuWaData = async (options?: { silent?: boolean }) => {
+    const isSilent = Boolean(options?.silent);
     try {
-      setLoadingTamuData(true);
+      if (!isSilent) setLoadingTamuData(true);
       const { data, error } = await fetchAllTableRows('tamu_undangan');
 
       if (error) {
         console.error('Error fetching tamu_undangan for WA:', error);
-        setTamuList([]);
+        if (!isSilent) setTamuList([]);
       } else if (data) {
         const mappedTamu = data.map((t: any) => {
           const subKatUpper = String(t.sub_kategori || '').trim().toUpperCase();
@@ -249,9 +251,9 @@ export default function WhatsAppPage() {
       }
     } catch (e) {
       console.warn('Error in fetchTamuWaData:', e);
-      setTamuList([]);
+      if (!isSilent) setTamuList([]);
     } finally {
-      setLoadingTamuData(false);
+      if (!isSilent) setLoadingTamuData(false);
     }
   };
 
@@ -356,8 +358,63 @@ export default function WhatsAppPage() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
         fetchKuotaConfigStatus();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, () => fetchSantriWaData())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, () => fetchTamuWaData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, (payload: any) => {
+        if (payload?.eventType === 'UPDATE' && payload.new?.id) {
+          const row = payload.new;
+          setKeluargaList((prev) =>
+            prev.map((item) =>
+              item.id === row.id
+                ? {
+                    ...item,
+                    namaWali: row.nama_wali ?? item.namaWali,
+                    noHp: row.no_hp ?? item.noHp,
+                    alamat: row.alamat ?? item.alamat,
+                    statusWa: row.status_wa ?? item.statusWa,
+                    kuota: {
+                      kuotaDasar: row.kuota_dasar ?? item.kuota?.kuotaDasar ?? 2,
+                      kuotaTambahan: row.kuota_tambahan ?? item.kuota?.kuotaTambahan ?? 0,
+                      terpakai: row.kuota_terpakai ?? item.kuota?.terpakai ?? 0,
+                    },
+                    estimasi: {
+                      statusKonfirmasi:
+                        row.status_konfirmasi !== undefined
+                          ? String(row.status_konfirmasi || '').toUpperCase() === 'SUDAH'
+                            ? 'SUDAH'
+                            : 'BELUM'
+                          : item.estimasi?.statusKonfirmasi,
+                      perkiraanL:
+                        row.perkiraan_l !== undefined ? Number(row.perkiraan_l || 0) : item.estimasi?.perkiraanL,
+                      perkiraanP:
+                        row.perkiraan_p !== undefined ? Number(row.perkiraan_p || 0) : item.estimasi?.perkiraanP,
+                    },
+                  }
+                : item
+            )
+          );
+          return;
+        }
+        fetchSantriWaData({ silent: true });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, (payload: any) => {
+        if (payload?.eventType === 'UPDATE' && payload.new?.id) {
+          const row = payload.new;
+          setTamuList((prev) =>
+            prev.map((item) =>
+              item.id === row.id
+                ? {
+                    ...item,
+                    nama: row.nama ?? item.nama,
+                    noHp: row.no_hp ?? item.noHp,
+                    statusWa: row.status_wa ?? item.statusWa,
+                    statusKonfirmasi: row.status_konfirmasi ?? item.statusKonfirmasi,
+                  }
+                : item
+            )
+          );
+          return;
+        }
+        fetchTamuWaData({ silent: true });
+      })
       .subscribe();
 
     return () => {
@@ -510,8 +567,8 @@ export default function WhatsAppPage() {
       // Notifikasi sukses
       showToast('success', `✓ Nomor WhatsApp ${editingItem.namaWali} (${cleanNo}) berhasil disimpan!`);
 
-      // Re-fetch sinkronisasi DB
-      fetchSantriWaData();
+      // Re-fetch sinkronisasi DB secara silent agar tabel & posisi scroll tidak ter-reset
+      fetchSantriWaData({ silent: true });
     } catch (err: any) {
       console.error('Error saving no HP wali:', err);
       const errMsg = err.message || 'Terjadi kesalahan sistem saat menyimpan nomor HP.';
@@ -535,9 +592,16 @@ export default function WhatsAppPage() {
     return true;
   };
 
-  const handleKirimFonnte = async (kel: any) => {
+  const handleKirimFonnte = async (kel: any, options?: { silentAlert?: boolean }) => {
     if (!ensureLinkGrupWaFilled()) return false;
-    return kirimFonnteWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setSendingKode, setKeluargaList);
+    return kirimFonnteWali(
+      kel,
+      gelombang,
+      gelombang === 1 ? linkGrupWa : '',
+      setSendingKode,
+      setKeluargaList,
+      { silentAlert: options?.silentAlert, onNotify: showToast }
+    );
   };
 
   const handleKirimManualWA = async (kel: any) => {
@@ -618,16 +682,21 @@ export default function WhatsAppPage() {
     stopBlastingRef.current = false;
     setBlastProgress({ current: 0, total: unsentList.length, success: 0, failed: 0 });
 
+    let successCount = 0;
+    let failedCount = 0;
+
     for (let i = 0; i < unsentList.length; i++) {
       if (stopBlastingRef.current) break;
 
       const kel = unsentList[i];
       setBlastProgress((prev) => ({ ...prev, current: i + 1 }));
 
-      const ok = await handleKirimFonnte(kel);
+      const ok = await handleKirimFonnte(kel, { silentAlert: true });
       if (ok) {
+        successCount++;
         setBlastProgress((prev) => ({ ...prev, success: prev.success + 1 }));
       } else {
+        failedCount++;
         setBlastProgress((prev) => ({ ...prev, failed: prev.failed + 1 }));
       }
 
@@ -635,6 +704,10 @@ export default function WhatsAppPage() {
     }
 
     setIsBlasting(false);
+    showToast(
+      failedCount > 0 && successCount === 0 ? 'error' : 'success',
+      `✓ Pengiriman Massal Wali Selesai! Terkirim: ${successCount}, Gagal: ${failedCount}`
+    );
   };
 
   const handleStopBatchBlast = () => {
@@ -764,8 +837,8 @@ export default function WhatsAppPage() {
       // Notifikasi sukses
       showToast('success', `✓ Nomor WhatsApp ${editingTamuItem.nama} (${cleanNo}) berhasil disimpan!`);
 
-      // Re-fetch sinkronisasi DB
-      fetchTamuWaData();
+      // Re-fetch sinkronisasi DB secara silent agar tabel & posisi scroll tidak ter-reset
+      fetchTamuWaData({ silent: true });
     } catch (err: any) {
       console.error('Error saving no HP tamu:', err);
       const errMsg = err.message || 'Terjadi kesalahan sistem saat menyimpan nomor HP.';
@@ -776,8 +849,11 @@ export default function WhatsAppPage() {
     }
   };
 
-  const handleKirimFonnteTamu = (tamu: any) =>
-    kirimFonnteTamu(tamu, setTamuSendingKode, setTamuList);
+  const handleKirimFonnteTamu = (tamu: any, options?: { silentAlert?: boolean }) =>
+    kirimFonnteTamu(tamu, setTamuSendingKode, setTamuList, {
+      silentAlert: options?.silentAlert,
+      onNotify: showToast,
+    });
 
   const handleKirimManualWATamu = (tamu: any) =>
     kirimManualWATamu(tamu, setTamuList);
@@ -837,7 +913,7 @@ export default function WhatsAppPage() {
       const tamu = validList[i];
       setTamuBlastProgress((prev) => ({ ...prev, current: i + 1 }));
 
-      const ok = await handleKirimFonnteTamu(tamu);
+      const ok = await handleKirimFonnteTamu(tamu, { silentAlert: true });
       if (ok) {
         successCount++;
         setTamuBlastProgress((prev) => ({ ...prev, success: prev.success + 1 }));
@@ -850,7 +926,10 @@ export default function WhatsAppPage() {
     }
 
     setIsTamuBlasting(false);
-    alert(`✓ Pengiriman Massal Selesai!\n• Terkirim: ${successCount} tamu\n• Gagal: ${failedCount} tamu`);
+    showToast(
+      failedCount > 0 && successCount === 0 ? 'error' : 'success',
+      `✓ Pengiriman Massal Tamu Selesai! Terkirim: ${successCount}, Gagal: ${failedCount}`
+    );
   };
 
   const handleStopBatchBlastTamu = () => {
@@ -907,7 +986,7 @@ export default function WhatsAppPage() {
             activeTab={activeTab}
             keluargaList={keluargaList}
             loadingData={loadingData}
-            fetchSantriWaData={fetchSantriWaData}
+            fetchSantriWaData={() => fetchSantriWaData()}
             gelombang={gelombang}
             setGelombang={setGelombang}
             setFilterKonfirmasi={setFilterKonfirmasi}
@@ -927,7 +1006,7 @@ export default function WhatsAppPage() {
             tamuList={tamuList}
             filteredTamuList={filteredTamuList}
             loadingTamuData={loadingTamuData}
-            fetchTamuWaData={fetchTamuWaData}
+            fetchTamuWaData={() => fetchTamuWaData()}
             isTamuBlasting={isTamuBlasting}
             tamuBlastProgress={tamuBlastProgress}
             handleStartBatchBlastTamu={handleStartBatchBlastTamu}
