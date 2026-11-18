@@ -241,7 +241,11 @@ export function TanyaUsMessageList({
 
               {/* Konten Balasan */}
               <div className="leading-relaxed font-sans">
-                {renderFormattedContent(msg.content, handleNavigate, isUser)}
+                {renderFormattedContent(msg.content, handleNavigate, isUser, {
+                  allowExcelDownload: !!userAskedExcel,
+                  allowPdfDownload: !!userAskedPdf,
+                  allowDocxDownload: !!userAskedDocx,
+                })}
                 {!isUser && msg.chart && <PieChartWidget chart={msg.chart} />}
               </div>
 

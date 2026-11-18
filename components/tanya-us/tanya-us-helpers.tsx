@@ -226,7 +226,12 @@ export const CONTOH_PERTANYAAN_PANITIA = [
 export function renderFormattedContent(
   text: string,
   onNavigate?: (url: string) => void,
-  isUser: boolean = false
+  isUser: boolean = false,
+  options?: {
+    allowExcelDownload?: boolean;
+    allowPdfDownload?: boolean;
+    allowDocxDownload?: boolean;
+  }
 ) {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
@@ -300,21 +305,23 @@ export function renderFormattedContent(
             </tbody>
           </table>
         </div>
-        <div className="p-2.5 bg-[#F7F2EC] border-t border-[#BAE6FD] flex items-center justify-between flex-wrap gap-2 text-[11px]">
-          <span className="text-[#1E40AF] font-bold flex items-center gap-1.5">
-            <FileSpreadsheet className="w-4 h-4 text-blue-700" />
-            <span>Tabel Data Haflah ({dataRows.length} baris)</span>
-          </span>
-          <button
-            type="button"
-            onClick={() => exportTableToExcel(headerRow, dataRows, 'Tabel_Data_Haflah')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-            title="Unduh data tabel dalam format spreadsheet Excel"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Unduh Excel (.xlsx)</span>
-          </button>
-        </div>
+        {options?.allowExcelDownload && (
+          <div className="p-2.5 bg-[#F7F2EC] border-t border-[#BAE6FD] flex items-center justify-between flex-wrap gap-2 text-[11px]">
+            <span className="text-[#1E40AF] font-bold flex items-center gap-1.5">
+              <FileSpreadsheet className="w-4 h-4 text-blue-700" />
+              <span>Tabel Data Haflah ({dataRows.length} baris)</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => exportTableToExcel(headerRow, dataRows, 'Tabel_Data_Haflah')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+              title="Unduh data tabel dalam format spreadsheet Excel"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Unduh Excel (.xlsx)</span>
+            </button>
+          </div>
+        )}
       </div>
     );
 
@@ -510,10 +517,11 @@ export function renderFormattedContent(
       return;
     }
 
-    // Unduhan PDF Card: [DOWNLOAD_PDF: Judul Dokumen]
+    // Unduhan PDF Card: [DOWNLOAD_PDF: Judul Dokumen] (Hanya jika user meminta PDF secara eksplisit)
     const pdfMatch = trimmed.match(/^\[DOWNLOAD_PDF:\s*(.*?)\]$/i);
     if (pdfMatch) {
       flushList();
+      if (!options?.allowPdfDownload) return;
       const title = pdfMatch[1] || 'Dokumen Haflah P3TQ & MHMTQ';
       elements.push(
         <div
@@ -548,10 +556,11 @@ export function renderFormattedContent(
       return;
     }
 
-    // Unduhan DOCX Card: [DOWNLOAD_DOCX: Judul Dokumen]
+    // Unduhan DOCX Card: [DOWNLOAD_DOCX: Judul Dokumen] (Hanya jika user meminta Word/DOCX secara eksplisit)
     const docxMatch = trimmed.match(/^\[DOWNLOAD_DOCX:\s*(.*?)\]$/i);
     if (docxMatch) {
       flushList();
+      if (!options?.allowDocxDownload) return;
       const title = docxMatch[1] || 'Dokumen Haflah P3TQ & MHMTQ';
       elements.push(
         <div

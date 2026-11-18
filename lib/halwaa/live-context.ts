@@ -715,12 +715,21 @@ export async function getLiveDatabaseContextPrompt(userQuery: string = ''): Prom
     ? dobelSantriList.map((s: any) => `${s.nama} (${s.sub_kategori}, Wali: ${s.nama_wali || '-'})`).join('; ')
     : 'Tidak ada santri kategori dobel';
 
+  const countTamatan = santriList.filter((s: any) => String(s.kategori || '').toUpperCase().includes('TAMATAN')).length;
+  const countBilGhoib = santriList.filter((s: any) => String(s.kategori || '').toUpperCase().includes('BIL_GHOIB')).length;
+  const countBinNadzor = santriList.filter((s: any) => String(s.kategori || '').toUpperCase().includes('BIN_NADZOR')).length;
+  const sampleSantriRows = santriList
+    .slice(0, 15)
+    .map((s: any) => `${s.kode} | ${s.nama} | Wali: ${s.nama_wali || '-'} | Kategori: ${s.sub_kategori || s.kategori || '-'} | Kuota: ${(Number(s.kuota_dasar || 2) + Number(s.kuota_tambahan || 0))} Kursi`)
+    .join('\n  • ');
+
   return `
 === DATA DARI DATABASE SUPABASE (LIVE & ACTUAL) ===
 Timestamp: ${dateStr}, pukul ${timeStr} WIB
 
-- TOTAL SHOHIBUL HAJAT TERDAFTAR (LIVE SUPA): ${totalSHText}
+- TOTAL SHOHIBUL HAJAT / PESERTA SANTRI TERDAFTAR (LIVE SUPA): ${totalSHText} (Rincian Kategori: Tamatan = ${countTamatan} santri, 30 Juz Bil Ghoib = ${countBilGhoib} santri, 30 Juz Bin Nadzor = ${countBinNadzor} santri)
 - TOTAL TAMU UNDANGAN TERDAFTAR (LIVE SUPA): ${totalTamuText}
+- TOTAL KESELURUHAN DATA PESERTA (SANTRI + TAMU UNDANGAN): ${santriList.length + tamuList.length} data peserta
 - TAMU VVIP (LIVE SUPA): ${vvipText}
 - TAMU VIP (LIVE SUPA): ${vipText}
 - TAMU IDS (LIVE SUPA): ${idsText}
@@ -730,6 +739,9 @@ Timestamp: ${dateStr}, pukul ${timeStr} WIB
 - PERWAKILAN PONDOK (LIVE SUPA): ${perwakilanText}
 - SANTRI KATEGORI DOBEL (LIVE SUPA): ${dobelSantriList.length} santri (${dobelSummary})
 - SISA KUOTA TAMBAHAN (LIVE SUPA): ${kuotaMetrics.sisa} kursi dari total pagu ${kuotaMetrics.total} kursi (pagu terjual: ${kuotaMetrics.terjual} kursi). Jika ditanya sisa kuota tambahan/pagu, sebutkan secara jelas sisa saat ini adalah ${kuotaMetrics.sisa} kursi!
+
+--- SAMPEL DATA PESERTA SANTRI DARI SUPABASE (15 BARIS PERTAMA) ---
+  • ${sampleSantriRows || 'Belum ada data'}
 
 --- DAFTAR NAMA INDIVIDUAL RESMI DARI SUPABASE (LIVE & DETIL) ---
 • Santri Kategori Dobel: ${dobelSummary}

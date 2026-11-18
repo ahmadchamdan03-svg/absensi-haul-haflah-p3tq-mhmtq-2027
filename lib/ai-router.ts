@@ -171,7 +171,7 @@ export async function askAI(
   // =========================================================================
   const clouviaKey = readEnv('CLOUVIA_API_KEY');
   if (clouviaKey) {
-    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'deepseek-v4.1-flash';
+    const clouviaModel = options?.model || readEnv('CLOUVIA_MODEL') || 'claude-opus-5.5';
     const text = await callOpenAiCompatible({
       tierLabel: 'Tier 1 Clouvia',
       apiKey: clouviaKey,
@@ -182,6 +182,7 @@ export async function askAI(
       messages: openAiMessages,
     });
     if (text) return { text, model: 'Clouvia' };
+    console.error(`[AI-Router] Tier 1 Clouvia (model: ${clouviaModel}) gagal merespons valid. Beralih ke Tier 2 Vikey...`);
   } else {
     console.error('[AI-Router] Tier 1 Clouvia dilewati: CLOUVIA_API_KEY belum diset.');
   }

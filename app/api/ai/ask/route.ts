@@ -200,7 +200,8 @@ export async function POST(req: NextRequest) {
      * Paragraf 1: Jabatan & Tugas resmi beliau sebagai **${matchedPengasuh.jabatanTugas}** (WAJIB awali dengan **${matchedPengasuh.name}** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung informasi kepanitiaan).
      * Paragraf 2: Pujian santun dan penuh takzim atas dedikasi, bimbingan, doa restu, serta pengayoman beliau sebagai Pengasuh (TANPA kalimat pengandaian/fans/satir).
      * Paragraf 3: Kalimat penutup yang variatif, hangat, penuh takzim, dan relevan (JANGAN mengulang-ulang kalimat penutup yang sama di setiap balasan).`
-      : `Jika user menanyakan profil/identitas seorang tokoh/personil kepanitiaan:
+      : `Jika user menanyakan profil/identitas seorang tokoh/personil atau jabatan kepanitiaan (seperti "Siapa ketua panitia?"):
+   - Jawab dalam bentuk TEKS PARAGRAF naratif yang santun (DILARANG membuat tabel Markdown atau menawarkan file PDF/Excel kecuali user secara eksplisit meminta tabel/Excel/PDF).
    - KHUSUS JAJARAN DEWAN PENGASUH/PELINDUNG: JANGAN PERNAH menuliskan kalimat pengandaian/fans/satir; wajib buat TEPAT 3 PARAGRAF penuh takzim (Paragraf 1: **Nama Lengkap** bold + Jabatan & Tugas; Paragraf 2: Pujian santun/takzim sebagai Pengasuh; Paragraf 3: Kalimat penutup yang variatif, hangat, penuh takzim, dan relevan).
    - UNTUK PANITIA BIASA (Dewan Harian, Dewan Pembimbing Putra, Dewan Pleno Putri — misal "siapa asep", "siapa revi", "[nama] siapa", selain aturan bercanda khusus Ahmad Chamdan dan klarifikasi nama ganda): format jawaban WAJIB TEPAT 4 PARAGRAF yang dipisahkan dengan \\n\\n (DILARANG 3 paragraf, dan DILARANG menyalin kalimat pujian/pengandaian dari riwayat chat sebelumnya):
      * Paragraf 1: Jabatan dan tugas resmi di kepanitiaan (WAJIB awali dengan **Nama Lengkap** di-bold, lalu sebutkan peran Anda sebagai asisten cerdas pendukung sistem).
@@ -239,7 +240,7 @@ export async function POST(req: NextRequest) {
     const isLiveGuestOrStatsIntent =
       isStatsQuery(prompt) ||
       detectRekapKehadiranIntent(prompt) ||
-      /\b(tamu|undangan|santri|shohibul|hajat|kuota|kursi|statistik|kehadiran|hadir|datang|presensi|rekap|dobel|cekin|checkin|vvip|vip|ids|kehormatan|penguji|asatidz|perwakilan)\b/i.test(prompt);
+      /\b(peserta|wali|tamatan|bil\s*ghoib|bin\s*nadzor|tamu|undangan|santri|shohibul|hajat|kuota|kursi|statistik|kehadiran|hadir|datang|presensi|rekap|dobel|cekin|checkin|vvip|vip|ids|kehormatan|penguji|asatidz|perwakilan)\b/i.test(prompt);
 
     const isDocMediaIntent =
       /\b(gambar|foto|ilustrasi|link|tautan|website|download|unduh|pdf|word|docx|doc|excel|xlsx|xls|tabel|table|csv|file|berkas|ekspor)\b/i.test(prompt);
@@ -334,7 +335,7 @@ export async function POST(req: NextRequest) {
 
     // 1. UTAMAKAN PEMANGGILAN AI (3-Tier Failover: Clouvia -> Vikey -> Gemini)
     try {
-      const customModel = process.env.CLOUVIA_MODEL || 'deepseek-v4.1-flash';
+      const customModel = process.env.CLOUVIA_MODEL || 'claude-opus-5.5';
       const customTimeout = 60000;
       // Output tokens: 1200 untuk chat biasa (hemat token), 2500 untuk dokumen/file
       const customMaxTokens = isDocMediaIntent ? 2500 : 1200;
