@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as XLSX from 'xlsx';
 import { supabaseServer } from '@/lib/supabase/server';
 import { getSessionRole } from '@/lib/auth-server';
 import {
@@ -9,8 +10,26 @@ import {
   getWarnaTiketSantri,
   getWarnaTiketUndangan,
 } from '@/lib/types';
-import { generateRandomKode, generateUniqueKodeFromDb } from '@/lib/utils';
-import { store } from '@/lib/mock-data';
+import { generateRandomKode } from '@/lib/utils';
+
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
+function generateUniqueKodeInMemory(
+  prefix: 'SH' | 'UND',
+  existingKodeSet: Set<string>
+): string {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const candidate = generateRandomKode(prefix);
+    if (!existingKodeSet.has(candidate)) {
+      existingKodeSet.add(candidate);
+      return candidate;
+    }
+  }
+  const fallback = `${prefix}${Date.now().toString(36).slice(-4).toUpperCase()}`;
+  existingKodeSet.add(fallback);
+  return fallback;
+}
 
 export async function POST(req: NextRequest) {
   const role = getSessionRole(req);
@@ -22,8 +41,43 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
-    const { activeTab, selectedKategoriUpload, rows } = body;
+    let activeTab = 'SANTRI';
+    let selectedKategoriUpload = 'BIN_NADZOR';
+    let rows: any[] = [];
+
+    const contentType = req.headers.get('content-type') || '';
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await req.formData();
+      activeTab = String(formData.get('activeTab') || 'SANTRI');
+      selectedKategoriUpload = String(formData.get('selectedKategoriUpload') || 'BIN_NADZOR');
+      const uploadedFile = formData.get('file');
+      const rawRowsField = formData.get('rows');
+
+      if (uploadedFile && typeof (uploadedFile as Blob).arrayBuffer === 'function') {
+        const arrayBuf = await (uploadedFile as Blob).arrayBuffer();
+        const wb = XLSX.read(Buffer.from(arrayBuf), { type: 'buffer' });
+        const wsName = wb.SheetNames[0];
+        if (!wsName) {
+          return NextResponse.json(
+            { ok: false, error: 'File Excel tidak memiliki sheet yang valid.' },
+            { status: 400 }
+          );
+        }
+        rows = XLSX.utils.sheet_to_json(wb.Sheets[wsName], { defval: '' });
+      } else if (typeof rawRowsField === 'string' && rawRowsField.trim()) {
+        rows = JSON.parse(rawRowsField);
+      } else {
+        return NextResponse.json(
+          { ok: false, error: 'Berkas Excel (file) atau data rows wajib disertakan dalam FormData.' },
+          { status: 400 }
+        );
+      }
+    } else {
+      const body = await req.json();
+      activeTab = body.activeTab;
+      selectedKategoriUpload = body.selectedKategoriUpload;
+      rows = body.rows;
+    }
 
     if (!Array.isArray(rows) || rows.length === 0) {
       return NextResponse.json(
@@ -33,24 +87,39 @@ export async function POST(req: NextRequest) {
     }
 
     const isSantri = activeTab === 'SANTRI';
-    const targetTable = isSantri ? 'peserta_santri' : 'tamu_undangan';
 
     // 1. Ambil data awal dari database via supabaseServer untuk pengecekan duplikasi
-    let existingKodeSet = new Set<string>();
+    const existingKodeSet = new Set<string>();
     let existingSantriList: any[] = [];
 
     if (isSantri) {
-      const { data: dbSantri } = await supabaseServer
+      const { data: dbSantri, error: fetchSantriErr } = await supabaseServer
         .from('peserta_santri')
-        .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas');
+        .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas')
+        .limit(5000);
+      if (fetchSantriErr) {
+        console.error('[API Import] Gagal mengambil data santri awal:', fetchSantriErr);
+        return NextResponse.json(
+          { ok: false, error: `Gagal membaca database peserta_santri: ${fetchSantriErr.message}` },
+          { status: 500 }
+        );
+      }
       existingSantriList = dbSantri || [];
       existingSantriList.forEach((s) => {
         if (s.kode) existingKodeSet.add(s.kode.toUpperCase());
       });
     } else {
-      const { data: dbTamu } = await supabaseServer
+      const { data: dbTamu, error: fetchTamuErr } = await supabaseServer
         .from('tamu_undangan')
-        .select('kode');
+        .select('kode')
+        .limit(5000);
+      if (fetchTamuErr) {
+        console.error('[API Import] Gagal mengambil data tamu awal:', fetchTamuErr);
+        return NextResponse.json(
+          { ok: false, error: `Gagal membaca database tamu_undangan: ${fetchTamuErr.message}` },
+          { status: 500 }
+        );
+      }
       (dbTamu || []).forEach((t) => {
         if (t.kode) existingKodeSet.add(t.kode.toUpperCase());
       });
@@ -60,6 +129,8 @@ export async function POST(req: NextRequest) {
     let skippedCount = 0;
     let failedCount = 0;
     const errorLogs: string[] = [];
+    const newSantriItems: Array<{ rowNumber: number; cleanNamaSantri: string; payload: any }> = [];
+    const newTamuItems: Array<{ rowNumber: number; finalNama: string; payload: any }> = [];
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -160,6 +231,14 @@ export async function POST(req: NextRequest) {
             updatePayload.kelas = kelas;
           }
 
+          if (!existingSantri.id && existingSantri._pendingPayload) {
+            const { updated_at: _omitUpdatedAt, ...pendingUpdates } = updatePayload;
+            Object.assign(existingSantri._pendingPayload, pendingUpdates);
+            Object.assign(existingSantri, pendingUpdates);
+            successCount++;
+            continue;
+          }
+
           try {
             const { error: updateError } = await supabaseServer
               .from('peserta_santri')
@@ -176,13 +255,15 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        // Insert Santri Baru
+        // Siapkan Santri Baru untuk bulk insert
         let kode = getVal('KODE', 'kode').toUpperCase();
         if (!kode) {
-          kode = await generateUniqueKodeFromDb('SH', 'peserta_santri', supabaseServer, existingKodeSet);
+          kode = generateUniqueKodeInMemory('SH', existingKodeSet);
         } else if (existingKodeSet.has(kode)) {
           skippedCount++;
           continue;
+        } else {
+          existingKodeSet.add(kode);
         }
 
         const kategoriUtama = selectedKategoriUpload;
@@ -195,44 +276,32 @@ export async function POST(req: NextRequest) {
             ? (kelas || 'Belum Diisi')
             : (incomingKategoriUtama === 'TAMATAN' ? `3 ALY ${bagianTamatan || 'A.01'}` : incomingKategoriUtama);
 
-        try {
-          const payload = {
-            kode,
-            nama: cleanNamaSantri,
-            nama_wali: namaWali,
-            kelas: resolvedKelas,
-            kamar,
-            alamat,
-            no_hp: noHp,
-            kategori_utama: kategoriUtama,
-            sub_kategori: subKategori,
-            kuota_dasar: kuotaDasar,
-            kuota_tambahan: 0,
-            kuota_terpakai: 0,
-            warna_tiket: warnaTiket,
-            status_konfirmasi: 'BELUM',
-            created_at: new Date().toISOString(),
-          };
+        const payload = {
+          kode,
+          nama: cleanNamaSantri,
+          nama_wali: namaWali,
+          kelas: resolvedKelas,
+          kamar,
+          alamat,
+          no_hp: noHp,
+          kategori_utama: kategoriUtama,
+          sub_kategori: subKategori,
+          kuota_dasar: kuotaDasar,
+          kuota_tambahan: 0,
+          kuota_terpakai: 0,
+          warna_tiket: warnaTiket,
+          status_konfirmasi: 'BELUM',
+          status_wa: 'BELUM',
+          status_wa_undangan: 'BELUM',
+          status_wa_kuota: 'BELUM',
+          status_wa_penginapan: 'BELUM',
+          created_at: new Date().toISOString(),
+        };
 
-          const { data: insertedData, error } = await supabaseServer
-            .from('peserta_santri')
-            .insert([payload])
-            .select('id, kode, nama, kategori_utama, sub_kategori, kuota_dasar, kuota_tambahan, kuota_terpakai, nama_wali, no_hp, kamar, alamat, kelas');
+        newSantriItems.push({ rowNumber: i + 1, cleanNamaSantri, payload });
 
-          if (error) throw error;
-          successCount++;
-          existingKodeSet.add(kode);
-
-          if (cleanNamaWali) {
-            if (insertedData && insertedData[0]) {
-              existingSantriList.push(insertedData[0]);
-            } else {
-              existingSantriList.push({ ...payload, id: kode });
-            }
-          }
-        } catch (err: any) {
-          failedCount++;
-          errorLogs.push(`Baris #${i + 1} (${cleanNamaSantri}): ${err.message || err}`);
+        if (cleanNamaWali) {
+          existingSantriList.push({ ...payload, _pendingPayload: payload });
         }
       } else {
         // Tamu Undangan
@@ -259,10 +328,12 @@ export async function POST(req: NextRequest) {
 
         let kode = getVal('KODE', 'kode').toUpperCase();
         if (!kode) {
-          kode = await generateUniqueKodeFromDb('UND', 'tamu_undangan', supabaseServer, existingKodeSet);
+          kode = generateUniqueKodeInMemory('UND', existingKodeSet);
         } else if (existingKodeSet.has(kode)) {
           skippedCount++;
           continue;
+        } else {
+          existingKodeSet.add(kode);
         }
 
         let kategori = 'UMUM';
@@ -281,34 +352,74 @@ export async function POST(req: NextRequest) {
 
         const warnaTiketUnd = getWarnaTiketUndangan(subKategori, kategori);
 
-        try {
-          const payload = {
-            kode,
-            nama: finalNama,
-            nama_putra: p || null,
-            nama_putri: w || null,
-            instansi: instansi || null,
-            alamat: alamat || null,
-            no_hp: noHp || null,
-            kategori,
-            sub_kategori: subKategori,
-            warna_tiket: warnaTiketUnd,
-            status_konfirmasi: 'BELUM',
-            kuota_terpakai: 0,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
+        const payload = {
+          kode,
+          nama: finalNama,
+          nama_putra: p || null,
+          nama_putri: w || null,
+          instansi: instansi || null,
+          alamat: alamat || null,
+          no_hp: noHp || null,
+          kategori,
+          sub_kategori: subKategori,
+          warna_tiket: warnaTiketUnd,
+          status_konfirmasi: 'BELUM',
+          status_wa: 'BELUM',
+          kuota_terpakai: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
 
-          const { error } = await supabaseServer
+        newTamuItems.push({ rowNumber: i + 1, finalNama, payload });
+      }
+    }
+
+    // Eksekusi bulk insert Santri (dengan fallback per baris bila ada baris bermasalah)
+    if (isSantri && newSantriItems.length > 0) {
+      const bulkPayloads = newSantriItems.map((item) => item.payload);
+      const { error: bulkErr } = await supabaseServer
+        .from('peserta_santri')
+        .insert(bulkPayloads);
+
+      if (!bulkErr) {
+        successCount += newSantriItems.length;
+      } else {
+        console.warn('[API Import] Bulk insert santri fallback ke per baris:', bulkErr.message);
+        for (const item of newSantriItems) {
+          const { error: rowErr } = await supabaseServer
+            .from('peserta_santri')
+            .insert([item.payload]);
+          if (!rowErr) {
+            successCount++;
+          } else {
+            failedCount++;
+            errorLogs.push(`Baris #${item.rowNumber} (${item.cleanNamaSantri}): ${rowErr.message}`);
+          }
+        }
+      }
+    }
+
+    // Eksekusi bulk upsert Tamu Undangan (dengan fallback per baris bila ada baris bermasalah)
+    if (!isSantri && newTamuItems.length > 0) {
+      const bulkPayloads = newTamuItems.map((item) => item.payload);
+      const { error: bulkErr } = await supabaseServer
+        .from('tamu_undangan')
+        .upsert(bulkPayloads, { onConflict: 'kode' });
+
+      if (!bulkErr) {
+        successCount += newTamuItems.length;
+      } else {
+        console.warn('[API Import] Bulk upsert tamu fallback ke per baris:', bulkErr.message);
+        for (const item of newTamuItems) {
+          const { error: rowErr } = await supabaseServer
             .from('tamu_undangan')
-            .upsert(payload, { onConflict: 'kode' });
-
-          if (error) throw error;
-          successCount++;
-          existingKodeSet.add(kode);
-        } catch (err: any) {
-          failedCount++;
-          errorLogs.push(`Baris #${i + 1} (${finalNama}): ${err.message || err}`);
+            .upsert(item.payload, { onConflict: 'kode' });
+          if (!rowErr) {
+            successCount++;
+          } else {
+            failedCount++;
+            errorLogs.push(`Baris #${item.rowNumber} (${item.finalNama}): ${rowErr.message}`);
+          }
         }
       }
     }

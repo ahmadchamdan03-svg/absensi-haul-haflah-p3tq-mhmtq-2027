@@ -335,23 +335,79 @@ export async function executeBatchImportToSupabase({
   }
 
   const BATCH_SIZE = 50;
+  const MAX_RETRY_ATTEMPTS = 2;
+
   for (let i = 0; i < totalRows; i += BATCH_SIZE) {
+    const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
     const batchRows = parsedData.slice(i, i + BATCH_SIZE);
 
     try {
-      const res = await fetch('/api/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          activeTab,
-          selectedKategoriUpload,
-          rows: batchRows,
-        }),
-      });
+      let json: any = null;
+      let lastError: Error | null = null;
 
-      const json = await res.json();
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || `HTTP ${res.status}`);
+      for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
+        try {
+          const res = await fetch('/api/import', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              activeTab,
+              selectedKategoriUpload,
+              rows: batchRows,
+            }),
+          });
+
+          const rawText = await res.text();
+          let parsed: any = null;
+          try {
+            parsed = rawText ? JSON.parse(rawText) : null;
+          } catch {
+            parsed = null;
+          }
+
+          if (!res.ok || !parsed?.ok) {
+            const serverMsg =
+              parsed?.error ||
+              (rawText ? rawText.replace(/<[^>]+>/g, ' ').trim().slice(0, 140) : '') ||
+              res.statusText ||
+              'Respons server tidak valid';
+
+            // Retry 1x jika terkena gateway/timeout sementara (502/503/504)
+            if (attempt < MAX_RETRY_ATTEMPTS && res.status >= 502) {
+              await new Promise((resolve) => setTimeout(resolve, 1500));
+              continue;
+            }
+            throw new Error(`Respons Server HTTP ${res.status}: ${serverMsg}`);
+          }
+
+          json = parsed;
+          lastError = null;
+          break;
+        } catch (fetchErr: any) {
+          const rawMsg = fetchErr?.message || String(fetchErr);
+          const isNetworkErr =
+            fetchErr instanceof TypeError ||
+            /failed to fetch|networkerror|load failed|network request failed/i.test(rawMsg);
+
+          lastError = isNetworkErr
+            ? new Error(
+                `Gagal koneksi ke server (/api/import): ${rawMsg}. Kemungkinan server timeout, sesi terputus, atau payload terlalu besar.`
+              )
+            : fetchErr instanceof Error
+            ? fetchErr
+            : new Error(rawMsg);
+
+          if (attempt < MAX_RETRY_ATTEMPTS && isNetworkErr) {
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            continue;
+          }
+          break;
+        }
+      }
+
+      if (lastError) {
+        throw lastError;
       }
 
       successCount += json.successCount || 0;
@@ -362,26 +418,35 @@ export async function executeBatchImportToSupabase({
       }
     } catch (err: any) {
       failedCount += batchRows.length;
-      errorLogs.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${err.message || err}`);
+      errorLogs.push(`Batch ${batchNumber}: ${err.message || err}`);
     }
 
     const currentProcessed = Math.min(i + BATCH_SIZE, totalRows);
     const percent = Math.round((currentProcessed / totalRows) * 100);
     setProgressPercent(percent);
+
+    // Beri jeda 1 detik antar-batch agar tidak memicu rate limit atau timeout server
+    if (i + BATCH_SIZE < totalRows) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   }
 
-  await logAudit({
-    panitia_id: 'PANITIA_ADMIN',
-    panitia_role: 'ADMIN',
-    aksi: 'IMPORT_EXCEL',
-    tabel: targetTable,
-    kode: 'EXCEL_BATCH',
-    nama: `Batch Import ${activeTab}`,
-    field: 'bulk_import',
-    nilai_lama: `Kategori: ${selectedKategoriUpload}`,
-    nilai_baru: `Berhasil: ${successCount}, Dilewati: ${skippedCount}, Gagal: ${failedCount}`,
-    catatan: `Import data excel ${activeTab} (${totalRows} baris)`,
-  });
+  try {
+    await logAudit({
+      panitia_id: 'PANITIA_ADMIN',
+      panitia_role: 'ADMIN',
+      aksi: 'IMPORT_EXCEL',
+      tabel: targetTable,
+      kode: 'EXCEL_BATCH',
+      nama: `Batch Import ${activeTab}`,
+      field: 'bulk_import',
+      nilai_lama: `Kategori: ${selectedKategoriUpload}`,
+      nilai_baru: `Berhasil: ${successCount}, Dilewati: ${skippedCount}, Gagal: ${failedCount}`,
+      catatan: `Import data excel ${activeTab} (${totalRows} baris)`,
+    });
+  } catch (auditErr) {
+    console.warn('[Import Excel] Gagal mencatat log audit:', auditErr);
+  }
 
   return {
     total: totalRows,

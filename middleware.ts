@@ -101,6 +101,8 @@ export async function middleware(request: NextRequest) {
 
   // 2. RATE LIMITING
   // Localhost/dev/test: 1000 req/min | AI Ask route: 10 req/min | Admin routes: 200 req/min | Public routes & API: 60 req/min
+  // Pengecualian khusus /api/import agar batch unggah/impor Excel tidak terblokir rate limiter
+  const isImportRoute = pathname.startsWith('/api/import');
   const isAiAskRoute = pathname.startsWith('/api/ai/ask');
   const isAdminRoute =
     pathname.startsWith('/admin') ||
@@ -121,7 +123,7 @@ export async function middleware(request: NextRequest) {
   const shouldUpgradeInsecure =
     !isLocal && (request.nextUrl.protocol === 'https:' || forwardedProto === 'https');
   const rateLimitKey = isAiAskRoute ? `ai:${clientIp}` : clientIp;
-  const isAllowed = checkRateLimit(rateLimitKey, rateLimitMax);
+  const isAllowed = isImportRoute ? true : checkRateLimit(rateLimitKey, rateLimitMax);
 
   if (!isAllowed) {
     const errorMsg = isAiAskRoute
