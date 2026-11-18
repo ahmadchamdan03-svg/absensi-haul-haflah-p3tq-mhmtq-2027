@@ -209,6 +209,21 @@ export async function PATCH(req: NextRequest) {
     if (updates.tiket_panggung_diberi !== undefined) dbPayload.tiket_panggung_diberi = updates.tiket_panggung_diberi;
     if (updates.dapat_qr !== undefined) dbPayload.dapat_qr = updates.dapat_qr;
     if (updates.status_wa !== undefined) dbPayload.status_wa = updates.status_wa;
+    if (updates.status_wa_undangan !== undefined) dbPayload.status_wa_undangan = updates.status_wa_undangan;
+    if (updates.status_wa_kuota !== undefined) dbPayload.status_wa_kuota = updates.status_wa_kuota;
+    if (updates.status_wa_penginapan !== undefined) dbPayload.status_wa_penginapan = updates.status_wa_penginapan;
+
+    const validTargetColumns = ['status_wa_undangan', 'status_wa_kuota', 'status_wa_penginapan'] as const;
+    if (
+      updates.target_column &&
+      validTargetColumns.includes(updates.target_column) &&
+      updates.status_wa !== undefined
+    ) {
+      dbPayload[updates.target_column] = updates.status_wa;
+      if (updates.target_column !== 'status_wa_undangan' && updates.preserve_legacy_status_wa !== false) {
+        delete dbPayload.status_wa;
+      }
+    }
     if (updates.merged_group_id !== undefined) dbPayload.merged_group_id = updates.merged_group_id;
     else if (updates.mergedGroupId !== undefined) dbPayload.merged_group_id = updates.mergedGroupId;
 

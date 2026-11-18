@@ -367,6 +367,14 @@ export interface Kuota {
   hangusAt?: string | null;
 }
 
+export type WaSantriStatusColumn = 'status_wa_undangan' | 'status_wa_kuota' | 'status_wa_penginapan';
+
+export function getWaStatusColumnByGelombang(gelombang: 1 | 2 | 3): WaSantriStatusColumn {
+  if (gelombang === 2) return 'status_wa_kuota';
+  if (gelombang === 3) return 'status_wa_penginapan';
+  return 'status_wa_undangan';
+}
+
 export interface PesertaSantriDbRow {
   id?: string | number;
   kode: string;
@@ -384,6 +392,9 @@ export interface PesertaSantriDbRow {
   kuota_terpakai: number;
   warna_tiket: string;
   status_wa?: string | null;
+  status_wa_undangan?: string | null;
+  status_wa_kuota?: string | null;
+  status_wa_penginapan?: string | null;
   hari_konfirmasi?: string | null;
   jam_konfirmasi?: string | null;
   wa_reminder_sent_at?: string | null;

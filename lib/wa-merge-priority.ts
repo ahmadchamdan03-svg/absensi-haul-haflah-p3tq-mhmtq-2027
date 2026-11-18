@@ -93,16 +93,31 @@ function resolveBestPhone(sorted: any[]): string {
 
 function mergeSantriGroup(sorted: any[]): any {
   const primary = sorted[0];
-  const anySent = sorted.some((row) => row.statusWa === 'TERKIRIM');
+  const anySentUndangan = sorted.some(
+    (row) => (row.status_wa_undangan || row.statusWa) === 'TERKIRIM'
+  );
+  const anySentKuota = sorted.some((row) => row.status_wa_kuota === 'TERKIRIM');
+  const anySentPenginapan = sorted.some((row) => row.status_wa_penginapan === 'TERKIRIM');
   const anyConfirmed = sorted.some((row) => row.estimasi?.statusKonfirmasi === 'SUDAH');
   const maxKuotaDasar = Math.max(...sorted.map((row) => Number(row.kuota?.kuotaDasar || 0)), 0);
   const sumKuotaTambahan = sorted.reduce((acc, row) => acc + Number(row.kuota?.kuotaTambahan || 0), 0);
   const maxTerpakai = Math.max(...sorted.map((row) => Number(row.kuota?.terpakai || 0)), 0);
 
+  const resolvedUndangan = anySentUndangan
+    ? 'TERKIRIM'
+    : primary.status_wa_undangan || primary.statusWa || 'BELUM';
+  const resolvedKuota = anySentKuota ? 'TERKIRIM' : primary.status_wa_kuota || 'BELUM';
+  const resolvedPenginapan = anySentPenginapan
+    ? 'TERKIRIM'
+    : primary.status_wa_penginapan || 'BELUM';
+
   return {
     ...primary,
     noHp: hasUsablePhone(primary.noHp) ? primary.noHp : resolveBestPhone(sorted),
-    statusWa: anySent ? 'TERKIRIM' : primary.statusWa,
+    statusWa: resolvedUndangan,
+    status_wa_undangan: resolvedUndangan,
+    status_wa_kuota: resolvedKuota,
+    status_wa_penginapan: resolvedPenginapan,
     mergedCount: sorted.length,
     kuota: {
       kuotaDasar: maxKuotaDasar,
