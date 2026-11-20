@@ -101,8 +101,9 @@ export async function middleware(request: NextRequest) {
 
   // 2. RATE LIMITING
   // Localhost/dev/test: 1000 req/min | AI Ask route: 10 req/min | Admin routes: 200 req/min | Public routes & API: 60 req/min
-  // Pengecualian khusus /api/import agar batch unggah/impor Excel tidak terblokir rate limiter
-  const isImportRoute = pathname.startsWith('/api/import');
+  // Pengecualian khusus /api/import dan /api/whatsapp/queue agar proses batch/worker tidak terblokir rate limiter
+  const isImportRoute =
+    pathname.startsWith('/api/import') || pathname.startsWith('/api/whatsapp/queue');
   const isAiAskRoute = pathname.startsWith('/api/ai/ask');
   const isAdminRoute =
     pathname.startsWith('/admin') ||

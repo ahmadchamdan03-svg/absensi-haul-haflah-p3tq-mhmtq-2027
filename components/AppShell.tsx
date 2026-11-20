@@ -6,6 +6,7 @@ import Sidebar from '@/components/Sidebar';
 import TopHeader from '@/components/TopHeader';
 import { getActiveRole, AppRole } from '@/lib/auth-roles';
 import { supabase } from '@/lib/supabase/client';
+import GlobalWAWorker from '@/components/admin/whatsapp/GlobalWAWorker';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -151,6 +152,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 h-full min-h-0 overflow-y-auto pb-0 relative">
           {children}
         </main>
+
+        {/* Global Centralized WA Queue Worker & Cross-Page Cooldown Indicator */}
+        <GlobalWAWorker />
       </div>
     </div>
   );
