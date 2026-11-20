@@ -7,6 +7,7 @@ import { logAudit } from '@/lib/audit-log';
 import { extractBagianTamatan, getGolonganUndangan, getWaStatusColumnByGelombang } from '@/lib/types';
 import { deduplicateMergedWaRecords } from '@/lib/wa-merge-priority';
 import { useWaQueue } from '@/lib/use-wa-queue';
+import { generateRandomWaUndanganMessage } from '@/lib/wa-message-templates';
 import AuthGuard from '@/components/AuthGuard';
 import WhatsAppStats, { getTeksPesan, getTeksPesanTamu } from '@/components/admin/whatsapp/WhatsAppStats';
 import WhatsAppTable from '@/components/admin/whatsapp/WhatsAppTable';
@@ -545,19 +546,6 @@ export default function WhatsAppPage() {
     }
   };
 
-  const ensureLinkGrupWaFilled = () => {
-    if (gelombang === 1 && !linkGrupWa.trim()) {
-      showToast('error', 'Harap isi Link Grup WA terlebih dahulu!');
-      const inputEl = document.getElementById('input-link-grup-wa');
-      if (inputEl) {
-        inputEl.focus();
-        inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return false;
-    }
-    return true;
-  };
-
   const activeWaliTargetColumn = getWaStatusColumnByGelombang(gelombang);
 
   // Sinkronkan jumlah progres batch saat antrean terpusat berjalan lintas browser
@@ -663,7 +651,6 @@ export default function WhatsAppPage() {
   }, [activeTab, pendingItems, activeWaliTargetColumn]);
 
   const handleKirimFonnte = async (kel: any) => {
-    if (!ensureLinkGrupWaFilled()) return false;
     const rawHp = (kel.noHp || '').trim();
     if (!rawHp || rawHp.length < 8) {
       showToast('error', `Nomor HP untuk ${kel.namaWali} tidak valid.`);
@@ -671,8 +658,17 @@ export default function WhatsAppPage() {
     }
 
     const namaPeserta = kel.namaWali || kel.santri?.[0]?.nama || kel.kode;
+    const namaSantri = kel.santri?.[0]?.nama || namaPeserta || '-';
     const activeLink = gelombang === 1 ? linkGrupWa.trim() : '';
-    const messageText = getTeksPesan(kel, gelombang, activeLink);
+    const messageText =
+      gelombang === 1
+        ? generateRandomWaUndanganMessage({
+            nama_wali: namaPeserta,
+            nama_santri: namaSantri,
+            kode_undangan: kel.kode,
+            link_grup_wa: activeLink,
+          })
+        : getTeksPesan(kel, gelombang, activeLink);
     const tipePesan =
       gelombang === 3 ? 'PENGINAPAN' : gelombang === 2 ? 'KUOTA_TAMBAHAN' : 'UNDANGAN';
 
@@ -699,7 +695,6 @@ export default function WhatsAppPage() {
   };
 
   const handleKirimManualWA = async (kel: any) => {
-    if (!ensureLinkGrupWaFilled()) return;
     return kirimManualWAWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setKeluargaList);
   };
 
@@ -751,7 +746,6 @@ export default function WhatsAppPage() {
   }, [keluargaList, gelombang, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
 
   const runBatchBlastForTab = async (targetGelombang: 1 | 2 | 3) => {
-    if (targetGelombang === 1 && !ensureLinkGrupWaFilled()) return;
     const statusColumn = getWaStatusColumnByGelombang(targetGelombang);
     const activeLink = targetGelombang === 1 ? linkGrupWa.trim() : '';
     const tipePesan =
@@ -767,17 +761,31 @@ export default function WhatsAppPage() {
             : k.status_wa_undangan || k.statusWa || 'BELUM';
         return currentTabStatus !== 'TERKIRIM' && Boolean(k.noHp && k.noHp.trim().length >= 8);
       })
-      .map((kel) => ({
-        target_hp: kel.noHp.trim(),
-        message: getTeksPesan(kel, targetGelombang, activeLink),
-        nama_target: kel.namaWali || kel.santri?.[0]?.nama || kel.kode,
-        target_table: 'peserta_santri' as const,
-        target_id: kel.id,
-        target_kode: kel.kode,
-        target_column: statusColumn,
-        tipe_pesan: tipePesan,
-        scheduled_at: new Date().toISOString(),
-      }));
+      .map((kel) => {
+        const namaWali = kel.namaWali || kel.santri?.[0]?.nama || kel.kode;
+        const namaSantri = kel.santri?.[0]?.nama || namaWali || '-';
+        const generatedMsg =
+          targetGelombang === 1
+            ? generateRandomWaUndanganMessage({
+                nama_wali: namaWali,
+                nama_santri: namaSantri,
+                kode_undangan: kel.kode,
+                link_grup_wa: activeLink,
+              })
+            : getTeksPesan(kel, targetGelombang, activeLink);
+
+        return {
+          target_hp: kel.noHp.trim(),
+          message: generatedMsg,
+          nama_target: namaWali,
+          target_table: 'peserta_santri' as const,
+          target_id: kel.id,
+          target_kode: kel.kode,
+          target_column: statusColumn,
+          tipe_pesan: tipePesan,
+          scheduled_at: new Date().toISOString(),
+        };
+      });
 
     if (unsentList.length === 0) {
       alert('Semua nomor pada filter dan tab saat ini sudah terkirim!');
@@ -793,7 +801,7 @@ export default function WhatsAppPage() {
 
     if (
       !window.confirm(
-        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 5-60 detik antar pesan & cooldown otomatis setiap 50 pesan.`
+        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 5-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`
       )
     ) {
       return;
@@ -1057,7 +1065,7 @@ export default function WhatsAppPage() {
       return;
     }
 
-    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 5-60 detik antar pesan & cooldown otomatis setiap 50 pesan.`;
+    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 5-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`;
 
     if (!window.confirm(promptMsg)) {
       return;
@@ -1183,12 +1191,12 @@ export default function WhatsAppPage() {
                       {cooldownFormatted}
                     </span>{' '}
                     sebelum mengirim batch berikutnya (
-                    {systemState.batch_count === 0 ? 50 : systemState.batch_count}/50 pesan terkirim)
+                    {systemState.batch_count === 0 ? 30 : systemState.batch_count}/30 pesan terkirim)
                   </div>
                   <div className="text-[11px] text-amber-200 mt-0.5 flex items-center gap-1.5 flex-wrap">
                     <Clock className="w-3.5 h-3.5 text-amber-300" />
                     <span>
-                      Batas 50 pesan per batch tercapai. Antrean tetap tersimpan di Supabase (Sisa antrean: {activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai di tab/browser mana pun.
+                      Batas 30 pesan per batch tercapai. Antrean tetap tersimpan di Supabase (Sisa antrean: {activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai di tab/browser mana pun.
                     </span>
                   </div>
                 </div>
@@ -1236,7 +1244,7 @@ export default function WhatsAppPage() {
                         : 'Siap mengirim pesan berikutnya...'}
                     </span>
                     <span className="px-2 py-0.5 rounded-full bg-white/10 text-amber-200 font-bold text-[10px]">
-                      Batch saat ini: {systemState.batch_count}/50 pesan
+                      Batch saat ini: {systemState.batch_count}/30 pesan
                     </span>
                   </div>
                 </div>
@@ -1260,7 +1268,7 @@ export default function WhatsAppPage() {
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#1D4ED8] shrink-0" />
                 <span>
-                  Status Smart Queue Terpusat: <strong>{systemState.batch_count}/50</strong> pesan terkirim pada batch aktif (reset otomatis ke 0 jika idle 30 menit).
+                  Status Smart Queue Terpusat: <strong>{systemState.batch_count}/30</strong> pesan terkirim pada batch aktif (reset otomatis ke 0 jika idle 30 menit).
                 </span>
               </div>
             </div>
@@ -1340,7 +1348,7 @@ export default function WhatsAppPage() {
                 <>
                   Mode Cooldown: Menunggu{' '}
                   <span className="font-mono text-amber-300">{cooldownFormatted}</span> (
-                  {systemState.batch_count === 0 ? 50 : systemState.batch_count}/50)
+                  {systemState.batch_count === 0 ? 30 : systemState.batch_count}/30)
                 </>
               ) : (
                 <>

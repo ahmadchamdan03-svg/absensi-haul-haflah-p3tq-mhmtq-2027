@@ -142,7 +142,7 @@ export default function GlobalWAWorker() {
   }
 
   const displayedBatchCount =
-    isCooldown && systemState.batch_count === 0 ? 50 : systemState.batch_count;
+    isCooldown && systemState.batch_count === 0 ? 30 : systemState.batch_count;
 
   return (
     <Link
@@ -162,7 +162,7 @@ export default function GlobalWAWorker() {
         {isCooldown ? (
           <span>
             Mode Cooldown: Menunggu{' '}
-            <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum mengirim batch berikutnya ({displayedBatchCount}/50 pesan terkirim)
+            <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum mengirim batch berikutnya ({displayedBatchCount}/30 pesan terkirim)
           </span>
         ) : (
           <span>

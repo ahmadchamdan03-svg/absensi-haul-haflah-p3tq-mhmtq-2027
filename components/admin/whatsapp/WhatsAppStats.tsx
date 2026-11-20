@@ -11,54 +11,38 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { extractBagianTamatan } from '@/lib/types';
+import { generateRandomWaUndanganMessage } from '@/lib/wa-message-templates';
 
 export function formatWhatsAppMarkdown(text: string): string {
   // Pastikan penulisan Markdown **bold** di WA terkonversi menjadi format bold resmi WhatsApp (*bold*)
   return text.replace(/\*\*(.*?)\*\*/g, '*$1*');
 }
 
-export function getTeksPesan(kel: any, gel: 1 | 2 | 3, linkGrupWa?: string) {
+export function getTeksPesan(
+  kel: any,
+  gel: 1 | 2 | 3,
+  linkGrupWa?: string,
+  variationIndex?: number
+) {
   const santri = kel.santri?.[0];
   const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
   const origin =
     typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
       ? window.location.origin
       : liveDomain;
-  const linkPortal = `${origin}/u/${kel.kode}`;
   const linkPembelian = `${origin}/beli/${kel.kode}`;
 
   const namaWali = (kel.namaWali || kel.nama_wali || 'Wali Santri').trim();
   const namaSantri = (santri?.nama || kel.namaSantri || kel.nama || '-').trim();
 
   if (gel === 1) {
-    const grupWaBlock =
-      linkGrupWa && linkGrupWa.trim()
-        ? `\n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrupWa.trim()}*`
-        : '';
-
-    const rawTemplate = `Kepada Yth. *Bapak/Ibu Wali Santri ${namaWali}*
-
-Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
-
-*HAUL & HAFLAH AKHIRUSSANAH*
-Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ) 1448 H./2027 M.
-
-- *Hari/Tanggal:* Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-- *Waktu:* 06.30 WIB – selesai
-- *Tempat:* Aula Muktamar Pondok Pesantren Lirboyo Kediri
-- *Shohibul Hajat:* ${namaSantri}
-
-Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk:
-*${linkPortal}*
-
-Mohon *QR Code disimpan dan ditunjukkan kepada petugas* saat memasuki lokasi acara.${grupWaBlock}
-
-Atas perhatian dan kehadirannya, kami sampaikan terima kasih. Jazakumullahu khairan katsiran.
-
-Wassalamu’alaikum warahmatullahi wabarakatuh
-*Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
-
-    return formatWhatsAppMarkdown(rawTemplate);
+    return generateRandomWaUndanganMessage({
+      nama_wali: namaWali,
+      nama_santri: namaSantri,
+      kode_undangan: kel.kode || 'SH0001',
+      link_grup_wa: linkGrupWa,
+      variationIndex,
+    });
   } else if (gel === 2) {
     return `Kepada Yth. Bapak/Ibu Wali Santri
 *${kel.namaWali}*
@@ -372,7 +356,8 @@ export default function WhatsAppStats({
                 kuota: { kuotaDasar: 2, kuotaTambahan: 0 },
               },
               gelombang,
-              gelombang === 1 ? linkGrupWa : undefined
+              gelombang === 1 ? linkGrupWa : undefined,
+              0
             )}
           </div>
         </div>
@@ -402,7 +387,7 @@ export default function WhatsAppStats({
           <div
             className={`mt-4 p-4 rounded-2xl border transition-all ${
               !linkGrupWa.trim()
-                ? 'bg-rose-50/45 backdrop-blur-sm border-rose-300/80 shadow-xs'
+                ? 'bg-white/55 backdrop-blur-sm border-[#BAE6FD] shadow-xs'
                 : 'bg-blue-50/50 backdrop-blur-sm border-blue-300 ring-2 ring-emerald-300/30 shadow-xs'
             } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
           >
@@ -420,14 +405,14 @@ export default function WhatsAppStats({
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                       linkGrupWa.trim()
                         ? 'bg-blue-100 text-blue-800 border-blue-300'
-                        : 'bg-rose-100 text-rose-700 border-rose-300'
+                        : 'bg-slate-100 text-slate-600 border-slate-300'
                     }`}
                   >
-                    {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : '⚠ Link kosong (wajib diisi)'}
+                    {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : 'Opsional (dikosongkan)'}
                   </span>
                 ) : !linkGrupWa.trim() ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300">
-                    Wajib diisi
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
+                    Opsional
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
@@ -440,16 +425,11 @@ export default function WhatsAppStats({
                   id="input-link-grup-wa"
                   type="text"
                   autoComplete="off"
-                  aria-required="true"
                   value={linkGrupWa}
                   onChange={(e) => setLinkGrupWa(e.target.value)}
                   onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
-                  placeholder="https://chat.whatsapp.com/... (wajib diisi)"
-                  className={`w-full px-3 py-2 rounded-xl border bg-white/75 backdrop-blur-xs text-slate-900 focus:bg-white focus:ring-2 focus:outline-none text-xs font-mono shadow-xs transition-colors ${
-                    !linkGrupWa.trim()
-                      ? 'border-rose-300 focus:ring-rose-500/30 focus:border-rose-500'
-                      : 'border-white/60 focus:ring-[#1D4ED8]/40'
-                  }`}
+                  placeholder="https://chat.whatsapp.com/... (opsional)"
+                  className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white/85 backdrop-blur-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#1D4ED8]/40 focus:outline-none text-xs font-mono shadow-xs transition-colors"
                 />
                 <button
                   type="button"
@@ -461,7 +441,7 @@ export default function WhatsAppStats({
                 </button>
               </div>
               <p className="text-[10px] text-slate-600 mt-1.5 leading-relaxed">
-                Input ini selalu kosong setiap halaman dibuka (per sesi pengiriman). Link Grup WA <span className="font-bold text-rose-700">wajib diisi</span> agar tautan grup resmi selalu tercantum dalam setiap pesan Undangan &amp; QR (satuan maupun massal).
+                Opsional per sesi pengiriman. Jika diisi, tautan grup resmi dicantumkan di pesan; jika dikosongkan, bagian Link Grup WA otomatis dihapus dari pesan. Menggunakan 4 variasi pembuka &amp; penutup acak serta batas 30 pesan per batch.
               </p>
             </div>
             <div className="flex items-center p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 shadow-xs">
