@@ -801,7 +801,7 @@ export default function WhatsAppPage() {
 
     if (
       !window.confirm(
-        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 5-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`
+        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`
       )
     ) {
       return;
@@ -1065,7 +1065,7 @@ export default function WhatsAppPage() {
       return;
     }
 
-    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 5-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`;
+    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`;
 
     if (!window.confirm(promptMsg)) {
       return;
@@ -1196,7 +1196,11 @@ export default function WhatsAppPage() {
                   <div className="text-[11px] text-amber-200 mt-0.5 flex items-center gap-1.5 flex-wrap">
                     <Clock className="w-3.5 h-3.5 text-amber-300" />
                     <span>
-                      Batas 30 pesan per batch tercapai. Antrean tetap tersimpan di Supabase (Sisa antrean: {activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai di tab/browser mana pun.
+                      {pendingItems.some((p) =>
+                        (p.error_message || '').toLowerCase().includes('disconnected')
+                      )
+                        ? `Auto-Pause aktif karena perangkat WhatsApp terputus. Pesan tetap aman di PENDING (Sisa antrean: ${activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai.`
+                        : `Batas 30 pesan per batch tercapai. Antrean tetap tersimpan di Supabase (Sisa antrean: ${activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai di tab/browser mana pun.`}
                     </span>
                   </div>
                 </div>
@@ -1240,7 +1244,7 @@ export default function WhatsAppPage() {
                       {sendingItem
                         ? 'Sedang memproses pengiriman ke Fonnte...'
                         : nextDelaySeconds > 0
-                        ? `Jeda aman acak (5-60 dtk): menunggu ${nextDelaySeconds} detik sebelum pesan berikutnya`
+                        ? `Jeda aman acak (10-60 dtk): menunggu ${nextDelaySeconds} detik sebelum pesan berikutnya`
                         : 'Siap mengirim pesan berikutnya...'}
                     </span>
                     <span className="px-2 py-0.5 rounded-full bg-white/10 text-amber-200 font-bold text-[10px]">

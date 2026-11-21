@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 const IDLE_RESET_MS = 30 * 60 * 1000; // 30 menit
 const BATCH_LIMIT = 30;
-const MIN_DELAY_MS = 5000; // 5 detik
+const MIN_DELAY_MS = 10000; // 10 detik (ketat anti-blokir)
 const MAX_DELAY_MS = 60000; // 60 detik
 const MIN_COOLDOWN_MINUTES = 30; // 30 menit
 const MAX_COOLDOWN_MINUTES = 60; // 60 menit
@@ -24,7 +24,7 @@ export interface WaSystemStateRow {
 }
 
 function getRandomDelayMs(): number {
-  return Math.floor(Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS + 1)) + MIN_DELAY_MS;
+  return Math.floor(Math.random() * 50000) + 10000;
 }
 
 function getRandomCooldownMs(): number {
@@ -319,6 +319,30 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      // Kunci Jeda Ketat >= 10 detik dari pengiriman terakhir (anti pesan kembar < 10 detik)
+      if (state.last_sent_at) {
+        const lastSentMs = new Date(state.last_sent_at).getTime();
+        const elapsedSinceLastSent = nowMs - lastSentMs;
+        if (elapsedSinceLastSent >= 0 && elapsedSinceLastSent < MIN_DELAY_MS) {
+          const minNextScheduledIso = new Date(lastSentMs + MIN_DELAY_MS).toISOString();
+          await supabaseServer
+            .from('wa_queue')
+            .update({
+              scheduled_at: minNextScheduledIso,
+              updated_at: nowIso,
+            })
+            .eq('status', 'PENDING')
+            .lt('scheduled_at', minNextScheduledIso);
+
+          return NextResponse.json({
+            ok: true,
+            status: 'WAITING_DELAY',
+            minNextScheduledAt: minNextScheduledIso,
+            state,
+          });
+        }
+      }
+
       if (Number(state.batch_count || 0) >= BATCH_LIMIT) {
         const cooldownMs = getRandomCooldownMs();
         const cooldownUntilIso = new Date(nowMs + cooldownMs).toISOString();
@@ -347,6 +371,7 @@ export async function POST(req: NextRequest) {
         .lte('scheduled_at', nowIso)
         .order('scheduled_at', { ascending: true })
         .order('created_at', { ascending: true })
+        .order('id', { ascending: true })
         .limit(1);
 
       const candidate = dueCandidates?.[0];
@@ -379,19 +404,68 @@ export async function POST(req: NextRequest) {
 
       const claimed = claimedRows[0];
 
-      // Panggil API Fonnte (kecuali nomor uji dummy prefix 080000 agar tidak spam nomor riil)
+      // Double-check guard: jika dua tab lolos cek BUSY hampir bersamaan dan mengklaim row berbeda,
+      // hanya klaim pertama yang dipertahankan, selebihnya kembalikan ke PENDING.
+      const { data: concurrentSending } = await supabaseServer
+        .from('wa_queue')
+        .select('id')
+        .eq('status', 'SENDING')
+        .order('updated_at', { ascending: true })
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true });
+
+      if (concurrentSending && concurrentSending.length > 1 && concurrentSending[0].id !== claimed.id) {
+        const latestStateCheck = await getOrInitSystemState();
+        const latestSentMs = latestStateCheck.last_sent_at
+          ? new Date(latestStateCheck.last_sent_at).getTime()
+          : 0;
+        const revertNowMs = Date.now();
+        const needsDelayShift =
+          latestSentMs > 0 && revertNowMs - latestSentMs < MIN_DELAY_MS;
+        const safeScheduledAt = needsDelayShift
+          ? new Date(latestSentMs + getRandomDelayMs()).toISOString()
+          : new Date(revertNowMs + MIN_DELAY_MS).toISOString();
+        const existingScheduledMs = new Date(claimed.scheduled_at).getTime();
+        const nextRevertScheduled =
+          existingScheduledMs < new Date(safeScheduledAt).getTime()
+            ? safeScheduledAt
+            : claimed.scheduled_at;
+
+        await supabaseServer
+          .from('wa_queue')
+          .update({
+            status: 'PENDING',
+            scheduled_at: nextRevertScheduled,
+            updated_at: new Date(revertNowMs).toISOString(),
+          })
+          .eq('id', claimed.id)
+          .eq('status', 'SENDING');
+
+        return NextResponse.json({
+          ok: true,
+          status: 'BUSY',
+          state: latestStateCheck,
+        });
+      }
+
+      // Panggil API Fonnte dengan simulasi mengetik (typing: true), kecuali nomor uji dummy atau simulasi putus
       let isSuccess = false;
       let errorReason = '';
       const cleanDigitsHp = String(claimed.target_hp || '').replace(/\D/g, '');
       const isSafeDummyPhone = cleanDigitsHp.startsWith('080000') || cleanDigitsHp.startsWith('6280000');
+      const simulateDisconnected = body.simulateDisconnected === true;
 
-      if (isSafeDummyPhone) {
+      if (simulateDisconnected) {
+        isSuccess = false;
+        errorReason = 'request invalid on disconnected device';
+      } else if (isSafeDummyPhone) {
         isSuccess = true;
       } else {
         try {
           const sendRes = await sendFonnteServerMessage({
             target: claimed.target_hp,
             message: claimed.message,
+            typing: true,
           });
           isSuccess = Boolean(sendRes.ok);
           if (!isSuccess) {
@@ -409,38 +483,64 @@ export async function POST(req: NextRequest) {
       const finishNowMs = Date.now();
       const finishNowIso = new Date(finishNowMs).toISOString();
 
-      await supabaseServer
-        .from('wa_queue')
-        .update({
-          status: isSuccess ? 'SUCCESS' : 'FAILED',
-          sent_at: finishNowIso,
-          error_message: isSuccess ? null : errorReason,
-          updated_at: finishNowIso,
-        })
-        .eq('id', claimed.id);
+      // 4. AUTO-PAUSE SAAT PERANGKAT TERPUTUS
+      const isDisconnectedError =
+        !isSuccess && errorReason.toLowerCase().includes('disconnected');
 
-      await updateRecipientTableStatus(claimed, isSuccess, errorReason);
+      if (isDisconnectedError) {
+        const cooldownMs = getRandomCooldownMs();
+        const cooldownUntilIso = new Date(finishNowMs + cooldownMs).toISOString();
 
-      // Jeda acak 5 - 60 detik untuk pesan berikutnya
-      const delayMs = getRandomDelayMs();
-      const nextScheduledIso = new Date(finishNowMs + delayMs).toISOString();
+        const { data: pausedStateRow } = await supabaseServer
+          .from('wa_system_state')
+          .update({
+            cooldown_until: cooldownUntilIso,
+            updated_at: finishNowIso,
+          })
+          .eq('id', 'global')
+          .select('*')
+          .single();
 
-      const { data: nextPendingRows } = await supabaseServer
-        .from('wa_queue')
-        .select('id')
-        .eq('status', 'PENDING')
-        .lt('scheduled_at', nextScheduledIso);
-
-      if (nextPendingRows && nextPendingRows.length > 0) {
-        const idsToDelay = nextPendingRows.map((r: any) => r.id);
         await supabaseServer
           .from('wa_queue')
           .update({
-            scheduled_at: nextScheduledIso,
+            status: 'PENDING',
+            error_message: errorReason,
             updated_at: finishNowIso,
           })
-          .in('id', idsToDelay);
+          .eq('id', claimed.id);
+
+        return NextResponse.json({
+          ok: true,
+          status: 'AUTO_PAUSED_DISCONNECTED',
+          itemId: claimed.id,
+          namaTarget: claimed.nama_target,
+          targetKode: claimed.target_kode,
+          sentOk: false,
+          errorReason,
+          cooldownTriggered: true,
+          state: (pausedStateRow as WaSystemStateRow) || {
+            ...state,
+            cooldown_until: cooldownUntilIso,
+            updated_at: finishNowIso,
+          },
+        });
       }
+
+      // 2. PENCEGAHAN BUG CELAH 0,24 DETIK:
+      // Geser scheduled_at pesan berikutnya (10 - 60 detik) dan update wa_system_state
+      // SEBELUM mengubah status pesan saat ini dari 'SENDING' menjadi 'SUCCESS'/'FAILED'.
+      const delayMs = getRandomDelayMs();
+      const nextScheduledIso = new Date(finishNowMs + delayMs).toISOString();
+
+      await supabaseServer
+        .from('wa_queue')
+        .update({
+          scheduled_at: nextScheduledIso,
+          updated_at: finishNowIso,
+        })
+        .eq('status', 'PENDING')
+        .lt('scheduled_at', nextScheduledIso);
 
       // Re-fetch wa_system_state sebelum increment agar nilai terbaru (termasuk ubahan manual) terbaca
       const latestStateBeforeInc = await getOrInitSystemState();
@@ -469,6 +569,18 @@ export async function POST(req: NextRequest) {
         .eq('id', 'global')
         .select('*')
         .single();
+
+      await updateRecipientTableStatus(claimed, isSuccess, errorReason);
+
+      await supabaseServer
+        .from('wa_queue')
+        .update({
+          status: isSuccess ? 'SUCCESS' : 'FAILED',
+          sent_at: finishNowIso,
+          error_message: isSuccess ? null : errorReason,
+          updated_at: finishNowIso,
+        })
+        .eq('id', claimed.id);
 
       state = (updatedStateRow as WaSystemStateRow) || {
         id: 'global',

@@ -6,31 +6,80 @@ export interface WaUndanganTemplateParams {
   variationIndex?: number;
 }
 
-const VARIATIONS: Array<{
-  buildOpening: (namaWali: string) => string;
-  closing: string;
-}> = [
-  {
-    buildOpening: (namaWali) => `Kepada Yth. *Bapak/Ibu Wali Santri ${namaWali}*`,
-    closing:
-      'Atas perhatian dan kehadirannya, kami sampaikan terima kasih. Jazakumullahu khairan katsiran.',
-  },
-  {
-    buildOpening: (namaWali) => `Assalamu'alaikum Bapak/Ibu Wali Santri *${namaWali}*`,
-    closing:
-      'Merupakan suatu kehormatan bagi kami apabila Bapak/Ibu berkenan hadir. Terima kasih.',
-  },
-  {
-    buildOpening: (namaWali) => `Yth. Bapak/Ibu *${namaWali}*`,
-    closing: 'Kami tunggu kehadiran Bapak/Ibu. Jazakumullahu khairan katsiran.',
-  },
-  {
-    buildOpening: (namaWali) => `Dengan hormat, Bapak/Ibu Wali Santri *${namaWali}*`,
-    closing: 'Demikian undangan ini kami sampaikan. Terima kasih atas kerja samanya.',
-  },
+const PEMBUKA: Array<(nama: string) => string> = [
+  (nama) => `Assalamu'alaikum Bapak/Ibu Wali Santri *${nama}*`,
+  (nama) => `Kepada Yth. *Bapak/Ibu Wali Santri ${nama}*`,
+  (nama) => `Yth. Bapak/Ibu *${nama}*`,
+  (nama) => `Dengan hormat, Bapak/Ibu *${nama}*`,
 ];
 
-let lastPickedVariationIndex = -1;
+const PENGANTAR = [
+  'Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:',
+  'Dalam rangka tasyakuran akhirussanah, kami bermaksud mengundang Bapak/Ibu untuk hadir pada:',
+  'Mengharap kehadiran Bapak/Ibu pada acara:',
+] as const;
+
+const BULLET = ['-', '•', '*', '▪'] as const;
+
+const FORMAT_TANGGAL = [
+  'Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.',
+  '24 Rajab 1448 H. / 02 Jan 2027',
+] as const;
+
+const FORMAT_WAKTU = [
+  '06.30 WIB – selesai',
+  'Pukul 06.30 WIB s.d. selesai',
+] as const;
+
+const FORMAT_TEMPAT = [
+  'Aula Muktamar Pondok Pesantren Lirboyo Kediri',
+  'Aula Al-Muktamar PP. Lirboyo Kediri',
+] as const;
+
+const INSTRUKSI_LINK = [
+  'Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk:',
+  'Silakan akses portal undangan digital, isi konfirmasi kehadiran, dan simpan QR Code Anda:',
+] as const;
+
+const INSTRUKSI_QR = [
+  'Mohon *QR Code disimpan dan ditunjukkan kepada petugas* saat memasuki lokasi acara.',
+  'Pastikan *QR Code tersimpan* untuk ditunjukkan kepada petugas gerbang saat tiba di lokasi.',
+] as const;
+
+const INSTRUKSI_GRUP = [
+  'Info/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:',
+  'Untuk informasi terbaru seputar acara, silakan bergabung di grup WhatsApp wali santri:',
+] as const;
+
+const PENUTUP = [
+  'Atas perhatian dan kehadirannya, kami sampaikan terima kasih. Jazakumullahu khairan katsiran.',
+  'Merupakan suatu kehormatan bagi kami apabila Bapak/Ibu berkenan hadir. Terima kasih.',
+  'Kami tunggu kehadiran Bapak/Ibu. Jazakumullahu khairan katsiran.',
+  'Demikian undangan ini kami sampaikan. Terima kasih atas kerja samanya.',
+] as const;
+
+let lastPembukaIdx = -1;
+let lastBulletIdx = -1;
+let lastPenutupIdx = -1;
+
+function pickRandomIndex(length: number, lastIdx?: number): number {
+  if (length <= 1) return 0;
+  let idx = Math.floor(Math.random() * length);
+  if (typeof lastIdx === 'number' && lastIdx >= 0 && idx === lastIdx) {
+    idx = (idx + 1 + Math.floor(Math.random() * (length - 1))) % length;
+  }
+  return idx;
+}
+
+function pickFromSpintax<T>(
+  options: readonly T[],
+  fixedIndex?: number
+): T {
+  if (typeof fixedIndex === 'number' && fixedIndex >= 0) {
+    return options[fixedIndex % options.length];
+  }
+  return options[Math.floor(Math.random() * options.length)];
+}
 
 export function resolveUndanganDigitalLink(kodeUndangan: string): string {
   const liveDomain =
@@ -48,7 +97,8 @@ export function resolveUndanganDigitalLink(kodeUndangan: string): string {
 }
 
 /**
- * Memilih 1 dari 4 variasi template undangan WA secara acak menggunakan Math.random()
+ * Menghasilkan pesan undangan WhatsApp dengan Full-Body Spintax acak
+ * sambil menjaga data tetap (Nama Wali, Nama Santri, Link Undangan, Link Grup WA, Instansi)
  * dan menyisipkan blok Link Grup WA hanya jika link_grup_wa terisi.
  */
 export function generateRandomWaUndanganMessage(
@@ -59,46 +109,61 @@ export function generateRandomWaUndanganMessage(
   const linkUndanganDigital = resolveUndanganDigitalLink(params.kode_undangan);
   const trimmedLinkGrup = (params.link_grup_wa || '').trim();
 
-  let pickedIdx: number;
-  if (
-    typeof params.variationIndex === 'number' &&
-    params.variationIndex >= 0 &&
-    params.variationIndex < VARIATIONS.length
-  ) {
-    pickedIdx = params.variationIndex;
+  const fixedIdx =
+    typeof params.variationIndex === 'number' && params.variationIndex >= 0
+      ? params.variationIndex
+      : undefined;
+
+  let pembukaIdx: number;
+  let bulletIdx: number;
+  let penutupIdx: number;
+
+  if (fixedIdx !== undefined) {
+    pembukaIdx = fixedIdx % PEMBUKA.length;
+    bulletIdx = fixedIdx % BULLET.length;
+    penutupIdx = fixedIdx % PENUTUP.length;
   } else {
-    pickedIdx = Math.floor(Math.random() * VARIATIONS.length);
-    // Hindari memilih variasi yang persis sama dua kali berturut-turut saat kirim massal
-    if (pickedIdx === lastPickedVariationIndex) {
-      pickedIdx = (pickedIdx + 1 + Math.floor(Math.random() * (VARIATIONS.length - 1))) % VARIATIONS.length;
-    }
-    lastPickedVariationIndex = pickedIdx;
+    pembukaIdx = pickRandomIndex(PEMBUKA.length, lastPembukaIdx);
+    bulletIdx = pickRandomIndex(BULLET.length, lastBulletIdx);
+    penutupIdx = pickRandomIndex(PENUTUP.length, lastPenutupIdx);
+    lastPembukaIdx = pembukaIdx;
+    lastBulletIdx = bulletIdx;
+    lastPenutupIdx = penutupIdx;
   }
 
-  const chosen = VARIATIONS[pickedIdx];
-  const opening = chosen.buildOpening(namaWali);
+  const pembuka = PEMBUKA[pembukaIdx](namaWali);
+  const pengantar = pickFromSpintax(PENGANTAR, fixedIdx);
+  const bullet = BULLET[bulletIdx];
+  const tanggal = pickFromSpintax(FORMAT_TANGGAL, fixedIdx);
+  const waktu = pickFromSpintax(FORMAT_WAKTU, fixedIdx);
+  const tempat = pickFromSpintax(FORMAT_TEMPAT, fixedIdx);
+  const instruksiLink = pickFromSpintax(INSTRUKSI_LINK, fixedIdx);
+  const instruksiQr = pickFromSpintax(INSTRUKSI_QR, fixedIdx);
+  const instruksiGrup = pickFromSpintax(INSTRUKSI_GRUP, fixedIdx);
+  const penutup = PENUTUP[penutupIdx];
+
   const grupWaBlock = trimmedLinkGrup
-    ? `\n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${trimmedLinkGrup}*`
+    ? `\n\n${instruksiGrup}\n*${trimmedLinkGrup}*`
     : '';
 
-  return `${opening}
+  return `${pembuka}
 
-Dengan memohon rahmat dan ridha Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri:
+${pengantar}
 
 *HAUL & HAFLAH AKHIRUSSANAH*
 Pondok Pesantren Putri Tahfizhil Qur-an (P3TQ) dan Madrasah Hidayatul Mubtadi-aat Fittahfizhi Wal Qiro-at (MHMTQ) 1448 H./2027 M.
 
-- *Hari/Tanggal:* Sabtu, 24 Rajab 1448 H. / 02 Januari 2027 M.
-- *Waktu:* 06.30 WIB – selesai
-- *Tempat:* Aula Muktamar Pondok Pesantren Lirboyo Kediri
-- *Shohibul Hajat:* *${namaSantri}*
+${bullet} *Hari/Tanggal:* ${tanggal}
+${bullet} *Waktu:* ${waktu}
+${bullet} *Tempat:* ${tempat}
+${bullet} *Shohibul Hajat:* *${namaSantri}*
 
-Undangan digital resmi, konfirmasi kehadiran, dan QR Code gerbang masuk:
+${instruksiLink}
 *${linkUndanganDigital}*
 
-Mohon *QR Code disimpan dan ditunjukkan kepada petugas* saat memasuki lokasi acara.${grupWaBlock}
+${instruksiQr}${grupWaBlock}
 
-${chosen.closing}
+${penutup}
 
 Wassalamu’alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;

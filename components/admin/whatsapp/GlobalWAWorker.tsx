@@ -9,6 +9,7 @@ import { getActiveRole } from '@/lib/auth-roles';
 import { useWaQueue } from '@/lib/use-wa-queue';
 
 const IDLE_RESET_MS = 30 * 60 * 1000;
+const MIN_DELAY_MS = 10 * 1000;
 
 export default function GlobalWAWorker() {
   const pathname = usePathname();
@@ -87,6 +88,11 @@ export default function GlobalWAWorker() {
           return;
         }
 
+        // 2b. Jaga jarak minimal 10 detik sejak pengiriman terakhir
+        if (lastSentMs > 0 && nowMs - lastSentMs < MIN_DELAY_MS) {
+          return;
+        }
+
         const list = activeRows || [];
         const activeSending = list.find((r: any) => r.status === 'SENDING');
         if (activeSending) {
@@ -125,8 +131,23 @@ export default function GlobalWAWorker() {
       }
     };
 
-    runWorkerTick();
-    const interval = setInterval(runWorkerTick, 2000);
+    const runWithCrossTabLock = async () => {
+      if (typeof navigator !== 'undefined' && navigator.locks?.request) {
+        await navigator.locks.request(
+          'haflah_wa_worker_tick_lock',
+          { ifAvailable: true },
+          async (lock) => {
+            if (!lock) return;
+            await runWorkerTick();
+          }
+        );
+      } else {
+        await runWorkerTick();
+      }
+    };
+
+    runWithCrossTabLock();
+    const interval = setInterval(runWithCrossTabLock, 2000);
     return () => {
       clearInterval(interval);
     };

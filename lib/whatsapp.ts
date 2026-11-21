@@ -2,6 +2,7 @@ export interface FonnteSendOptions {
   target?: string | null;
   message: string;
   delay?: number | string;
+  typing?: boolean;
 }
 
 export interface FonnteSendResult {
@@ -40,6 +41,7 @@ export async function sendFonnteServerMessage({
   target,
   message,
   delay,
+  typing = true,
 }: FonnteSendOptions): Promise<FonnteSendResult> {
   const cleanTarget = normalizeIndoPhone(target);
   if (!cleanTarget) {
@@ -67,6 +69,7 @@ export async function sendFonnteServerMessage({
     if (delay !== undefined && delay !== null && String(delay).trim() !== '') {
       formData.append('delay', String(delay));
     }
+    formData.append('typing', typing === false ? 'false' : 'true');
     formData.append('countryCode', '62');
 
     const response = await fetch('https://api.fonnte.com/send', {
