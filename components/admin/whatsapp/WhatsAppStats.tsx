@@ -427,7 +427,6 @@ export default function WhatsAppStats({
                   autoComplete="off"
                   value={linkGrupWa}
                   onChange={(e) => setLinkGrupWa(e.target.value)}
-                  onBlur={() => handleSaveLinkGrupWa?.(linkGrupWa)}
                   placeholder="https://chat.whatsapp.com/... (opsional)"
                   className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white/85 backdrop-blur-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#1D4ED8]/40 focus:outline-none text-xs font-mono shadow-xs transition-colors"
                 />
@@ -440,9 +439,6 @@ export default function WhatsAppStats({
                   {savingLinkGrup ? '...' : 'Simpan'}
                 </button>
               </div>
-              <p className="text-[10px] text-slate-600 mt-1.5 leading-relaxed">
-                Opsional per sesi pengiriman. Jika diisi, tautan grup resmi dicantumkan di pesan; jika dikosongkan, bagian Link Grup WA otomatis dihapus dari pesan. Menggunakan 4 variasi pembuka &amp; penutup acak serta batas 30 pesan per batch.
-              </p>
             </div>
             <div className="flex items-center p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 shadow-xs">
               <div className="text-[11px] text-[#7A624E] leading-relaxed">

@@ -349,13 +349,76 @@ export default function WhatsAppPage() {
     }
   };
 
+  const fetchLinkGrupWaConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('konfigurasi_sistem')
+        .select('value')
+        .eq('key', 'link_grup_wa')
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error reading link_grup_wa from Supabase:', error);
+        return;
+      }
+
+      if (data && data.value) {
+        let savedUrl = '';
+        if (typeof data.value === 'object' && data.value !== null) {
+          savedUrl = String(data.value.url || data.value.link || '').trim();
+        } else if (typeof data.value === 'string') {
+          savedUrl = data.value.trim();
+        }
+        setLinkGrupWa(savedUrl);
+      }
+    } catch (err) {
+      console.warn('Error fetching link_grup_wa from Supabase:', err);
+    }
+  };
+
   const handleSaveLinkGrupWa = async (newVal: string) => {
+    if (savingLinkGrup) return;
     setSavingLinkGrup(true);
     try {
       const trimmed = newVal.trim();
+      const nowIso = new Date().toISOString();
+      const { error } = await supabase
+        .from('konfigurasi_sistem')
+        .upsert(
+          {
+            key: 'link_grup_wa',
+            value: { url: trimmed, link: trimmed },
+            updated_at: nowIso,
+          },
+          { onConflict: 'key' }
+        );
+
+      if (error) {
+        console.error('Error saving link_grup_wa to konfigurasi_sistem:', error);
+        showToast('error', `Gagal menyimpan Link Grup WA: ${error.message || 'Database error'}`);
+        return;
+      }
+
       setLinkGrupWa(trimmed);
       setLinkGrupSavedNotice(true);
+      showToast('success', 'Link Grup WA berhasil disimpan ke database.');
       setTimeout(() => setLinkGrupSavedNotice(false), 2500);
+
+      logAudit({
+        panitia_id: 'ADMIN_SISTEM',
+        panitia_role: 'ADMIN',
+        aksi: 'UPDATE_LINK_GRUP_WA',
+        tabel: 'konfigurasi_sistem',
+        kode: 'link_grup_wa',
+        nama: 'Link Grup WhatsApp Resmi Wali Santri',
+        field: 'url',
+        nilai_lama: linkGrupWa || '-',
+        nilai_baru: trimmed || '-',
+        detail: { url: trimmed, link: trimmed },
+        catatan: 'Pembaruan Link Grup WhatsApp Wali Santri untuk balasan otomatis webhook',
+      }).catch(() => {});
+    } catch (err: any) {
+      showToast('error', err?.message || 'Gagal menyimpan Link Grup WA.');
     } finally {
       setSavingLinkGrup(false);
     }
@@ -365,11 +428,13 @@ export default function WhatsAppPage() {
     fetchSantriWaData();
     fetchTamuWaData();
     fetchKuotaConfigStatus();
+    fetchLinkGrupWaConfig();
 
     const channel = supabase
       .channel('konfigurasi_sistem_wa_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
         fetchKuotaConfigStatus();
+        fetchLinkGrupWaConfig();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, () => fetchSantriWaData(true))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, () => fetchTamuWaData(true))
