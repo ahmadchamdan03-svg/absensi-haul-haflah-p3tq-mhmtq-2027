@@ -165,13 +165,13 @@ export interface WaGroupReplyTemplateParams {
 
 const GROUP_REPLY_VARIATIONS: Array<(namaWali: string, linkGrup: string) => string> = [
   (namaWali, linkGrup) =>
-    `Terima kasih Bapak/Ibu *${namaWali}*. \nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrup}*`,
+    `Terima kasih Bapak/Ibu *${namaWali}*. \n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrup}*`,
   (namaWali, linkGrup) =>
-    `Alhamdulillah, pesan Bapak/Ibu *${namaWali}* telah kami terima. \nSilakan bergabung di grup WhatsApp resmi wali santri untuk info terbaru seputar acara:\n*${linkGrup}*`,
+    `Alhamdulillah, pesan Bapak/Ibu *${namaWali}* telah kami terima. \n\nSilakan bergabung di grup WhatsApp resmi wali santri untuk info terbaru seputar acara:\n*${linkGrup}*`,
   (namaWali, linkGrup) =>
-    `Baik Bapak/Ibu *${namaWali}*, terima kasih atas responsnya. \nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrup}*`,
+    `Baik Bapak/Ibu *${namaWali}*, terima kasih atas responsnya. \n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrup}*`,
   (namaWali, linkGrup) =>
-    `Terima kasih atas konfirmasinya Bapak/Ibu *${namaWali}*. \nMari bergabung di grup WhatsApp resmi wali santri untuk mendapatkan pengumuman terbaru:\n*${linkGrup}*`,
+    `Terima kasih atas konfirmasinya Bapak/Ibu *${namaWali}*. \n\nSilahkan bergabung di grup WhatsApp resmi wali santri untuk mendapatkan pengumuman terbaru:\n*${linkGrup}*`,
 ];
 
 let lastGroupReplyIdx = -1;
