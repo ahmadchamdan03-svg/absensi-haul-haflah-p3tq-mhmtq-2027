@@ -53,9 +53,6 @@ export default function WhatsAppPage() {
     isCooldown,
     cooldownFormatted,
     nextDelaySeconds,
-    networkPaused,
-    networkPauseMessage,
-    resumeNetworkPausedQueue,
     enqueueWaMessages,
     cancelPendingWaQueue,
   } = useWaQueue();
@@ -630,16 +627,6 @@ export default function WhatsAppPage() {
       setTamuBlastTotalTarget(tamuQueueItems.length);
     }
   }, [tamuQueueItems.length, tamuBlastTotalTarget]);
-
-  // Tampilkan notifikasi toast ketika worker auto-pause karena error koneksi/resource beruntun
-  useEffect(() => {
-    if (networkPaused) {
-      showToast(
-        'error',
-        networkPauseMessage || 'Koneksi internet/browser tidak stabil. Antrean dijeda sementara.'
-      );
-    }
-  }, [networkPaused, networkPauseMessage]);
 
   // Update status 1 baris peserta di state memori secara langsung tanpa me-fetch ulang 525+ baris DB
   useEffect(() => {
@@ -1269,48 +1256,7 @@ export default function WhatsAppPage() {
           />
 
           {/* INDIKATOR CENTRALIZED SMART QUEUE & MODE COOLDOWN (ANTI-BLOKIR FONNTE) */}
-          {networkPaused ? (
-            <div
-              data-testid="wa-network-pause-banner"
-              className="p-4 sm:p-5 rounded-2xl bg-rose-950 text-rose-50 border-2 border-rose-400/80 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-400/50 flex items-center justify-center text-rose-300 shrink-0">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-black tracking-wide">
-                    {networkPauseMessage || 'Koneksi internet/browser tidak stabil. Antrean dijeda sementara.'}
-                  </div>
-                  <div className="text-[11px] text-rose-200 mt-0.5">
-                    Antrean terpusat aman tersimpan di database Supabase (Sisa antrean: {activeQueueCount} pesan). Klik tombol di samping jika koneksi sudah pulih.
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => resumeNetworkPausedQueue()}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
-                >
-                  Lanjutkan Antrean
-                </button>
-                {pendingItems.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await cancelPendingWaQueue();
-                      showToast('success', 'Sisa antrean PENDING dibersihkan dari database.');
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
-                  >
-                    Hentikan ({pendingItems.length})
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : isCooldown ? (
+          {isCooldown ? (
             <div
               data-testid="wa-cooldown-banner"
               className="p-4 sm:p-5 rounded-2xl bg-amber-950 text-amber-50 border-2 border-amber-400/80 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -1322,11 +1268,13 @@ export default function WhatsAppPage() {
                 <div>
                   <div className="text-xs sm:text-sm font-black tracking-wide">
                     Mode Cooldown: Menunggu{' '}
-                    <span className="font-mono text-amber-300 text-sm sm:text-base">
+                    <span
+                      data-testid="wa-cooldown-countdown"
+                      className="font-mono text-amber-300 text-sm sm:text-base"
+                    >
                       {cooldownFormatted}
                     </span>{' '}
-                    sebelum mengirim batch berikutnya (
-                    {systemState.batch_count === 0 ? 30 : systemState.batch_count}/30 pesan terkirim)
+                    sebelum mengirim batch berikutnya. (Sistem mendeteksi gangguan jaringan / mencapai batas batch).
                   </div>
                   <div className="text-[11px] text-amber-200 mt-0.5 flex items-center gap-1.5 flex-wrap">
                     <Clock className="w-3.5 h-3.5 text-amber-300" />
@@ -1335,7 +1283,7 @@ export default function WhatsAppPage() {
                         (p.error_message || '').toLowerCase().includes('disconnected')
                       )
                         ? `Auto-Pause aktif karena perangkat WhatsApp terputus. Pesan tetap aman di PENDING (Sisa antrean: ${activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai.`
-                        : `Batas 30 pesan per batch tercapai. Antrean tetap tersimpan di Supabase (Sisa antrean: ${activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai di tab/browser mana pun.`}
+                        : `Antrean tetap aman tersimpan di Supabase (Sisa antrean: ${activeQueueCount} pesan) dan akan otomatis dilanjutkan setelah hitung mundur cooldown selesai.`}
                     </span>
                   </div>
                 </div>
@@ -1469,31 +1417,24 @@ export default function WhatsAppPage() {
         </div>
 
         {/* FLOATING QUEUE INDICATOR SAAT SCROLL KE BAWAH */}
-        {(networkPaused || isCooldown || activeQueueCount > 0) && (
+        {(isCooldown || activeQueueCount > 0) && (
           <div
             className={`fixed bottom-6 right-6 z-40 max-w-md backdrop-blur-md px-4 py-3 rounded-2xl shadow-2xl border flex items-center space-x-3 ${
-              networkPaused
-                ? 'bg-rose-950/95 text-rose-50 border-rose-400/60'
-                : isCooldown
+              isCooldown
                 ? 'bg-amber-950/95 text-amber-50 border-amber-400/60'
                 : 'bg-[#0F2C59]/95 text-white border-sky-400/50'
             }`}
           >
-            {networkPaused ? (
-              <AlertTriangle className="w-4 h-4 text-rose-300 shrink-0" />
-            ) : isCooldown ? (
+            {isCooldown ? (
               <Hourglass className="w-4 h-4 text-amber-300 animate-pulse shrink-0" />
             ) : (
               <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
             )}
             <span className="text-xs font-bold leading-snug">
-              {networkPaused ? (
-                <>Koneksi tidak stabil: antrean dijeda ({activeQueueCount})</>
-              ) : isCooldown ? (
+              {isCooldown ? (
                 <>
                   Mode Cooldown: Menunggu{' '}
-                  <span className="font-mono text-amber-300">{cooldownFormatted}</span> (
-                  {systemState.batch_count === 0 ? 30 : systemState.batch_count}/30)
+                  <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum mengirim batch berikutnya.
                 </>
               ) : (
                 <>

@@ -117,16 +117,12 @@ interface WaQueueStoreSnapshot {
   queueItems: WaQueueItem[];
   systemState: WaSystemState;
   loading: boolean;
-  networkPaused: boolean;
-  networkPauseMessage: string | null;
 }
 
 const storeState: WaQueueStoreSnapshot = {
   queueItems: [],
   systemState: DEFAULT_SYSTEM_STATE,
   loading: true,
-  networkPaused: false,
-  networkPauseMessage: null,
 };
 
 const listeners = new Set<(snap: WaQueueStoreSnapshot) => void>();
@@ -142,12 +138,8 @@ function notifyListeners() {
   listeners.forEach((cb) => cb(snapshot));
 }
 
-export function setNetworkPausedState(paused: boolean, message?: string | null) {
-  storeState.networkPaused = paused;
-  storeState.networkPauseMessage = paused
-    ? message || 'Koneksi internet/browser tidak stabil. Antrean dijeda sementara.'
-    : null;
-  notifyListeners();
+export function getWaQueueStoreSystemState(): WaSystemState {
+  return storeState.systemState;
 }
 
 export function applyWorkerSyncResult(detail: any) {
@@ -171,6 +163,20 @@ export function applyWorkerSyncResult(detail: any) {
       });
     }
     mutated = true;
+  }
+
+  if (detail.resetSendingToPending) {
+    let reverted = false;
+    storeState.queueItems = storeState.queueItems.map((item) => {
+      if (item.status === 'SENDING') {
+        reverted = true;
+        return { ...item, status: 'PENDING' };
+      }
+      return item;
+    });
+    if (reverted) {
+      mutated = true;
+    }
   }
 
   if (mutated) {
@@ -244,14 +250,6 @@ export function scheduleDebouncedRefresh(delayMs: number = 450) {
     debounceRefreshTimer = null;
     refreshWaQueueStore();
   }, delayMs);
-}
-
-export async function resumeNetworkPausedQueue(): Promise<void> {
-  setNetworkPausedState(false, null);
-  await refreshWaQueueStore();
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('wa-queue-resume'));
-  }
 }
 
 function attachSharedSubscriptions() {
@@ -399,9 +397,6 @@ export function useWaQueue() {
       if (!res.ok || !json.ok) {
         throw new Error(json.error || 'Gagal memasukkan pesan ke antrean terpusat.');
       }
-      if (storeState.networkPaused) {
-        setNetworkPausedState(false, null);
-      }
       await refreshWaQueueStore();
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
@@ -428,7 +423,6 @@ export function useWaQueue() {
       if (!res.ok || !json.ok) {
         throw new Error(json.error || 'Gagal membatalkan antrean.');
       }
-      setNetworkPausedState(false, null);
       await refreshWaQueueStore();
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
@@ -455,9 +449,6 @@ export function useWaQueue() {
     sendingKode,
     tamuSendingKode,
     queuedKodes,
-    networkPaused: snapshot.networkPaused,
-    networkPauseMessage: snapshot.networkPauseMessage,
-    resumeNetworkPausedQueue,
     enqueueWaMessages,
     cancelPendingWaQueue,
     refreshWaQueue,
