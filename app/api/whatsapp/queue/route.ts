@@ -118,16 +118,21 @@ async function updateRecipientTableStatus(
   item: any,
   isSuccess: boolean,
   reasonText: string
-) {
-  const targetTable = item.target_table;
-  const targetId = item.target_id;
-  const targetKode = item.target_kode;
-  if (!targetTable || (!targetId && !targetKode)) return;
-
+): Promise<'TERKIRIM' | 'NOMOR_TIDAK_TERDAFTAR' | 'GAGAL'> {
   const isInvalidNum =
     reasonText.toLowerCase().includes('invalid') ||
     reasonText.toLowerCase().includes('not registered');
-  const finalStatus = isSuccess ? 'TERKIRIM' : isInvalidNum ? 'NOMOR_TIDAK_TERDAFTAR' : 'GAGAL';
+  const finalStatus: 'TERKIRIM' | 'NOMOR_TIDAK_TERDAFTAR' | 'GAGAL' = isSuccess
+    ? 'TERKIRIM'
+    : isInvalidNum
+    ? 'NOMOR_TIDAK_TERDAFTAR'
+    : 'GAGAL';
+
+  const targetTable = item.target_table;
+  const targetId = item.target_id;
+  const targetKode = item.target_kode;
+  if (!targetTable || (!targetId && !targetKode)) return finalStatus;
+
   const nowIso = new Date().toISOString();
 
   if (targetTable === 'peserta_santri') {
@@ -152,6 +157,8 @@ async function updateRecipientTableStatus(
     else query = query.eq('kode', targetKode);
     await query;
   }
+
+  return finalStatus;
 }
 
 export async function GET() {
@@ -570,7 +577,7 @@ export async function POST(req: NextRequest) {
         .select('*')
         .single();
 
-      await updateRecipientTableStatus(claimed, isSuccess, errorReason);
+      const finalRecipientStatus = await updateRecipientTableStatus(claimed, isSuccess, errorReason);
 
       await supabaseServer
         .from('wa_queue')
@@ -596,6 +603,10 @@ export async function POST(req: NextRequest) {
         itemId: claimed.id,
         namaTarget: claimed.nama_target,
         targetKode: claimed.target_kode,
+        targetTable: claimed.target_table || null,
+        targetId: claimed.target_id || null,
+        targetColumn: claimed.target_column || 'status_wa_undangan',
+        finalRecipientStatus,
         sentOk: isSuccess,
         errorReason: isSuccess ? null : errorReason,
         delayMs,

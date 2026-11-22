@@ -44,7 +44,7 @@ export default function WhatsAppPage() {
   const [isSavingHp, setIsSavingHp] = useState(false);
   const [hpValidationError, setHpValidationError] = useState('');
 
-  // Centralized Multi-Browser WA Queue (Supabase + Realtime)
+  // Centralized Multi-Browser WA Queue (Supabase + Realtime Singleton)
   const {
     sendingItem,
     pendingItems,
@@ -53,6 +53,9 @@ export default function WhatsAppPage() {
     isCooldown,
     cooldownFormatted,
     nextDelaySeconds,
+    networkPaused,
+    networkPauseMessage,
+    resumeNetworkPausedQueue,
     enqueueWaMessages,
     cancelPendingWaQueue,
   } = useWaQueue();
@@ -429,20 +432,6 @@ export default function WhatsAppPage() {
     fetchTamuWaData();
     fetchKuotaConfigStatus();
     fetchLinkGrupWaConfig();
-
-    const channel = supabase
-      .channel('konfigurasi_sistem_wa_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'konfigurasi_sistem' }, () => {
-        fetchKuotaConfigStatus();
-        fetchLinkGrupWaConfig();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, () => fetchSantriWaData(true))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, () => fetchTamuWaData(true))
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   useEffect(() => {
@@ -642,25 +631,65 @@ export default function WhatsAppPage() {
     }
   }, [tamuQueueItems.length, tamuBlastTotalTarget]);
 
-  // Refresh senyap saat GlobalWAWorker menyelesaikan 1 pesan agar posisi scroll tidak reset
+  // Tampilkan notifikasi toast ketika worker auto-pause karena error koneksi/resource beruntun
+  useEffect(() => {
+    if (networkPaused) {
+      showToast(
+        'error',
+        networkPauseMessage || 'Koneksi internet/browser tidak stabil. Antrean dijeda sementara.'
+      );
+    }
+  }, [networkPaused, networkPauseMessage]);
+
+  // Update status 1 baris peserta di state memori secara langsung tanpa me-fetch ulang 525+ baris DB
   useEffect(() => {
     const handleWorkerProcessed = (evt: Event) => {
       const detail = (evt as CustomEvent).detail;
       if (!detail || detail.status !== 'PROCESSED') return;
 
       const isOk = Boolean(detail.sentOk);
-      if (String(detail.targetKode || '').startsWith('UND')) {
+      const nextStatus =
+        detail.finalRecipientStatus || (isOk ? 'TERKIRIM' : 'GAGAL');
+      const targetKode = detail.targetKode ? String(detail.targetKode) : '';
+      const targetId = detail.targetId ? String(detail.targetId) : '';
+      const isTamuTarget =
+        detail.targetTable === 'tamu_undangan' || targetKode.startsWith('UND');
+
+      if (isTamuTarget) {
         setTamuBlastStats((prev) => ({
           success: prev.success + (isOk ? 1 : 0),
           failed: prev.failed + (isOk ? 0 : 1),
         }));
-        fetchTamuWaData(true);
+        setTamuList((prev) =>
+          prev.map((item) => {
+            const matchById = targetId && String(item.id) === targetId;
+            const matchByKode = targetKode && String(item.kode) === targetKode;
+            if (!matchById && !matchByKode) return item;
+            return {
+              ...item,
+              statusWa: nextStatus,
+              status_wa: nextStatus,
+            };
+          })
+        );
       } else {
         setBlastStats((prev) => ({
           success: prev.success + (isOk ? 1 : 0),
           failed: prev.failed + (isOk ? 0 : 1),
         }));
-        fetchSantriWaData(true);
+        const col = detail.targetColumn || 'status_wa_undangan';
+        setKeluargaList((prev) =>
+          prev.map((item) => {
+            const matchById = targetId && String(item.id) === targetId;
+            const matchByKode = targetKode && String(item.kode) === targetKode;
+            if (!matchById && !matchByKode) return item;
+            return {
+              ...item,
+              [col]: nextStatus,
+              ...(col === 'status_wa_undangan' ? { statusWa: nextStatus } : {}),
+            };
+          })
+        );
       }
     };
 
@@ -1240,7 +1269,48 @@ export default function WhatsAppPage() {
           />
 
           {/* INDIKATOR CENTRALIZED SMART QUEUE & MODE COOLDOWN (ANTI-BLOKIR FONNTE) */}
-          {isCooldown ? (
+          {networkPaused ? (
+            <div
+              data-testid="wa-network-pause-banner"
+              className="p-4 sm:p-5 rounded-2xl bg-rose-950 text-rose-50 border-2 border-rose-400/80 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-400/50 flex items-center justify-center text-rose-300 shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs sm:text-sm font-black tracking-wide">
+                    {networkPauseMessage || 'Koneksi internet/browser tidak stabil. Antrean dijeda sementara.'}
+                  </div>
+                  <div className="text-[11px] text-rose-200 mt-0.5">
+                    Antrean terpusat aman tersimpan di database Supabase (Sisa antrean: {activeQueueCount} pesan). Klik tombol di samping jika koneksi sudah pulih.
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => resumeNetworkPausedQueue()}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+                >
+                  Lanjutkan Antrean
+                </button>
+                {pendingItems.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await cancelPendingWaQueue();
+                      showToast('success', 'Sisa antrean PENDING dibersihkan dari database.');
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+                  >
+                    Hentikan ({pendingItems.length})
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : isCooldown ? (
             <div
               data-testid="wa-cooldown-banner"
               className="p-4 sm:p-5 rounded-2xl bg-amber-950 text-amber-50 border-2 border-amber-400/80 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -1399,21 +1469,27 @@ export default function WhatsAppPage() {
         </div>
 
         {/* FLOATING QUEUE INDICATOR SAAT SCROLL KE BAWAH */}
-        {(isCooldown || activeQueueCount > 0) && (
+        {(networkPaused || isCooldown || activeQueueCount > 0) && (
           <div
             className={`fixed bottom-6 right-6 z-40 max-w-md backdrop-blur-md px-4 py-3 rounded-2xl shadow-2xl border flex items-center space-x-3 ${
-              isCooldown
+              networkPaused
+                ? 'bg-rose-950/95 text-rose-50 border-rose-400/60'
+                : isCooldown
                 ? 'bg-amber-950/95 text-amber-50 border-amber-400/60'
                 : 'bg-[#0F2C59]/95 text-white border-sky-400/50'
             }`}
           >
-            {isCooldown ? (
+            {networkPaused ? (
+              <AlertTriangle className="w-4 h-4 text-rose-300 shrink-0" />
+            ) : isCooldown ? (
               <Hourglass className="w-4 h-4 text-amber-300 animate-pulse shrink-0" />
             ) : (
               <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
             )}
             <span className="text-xs font-bold leading-snug">
-              {isCooldown ? (
+              {networkPaused ? (
+                <>Koneksi tidak stabil: antrean dijeda ({activeQueueCount})</>
+              ) : isCooldown ? (
                 <>
                   Mode Cooldown: Menunggu{' '}
                   <span className="font-mono text-amber-300">{cooldownFormatted}</span> (
