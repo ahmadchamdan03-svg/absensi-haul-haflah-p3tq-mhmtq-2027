@@ -43,6 +43,7 @@ interface KonfirmasiStatsAndFiltersProps {
   totalReminder?: number;
   reminderSuccess?: number;
   reminderFailed?: number;
+  reminderDelayCountdown?: number;
   onStartMassReminder?: () => void;
   onStopMassReminder?: () => void;
   children?: React.ReactNode;
@@ -70,6 +71,7 @@ export default function KonfirmasiStatsAndFilters({
   totalReminder = 0,
   reminderSuccess = 0,
   reminderFailed = 0,
+  reminderDelayCountdown = 0,
   onStartMassReminder,
   onStopMassReminder,
   children,
@@ -606,7 +608,11 @@ export default function KonfirmasiStatsAndFilters({
             <div className="flex items-center justify-between font-bold">
               <span className="flex items-center space-x-2">
                 <Loader2 className="w-4 h-4 animate-spin text-[#1D4ED8]" />
-                <span>Mengirim {progressReminder} dari {totalReminder} pengingat...</span>
+                <span>
+                  {reminderDelayCountdown > 0
+                    ? `Menunggu jeda acak (${reminderDelayCountdown} dtk dari 5-60 dtk) sebelum pesan berikutnya (${progressReminder}/${totalReminder} terkirim)...`
+                    : `Simulasi typing & mengirim ${progressReminder} dari ${totalReminder} pengingat...`}
+                </span>
               </span>
               <span>
                 Berhasil: {reminderSuccess} · Gagal: {reminderFailed}

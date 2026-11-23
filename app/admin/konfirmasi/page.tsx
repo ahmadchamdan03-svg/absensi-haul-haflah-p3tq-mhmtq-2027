@@ -266,17 +266,19 @@ export default function KonfirmasiPage() {
   const [sentFonnteKodes, setSentFonnteKodes] = useState<Record<string, string>>({});
   const [isBlasting, setIsBlasting] = useState(false);
 
-  // State Pengingat Massal (Jeda 5 Detik)
+  // State Pengingat Massal (Jeda Acak 5-60 Detik)
   const [isSendingReminder, setIsSendingReminder] = useState(false);
   const [progressReminder, setProgressReminder] = useState(0);
   const [totalReminder, setTotalReminder] = useState(0);
   const [reminderSuccess, setReminderSuccess] = useState(0);
   const [reminderFailed, setReminderFailed] = useState(0);
+  const [reminderDelayCountdown, setReminderDelayCountdown] = useState(0);
   const stopReminderRef = useRef(false);
 
   const handleStopPengingatMassal = () => {
     stopReminderRef.current = true;
     isSendingReminderRef.current = false;
+    setReminderDelayCountdown(0);
     setIsSendingReminder(false);
     setIsBlasting(false);
   };
@@ -306,7 +308,7 @@ export default function KonfirmasiPage() {
 
     if (
       !window.confirm(
-        `Kirim pengingat kehadiran via Fonnte kepada ${targetList.length} Wali Santri (Belum Konfirmasi & belum pernah dikirimi pengingat)?\nPengiriman menggunakan antrean jeda 5 detik antar pesan.`
+        `Kirim pengingat kehadiran via Fonnte kepada ${targetList.length} Wali Santri (Belum Konfirmasi & belum pernah dikirimi pengingat)?\nPengiriman menggunakan jeda acak antara 5-60 detik antar pesan dengan simulasi typing.`
       )
     ) {
       return;
@@ -320,6 +322,7 @@ export default function KonfirmasiPage() {
     setTotalReminder(targetList.length);
     setReminderSuccess(0);
     setReminderFailed(0);
+    setReminderDelayCountdown(0);
 
     let successCount = 0;
     let failedCount = 0;
@@ -329,6 +332,7 @@ export default function KonfirmasiPage() {
         if (stopReminderRef.current) break;
 
         const item = targetList[i];
+        setReminderDelayCountdown(0);
         setProgressReminder(i + 1);
         setSendingFonnteKode(item.kode);
 
@@ -354,6 +358,7 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
             body: JSON.stringify({
               target: item.noHp,
               message: teksPesan,
+              typing: true,
               id: item.id,
               kode: item.kode,
               mark_reminder_sent: true,
@@ -381,12 +386,18 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
         setSendingFonnteKode(null);
 
         if (stopReminderRef.current || i === targetList.length - 1) break;
-        // Jeda wajib 5000 ms (5 detik) sebelum melanjutkan ke pesan berikutnya
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const randomDelaySec = Math.floor(Math.random() * (60 - 5 + 1)) + 5;
+        for (let sec = randomDelaySec; sec > 0; sec--) {
+          if (stopReminderRef.current) break;
+          setReminderDelayCountdown(sec);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        setReminderDelayCountdown(0);
       }
     } finally {
       isSendingReminderRef.current = false;
       setSendingFonnteKode(null);
+      setReminderDelayCountdown(0);
       setIsSendingReminder(false);
       setIsBlasting(false);
     }
@@ -423,6 +434,7 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
         body: JSON.stringify({
           target: item.noHp,
           message: teks,
+          typing: true,
           ...(isTamu ? {} : { id: item.id, kode: item.kode, mark_reminder_sent: true }),
         }),
       });
@@ -486,6 +498,7 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
         totalReminder={totalReminder}
         reminderSuccess={reminderSuccess}
         reminderFailed={reminderFailed}
+        reminderDelayCountdown={reminderDelayCountdown}
         onStartMassReminder={handleKirimPengingatMassal}
         onStopMassReminder={handleStopPengingatMassal}
       >

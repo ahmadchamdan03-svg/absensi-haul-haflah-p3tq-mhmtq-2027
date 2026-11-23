@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
       target,
       message,
       delay,
+      typing,
       tipe_pesan,
       nama_santri,
       kode,
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
       target,
       message: finalMessage,
       delay,
+      typing: typing !== false,
     });
 
     if (!sendResult.data && !sendResult.ok) {
