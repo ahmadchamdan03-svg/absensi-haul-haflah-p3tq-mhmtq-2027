@@ -77,11 +77,8 @@ function mirrorStateToLocalStorage(
       scheduled_at: item.scheduled_at,
     }));
     localStorage.setItem('fonnte_queue', JSON.stringify(compactQueue));
-    localStorage.setItem('fonnte_batch_count', String(systemState.batch_count || 0));
-    localStorage.setItem(
-      'fonnte_cooldown_until',
-      systemState.cooldown_until ? String(new Date(systemState.cooldown_until).getTime()) : ''
-    );
+    localStorage.setItem('fonnte_batch_count', '0');
+    localStorage.setItem('fonnte_cooldown_until', '');
     localStorage.setItem(
       'fonnte_last_sent_at',
       systemState.last_sent_at ? String(new Date(systemState.last_sent_at).getTime()) : ''
@@ -341,10 +338,7 @@ export function useWaQueue() {
 
   const activeQueueCount = pendingItems.length + (sendingItem ? 1 : 0);
 
-  const cooldownUntilMs = snapshot.systemState.cooldown_until
-    ? new Date(snapshot.systemState.cooldown_until).getTime()
-    : 0;
-  const hasActiveClock = activeQueueCount > 0 || cooldownUntilMs > nowMs;
+  const hasActiveClock = activeQueueCount > 0;
 
   useEffect(() => {
     if (!hasActiveClock) return;
@@ -355,9 +349,9 @@ export function useWaQueue() {
     return () => clearInterval(clockInterval);
   }, [hasActiveClock]);
 
-  const cooldownRemainingMs = Math.max(0, cooldownUntilMs - nowMs);
-  const isCooldown = cooldownRemainingMs > 0;
-  const cooldownFormatted = formatCountdownHHMMSS(cooldownRemainingMs);
+  const cooldownRemainingMs = 0;
+  const isCooldown = false;
+  const cooldownFormatted = '00:00:00';
 
   const nextScheduledMs = pendingItems[0]?.scheduled_at
     ? new Date(pendingItems[0].scheduled_at).getTime()

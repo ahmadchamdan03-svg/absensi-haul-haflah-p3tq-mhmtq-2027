@@ -7,11 +7,8 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-const IDLE_RESET_MS = 30 * 60 * 1000; // 30 menit
 const MIN_DELAY_MS = 10000; // 10 detik (ketat anti-blokir)
 const MAX_DELAY_MS = 60000; // 60 detik
-const MIN_COOLDOWN_MINUTES = 30; // 30 menit
-const MAX_COOLDOWN_MINUTES = 60; // 60 menit
 const STALE_SENDING_MS = 2 * 60 * 1000; // 2 menit recovery jika browser tertutup saat SENDING
 
 export interface WaSystemStateRow {
@@ -24,13 +21,6 @@ export interface WaSystemStateRow {
 
 function getRandomDelayMs(): number {
   return Math.floor(Math.random() * 50000) + 10000;
-}
-
-function getRandomCooldownMs(): number {
-  const minutes =
-    Math.floor(Math.random() * (MAX_COOLDOWN_MINUTES - MIN_COOLDOWN_MINUTES + 1)) +
-    MIN_COOLDOWN_MINUTES;
-  return minutes * 60 * 1000;
 }
 
 async function getOrInitSystemState(): Promise<WaSystemStateRow> {
@@ -57,43 +47,23 @@ async function getOrInitSystemState(): Promise<WaSystemStateRow> {
 }
 
 async function syncSystemStateTimers(state: WaSystemStateRow): Promise<WaSystemStateRow> {
-  const nowMs = Date.now();
-  const nowIso = new Date(nowMs).toISOString();
-  let nextBatchCount = Number(state.batch_count || 0);
-  let nextCooldownUntil = state.cooldown_until;
-  let changed = false;
-
-  // 1. Jika cooldown sudah berakhir, bersihkan cooldown_until
-  if (nextCooldownUntil && new Date(nextCooldownUntil).getTime() <= nowMs) {
-    nextCooldownUntil = null;
-    changed = true;
+  if (state.cooldown_until === null && Number(state.batch_count || 0) === 0) {
+    return state;
   }
 
-  // 2. Jika tidak ada aktivitas kirim > 30 menit dan tidak sedang cooldown aktif, reset batch_count ke 0
-  if (
-    nextBatchCount > 0 &&
-    !nextCooldownUntil &&
-    state.last_sent_at &&
-    nowMs - new Date(state.last_sent_at).getTime() > IDLE_RESET_MS
-  ) {
-    nextBatchCount = 0;
-    changed = true;
-  }
-
-  if (!changed) return state;
-
+  const nowIso = new Date().toISOString();
   const updated: WaSystemStateRow = {
     ...state,
-    batch_count: nextBatchCount,
-    cooldown_until: nextCooldownUntil,
+    batch_count: 0,
+    cooldown_until: null,
     updated_at: nowIso,
   };
 
   await supabaseServer
     .from('wa_system_state')
     .update({
-      batch_count: nextBatchCount,
-      cooldown_until: nextCooldownUntil,
+      batch_count: 0,
+      cooldown_until: null,
       updated_at: nowIso,
     })
     .eq('id', 'global');
@@ -317,14 +287,6 @@ export async function POST(req: NextRequest) {
       const nowMs = Date.now();
       const nowIso = new Date(nowMs).toISOString();
 
-      if (state.cooldown_until && new Date(state.cooldown_until).getTime() > nowMs) {
-        return NextResponse.json({
-          ok: true,
-          status: 'COOLDOWN',
-          state,
-        });
-      }
-
       // Kunci Jeda Ketat >= 10 detik dari pengiriman terakhir (anti pesan kembar < 10 detik)
       if (state.last_sent_at) {
         const lastSentMs = new Date(state.last_sent_at).getTime();
@@ -468,47 +430,40 @@ export async function POST(req: NextRequest) {
       const finishNowMs = Date.now();
       const finishNowIso = new Date(finishNowMs).toISOString();
 
-      // 4. AUTO-PAUSE SAAT PERANGKAT TERPUTUS
+      // Jika perangkat terputus sementara, jadwalkan ulang 30 detik lagi tanpa jeda panjang global
       const isDisconnectedError =
         !isSuccess && errorReason.toLowerCase().includes('disconnected');
 
       if (isDisconnectedError) {
-        const cooldownMs = getRandomCooldownMs();
-        const cooldownUntilIso = new Date(finishNowMs + cooldownMs).toISOString();
-
-        const { data: pausedStateRow } = await supabaseServer
-          .from('wa_system_state')
-          .update({
-            cooldown_until: cooldownUntilIso,
-            updated_at: finishNowIso,
-          })
-          .eq('id', 'global')
-          .select('*')
-          .single();
+        const retryAtIso = new Date(finishNowMs + 30000).toISOString();
 
         await supabaseServer
           .from('wa_queue')
           .update({
             status: 'PENDING',
+            scheduled_at: retryAtIso,
             error_message: errorReason,
             updated_at: finishNowIso,
           })
           .eq('id', claimed.id);
 
+        const cleanState: WaSystemStateRow = {
+          ...state,
+          batch_count: 0,
+          cooldown_until: null,
+          updated_at: finishNowIso,
+        };
+
         return NextResponse.json({
           ok: true,
-          status: 'AUTO_PAUSED_DISCONNECTED',
+          status: 'RETRY_DISCONNECTED',
           itemId: claimed.id,
           namaTarget: claimed.nama_target,
           targetKode: claimed.target_kode,
           sentOk: false,
           errorReason,
-          cooldownTriggered: true,
-          state: (pausedStateRow as WaSystemStateRow) || {
-            ...state,
-            cooldown_until: cooldownUntilIso,
-            updated_at: finishNowIso,
-          },
+          cooldownTriggered: false,
+          state: cleanState,
         });
       }
 

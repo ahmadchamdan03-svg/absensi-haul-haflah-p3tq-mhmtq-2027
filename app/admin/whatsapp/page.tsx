@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Users, UserCheck, CheckCircle2, AlertTriangle, X, Loader2, Clock, Hourglass } from 'lucide-react';
+import { Users, UserCheck, CheckCircle2, AlertTriangle, X, Loader2, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { logAudit } from '@/lib/audit-log';
 import { extractBagianTamatan, getGolonganUndangan, getWaStatusColumnByGelombang } from '@/lib/types';
@@ -49,8 +49,6 @@ export default function WhatsAppPage() {
     sendingItem,
     pendingItems,
     activeQueueCount,
-    isCooldown,
-    cooldownFormatted,
     nextDelaySeconds,
     enqueueWaMessages,
     cancelPendingWaQueue,
@@ -1295,54 +1293,8 @@ export default function WhatsAppPage() {
             handleStopBatchBlastTamu={handleStopBatchBlastTamu}
           />
 
-          {/* INDIKATOR CENTRALIZED SMART QUEUE & MODE COOLDOWN (ANTI-BLOKIR FONNTE) */}
-          {isCooldown ? (
-            <div
-              data-testid="wa-cooldown-banner"
-              className="p-4 sm:p-5 rounded-2xl bg-amber-950 text-amber-50 border-2 border-amber-400/80 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shrink-0">
-                  <Hourglass className="w-5 h-5 animate-pulse" />
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-black tracking-wide">
-                    Mode Cooldown: Menunggu{' '}
-                    <span
-                      data-testid="wa-cooldown-countdown"
-                      className="font-mono text-amber-300 text-sm sm:text-base"
-                    >
-                      {cooldownFormatted}
-                    </span>{' '}
-                    sebelum melanjutkan pengiriman. (Sistem mendeteksi gangguan jaringan atau perangkat WhatsApp terputus).
-                  </div>
-                  <div className="text-[11px] text-amber-200 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                    <Clock className="w-3.5 h-3.5 text-amber-300" />
-                    <span>
-                      {pendingItems.some((p) =>
-                        (p.error_message || '').toLowerCase().includes('disconnected')
-                      )
-                        ? `Auto-Pause aktif karena perangkat WhatsApp terputus. Pesan tetap aman di PENDING (Sisa antrean: ${activeQueueCount} pesan) dan otomatis dilanjutkan setelah cooldown selesai.`
-                        : `Antrean tetap aman tersimpan di Supabase (Sisa antrean: ${activeQueueCount} pesan) dan akan otomatis dilanjutkan setelah hitung mundur cooldown selesai.`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {pendingItems.length > 0 && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await cancelPendingWaQueue();
-                    showToast('success', 'Sisa antrean PENDING dibersihkan dari database.');
-                  }}
-                  className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer shrink-0"
-                >
-                  Hentikan Sisa Antrean ({pendingItems.length})
-                </button>
-              )}
-            </div>
-          ) : activeQueueCount > 0 ? (
+          {/* INDIKATOR CENTRALIZED SMART QUEUE (JEDA ACAK PER PESAN) */}
+          {activeQueueCount > 0 ? (
             <div
               data-testid="wa-active-queue-banner"
               className="p-4 rounded-2xl bg-[#0F2C59] text-white border border-sky-400/50 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -1445,32 +1397,13 @@ export default function WhatsAppPage() {
         </div>
 
         {/* FLOATING QUEUE INDICATOR SAAT SCROLL KE BAWAH */}
-        {(isCooldown || activeQueueCount > 0) && (
-          <div
-            className={`fixed bottom-6 right-6 z-40 max-w-md backdrop-blur-md px-4 py-3 rounded-2xl shadow-2xl border flex items-center space-x-3 ${
-              isCooldown
-                ? 'bg-amber-950/95 text-amber-50 border-amber-400/60'
-                : 'bg-[#0F2C59]/95 text-white border-sky-400/50'
-            }`}
-          >
-            {isCooldown ? (
-              <Hourglass className="w-4 h-4 text-amber-300 animate-pulse shrink-0" />
-            ) : (
-              <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
-            )}
+        {activeQueueCount > 0 && (
+          <div className="fixed bottom-6 right-6 z-40 max-w-md backdrop-blur-md px-4 py-3 rounded-2xl shadow-2xl border flex items-center space-x-3 bg-[#0F2C59]/95 text-white border-sky-400/50">
+            <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
             <span className="text-xs font-bold leading-snug">
-              {isCooldown ? (
-                <>
-                  Mode Cooldown: Menunggu{' '}
-                  <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum melanjutkan pengiriman.
-                </>
-              ) : (
-                <>
-                  Mengirim pesan...{' '}
-                  <span className="text-amber-300">(Sisa antrean: {activeQueueCount})</span>
-                  {nextDelaySeconds > 0 && !sendingItem ? ` · Jeda ${nextDelaySeconds}s` : ''}
-                </>
-              )}
+              Mengirim pesan...{' '}
+              <span className="text-amber-300">(Sisa antrean: {activeQueueCount})</span>
+              {nextDelaySeconds > 0 && !sendingItem ? ` · Jeda ${nextDelaySeconds}s` : ''}
             </span>
           </div>
         )}
