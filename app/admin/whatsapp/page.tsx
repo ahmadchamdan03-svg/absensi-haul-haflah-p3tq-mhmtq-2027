@@ -415,7 +415,7 @@ export default function WhatsAppPage() {
         nilai_lama: linkGrupWa || '-',
         nilai_baru: trimmed || '-',
         detail: { url: trimmed, link: trimmed },
-        catatan: 'Pembaruan Link Grup WhatsApp Wali Santri untuk balasan otomatis webhook',
+        catatan: 'Pembaruan Link Grup WhatsApp resmi wali santri untuk pesan undangan',
       }).catch(() => {});
     } catch (err: any) {
       showToast('error', err?.message || 'Gagal menyimpan Link Grup WA.');

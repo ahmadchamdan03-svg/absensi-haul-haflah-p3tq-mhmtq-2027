@@ -46,6 +46,11 @@ const INSTRUKSI_QR = [
   'Pastikan *QR Code tersimpan* untuk ditunjukkan kepada petugas gerbang saat tiba di lokasi.',
 ] as const;
 
+const INSTRUKSI_GRUP = [
+  'Info/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:',
+  'Untuk informasi terbaru seputar acara, silakan bergabung di grup WhatsApp wali santri:',
+] as const;
+
 const PENUTUP = [
   'Atas perhatian dan kehadirannya, kami sampaikan terima kasih. Jazakumullahu khairan katsiran.',
   'Merupakan suatu kehormatan bagi kami apabila Bapak/Ibu berkenan hadir. Terima kasih.',
@@ -92,8 +97,9 @@ export function resolveUndanganDigitalLink(kodeUndangan: string): string {
 }
 
 /**
- * Menghasilkan pesan undangan WhatsApp tahap pertama (Reply-First Gate) dengan Full-Body Spintax acak.
- * Pesan pertama sengaja hanya memuat link undangan digital TANPA Link Grup WA.
+ * Menghasilkan pesan undangan WhatsApp dengan Full-Body Spintax acak
+ * sambil menjaga data tetap (Nama Wali, Nama Santri, Link Undangan, Link Grup WA, Instansi)
+ * dan menyisipkan blok Link Grup WA dalam satu pesan jika link_grup_wa terisi.
  */
 export function generateRandomWaUndanganMessage(
   params: WaUndanganTemplateParams
@@ -101,6 +107,7 @@ export function generateRandomWaUndanganMessage(
   const namaWali = (params.nama_wali || 'Wali Santri').trim() || 'Wali Santri';
   const namaSantri = (params.nama_santri || '-').trim() || '-';
   const linkUndanganDigital = resolveUndanganDigitalLink(params.kode_undangan);
+  const trimmedLinkGrup = (params.link_grup_wa || '').trim();
 
   const fixedIdx =
     typeof params.variationIndex === 'number' && params.variationIndex >= 0
@@ -132,7 +139,12 @@ export function generateRandomWaUndanganMessage(
   const tempat = pickFromSpintax(FORMAT_TEMPAT, fixedIdx);
   const instruksiLink = pickFromSpintax(INSTRUKSI_LINK, fixedIdx);
   const instruksiQr = pickFromSpintax(INSTRUKSI_QR, fixedIdx);
+  const instruksiGrup = pickFromSpintax(INSTRUKSI_GRUP, fixedIdx);
   const penutup = PENUTUP[penutupIdx];
+
+  const grupWaBlock = trimmedLinkGrup
+    ? `\n\n${instruksiGrup}\n*${trimmedLinkGrup}*`
+    : '';
 
   return `${pembuka}
 
@@ -149,51 +161,10 @@ ${bullet} *Shohibul Hajat:* *${namaSantri}*
 ${instruksiLink}
 *${linkUndanganDigital}*
 
-${instruksiQr}
+${instruksiQr}${grupWaBlock}
 
 ${penutup}
 
 Wassalamu’alaikum warahmatullahi wabarakatuh
 *Panitia Haul & Haflah P3TQ dan MHMTQ 1448 H./2027 M.*`;
-}
-
-export interface WaGroupReplyTemplateParams {
-  nama_wali?: string | null;
-  nama_santri?: string | null;
-  link_grup_wa: string;
-}
-
-const GROUP_REPLY_VARIATIONS: Array<(namaWali: string, linkGrup: string) => string> = [
-  (namaWali, linkGrup) =>
-    `Terima kasih Bapak/Ibu *${namaWali}*. \n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrup}*`,
-  (namaWali, linkGrup) =>
-    `Alhamdulillah, pesan Bapak/Ibu *${namaWali}* telah kami terima. \n\nSilakan bergabung di grup WhatsApp resmi wali santri untuk info terbaru seputar acara:\n*${linkGrup}*`,
-  (namaWali, linkGrup) =>
-    `Baik Bapak/Ibu *${namaWali}*, terima kasih atas responsnya. \n\nInfo/pengumuman terbaru, bergabung di grup WhatsApp resmi wali santri:\n*${linkGrup}*`,
-  (namaWali, linkGrup) =>
-    `Terima kasih atas konfirmasinya Bapak/Ibu *${namaWali}*. \n\nSilahkan bergabung di grup WhatsApp resmi wali santri untuk mendapatkan pengumuman terbaru:\n*${linkGrup}*`,
-];
-
-let lastGroupReplyIdx = -1;
-
-/**
- * Memilih 1 dari 4 variasi balasan otomatis Webhook Fonnte berisi Link Grup WA resmi Wali Santri.
- */
-export function generateRandomWaGroupReplyMessage(
-  params: WaGroupReplyTemplateParams
-): string {
-  const cleanWali = (params.nama_wali || '').trim();
-  const cleanSantri = (params.nama_santri || '').trim();
-  const displayName =
-    cleanWali && cleanWali !== '-'
-      ? cleanWali
-      : cleanSantri && cleanSantri !== '-'
-      ? cleanSantri
-      : 'Wali Santri';
-  const cleanLink = (params.link_grup_wa || '').trim();
-
-  const pickedIdx = pickRandomIndex(GROUP_REPLY_VARIATIONS.length, lastGroupReplyIdx);
-  lastGroupReplyIdx = pickedIdx;
-
-  return GROUP_REPLY_VARIATIONS[pickedIdx](displayName, cleanLink);
 }
