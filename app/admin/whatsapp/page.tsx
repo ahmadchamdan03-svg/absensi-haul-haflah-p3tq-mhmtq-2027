@@ -376,11 +376,26 @@ export default function WhatsAppPage() {
     }
   };
 
+  const focusLinkGrupInput = () => {
+    if (typeof document === 'undefined') return;
+    const inputEl = document.getElementById('input-link-grup-wa') as HTMLInputElement | null;
+    if (inputEl) {
+      inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      inputEl.focus();
+    }
+  };
+
   const handleSaveLinkGrupWa = async (newVal: string) => {
     if (savingLinkGrup) return;
+    const trimmed = newVal.trim();
+    if (!trimmed) {
+      showToast('error', 'Link Grup WhatsApp wajib diisi dan tidak boleh kosong.');
+      focusLinkGrupInput();
+      return;
+    }
+
     setSavingLinkGrup(true);
     try {
-      const trimmed = newVal.trim();
       const nowIso = new Date().toISOString();
       const { error } = await supabase
         .from('konfigurasi_sistem')
@@ -732,6 +747,15 @@ export default function WhatsAppPage() {
   }, [activeTab, pendingItems, activeWaliTargetColumn]);
 
   const handleKirimFonnte = async (kel: any) => {
+    if (gelombang === 1 && !linkGrupWa.trim()) {
+      showToast(
+        'error',
+        'Link Grup WhatsApp Resmi Wali Santri wajib diisi terlebih dahulu sebelum mengirim undangan.'
+      );
+      focusLinkGrupInput();
+      return false;
+    }
+
     const rawHp = (kel.noHp || '').trim();
     if (!rawHp || rawHp.length < 8) {
       showToast('error', `Nomor HP untuk ${kel.namaWali} tidak valid.`);
@@ -776,6 +800,14 @@ export default function WhatsAppPage() {
   };
 
   const handleKirimManualWA = async (kel: any) => {
+    if (gelombang === 1 && !linkGrupWa.trim()) {
+      showToast(
+        'error',
+        'Link Grup WhatsApp Resmi Wali Santri wajib diisi terlebih dahulu sebelum mengirim undangan.'
+      );
+      focusLinkGrupInput();
+      return;
+    }
     return kirimManualWAWali(kel, gelombang, gelombang === 1 ? linkGrupWa : '', setKeluargaList);
   };
 
@@ -827,6 +859,15 @@ export default function WhatsAppPage() {
   }, [keluargaList, gelombang, filterStatus, filterKonfirmasi, filterKategori, filterBagian, search]);
 
   const runBatchBlastForTab = async (targetGelombang: 1 | 2 | 3) => {
+    if (targetGelombang === 1 && !linkGrupWa.trim()) {
+      showToast(
+        'error',
+        'Link Grup WhatsApp Resmi Wali Santri wajib diisi terlebih dahulu sebelum mengirim undangan massal.'
+      );
+      focusLinkGrupInput();
+      return;
+    }
+
     const statusColumn = getWaStatusColumnByGelombang(targetGelombang);
     const activeLink = targetGelombang === 1 ? linkGrupWa.trim() : '';
     const tipePesan =

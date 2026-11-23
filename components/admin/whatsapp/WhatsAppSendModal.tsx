@@ -161,6 +161,12 @@ export async function kirimFonnteWali(
   const isSilentAlert =
     typeof silentAlert === 'object' ? Boolean(silentAlert?.silentAlert) : Boolean(silentAlert);
   const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
+  if (gelombang === 1 && !activeLinkGrup) {
+    if (!isSilentAlert) {
+      alert('Link Grup WhatsApp Resmi Wali Santri wajib diisi terlebih dahulu sebelum mengirim undangan.');
+    }
+    return false;
+  }
   const targetColumn = getWaStatusColumnByGelombang(gelombang);
 
   const rawHp = kel.noHp;
@@ -230,6 +236,10 @@ export async function kirimManualWAWali(
   setKeluargaList: React.Dispatch<React.SetStateAction<any[]>>
 ) {
   const activeLinkGrup = gelombang === 1 ? (linkGrupWa || '').trim() : '';
+  if (gelombang === 1 && !activeLinkGrup) {
+    alert('Link Grup WhatsApp Resmi Wali Santri wajib diisi terlebih dahulu sebelum mengirim undangan.');
+    return;
+  }
   const targetColumn = getWaStatusColumnByGelombang(gelombang);
 
   const rawHp = kel.noHp;

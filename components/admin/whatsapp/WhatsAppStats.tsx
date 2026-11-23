@@ -387,7 +387,7 @@ export default function WhatsAppStats({
           <div
             className={`mt-4 p-4 rounded-2xl border transition-all ${
               !linkGrupWa.trim()
-                ? 'bg-white/55 backdrop-blur-sm border-[#BAE6FD] shadow-xs'
+                ? 'bg-rose-50/80 backdrop-blur-sm border-rose-400 ring-2 ring-rose-300/50 shadow-xs'
                 : 'bg-blue-50/50 backdrop-blur-sm border-blue-300 ring-2 ring-emerald-300/30 shadow-xs'
             } grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs`}
           >
@@ -400,19 +400,13 @@ export default function WhatsAppStats({
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-blue-900 border border-sky-300 animate-pulse">
                     Menyimpan...
                   </span>
-                ) : linkGrupSavedNotice ? (
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                      linkGrupWa.trim()
-                        ? 'bg-blue-100 text-blue-800 border-blue-300'
-                        : 'bg-slate-100 text-slate-600 border-slate-300'
-                    }`}
-                  >
-                    {linkGrupWa.trim() ? '✓ Aktif untuk Sesi Ini' : 'Opsional (dikosongkan)'}
-                  </span>
                 ) : !linkGrupWa.trim() ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
-                    Opsional
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                    Wajib Diisi
+                  </span>
+                ) : linkGrupSavedNotice ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-blue-100 text-blue-800 border-blue-300">
+                    ✓ Tersimpan &amp; Aktif
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
@@ -425,24 +419,35 @@ export default function WhatsAppStats({
                   id="input-link-grup-wa"
                   type="text"
                   autoComplete="off"
+                  required
+                  aria-invalid={!linkGrupWa.trim()}
                   value={linkGrupWa}
                   onChange={(e) => setLinkGrupWa(e.target.value)}
-                  placeholder="https://chat.whatsapp.com/... (opsional)"
-                  className="w-full px-3 py-2 rounded-xl border border-[#BAE6FD] bg-white/85 backdrop-blur-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#1D4ED8]/40 focus:outline-none text-xs font-mono shadow-xs transition-colors"
+                  placeholder="https://chat.whatsapp.com/... (wajib diisi)"
+                  className={`w-full px-3 py-2 rounded-xl border bg-white/85 backdrop-blur-xs text-slate-900 focus:bg-white focus:ring-2 focus:outline-none text-xs font-mono shadow-xs transition-colors ${
+                    !linkGrupWa.trim()
+                      ? 'border-rose-400 focus:ring-rose-500/40'
+                      : 'border-[#BAE6FD] focus:ring-[#1D4ED8]/40'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => handleSaveLinkGrupWa?.(linkGrupWa)}
-                  disabled={savingLinkGrup}
-                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5"
+                  disabled={savingLinkGrup || !linkGrupWa.trim()}
+                  className="px-4 py-2 rounded-xl bg-[#1D4ED8] hover:bg-[#725436] text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
                   {savingLinkGrup ? '...' : 'Simpan'}
                 </button>
               </div>
+              {!linkGrupWa.trim() && (
+                <p data-testid="wa-link-grup-required-error" className="text-[11px] font-semibold text-rose-700 mt-1.5">
+                  Link grup WhatsApp wajib diisi dan tidak boleh kosong sebelum mengirim undangan Wali Santri.
+                </p>
+              )}
             </div>
             <div className="flex items-center p-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 shadow-xs">
               <div className="text-[11px] text-[#7A624E] leading-relaxed">
-                <strong className="text-[#1D4ED8]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup bersifat sementara per sesi agar panitia selalu menempelkan link grup terbaru sebelum mengirim.
+                <strong className="text-[#1D4ED8]">Info Fonnte DB Sync:</strong> Seluruh status WA tersimpan murni di tabel Supabase `peserta_santri`. Link grup WhatsApp wajib terisi dan tersimpan di database agar selalu disertakan dalam setiap pesan undangan Wali Santri.
               </div>
             </div>
           </div>
