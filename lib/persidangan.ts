@@ -255,7 +255,7 @@ export async function sendWhatsApp(
 
   // Server-side call: langsung panggil API Fonnte
   try {
-    const token = (process.env.FONNTE_API_KEY || process.env.FONNTE_TOKEN || 'dVb3JDQbAF9kamiYAqkf').trim();
+    const token = (process.env.FONNTE_API_KEY || process.env.FONNTE_TOKEN || 'RY9wcypMQ12inoaXy8aa').trim();
     const formData = new FormData();
     formData.append('target', normalizedTarget);
     formData.append('message', pesan);
