@@ -57,10 +57,11 @@ export async function sendFonnteServerMessage({
     };
   }
 
-  const token =
+  const token = (
     process.env.FONNTE_TOKEN ||
     process.env.FONNTE_API_KEY ||
-    'YFNhUwAbwsjHoFjNrUcx';
+    'qZHENHGVgBeAmt349VLh'
+  ).trim();
 
   try {
     const formData = new FormData();
