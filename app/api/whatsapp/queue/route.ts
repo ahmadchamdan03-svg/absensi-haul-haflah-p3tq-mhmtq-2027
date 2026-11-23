@@ -8,7 +8,7 @@ export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
 const IDLE_RESET_MS = 30 * 60 * 1000; // 30 menit
-const BATCH_LIMIT = 30;
+const BATCH_LIMIT = 50;
 const MIN_DELAY_MS = 10000; // 10 detik (ketat anti-blokir)
 const MAX_DELAY_MS = 60000; // 60 detik
 const MIN_COOLDOWN_MINUTES = 30; // 30 menit

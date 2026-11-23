@@ -882,7 +882,7 @@ export default function WhatsAppPage() {
 
     if (
       !window.confirm(
-        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`
+        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 50 pesan.`
       )
     ) {
       return;
@@ -1146,7 +1146,7 @@ export default function WhatsAppPage() {
       return;
     }
 
-    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 30 pesan.`;
+    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 50 pesan.`;
 
     if (!window.confirm(promptMsg)) {
       return;
@@ -1331,7 +1331,7 @@ export default function WhatsAppPage() {
                         : 'Siap mengirim pesan berikutnya...'}
                     </span>
                     <span className="px-2 py-0.5 rounded-full bg-white/10 text-amber-200 font-bold text-[10px]">
-                      Batch saat ini: {systemState.batch_count}/30 pesan
+                      Batch saat ini: {systemState.batch_count}/50 pesan
                     </span>
                   </div>
                 </div>
@@ -1355,7 +1355,7 @@ export default function WhatsAppPage() {
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#1D4ED8] shrink-0" />
                 <span>
-                  Status Smart Queue Terpusat: <strong>{systemState.batch_count}/30</strong> pesan terkirim pada batch aktif (reset otomatis ke 0 jika idle 30 menit).
+                  Status Smart Queue Terpusat: <strong>{systemState.batch_count}/50</strong> pesan terkirim pada batch aktif (reset otomatis ke 0 jika idle 30 menit).
                 </span>
               </div>
             </div>
