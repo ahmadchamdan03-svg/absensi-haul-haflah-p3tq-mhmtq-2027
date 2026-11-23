@@ -80,7 +80,7 @@ export default function UndanganWaliRsvpSection({
               </div>
               <button
                 type="button"
-                onClick={() => setEstL((p) => (totalInputWali < totalKuotaSantri ? p + 1 : p))}
+                onClick={() => setEstL((p) => (p + estP < totalKuotaSantri ? p + 1 : p))}
                 disabled={totalInputWali >= totalKuotaSantri}
                 className="h-10 rounded-lg bg-[#1D4ED8] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
                 title="Tambah Wali Santri Putra"
@@ -111,7 +111,7 @@ export default function UndanganWaliRsvpSection({
               </div>
               <button
                 type="button"
-                onClick={() => setEstP((p) => (totalInputWali < totalKuotaSantri ? p + 1 : p))}
+                onClick={() => setEstP((p) => (estL + p < totalKuotaSantri ? p + 1 : p))}
                 disabled={totalInputWali >= totalKuotaSantri}
                 className="h-10 rounded-lg bg-[#1D4ED8] text-white text-xl font-bold flex items-center justify-center transition-opacity disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-stone-400 active:scale-95 cursor-pointer"
                 title="Tambah Wali Santri Putri"

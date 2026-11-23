@@ -79,9 +79,10 @@ export function tambahPesertaHelper(ctx: IDataStoreContext, input: TambahPeserta
     },
     estimasi: {
       kuotaId,
-      perkiraanL: 1,
-      perkiraanP: 1,
+      perkiraanL: 0,
+      perkiraanP: 0,
       statusHadir: 'HADIR',
+      statusKonfirmasi: 'BELUM',
       diisiAt: new Date().toISOString(),
     },
   };

@@ -94,8 +94,34 @@ export default function UndanganWaliPage() {
     tipe: isTamuUndangan ? 'UNDANGAN' : 'KELUARGA',
     nama: '',
     kuota: { kodeQr: kodeSH, kuotaDasar: isTamuUndangan ? 1 : 2, kuotaTambahan: 0, terpakai: 0 },
-    estimasi: { statusKonfirmasi: 'BELUM', perkiraanL: 1, perkiraanP: 1, catatan: '' },
+    estimasi: {
+      statusKonfirmasi: 'BELUM',
+      perkiraanL: isTamuUndangan ? 1 : 0,
+      perkiraanP: isTamuUndangan ? 1 : 0,
+      catatan: '',
+    },
   }));
+
+  // State Estimasi Kehadiran (RSVP) - default 0 untuk wali santri yang belum konfirmasi
+  const [estL, setEstL] = useState(0);
+  const [estP, setEstP] = useState(0);
+  const [catatanRsvp, setCatatanRsvp] = useState('');
+  const [lastSavedTime, setLastSavedTime] = useState<string>('');
+  const [estimasiSaved, setEstimasiSaved] = useState(false);
+  const [savingRsvp, setSavingRsvp] = useState(false);
+  const [rsvpError, setRsvpError] = useState<string | null>(null);
+
+  const applyLocalRsvpState = (local: any) => {
+    if (isTamuUndangan || !local) return;
+    if (local?.estimasi?.statusKonfirmasi === 'SUDAH') {
+      setEstL(Number(local.estimasi.perkiraanL || 0));
+      setEstP(Number(local.estimasi.perkiraanP || 0));
+      setCatatanRsvp(local.estimasi.catatan || '');
+    } else {
+      setEstL(0);
+      setEstP(0);
+    }
+  };
 
   useEffect(() => {
     if (!isValidFormat || !kodeSH) {
@@ -105,6 +131,7 @@ export default function UndanganWaliPage() {
     const cached = buildItemFromLocalStore();
     if (cached) {
       setItem((prev: any) => (prev?.nama ? prev : cached));
+      applyLocalRsvpState(cached);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kodeSH]);
@@ -120,15 +147,6 @@ export default function UndanganWaliPage() {
   const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
   const mainContentRef = useRef<HTMLDivElement | null>(null);
-
-  // State Estimasi Kehadiran (RSVP)
-  const [estL, setEstL] = useState(1);
-  const [estP, setEstP] = useState(1);
-  const [catatanRsvp, setCatatanRsvp] = useState('');
-  const [lastSavedTime, setLastSavedTime] = useState<string>('');
-  const [estimasiSaved, setEstimasiSaved] = useState(false);
-  const [savingRsvp, setSavingRsvp] = useState(false);
-  const [rsvpError, setRsvpError] = useState<string | null>(null);
 
   // State RSVP Khusus Tamu Undangan
   const [tamuRsvpSaved, setTamuRsvpSaved] = useState<boolean>(false);
@@ -338,7 +356,6 @@ export default function UndanganWaliPage() {
           const calculatedKDasar = calculateKuotaDasarSantri(s.kategori_utama, s.sub_kategori);
           const kDasar = Number(s.kuota_dasar && s.kuota_dasar >= calculatedKDasar ? s.kuota_dasar : calculatedKDasar);
           const kTambahan = Number(s.kuota_tambahan || 0);
-          const totKuota = kDasar + kTambahan;
 
           const mappedItem = {
             id: s.id,
@@ -389,8 +406,8 @@ export default function UndanganWaliPage() {
             setCatatanRsvp(s.catatan_konfirmasi || '');
             setLastSavedTime(s.updated_at ? new Date(s.updated_at).toLocaleTimeString('id-ID') : '');
           } else {
-            setEstL(Math.min(1, totKuota));
-            setEstP(Math.max(0, Math.min(1, totKuota - 1)));
+            setEstL(0);
+            setEstP(0);
           }
 
           formatQrPayload(s.kode).then((payload) => {
@@ -400,6 +417,7 @@ export default function UndanganWaliPage() {
           const local = buildItemFromLocalStore();
           if (local) {
             setItem(local);
+            applyLocalRsvpState(local);
             setItemNotFound(false);
           } else {
             setItemNotFound(true);
@@ -410,6 +428,7 @@ export default function UndanganWaliPage() {
         const local = buildItemFromLocalStore();
         if (local) {
           setItem(local);
+          applyLocalRsvpState(local);
           setItemNotFound(false);
         } else {
           setItemNotFound(true);
@@ -456,7 +475,7 @@ export default function UndanganWaliPage() {
 
         const { data: pembelianData } = await supabase
           .from('pembelian_kuota')
-          .select('jumlah_kursi, status')
+          .select('jumlah_kursi, status, kode_santri')
           .in('status', ['DIVERIFIKASI', 'DITERIMA']);
 
         if (isCancelled) return;
@@ -466,6 +485,25 @@ export default function UndanganWaliPage() {
             return acc + Number(p.jumlah_kursi || p.jumlah || 0);
           }, 0);
           setTotalDiverifikasi(sumDiverifikasi);
+
+          setItem((prev: any) => {
+            if (!prev || prev.tipe === 'UNDANGAN' || !prev.kuota) return prev;
+            const targetKode = String(prev.kode || kodeSH).toUpperCase().trim();
+            const santriTambahan = pembelianData
+              .filter((p: any) => String(p.kode_santri || '').toUpperCase().trim() === targetKode)
+              .reduce((acc: number, p: any) => acc + Number(p.jumlah_kursi || p.jumlah || 0), 0);
+            const currentTambahan = Number(prev.kuota.kuotaTambahan || 0);
+            if (santriTambahan > 0 && currentTambahan !== santriTambahan) {
+              return {
+                ...prev,
+                kuota: {
+                  ...prev.kuota,
+                  kuotaTambahan: santriTambahan,
+                },
+              };
+            }
+            return prev;
+          });
         }
       } catch (e) {
         console.warn('Error fetching kuota tambahan control:', e);
