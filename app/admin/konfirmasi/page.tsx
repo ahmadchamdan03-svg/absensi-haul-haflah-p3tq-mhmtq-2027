@@ -70,18 +70,34 @@ export default function KonfirmasiPage() {
     }
   };
 
+  const isSendingReminderRef = useRef(false);
+  const realtimeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     fetchKonfirmasiData();
 
+    const handleRealtimeChange = () => {
+      if (isSendingReminderRef.current) return;
+      if (realtimeDebounceRef.current) {
+        clearTimeout(realtimeDebounceRef.current);
+      }
+      realtimeDebounceRef.current = setTimeout(() => {
+        fetchKonfirmasiData();
+      }, 600);
+    };
+
     const channel = supabase
       .channel('konfirmasi_page_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, fetchKonfirmasiData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, fetchKonfirmasiData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, fetchKonfirmasiData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, fetchKonfirmasiData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta_santri' }, handleRealtimeChange)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tamu_undangan' }, handleRealtimeChange)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'presensi_log' }, handleRealtimeChange)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pembelian_kuota' }, handleRealtimeChange)
       .subscribe();
 
     return () => {
+      if (realtimeDebounceRef.current) {
+        clearTimeout(realtimeDebounceRef.current);
+      }
       supabase.removeChannel(channel);
     };
   }, []);
@@ -260,11 +276,12 @@ export default function KonfirmasiPage() {
 
   const handleStopPengingatMassal = () => {
     stopReminderRef.current = true;
+    isSendingReminderRef.current = false;
     setIsSendingReminder(false);
     setIsBlasting(false);
   };
 
-  // Kirim Pengingat Massal kepada Wali Santri yang Belum Konfirmasi (Antrean Jeda 5 Detik)
+  // Kirim Pengingat Massal kepada Wali Santri yang Belum Konfirmasi dan Belum Pernah Menerima Pengingat
   const handleKirimPengingatMassal = async () => {
     if (isSendingReminder) return;
 
@@ -275,23 +292,27 @@ export default function KonfirmasiPage() {
 
     const targetList = baseCandidates.filter((item) => {
       const isUnconfirmed = String(item.statusKonfirmasi || 'BELUM').toUpperCase() === 'BELUM';
+      const isNeverReminded = !item.waReminderSentAt && !sentFonnteKodes[item.kode];
       const digitsOnly = String(item.noHp || '').replace(/\D/g, '');
-      return isUnconfirmed && digitsOnly.length >= 9;
+      return isUnconfirmed && isNeverReminded && digitsOnly.length >= 9;
     });
 
     if (targetList.length === 0) {
-      alert('Tidak ada wali santri berstatus Belum Konfirmasi dengan nomor HP valid (minimal 9 digit).');
+      alert(
+        'Tidak ada wali santri berstatus Belum Konfirmasi yang belum pernah dikirimi pengingat (dengan nomor HP valid minimal 9 digit).'
+      );
       return;
     }
 
     if (
       !window.confirm(
-        `Kirim pengingat kehadiran via Fonnte kepada ${targetList.length} Wali Santri yang belum konfirmasi?\nPengiriman menggunakan antrean jeda 5 detik antar pesan.`
+        `Kirim pengingat kehadiran via Fonnte kepada ${targetList.length} Wali Santri (Belum Konfirmasi & belum pernah dikirimi pengingat)?\nPengiriman menggunakan antrean jeda 5 detik antar pesan.`
       )
     ) {
       return;
     }
 
+    isSendingReminderRef.current = true;
     setIsSendingReminder(true);
     setIsBlasting(true);
     stopReminderRef.current = false;
@@ -303,17 +324,18 @@ export default function KonfirmasiPage() {
     let successCount = 0;
     let failedCount = 0;
 
-    for (let i = 0; i < targetList.length; i++) {
-      if (stopReminderRef.current) break;
+    try {
+      for (let i = 0; i < targetList.length; i++) {
+        if (stopReminderRef.current) break;
 
-      const item = targetList[i];
-      setProgressReminder(i + 1);
-      setSendingFonnteKode(item.kode);
+        const item = targetList[i];
+        setProgressReminder(i + 1);
+        setSendingFonnteKode(item.kode);
 
-      const namaWali = (item.namaWali && item.namaWali !== '-' ? item.namaWali : 'Wali Santri').trim();
-      const namaSantri = (item.namaSantri && item.namaSantri !== '-' ? item.namaSantri : namaWali).trim();
+        const namaWali = (item.namaWali && item.namaWali !== '-' ? item.namaWali : 'Wali Santri').trim();
+        const namaSantri = (item.namaSantri && item.namaSantri !== '-' ? item.namaSantri : namaWali).trim();
 
-      const teksPesan = `Kepada Yth. Bapak/Ibu Wali Santri *${namaWali}*
+        const teksPesan = `Kepada Yth. Bapak/Ibu Wali Santri *${namaWali}*
 
 Kami mengingatkan bahwa Wali Santri dari *${namaSantri}* belum mengisi konfirmasi kehadiran untuk acara Haul & Haflah Akhirussanah P3TQ & MHMTQ.
 
@@ -325,39 +347,49 @@ Terima kasih atas kerja samanya.
 Jazakumullahu khairan katsiran.
 Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
 
-      try {
-        const res = await fetch('/api/whatsapp/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            target: item.noHp,
-            message: teksPesan,
-          }),
-        });
-        const json = await res.json();
-        if (json.ok) {
-          successCount++;
-          setReminderSuccess((prev) => prev + 1);
-          const timeStr = new Date().toTimeString().split(' ')[0] + ' WIB';
-          setSentFonnteKodes((prev) => ({ ...prev, [item.kode]: timeStr }));
-        } else {
+        try {
+          const res = await fetch('/api/whatsapp/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              target: item.noHp,
+              message: teksPesan,
+              id: item.id,
+              kode: item.kode,
+              mark_reminder_sent: true,
+            }),
+          });
+          const json = await res.json();
+          if (json.ok) {
+            successCount++;
+            setReminderSuccess((prev) => prev + 1);
+            const timeStr = new Date().toTimeString().split(' ')[0] + ' WIB';
+            const sentIso = json.wa_reminder_sent_at || new Date().toISOString();
+            setSentFonnteKodes((prev) => ({ ...prev, [item.kode]: timeStr }));
+            setDaftarSantri((prev) =>
+              prev.map((s) => (s.kode === item.kode ? { ...s, waReminderSentAt: sentIso } : s))
+            );
+          } else {
+            failedCount++;
+            setReminderFailed((prev) => prev + 1);
+          }
+        } catch {
           failedCount++;
           setReminderFailed((prev) => prev + 1);
         }
-      } catch {
-        failedCount++;
-        setReminderFailed((prev) => prev + 1);
+
+        setSendingFonnteKode(null);
+
+        if (stopReminderRef.current || i === targetList.length - 1) break;
+        // Jeda wajib 5000 ms (5 detik) sebelum melanjutkan ke pesan berikutnya
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
-
+    } finally {
+      isSendingReminderRef.current = false;
       setSendingFonnteKode(null);
-
-      // Jeda wajib 5000 ms (5 detik) sebelum melanjutkan ke pesan berikutnya
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      setIsSendingReminder(false);
+      setIsBlasting(false);
     }
-
-    setSendingFonnteKode(null);
-    setIsSendingReminder(false);
-    setIsBlasting(false);
 
     const summaryMsg = `Selesai mengirim ${successCount + failedCount} pesan. Berhasil: ${successCount}, Gagal: ${failedCount}.`;
     setSuccessToast(summaryMsg);
@@ -391,6 +423,7 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
         body: JSON.stringify({
           target: item.noHp,
           message: teks,
+          ...(isTamu ? {} : { id: item.id, kode: item.kode, mark_reminder_sent: true }),
         }),
       });
 
@@ -398,6 +431,12 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
       if (json.ok) {
         const timeStr = new Date().toTimeString().split(' ')[0] + ' WIB';
         setSentFonnteKodes((prev) => ({ ...prev, [item.kode]: timeStr }));
+        if (!isTamu) {
+          const sentIso = json.wa_reminder_sent_at || new Date().toISOString();
+          setDaftarSantri((prev) =>
+            prev.map((s) => (s.kode === item.kode ? { ...s, waReminderSentAt: sentIso } : s))
+          );
+        }
         setSuccessToast(`Pesan pengingat berhasil dikirim via Fonnte ke ${item.namaWali} (${item.noHp})`);
         setTimeout(() => setSuccessToast(''), 4000);
         setSendingFonnteKode(null);

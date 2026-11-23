@@ -259,10 +259,14 @@ export default function KonfirmasiTableSection({
 
                       {/* Kirim via Fonnte Otomatis */}
                       {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' ? (
-                        sentFonnteKodes[item.kode] ? (
+                        sentFonnteKodes[item.kode] || item.waReminderSentAt ? (
                           <div
                             className="px-2.5 py-1.5 rounded-xl bg-blue-100 text-blue-800 border border-blue-300 font-bold text-[11px] flex items-center space-x-1"
-                            title={`Terkirim via Fonnte jam ${sentFonnteKodes[item.kode]}`}
+                            title={
+                              sentFonnteKodes[item.kode]
+                                ? `Terkirim via Fonnte jam ${sentFonnteKodes[item.kode]}`
+                                : `Pengingat sudah dikirim pada ${new Date(item.waReminderSentAt!).toLocaleString('id-ID')}`
+                            }
                           >
                             <Check className="w-3 h-3 text-blue-700" />
                             <span>Terkirim</span>
