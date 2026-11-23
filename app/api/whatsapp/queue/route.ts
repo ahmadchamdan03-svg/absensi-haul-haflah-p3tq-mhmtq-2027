@@ -8,7 +8,6 @@ export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
 const IDLE_RESET_MS = 30 * 60 * 1000; // 30 menit
-const BATCH_LIMIT = 100;
 const MIN_DELAY_MS = 10000; // 10 detik (ketat anti-blokir)
 const MAX_DELAY_MS = 60000; // 60 detik
 const MIN_COOLDOWN_MINUTES = 30; // 30 menit
@@ -350,27 +349,6 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      if (Number(state.batch_count || 0) >= BATCH_LIMIT) {
-        const cooldownMs = getRandomCooldownMs();
-        const cooldownUntilIso = new Date(nowMs + cooldownMs).toISOString();
-        const { data: cdState } = await supabaseServer
-          .from('wa_system_state')
-          .update({
-            batch_count: 0,
-            cooldown_until: cooldownUntilIso,
-            updated_at: nowIso,
-          })
-          .eq('id', 'global')
-          .select('*')
-          .single();
-
-        return NextResponse.json({
-          ok: true,
-          status: 'COOLDOWN',
-          state: cdState || { ...state, batch_count: 0, cooldown_until: cooldownUntilIso },
-        });
-      }
-
       const { data: dueCandidates } = await supabaseServer
         .from('wa_queue')
         .select('*')
@@ -549,21 +527,9 @@ export async function POST(req: NextRequest) {
         .eq('status', 'PENDING')
         .lt('scheduled_at', nextScheduledIso);
 
-      // Re-fetch wa_system_state sebelum increment agar nilai terbaru (termasuk ubahan manual) terbaca
-      const latestStateBeforeInc = await getOrInitSystemState();
-      const currentBatch = Number(latestStateBeforeInc.batch_count || 0);
-      const incrementedBatch = currentBatch + 1;
-
-      let finalBatchCount = incrementedBatch;
-      let finalCooldownUntil: string | null = null;
-      let cooldownTriggered = false;
-
-      if (incrementedBatch >= BATCH_LIMIT) {
-        const cooldownMs = getRandomCooldownMs();
-        finalCooldownUntil = new Date(finishNowMs + cooldownMs).toISOString();
-        finalBatchCount = 0;
-        cooldownTriggered = true;
-      }
+      const finalBatchCount = 0;
+      const finalCooldownUntil: string | null = null;
+      const cooldownTriggered = false;
 
       const { data: updatedStateRow } = await supabaseServer
         .from('wa_system_state')

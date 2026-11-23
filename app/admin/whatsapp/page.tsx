@@ -49,7 +49,6 @@ export default function WhatsAppPage() {
     sendingItem,
     pendingItems,
     activeQueueCount,
-    systemState,
     isCooldown,
     cooldownFormatted,
     nextDelaySeconds,
@@ -923,7 +922,7 @@ export default function WhatsAppPage() {
 
     if (
       !window.confirm(
-        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 100 pesan.`
+        `Masukkan ${unsentList.length} pesan [${judulPesan}] ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan tanpa batasan jumlah pesan per batch.`
       )
     ) {
       return;
@@ -1187,7 +1186,7 @@ export default function WhatsAppPage() {
       return;
     }
 
-    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan & cooldown otomatis setiap 100 pesan.`;
+    const promptMsg = `Masukkan ${validList.length} pesan WA undangan tamu ke Antrean Terpusat Fonnte?\nSistem menggunakan jeda acak 10-60 detik antar pesan tanpa batasan jumlah pesan per batch.`;
 
     if (!window.confirm(promptMsg)) {
       return;
@@ -1315,7 +1314,7 @@ export default function WhatsAppPage() {
                     >
                       {cooldownFormatted}
                     </span>{' '}
-                    sebelum mengirim batch berikutnya. (Sistem mendeteksi gangguan jaringan / mencapai batas batch).
+                    sebelum melanjutkan pengiriman. (Sistem mendeteksi gangguan jaringan atau perangkat WhatsApp terputus).
                   </div>
                   <div className="text-[11px] text-amber-200 mt-0.5 flex items-center gap-1.5 flex-wrap">
                     <Clock className="w-3.5 h-3.5 text-amber-300" />
@@ -1371,9 +1370,6 @@ export default function WhatsAppPage() {
                         ? `Jeda aman acak (10-60 dtk): menunggu ${nextDelaySeconds} detik sebelum pesan berikutnya`
                         : 'Siap mengirim pesan berikutnya...'}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-white/10 text-amber-200 font-bold text-[10px]">
-                      Batch saat ini: {systemState.batch_count}/100 pesan
-                    </span>
                   </div>
                 </div>
               </div>
@@ -1390,15 +1386,6 @@ export default function WhatsAppPage() {
                   Hentikan Sisa Antrean ({pendingItems.length})
                 </button>
               )}
-            </div>
-          ) : systemState.batch_count > 0 ? (
-            <div className="px-4 py-2.5 rounded-2xl bg-white/55 backdrop-blur-sm border border-[#BAE6FD] text-[#0F2C59] text-xs font-semibold flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#1D4ED8] shrink-0" />
-                <span>
-                  Status Smart Queue Terpusat: <strong>{systemState.batch_count}/100</strong> pesan terkirim pada batch aktif (reset otomatis ke 0 jika idle 30 menit).
-                </span>
-              </div>
             </div>
           ) : null}
 
@@ -1475,7 +1462,7 @@ export default function WhatsAppPage() {
               {isCooldown ? (
                 <>
                   Mode Cooldown: Menunggu{' '}
-                  <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum mengirim batch berikutnya.
+                  <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum melanjutkan pengiriman.
                 </>
               ) : (
                 <>

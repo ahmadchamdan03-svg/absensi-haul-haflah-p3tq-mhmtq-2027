@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const token = (process.env.FONNTE_TOKEN || 'RY9wcypMQ12inoaXy8aa').trim();
+    const token = (process.env.FONNTE_TOKEN || 'nvFxHEG87syrxmqmjRbS').trim();
 
     const response = await fetch('https://api.fonnte.com/device', {
       method: 'POST',

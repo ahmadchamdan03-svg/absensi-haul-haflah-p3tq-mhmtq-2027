@@ -449,7 +449,7 @@ export default function GlobalWAWorker() {
         {isCooldown ? (
           <span>
             Mode Cooldown: Menunggu{' '}
-            <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum mengirim batch berikutnya. (Sistem mendeteksi gangguan jaringan / mencapai batas batch).
+            <span className="font-mono text-amber-300">{cooldownFormatted}</span> sebelum melanjutkan pengiriman. (Sistem mendeteksi gangguan jaringan atau perangkat WhatsApp terputus).
           </span>
         ) : (
           <span>
