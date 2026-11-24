@@ -12,7 +12,7 @@ import {
   Copy,
 } from 'lucide-react';
 import PaymentCountdownTimer from './BeliPaymentCountdownTimer';
-import { formatTanggalIndo } from './types';
+import { formatTanggalIndo, buildBeliKuotaWaUrl } from './types';
 
 interface BeliActiveOrderCardProps {
   santri: any;
@@ -251,15 +251,15 @@ export default function BeliActiveOrderCard({
             {isUploadingProof ? (
               <>
                 <Loader2 className="w-4.5 h-4.5 animate-spin text-emerald-200" />
-                <span>Mengunggah Bukti Pembayaran...</span>
+                <span>Mengunggah...</span>
               </>
             ) : (
               <>
                 <Upload className="w-4.5 h-4.5 text-emerald-200" />
                 <span>
                   {activePendingOrder.status === 'MENUNGGU_VERIFIKASI'
-                    ? 'Perbarui Foto Bukti Transfer'
-                    : 'Unggah Bukti Pembayaran'}
+                    ? 'Perbarui Bukti & Konfirmasi WA'
+                    : 'Unggah Bukti & Konfirmasi WA'}
                 </span>
               </>
             )}
@@ -270,11 +270,12 @@ export default function BeliActiveOrderCard({
         {activePendingOrder.status === 'MENUNGGU_VERIFIKASI' && (
           <div className="pt-2 space-y-2">
             <a
-              href={`https://wa.me/6285181805377?text=Assalamu%27alaikum%20Us...%2C%20saya%20wali%20dari%20${encodeURIComponent(
-                santri.nama
-              )}%20(ID%20Pesanan%3A%20${activePendingOrder.id_pesanan})%20sudah%20mengunggah%20bukti%20transfer%20sebesar%20Rp%20${activePendingOrder.total_bayar.toLocaleString(
-                'id-ID'
-              )}%2C%20mohon%20segera%20dikonfirmasi.%20Terima%20kasih.`}
+              href={buildBeliKuotaWaUrl({
+                namaSantri: santri?.nama || '-',
+                kodePesanan: activePendingOrder.id_pesanan || activePendingOrder.id || '-',
+                jumlahKursi: Number(activePendingOrder.jumlah_kursi || 0),
+                totalBayar: Number(activePendingOrder.total_bayar || 0),
+              })}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 hover:brightness-105 text-white font-bold text-sm shadow-md flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer"

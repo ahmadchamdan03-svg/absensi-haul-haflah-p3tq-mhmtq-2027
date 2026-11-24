@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase/client';
 import { calculateKuotaDasarSantri } from '@/lib/types';
 import { normalizePortalToken, getAmbiguousKodeVariants } from '@/lib/utils';
 import PortalBackground from '@/components/PortalBackground';
-import { fileToBase64 } from '@/components/public/beli/types';
+import { fileToBase64, buildBeliKuotaWaUrl } from '@/components/public/beli/types';
 import BeliKuotaHeaderAndInfo from '@/components/public/beli/BeliKuotaHeaderAndInfo';
 import BeliActiveOrderCard from '@/components/public/beli/BeliActiveOrderCard';
 import {
@@ -371,7 +371,7 @@ export default function BeliKuotaPage() {
     }
   };
 
-  // Handler Upload / Ganti Bukti Transfer (Fitur B)
+  // Handler Upload / Ganti Bukti Transfer (Fitur B) -> One-Click Direct WA Redirect
   const handleUploadProof = async () => {
     if (!selectedFile && !selectedImage) {
       setStatusMsg({ tipe: 'error', text: 'Silakan pilih foto atau file bukti transfer terlebih dahulu.' });
@@ -391,16 +391,24 @@ export default function BeliKuotaPage() {
 
         const { data: uploadData, error: uploadErr } = await supabase.storage
           .from('bukti-pembayaran')
-          .upload(fileName, selectedFile, { upsert: true });
+          .upload(fileName, selectedFile, {
+            upsert: false,
+            contentType: selectedFile.type || 'image/jpeg',
+          });
 
-        if (!uploadErr && uploadData) {
-          const { data: urlData } = supabase.storage
-            .from('bukti-pembayaran')
-            .getPublicUrl(fileName);
-          publicUrl = urlData.publicUrl;
-        } else {
-          publicUrl = selectedImage || (await fileToBase64(selectedFile));
+        if (uploadErr || !uploadData) {
+          console.error('Error uploading to Supabase Storage:', uploadErr);
+          setStatusMsg({
+            tipe: 'error',
+            text: `Gagal mengunggah file ke penyimpanan: ${uploadErr?.message || 'Storage error'}`,
+          });
+          return;
         }
+
+        const { data: urlData } = supabase.storage
+          .from('bukti-pembayaran')
+          .getPublicUrl(fileName);
+        publicUrl = urlData.publicUrl;
       } else if (selectedImage) {
         publicUrl = selectedImage;
       }
@@ -419,16 +427,32 @@ export default function BeliKuotaPage() {
       if (!resProof.ok || !proofJson.ok) {
         console.error('Error updating status in Supabase:', proofJson.error);
         setStatusMsg({ tipe: 'error', text: `Gagal memperbarui database: ${proofJson.error || 'Server error'}` });
+        return;
+      }
+
+      const waUrl = buildBeliKuotaWaUrl({
+        namaSantri: santri?.nama || '-',
+        kodePesanan: activePendingOrder.id_pesanan || activePendingOrder.id || '-',
+        jumlahKursi: Number(activePendingOrder.jumlah_kursi || 0),
+        totalBayar: Number(activePendingOrder.total_bayar || 0),
+      });
+
+      setSelectedFile(null);
+      setSelectedImage(null);
+      setSelectedFileName('');
+      setIsChangingProof(false);
+      void fetchAllOrders();
+
+      const isMobile =
+        typeof navigator !== 'undefined' &&
+        /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = waUrl;
       } else {
-        setSelectedFile(null);
-        setSelectedImage(null);
-        setSelectedFileName('');
-        setIsChangingProof(false);
-        setStatusMsg({
-          tipe: 'success',
-          text: '✓ Bukti transfer berhasil diunggah/diperbarui! Pesanan Anda kini menunggu verifikasi panitia.',
-        });
-        fetchAllOrders();
+        const waPopup = window.open(waUrl, '_blank');
+        if (!waPopup) {
+          window.location.href = waUrl;
+        }
       }
     } catch (e: any) {
       console.error('Exception uploading proof:', e);
