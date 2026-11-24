@@ -60,7 +60,7 @@ export async function sendFonnteServerMessage({
   const token = (
     process.env.FONNTE_TOKEN ||
     process.env.FONNTE_API_KEY ||
-    'dVb3JDQbAF9kamiYAqkf'
+    'YFNhUwAbwsjHoFjNrUcx'
   ).trim();
 
   try {
