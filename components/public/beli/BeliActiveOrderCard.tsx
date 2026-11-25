@@ -147,7 +147,7 @@ export default function BeliActiveOrderCard({
       </div>
 
       {/* FORM UPLOAD / GANTI BUKTI TRANSFER (FITUR B) */}
-      <div className="space-y-3 pt-2">
+      <div id="upload-bukti-section" className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
           <label className="block text-xs font-bold text-[#0F2C59]">
             Foto Bukti Transfer Pembayaran:

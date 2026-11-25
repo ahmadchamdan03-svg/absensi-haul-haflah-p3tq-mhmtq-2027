@@ -22,6 +22,8 @@ import {
   BeliVerifiedHistory,
   BeliFooter,
   BeliFullImageModal,
+  BeliOrderLockedModal,
+  type BeliLockedOrderInfo,
 } from '@/components/public/beli/BeliOrderFormAndHistory';
 
 export default function BeliKuotaPage() {
@@ -55,6 +57,7 @@ export default function BeliKuotaPage() {
   const [isChangingProof, setIsChangingProof] = useState(false);
 
   const [statusMsg, setStatusMsg] = useState<{ tipe: 'success' | 'error'; text: string } | null>(null);
+  const [lockedOrderModal, setLockedOrderModal] = useState<BeliLockedOrderInfo | null>(null);
   const [copiedRekening, setCopiedRekening] = useState(false);
 
 
@@ -319,50 +322,13 @@ export default function BeliKuotaPage() {
         return;
       }
 
-      setStatusMsg({
-        tipe: 'success',
-        text: '✓ Pesanan berhasil dikunci selama 6 jam! Silakan lakukan transfer BRI dan unggah bukti pembayaran.',
+      await fetchAllOrders();
+      setLockedOrderModal({
+        idPesanan: orderId,
+        jumlahKursi: jumlahBeli,
+        totalBayar,
+        lockedUntil: lockedUntil.toISOString(),
       });
-
-      fetchAllOrders();
-
-      // Kirim WA Notifikasi ke Wali Santri jika ada nomor HP
-      const noHpWali = santri.no_hp || santri.no_hp_wali || '';
-      if (noHpWali) {
-        try {
-          const liveDomain = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://haflahp3tq.site';
-          const origin = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1') ? window.location.origin : liveDomain;
-          const linkUpload = `${origin}/beli/${santri.kode}`;
-
-          const pesanWali =
-            `Kepada Yth. *Bapak/Ibu ${namaWali}*,\n\n` +
-            `Pesanan kuota tambahan untuk santri *${santri.nama} (${santri.kode})* telah *DIKUNCI*:\n` +
-            `- *ID Pesanan:* ${orderId}\n` +
-            `- *Jumlah:* ${jumlahBeli} kursi\n` +
-            `- *Total:* Rp ${totalBayar.toLocaleString('id-ID')}\n\n` +
-            `*Transfer ke:*\n` +
-            `Bank BRI\n` +
-            `No. Rek: *320701010266508*\n` +
-            `a.n. Ahmad Chamdan Yuwafin\n\n` +
-            `*Batas Waktu: 6 JAM.*\n` +
-            `*(Jika belum unggah bukti transfer dalam 6 jam, pesanan otomatis DIBATALKAN).*\n\n` +
-            `*Upload bukti transfer di sini:*\n` +
-            `${linkUpload}\n\n` +
-            `Jazakumullahu khairan katsiran.\n` +
-            `*Panitia Haul & Haflah P3TQ dan MHMTQ 2027*`;
-
-          await fetch('/api/whatsapp/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              target: noHpWali,
-              message: pesanWali,
-            }),
-          });
-        } catch (e) {
-          console.warn('Warning sending WA notification:', e);
-        }
-      }
     } catch (e: any) {
       console.error('Exception creating order:', e);
       setStatusMsg({ tipe: 'error', text: `Terjadi kesalahan: ${e.message || e}` });
@@ -564,6 +530,23 @@ export default function BeliKuotaPage() {
         <BeliFullImageModal
           src={selectedImage || activePendingOrder?.bukti_url}
           onClose={() => setShowFullImageModal(false)}
+        />
+      )}
+
+      {lockedOrderModal && (
+        <BeliOrderLockedModal
+          order={lockedOrderModal}
+          copiedRekening={copiedRekening}
+          onCopyRekening={handleCopyRekening}
+          onClose={() => {
+            setLockedOrderModal(null);
+            setTimeout(() => {
+              document.getElementById('upload-bukti-section')?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+              });
+            }, 120);
+          }}
         />
       )}
     </div>

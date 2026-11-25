@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ShoppingBag,
   Info,
@@ -9,9 +9,14 @@ import {
   Plus,
   Minus,
   History,
+  CheckCircle2,
+  CreditCard,
+  Copy,
+  Check,
 } from 'lucide-react';
 import QuotaSoldOutCardContent from '@/components/public/QuotaSoldOutCardContent';
-import { formatTanggalIndo } from './types';
+import PaymentCountdownTimer from './BeliPaymentCountdownTimer';
+import { formatTanggalIndo, formatRupiahRibuan } from './types';
 
 /* ===================================================================== */
 /* SKENARIO A: FITUR DITUTUP PANITIA / KUOTA HABIS                       */
@@ -232,6 +237,144 @@ export function BeliFullImageModal({ src, onClose }: { src: string; onClose: () 
           alt="Bukti Transfer Full"
           className="w-full max-h-[85vh] object-contain rounded-2xl mx-auto"
         />
+      </div>
+    </div>
+  );
+}
+
+/* POP-UP INSTRUKSI TRANSFER SETELAH PESANAN DIKUNCI (TANPA WA CHECKOUT) */
+export interface BeliLockedOrderInfo {
+  idPesanan: string;
+  jumlahKursi: number;
+  totalBayar: number;
+  lockedUntil: string;
+}
+
+export function BeliOrderLockedModal({
+  order,
+  copiedRekening,
+  onCopyRekening,
+  onClose,
+}: {
+  order: BeliLockedOrderInfo;
+  copiedRekening: boolean;
+  onCopyRekening: () => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="locked-order-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F2C59]/60 backdrop-blur-md animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="relative max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl border-2 border-white/80 shadow-2xl p-6 sm:p-7 space-y-5 text-[#0F2C59]">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Tutup pop-up instruksi transfer"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-stone-500 hover:text-[#0F2C59] border border-[#BAE6FD] flex items-center justify-center transition-colors cursor-pointer"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="text-center space-y-2 pt-1">
+          <div className="w-12 h-12 rounded-2xl bg-blue-100 text-[#1D4ED8] border border-blue-200 flex items-center justify-center mx-auto shadow-xs">
+            <CheckCircle2 className="w-7 h-7" />
+          </div>
+          <h3
+            id="locked-order-modal-title"
+            className="font-serif font-black text-xl text-[#0F2C59]"
+          >
+            Pesanan Berhasil Dikunci!
+          </h3>
+          <p className="text-xs text-stone-600 leading-relaxed">
+            Silakan lakukan transfer ke rekening berikut dalam batas waktu 6 jam.
+          </p>
+        </div>
+
+        <div className="p-3.5 rounded-2xl bg-[#F0F9FF]/90 border border-[#BAE6FD] space-y-1.5 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-stone-600">ID Pesanan:</span>
+            <strong className="font-mono text-[#0F2C59]">{order.idPesanan}</strong>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-stone-600">Jumlah Kuota:</span>
+            <strong className="text-[#0F2C59]">{order.jumlahKursi} Kursi</strong>
+          </div>
+          <div className="flex items-center justify-between pt-1.5 border-t border-[#BAE6FD] text-sm font-bold">
+            <span className="text-[#0F2C59]">Total Transfer:</span>
+            <span className="font-serif font-black text-[#1D4ED8]">
+              Rp {formatRupiahRibuan(order.totalBayar)}
+            </span>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FAF0E6]/90 to-[#F0F9FF]/90 border-2 border-[#BAE6FD] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8] flex items-center space-x-1.5">
+              <CreditCard className="w-4 h-4 text-[#1D4ED8]" />
+              <span>Rekening Resmi Panitia (BRI)</span>
+            </span>
+            <span className="text-[10px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-300">
+              Bank BRI
+            </span>
+          </div>
+
+          <div className="p-3 bg-white/95 rounded-xl border border-[#BAE6FD] flex items-center justify-between gap-2">
+            <div>
+              <div className="text-[10px] text-stone-500 uppercase font-bold">Nomor Rekening:</div>
+              <div className="font-mono font-black text-base sm:text-lg text-[#322116] tracking-wider">
+                320701010266508
+              </div>
+              <div className="text-[11px] font-semibold text-[#1D4ED8]">
+                a.n. Ahmad Chamdan Yuwafin
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onCopyRekening}
+              className="px-3 py-2 rounded-xl bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#1E3A8A] text-xs font-bold border border-[#BAE6FD] flex items-center space-x-1 transition-colors cursor-pointer shrink-0"
+            >
+              {copiedRekening ? (
+                <>
+                  <Check className="w-4 h-4 text-blue-600" />
+                  <span className="text-blue-700">Tersalin</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-[#1D4ED8]" />
+                  <span>Salin</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <PaymentCountdownTimer lockedUntil={order.lockedUntil} onExpire={onClose} />
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#1D4ED8] via-[#3B82F6] to-[#1D4ED8] hover:brightness-105 text-white font-serif font-black text-xs sm:text-sm shadow-lg transition-all active:scale-[0.99] cursor-pointer"
+        >
+          Mengerti / Tutup
+        </button>
       </div>
     </div>
   );
