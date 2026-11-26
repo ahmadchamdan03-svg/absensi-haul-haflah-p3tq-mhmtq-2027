@@ -33,6 +33,8 @@ interface KonfirmasiTableSectionProps {
   sendingFonnteKode: string | null;
   sentFonnteKodes: Record<string, string>;
   isBlasting: boolean;
+  queuedKodes?: string[];
+  queueSendingKode?: string | null;
 }
 
 export default function KonfirmasiTableSection({
@@ -49,6 +51,8 @@ export default function KonfirmasiTableSection({
   sendingFonnteKode,
   sentFonnteKodes,
   isBlasting,
+  queuedKodes = [],
+  queueSendingKode = null,
 }: KonfirmasiTableSectionProps) {
   return (
     <>
@@ -259,22 +263,38 @@ export default function KonfirmasiTableSection({
 
                       {/* Kirim via Fonnte Otomatis */}
                       {item.noHp && item.noHp !== '-' && item.noHp !== 'Tanpa Kontak HP' ? (
-                        sentFonnteKodes[item.kode] || item.waReminderSentAt ? (
+                        sentFonnteKodes[item.kode] ||
+                        item.waReminderSentAt ||
+                        item.statusWaKonfirmasi === 'TERKIRIM' ? (
                           <div
                             className="px-2.5 py-1.5 rounded-xl bg-blue-100 text-blue-800 border border-blue-300 font-bold text-[11px] flex items-center space-x-1"
                             title={
                               sentFonnteKodes[item.kode]
                                 ? `Terkirim via Fonnte jam ${sentFonnteKodes[item.kode]}`
-                                : `Pengingat sudah dikirim pada ${new Date(item.waReminderSentAt!).toLocaleString('id-ID')}`
+                                : item.waReminderSentAt
+                                ? `Pengingat sudah dikirim pada ${new Date(item.waReminderSentAt).toLocaleString('id-ID')}`
+                                : 'Pengingat sudah terkirim via antrean Fonnte'
                             }
                           >
                             <Check className="w-3 h-3 text-blue-700" />
                             <span>Terkirim</span>
                           </div>
+                        ) : queuedKodes.includes(item.kode) && queueSendingKode !== item.kode ? (
+                          <div
+                            className="px-2.5 py-1.5 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-bold text-[11px] flex items-center space-x-1"
+                            title="Menunggu giliran pengiriman di antrean global"
+                          >
+                            <Clock className="w-3 h-3 text-amber-700" />
+                            <span>Antrean</span>
+                          </div>
                         ) : (
                           <button
                             onClick={() => handleKirimFonnte(item)}
-                            disabled={sendingFonnteKode === item.kode || isBlasting}
+                            disabled={
+                              sendingFonnteKode === item.kode ||
+                              queueSendingKode === item.kode ||
+                              isBlasting
+                            }
                             className={`px-2.5 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 shadow-sm transition-all cursor-pointer ${
                               item.statusKonfirmasi === 'BELUM'
                                 ? 'bg-amber-600 hover:bg-amber-700 text-white border border-amber-700'
@@ -286,7 +306,7 @@ export default function KonfirmasiTableSection({
                                 : 'Kirim Pengingat Ulang via API Fonnte'
                             }
                           >
-                            {sendingFonnteKode === item.kode ? (
+                            {sendingFonnteKode === item.kode || queueSendingKode === item.kode ? (
                               <>
                                 <Loader2 className="w-3 h-3 animate-spin text-white" />
                                 <span>Kirim...</span>

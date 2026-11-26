@@ -109,13 +109,19 @@ async function updateRecipientTableStatus(
     const updatePayload: Record<string, any> = {
       [col]: finalStatus,
       ...(col === 'status_wa_undangan' ? { status_wa: finalStatus } : {}),
+      ...(col === 'status_wa_konfirmasi' && isSuccess
+        ? { wa_reminder_sent_at: nowIso }
+        : {}),
       updated_at: nowIso,
     };
 
     let query = supabaseServer.from('peserta_santri').update(updatePayload);
     if (targetId) query = query.eq('id', targetId);
     else query = query.eq('kode', targetKode);
-    await query;
+    const { error: updateErr } = await query;
+    if (updateErr) {
+      console.error('[API WA Queue] Error updating peserta_santri status:', updateErr);
+    }
   } else if (targetTable === 'tamu_undangan') {
     const updatePayload = {
       status_wa: finalStatus,

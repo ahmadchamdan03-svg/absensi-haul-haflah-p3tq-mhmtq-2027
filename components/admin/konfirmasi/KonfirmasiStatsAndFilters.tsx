@@ -38,14 +38,13 @@ interface KonfirmasiStatsAndFiltersProps {
   currentDatasetCount: number;
   onResetPage: () => void;
   onRefreshData: () => void;
-  isSendingReminder?: boolean;
-  progressReminder?: number;
-  totalReminder?: number;
-  reminderSuccess?: number;
-  reminderFailed?: number;
-  reminderDelayCountdown?: number;
+  isEnqueuingReminder?: boolean;
+  activeQueueCount?: number;
+  queuePendingCount?: number;
+  queueSendingTarget?: string | null;
+  nextDelaySeconds?: number;
   onStartMassReminder?: () => void;
-  onStopMassReminder?: () => void;
+  onCancelPendingQueue?: () => void;
   children?: React.ReactNode;
 }
 
@@ -66,14 +65,13 @@ export default function KonfirmasiStatsAndFilters({
   currentDatasetCount,
   onResetPage,
   onRefreshData,
-  isSendingReminder = false,
-  progressReminder = 0,
-  totalReminder = 0,
-  reminderSuccess = 0,
-  reminderFailed = 0,
-  reminderDelayCountdown = 0,
+  isEnqueuingReminder = false,
+  activeQueueCount = 0,
+  queuePendingCount = 0,
+  queueSendingTarget = null,
+  nextDelaySeconds = 0,
   onStartMassReminder,
-  onStopMassReminder,
+  onCancelPendingQueue,
   children,
 }: KonfirmasiStatsAndFiltersProps) {
   const scrollToTable = () => {
@@ -579,53 +577,59 @@ export default function KonfirmasiStatsAndFilters({
                 </select>
               </div>
 
-              {!isSendingReminder ? (
-                <button
-                  type="button"
-                  onClick={onStartMassReminder}
-                  className="px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 transition-all cursor-pointer shrink-0 border border-amber-700"
-                >
-                  <Zap className="w-4 h-4 fill-current text-amber-200" />
-                  <span>Kirim Pengingat Massal (Fonnte)</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onStopMassReminder}
-                  className="px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 transition-all cursor-pointer shrink-0"
-                >
-                  <Pause className="w-4 h-4" />
-                  <span>Hentikan ({progressReminder}/{totalReminder})</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={onStartMassReminder}
+                disabled={isEnqueuingReminder}
+                className="px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-xs shadow-sm flex items-center justify-center space-x-1.5 transition-all cursor-pointer shrink-0 border border-amber-700"
+              >
+                {isEnqueuingReminder ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-200" />
+                    <span>Memasukkan ke Antrean...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 fill-current text-amber-200" />
+                    <span>Kirim Pengingat Massal (Fonnte)</span>
+                  </>
+                )}
+              </button>
             </div>
           )}
         </div>
 
-        {/* Progress Bar Pengingat Massal */}
-        {activeMainTab === 'WALI_SANTRI' && isSendingReminder && (
-          <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-300 space-y-2 text-xs text-blue-950">
-            <div className="flex items-center justify-between font-bold">
-              <span className="flex items-center space-x-2">
-                <Loader2 className="w-4 h-4 animate-spin text-[#1D4ED8]" />
-                <span>
-                  {reminderDelayCountdown > 0
-                    ? `Menunggu jeda acak (${reminderDelayCountdown} dtk dari 5-60 dtk) sebelum pesan berikutnya (${progressReminder}/${totalReminder} terkirim)...`
-                    : `Simulasi typing & mengirim ${progressReminder} dari ${totalReminder} pengingat...`}
-                </span>
-              </span>
-              <span>
-                Berhasil: {reminderSuccess} · Gagal: {reminderFailed}
-              </span>
+        {/* Status Antrean Global WA */}
+        {activeMainTab === 'WALI_SANTRI' && activeQueueCount > 0 && (
+          <div className="p-3.5 rounded-2xl bg-[#0F2C59] text-white border border-sky-400/50 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center space-x-3">
+              <Loader2 className="w-4 h-4 animate-spin text-amber-300 shrink-0" />
+              <div className="space-y-0.5">
+                <div className="font-bold">
+                  Antrean Global Berjalan{' '}
+                  <span className="text-amber-300 font-black">
+                    (Sisa antrean: {activeQueueCount})
+                  </span>
+                  {queueSendingTarget ? ` · Target: ${queueSendingTarget}` : ''}
+                </div>
+                <div className="text-[11px] text-sky-200">
+                  {nextDelaySeconds > 0
+                    ? `Jeda aman acak (10-60 dtk): menunggu ${nextDelaySeconds} detik sebelum pesan berikutnya. Pengiriman tetap berjalan meski Anda pindah halaman.`
+                    : 'Memproses pengiriman di latar belakang. Pengiriman tetap berjalan meski Anda pindah halaman.'}
+                </div>
+              </div>
             </div>
-            <div className="w-full bg-sky-200 rounded-full h-2.5 overflow-hidden">
-              <div
-                className="bg-[#1D4ED8] h-2.5 rounded-full transition-all duration-300"
-                style={{
-                  width: `${totalReminder > 0 ? Math.round((progressReminder / totalReminder) * 100) : 0}%`,
-                }}
-              />
-            </div>
+
+            {queuePendingCount > 0 && onCancelPendingQueue && (
+              <button
+                type="button"
+                onClick={onCancelPendingQueue}
+                className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shrink-0"
+              >
+                <Pause className="w-3.5 h-3.5" />
+                <span>Hentikan Sisa Antrean ({queuePendingCount})</span>
+              </button>
+            )}
           </div>
         )}
 

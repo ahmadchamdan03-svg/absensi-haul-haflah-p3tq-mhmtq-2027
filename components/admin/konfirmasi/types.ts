@@ -30,6 +30,7 @@ export interface KonfirmasiItem {
   diubahOleh: string;
   diisiAt: any;
   waReminderSentAt?: string | null;
+  statusWaKonfirmasi?: string | null;
 }
 
 export interface KonfirmasiRekap {
@@ -108,6 +109,7 @@ export function mapSantriToKonfirmasiItem(s: any): KonfirmasiItem {
     diubahOleh: s.diubah_oleh || (status === 'SUDAH' ? 'PANITIA_MANUAL' : 'WALI_SANTRI'),
     diisiAt: s.created_at || s.updated_at,
     waReminderSentAt: s.wa_reminder_sent_at || null,
+    statusWaKonfirmasi: s.status_wa_konfirmasi || null,
   };
 }
 
@@ -155,6 +157,7 @@ export function mapTamuToKonfirmasiItem(t: any): KonfirmasiItem {
     diubahOleh: 'TAMU_OFFICIAL',
     diisiAt: t.confirmed_at || t.updated_at || t.created_at,
     waReminderSentAt: null,
+    statusWaKonfirmasi: null,
   };
 }
 

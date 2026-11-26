@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
         let query = supabaseServer
           .from('peserta_santri')
           .update({
+            status_wa_konfirmasi: 'TERKIRIM',
             wa_reminder_sent_at: sentAtIso,
             updated_at: sentAtIso,
           });

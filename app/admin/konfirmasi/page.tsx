@@ -4,8 +4,9 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { store } from '@/lib/mock-data';
-import { buatPesanPengingatKonfirmasi, buatPesanKonfirmasiTamu } from '@/lib/hmac';
+import { buatPesanPengingatKonfirmasi, buatPesanKonfirmasiTamu, normalkanNomorHp } from '@/lib/hmac';
 import { logAudit } from '@/lib/audit-log';
+import { useWaQueue, WaEnqueuePayload } from '@/lib/use-wa-queue';
 import {
   MainTabType,
   FilterStatusType,
@@ -70,14 +71,35 @@ export default function KonfirmasiPage() {
     }
   };
 
-  const isSendingReminderRef = useRef(false);
   const realtimeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const {
+    activeQueueCount,
+    sendingItem,
+    pendingItems,
+    nextDelaySeconds,
+    sendingKode: queueSendingKode,
+    queuedKodes,
+    enqueueWaMessages,
+    cancelPendingWaQueue,
+  } = useWaQueue();
+
+  const showSuccessToast = (msg: string, durationMs = 6000) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setSuccessToast(msg);
+    toastTimerRef.current = setTimeout(() => {
+      setSuccessToast('');
+      toastTimerRef.current = null;
+    }, durationMs);
+  };
 
   useEffect(() => {
     fetchKonfirmasiData();
 
     const handleRealtimeChange = () => {
-      if (isSendingReminderRef.current) return;
       if (realtimeDebounceRef.current) {
         clearTimeout(realtimeDebounceRef.current);
       }
@@ -85,6 +107,28 @@ export default function KonfirmasiPage() {
         fetchKonfirmasiData();
       }, 600);
     };
+
+    const handleQueueProcessed = (evt: Event) => {
+      const detail = (evt as CustomEvent).detail;
+      if (
+        detail?.status === 'PROCESSED' &&
+        detail?.sentOk &&
+        detail?.targetTable === 'peserta_santri' &&
+        detail?.targetColumn === 'status_wa_konfirmasi' &&
+        detail?.targetKode
+      ) {
+        const sentIso = new Date().toISOString();
+        setDaftarSantri((prev) =>
+          prev.map((s) =>
+            s.kode === detail.targetKode
+              ? { ...s, waReminderSentAt: sentIso, statusWaKonfirmasi: 'TERKIRIM' }
+              : s
+          )
+        );
+      }
+    };
+
+    window.addEventListener('wa-queue-processed', handleQueueProcessed);
 
     const channel = supabase
       .channel('konfirmasi_page_realtime')
@@ -98,6 +142,10 @@ export default function KonfirmasiPage() {
       if (realtimeDebounceRef.current) {
         clearTimeout(realtimeDebounceRef.current);
       }
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+      window.removeEventListener('wa-queue-processed', handleQueueProcessed);
       supabase.removeChannel(channel);
     };
   }, []);
@@ -254,90 +302,83 @@ export default function KonfirmasiPage() {
     }
 
     await fetchKonfirmasiData();
-    setSuccessToast(
-      `Konfirmasi ${modalItem.tipe === 'TAMU_UNDANGAN' ? 'tamu' : 'santri'} ${modalItem.namaSantri || modalItem.namaWali} (${modalItem.kode}) berhasil diperbarui secara manual!`
+    showSuccessToast(
+      `Konfirmasi ${modalItem.tipe === 'TAMU_UNDANGAN' ? 'tamu' : 'santri'} ${modalItem.namaSantri || modalItem.namaWali} (${modalItem.kode}) berhasil diperbarui secara manual!`,
+      4000
     );
-    setTimeout(() => setSuccessToast(''), 4000);
     setModalItem(null);
   };
 
-  // State Pengiriman Fonnte Otomatis
+  // State Pengiriman Fonnte Otomatis & Antrean Global
   const [sendingFonnteKode, setSendingFonnteKode] = useState<string | null>(null);
   const [sentFonnteKodes, setSentFonnteKodes] = useState<Record<string, string>>({});
-  const [isBlasting, setIsBlasting] = useState(false);
+  const [isEnqueuingReminder, setIsEnqueuingReminder] = useState(false);
 
-  // State Pengingat Massal (Jeda Acak 5-60 Detik)
-  const [isSendingReminder, setIsSendingReminder] = useState(false);
-  const [progressReminder, setProgressReminder] = useState(0);
-  const [totalReminder, setTotalReminder] = useState(0);
-  const [reminderSuccess, setReminderSuccess] = useState(0);
-  const [reminderFailed, setReminderFailed] = useState(0);
-  const [reminderDelayCountdown, setReminderDelayCountdown] = useState(0);
-  const stopReminderRef = useRef(false);
-
-  const handleStopPengingatMassal = () => {
-    stopReminderRef.current = true;
-    isSendingReminderRef.current = false;
-    setReminderDelayCountdown(0);
-    setIsSendingReminder(false);
-    setIsBlasting(false);
+  const handleCancelPendingQueue = async () => {
+    try {
+      await cancelPendingWaQueue();
+      showSuccessToast('Sisa antrean pengingat berhasil dihentikan.', 4000);
+    } catch (err: any) {
+      alert(err.message || 'Gagal menghentikan antrean.');
+    }
   };
 
-  // Kirim Pengingat Massal kepada Wali Santri yang Belum Konfirmasi dan Belum Pernah Menerima Pengingat
+  // Kirim Pengingat Massal via Bulk Insert ke Antrean Global (wa_queue)
   const handleKirimPengingatMassal = async () => {
-    if (isSendingReminder) return;
+    if (isEnqueuingReminder) return;
 
     const baseCandidates =
       activeMainTab === 'WALI_SANTRI' && (filterKategori !== 'SEMUA' || searchQuery.trim() !== '')
         ? filteredList
         : daftarSantri;
 
+    const queuedSet = new Set(queuedKodes);
+
     const targetList = baseCandidates.filter((item) => {
       const isUnconfirmed = String(item.statusKonfirmasi || 'BELUM').toUpperCase() === 'BELUM';
-      const isNeverReminded = !item.waReminderSentAt && !sentFonnteKodes[item.kode];
+      const isNeverReminded =
+        !item.waReminderSentAt &&
+        item.statusWaKonfirmasi !== 'TERKIRIM' &&
+        !sentFonnteKodes[item.kode];
+      const isNotInActiveQueue =
+        !queuedSet.has(item.kode) && queueSendingKode !== item.kode;
       const digitsOnly = String(item.noHp || '').replace(/\D/g, '');
-      return isUnconfirmed && isNeverReminded && digitsOnly.length >= 9;
+      const normalizedHp = normalkanNomorHp(String(item.noHp || ''));
+      return (
+        isUnconfirmed &&
+        isNeverReminded &&
+        isNotInActiveQueue &&
+        digitsOnly.length >= 9 &&
+        normalizedHp.startsWith('62')
+      );
     });
 
     if (targetList.length === 0) {
       alert(
-        'Tidak ada wali santri berstatus Belum Konfirmasi yang belum pernah dikirimi pengingat (dengan nomor HP valid minimal 9 digit).'
+        'Tidak ada wali santri berstatus Belum Konfirmasi yang belum pernah dikirimi pengingat atau sedang tidak berada di antrean (dengan nomor HP valid minimal 9 digit).'
       );
       return;
     }
 
     if (
       !window.confirm(
-        `Kirim pengingat kehadiran via Fonnte kepada ${targetList.length} Wali Santri (Belum Konfirmasi & belum pernah dikirimi pengingat)?\nPengiriman menggunakan jeda acak antara 5-60 detik antar pesan dengan simulasi typing.`
+        `Masukkan ${targetList.length} pesan pengingat kehadiran (Belum Konfirmasi & belum pernah dikirimi pengingat) ke Antrean Global Fonnte?\nPengiriman diproses otomatis di latar belakang dengan jeda acak 10-60 detik antar pesan.`
       )
     ) {
       return;
     }
 
-    isSendingReminderRef.current = true;
-    setIsSendingReminder(true);
-    setIsBlasting(true);
-    stopReminderRef.current = false;
-    setProgressReminder(0);
-    setTotalReminder(targetList.length);
-    setReminderSuccess(0);
-    setReminderFailed(0);
-    setReminderDelayCountdown(0);
-
-    let successCount = 0;
-    let failedCount = 0;
-
+    setIsEnqueuingReminder(true);
     try {
-      for (let i = 0; i < targetList.length; i++) {
-        if (stopReminderRef.current) break;
-
-        const item = targetList[i];
-        setReminderDelayCountdown(0);
-        setProgressReminder(i + 1);
-        setSendingFonnteKode(item.kode);
-
-        const namaWali = (item.namaWali && item.namaWali !== '-' ? item.namaWali : 'Wali Santri').trim();
-        const namaSantri = (item.namaSantri && item.namaSantri !== '-' ? item.namaSantri : namaWali).trim();
+      const nowIso = new Date().toISOString();
+      const queuePayloads: WaEnqueuePayload[] = targetList.map((item) => {
+        const namaWali = (
+          item.namaWali && item.namaWali !== '-' ? item.namaWali : 'Wali Santri'
+        ).trim();
+        const namaSantri = (
+          item.namaSantri && item.namaSantri !== '-' ? item.namaSantri : namaWali
+        ).trim();
+        const targetHp = normalkanNomorHp(String(item.noHp || ''));
 
         const teksPesan = `Kepada Yth. Bapak/Ibu Wali Santri *${namaWali}*
 
@@ -351,60 +392,38 @@ Terima kasih atas kerja samanya.
 Jazakumullahu khairan katsiran.
 Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
 
-        try {
-          const res = await fetch('/api/whatsapp/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              target: item.noHp,
-              message: teksPesan,
-              typing: true,
-              id: item.id,
-              kode: item.kode,
-              mark_reminder_sent: true,
-            }),
-          });
-          const json = await res.json();
-          if (json.ok) {
-            successCount++;
-            setReminderSuccess((prev) => prev + 1);
-            const timeStr = new Date().toTimeString().split(' ')[0] + ' WIB';
-            const sentIso = json.wa_reminder_sent_at || new Date().toISOString();
-            setSentFonnteKodes((prev) => ({ ...prev, [item.kode]: timeStr }));
-            setDaftarSantri((prev) =>
-              prev.map((s) => (s.kode === item.kode ? { ...s, waReminderSentAt: sentIso } : s))
-            );
-          } else {
-            failedCount++;
-            setReminderFailed((prev) => prev + 1);
-          }
-        } catch {
-          failedCount++;
-          setReminderFailed((prev) => prev + 1);
-        }
+        return {
+          target_hp: targetHp,
+          message: teksPesan,
+          nama_target: namaWali,
+          target_table: 'peserta_santri',
+          target_id: item.id,
+          target_kode: item.kode,
+          target_column: 'status_wa_konfirmasi',
+          tipe_pesan: 'PENGINGAT_KONFIRMASI',
+          scheduled_at: nowIso,
+        };
+      });
 
-        setSendingFonnteKode(null);
+      const res = await enqueueWaMessages(queuePayloads);
+      const insertedCount = res.insertedCount ?? queuePayloads.length;
 
-        if (stopReminderRef.current || i === targetList.length - 1) break;
-        const randomDelaySec = Math.floor(Math.random() * (60 - 5 + 1)) + 5;
-        for (let sec = randomDelaySec; sec > 0; sec--) {
-          if (stopReminderRef.current) break;
-          setReminderDelayCountdown(sec);
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-        setReminderDelayCountdown(0);
+      if (insertedCount > 0) {
+        showSuccessToast(
+          `${insertedCount} pesan pengingat telah masuk ke antrean global. Pesan akan diproses di latar belakang.`,
+          7000
+        );
+      } else {
+        showSuccessToast(
+          res.message || 'Pesan pengingat sudah berada di dalam antrean aktif.',
+          5000
+        );
       }
+    } catch (err: any) {
+      alert(`Gagal memasukkan pengingat ke antrean global: ${err.message || err}`);
     } finally {
-      isSendingReminderRef.current = false;
-      setSendingFonnteKode(null);
-      setReminderDelayCountdown(0);
-      setIsSendingReminder(false);
-      setIsBlasting(false);
+      setIsEnqueuingReminder(false);
     }
-
-    const summaryMsg = `Selesai mengirim ${successCount + failedCount} pesan. Berhasil: ${successCount}, Gagal: ${failedCount}.`;
-    setSuccessToast(summaryMsg);
-    setTimeout(() => setSuccessToast(''), 6000);
   };
 
   // Kirim Pengingat Fonnte Satuan
@@ -446,11 +465,17 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
         if (!isTamu) {
           const sentIso = json.wa_reminder_sent_at || new Date().toISOString();
           setDaftarSantri((prev) =>
-            prev.map((s) => (s.kode === item.kode ? { ...s, waReminderSentAt: sentIso } : s))
+            prev.map((s) =>
+              s.kode === item.kode
+                ? { ...s, waReminderSentAt: sentIso, statusWaKonfirmasi: 'TERKIRIM' }
+                : s
+            )
           );
         }
-        setSuccessToast(`Pesan pengingat berhasil dikirim via Fonnte ke ${item.namaWali} (${item.noHp})`);
-        setTimeout(() => setSuccessToast(''), 4000);
+        showSuccessToast(
+          `Pesan pengingat berhasil dikirim via Fonnte ke ${item.namaWali} (${item.noHp})`,
+          4000
+        );
         setSendingFonnteKode(null);
         return true;
       } else {
@@ -469,9 +494,13 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Toast Notifikasi Sukses */}
       {successToast && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-blue-800 text-white shadow-xl flex items-center space-x-3 border-2 border-blue-600 animate-slide-up">
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-20 right-6 z-50 max-w-md p-4 rounded-2xl bg-blue-800 text-white shadow-xl flex items-center space-x-3 border-2 border-blue-600 animate-slide-up"
+        >
           <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
-          <div className="text-xs font-semibold">{successToast}</div>
+          <div className="text-xs font-semibold leading-relaxed">{successToast}</div>
         </div>
       )}
 
@@ -493,14 +522,13 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
         currentDatasetCount={currentDataset.length}
         onResetPage={() => setCurrentPage(1)}
         onRefreshData={fetchKonfirmasiData}
-        isSendingReminder={isSendingReminder}
-        progressReminder={progressReminder}
-        totalReminder={totalReminder}
-        reminderSuccess={reminderSuccess}
-        reminderFailed={reminderFailed}
-        reminderDelayCountdown={reminderDelayCountdown}
+        isEnqueuingReminder={isEnqueuingReminder}
+        activeQueueCount={activeQueueCount}
+        queuePendingCount={pendingItems.length}
+        queueSendingTarget={sendingItem?.nama_target || pendingItems[0]?.nama_target || null}
+        nextDelaySeconds={nextDelaySeconds}
         onStartMassReminder={handleKirimPengingatMassal}
-        onStopMassReminder={handleStopPengingatMassal}
+        onCancelPendingQueue={handleCancelPendingQueue}
       >
         {/* TABEL DATA KONFIRMASI */}
         <KonfirmasiTableSection
@@ -516,7 +544,9 @@ Panitia Haul & Haflah P3TQ dan MHMTQ 2027`;
           handleKirimFonnte={handleKirimFonnte}
           sendingFonnteKode={sendingFonnteKode}
           sentFonnteKodes={sentFonnteKodes}
-          isBlasting={isBlasting}
+          isBlasting={isEnqueuingReminder}
+          queuedKodes={queuedKodes}
+          queueSendingKode={queueSendingKode}
         />
       </KonfirmasiStatsAndFilters>
 
