@@ -223,6 +223,28 @@ export function buildMessageFromTemplate(
   return msg;
 }
 
+const DEFAULT_PERSIDANGAN_FONNTE_TOKENS = [
+  'bZf42KYdFukNH6nBZe9B',
+  'dVb3JDQbAF9kamiYAqkf',
+];
+let persidanganFonnteIdx = 0;
+
+function getPersidanganFonnteToken(): string {
+  const raw =
+    process.env.FONNTE_TOKENS ||
+    process.env.FONNTE_TOKEN ||
+    process.env.FONNTE_API_KEY ||
+    '';
+  const parsed = raw
+    .split(/[,;\r\n]+/)
+    .map((item) => item.replace(/^["']|["']$/g, '').trim())
+    .filter(Boolean);
+  const pool = parsed.length > 0 ? parsed : DEFAULT_PERSIDANGAN_FONNTE_TOKENS;
+  const idx = persidanganFonnteIdx % pool.length;
+  persidanganFonnteIdx = (idx + 1) % pool.length;
+  return pool[idx];
+}
+
 /**
  * Kirim pesan WhatsApp via gateway Fonnte
  */
@@ -255,7 +277,7 @@ export async function sendWhatsApp(
 
   // Server-side call: langsung panggil API Fonnte
   try {
-    const token = (process.env.FONNTE_API_KEY || process.env.FONNTE_TOKEN || 'YFNhUwAbwsjHoFjNrUcx').trim();
+    const token = getPersidanganFonnteToken();
     const formData = new FormData();
     formData.append('target', normalizedTarget);
     formData.append('message', pesan);
