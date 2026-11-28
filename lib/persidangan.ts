@@ -224,25 +224,37 @@ export function buildMessageFromTemplate(
 }
 
 const DEFAULT_PERSIDANGAN_FONNTE_TOKENS = [
+  'YFNhUwAbwsjHoFjNrUcx',
   'bZf42KYdFukNH6nBZe9B',
   'dVb3JDQbAF9kamiYAqkf',
 ];
-let persidanganFonnteIdx = 0;
 
-function getPersidanganFonnteToken(): string {
-  const raw =
+function getPersidanganFonnteTokens(): string[] {
+  const combined: string[] = [];
+  const seen = new Set<string>();
+  const primaryEnv =
     process.env.FONNTE_TOKENS ||
     process.env.FONNTE_TOKEN ||
     process.env.FONNTE_API_KEY ||
     '';
-  const parsed = raw
-    .split(/[,;\r\n]+/)
-    .map((item) => item.replace(/^["']|["']$/g, '').trim())
-    .filter(Boolean);
-  const pool = parsed.length > 0 ? parsed : DEFAULT_PERSIDANGAN_FONNTE_TOKENS;
-  const idx = persidanganFonnteIdx % pool.length;
-  persidanganFonnteIdx = (idx + 1) % pool.length;
-  return pool[idx];
+
+  for (const rawSource of [
+    primaryEnv,
+    process.env.FONNTE_TOKEN_1,
+    process.env.FONNTE_TOKEN_2,
+    process.env.FONNTE_TOKEN_3,
+  ]) {
+    if (!rawSource) continue;
+    for (const part of rawSource.split(/[,;\r\n]+/)) {
+      const clean = part.replace(/^["']|["']$/g, '').trim();
+      if (clean && !seen.has(clean)) {
+        seen.add(clean);
+        combined.push(clean);
+      }
+    }
+  }
+
+  return combined.length > 0 ? combined : [...DEFAULT_PERSIDANGAN_FONNTE_TOKENS];
 }
 
 /**
@@ -275,26 +287,39 @@ export async function sendWhatsApp(
     }
   }
 
-  // Server-side call: langsung panggil API Fonnte
-  try {
-    const token = getPersidanganFonnteToken();
-    const formData = new FormData();
-    formData.append('target', normalizedTarget);
-    formData.append('message', pesan);
-    formData.append('countryCode', '62');
+  // Server-side call: failover berurutan Tier 1 -> Tier 2 -> Tier 3
+  const tokens = getPersidanganFonnteTokens();
+  let lastErrorMsg = 'Gagal memanggil API Fonnte';
 
-    const res = await fetch('https://api.fonnte.com/send', {
-      method: 'POST',
-      headers: {
-        Authorization: token,
-      },
-      body: formData,
-    });
-    const result = await res.json();
-    return { ok: result.status === true, message: result.reason || result.message };
-  } catch (err: any) {
-    return { ok: false, message: err.message || 'Gagal memanggil API Fonnte' };
+  for (const token of tokens) {
+    try {
+      const formData = new FormData();
+      formData.append('target', normalizedTarget);
+      formData.append('message', pesan);
+      formData.append('countryCode', '62');
+
+      const res = await fetch('https://api.fonnte.com/send', {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+        },
+        body: formData,
+      });
+      const result = await res.json();
+      if (res.ok && result?.status === true) {
+        return { ok: true, message: result.reason || result.message };
+      }
+      lastErrorMsg = result?.reason || result?.message || `HTTP ${res.status}`;
+      const lowerErr = lastErrorMsg.toLowerCase();
+      if (lowerErr.includes('invalid target') || lowerErr.includes('not registered')) {
+        return { ok: false, message: lastErrorMsg };
+      }
+    } catch (err: any) {
+      lastErrorMsg = err?.message || 'Gagal memanggil API Fonnte';
+    }
   }
+
+  return { ok: false, message: lastErrorMsg };
 }
 
 // =========================================================================

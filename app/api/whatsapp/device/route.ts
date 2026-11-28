@@ -4,6 +4,7 @@ import { getFonnteTokens } from '@/lib/whatsapp';
 export const dynamic = 'force-dynamic';
 
 interface SafeDeviceInfo {
+  tier: number;
   index: number;
   status: boolean;
   device_status: string;
@@ -31,6 +32,7 @@ export async function GET() {
           const result = await response.json();
 
           return {
+            tier: i + 1,
             index: i + 1,
             status: Boolean(result?.status),
             device_status: result?.device_status || 'disconnect',
@@ -42,6 +44,7 @@ export async function GET() {
           };
         } catch {
           return {
+            tier: i + 1,
             index: i + 1,
             status: false,
             device_status: 'disconnect',
@@ -59,13 +62,12 @@ export async function GET() {
       (d) => d.status && d.device_status === 'connect'
     );
     const anyConnected = connectedDevices.length > 0;
-    const totalQuota = devices.reduce(
+    const primaryDevice = connectedDevices[0] || devices[0];
+    const quotaSource = connectedDevices.length > 0 ? connectedDevices : devices;
+    const totalQuota = quotaSource.reduce(
       (sum, d) => sum + (Number(d.quota) || 0),
       0
     );
-    const sourceList = connectedDevices.length > 0 ? connectedDevices : devices;
-    const displayNames = sourceList.map((d) => d.name).filter(Boolean);
-    const displayNumbers = sourceList.map((d) => d.device).filter(Boolean);
 
     return NextResponse.json({
       ok: anyConnected,
@@ -73,12 +75,13 @@ export async function GET() {
         status: anyConnected,
         device_status: anyConnected ? 'connect' : 'disconnect',
         name:
-          devices.length > 1
-            ? `${displayNames.join(' & ') || 'Fonnte Multi-Device'} (Bergantian ${connectedDevices.length}/${devices.length})`
-            : displayNames[0] || 'Fonnte Gateway',
-        device: displayNumbers.join(' / '),
+          devices.length > 1 && primaryDevice
+            ? `Tier ${primaryDevice.index}: ${primaryDevice.name || 'Fonnte'} (Failover ${connectedDevices.length}/${devices.length} Online)`
+            : primaryDevice?.name || 'Fonnte Gateway',
+        device: primaryDevice?.device || '',
         quota: String(totalQuota),
-        rotation: devices.length > 1,
+        mode: 'tiered_failover',
+        active_tier: connectedDevices[0]?.index || null,
         active_count: connectedDevices.length,
         total_count: devices.length,
         devices,

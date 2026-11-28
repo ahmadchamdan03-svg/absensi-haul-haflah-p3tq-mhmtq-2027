@@ -1,11 +1,8 @@
-import { supabaseServer } from '@/lib/supabase/server';
-
 export const DEFAULT_FONNTE_TOKENS: readonly string[] = [
+  'YFNhUwAbwsjHoFjNrUcx',
   'bZf42KYdFukNH6nBZe9B',
   'dVb3JDQbAF9kamiYAqkf',
 ];
-const FONNTE_ROTATOR_KEY = 'fonnte_token_rotator';
-let fallbackRotationIndex = 0;
 
 function parseTokenList(raw?: string | null): string[] {
   if (!raw) return [];
@@ -22,7 +19,7 @@ function parseTokenList(raw?: string | null): string[] {
 }
 
 /**
- * Ambil daftar token Fonnte dari environment (dipisah koma) atau gunakan pool default.
+ * Ambil daftar token Fonnte berurutan sesuai prioritas Tier 1, Tier 2, Tier 3.
  */
 export function getFonnteTokens(): string[] {
   const combined: string[] = [];
@@ -36,6 +33,7 @@ export function getFonnteTokens(): string[] {
     primaryEnv,
     process.env.FONNTE_TOKEN_1,
     process.env.FONNTE_TOKEN_2,
+    process.env.FONNTE_TOKEN_3,
   ]) {
     for (const token of parseTokenList(rawSource)) {
       if (!seen.has(token)) {
@@ -48,107 +46,19 @@ export function getFonnteTokens(): string[] {
   return combined.length > 0 ? combined : [...DEFAULT_FONNTE_TOKENS];
 }
 
-/**
- * Ambil token berikutnya secara bergantian (round-robin persisten lintas invocation Vercel).
- */
-export async function acquireNextFonnteToken(): Promise<{
-  token: string;
-  index: number;
-  total: number;
-}> {
-  const tokens = getFonnteTokens();
-  if (tokens.length === 1) {
-    return { token: tokens[0], index: 0, total: 1 };
-  }
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const { data, error } = await supabaseServer
-        .from('konfigurasi_sistem')
-        .select('value, updated_at')
-        .eq('key', FONNTE_ROTATOR_KEY)
-        .maybeSingle();
-
-      if (error) {
-        break;
-      }
-
-      const rawNext = Number(data?.value?.next_index);
-      const currentIndex =
-        Number.isInteger(rawNext) && rawNext >= 0 ? rawNext % tokens.length : 0;
-      const nextIndex = (currentIndex + 1) % tokens.length;
-      const totalDispatched =
-        (Number(data?.value?.total_dispatched) || 0) + 1;
-
-      let nextMs = Date.now();
-      if (data?.updated_at) {
-        const prevMs = new Date(data.updated_at).getTime();
-        if (!Number.isNaN(prevMs) && nextMs <= prevMs) {
-          nextMs = prevMs + 1;
-        }
-      }
-      const nextUpdatedAt = new Date(nextMs).toISOString();
-      const nextValue = {
-        next_index: nextIndex,
-        last_used_index: currentIndex,
-        total_dispatched: totalDispatched,
-      };
-
-      if (!data) {
-        const { error: insertErr } = await supabaseServer
-          .from('konfigurasi_sistem')
-          .insert({
-            key: FONNTE_ROTATOR_KEY,
-            value: nextValue,
-            updated_at: nextUpdatedAt,
-          });
-        if (!insertErr) {
-          return { token: tokens[currentIndex], index: currentIndex, total: tokens.length };
-        }
-        continue;
-      }
-
-      let updateQuery = supabaseServer
-        .from('konfigurasi_sistem')
-        .update({
-          value: nextValue,
-          updated_at: nextUpdatedAt,
-        })
-        .eq('key', FONNTE_ROTATOR_KEY);
-
-      updateQuery = data.updated_at
-        ? updateQuery.eq('updated_at', data.updated_at)
-        : updateQuery.is('updated_at', null);
-
-      const { data: updatedRows, error: updateErr } = await updateQuery.select('key');
-      if (!updateErr && updatedRows && updatedRows.length > 0) {
-        return { token: tokens[currentIndex], index: currentIndex, total: tokens.length };
-      }
-    } catch {
-      break;
-    }
-  }
-
-  const idx = fallbackRotationIndex % tokens.length;
-  fallbackRotationIndex = (idx + 1) % tokens.length;
-  return { token: tokens[idx], index: idx, total: tokens.length };
-}
-
-function isSenderDeviceOrTokenError(reason?: string): boolean {
+function isRecipientOnlyError(reason?: string): boolean {
   if (!reason) return false;
   const lower = reason.toLowerCase();
-  const senderErrorKeywords = [
-    'disconnected',
-    'not connected',
-    'invalid token',
-    'token',
-    'expired',
-    'quota',
-    'limit',
-    'unauthorized',
-    'device',
+  const recipientErrorKeywords = [
+    'invalid target',
+    'target not registered',
+    'not registered',
+    'invalid phone',
+    'invalid number',
+    'target is empty',
+    'message is empty',
   ];
-  return senderErrorKeywords.some((kw) => lower.includes(kw));
+  return recipientErrorKeywords.some((kw) => lower.includes(kw));
 }
 
 export interface FonnteSendOptions {
@@ -213,7 +123,6 @@ export async function sendFonnteServerMessage({
   }
 
   const tokens = getFonnteTokens();
-  const primary = await acquireNextFonnteToken();
 
   const dispatchWithToken = async (
     token: string,
@@ -237,13 +146,17 @@ export async function sendFonnteServerMessage({
         body: formData,
       });
 
-      const result = await response.json();
-      const ok = result?.status === true;
+      const result = await response.json().catch(() => null);
+      const ok = response.ok && result?.status === true;
       return {
         ok,
         target: cleanTarget,
         data: result,
-        reason: ok ? undefined : result?.reason || result?.message || 'Fonnte gagal mengirim pesan',
+        reason: ok
+          ? undefined
+          : result?.reason ||
+            result?.message ||
+            (!response.ok ? `HTTP ${response.status}` : 'Fonnte gagal mengirim pesan'),
         tokenIndex: tokenIdx + 1,
         tokenCount: tokens.length,
       };
@@ -259,27 +172,26 @@ export async function sendFonnteServerMessage({
     }
   };
 
-  let attemptResult = await dispatchWithToken(primary.token, primary.index);
+  let lastResult: FonnteSendResult = {
+    ok: false,
+    target: cleanTarget,
+    reason: 'Tidak ada token Fonnte yang tersedia',
+    tokenCount: tokens.length,
+  };
 
-  if (
-    !attemptResult.ok &&
-    tokens.length > 1 &&
-    isSenderDeviceOrTokenError(attemptResult.reason)
-  ) {
-    for (let offset = 1; offset < tokens.length; offset++) {
-      const nextIdx = (primary.index + offset) % tokens.length;
-      const retryResult = await dispatchWithToken(tokens[nextIdx], nextIdx);
-      attemptResult = retryResult;
-      if (retryResult.ok) {
-        return retryResult;
-      }
-      if (!isSenderDeviceOrTokenError(retryResult.reason)) {
-        break;
-      }
+  for (let idx = 0; idx < tokens.length; idx++) {
+    const attemptResult = await dispatchWithToken(tokens[idx], idx);
+    lastResult = attemptResult;
+
+    if (attemptResult.ok) {
+      return attemptResult;
+    }
+    if (isRecipientOnlyError(attemptResult.reason)) {
+      return attemptResult;
     }
   }
 
-  return attemptResult;
+  return lastResult;
 }
 
 /**
